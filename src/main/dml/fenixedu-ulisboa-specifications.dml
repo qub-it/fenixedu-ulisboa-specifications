@@ -1,12 +1,1 @@
 package org.fenixedu.ulisboa.specifications.domain;
-
-class unit.UnitSite extends .org.fenixedu.cms.domain.Site {}
-
-relation UnitSiteHasUnit {
-    unit.UnitSite playsRole site {
-    	    multiplicity 0..1;
-    }
-    .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole unit {
-    	    multiplicity 1..1;
-    }
-}
