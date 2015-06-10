@@ -39,18 +39,18 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public boolean belongsTo(String value) {
-        return value != null && CONFIGURATION.containsKey(value);
+        return CONFIGURATION.containsKey(value);
 
     }
 
     @Override
     public boolean checkFinal(Grade grade) {
-        return grade != null && belongsTo(grade.getValue());
+        return belongsTo(grade.getValue());
     }
 
     @Override
     public boolean checkNotFinal(Grade grade) {
-        return grade != null && belongsTo(grade.getValue());
+        return belongsTo(grade.getValue());
     }
 
     @Override
