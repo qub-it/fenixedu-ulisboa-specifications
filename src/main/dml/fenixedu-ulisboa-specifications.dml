@@ -7,6 +7,7 @@
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  * Contributors: paulo.abrantes@qub-it.com
+ * Contributors: nuno.pinheiro@qub-it.com
  *
  * 
  * This file is part of FenixEdu bennu-webservices.
@@ -36,6 +37,10 @@ class idcards.CgdCard {
 	Boolean employeeCard;
 }
 
+//Class to bypass PortalLayoutInjector limitations. Check the java file for more information
+class ULisboaPortalConfiguration{
+}
+
 relation CgdCardPerson {
 	idcards.CgdCard playsRole cgdCards {
 		multiplicity *;
@@ -48,4 +53,13 @@ relation CgdCardRootDomainObject {
 		multiplicity *;
 	}
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+}
+
+relation ULisboaPortalConfigurationPortalConfiguration{
+	.org.fenixedu.bennu.portal.domain.PortalConfiguration playsRole portal{
+		multiplicity 1;
+	}
+	ULisboaPortalConfiguration playsRole ulisboaPortal{
+		multiplicity 1;
+	}
 }

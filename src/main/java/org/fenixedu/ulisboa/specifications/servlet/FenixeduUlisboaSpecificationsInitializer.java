@@ -4,11 +4,16 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.bennu.portal.domain.PortalConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
 
+    @Atomic(mode = TxMode.SPECULATIVE_READ)
     @Override
     public void contextInitialized(ServletContextEvent event) {
 //        System.out.println("##################");
@@ -16,6 +21,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 //        System.out.println("Type Qualitative Grade Scale "
 //                + ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
 //        System.out.println("##################");
+
+        ULisboaPortalConfiguration ulisboaPortal = PortalConfiguration.getInstance().getUlisboaPortal();
+        if (ulisboaPortal == null) {
+            ulisboaPortal = new ULisboaPortalConfiguration();
+            ulisboaPortal.setPortal(PortalConfiguration.getInstance());
+        }
     }
 
     @Override
