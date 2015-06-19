@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fl;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
 
 public class FLTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
@@ -24,6 +27,9 @@ public class FLTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String RE = "RE";
     private static final String ADL = "ADL";
     private static final String AD = "AD";
+
+    private static final List<String> SORTED_GRADES = Arrays.asList(RE, MA, ME, I, SU, SA, NQ, A, AD, ADL, B, BD, MB, E);
+    private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
@@ -85,6 +91,11 @@ public class FLTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public String qualify(Grade grade) {
         return CONFIGURATION.get(grade.getValue()).getContent();
+    }
+
+    @Override
+    public int compareGrades(Grade leftGrade, Grade rightGrade) {
+        return COMPARATOR.compare(leftGrade, rightGrade);
     }
 
 }

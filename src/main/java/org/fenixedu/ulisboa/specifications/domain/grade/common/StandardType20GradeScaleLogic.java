@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.grade.fmd;
+package org.fenixedu.ulisboa.specifications.domain.grade.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,11 +8,12 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 
-public class FMDType20GradeScaleLogic implements GradeScaleLogic {
+public class StandardType20GradeScaleLogic implements GradeScaleLogic {
 
     private static final List<String> APPROVED_TEXTUAL_GRADES = Arrays.asList("AP");
-    private static final List<String> NOT_APPROVED_TEXTUAL_GRADES = Arrays.asList("F", "D", "NADM", "RE", "AN");
+    private static final List<String> NOT_APPROVED_TEXTUAL_GRADES = Arrays.asList("ANUL", "D", "F", "NADM", "RE");
     private static final List<String> NOT_EVALUATED_TEXTUAL_GRADES = Arrays.asList("NA");
+
     private static final List<String> TEXTUAL_GRADES = new ArrayList<String>();
 
     static {
@@ -85,6 +86,36 @@ public class FMDType20GradeScaleLogic implements GradeScaleLogic {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    @Override
+    public int compareGrades(Grade leftGrade, Grade rightGrade) {
+
+        if (rightGrade == null || rightGrade.isEmpty()) {
+            return 1;
+        }
+
+        if (leftGrade == null || leftGrade.isEmpty()) {
+            return -1;
+        }
+
+        if (!leftGrade.getGradeScale().equals(rightGrade.getGradeScale())) {
+            throw new DomainException("Grade.unsupported.comparassion.of.grades.of.different.scales");
+        }
+
+        final boolean isLeftApproved = isApproved(leftGrade);
+        final boolean isRightApproved = isApproved(rightGrade);
+
+        if (isLeftApproved && isRightApproved) {
+            return leftGrade.getValue().compareTo(rightGrade.getValue());
+        } else if (isLeftApproved) {
+            return 1;
+        } else if (isRightApproved) {
+            return -1;
+        } else {
+            return leftGrade.getValue().compareTo(rightGrade.getValue());
+        }
+
     }
 
 }

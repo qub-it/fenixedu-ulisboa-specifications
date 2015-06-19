@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fmv;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
 
 public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
@@ -18,6 +21,9 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String AMBD = "AMBD";
     private static final String AMB = "AMB";
     private static final String A = "A";
+
+    private static final List<String> SORTED_GRADES = Arrays.asList(SU, A, B, BD, AMB, MB, MBD, AMBD);
+    private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
@@ -71,6 +77,11 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public String qualify(Grade grade) {
         return CONFIGURATION.get(grade.getValue()).getContent();
+    }
+
+    @Override
+    public int compareGrades(Grade leftGrade, Grade rightGrade) {
+        return COMPARATOR.compare(leftGrade, rightGrade);
     }
 
 }
