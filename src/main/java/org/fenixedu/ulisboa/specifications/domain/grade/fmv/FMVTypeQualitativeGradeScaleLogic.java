@@ -80,6 +80,11 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     }
 
     @Override
+    public LocalizedString getExtendedValue(Grade grade) {
+        return CONFIGURATION.get(grade.getValue());
+    }
+
+    @Override
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
         return COMPARATOR.compare(leftGrade, rightGrade);
     }
