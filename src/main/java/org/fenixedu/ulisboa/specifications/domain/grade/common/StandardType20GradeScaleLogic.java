@@ -66,7 +66,7 @@ public class StandardType20GradeScaleLogic implements GradeScaleLogic {
         }
 
         try {
-            return Double.parseDouble(value) < 10;
+            return Double.parseDouble(value) < 9.5d;
         } catch (NumberFormatException e) {
             return false;
         }
@@ -82,7 +82,7 @@ public class StandardType20GradeScaleLogic implements GradeScaleLogic {
 
         try {
             final double doubleValue = Double.parseDouble(value);
-            return 10 <= doubleValue && doubleValue <= 20;
+            return 9.5d <= doubleValue && doubleValue <= 20;
         } catch (NumberFormatException e) {
             return false;
         }
