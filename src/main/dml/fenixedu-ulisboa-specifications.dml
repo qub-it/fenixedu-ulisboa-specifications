@@ -32,9 +32,7 @@ class idcards.CgdCard {
 	String mifareCode;
 	LocalDate issueDate;
 	LocalDate validUntil;
-	Boolean studentCard;
-	Boolean teacherCard;
-	Boolean employeeCard;
+	boolean temporary;
 }
 
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information

@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.idcards;
 
+import java.util.Optional;
+
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
@@ -26,20 +28,12 @@ public class CgdCard extends CgdCard_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public CgdCard(Person person, String mifareCode) {
+    public CgdCard(Person person, String mifareCode, boolean temporary) {
         this();
         setPerson(person);
         setMifareCode(mifareCode);
         setIssueDate(new LocalDate());
-        // Taking into account that there might exist 
-        // situations where in the same institution a person
-        // might have different cards for the student role,
-        // teacher role and employee role and on others such
-        // thing won't exist.
-        //
-        setEmployeeCard(true);
-        setTeacherCard(true);
-        setStudentCard(true);
+        setTemporary(temporary);
     }
 
     @Atomic
@@ -53,8 +47,12 @@ public class CgdCard extends CgdCard_Base {
         return getValidUntil() == null || getValidUntil().isAfter(new DateTime().toLocalDate());
     }
 
+    public static Optional<CgdCard> findByPersonOptional(Person person) {
+        return person.getCgdCardsSet().stream().filter(cgdCard -> cgdCard.isValid()).findFirst();
+    }
+
     public static CgdCard findByPerson(Person person) {
-        return person.getCgdCardsSet().stream().filter(cgdCard -> cgdCard.isValid()).findFirst().orElse(null);
+        return findByPersonOptional(person).orElse(null);
     }
 
 }
