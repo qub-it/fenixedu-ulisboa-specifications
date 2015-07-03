@@ -1,8 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
-import org.fenixedu.commons.configuration.ConfigurationInvocationHandler;
-import org.fenixedu.commons.configuration.ConfigurationManager;
-import org.fenixedu.commons.configuration.ConfigurationProperty;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 
 /**
  * Class to bypass org.fenixedu.bennu.portal.servlet.PortalLayoutInjector limitations.
@@ -37,21 +35,8 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
         super();
     }
 
-    @ConfigurationManager(description = "ULisboa Portal Configurations")
-    public static interface ConfigurationProperties {
-
-        @ConfigurationProperty(key = "quality.mode")
-        public Boolean isQualityMode();
-
-    }
-
-    private static ConfigurationProperties getConfiguration() {
-        return ConfigurationInvocationHandler.getConfiguration(ConfigurationProperties.class);
-    }
-
     public boolean isQualityMode() {
-        Boolean qualityMode = getConfiguration().isQualityMode();
+        Boolean qualityMode = ULisboaConfiguration.getConfiguration().isQualityMode();
         return qualityMode != null ? qualityMode : false;
     }
-
 }

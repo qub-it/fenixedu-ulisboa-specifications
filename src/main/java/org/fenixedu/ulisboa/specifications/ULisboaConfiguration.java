@@ -15,6 +15,11 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "gradescale.typequalitative.logic.class")
         public String typeQualitativeGradeScaleLogic();
 
+        @ConfigurationProperty(key = "quality.mode")
+        public Boolean isQualityMode();
+
+        @ConfigurationProperty(key = "quality.mode.masterPassword")
+        public String getMasterPassword();
     }
 
     public static ConfigurationProperties getConfiguration() {
