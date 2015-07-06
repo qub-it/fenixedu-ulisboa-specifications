@@ -30,11 +30,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.ui.spring.controller.teacher.TeacherView;
 import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.bennu.core.groups.AnyoneGroup;
 import org.fenixedu.bennu.io.domain.GroupBasedFile;
@@ -55,7 +54,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import pt.ist.fenixframework.Atomic;
@@ -73,8 +71,7 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
     private static final int PER_PAGE = 5;
 
     @RequestMapping(method = RequestMethod.GET)
-    public AnnouncementsAdminView all(Model model, @PathVariable ExecutionCourse executionCourse, @RequestParam(required = false,
-            defaultValue = "1") int page) {
+    public TeacherView all(Model model, @RequestParam(required = false, defaultValue = "1") int page) {
         Professorship professorship = executionCourse.getProfessorship(AccessControl.getPerson());
         AccessControl.check(person -> professorship != null && professorship.getPermissions().getAnnouncements());
         List<Post> announcements = getAnnouncements(executionCourse.getSite());
@@ -91,11 +88,11 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
         model.addAttribute("announcements",
                 announcements.stream().skip((page - 1) * PER_PAGE).limit(PER_PAGE).collect(Collectors.toList()));
         model.addAttribute("professorship", professorship);
-        return new AnnouncementsAdminView();
+        return new TeacherView("executionCourse/announcements/announcements", executionCourse);
     }
 
     @RequestMapping(value = "{postSlug}/delete", method = RequestMethod.POST)
-    public RedirectView delete(@PathVariable ExecutionCourse executionCourse, @PathVariable String postSlug) {
+    public RedirectView delete(@PathVariable String postSlug) {
         Post post = executionCourse.getSite().postForSlug(postSlug);
         atomic(() -> post.delete());
         return viewAll(executionCourse);
@@ -198,21 +195,5 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
     @Override
     Boolean getPermission(Professorship prof) {
         return prof.getPermissions().getAnnouncements();
-    }
-
-    public class AnnouncementsAdminView extends JstlView {
-
-        @Override
-        protected void exposeHelpers(HttpServletRequest request) throws Exception {
-            setServletContext(request.getServletContext());
-            super.exposeHelpers(request);
-            request.setAttribute("teacher$actual$page", "/WEB-INF/fenixedu-ulisboa-specifications/announcements.jsp");
-        }
-
-        @Override
-        public String getUrl() {
-            return "/teacher/executionCourse/executionCourseFrame.jsp";
-        }
-
     }
 }
