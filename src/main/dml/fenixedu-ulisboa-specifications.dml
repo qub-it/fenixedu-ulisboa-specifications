@@ -10,20 +10,20 @@
  * Contributors: nuno.pinheiro@qub-it.com
  *
  * 
- * This file is part of FenixEdu bennu-webservices.
+ * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
- * FenixEdu bennu-webservices is free software: you can redistribute it and/or modify
+ * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * FenixEdu bennu-webservices is distributed in the hope that it will be useful,
+ * FenixEdu fenixedu-ulisboa-specifications is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with FenixEdu bennu-webservices.  If not, see <http://www.gnu.org/licenses/>.
+ * along with FenixEdu fenixedu-ulisboa-specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.fenixedu.ulisboa.specifications.domain;
@@ -33,10 +33,6 @@ class idcards.CgdCard {
 	LocalDate issueDate;
 	LocalDate validUntil;
 	boolean temporary;
-}
-
-//Class to bypass PortalLayoutInjector limitations. Check the java file for more information
-class ULisboaPortalConfiguration{
 }
 
 relation CgdCardPerson {
@@ -51,6 +47,87 @@ relation CgdCardRootDomainObject {
 		multiplicity *;
 	}
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+}
+
+// ==================== ULisboa Specifications Root ====================
+
+class ULisboaSpecificationsRoot {
+}
+
+relation ULisboaSpecificationsRootBennu {
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
+	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+}
+
+relation ULisboaSpecificationsRootRegistrationProtocol {
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
+	.org.fenixedu.academic.domain.student.RegistrationProtocol playsRole defaultRegistrationProtocol;
+}
+
+class ContingentToIngression {
+	String contingent;
+}
+
+relation ContingentToIngressionIngressionType {
+	.org.fenixedu.academic.domain.candidacy.IngressionType playsRole ingressionType;
+	ContingentToIngression playsRole contingentToIngressions {
+		multiplicity *;
+	}
+}
+
+relation ULisboaSpecificationsRootContingentToIngressions {
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
+	ContingentToIngression playsRole contingentToIngressions {
+		multiplicity *;
+	}
+}
+
+// ==================== DGES Student Import ====================
+
+class student.importation.DgesStudentImportationProcess extends .org.fenixedu.academic.domain.QueueJobWithFile {
+	EntryPhase entryPhase;
+}
+
+class student.importation.DgesStudentImportationFile extends .org.fenixedu.academic.domain.File {
+}
+
+relation ImportCandidaciesFromDgesProcessDgesImportationStudentFile {
+	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
+	student.importation.DgesStudentImportationFile playsRole dgesStudentImportationFile;
+}
+
+relation DgesStudentImportationProcessExecutionYear {
+	.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear;
+	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
+		multiplicity *;
+	}
+}
+
+relation DgesStudentImportationProcessSpace {
+	.org.fenixedu.spaces.domain.Space playsRole space;
+	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
+		multiplicity*;
+	}
+}
+
+relation DgesStudentImportationProcessStudentCandidacy {
+	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
+	.org.fenixedu.academic.domain.candidacy.StudentCandidacy playsRole studentCandidacy {
+		multiplicity *;
+	}
+}
+
+relation DgesStudentImportationProcessRegistrationProtocol {
+	.org.fenixedu.academic.domain.student.RegistrationProtocol playsRole registrationProtocol {
+		multiplicity 1..1;
+	}	
+	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcesses {
+		multiplicity *;
+	}
+}
+
+//Class to bypass PortalLayoutInjector limitations. Check the java file for more information
+class ULisboaPortalConfiguration{
 }
 
 relation ULisboaPortalConfigurationPortalConfiguration{
