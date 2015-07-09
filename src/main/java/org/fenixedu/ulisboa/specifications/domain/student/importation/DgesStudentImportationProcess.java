@@ -52,7 +52,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -76,15 +75,10 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
     }
 
     public DgesStudentImportationProcess(ExecutionYear executionYear, Space space, EntryPhase entryPhase,
-            DgesStudentImportationFile dgesStudentImportationFile, RegistrationProtocol registrationProtocol) {
+            DgesStudentImportationFile dgesStudentImportationFile) {
         this();
 
         init(executionYear, space, entryPhase, dgesStudentImportationFile);
-        setRegistrationProtocol(registrationProtocol);
-
-        if (getRegistrationProtocol() == null) {
-            throw new DomainException("error.DgesStudentImportationProcess.RegistrationProtocol.required");
-        }
     }
 
     private void init(final ExecutionYear executionYear, final EntryPhase entryPhase) {

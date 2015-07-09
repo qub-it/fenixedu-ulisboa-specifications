@@ -28,6 +28,10 @@
 <logic:present role="role(MANAGER)">
 
 	<h2><bean:message key="title.dges.importation.process" bundle="ULISBOA_SPECIFICATIONS_RESOURCES" /></h2>
+	
+	<html:link page="/dgesStudentImportationProcess.do?method=list">
+		<bean:message key="button.back" bundle="APPLICATION_RESOURCES"/>
+	</html:link>
 
 	<logic:messagesPresent message="true">
 		<p>
@@ -72,17 +76,13 @@
 					<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.FileValidator">
 						<fr:property name="maxSize" value="3698688"/>
 						<fr:property name="acceptedTypes" value="text/plain" />			
-					</fr:validator>		
+					</fr:validator>
 				</fr:slot>
 			</fr:schema>
 			
 			<fr:destination name="invalid" path="/dgesStudentImportationProcess.do?method=createNewImportationProcessInvalid"/>
-			<fr:destination name="cancel" path="/dgesStudentImportationProcess.do?method=list"/>			
 		</fr:edit>
 		
-		<p>
-			<html:submit><bean:message key="button.submit" bundle="MANAGER_RESOURCES" /></html:submit>
-			<html:cancel bundle="HTMLALT_RESOURCES" altKey="cancel.cancel" onclick="this.form.method.value='list';this.form.submit();"><bean:message key="button.cancel" bundle="MANAGER_RESOURCES" /></html:cancel>
-		</p>
+		<html:submit><bean:message key="button.submit" bundle="MANAGER_RESOURCES" /></html:submit>
 	</fr:form>
 </logic:present>

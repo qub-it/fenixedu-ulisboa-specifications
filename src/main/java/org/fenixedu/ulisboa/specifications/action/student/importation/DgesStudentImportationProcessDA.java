@@ -36,7 +36,6 @@ import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.QueueJob;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
-import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.ui.struts.action.academicAdministration.AcademicAdministrationApplication.AcademicAdminCandidaciesApp;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.bennu.struts.annotations.Forward;
@@ -163,15 +162,15 @@ public class DgesStudentImportationProcessDA extends FenixDispatchAction {
         DgesStudentImportationFile file =
                 DgesStudentImportationFile.create(contents, bean.getFilename(), bean.getExecutionYear(), bean.getSpace(),
                         bean.getPhase());
-        launchImportation(bean.getExecutionYear(), bean.getSpace(), bean.getPhase(), file, bean.getRegistrationProtocol());
+        launchImportation(bean.getExecutionYear(), bean.getSpace(), bean.getPhase(), file);
 
         return list(mapping, form, request, response);
     }
 
     @Atomic
     protected DgesStudentImportationProcess launchImportation(final ExecutionYear executionYear, Space space,
-            final EntryPhase phase, DgesStudentImportationFile file, RegistrationProtocol protocol) {
-        return new DgesStudentImportationProcess(executionYear, space, phase, file, protocol);
+            final EntryPhase phase, DgesStudentImportationFile file) {
+        return new DgesStudentImportationProcess(executionYear, space, phase, file);
     }
 
     public ActionForward createNewImportationProcessInvalid(ActionMapping mapping, ActionForm form, HttpServletRequest request,
@@ -197,18 +196,8 @@ public class DgesStudentImportationProcessDA extends FenixDispatchAction {
         private Space space;
         private EntryPhase phase;
 
-        private RegistrationProtocol registrationProtocol;
-
         public DgesBaseProcessBean(ExecutionYear executionYear) {
             this.executionYear = executionYear;
-        }
-
-        public RegistrationProtocol getRegistrationProtocol() {
-            return registrationProtocol;
-        }
-
-        public void setRegistrationProtocol(RegistrationProtocol registrationProtocol) {
-            this.registrationProtocol = registrationProtocol;
         }
 
         public InputStream getStream() {
