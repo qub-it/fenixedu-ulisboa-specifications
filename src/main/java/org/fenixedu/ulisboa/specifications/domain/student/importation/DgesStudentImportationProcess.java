@@ -237,7 +237,7 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         String[] fields = splitLine(line, MAIN_INFORMATION_LINE_FIELD_SPEC);
         degreeCandidateDTO.setDegreeCode(fields[1].trim());
         degreeCandidateDTO.setDocumentIdNumber(fields[2].trim());
-        degreeCandidateDTO.setGender(Gender.parseGender(fields[4].trim()));
+        degreeCandidateDTO.setGender(parseGender(fields[4].trim()));
 
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
         DateTime date = formatter.parseDateTime(fields[5].trim());
@@ -252,6 +252,16 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         highSchoolEntryGrade = highSchoolEntryGrade.divide(new BigDecimal(10), RoundingMode.HALF_EVEN);
         degreeCandidateDTO.setHighSchoolFinalGrade(highSchoolEntryGrade.setScale(0, RoundingMode.HALF_EVEN).toString());
         degreeCandidateDTO.setName(fields[11].trim());
+    }
+
+    private Gender parseGender(String gender) {
+        if (gender.equals("M")) {
+            return Gender.MALE;
+        } else if (gender.equals("F")) {
+            return Gender.FEMALE;
+        }
+
+        throw new RuntimeException("Unknown gender: " + gender);
     }
 
     private IngressionType getIngression(String contigent) {

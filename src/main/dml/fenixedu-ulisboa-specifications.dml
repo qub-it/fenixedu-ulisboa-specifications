@@ -117,15 +117,6 @@ relation DgesStudentImportationProcessStudentCandidacy {
 	}
 }
 
-relation DgesStudentImportationProcessRegistrationProtocol {
-	.org.fenixedu.academic.domain.student.RegistrationProtocol playsRole registrationProtocol {
-		multiplicity 1..1;
-	}	
-	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcesses {
-		multiplicity *;
-	}
-}
-
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information
 class ULisboaPortalConfiguration{
 }
