@@ -17,7 +17,7 @@
  *  along with FenixEdu fenixedu-ulisboa-specifications.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package org.fenixedu.ulisboa.specifications.domain.student.importation;
+package org.fenixedu.ulisboa.specifications.domain.student.access.importation;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -57,9 +57,10 @@ import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.ulisboa.specifications.domain.student.importation.DegreeCandidateDTO.MatchingPersonException;
-import org.fenixedu.ulisboa.specifications.domain.student.importation.DegreeCandidateDTO.NotFoundPersonException;
-import org.fenixedu.ulisboa.specifications.domain.student.importation.DegreeCandidateDTO.TooManyMatchedPersonsException;
+import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO;
+import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.MatchingPersonException;
+import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.NotFoundPersonException;
+import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.TooManyMatchedPersonsException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

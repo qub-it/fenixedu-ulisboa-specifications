@@ -86,34 +86,34 @@ relation ULisboaSpecificationsRootContingentToIngressions {
 
 // ==================== DGES Student Import ====================
 
-class student.importation.DgesStudentImportationProcess extends .org.fenixedu.academic.domain.QueueJobWithFile {
+class student.access.importation.DgesStudentImportationProcess extends .org.fenixedu.academic.domain.QueueJobWithFile {
 	EntryPhase entryPhase;
 }
 
-class student.importation.DgesStudentImportationFile extends .org.fenixedu.academic.domain.File {
+class student.access.importation.DgesStudentImportationFile extends .org.fenixedu.academic.domain.File {
 }
 
 relation ImportCandidaciesFromDgesProcessDgesImportationStudentFile {
-	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
-	student.importation.DgesStudentImportationFile playsRole dgesStudentImportationFile;
+	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
+	student.access.importation.DgesStudentImportationFile playsRole dgesStudentImportationFile;
 }
 
 relation DgesStudentImportationProcessExecutionYear {
 	.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear;
-	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
+	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
 		multiplicity *;
 	}
 }
 
 relation DgesStudentImportationProcessSpace {
 	.org.fenixedu.spaces.domain.Space playsRole space;
-	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
+	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
 		multiplicity*;
 	}
 }
 
 relation DgesStudentImportationProcessStudentCandidacy {
-	student.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
+	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
 	.org.fenixedu.academic.domain.candidacy.StudentCandidacy playsRole studentCandidacy {
 		multiplicity *;
 	}

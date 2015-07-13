@@ -17,7 +17,7 @@
  *  along with FenixEdu fenixedu-ulisboa-specifications.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package org.fenixedu.ulisboa.specifications.action.student.importation;
+package org.fenixedu.ulisboa.specifications.action.student.access.importation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,8 +45,8 @@ import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.ulisboa.specifications.domain.student.importation.DgesStudentImportationFile;
-import org.fenixedu.ulisboa.specifications.domain.student.importation.DgesStudentImportationProcess;
+import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationFile;
+import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess;
 
 import pt.ist.fenixWebFramework.renderers.DataProvider;
 import pt.ist.fenixWebFramework.renderers.components.converters.Converter;

@@ -17,7 +17,7 @@
  *  along with FenixEdu fenixedu-ulisboa-specifications.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package org.fenixedu.ulisboa.specifications.domain.student.importation;
+package org.fenixedu.ulisboa.specifications.domain.student.access.importation;
 
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;

@@ -17,7 +17,7 @@
  *  along with FenixEdu fenixedu-ulisboa-specifications.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package org.fenixedu.ulisboa.specifications.domain.student.importation;
+package org.fenixedu.ulisboa.specifications.domain.student.access;
 
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.academic.util.PhoneUtil;
+import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.YearMonthDay;
 
@@ -207,6 +208,10 @@ public class DegreeCandidateDTO {
 
         person.setMaritalStatus(MaritalStatus.SINGLE);
         person.setDateOfBirthYearMonthDay(getDateOfBirth());
+
+        if (person.getUser() == null) {
+            person.setUser(new User(person.getProfile()));
+        }
 
         PhysicalAddress createPhysicalAddress =
                 PhysicalAddress.createPhysicalAddress(person, new PhysicalAddressData(getAddress(), getAreaCode(),
