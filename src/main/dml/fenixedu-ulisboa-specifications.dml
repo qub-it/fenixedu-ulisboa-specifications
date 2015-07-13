@@ -30,6 +30,8 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 class idcards.CgdCard {
 	String mifareCode;
+	String cardNumber;
+	LocalDate lastMifareModication;
 	LocalDate issueDate;
 	LocalDate validUntil;
 	boolean temporary;

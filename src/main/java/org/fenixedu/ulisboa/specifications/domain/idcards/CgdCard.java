@@ -36,6 +36,12 @@ public class CgdCard extends CgdCard_Base {
         setTemporary(temporary);
     }
 
+    @Override
+    public void setMifareCode(String mifareCode) {
+        super.setMifareCode(mifareCode);
+        setLastMifareModication(new LocalDate());
+    }
+
     @Atomic
     protected void delete() {
         setPerson(null);
