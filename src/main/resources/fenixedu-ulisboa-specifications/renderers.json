@@ -2,8 +2,7 @@
   "resources": {
     "bundles": [
       "FenixeduUlisboaSpecificationsResources"
-    ],
-    "defaultBundle": "FenixeduUlisboaSpecificationsResources"
+    ]
   },
   "modules": [
     { "name": "ulisboa-specifications", "configFile": "struts-ulisboa-specifications.xml" }
