@@ -76,7 +76,7 @@
 	<bean:message key="label.dges.importation.configuration.add.contingent.to.ingressions" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/>:
 	<fr:form id="contingentToIngressionBeanToAddForm" action="/dgesStudentImportationProcess.do?method=addContingentToIngression">
 		<fr:edit id="contingentToIngressionBeanToAdd" name="contingentToIngressionBean">
-			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.action.student.importation.DgesStudentImportationProcessDA$ContingentToIngressionBean">
+			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.action.student.access.importation.DgesStudentImportationProcessDA$ContingentToIngressionBean">
 				<fr:slot name="contingent" key="label.dges.importation.configuration.contingent" required="true"/>
 				<fr:slot name="ingressionType" layout="menu-select" key="label.dges.importation.configuration.ingressionType" required="true">
 					<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.choiceType.replacement.single.IngressionTypeProvider"/>

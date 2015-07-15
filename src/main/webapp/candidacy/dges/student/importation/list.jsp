@@ -59,7 +59,7 @@
 		
 	<logic:notEmpty name="importationJobsDone" >
 		<fr:view name="importationJobsDone" >
-			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.domain.student.importation.DgesStudentImportationProcess">
+			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess">
 				<fr:slot name="filename" key="label.dges.importation.process.filename" />
 				<fr:slot name="requestDate" key="label.dges.importation.process.request.date" />
 				<fr:slot name="jobStartTime" key="label.dges.importation.process.start.time" />
@@ -86,7 +86,7 @@
 	
 	<logic:notEmpty name="importationJobsPending">
 		<fr:view name="importationJobsPending" >
-			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.domain.student.importation.DgesStudentImportationProcess">
+			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess">
 				<fr:slot name="requestDate" key="label.dges.importation.process.request.date" />
 				<fr:slot name="jobStartTime" key="label.dges.importation.process.start.time" />
 				<fr:slot name="jobEndTime" key="label.dges.importation.process.end.time" />

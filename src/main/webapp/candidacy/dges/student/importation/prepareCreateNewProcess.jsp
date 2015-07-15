@@ -51,7 +51,7 @@
 		<fr:edit id="importation.bean" name="importationBean" visible="false" />
 		
 		<fr:edit id="importation.bean.edit" name="importationBean">
-			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.action.student.importation.DgesStudentImportationProcessDA$DgesBaseProcessBean">
+			<fr:schema bundle="ULISBOA_SPECIFICATIONS_RESOURCES" type="org.fenixedu.ulisboa.specifications.action.student.access.importation.DgesStudentImportationProcessDA$DgesBaseProcessBean">
 				<fr:slot name="executionYear" layout="menu-select" key="label.dges.importation.process.execution.year" required="true" >
 					<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ExecutionYearsProvider"/>
 					<fr:property name="format" value="${name}" />
@@ -65,7 +65,7 @@
 				</fr:slot>
 				
 				<fr:slot name="phase" layout="menu-select" key="label.dges.importation.process.entry.phase" required="true" >
-					<fr:property name="providerClass" value="org.fenixedu.ulisboa.specifications.action.student.importation.DgesStudentImportationProcessDA$EntryPhaseProvider" />
+					<fr:property name="providerClass" value="org.fenixedu.ulisboa.specifications.action.student.access.importation.DgesStudentImportationProcessDA$EntryPhaseProvider" />
 					<fr:property name="format" value="${localizedName}" />
 					<fr:property name="sortBy" value="localizedName"/>
 				</fr:slot>
