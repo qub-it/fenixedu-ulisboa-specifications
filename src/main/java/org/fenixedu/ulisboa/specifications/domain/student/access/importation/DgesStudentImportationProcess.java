@@ -61,6 +61,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidate
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.MatchingPersonException;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.NotFoundPersonException;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.TooManyMatchedPersonsException;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -204,32 +205,39 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
     /**
      * <pre>
-     *                                  tipo_linha  char(1)     valor '*'
-     *                                  curso_sup   char(4)     codigo curso colocacao  (ver codigos no Guia)
-     *                                  num_bi      char(9)     numero de b.i. do aluno
-     *                                  loc_bi      char(2)     local emissao do b.i.  (ver codigos)
-     *                                  sexo        char(1)         sexo do aluno
-     *                                  data_nasc   char(8)         data de nascimento AAAAMMDD
-     *                                  conting     char(1)     contingente candidatura (ver codigos)
-     *                                  prefcol     char(1)     nr de opcao VALIDA a q corresp. colocacao (1-6)
-     *                                  etapcol     num(2)      etapa de colocacao (1-17)
-     *                                  ?       char(13)    ?
-     *                                  pontos      num(5,1)    nota crit. seriacao para este curso (0.0-100.0)
-     *                                  nome        char(60)    nome (sem espacos a direita)
+     * tipo_linha  char(1)     valor '*'
      * 
+     * curso_sup   char(4)     codigo curso colocacao  (ver codigos no Guia)
+     * num_bi      char(9)     numero de b.i. do aluno
+     * loc_bi      char(2)     local emissao do b.i.  (ver codigos)
+     * sexo        char(1)     sexo do aluno
+     * data_nasc   char(8)     data de nascimento AAAAMMDD
+     * conting     char(1)     contingente candidatura (ver codigos)
+     * prefcol     char(1)     nr de opcao VALIDA a q corresp. colocacao (1-6)
+     * etapcol     num(2)      etapa de colocacao (1-17)
      * 
+     * estado      char(2)     não utilizado
+     * exclusao    char(1)     não utilizado
+     * militar     char(1)     não utilizado
+     * deficiente  char(1)     não utilizado
+     * GAES        char(3)     não utilizado
+     * numCand     num(5)      não utilizado
+     * 
+     * pontos      num(5,1)    nota crit. seriacao para este curso (0.0-100.0)
+     * nome        char(60)    nome (sem espacos a direita)
      * </pre>
      */
     private static int[] MAIN_INFORMATION_LINE_FIELD_SPEC = new int[] { 1, 4, 9, 2, 1, 8, 1, 1, 2, 13, 5, 60 };
 
     /**
      * <pre>
-     *                              tipo_linha  char(1)     valor '#'
-     *                              morada1 char(40)    morada do aluno - parte 1
-     *                              morada2 char(40)    morada do aluno - parte 2
-     *                              codpos  char(4)     codigo postal
-     *                              codlocal    char(40)        localidade
-     *                              telefone    char(40)        telefone para contacto
+     * tipo_linha   char(1)     valor '#'
+     * 
+     * morada1      char(40)    morada do aluno - parte 1
+     * morada2      char(40)    morada do aluno - parte 2
+     * codpos       char(4)     codigo postal
+     * codlocal     char(40)    localidade
+     * telefone     char(40)    telefone para contacto
      * </pre>
      */
     private static int[] ADDRESS_AND_CONTACTS_LINE_FIELD_SPEC = new int[] { 1, 40, 40, 4, 40, 40 };
@@ -365,6 +373,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
                 StudentCandidacy studentCandidacy = createCandidacy(degreeCandidateDTO, person);
                 new StandByCandidacySituation(studentCandidacy, getPerson());
+
+                StudentAccessServices.triggerSyncPersonToExternal(person);
             }
         } finally {
             Authenticate.unmock();
