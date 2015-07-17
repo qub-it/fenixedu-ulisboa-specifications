@@ -7,9 +7,11 @@ import javax.servlet.annotation.WebListener;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
+import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -21,8 +23,17 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Override
     public void contextInitialized(ServletContextEvent event) {
         configurePortal();
-        configureType20GradeScaleLogic();
-        configureTypeQualitativeGradeScaleLogic();
+        try {
+            configureType20GradeScaleLogic();
+            configureTypeQualitativeGradeScaleLogic();
+        } catch (RuntimeException e) {
+            if (CoreConfiguration.getConfiguration().developmentMode()) {
+                LoggerFactory.getLogger(getClass()).info(
+                        "You do not have a configured degree scale. This may lead to wrong system behaviour");
+                return;
+            }
+            throw e;
+        }
     }
 
     protected void configurePortal() {
