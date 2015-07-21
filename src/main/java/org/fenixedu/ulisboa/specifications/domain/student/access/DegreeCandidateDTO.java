@@ -31,11 +31,13 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.person.Gender;
+import org.fenixedu.academic.domain.person.HumanName;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
-import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.academic.util.PhoneUtil;
+import org.fenixedu.academic.util.StringFormatter;
 import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.YearMonthDay;
 
@@ -202,28 +204,29 @@ public class DegreeCandidateDTO {
     }
 
     public Person createPerson() {
-        PersonBean personBean = new PersonBean(getName(), getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD, getDateOfBirth());
-        personBean.setGender(getGender());
-        Person person = new Person(personBean);
+        HumanName split = HumanName.decompose(StringFormatter.prettyPrint(getName()), false);
+        UserProfile profile = new UserProfile(split.getGivenNames(), split.getFamilyNames(), null, null, null);
+        new User(profile);
+
+        final Person person = new Person(profile);
+
+        person.setGender(getGender());
+        person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
 
         person.setMaritalStatus(MaritalStatus.SINGLE);
         person.setDateOfBirthYearMonthDay(getDateOfBirth());
 
-        if (person.getUser() == null) {
-            person.setUser(new User(person.getProfile()));
-        }
-
-        PhysicalAddress createPhysicalAddress =
+        final PhysicalAddress createPhysicalAddress =
                 PhysicalAddress.createPhysicalAddress(person, new PhysicalAddressData(getAddress(), getAreaCode(),
                         getAreaOfAreaCode(), null), PartyContactType.PERSONAL, true);
         createPhysicalAddress.setValid();
 
         if (PhoneUtil.isMobileNumber(getPhoneNumber())) {
-            MobilePhone createMobilePhone =
+            final MobilePhone createMobilePhone =
                     MobilePhone.createMobilePhone(person, getPhoneNumber(), PartyContactType.PERSONAL, true);
             createMobilePhone.setValid();
         } else {
-            Phone createPhone = Phone.createPhone(person, getPhoneNumber(), PartyContactType.PERSONAL, true);
+            final Phone createPhone = Phone.createPhone(person, getPhoneNumber(), PartyContactType.PERSONAL, true);
             createPhone.setValid();
         }
 

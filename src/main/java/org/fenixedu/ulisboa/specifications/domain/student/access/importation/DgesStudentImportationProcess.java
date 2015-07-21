@@ -324,6 +324,10 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
                 Person person = null;
                 try {
                     person = matchingPerson(degreeCandidateDTO);
+                    // Person may not yet have a user, so we will create it
+                    if (person.getUser() == null) {
+                        person.setUser(new User(person.getProfile()));
+                    }
                 } catch (DegreeCandidateDTO.NotFoundPersonException e) {
                     person = degreeCandidateDTO.createPerson();
                     LOG_WRITER.println("Pessoa Criada");
