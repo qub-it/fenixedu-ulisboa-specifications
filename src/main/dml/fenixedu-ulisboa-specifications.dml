@@ -131,3 +131,20 @@ relation ULisboaPortalConfigurationPortalConfiguration{
 		multiplicity 1;
 	}
 }
+
+
+// ==================== BEGIN: MaximumNumberOfCreditsForEnrolmentPeriodEnforcer ====================
+
+class MaximumNumberOfCreditsForEnrolmentPeriodEnforcer {
+	Double maxCredits;
+	Double maxCreditsPartialTime;
+}
+
+relation ULisboaSpecificationsRootMaximumNumberOfCreditsForEnrolmentPeriodEnforcer {
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
+	MaximumNumberOfCreditsForEnrolmentPeriodEnforcer playsRole maximumNumberOfCreditsForEnrolmentPeriodEnforcer {
+		multiplicity 0..1;
+	}
+}
+
+// ==================== END: MaximumNumberOfCreditsForEnrolmentPeriodEnforcer ====================
