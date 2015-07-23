@@ -51,6 +51,15 @@ relation CgdCardRootDomainObject {
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
 }
 
+class PersonUlisboaSpecifications {
+	LocalDate vaccinationValidity;
+}
+
+relation PersonUlisboaSpecificationsPerson {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
+	.org.fenixedu.academic.domain.Person playsRole person;
+}
+
 // ==================== ULisboa Specifications Root ====================
 
 class ULisboaSpecificationsRoot {
