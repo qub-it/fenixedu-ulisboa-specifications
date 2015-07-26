@@ -5,6 +5,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -12,6 +13,7 @@ import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,11 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
+        configureEnrolmentEvaluationComparator();
+    }
+
+    private void configureEnrolmentEvaluationComparator() {
+        EvaluationConfiguration.setEnrolmentEvaluationOrder(new EvaluationComparator());
     }
 
     static private void configurePortal() {
@@ -65,7 +72,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         if (logic != null) {
             logger.info("Using " + logic.getClass().getSimpleName());
         }
-        
+
         GradeScale.TYPEQUALITATIVE.setLogic(logic);
     }
 
@@ -78,7 +85,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         if (logic != null) {
             logger.info("Using " + logic.getClass().getSimpleName());
         }
-        
+
         GradeScale.TYPE20.setLogic(logic);
     }
 
