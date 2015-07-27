@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain;
+package org.fenixedu.ulisboa.specifications.domain.curricularRules;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

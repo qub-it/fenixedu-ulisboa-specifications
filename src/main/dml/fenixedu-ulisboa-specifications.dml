@@ -154,14 +154,14 @@ relation ULisboaPortalConfigurationPortalConfiguration{
 
 // ==================== BEGIN: MaximumNumberOfCreditsForEnrolmentPeriodEnforcer ====================
 
-class MaximumNumberOfCreditsForEnrolmentPeriodEnforcer {
+class curricularRules.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer {
 	Double maxCredits;
 	Double maxCreditsPartialTime;
 }
 
 relation ULisboaSpecificationsRootMaximumNumberOfCreditsForEnrolmentPeriodEnforcer {
 	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
-	MaximumNumberOfCreditsForEnrolmentPeriodEnforcer playsRole maximumNumberOfCreditsForEnrolmentPeriodEnforcer {
+	curricularRules.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer playsRole maximumNumberOfCreditsForEnrolmentPeriodEnforcer {
 		multiplicity 0..1;
 	}
 }
