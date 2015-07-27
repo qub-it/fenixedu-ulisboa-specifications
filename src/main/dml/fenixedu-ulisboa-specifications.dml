@@ -28,6 +28,11 @@
 
 package org.fenixedu.ulisboa.specifications.domain;
 
+class UsernameSequenceGenerator {
+	String prefix;
+	protected Integer currentValue;
+}
+
 class idcards.CgdCard {
 	String mifareCode;
 	String cardNumber;
@@ -91,6 +96,11 @@ relation ULisboaSpecificationsRootContingentToIngressions {
 	ContingentToIngression playsRole contingentToIngressions {
 		multiplicity *;
 	}
+}
+
+relation ULisboaSpecificationsRootUsernameSequenceGenerator {
+	UsernameSequenceGenerator playsRole usernameSequenceGenerator;
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
 }
 
 // ==================== DGES Student Import ====================

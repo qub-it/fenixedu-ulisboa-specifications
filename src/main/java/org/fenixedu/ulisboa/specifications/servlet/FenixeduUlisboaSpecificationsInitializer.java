@@ -5,15 +5,17 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +37,18 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
-        configureEnrolmentEvaluationComparator();
-    }
 
-    private void configureEnrolmentEvaluationComparator() {
-        EvaluationConfiguration.setEnrolmentEvaluationOrder(new EvaluationComparator());
+        UsernameSequenceGenerator usernameSequenceGenerator =
+                ULisboaSpecificationsRoot.getInstance().getUsernameSequenceGenerator();
+        if (usernameSequenceGenerator == null) {
+            usernameSequenceGenerator = new UsernameSequenceGenerator();
+            ULisboaSpecificationsRoot.getInstance().setUsernameSequenceGenerator(usernameSequenceGenerator);
+        }
+        User.setUsernameGenerator(usernameSequenceGenerator);
+        DynamicGroup dynamicGroup = org.fenixedu.bennu.core.groups.DynamicGroup.get("employees");
+        if (!dynamicGroup.isDefined()) {
+            dynamicGroup.toPersistentGroup();
+        }
     }
 
     static private void configurePortal() {
