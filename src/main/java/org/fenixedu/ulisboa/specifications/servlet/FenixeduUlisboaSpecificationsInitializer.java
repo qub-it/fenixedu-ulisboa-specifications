@@ -5,6 +5,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.bennu.core.domain.User;
@@ -16,6 +17,7 @@ import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrol
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
+        configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
                 ULisboaSpecificationsRoot.getInstance().getUsernameSequenceGenerator();
@@ -49,6 +52,10 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         if (!dynamicGroup.isDefined()) {
             dynamicGroup.toPersistentGroup();
         }
+    }
+
+    private void configureEnrolmentEvaluationComparator() {
+        EvaluationConfiguration.setEnrolmentEvaluationOrder(new EvaluationComparator());
     }
 
     static private void configurePortal() {
