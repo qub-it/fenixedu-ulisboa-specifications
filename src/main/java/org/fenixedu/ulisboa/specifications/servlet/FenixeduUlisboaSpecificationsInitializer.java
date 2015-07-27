@@ -13,7 +13,7 @@ import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
+import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
