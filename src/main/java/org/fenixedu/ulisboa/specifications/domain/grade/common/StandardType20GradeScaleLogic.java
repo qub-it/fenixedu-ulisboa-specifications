@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -107,14 +108,29 @@ public class StandardType20GradeScaleLogic implements GradeScaleLogic {
         final boolean isRightApproved = isApproved(rightGrade);
 
         if (isLeftApproved && isRightApproved) {
-            return leftGrade.getValue().compareTo(rightGrade.getValue());
+            return compareGradeValues(leftGrade, rightGrade);
         } else if (isLeftApproved) {
             return 1;
         } else if (isRightApproved) {
             return -1;
         } else {
-            return leftGrade.getValue().compareTo(rightGrade.getValue());
+            return compareGradeValues(leftGrade, rightGrade);
         }
+
+    }
+
+    private int compareGradeValues(Grade left, Grade right) {
+
+        final boolean leftIsNumber = NumberUtils.isNumber(left.getValue());
+        final boolean rightIsNumber = NumberUtils.isNumber(right.getValue());
+
+        if (leftIsNumber && !rightIsNumber) {
+            return 1;
+        } else if (!leftIsNumber && rightIsNumber) {
+            return -1;
+        }
+
+        return left.getValue().compareTo(right.getValue());
 
     }
 
