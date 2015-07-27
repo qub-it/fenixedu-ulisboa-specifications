@@ -36,6 +36,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Atomic(mode = TxMode.SPECULATIVE_READ)
     @Override
     public void contextInitialized(ServletContextEvent event) {
+        ULisboaSpecificationsRoot.init();
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
