@@ -1,3 +1,28 @@
+/**
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * software development project between Quorum Born IT and Serviços Partilhados da
+ * Universidade de Lisboa:
+ *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *
+ *
+ * 
+ * This file is part of FenixEdu fenixedu-ulisboa-specifications.
+ *
+ * FenixEdu Specifications is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FenixEdu Specifications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.fenixedu.ulisboa.specifications.servlet;
 
 import javax.servlet.ServletContextEvent;
@@ -8,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -40,6 +66,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
+        EnrolmentPeriodRestrictionsInitializer.configure();
         configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
@@ -55,7 +82,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
     }
 
-    private void configureEnrolmentEvaluationComparator() {
+    static private void configureEnrolmentEvaluationComparator() {
         EvaluationConfiguration.setEnrolmentEvaluationOrder(new EvaluationComparator());
     }
 
@@ -68,57 +95,56 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureGradeScaleLogics() {
-        try {
-            configureType20GradeScaleLogic();
-            configureTypeQualitativeGradeScaleLogic();
-        } catch (RuntimeException e) {
-            if (CoreConfiguration.getConfiguration().developmentMode()) {
-                logger.info("You do not have a configured degree scale. This may lead to wrong system behaviour");
-                return;
-            }
-            throw e;
-        }
+        configureType20GradeScaleLogic();
+        configureTypeQualitativeGradeScaleLogic();
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        if (StringUtils.isBlank(ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic())) {
-            throw new RuntimeException("Property 'gradescale.typequalitative.logic.class' must be defined in configuration file");
-        }
+        final GradeScaleLogic logic =
+                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
+                        .typeQualitativeGradeScaleLogic());
 
-        final GradeScaleLogic logic = loadClass(ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
         if (logic != null) {
-            logger.info("Using " + logic.getClass().getSimpleName());
+            GradeScale.TYPEQUALITATIVE.setLogic(logic);
         }
-
-        GradeScale.TYPEQUALITATIVE.setLogic(logic);
     }
 
     static private void configureType20GradeScaleLogic() {
-        if (StringUtils.isBlank(ULisboaConfiguration.getConfiguration().type20GradeScaleLogic())) {
-            throw new RuntimeException("Property 'gradescale.type20.logic.class' must be defined in configuration file");
-        }
+        final GradeScaleLogic logic =
+                loadClass("gradescale.type20.logic.class", ULisboaConfiguration.getConfiguration().type20GradeScaleLogic());
 
-        final GradeScaleLogic logic = loadClass(ULisboaConfiguration.getConfiguration().type20GradeScaleLogic());
         if (logic != null) {
-            logger.info("Using " + logic.getClass().getSimpleName());
+            GradeScale.TYPE20.setLogic(logic);
         }
-
-        GradeScale.TYPE20.setLogic(logic);
     }
 
     @SuppressWarnings("unchecked")
-    static private <T> T loadClass(final String className) {
+    static private <T> T loadClass(final String key, final String value) {
+        T result = null;
+
         try {
 
-            T result = null;
-            if (StringUtils.isNotBlank(className)) {
-                result = (T) Class.forName(className).newInstance();
+            if (StringUtils.isNotBlank(value)) {
+                result = (T) Class.forName(value).newInstance();
+            } else {
+
+                final String message = "Property [" + key + "] must be defined in configuration file";
+                if (CoreConfiguration.getConfiguration().developmentMode()) {
+                    logger.error("{}. Empty value may lead to wrong system behaviour", message);
+                } else {
+                    throw new RuntimeException(message);
+                }
             }
-            return result;
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("An error occured loading class: " + className, e);
+            throw new RuntimeException("An error occured loading class: " + value, e);
         }
+
+        if (result != null) {
+            logger.info("Using " + result.getClass().getSimpleName());
+        }
+
+        return result;
     }
 
     static private void configureMaximumNumberOfCreditsForEnrolmentPeriod() {
