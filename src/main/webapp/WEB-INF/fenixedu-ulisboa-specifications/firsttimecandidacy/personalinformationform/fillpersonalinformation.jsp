@@ -73,49 +73,35 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.name"/></div> 
 
 <div class="col-sm-10">
-	<input id="personalInformationForm_name" class="form-control" type="text" name="name"  value='<c:out value='${not empty param.name ? param.name : personalInformationForm.name }'/>' />
+	<c:out value='${not empty param.name ? param.name : personalInformationForm.name }'/>
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.username"/></div> 
 
 <div class="col-sm-10">
-	<input id="personalInformationForm_username" class="form-control" type="text" name="username"  value='<c:out value='${not empty param.username ? param.username : personalInformationForm.username }'/>' />
+	<c:out value='${not empty param.username ? param.username : personalInformationForm.username }'/>
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.gender"/></div> 
 
 <div class="col-sm-4">
-	<select id="personalInformationForm_gender" class="form-control" name="gender">
-		<c:forEach items="${genderValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
-		$("#personalInformationForm_gender").val('<c:out value='${not empty param.gender ? param.gender : personalInformationForm.gender }'/>');
-	</script>	
+	<c:out value='${not empty param.gender ? param.gender : personalInformationForm.gender.localizedName }'/>	
 </div>
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.documentIdNumber"/></div> 
 
 <div class="col-sm-10">
-	<input id="personalInformationForm_documentIdNumber" class="form-control" type="text" name="documentidnumber"  value='<c:out value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }'/>' />
+	<c:out value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }'/>
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.idDocumentType"/></div> 
 
 <div class="col-sm-4">
-	<select id="personalInformationForm_idDocumentType" class="form-control" name="iddocumenttype">
-		<c:forEach items="${idDocumentTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
-		$("#personalInformationForm_idDocumentType").val('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
-	</script>	
+		<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType.localizedName }'/>
 </div>
 </div>		
 <div class="form-group row">

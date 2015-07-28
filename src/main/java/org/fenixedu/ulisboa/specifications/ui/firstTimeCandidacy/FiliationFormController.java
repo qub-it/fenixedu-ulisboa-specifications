@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -57,8 +59,19 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     public String fillfiliation(Model model) {
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-
+        fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation";
+    }
+
+    private void fillFormIfRequired(Model model) {
+        if (!model.containsAttribute("filiationForm")) {
+            FiliationForm filiationForm = new FiliationForm();
+            filiationForm.setCountryOfBirth(Country.readDefault());
+            filiationForm.setNationality(Country.readDefault());
+            Person person = AccessControl.getPerson();
+            filiationForm.setDateOfBirth(person.getDateOfBirthYearMonthDay());
+            model.addAttribute("filiationForm", filiationForm);
+        }
     }
 
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.POST)
