@@ -51,6 +51,11 @@ public class MaximumNumberOfCreditsForEnrolmentPeriodEnforcer extends MaximumNum
         return result;
     }
 
+    public void delete() {
+        setULisboaSpecificationsRoot(null);
+        super.deleteDomainObject();
+    }
+
     @Atomic
     private void updateFromConfiguration() {
         setMaxCredits(ULisboaConfiguration.getConfiguration().getEnrolmentsMaxCredits());
