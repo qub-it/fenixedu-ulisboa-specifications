@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -58,7 +60,21 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     public String fillresidenceinformation(Model model) {
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+        fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation";
+    }
+
+    private void fillFormIfRequired(Model model) {
+        if (!model.containsAttribute("residenceInformationForm")) {
+            ResidenceInformationForm residenceInformationForm = new ResidenceInformationForm();
+            Person person = AccessControl.getPerson();
+            residenceInformationForm.setAddress(person.getAddress());
+            residenceInformationForm.setCountryOfResidence(person.getCountry());
+            residenceInformationForm.setAreaOfAreaCode(person.getAreaOfAreaCode());
+            residenceInformationForm.setAreaCode(person.getAreaCode());
+            residenceInformationForm.setArea(person.getArea());
+            model.addAttribute("residenceInformationForm", residenceInformationForm);
+        }
     }
 
     @RequestMapping(value = _FILLRESIDENCEINFORMATION_URI, method = RequestMethod.POST)

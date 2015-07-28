@@ -26,12 +26,17 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.Optional;
+
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -51,18 +56,33 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
     public String fillorigininformation(Model model) {
-        model.addAttribute("schoolLevelValues", org.fenixedu.academic.domain.SchoolLevelType.values());
-        model.addAttribute("highSchoolTypeValues",
-                org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType.values());
-
+        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
+        model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.values());
+        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
+        fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
+    }
+
+    private void fillFormIfRequired(Model model) {
+        if (!model.containsAttribute("originInformationForm")) {
+            OriginInformationForm originInformationForm = new OriginInformationForm();
+            originInformationForm.setCountryWhereFinishedPreviousCompleteDegree(Country.readDefault());
+
+            Optional<String> conclusionGrade =
+                    AccessControl.getPerson().getCandidaciesSet().stream().filter(c -> c instanceof StudentCandidacy)
+                            .map(StudentCandidacy.class::cast).map(sc -> sc.getPrecedentDegreeInformation().getConclusionGrade())
+                            .findFirst();
+            if (conclusionGrade.isPresent()) {
+                originInformationForm.setConclusionGrade(conclusionGrade.get());
+            }
+
+            model.addAttribute("originInformationForm", originInformationForm);
+        }
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm originInformationForm, Model model,
             RedirectAttributes redirectAttributes) {
-        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
-        model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.values());
 
         try {
 

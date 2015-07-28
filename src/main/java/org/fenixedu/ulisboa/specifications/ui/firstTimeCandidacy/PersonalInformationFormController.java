@@ -29,12 +29,14 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.io.Serializable;
 
 import org.fenixedu.academic.domain.GrantOwnerType;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -70,7 +72,25 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         model.addAttribute("maritalStatusValues", MaritalStatus.values());
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
 
+        fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
+    }
+
+    private void fillFormIfRequired(Model model) {
+        if (!model.containsAttribute("personalInformationForm")) {
+            PersonalInformationForm personalInformationForm = new PersonalInformationForm();
+            Person person = AccessControl.getPerson();
+            personalInformationForm.setName(person.getName());
+            personalInformationForm.setUsername(person.getUsername());
+            personalInformationForm.setGender(person.getGender());
+            personalInformationForm.setDocumentIdNumber(person.getDocumentIdNumber());
+            personalInformationForm.setIdDocumentType(person.getIdDocumentType());
+            personalInformationForm.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
+            personalInformationForm.setMaritalStatus(MaritalStatus.SINGLE);
+            personalInformationForm.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
+            personalInformationForm.setProfessionType(ProfessionType.OTHER);
+            model.addAttribute("personalInformationForm", personalInformationForm);
+        }
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
