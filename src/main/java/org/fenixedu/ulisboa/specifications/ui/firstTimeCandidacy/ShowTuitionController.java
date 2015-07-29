@@ -15,6 +15,11 @@ public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseCont
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition";
     }
 
+    @RequestMapping(value = "/opentreasurydebts")
+    public String showtuitionToOpenTreasuryDebts(Model model, RedirectAttributes redirectAttributes) {
+        return redirect("CHANGEME", model, redirectAttributes);
+    }
+
     @RequestMapping(value = "/continue")
     public String showtuitionToContinue(Model model, RedirectAttributes redirectAttributes) {
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization", model, redirectAttributes);

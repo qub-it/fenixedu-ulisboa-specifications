@@ -12,8 +12,12 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping
     public String chooseoptionalcourses(Model model) {
-
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses";
+    }
+
+    @RequestMapping(value = "/opencourseenrollments")
+    public String chooseoptionalcoursesToOpenCourseEnrollments(Model model, RedirectAttributes redirectAttributes) {
+        return redirect("CHANGEME", model, redirectAttributes);
     }
 
     @RequestMapping(value = "/continue")
