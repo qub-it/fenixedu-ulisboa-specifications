@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@BennuSpringController(value = PersonalInformationFormController.class)
+@BennuSpringController(value = InstructionsController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses")
 public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBaseController {
 

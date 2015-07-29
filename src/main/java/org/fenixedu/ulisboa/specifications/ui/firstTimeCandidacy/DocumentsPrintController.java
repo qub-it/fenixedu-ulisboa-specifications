@@ -5,7 +5,7 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseC
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@BennuSpringController(value = PersonalInformationFormController.class)
+@BennuSpringController(value = InstructionsController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint")
 public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseController {
 
