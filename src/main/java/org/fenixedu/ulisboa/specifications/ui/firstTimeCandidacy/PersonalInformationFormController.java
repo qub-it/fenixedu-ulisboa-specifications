@@ -39,17 +39,15 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.firstTimeCandidacy",
-        accessGroup = "logged")
+@BennuSpringController(value = InstructionsController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
 public class PersonalInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 

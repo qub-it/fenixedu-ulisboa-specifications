@@ -38,7 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = PersonalInformationFormController.class)
+@BennuSpringController(value = InstructionsController.class)
 @RequestMapping(SchoolSpecificDataController.CONTROLLER_URL)
 public class SchoolSpecificDataController extends FenixEduUlisboaSpecificationsBaseController {
 

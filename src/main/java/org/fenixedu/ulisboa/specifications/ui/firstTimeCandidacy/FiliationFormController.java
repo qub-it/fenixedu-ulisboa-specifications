@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@BennuSpringController(value = PersonalInformationFormController.class)
+@BennuSpringController(value = InstructionsController.class)
 @RequestMapping(FiliationFormController.CONTROLLER_URL)
 public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseController {
 

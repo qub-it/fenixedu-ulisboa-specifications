@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@BennuSpringController(value = PersonalInformationFormController.class)
+@BennuSpringController(value = InstructionsController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
 public class OriginInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
