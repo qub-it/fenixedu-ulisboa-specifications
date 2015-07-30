@@ -28,6 +28,8 @@
 
 package org.fenixedu.ulisboa.specifications.domain;
 
+external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+
 class UsernameSequenceGenerator {
 	String prefix;
 	protected Integer currentValue;
@@ -167,3 +169,77 @@ relation ULisboaSpecificationsRootMaximumNumberOfCreditsForEnrolmentPeriodEnforc
 }
 
 // ==================== END: MaximumNumberOfCreditsForEnrolmentPeriodEnforcer ====================
+
+// ==================== BEGIN: CurricularPeriodConfiguration ====================
+
+class curricularPeriod.CurricularPeriodConfiguration {
+}
+
+relation CurricularPeriodConfigurationRoot {
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
+		multiplicity 1..1;
+	}
+	curricularPeriod.CurricularPeriodConfiguration playsRole curricularPeriodConfiguration {
+		multiplicity *;
+	}
+}
+
+relation CurricularPeriodConfigurations {
+	.org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod playsRole curricularPeriod {
+		multiplicity 1..1;
+	}
+	curricularPeriod.CurricularPeriodConfiguration playsRole configuration {
+		multiplicity 0..1;
+	}
+}
+
+class curricularPeriod.rule.CurricularPeriodRule {
+	BigDecimal credits;
+}
+
+	class curricularPeriod.rule.RuleEnrolment extends curricularPeriod.rule.CurricularPeriodRule {
+		Integer semester;
+	}
+	
+		class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod extends curricularPeriod.rule.RuleEnrolment {
+		}
+		
+		class curricularPeriod.rule.enrolment.CreditsInCurricularPeriod extends curricularPeriod.rule.RuleEnrolment {
+			Integer yearMin;
+			Integer yearMax;
+		}
+		
+		class curricularPeriod.rule.enrolment.CreditsNotEnroled extends curricularPeriod.rule.RuleEnrolment {
+		}
+
+	class curricularPeriod.rule.RuleTransition extends curricularPeriod.rule.CurricularPeriodRule {
+		Integer yearMin;
+		Integer yearMax;
+	}
+
+		class curricularPeriod.rule.transition.FlunkedCredits extends curricularPeriod.rule.RuleTransition {
+		}
+		
+		class curricularPeriod.rule.transition.FlunkedCurricularCourses extends curricularPeriod.rule.RuleTransition {
+			String codesCSV;
+		}
+		
+relation CurricularPeriodConfigurationRuleEnrolment {
+	curricularPeriod.CurricularPeriodConfiguration playsRole configurationEnrolment {
+		multiplicity 1..1;
+	}
+	curricularPeriod.rule.RuleEnrolment playsRole ruleEnrolment {
+		multiplicity *;
+	}
+}
+
+relation CurricularPeriodConfigurationRuleTransition {
+	curricularPeriod.CurricularPeriodConfiguration playsRole configurationTransition {
+		multiplicity 1..1;
+	}
+	curricularPeriod.rule.RuleTransition playsRole ruleTransition {
+		multiplicity *;
+	}
+}
+
+// ==================== END: CurricularPeriodConfiguration ====================
