@@ -60,6 +60,10 @@ abstract public class RuleTransition extends RuleTransition_Base {
             throw new DomainException("error." + this.getClass().getSimpleName() + ".configuration.required");
         }
     }
+    
+    protected boolean isForYear() {
+        return getYearMin() != null && getYearMax() != null && getYearMin().intValue() == getYearMax().intValue();
+    }
 
     @Override
     protected void checkForDeletionBlockers(Collection<String> blockers) {
@@ -81,6 +85,11 @@ abstract public class RuleTransition extends RuleTransition_Base {
     public void delete() {
         super.setConfigurationTransition(null);
         super.delete();
+    }
+    
+    @Override
+    protected CurricularPeriodConfiguration getConfiguration() {
+        return getConfigurationTransition();
     }
 
     @Override

@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition;
 
 import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +45,16 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
     }
 
     private void checkRules() {
+        //
+        //CHANGE_ME add more busines validations
+        //
         getCompetenceCourses();
     }
 
     private Set<CompetenceCourse> getCompetenceCourses() {
         if (this.competenceCourses == null) {
 
-            final Set<CompetenceCourse> result = Sets.newHashSet();
-
+            this.competenceCourses = Sets.newHashSet();
             if (StringUtils.isNotBlank(getCodesCSV())) {
 
                 for (final String code : getCodesCSV().split(",")) {
@@ -61,17 +66,37 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
                     }
                 }
             }
-
-            this.competenceCourses = result;
         }
 
         return this.competenceCourses;
     }
 
     @Override
+    protected String getLabel() {
+        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
+                getYearMin().toString(), getCodesCSV().toString());
+    }
+
+    @Override
     public RuleResult execute(final Curriculum curriculum) {
-        // TODO legidio
-        return RuleResult.createInitialFalse();
+        final Set<CompetenceCourse> toInspect = getCompetenceCourses();
+
+        for (final ICurriculumEntry entry : curriculum.getCurricularYearEntries()) {
+            for (Iterator<CompetenceCourse> iterator = toInspect.iterator(); iterator.hasNext();) {
+                final CompetenceCourse competenceCourse = iterator.next();
+                if (entry.getCode().equals(competenceCourse.getCode())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (final CompetenceCourse competenceCourse : toInspect) {
+            total = total.add(BigDecimal.valueOf(competenceCourse.getEctsCredits()));
+        }
+
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
     }
 
 }
