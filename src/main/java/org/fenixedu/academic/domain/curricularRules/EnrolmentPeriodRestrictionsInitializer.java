@@ -44,7 +44,7 @@ public class EnrolmentPeriodRestrictionsInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(EnrolmentPeriodRestrictionsInitializer.class);
 
-    static public void configure() {
+    static public void init() {
         for (final DegreeCurricularPlan degreeCurricularPlan : Bennu.getInstance().getDegreeCurricularPlansSet()) {
 
             deleteMaximumNumberOfCreditsForEnrolmentPeriod(degreeCurricularPlan);
@@ -60,12 +60,12 @@ public class EnrolmentPeriodRestrictionsInitializer {
                 input.getRoot().getCurricularRules(CurricularRuleType.MAXIMUM_NUMBER_OF_CREDITS_FOR_ENROLMENT_PERIOD,
                         (ExecutionYear) null);
 
-        if (rules.size() != 1) {
+        if (rules.size() > 1) {
 
             logger.error("Update failed: found {} {} rules to update for DCP {}", rules.size(),
                     MaximumNumberOfCreditsForEnrolmentPeriod.class.getSimpleName(), input.getPresentationName());
 
-        } else {
+        } else if (!rules.isEmpty()) {
 
             final MaximumNumberOfCreditsForEnrolmentPeriod rule =
                     (MaximumNumberOfCreditsForEnrolmentPeriod) rules.iterator().next();
@@ -83,13 +83,7 @@ public class EnrolmentPeriodRestrictionsInitializer {
 
         if (rules.isEmpty()) {
 
-            final Optional<Context> first =
-                    root.getChildContextsSet().stream()
-                            .sorted((o1, o2) -> o1.getBeginExecutionPeriod().compareTo(o2.getBeginExecutionPeriod())).findFirst();
-            final ExecutionSemester begin =
-                    first.isPresent() ? first.get().getBeginExecutionPeriod() : input.getFirstExecutionPeriodEnrolments();
-
-            new EnrolmentPeriodRestrictions(root, begin);
+            new EnrolmentPeriodRestrictions(root, getBeginExecutionSemester(input, root));
             logger.info("Created {} for DCP {}", EnrolmentPeriodRestrictions.class.getSimpleName(), input.getPresentationName());
 
         } else if (rules.size() > 1) {
@@ -98,6 +92,16 @@ public class EnrolmentPeriodRestrictionsInitializer {
                     EnrolmentPeriodRestrictions.class.getSimpleName(), input.getPresentationName());
 
         }
+    }
+
+    static private ExecutionSemester getBeginExecutionSemester(final DegreeCurricularPlan dcp, final RootCourseGroup root) {
+        final Optional<Context> first =
+                root.getChildContextsSet().stream()
+                        .sorted((o1, o2) -> o1.getBeginExecutionPeriod().compareTo(o2.getBeginExecutionPeriod())).findFirst();
+
+        final ExecutionSemester result =
+                first.isPresent() ? first.get().getBeginExecutionPeriod() : dcp.getFirstExecutionPeriodEnrolments();
+        return result;
     }
 
 }

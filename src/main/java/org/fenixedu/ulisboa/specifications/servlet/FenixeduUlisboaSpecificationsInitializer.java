@@ -43,7 +43,9 @@ import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrol
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +56,8 @@ import pt.ist.fenixframework.Atomic.TxMode;
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
 
     private static final Logger logger = LoggerFactory.getLogger(FenixeduUlisboaSpecificationsInitializer.class);
+
+    public static final String BUNDLE = "resources.FenixeduUlisboaSpecifications";
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
@@ -66,7 +70,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
-        EnrolmentPeriodRestrictionsInitializer.configure();
+        EnrolmentPeriodRestrictionsInitializer.init();
+        CurricularYearCalculatorInitializer.init();
+        CurricularPeriodConfigurationInitializer.init();
         configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
@@ -148,19 +154,11 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureMaximumNumberOfCreditsForEnrolmentPeriod() {
-        MaximumNumberOfCreditsForEnrolmentPeriodEnforcer.init();
-
         final MaximumNumberOfCreditsForEnrolmentPeriodEnforcer enforcer =
                 MaximumNumberOfCreditsForEnrolmentPeriodEnforcer.getInstance();
 
-        if (enforcer == null) {
-
-            LoggerFactory.getLogger(MaximumNumberOfCreditsForEnrolmentPeriodEnforcer.class).warn(
-                    "Unavailable. If unchanged, rules are using default FenixEdu Academic's values.");
-
-        } else if (ULisboaConfiguration.getConfiguration().getEnrolmentsMaxCreditsUpdateRules()) {
-
-            enforcer.updateRules();
+        if (enforcer != null) {
+            enforcer.delete();
         }
     }
 

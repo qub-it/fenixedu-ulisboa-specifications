@@ -25,14 +25,23 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictions;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor.CurricularRuleExecutorLogic;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnrolmentPeriodRestrictionsExecutorLogic implements CurricularRuleExecutorLogic {
+
+    static private final Logger logger = LoggerFactory.getLogger(EnrolmentPeriodRestrictionsExecutorLogic.class);
 
     static public void configure() {
         CurricularRuleExecutorFactory.findExecutor(EnrolmentPeriodRestrictions.class).setLogic(
@@ -42,8 +51,26 @@ public class EnrolmentPeriodRestrictionsExecutorLogic implements CurricularRuleE
     @Override
     public RuleResult executeEnrolmentVerificationWithRules(final ICurricularRule curricularRule,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        // TODO Auto-generated method stub
-        return null;
+
+        final DegreeCurricularPlan dcp = enrolmentContext.getStudentCurricularPlan().getDegreeCurricularPlan();
+        RuleResult result = RuleResult.createInitialFalse();
+
+        final Registration registration = enrolmentContext.getRegistration();
+        final int year = registration.getCurricularYear(enrolmentContext.getExecutionPeriod().getExecutionYear());
+        logger.info("Verifying restrictions for Registration Nr. [{}] in [{}] curricular year", registration.getNumber(), year);
+
+        final CurricularPeriod curricularYear = CurricularPeriodConfiguration.getCurricularYear(dcp, year);
+        if (curricularYear != null) {
+
+            final CurricularPeriodConfiguration configuration = curricularYear.getConfiguration();
+            if (configuration == null) {
+                throw new DomainException("curricularRules.ruleExecutors.logic.unavailable", this.getClass().getSimpleName());
+            }
+            
+            result = configuration.verifyRulesForEnrolment(enrolmentContext);
+        }
+
+        return result;
     }
 
 }
