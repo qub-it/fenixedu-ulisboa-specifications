@@ -36,8 +36,7 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
             throw new RuntimeException(e);
         }
 
-        appendSummaryFile(stream.toByteArray(), person.getStudent().getNumber(),
-                InstructionsController.getPersonFirstTimeCandidacy(person));
+        appendSummaryFile(stream.toByteArray(), InstructionsController.getPersonFirstTimeCandidacy(person));
 
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
@@ -48,17 +47,17 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
     }
 
     @Atomic
-    private void appendSummaryFile(byte[] pdfByteArray, Integer studentNumber, StudentCandidacy studentCandidacy) {
+    public static void appendSummaryFile(byte[] pdfByteArray, StudentCandidacy studentCandidacy) {
         CandidacySummaryFile existingSummary = studentCandidacy.getSummaryFile();
         byte[] existingContent = existingSummary.getContent();
         ByteArrayOutputStream concatDoc = concatenateDocs(existingContent, pdfByteArray);
         existingSummary.delete();
 
-        studentCandidacy.setSummaryFile(new CandidacySummaryFile(studentNumber + ".pdf", concatDoc.toByteArray(),
-                studentCandidacy));
+        studentCandidacy.setSummaryFile(new CandidacySummaryFile(studentCandidacy.getPerson().getStudent().getNumber() + ".pdf",
+                concatDoc.toByteArray(), studentCandidacy));
     }
 
-    private ByteArrayOutputStream concatenateDocs(byte[] existingDoc, byte[] newDoc) {
+    private static ByteArrayOutputStream concatenateDocs(byte[] existingDoc, byte[] newDoc) {
         ByteArrayOutputStream concatenatedPdf = new ByteArrayOutputStream();
         try {
             PdfCopyFields copy = new PdfCopyFields(concatenatedPdf);
