@@ -18,6 +18,8 @@ import com.google.common.collect.Sets;
 
 public class FlunkedCredits extends FlunkedCredits_Base {
 
+    private static final BigDecimal FLUNKED_CREDITS_BY_YEAR = BigDecimal.valueOf(60);
+
     protected FlunkedCredits() {
         super();
     }
@@ -79,9 +81,10 @@ public class FlunkedCredits extends FlunkedCredits_Base {
             }
         }
 
-        final BigDecimal total = getCreditsApproved(curriculum, configured);
+        final BigDecimal approved = getCreditsApproved(curriculum, configured);
+        final BigDecimal total = FLUNKED_CREDITS_BY_YEAR.min(approved);
 
-        return BigDecimal.valueOf(60).min(total).compareTo(getCredits()) < 0 ? createTrue() : createFalseLabelled();
+        return total.compareTo(getCredits()) < 0 ? createTrue() : createFalseLabelled(total);
     }
 
     static private BigDecimal getCreditsApproved(final Curriculum curriculum, final Set<CurricularPeriod> configured) {
@@ -90,7 +93,7 @@ public class FlunkedCredits extends FlunkedCredits_Base {
 
         final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = CurricularPeriodServices.mapYearCredits(curriculum);
         final Set<CurricularPeriod> toInspect = configured.isEmpty() ? curricularPeriodCredits.keySet() : configured;
-        
+
         for (final CurricularPeriod iter : toInspect) {
             final BigDecimal credits = curricularPeriodCredits.get(iter);
             if (credits != null) {

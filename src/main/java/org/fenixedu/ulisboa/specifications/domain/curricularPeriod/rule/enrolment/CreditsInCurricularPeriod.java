@@ -106,7 +106,7 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
         final BigDecimal total = getCreditsEnroledAndEnroling(enrolmentContext, configured);
 
-        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(total);
     }
 
     private BigDecimal getCreditsEnroledAndEnroling(final EnrolmentContext enrolmentContext,

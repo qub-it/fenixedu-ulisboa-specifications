@@ -71,7 +71,7 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
         }
     }
-
+    
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
         if (getSemester() != null) {
@@ -96,7 +96,7 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
             total = total.add(credits);
         }
 
-        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(total);
     }
 
     private RuleResult executeBySemester(final EnrolmentContext enrolmentContext) {
@@ -110,7 +110,7 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
             total = total.add(credits);
         }
 
-        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(total);
     }
 
 }
