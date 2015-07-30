@@ -93,13 +93,13 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         return RuleResult.createFalseWithLiteralMessage(degreeModule, literalMessage);
     }
 
-    public RuleResult createFalseLabelled() {
-        final String literalMessage = getLabel();
+    public RuleResult createFalseLabelled(final BigDecimal suffix) {
+        final String literalMessage = getLabel() + " " + getMessagesSuffix(suffix);
         return RuleResult.createFalseWithLiteralMessage(getDegreeModule(), literalMessage);
     }
 
-    public RuleResult createWarningLabelled() {
-        final String literalMessage = getLabel();
+    public RuleResult createWarningLabelled(final BigDecimal suffix) {
+        final String literalMessage = getLabel() + " " + getMessagesSuffix(suffix);
         return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
     }
 
@@ -108,15 +108,22 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     static public void addMessagesPrefix(final CurricularPeriodConfiguration configuration, final RuleResult result) {
-        final String prefix =
-                BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix", configuration.getCurricularPeriod()
-                        .getFullLabel());
+        final String prefix = getMessagesPrefix(configuration);
 
         for (final RuleResultMessage iter : result.getMessages()) {
             if (!iter.getMessage().contains(prefix)) {
                 iter.setMessage(prefix + " " + iter.getMessage());
             }
         }
+    }
+
+    static private String getMessagesPrefix(final CurricularPeriodConfiguration configuration) {
+        return BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix", configuration.getCurricularPeriod()
+                .getFullLabel());
+    }
+
+    static private String getMessagesSuffix(final BigDecimal total) {
+        return BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString());
     }
 
 }

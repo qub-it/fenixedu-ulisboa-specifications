@@ -96,7 +96,7 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
             total = total.add(BigDecimal.valueOf(competenceCourse.getEctsCredits()));
         }
 
-        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(total);
     }
 
 }

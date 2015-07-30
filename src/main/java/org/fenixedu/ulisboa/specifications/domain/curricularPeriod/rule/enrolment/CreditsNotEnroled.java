@@ -86,7 +86,7 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         BigDecimal total = getCreditsApproved(curriculum, configured);
         total = total.add(getCreditsEnroledAndEnroling(enrolmentContext, configured));
 
-        return total.compareTo(getCredits()) > 0 ? createTrue() : createWarningLabelled();
+        return total.compareTo(getCredits()) > 0 ? createTrue() : createWarningLabelled(total);
     }
 
     private BigDecimal getCreditsApproved(final ICurriculum curriculum, final CurricularPeriod curricularPeriod) {
