@@ -37,8 +37,6 @@ import com.lowagie.text.pdf.PdfStamper;
 
 public class CGDPdfFiller {
 
-    private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "/CGD_PERSONAL_INFORMATION_FORM.pdf";
-
     private static final String MARITAL_STATUS_CIVIL_UNION = "União de facto";
     private static final String MARITAL_STATUS_DIVORCED = "Divorciado";
     private static final String MARITAL_STATUS_SEPARATED = "Sep.judicialmente";
@@ -70,13 +68,13 @@ public class CGDPdfFiller {
      * End PdfFiller variables and methods
      * */
 
-    public ByteArrayOutputStream getFilledPdf(Person person) throws IOException, DocumentException {
-        return getFilledPdfCGDPersonalInformation(person);
+    public ByteArrayOutputStream getFilledPdf(Person person, InputStream pdfTemplateStream) throws IOException, DocumentException {
+        return getFilledPdfCGDPersonalInformation(person, pdfTemplateStream);
     }
 
-    private ByteArrayOutputStream getFilledPdfCGDPersonalInformation(Person person) throws IOException, DocumentException {
-        InputStream istream = getClass().getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
-        PdfReader reader = new PdfReader(istream);
+    private ByteArrayOutputStream getFilledPdfCGDPersonalInformation(Person person, InputStream pdfTemplateStream)
+            throws IOException, DocumentException {
+        PdfReader reader = new PdfReader(pdfTemplateStream);
         reader.getAcroForm().remove(PdfName.SIGFLAGS);
         reader.selectPages("1");
         ByteArrayOutputStream output = new ByteArrayOutputStream();

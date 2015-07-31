@@ -2,6 +2,9 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import javax.servlet.ServletContext;
 
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
@@ -10,6 +13,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -24,19 +28,27 @@ import com.lowagie.text.pdf.PdfReader;
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print")
 public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseController {
 
-    @RequestMapping
+    private @Autowired ServletContext context;
+
+    private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
+
+    @RequestMapping(produces = "application/pdf")
     public String model43print(Model model, RedirectAttributes redirectAttributes) {
         Person person = Authenticate.getUser().getPerson();
-        CGDPdfFiller cgdPdfFiller = new CGDPdfFiller();
+        InputStream pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
+
         ByteArrayOutputStream stream;
         try {
-            stream = cgdPdfFiller.getFilledPdf(person);
+            CGDPdfFiller cgdPdfFiller = new CGDPdfFiller();
+            stream = cgdPdfFiller.getFilledPdf(person, pdfTemplateStream);
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+        byte[] pdfBytes = stream.toByteArray();
+        String filename = person.getStudent().getNumber() + ".pdf";
 
-        appendSummaryFile(stream.toByteArray(), InstructionsController.getPersonFirstTimeCandidacy(person));
+        appendSummaryFile(pdfBytes, InstructionsController.getPersonFirstTimeCandidacy(person));
 
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
