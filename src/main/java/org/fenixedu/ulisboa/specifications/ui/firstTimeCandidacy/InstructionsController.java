@@ -25,11 +25,12 @@ public class InstructionsController extends FenixeduUlisboaSpecificationsBaseCon
         Predicate<Candidacy> firstTimeCandidaciesPredicate = c -> ((c instanceof DegreeCandidacy) || (c instanceof IMDCandidacy));
         Stream<Candidacy> candidacies =
                 Authenticate.getUser().getPerson().getCandidaciesSet().stream().filter(firstTimeCandidaciesPredicate);
-        if (candidacies.count() == 0) {
+        long count = candidacies.count();
+        if (count == 0) {
             throw new RuntimeException(
                     "Students with no DegreeCandidacies or IMDCandidacies are not supported in the first time registration flow");
         }
-        if (candidacies.count() > 1) {
+        if (count > 1) {
             throw new RuntimeException(
                     "Students with multiple DegreeCandidacies or IMDCandidacies are not supported in the first time registration flow");
         }
