@@ -3,11 +3,11 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.candidacy.DegreeCandidacy;
 import org.fenixedu.academic.domain.candidacy.IMDCandidacy;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -44,9 +44,9 @@ public class InstructionsController extends FenixeduUlisboaSpecificationsBaseCon
                 model, redirectAttributes);
     }
 
-    public static StudentCandidacy getPersonFirstTimeCandidacy(Person person) {
-        Predicate<Candidacy> firstTimeCandidaciesPredicate = c -> ((c instanceof DegreeCandidacy) || (c instanceof IMDCandidacy));
-        Stream<Candidacy> candidacies = person.getCandidaciesSet().stream().filter(firstTimeCandidaciesPredicate);
+    public static StudentCandidacy getStudentCandidacy() {
+        Predicate<Candidacy> candidaciesPredicate = c -> ((c instanceof DegreeCandidacy) || (c instanceof IMDCandidacy));
+        Stream<Candidacy> candidacies = AccessControl.getPerson().getCandidaciesSet().stream().filter(candidaciesPredicate);
         return (StudentCandidacy) candidacies.findAny().get();
     }
 }

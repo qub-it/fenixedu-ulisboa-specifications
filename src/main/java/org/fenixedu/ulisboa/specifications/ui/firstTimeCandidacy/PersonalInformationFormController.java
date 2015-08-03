@@ -28,14 +28,20 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.io.Serializable;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
+import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -46,6 +52,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = InstructionsController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
@@ -76,24 +84,52 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     private void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("personalInformationForm")) {
-            PersonalInformationForm personalInformationForm = new PersonalInformationForm();
+            PersonalInformationForm form = new PersonalInformationForm();
+
             Person person = AccessControl.getPerson();
-            personalInformationForm.setName(person.getName());
-            personalInformationForm.setUsername(person.getUsername());
-            personalInformationForm.setGender(person.getGender());
-            personalInformationForm.setDocumentIdNumber(person.getDocumentIdNumber());
-            personalInformationForm.setIdDocumentType(person.getIdDocumentType());
-            personalInformationForm.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
-            personalInformationForm.setMaritalStatus(MaritalStatus.SINGLE);
-            personalInformationForm.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
-            personalInformationForm.setProfessionType(ProfessionType.OTHER);
-            model.addAttribute("personalInformationForm", personalInformationForm);
+            form.setName(person.getName());
+            form.setUsername(person.getUsername());
+            form.setGender(person.getGender());
+            form.setDocumentIdNumber(person.getDocumentIdNumber());
+            form.setIdDocumentType(person.getIdDocumentType());
+            form.setDocumentIdEmissionDate(person.getEmissionDateOfDocumentIdYearMonthDay());
+            form.setDocumentIdExpirationDate(person.getExpirationDateOfDocumentIdYearMonthDay());
+            form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
+            form.setProfession(person.getProfession());
+            form.setSocialSecurityNumber(person.getSocialSecurityNumber());
+            form.setMaritalStatus(person.getMaritalStatus());
+            form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue());
+            form.setIdentificationDocumentExtraDigit(person.getIdentificationDocumentExtraDigitValue());
+
+            PersonalIngressionData personalData =
+                    getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy()
+                            .getPrecedentDegreeInformation());
+            form.setGrantOwnerType(personalData.getGrantOwnerType());
+            if (form.getGrantOwnerType() == null) {
+                form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
+            }
+            form.setGrantOwnerProvider(personalData.getGrantOwnerProvider());
+            form.setProfessionalCondition(personalData.getProfessionalCondition());
+            if (form.getProfessionalCondition() == null) {
+                form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
+            }
+            form.setProfessionType(personalData.getProfessionType());
+            if (form.getProfessionType() == null) {
+                form.setProfessionType(ProfessionType.OTHER);
+            }
+            form.setMaritalStatus(personalData.getMaritalStatus());
+            if (form.getMaritalStatus() == null) {
+                form.setMaritalStatus(MaritalStatus.SINGLE);
+            }
+
+            model.addAttribute("personalInformationForm", form);
         }
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
     public String fillpersonalinformation(PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
 
+        writePersonalInformationData(form);
         try {
             model.addAttribute("personalInformationForm", form);
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation/", model,
@@ -104,6 +140,64 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     + de.getLocalizedMessage(), model);
             return fillpersonalinformation(model);
         }
+    }
+
+    @Atomic
+    private void writePersonalInformationData(PersonalInformationForm form) {
+        Person person = AccessControl.getPerson();
+        PersonalIngressionData personalData =
+                getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy().getPrecedentDegreeInformation());
+
+        person.setEmissionDateOfDocumentIdYearMonthDay(form.getDocumentIdEmissionDate());
+        person.setExpirationDateOfDocumentIdYearMonthDay(form.getDocumentIdExpirationDate());
+        person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
+        person.setProfession(form.getProfession());
+        person.setSocialSecurityNumber(form.getSocialSecurityNumber());
+        person.setMaritalStatus(form.getMaritalStatus());
+        person.setIdentificationDocumentSeriesNumber(form.getIdentificationDocumentSeriesNumber());
+        person.setIdentificationDocumentExtraDigit(form.getIdentificationDocumentExtraDigit());
+
+        personalData.setGrantOwnerType(form.getGrantOwnerType());
+        personalData.setGrantOwnerProvider(form.getGrantOwnerProvider());
+        personalData.setProfessionalCondition(form.getProfessionalCondition());
+        personalData.setProfessionType(form.getProfessionType());
+        personalData.setMaritalStatus(form.getMaritalStatus());
+    }
+
+    @Atomic
+    private PersonalIngressionData getOrCreatePersonalIngressionData(PrecedentDegreeInformation precedentInformation) {
+        PersonalIngressionData personalData = null;
+        personalData = precedentInformation.getPersonalIngressionData();
+        Student student = AccessControl.getPerson().getStudent();
+        if (personalData == null) {
+            personalData = student.getPersonalIngressionDataByExecutionYear(ExecutionYear.readCurrentExecutionYear());
+            if (personalData != null) {
+                //if the student already has a PID it will have another PDI associated, it's necessary to add the new PDI
+                personalData.addPrecedentDegreesInformations(precedentInformation);
+            } else {
+                personalData = new PersonalIngressionData(ExecutionYear.readCurrentExecutionYear(), precedentInformation);
+            }
+        }
+
+        // It is necessary to create an early Registration so that the RAIDES objects are consistent
+        // see PrecedentDegreeInformation.checkHasAllRegistrationOrPhdInformation()
+        getOrCreateRegistration();
+
+        return personalData;
+    }
+
+    private Registration getOrCreateRegistration() {
+        StudentCandidacy studentCandidacy = InstructionsController.getStudentCandidacy();
+        Registration registration = studentCandidacy.getRegistration();
+        if (registration != null) {
+            return registration;
+        }
+        registration = new Registration(studentCandidacy.getPerson(), studentCandidacy);
+
+        PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation();
+        pdi.setRegistration(registration);
+        pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
+        return registration;
     }
 
     public static class PersonalInformationForm implements Serializable {
