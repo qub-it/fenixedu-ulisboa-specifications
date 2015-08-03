@@ -92,7 +92,8 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     }
 
     @RequestMapping(value = "/district/{oid}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<DistrictSubdivisionBean> requestKeyStoreEntries(@PathVariable("oid") District district, Model model) {
+    public @ResponseBody List<DistrictSubdivisionBean> readDistrictSubdivisions(@PathVariable("oid") District district,
+            Model model) {
         return district.getDistrictSubdivisionsSet().stream()
                 .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
     }

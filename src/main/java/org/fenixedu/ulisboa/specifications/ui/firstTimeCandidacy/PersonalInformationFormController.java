@@ -27,6 +27,8 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
@@ -35,6 +37,7 @@ import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
@@ -51,6 +54,8 @@ import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
@@ -200,6 +205,31 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         return registration;
     }
 
+    @RequestMapping(value = "/unit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody List<UnitBean> readUnits(@RequestParam("namePart") String namePart, Model model) {
+        return UnitName.findExternalUnit(namePart, 50).stream()
+                .map(un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName())).collect(Collectors.toList());
+    }
+
+    public static class UnitBean {
+        String unitExternalId;
+        String unitName;
+
+        public UnitBean(String unitExternalId, String unitName) {
+            super();
+            this.unitExternalId = unitExternalId;
+            this.unitName = unitName;
+        }
+
+        public String getUnitExternalId() {
+            return unitExternalId;
+        }
+
+        public String getUnitName() {
+            return unitName;
+        }
+    }
+
     public static class PersonalInformationForm implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -220,7 +250,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         private MaritalStatus maritalStatus;
         private GrantOwnerType grantOwnerType;
         private Unit grantOwnerProvider;
-        private String grantOwnerProviderName;
 
         public String getName() {
             return name;
@@ -356,14 +385,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         public void setGrantOwnerProvider(Unit grantOwnerProvider) {
             this.grantOwnerProvider = grantOwnerProvider;
-        }
-
-        public String getGrantOwnerProviderName() {
-            return grantOwnerProviderName;
-        }
-
-        public void setGrantOwnerProviderName(String grantOwnerProviderName) {
-            this.grantOwnerProviderName = grantOwnerProviderName;
         }
 
         public static long getSerialversionuid() {
