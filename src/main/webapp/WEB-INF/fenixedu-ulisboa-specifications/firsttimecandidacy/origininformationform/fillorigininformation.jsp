@@ -73,7 +73,7 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.schoolLevel"/></div> 
 
 <div class="col-sm-4">
-	<select id="originInformationForm_schoolLevel" class="form-control" name="schoollevel">
+	<select id="originInformationForm_schoolLevel" class="form-control" name="schoolLevel">
 		<c:forEach items="${schoolLevelValues}" var="field">
 			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
@@ -87,35 +87,35 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.otherSchoolLevel"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_otherSchoolLevel" class="form-control" type="text" name="otherschoollevel"  value='<c:out value='${not empty param.otherschoollevel ? param.otherschoollevel : originInformationForm.otherSchoolLevel }'/>' />
+	<input id="originInformationForm_otherSchoolLevel" class="form-control" type="text" name="otherSchoolLevel"  value='<c:out value='${not empty param.otherschoollevel ? param.otherschoollevel : originInformationForm.otherSchoolLevel }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.conclusionGrade"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_conclusionGrade" class="form-control" type="text" name="conclusiongrade"  value='<c:out value='${not empty param.conclusiongrade ? param.conclusiongrade : originInformationForm.conclusionGrade }'/>' />
+	<input id="originInformationForm_conclusionGrade" class="form-control" type="text" name="conclusionGrade"  value='<c:out value='${not empty param.conclusiongrade ? param.conclusiongrade : originInformationForm.conclusionGrade }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.degreeDesignation"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_degreeDesignation" class="form-control" type="text" name="degreedesignation"  value='<c:out value='${not empty param.degreedesignation ? param.degreedesignation : originInformationForm.degreeDesignation }'/>' />
+	<input id="originInformationForm_degreeDesignation" class="form-control" type="text" name="degreeDesignation"  value='<c:out value='${not empty param.degreedesignation ? param.degreedesignation : originInformationForm.degreeDesignation }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.conclusionYear"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_conclusionYear" class="form-control" type="text" name="conclusionyear"  value='<c:out value='${not empty param.conclusionyear ? param.conclusionyear : originInformationForm.conclusionYear }'/>' />
+	<input id="originInformationForm_conclusionYear" class="form-control" type="text" name="conclusionYear"  value='<c:out value='${not empty param.conclusionyear ? param.conclusionyear : originInformationForm.conclusionYear }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.birthYear"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_birthYear" class="form-control" type="text" name="birthyear"  value='<c:out value='${not empty param.birthyear ? param.birthyear : originInformationForm.birthYear }'/>' />
+	<input id="originInformationForm_birthYear" class="form-control" type="text" name="birthYear"  value='<c:out value='${not empty param.birthyear ? param.birthyear : originInformationForm.birthYear }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
@@ -129,28 +129,28 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.institutionName"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_institutionName" class="form-control" type="text" name="institutionname"  value='<c:out value='${not empty param.institutionname ? param.institutionname : originInformationForm.institutionName }'/>' />
+	<input id="originInformationForm_institutionName" class="form-control" type="text" name="institutionName"  value='<c:out value='${not empty param.institutionname ? param.institutionname : originInformationForm.institutionName }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.raidesDegreeDesignation"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_raidesDegreeDesignation" class="form-control" type="text" name="raidesdegreedesignation"  value='<c:out value='${not empty param.raidesdegreedesignation ? param.raidesdegreedesignation : originInformationForm.raidesDegreeDesignation }'/>' />
+	<input id="originInformationForm_raidesDegreeDesignation" class="form-control" type="text" name="raidesDegreeDesignation"  value='<c:out value='${not empty param.raidesdegreedesignation ? param.raidesdegreedesignation : originInformationForm.raidesDegreeDesignation }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_countryWhereFinishedPreviousCompleteDegree" class="form-control" type="text" name="countrywherefinishedpreviouscompletedegree"  value='<c:out value='${not empty param.countrywherefinishedpreviouscompletedegree ? param.countrywherefinishedpreviouscompletedegree : originInformationForm.countryWhereFinishedPreviousCompleteDegree }'/>' />
+	<input id="originInformationForm_countryWhereFinishedPreviousCompleteDegree" class="form-control" type="text" name="countryWhereFinishedPreviousCompleteDegree"  value='<c:out value='${not empty param.countrywherefinishedpreviouscompletedegree ? param.countrywherefinishedpreviouscompletedegree : originInformationForm.countryWhereFinishedPreviousCompleteDegree }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.highSchoolType"/></div> 
 
 <div class="col-sm-4">
-	<select id="originInformationForm_highSchoolType" class="form-control" name="highschooltype">
+	<select id="originInformationForm_highSchoolType" class="form-control" name="highSchoolType">
 		<c:forEach items="${highSchoolTypeValues}" var="field">
 			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
 		</c:forEach>
