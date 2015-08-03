@@ -283,21 +283,13 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="personalInformationForm_grantOwnerProvider"
-						class="form-control" type="text" name="grantownerprovider"
-						value='<c:out value='${not empty param.grantownerprovider ? param.grantownerprovider : personalInformationForm.grantOwnerProvider }'/>' />
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.grantOwnerProviderName" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="personalInformationForm_grantOwnerProviderName"
-						class="form-control" type="text" name="grantownerprovidername"
-						value='<c:out value='${not empty param.grantownerprovidername ? param.grantownerprovidername : personalInformationForm.grantOwnerProviderName }'/>' />
+					<select id="personalInformationForm_grantOwnerProvider" class="form-control" name="grantownerprovider"></select>
+					<option selected value='${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.externalId : "" }'>
+						${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.name : ""}
+					</option> 
+					
+					
+					
 				</div>
 			</div>
 		</div>
@@ -310,7 +302,32 @@ ${portal.toolkit()}
 
 <script>
 $(document).ready(function() {
-
-
+		$("#personalInformationForm_grantOwnerProvider").select2(
+				{
+				  ajax: {
+				    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/unit/",
+				    dataType: 'json',
+				    delay: 250,
+				    data: function (params) {
+				      return {
+				        namePart: params.term, // search term
+				        page: params.page
+				      };
+				    },
+				    processResults: function (data, page) {
+				      newData = []
+				      for(var result in data){
+				    	  newData[result] = {
+				    			  text : data[result]["unitName"],
+				    			  id : data[result]["unitExternalId"],
+				    	  }
+				      }
+				      return {
+				        results: newData
+				      };
+				    },
+				    cache: true
+				  }});
+		
 	});
 </script>
