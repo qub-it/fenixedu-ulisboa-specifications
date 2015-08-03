@@ -46,9 +46,8 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
             throw new RuntimeException(e);
         }
         byte[] pdfBytes = stream.toByteArray();
-        String filename = person.getStudent().getNumber() + ".pdf";
 
-        appendSummaryFile(pdfBytes, InstructionsController.getPersonFirstTimeCandidacy(person));
+        appendSummaryFile(pdfBytes, InstructionsController.getStudentCandidacy());
 
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }

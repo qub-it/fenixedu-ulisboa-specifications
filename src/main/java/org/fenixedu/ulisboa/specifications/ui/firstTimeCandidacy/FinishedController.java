@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
-import org.fenixedu.academic.domain.Person;
-import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +22,8 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
 
     @RequestMapping(value = "/printalldocuments", produces = "application/pdf")
     public ResponseEntity<byte[]> finishedToPrintAllDocuments(Model model, RedirectAttributes redirectAttributes) {
-        Person person = Authenticate.getUser().getPerson();
-        byte[] pdfBytes = InstructionsController.getPersonFirstTimeCandidacy(person).getSummaryFile().getContent();
-        String filename = person.getStudent().getNumber() + ".pdf";
+        byte[] pdfBytes = InstructionsController.getStudentCandidacy().getSummaryFile().getContent();
+        String filename = AccessControl.getPerson().getStudent().getNumber() + ".pdf";
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline;filename=" + filename);
