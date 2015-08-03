@@ -73,14 +73,14 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.phoneNumber"/></div> 
 
 <div class="col-sm-10">
-	<input id="contactsForm_phoneNumber" class="form-control" type="text" name="phonenumber"  value='<c:out value='${not empty param.phonenumber ? param.phonenumber : contactsForm.phoneNumber }'/>' />
+	<input id="contactsForm_phoneNumber" class="form-control" type="text" name="phoneNumber"  value='<c:out value='${not empty param.phonenumber ? param.phonenumber : contactsForm.phoneNumber }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.mobileNumber"/></div> 
 
 <div class="col-sm-10">
-	<input id="contactsForm_mobileNumber" class="form-control" type="text" name="mobilenumber"  value='<c:out value='${not empty param.mobilenumber ? param.mobilenumber : contactsForm.mobileNumber }'/>' />
+	<input id="contactsForm_mobileNumber" class="form-control" type="text" name="mobileNumber"  value='<c:out value='${not empty param.mobilenumber ? param.mobilenumber : contactsForm.mobileNumber }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
@@ -94,14 +94,14 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.webAddress"/></div> 
 
 <div class="col-sm-10">
-	<input id="contactsForm_webAddress" class="form-control" type="text" name="webaddress"  value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
+	<input id="contactsForm_webAddress" class="form-control" type="text" name="webAddress"  value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.isEmailAvailable"/></div> 
 
 <div class="col-sm-2">
-<select id="contactsForm_isEmailAvailable" name="isemailavailable" class="form-control">
+<select id="contactsForm_isEmailAvailable" name="isEmailAvailable" class="form-control">
 <option value="false"><spring:message code="label.no"/></option>
 <option value="true"><spring:message code="label.yes"/></option>				
 </select>
@@ -114,7 +114,7 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.isHomepageAvailable"/></div> 
 
 <div class="col-sm-2">
-<select id="contactsForm_isHomepageAvailable" name="ishomepageavailable" class="form-control">
+<select id="contactsForm_isHomepageAvailable" name="isHomepageAvailable" class="form-control">
 <option value="false"><spring:message code="label.no"/></option>
 <option value="true"><spring:message code="label.yes"/></option>				
 </select>

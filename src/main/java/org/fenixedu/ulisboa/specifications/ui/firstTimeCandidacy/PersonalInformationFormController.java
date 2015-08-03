@@ -50,7 +50,9 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -97,14 +99,19 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             form.setGender(person.getGender());
             form.setDocumentIdNumber(person.getDocumentIdNumber());
             form.setIdDocumentType(person.getIdDocumentType());
-            form.setDocumentIdEmissionDate(person.getEmissionDateOfDocumentIdYearMonthDay());
-            form.setDocumentIdExpirationDate(person.getExpirationDateOfDocumentIdYearMonthDay());
+
+            YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
+            YearMonthDay expirationDateOfDocumentIdYearMonthDay = person.getExpirationDateOfDocumentIdYearMonthDay();
+            form.setDocumentIdEmissionDate(emissionDateOfDocumentIdYearMonthDay != null ? new LocalDate(person
+                    .getEmissionDateOfDocumentIdYearMonthDay().toDateMidnight()) : null);
+            form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
+                    expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
             form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
             form.setProfession(person.getProfession());
             form.setSocialSecurityNumber(person.getSocialSecurityNumber());
             form.setMaritalStatus(person.getMaritalStatus());
-            form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue());
-            form.setIdentificationDocumentExtraDigit(person.getIdentificationDocumentExtraDigitValue());
+            form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
+                    .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
 
             PersonalIngressionData personalData =
                     getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy()
@@ -153,14 +160,24 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         PersonalIngressionData personalData =
                 getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy().getPrecedentDegreeInformation());
 
-        person.setEmissionDateOfDocumentIdYearMonthDay(form.getDocumentIdEmissionDate());
-        person.setExpirationDateOfDocumentIdYearMonthDay(form.getDocumentIdExpirationDate());
+        LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
+        LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
+        person.setEmissionDateOfDocumentIdYearMonthDay(documentIdEmissionDate != null ? new YearMonthDay(documentIdEmissionDate
+                .toDate()) : null);
+        person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
+                documentIdExpirationDate.toDate()) : null);
         person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
         person.setProfession(form.getProfession());
         person.setSocialSecurityNumber(form.getSocialSecurityNumber());
         person.setMaritalStatus(form.getMaritalStatus());
-        person.setIdentificationDocumentSeriesNumber(form.getIdentificationDocumentSeriesNumber());
-        person.setIdentificationDocumentExtraDigit(form.getIdentificationDocumentExtraDigit());
+        String seriesNumerOrExtraDigit = form.getIdentificationDocumentSeriesNumber();
+        if (seriesNumerOrExtraDigit.matches("[0-9]|")) {
+            person.setIdentificationDocumentExtraDigit(seriesNumerOrExtraDigit);
+            person.setIdentificationDocumentSeriesNumber(null);
+        } else if (seriesNumerOrExtraDigit.matches("[0-9][a-zA-Z][a-zA-Z][0-9]")) {
+            person.setIdentificationDocumentSeriesNumber(seriesNumerOrExtraDigit);
+            person.setIdentificationDocumentExtraDigit(null);
+        }
 
         personalData.setGrantOwnerType(form.getGrantOwnerType());
         personalData.setGrantOwnerProvider(form.getGrantOwnerProvider());
@@ -238,11 +255,13 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         private Gender gender;
         private String documentIdNumber;
         private IDDocumentType idDocumentType;
-        private String identificationDocumentExtraDigit;
+        //can be either the series number or the extra digit
         private String identificationDocumentSeriesNumber;
         private String documentIdEmissionLocation;
-        private YearMonthDay documentIdEmissionDate;
-        private YearMonthDay documentIdExpirationDate;
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate documentIdEmissionDate;
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate documentIdExpirationDate;
         private String socialSecurityNumber;
         private ProfessionType professionType;
         private ProfessionalSituationConditionType professionalCondition;
@@ -291,14 +310,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             this.idDocumentType = idDocumentType;
         }
 
-        public String getIdentificationDocumentExtraDigit() {
-            return identificationDocumentExtraDigit;
-        }
-
-        public void setIdentificationDocumentExtraDigit(String identificationDocumentExtraDigit) {
-            this.identificationDocumentExtraDigit = identificationDocumentExtraDigit;
-        }
-
         public String getIdentificationDocumentSeriesNumber() {
             return identificationDocumentSeriesNumber;
         }
@@ -315,19 +326,19 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             this.documentIdEmissionLocation = documentIdEmissionLocation;
         }
 
-        public YearMonthDay getDocumentIdEmissionDate() {
+        public LocalDate getDocumentIdEmissionDate() {
             return documentIdEmissionDate;
         }
 
-        public void setDocumentIdEmissionDate(YearMonthDay documentIdEmissionDate) {
+        public void setDocumentIdEmissionDate(LocalDate documentIdEmissionDate) {
             this.documentIdEmissionDate = documentIdEmissionDate;
         }
 
-        public YearMonthDay getDocumentIdExpirationDate() {
+        public LocalDate getDocumentIdExpirationDate() {
             return documentIdExpirationDate;
         }
 
-        public void setDocumentIdExpirationDate(YearMonthDay documentIdExpirationDate) {
+        public void setDocumentIdExpirationDate(LocalDate documentIdExpirationDate) {
             this.documentIdExpirationDate = documentIdExpirationDate;
         }
 

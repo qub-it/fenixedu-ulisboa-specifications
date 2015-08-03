@@ -89,14 +89,14 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.parishOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_parishOfBirth" class="form-control" type="text" name="parishofbirth"  value='<c:out value='${not empty param.parishofbirth ? param.parishofbirth : filiationForm.parishOfBirth }'/>' />
+	<input id="filiationForm_parishOfBirth" class="form-control" type="text" name="parishOfBirth"  value='<c:out value='${not empty param.parishofbirth ? param.parishofbirth : filiationForm.parishOfBirth }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.districtSubdivisionOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<select id="filiationForm_districtSubdivisionOfBirth" class="js-example-basic-single" name="districtsubdivisionofbirth">
+	<select id="filiationForm_districtSubdivisionOfBirth" class="js-example-basic-single" name="districtSubdivisionOfBirth">
 	</select>
 </div>	
 </div>		
@@ -104,7 +104,7 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.districtOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<select id="filiationForm_districtOfBirth" class="js-example-basic-single" name="districtofbirth">
+	<select id="filiationForm_districtOfBirth" class="js-example-basic-single" name="districtOfBirth">
 		<option id=""></option>
 	</select>
 </div>	
@@ -113,14 +113,14 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.fatherName"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_fatherName" class="form-control" type="text" name="fathername"  value='<c:out value='${not empty param.fathername ? param.fathername : filiationForm.fatherName }'/>' />
+	<input id="filiationForm_fatherName" class="form-control" type="text" name="fatherName"  value='<c:out value='${not empty param.fathername ? param.fathername : filiationForm.fatherName }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.motherName"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_motherName" class="form-control" type="text" name="mothername"  value='<c:out value='${not empty param.mothername ? param.mothername : filiationForm.motherName }'/>' />
+	<input id="filiationForm_motherName" class="form-control" type="text" name="motherName"  value='<c:out value='${not empty param.mothername ? param.mothername : filiationForm.motherName }'/>' />
 </div>	
 </div>		
 <div class="form-group row">

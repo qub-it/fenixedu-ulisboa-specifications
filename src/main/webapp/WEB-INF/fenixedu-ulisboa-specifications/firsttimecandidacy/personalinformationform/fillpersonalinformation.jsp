@@ -134,7 +134,7 @@ ${portal.toolkit()}
 					<input
 						id="personalInformationForm_identificationDocumentSeriesNumber"
 						class="form-control" type="text"
-						name="identificationdocumentseriesnumber"
+						name="identificationDocumentSeriesNumber"
 						value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>'
 						required pattern="[0-9]|([0-9][a-zA-Z][a-zA-Z][0-9])" />
 				</div>
@@ -147,7 +147,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_documentIdEmissionLocation"
-						class="form-control" type="text" name="documentidemissionlocation"
+						class="form-control" type="text" name="documentIdEmissionLocation"
 						value='<c:out value='${not empty param.documentidemissionlocation ? param.documentidemissionlocation : personalInformationForm.documentIdEmissionLocation }'/>' />
 				</div>
 			</div>
@@ -159,7 +159,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<input id="personalInformationForm_documentIdEmissionDate"
-						class="form-control" type="text" name="documentidemissiondate"
+						class="form-control" type="text" name="documentIdEmissionDate"
 						bennu-date
 						value='<c:out value='${not empty param.documentidemissiondate ? param.documentidemissiondate : personalInformationForm.documentIdEmissionDate }'/>'/>
 				</div>
@@ -172,7 +172,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<input id="personalInformationForm_documentIdExpirationDate"
-						class="form-control" type="text" name="documentidexpirationdate"
+						class="form-control" type="text" name="documentIdExpirationDate"
 						bennu-date required
 						value='<c:out value='${not empty param.documentidexpirationdate ? param.documentidexpirationdate : personalInformationForm.documentIdExpirationDate }'/>' />
 				</div>
@@ -185,7 +185,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_socialSecurityNumber"
-						class="form-control" type="text" name="socialsecuritynumber"
+						class="form-control" type="text" name="socialSecurityNumber"
 						value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
 						required pattern="(\d{9})"/>
 				</div>
@@ -197,7 +197,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_professionType"
-						class="form-control" name="professiontype">
+						class="form-control" name="professionType">
 						<c:forEach items="${professionTypeValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -216,7 +216,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_professionalCondition"
-						class="form-control" name="professionalcondition">
+						class="form-control" name="professionalCondition">
 						<c:forEach items="${professionalConditionValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -245,7 +245,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_maritalStatus"
-						class="form-control" name="maritalstatus">
+						class="form-control" name="maritalStatus">
 						<c:forEach items="${maritalStatusValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -263,7 +263,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<select id="personalInformationForm_grantOwnerType"
-						class="form-control" name="grantownertype">
+						class="form-control" name="grantOwnerType">
 						<option value=""></option>
 						<%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
 						<c:forEach items="${grantOwnerTypeValues}" var="field">
@@ -283,10 +283,11 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select id="personalInformationForm_grantOwnerProvider" class="form-control" name="grantownerprovider"></select>
+					<select id="personalInformationForm_grantOwnerProvider" class="form-control" name="grantOwnerProvider">
 					<option selected value='${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.externalId : "" }'>
 						${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.name : ""}
 					</option> 
+					</select>
 					
 					
 					
