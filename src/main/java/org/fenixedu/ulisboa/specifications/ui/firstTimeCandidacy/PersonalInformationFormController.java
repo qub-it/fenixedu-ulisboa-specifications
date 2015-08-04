@@ -30,11 +30,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
@@ -219,6 +222,12 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation();
         pdi.setRegistration(registration);
         pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
+
+        DegreeCurricularPlan degreeCurricularPlan = studentCandidacy.getExecutionDegree().getDegreeCurricularPlan();
+        ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
+        StudentCurricularPlan
+                .createBolonhaStudentCurricularPlan(registration, degreeCurricularPlan, new YearMonthDay(), semester);
+
         return registration;
     }
 
