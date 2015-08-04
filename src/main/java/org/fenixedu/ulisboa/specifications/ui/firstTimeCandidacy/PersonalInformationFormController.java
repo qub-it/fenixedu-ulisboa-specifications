@@ -152,14 +152,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
     public String fillpersonalinformation(PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-
-        if (form.getDocumentIdExpirationDate() == null) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.expirationDate.required"), model);
+        if (!validate(form, model)) {
             return fillpersonalinformation(model);
         }
-
         writePersonalInformationData(form);
+
         try {
             model.addAttribute("personalInformationForm", form);
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation/", model,
@@ -170,6 +167,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     + de.getLocalizedMessage(), model);
             return fillpersonalinformation(model);
         }
+    }
+
+    private boolean validate(PersonalInformationForm form, Model model) {
+        if (form.getDocumentIdExpirationDate() == null) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.expirationDate.required"), model);
+            return false;
+        }
+
+        return true;
     }
 
     @Atomic

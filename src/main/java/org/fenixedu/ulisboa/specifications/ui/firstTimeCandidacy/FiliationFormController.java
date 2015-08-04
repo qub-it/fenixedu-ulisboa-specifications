@@ -40,6 +40,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
+import org.joda.time.YearMonthDay;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +48,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = InstructionsController.class)
 @RequestMapping(FiliationFormController.CONTROLLER_URL)
@@ -67,33 +70,35 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
     private void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("filiationForm")) {
-            FiliationForm filiationForm = new FiliationForm();
-            filiationForm.setCountryOfBirth(Country.readDefault());
-            filiationForm.setNationality(Country.readDefault());
+            FiliationForm form = new FiliationForm();
             Person person = AccessControl.getPerson();
-            filiationForm.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
-            model.addAttribute("filiationForm", filiationForm);
+            form.setFatherName(person.getNameOfFather());
+            form.setMotherName(person.getNameOfMother());
+
+            form.setDistrictOfBirth(person.getDistrictOfBirth());
+            form.setDistrictSubdivisionOfBirth(person.getDistrictSubdivisionOfBirth());
+            form.setParishOfBirth(person.getParishOfBirth());
+
+            form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
+            form.setNationality(person.getCountry());
+            if (form.getNationality() == null) {
+                form.setNationality(Country.readDefault());
+            }
+            form.setCountryOfBirth(person.getCountryOfBirth());
+            if (form.getCountryOfBirth() == null) {
+                form.setCountryOfBirth(Country.readDefault());
+            }
+
+            model.addAttribute("filiationForm", form);
         }
     }
 
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.POST)
     public String fillfiliation(FiliationForm form, Model model, RedirectAttributes redirectAttributes) {
-
-        if (form.getDateOfBirth() == null) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.birthDate.required"),
-                    model);
+        if (!validate(form, model)) {
             return fillfiliation(model);
         }
-
-        if (form.getCountryOfBirth().isDefaultCountry()) {
-            if (StringUtils.isEmpty(form.getDistrictOfBirth()) || StringUtils.isEmpty(form.getDistrictSubdivisionOfBirth())
-                    || StringUtils.isEmpty(form.getParishOfBirth())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"), model);
-                return fillfiliation(model);
-            }
-        }
+        writeFiliationData(form);
 
         try {
             model.addAttribute("filiationForm", form);
@@ -106,6 +111,40 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
                     + de.getLocalizedMessage(), model);
             return fillfiliation(model);
         }
+    }
+
+    private boolean validate(FiliationForm form, Model model) {
+        if (form.getDateOfBirth() == null) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.birthDate.required"),
+                    model);
+            return false;
+        }
+
+        if (form.getCountryOfBirth().isDefaultCountry()) {
+            if (StringUtils.isEmpty(form.getDistrictOfBirth()) || StringUtils.isEmpty(form.getDistrictSubdivisionOfBirth())
+                    || StringUtils.isEmpty(form.getParishOfBirth())) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"), model);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Atomic
+    private void writeFiliationData(FiliationForm form) {
+        Person person = AccessControl.getPerson();
+        person.setNameOfFather(form.getFatherName());
+        person.setNameOfMother(form.getMotherName());
+
+        person.setDistrictOfBirth(form.getDistrictOfBirth());
+        person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth());
+        person.setParishOfBirth(form.getParishOfBirth());
+
+        person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
+        person.setCountry(form.getNationality());
+        person.setCountryOfBirth(form.getCountryOfBirth());
     }
 
     @RequestMapping(value = "/district/{oid}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
