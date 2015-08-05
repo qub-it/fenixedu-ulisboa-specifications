@@ -326,5 +326,19 @@ $(document).ready(function() {
 				    cache: true
 				  }});
 		
+		updateGrantProvider = function(){
+				val = $("#personalInformationForm_grantOwnerType").val();
+				grantOwnerProvider = $("#personalInformationForm_grantOwnerProvider");
+				if(val == "STUDENT_WITHOUT_SCHOLARSHIP"){
+					grantOwnerProvider.select2("enable", false);
+					grantOwnerProvider.select2('val', '');
+				}
+				else{
+					grantOwnerProvider.select2("enable", true);
+				}
+		};
+		$("#personalInformationForm_grantOwnerType").on("change", updateGrantProvider);
+		updateGrantProvider();
+		
 	});
 </script>
