@@ -75,7 +75,6 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<option id=""></option>
 					<select id="filiationForm_countryOfBirth"
 						class="js-example-basic-single" name="countryOfBirth" required>
 					</select>
@@ -220,7 +219,7 @@ $(document).ready(function() {
   		             			}	  
   		             	    );
   		             	    
-  		             	    $("#filiationForm_districtOfBirth").select2().select2('val', '<c:out value='${param.districtOfBirth}'/>');
+  		             	    $("#filiationForm_districtOfBirth").select2().select2('val', '<c:out value='${filiationForm.districtOfBirth.externalId}'/>');
   		             	 $("#filiationForm_districtOfBirth").select2().on("select2:select", function(e) {
   		                   populateSubDistricts(e);
   		                 })
@@ -236,17 +235,17 @@ $(document).ready(function() {
         		             				data : result,
         		             			}	  
         		             	    );
-          					$("#filiationForm_districtSubdivisionOfBirth").select2().select2('val', '<c:out value='${param.districtSubdivisionOfBirth}'/>');
+          					$("#filiationForm_districtSubdivisionOfBirth").select2();
           		 		}
           		 });
           		 
           	 }
     
          	//setup sub-districts
-         	$("#filiationForm_districtSubdivisionOfBirth").select2()
-         	<c:if test="${not empty param.districtOfBirth}">
-         	sub-district_options = [
-   	             			<c:forEach items="${param.districtOfBirth.districtSubdivision}" var="element"> 
+         	$("#filiationForm_districtSubdivisionOfBirth").select2();
+         	<c:if test="${not empty filiationForm.districtOfBirth}">
+         	subDistrictOptions = [
+   	             			<c:forEach items="${filiationForm.districtOfBirth.districtSubdivisions}" var="element"> 
    	             				{
    	             					text : "<c:out value='${element.name}'/>",  
    	             					id : "<c:out value='${element.externalId}'/>"
@@ -256,11 +255,11 @@ $(document).ready(function() {
    	
    	             	   $("#filiationForm_districtSubdivisionOfBirth").select2(
    		             			{
-   		             				data : district_options,
+   		             				data : subDistrictOptions,
    		             			}	  
    		             	    );
    		             	    
-   		             	    $("#filiationForm_districtSubdivisionOfBirth").select2().select2('val', '<c:out value='${param.districtSubdivisionOfBirth}'/>');
+   		             	    $("#filiationForm_districtSubdivisionOfBirth").select2().select2('val', '<c:out value='${filiationForm.districtSubdivisionOfBirth.externalId}'/>');
    	
            	</c:if>
 	});
