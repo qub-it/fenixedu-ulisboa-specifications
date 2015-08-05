@@ -184,7 +184,7 @@ $(document).ready(function() {
 	             			}	  
 	             	    );
 	             	    
-	             	    $("#filiationForm_countryOfBirth").select2().select2('val', '<c:out value='${param.countryOfBirth}'/>');
+	             	    $("#filiationForm_countryOfBirth").select2().select2('val', '<c:out value='${filiationForm.countryOfBirth.externalId}'/>');
     
     //setup nationalities
     	nationality_options = [
@@ -202,7 +202,7 @@ $(document).ready(function() {
 		             			}	  
 		             	    );
 		             	    
-		             	    $("#filiationForm_nationality").select2().select2('val', '<c:out value='${param.nationality}'/>');
+		             	    $("#filiationForm_nationality").select2().select2('val', '<c:out value='${filiationForm.nationality.externalId}'/>');
      	 //setup districts
         	district_options = [
   	             			<c:forEach items="${districts_options}" var="element"> 
