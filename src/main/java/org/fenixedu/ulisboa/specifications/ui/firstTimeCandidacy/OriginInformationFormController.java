@@ -82,7 +82,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             Optional<String> conclusionGrade =
                     AccessControl.getPerson().getCandidaciesSet().stream().filter(c -> c instanceof StudentCandidacy)
                             .map(StudentCandidacy.class::cast).map(sc -> sc.getPrecedentDegreeInformation().getConclusionGrade())
-                            .findFirst();
+                            .filter(grade -> grade != null).findFirst();
             if (conclusionGrade.isPresent()) {
                 originInformationForm.setConclusionGrade(conclusionGrade.get());
             }
