@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
+import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
@@ -75,10 +76,12 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             form.setFatherName(person.getNameOfFather());
             form.setMotherName(person.getNameOfMother());
 
-            form.setDistrictOfBirth(person.getDistrictOfBirth());
-            form.setDistrictSubdivisionOfBirth(person.getDistrictSubdivisionOfBirth());
+            District district = District.readByName(person.getDistrictOfBirth());
+            if (district != null) {
+                form.setDistrictOfBirth(district);
+                form.setDistrictSubdivisionOfBirth(district.getDistrictSubdivisionByName(person.getDistrictSubdivisionOfBirth()));
+            }
             form.setParishOfBirth(person.getParishOfBirth());
-
             form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
             form.setNationality(person.getCountry());
             if (form.getNationality() == null) {
@@ -122,7 +125,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         }
 
         if (form.getCountryOfBirth().isDefaultCountry()) {
-            if (StringUtils.isEmpty(form.getDistrictOfBirth()) || StringUtils.isEmpty(form.getDistrictSubdivisionOfBirth())
+            if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
                     || StringUtils.isEmpty(form.getParishOfBirth())) {
                 addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                         "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"), model);
@@ -138,8 +141,8 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         person.setNameOfFather(form.getFatherName());
         person.setNameOfMother(form.getMotherName());
 
-        person.setDistrictOfBirth(form.getDistrictOfBirth());
-        person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth());
+        person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
+        person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
         person.setParishOfBirth(form.getParishOfBirth());
 
         person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
@@ -163,9 +166,9 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         private String parishOfBirth;
 
-        private String districtSubdivisionOfBirth;
+        private DistrictSubdivision districtSubdivisionOfBirth;
 
-        private String districtOfBirth;
+        private District districtOfBirth;
 
         private String fatherName;
 
@@ -197,19 +200,19 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             this.parishOfBirth = parishOfBirth;
         }
 
-        public String getDistrictSubdivisionOfBirth() {
+        public DistrictSubdivision getDistrictSubdivisionOfBirth() {
             return districtSubdivisionOfBirth;
         }
 
-        public void setDistrictSubdivisionOfBirth(String districtSubdivisionOfBirth) {
+        public void setDistrictSubdivisionOfBirth(DistrictSubdivision districtSubdivisionOfBirth) {
             this.districtSubdivisionOfBirth = districtSubdivisionOfBirth;
         }
 
-        public String getDistrictOfBirth() {
+        public District getDistrictOfBirth() {
             return districtOfBirth;
         }
 
-        public void setDistrictOfBirth(String districtOfBirth) {
+        public void setDistrictOfBirth(District districtOfBirth) {
             this.districtOfBirth = districtOfBirth;
         }
 
