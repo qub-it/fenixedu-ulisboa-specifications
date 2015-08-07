@@ -121,8 +121,8 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
         try {
             writeData(form);
             model.addAttribute("contactsForm", form);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation/",
-                    model, redirectAttributes);
+            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create/", model,
+                    redirectAttributes);
         } catch (DomainException domainEx) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey()),
                     model);
