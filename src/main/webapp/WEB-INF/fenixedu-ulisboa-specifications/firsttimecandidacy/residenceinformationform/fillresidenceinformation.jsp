@@ -315,7 +315,7 @@ $(document).ready(function() {
   		             			}	  
   		             	    );
   		             	    
-  		             	    $("#residenceInformationForm_districtOfResidence").select2().select2('val', '<c:out value='${param.districtOfResidence}'/>');
+  		             	    $("#residenceInformationForm_districtOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.districtOfResidence.externalId}'/>');
   		             	 $("#residenceInformationForm_districtOfResidence").select2().on("select2:select", function(e) {
   		                   populateSubDistrictsOfResidence(e);
   		                 })
@@ -330,17 +330,17 @@ $(document).ready(function() {
         		             				data : result,
         		             			}	  
         		             	    );
-          					$("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.districtSubdivisionOfResidence}'/>');
+          					$("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.districtSubdivisionOfResidence.externalId}'/>');
           		 		}
           		 });
           		 
           	 }
     
          	//setup sub-districts of residence
-         	$("#residenceInformationForm_districtSubdivisionOfResidence").select2()
-         	<c:if test="${not empty param.districtOfResidence}">
-         	sub-district_options = [
-   	             			<c:forEach items="${param.districtOfBirth.districtSubdivisionOfResidence}" var="element"> 
+         	$("#residenceInformationForm_districtSubdivisionOfResidence").select2();
+         	<c:if test="${not empty residenceInformationForm.districtOfResidence}">
+         	subdistrict_options = [
+   	             			<c:forEach items="${residenceInformationForm.districtOfResidence.districtSubdivisions}" var="element"> 
    	             				{
    	             					text : "<c:out value='${element.name}'/>",  
    	             					id : "<c:out value='${element.externalId}'/>"
@@ -350,30 +350,22 @@ $(document).ready(function() {
    	
    	             	   $("#residenceInformationForm_districtSubdivisionOfResidence").select2(
    		             			{
-   		             				data : district_options,
+   		             				data : subdistrict_options,
    		             			}	  
    		             	    );
    		             	    
-   		             	    $("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.districtSubdivisionOfResidence}'/>');
+   		             	    $("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.districtSubdivisionOfResidence.externalId}'/>');
    	
            	</c:if>
             //setup districts of residence in school time
-        	district_options = [
-  	             			<c:forEach items="${districts_options}" var="element"> 
-  	             				{
-  	             					text : "<c:out value='${element.name}'/>",  
-  	             					id : "<c:out value='${element.externalId}'/>"
-  	             				},
-  	             			</c:forEach>
-  	             		];
-  	
+        	  	
   	             	   $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2(
   		             			{
   		             				data : district_options,
   		             			}	  
   		             	    );
   		             	    
-  		             	    $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2().select2('val', '<c:out value='${param.schoolTimeDistrictOfResidence}'/>');
+  		             	    $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeDistrictOfResidence.externalId}'/>');
   		             	 $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2().on("select2:select", function(e) {
   		                   populateSubDistrictsOfResidenceInSchoolTime(e);
   		                 })
@@ -388,17 +380,17 @@ $(document).ready(function() {
         		             				data : result,
         		             			}	  
         		             	    );
-          					$("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.schoolTimeDistrictSubdivisionOfResidence}'/>');
+          					$("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence.externalId}'/>');
           		 		}
           		 });
           		 
           	 }
     
          	//setup sub-districts of residence in school time
-         	$("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2()
-         	<c:if test="${not empty param.districtOfBirth}">
-         	sub-district_options = [
-   	             			<c:forEach items="${param.districtOfBirth.districtSubDivision}" var="element"> 
+         	$("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2();
+         	<c:if test="${not empty residenceInformationForm.schoolTimeDistrictOfResidence}">
+         	subdistrict_options_schoolTime = [
+   	             			<c:forEach items="${residenceInformationForm.schoolTimeDistrictOfResidence.districtSubdivisions}" var="element"> 
    	             				{
    	             					text : "<c:out value='${element.name}'/>",  
    	             					id : "<c:out value='${element.externalId}'/>"
@@ -408,11 +400,11 @@ $(document).ready(function() {
    	
    	             	   $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2(
    		             			{
-   		             				data : district_options,
+   		             				data : subdistrict_options_schoolTime,
    		             			}	  
    		             	    );
    		             	    
-   		             	    $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.schoolTimeDistrictSubdivisionOfResidence}'/>');
+   		             	    $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence.externalId}'/>');
    	
            	</c:if>
 
