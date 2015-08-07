@@ -27,8 +27,8 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
 
     @RequestMapping(value = "/unauthorize")
     public String cgddataauthorizationToUnauthorize(Model model, RedirectAttributes redirectAttributes) {
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorizationrecheck", model,
-                redirectAttributes);
+        resetCandidacySummaryFile(InstructionsController.getStudentCandidacy());
+        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
 
     @Atomic
