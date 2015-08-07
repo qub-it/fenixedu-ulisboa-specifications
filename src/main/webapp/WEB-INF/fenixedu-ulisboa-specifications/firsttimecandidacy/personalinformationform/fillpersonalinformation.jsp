@@ -74,61 +74,56 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.name" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
-					<c:out
-						value='${not empty param.name ? param.name : personalInformationForm.name }' />
+					<div class="form-control-static"><c:out value='${not empty param.name ? param.name : personalInformationForm.name }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.username" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
-					<c:out
-						value='${not empty param.username ? param.username : personalInformationForm.username }' />
+					<div class="form-control-static"><c:out value='${not empty param.username ? param.username : personalInformationForm.username }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.gender" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
-					<c:out
-						value='${not empty param.gender ? param.gender : personalInformationForm.gender.localizedName }' />
+					<div class="form-control-static"><c:out value='${not empty param.gender ? param.gender : personalInformationForm.gender.localizedName }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.documentIdNumber" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
-					<c:out
-						value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }' />
+					<div class="form-control-static"><c:out value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.idDocumentType" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
-					<c:out
-						value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType.localizedName }' />
+					<div class="form-control-static"><c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType.localizedName }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
 					<input
@@ -140,10 +135,10 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.documentIdEmissionLocation" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_documentIdEmissionLocation"
@@ -152,10 +147,10 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_documentIdEmissionDate" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.documentIdEmissionDate" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
 					<input id="personalInformationForm_documentIdEmissionDate"
@@ -165,10 +160,10 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_documentIdExpirationDate" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.documentIdExpirationDate" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
 					<input id="personalInformationForm_documentIdExpirationDate"
@@ -178,10 +173,10 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_socialSecurityNumber" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.socialSecurityNumber" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_socialSecurityNumber"
@@ -191,9 +186,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_professionType" class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.professionType" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_professionType"
@@ -209,10 +204,10 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_professionalCondition" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.professionalCondition" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_professionalCondition"
@@ -228,9 +223,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_profession" class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.profession" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_profession" class="form-control"
@@ -239,9 +234,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.maritalStatus" />
-				</div>
+				</label>
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_maritalStatus"
@@ -257,9 +252,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label for="personalInformationForm_grantOwnerType" class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.grantOwnerType" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
 					<select id="personalInformationForm_grantOwnerType"	class="form-control" name="grantOwnerType">
@@ -273,10 +268,10 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.grantOwnerProvider" />
-				</div>
+				</label>
 
 				<div class="col-sm-10">
 					<select id="personalInformationForm_grantOwnerProvider" class="form-control" name="grantOwnerProvider">
