@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
@@ -30,6 +31,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
         documentRequestCreator.setChosenServiceRequestType(ServiceRequestType.findUnique(AcademicServiceRequestType.DOCUMENT,
                 DocumentRequestType.SCHOOL_REGISTRATION_DECLARATION));
+        documentRequestCreator.setRequestedCycle(CycleType.FIRST_CYCLE);
         documentRequestCreator.setLanguage(Locale.getDefault());
         documentRequestCreator.setProgramConclusion(ProgramConclusion.conclusionsFor(registration).findAny().get());
         DocumentRequest document = (DocumentRequest) documentRequestCreator.execute();
@@ -53,6 +55,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
 
     @Atomic
     private void processConcludeAndDeliver(DocumentRequest documentRequest) {
+        documentRequest.setNumberOfPages(1);
         documentRequest.process();
         documentRequest.concludeServiceRequest();
         documentRequest.delivered();

@@ -24,8 +24,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.contacts.EmailAddress;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ContactsFormController;
 import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 
@@ -52,10 +53,14 @@ public class CGDPdfFiller {
     private String getMail(Person person) {
         if (person.hasInstitutionalEmailAddress()) {
             return person.getInstitutionalEmailAddressValue();
-        } else {
-            String emailForSendingEmails = person.getEmailForSendingEmails();
-            return emailForSendingEmails != null ? emailForSendingEmails : StringUtils.EMPTY;
         }
+        String emailForSendingEmails = person.getEmailForSendingEmails();
+        if (emailForSendingEmails != null) {
+            return emailForSendingEmails;
+        }
+
+        EmailAddress email = ContactsFormController.getDefaultContact(person, EmailAddress.class);
+        return email != null ? email.getValue() : "";
     }
 
     private void setField(String fieldName, String fieldContent) throws IOException, DocumentException {

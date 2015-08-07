@@ -99,7 +99,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
         }
     }
 
-    private static <T extends PartyContact> T getDefaultContact(Person person, Class<T> partyContactClass) {
+    public static <T extends PartyContact> T getDefaultContact(Person person, Class<T> partyContactClass) {
         T defaultContact = (T) person.getDefaultPartyContact(partyContactClass);
         if (defaultContact != null) {
             return defaultContact;

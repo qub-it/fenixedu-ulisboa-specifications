@@ -60,12 +60,15 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
     @Atomic
     public static void appendSummaryFile(byte[] pdfByteArray, StudentCandidacy studentCandidacy) {
         CandidacySummaryFile existingSummary = studentCandidacy.getSummaryFile();
-        byte[] existingContent = existingSummary.getContent();
-        ByteArrayOutputStream concatDoc = concatenateDocs(existingContent, pdfByteArray);
-        existingSummary.delete();
+        if (existingSummary != null) {
+            byte[] existingContent = existingSummary.getContent();
+            pdfByteArray = concatenateDocs(existingContent, pdfByteArray).toByteArray();
+            existingSummary.setStudentCandidacy(null);
+            existingSummary.delete();
+        }
 
         studentCandidacy.setSummaryFile(new CandidacySummaryFile(studentCandidacy.getPerson().getStudent().getNumber() + ".pdf",
-                concatDoc.toByteArray(), studentCandidacy));
+                pdfByteArray, studentCandidacy));
     }
 
     private static ByteArrayOutputStream concatenateDocs(byte[] existingDoc, byte[] newDoc) {

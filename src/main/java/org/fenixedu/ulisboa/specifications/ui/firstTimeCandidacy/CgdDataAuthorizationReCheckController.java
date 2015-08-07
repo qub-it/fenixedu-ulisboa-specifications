@@ -17,11 +17,13 @@ public class CgdDataAuthorizationReCheckController extends FenixeduUlisboaSpecif
 
     @RequestMapping(value = "/authorize")
     public String cgddataauthorizationrecheckToAuthorize(Model model, RedirectAttributes redirectAttributes) {
+        CgdDataAuthorizationController.resetCandidacySummaryFile(InstructionsController.getStudentCandidacy());
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
     }
 
     @RequestMapping(value = "/unauthorize")
     public String cgddataauthorizationrecheckToUnauthorize(Model model, RedirectAttributes redirectAttributes) {
+        CgdDataAuthorizationController.resetCandidacySummaryFile(InstructionsController.getStudentCandidacy());
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
 }
