@@ -26,9 +26,16 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess;
 import org.fenixedu.ulisboa.specifications.ui.FenixEduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,8 +55,28 @@ public class SchoolSpecificDataController extends FenixEduUlisboaSpecificationsB
     public static final String CREATE_URL = CONTROLLER_URL + _CREATE_URI;
 
     @RequestMapping(value = _CREATE_URI, method = RequestMethod.GET)
-    public String create(Model model) {
+    public String create(Model model, RedirectAttributes redirectAttributes) {
+        Predicate<? super Registration> hasDgesImportationProcessForCurrentYear =
+                DgesStudentImportationProcess.registrationHasDgesImportationProcessForCurrentYear();
+        Optional<Registration> findAny =
+                AccessControl.getPerson().getStudent().getRegistrationsSet().stream()
+                        .filter(hasDgesImportationProcessForCurrentYear).findAny();
+        if (findAny.isPresent()) {
+            Registration registration = findAny.get();
+            Degree degree = registration.getDegree();
+            //TODO refactor code : School specific data could be more than vaccination but
+            //since vaccination is the only "school specific data" for now, this is complies with the requirements
+            if (degree.getFirstYearRegistrationConfiguration() == null
+                    || !degree.getFirstYearRegistrationConfiguration().getRequiresVaccination()) {
+                //School does not require specific data
+                return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/", model,
+                        redirectAttributes);
+            }
 
+        } else {
+            //This should never happen, but strange things happen
+            throw new RuntimeException("Functionality only provided for candidates with current dges process");
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create";
     }
 
@@ -62,12 +89,13 @@ public class SchoolSpecificDataController extends FenixEduUlisboaSpecificationsB
             SchoolSpecificData schoolSpecificData = createSchoolSpecificData(name);
 
             model.addAttribute("schoolSpecificData", schoolSpecificData);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/", model, redirectAttributes);
+            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/", model,
+                    redirectAttributes);
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return create(model);
+            return create(model, redirectAttributes);
         }
     }
 

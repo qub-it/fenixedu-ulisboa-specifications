@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -20,7 +21,26 @@ import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumR
 public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
-    public String scheduleclasses(Model model) {
+    public String scheduleclasses(Model model, RedirectAttributes redirectAttributes) {
+        Predicate<? super Registration> hasDgesImportationProcessForCurrentYear =
+                DgesStudentImportationProcess.registrationHasDgesImportationProcessForCurrentYear();
+        Optional<Registration> findAny =
+                AccessControl.getPerson().getStudent().getRegistrationsSet().stream()
+                        .filter(hasDgesImportationProcessForCurrentYear).findAny();
+        if (findAny.isPresent()) {
+            Registration registration = findAny.get();
+
+            Degree degree = registration.getDegree();
+            if (degree.getFirstYearRegistrationConfiguration() == null
+                    || !degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()) {
+                //School does not require first year classes enrolment
+                return scheduleclassesToContinue(model, redirectAttributes);
+            }
+        } else {
+//This should never happen, but strange things happen
+            throw new RuntimeException("Functionality only provided for candidates with current dges process");
+        }
+
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses";
     }
 
@@ -36,6 +56,12 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
                         .filter(hasDgesImportationProcessForCurrentYear).findAny();
         if (findAny.isPresent()) {
             Registration registration = findAny.get();
+            Degree degree = registration.getDegree();
+            if (degree.getFirstYearRegistrationConfiguration() == null
+                    || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment()) {
+                //School does not require first year classes enrolment
+                return scheduleclassesToContinue(model, redirectAttributes);
+            }
             String link = "/student/studentShiftEnrollmentManager.do?method=start&executionSemesterID=%s&registrationOID=%s";
             String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
 
