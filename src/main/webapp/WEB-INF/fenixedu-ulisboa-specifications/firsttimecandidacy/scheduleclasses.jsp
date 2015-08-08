@@ -35,7 +35,7 @@ ${portal.toolkit()}
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
 	
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses/openshiftenrollments"><spring:message code="label.event.firstTimeCandidacy.openShiftEnrollments"  /></a>	|&nbsp;&nbsp;
+		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" target="_blank" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses/openshiftenrollments"><spring:message code="label.event.firstTimeCandidacy.openShiftEnrollments"  /></a>	|&nbsp;&nbsp;
 	
 		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
 </div>
