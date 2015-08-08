@@ -1,5 +1,8 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.Optional;
+import java.util.function.Predicate;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -7,6 +10,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,17 +30,26 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
     @RequestMapping(value = "/opencourseenrollments")
     public String chooseoptionalcoursesToOpenCourseEnrollments(Model model, RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
-        //TODO this is "not properly calculated";
-        ExecutionSemester executionSemester = ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet().iterator().next();
-        Registration registration =
-                AccessControl.getPerson().getStudent().getActiveRegistrationsIn(executionSemester).iterator().next();
-        String link = "/student/bolonhaStudentEnrollment.do?method=prepare&executionSemesterID=%s&registrationOid=%s";
-        String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
+        ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
 
-        //request
-        String injectChecksumInUrl =
-                GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
-        return redirect(injectChecksumInUrl, model, redirectAttributes);
+        Predicate<? super Registration> hasDgesImportationProcessForCurrentYear =
+                DgesStudentImportationProcess.registrationHasDgesImportationProcessForCurrentYear();
+        Optional<Registration> findAny =
+                AccessControl.getPerson().getStudent().getRegistrationsSet().stream()
+                        .filter(hasDgesImportationProcessForCurrentYear).findAny();
+        if (findAny.isPresent()) {
+            Registration registration = findAny.get();
+            String link = "/student/bolonhaStudentEnrollment.do?method=prepare&executionSemesterID=%s&registrationOid=%s";
+            String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
+
+            //request
+            String injectChecksumInUrl =
+                    GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
+            return redirect(injectChecksumInUrl, model, redirectAttributes);
+        } else {
+            //This should never happen, but strange things happen
+            throw new RuntimeException("Functionality only provided for candidates with current dges process");
+        }
     }
 
     @RequestMapping(value = "/continue")
