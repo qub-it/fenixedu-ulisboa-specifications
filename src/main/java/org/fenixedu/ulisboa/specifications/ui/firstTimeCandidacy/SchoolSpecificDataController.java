@@ -36,7 +36,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess;
-import org.fenixedu.ulisboa.specifications.ui.FenixEduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,7 +47,7 @@ import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = InstructionsController.class)
 @RequestMapping(SchoolSpecificDataController.CONTROLLER_URL)
-public class SchoolSpecificDataController extends FenixEduUlisboaSpecificationsBaseController {
+public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsBaseController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata";
 
