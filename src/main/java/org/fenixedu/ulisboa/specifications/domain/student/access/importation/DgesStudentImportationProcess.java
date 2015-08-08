@@ -467,4 +467,16 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
         return candidacy;
     }
+
+    public static java.util.function.Predicate<Registration> registrationHasDgesImportationProcessForCurrentYear() {
+        return new java.util.function.Predicate<Registration>() {
+            @Override
+            public boolean test(Registration r) {
+                return r.getStudentCandidacy() != null
+                        && r.getStudentCandidacy().getDgesStudentImportationProcess() != null
+                        && r.getStudentCandidacy().getDgesStudentImportationProcess().getExecutionYear() == ExecutionYear
+                                .readCurrentExecutionYear();
+            }
+        };
+    }
 }
