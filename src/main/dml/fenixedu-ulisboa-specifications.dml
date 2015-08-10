@@ -304,6 +304,28 @@ relation DegreeFirstYearRegistrationConfiguration{
 	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfiguration;
 }
 
+class FirstYearRegistrationGlobalConfiguration {
+}
+
+class CgdMod43Template extends .org.fenixedu.bennu.io.domain.GenericFile {
+}
+
+relation DegreeConfigurationGlobalConfiguration {
+	FirstYearRegistrationGlobalConfiguration playsRole globalConfiguration {
+		multiplicity 1;
+	}
+	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfigurations {
+		multiplicity *;
+	}
+}
+
+relation GlobalConfigurationTemplate {
+	FirstYearRegistrationGlobalConfiguration playsRole globalConfiguration {
+		multiplicity 1;
+	}
+	CgdMod43Template playsRole mod43Template;
+}	
+
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information
 class ULisboaPortalConfiguration{
 }
