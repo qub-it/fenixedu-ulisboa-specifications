@@ -56,12 +56,6 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
                         .filter(hasDgesImportationProcessForCurrentYear).findAny();
         if (findAny.isPresent()) {
             Registration registration = findAny.get();
-            Degree degree = registration.getDegree();
-            if (degree.getFirstYearRegistrationConfiguration() == null
-                    || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment()) {
-                //School does not require first year classes enrolment
-                return scheduleclassesToContinue(model, redirectAttributes);
-            }
             String link = "/student/studentShiftEnrollmentManager.do?method=start&executionSemesterID=%s&registrationOID=%s";
             String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
 
