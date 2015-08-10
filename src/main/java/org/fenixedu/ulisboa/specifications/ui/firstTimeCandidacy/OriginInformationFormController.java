@@ -108,6 +108,12 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             form.setHighSchoolType(personalData.getHighSchoolType());
 
             model.addAttribute("originInformationForm", form);
+        } else {
+            OriginInformationForm form = (OriginInformationForm) model.asMap().get("originInformationForm");
+            Unit institution = FenixFramework.getDomainObject(form.getInstitutionOid());
+            if (FenixFramework.isDomainObjectValid(institution)) {
+                form.setInstitutionName(institution.getName());
+            }
         }
     }
 
