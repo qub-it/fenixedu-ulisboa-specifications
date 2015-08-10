@@ -217,6 +217,8 @@ $(document).ready(function() {
    			}	  
    	    );
    	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}'/>');
+
+   		$("#originInformationForm_schoolLevel").trigger("change");
 	});
 	//setup units provider
 	ajaxData = {
