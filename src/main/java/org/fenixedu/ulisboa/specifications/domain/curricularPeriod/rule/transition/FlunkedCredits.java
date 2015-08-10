@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 
 public class FlunkedCredits extends FlunkedCredits_Base {
 
-    private static final BigDecimal FLUNKED_CREDITS_BY_YEAR = BigDecimal.valueOf(60);
+    static public final BigDecimal FLUNKED_CREDITS_BY_YEAR = BigDecimal.valueOf(60);
 
     protected FlunkedCredits() {
         super();
