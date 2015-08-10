@@ -42,7 +42,7 @@ public class CGDPdfFiller {
     private static final String MARITAL_STATUS_DIVORCED = "Divorciado";
     private static final String MARITAL_STATUS_SEPARATED = "Sep.judicialmente";
     private static final String MARITAL_STATUS_SINGLE = "Solteiro";
-    private static final String MARITAL_STATUS_WIDOWER = "Víuvo";
+    private static final String MARITAL_STATUS_WIDOWER = "Viúvo";
 
     /*
      * PdfFiller variables and methods
@@ -81,7 +81,7 @@ public class CGDPdfFiller {
             throws IOException, DocumentException {
         PdfReader reader = new PdfReader(pdfTemplateStream);
         reader.getAcroForm().remove(PdfName.SIGFLAGS);
-        reader.selectPages("1");
+        reader.selectPages("1,3,4"); // The template we are using has a blank page after the front sheet.
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PdfStamper stamper = new PdfStamper(reader, output);
         form = stamper.getAcroFields();
