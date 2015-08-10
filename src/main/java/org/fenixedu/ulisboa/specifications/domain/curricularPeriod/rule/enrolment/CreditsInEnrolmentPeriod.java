@@ -62,7 +62,7 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     }
 
     @Override
-    protected String getLabel() {
+    public String getLabel() {
         if (getSemester() != null) {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester", getCredits()
                     .toString(), getSemester().toString());

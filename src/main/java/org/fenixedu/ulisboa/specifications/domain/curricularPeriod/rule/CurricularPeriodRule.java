@@ -70,9 +70,16 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
 
     abstract protected CurricularPeriodConfiguration getConfiguration();
 
+    /**
+     * If true, an executive rule overrides all other (possibly false) rules
+     */
+    public boolean isExecutive() {
+        return false;
+    }
+
     abstract protected DegreeCurricularPlan getDegreeCurricularPlan();
 
-    abstract protected String getLabel();
+    public abstract String getLabel();
 
     private DegreeModule getDegreeModule() {
         return getDegreeCurricularPlan().getRoot();
@@ -83,23 +90,33 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     public RuleResult createFalseConfiguration() {
-        return createFalseConfiguration(getDegreeModule());
+        return createFalseConfiguration(getDegreeModule(), getMessagesPrefix());
     }
 
-    static public RuleResult createFalseConfiguration(final DegreeModule degreeModule) {
+    static public RuleResult createFalseConfiguration(final DegreeModule degreeModule,
+            final CurricularPeriodConfiguration configuration) {
+        return createFalseConfiguration(degreeModule, getMessagesPrefix(configuration));
+    }
+
+    static private RuleResult createFalseConfiguration(final DegreeModule degreeModule, final String prefix) {
         final String literalMessage =
-                BundleUtil.getString(Bundle.APPLICATION, "curricularRules.ruleExecutors.logic.unavailable",
-                        BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
+                prefix
+                        + BundleUtil.getString(Bundle.APPLICATION, "curricularRules.ruleExecutors.logic.unavailable",
+                                BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
         return RuleResult.createFalseWithLiteralMessage(degreeModule, literalMessage);
     }
 
     public RuleResult createFalseLabelled(final BigDecimal suffix) {
-        final String literalMessage = getLabel() + " " + getMessagesSuffix(suffix);
+        return createFalseLabelled(getMessagesSuffix(suffix));
+    }
+
+    public RuleResult createFalseLabelled(final String suffix) {
+        final String literalMessage = getMessagesPrefix() + getLabel() + suffix;
         return RuleResult.createFalseWithLiteralMessage(getDegreeModule(), literalMessage);
     }
 
     public RuleResult createWarningLabelled(final BigDecimal suffix) {
-        final String literalMessage = getLabel() + " " + getMessagesSuffix(suffix);
+        final String literalMessage = getMessagesPrefix() + getLabel() + getMessagesSuffix(suffix);
         return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
     }
 
@@ -107,23 +124,18 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         return RuleResult.createNA(getDegreeModule());
     }
 
-    static public void addMessagesPrefix(final CurricularPeriodConfiguration configuration, final RuleResult result) {
-        final String prefix = getMessagesPrefix(configuration);
-
-        for (final RuleResultMessage iter : result.getMessages()) {
-            if (!iter.getMessage().contains(prefix)) {
-                iter.setMessage(prefix + " " + iter.getMessage());
-            }
-        }
+    private String getMessagesPrefix() {
+        return getMessagesPrefix(getConfiguration());
     }
 
     static private String getMessagesPrefix(final CurricularPeriodConfiguration configuration) {
-        return BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix", configuration.getCurricularPeriod()
-                .getFullLabel());
+        return configuration == null ? "" : (BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix",
+                configuration.getCurricularPeriod().getFullLabel()) + " ");
     }
 
     static private String getMessagesSuffix(final BigDecimal total) {
-        return BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString());
+        return total == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix",
+                total.toString()));
     }
 
 }

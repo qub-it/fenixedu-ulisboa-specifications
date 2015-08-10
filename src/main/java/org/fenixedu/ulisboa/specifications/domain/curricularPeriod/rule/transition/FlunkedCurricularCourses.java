@@ -72,7 +72,7 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
     }
 
     @Override
-    protected String getLabel() {
+    public String getLabel() {
         return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
                 getYearMin().toString(), getCodesCSV().toString());
     }

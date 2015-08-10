@@ -33,7 +33,6 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
-import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -186,10 +185,6 @@ abstract public class CurricularYearCalculatorInitializer {
                 if (ruleResult.isTrue()) {
                     result = i;
                     break;
-                } else {
-                    for (final RuleResultMessage iter : ruleResult.getMessages()) {
-                        logger.info("[REG][{}][{}]", registration.getNumber(), iter.getMessage());
-                    }
                 }
             }
 
