@@ -57,7 +57,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
     private static final Logger logger = LoggerFactory.getLogger(FenixeduUlisboaSpecificationsInitializer.class);
 
-    public static final String BUNDLE = "resources.FenixeduUlisboaSpecifications";
+    public static final String BUNDLE = "resources/FenixeduUlisboaSpecificationsResources";
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {

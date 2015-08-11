@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 
 import pt.ist.fenixframework.Atomic;
@@ -41,7 +42,18 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     }
 
     @Atomic
-    static public CreditsInEnrolmentPeriod create(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
+    static public CreditsInEnrolmentPeriod createForSemester(final CurricularPeriodConfiguration configuration,
+            final BigDecimal credits, final Integer semester) {
+        return create(configuration, credits, semester);
+    }
+
+    @Atomic
+    static public CreditsInEnrolmentPeriod create(final CurricularPeriodConfiguration configuration, final BigDecimal credits) {
+        return create(configuration, credits, /* semester */(Integer) null);
+    }
+
+    @Atomic
+    static private CreditsInEnrolmentPeriod create(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
             final Integer semester) {
 
         final CreditsInEnrolmentPeriod result = new CreditsInEnrolmentPeriod();
@@ -50,8 +62,18 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     }
 
     @Override
-    public RuleResult execute(final EnrolmentContext enrolmentContext) {
+    protected String getLabel() {
+        if (getSemester() != null) {
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester", getCredits()
+                    .toString(), getSemester().toString());
 
+        } else {
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
+        }
+    }
+
+    @Override
+    public RuleResult execute(final EnrolmentContext enrolmentContext) {
         if (getSemester() != null) {
 
             if (getSemester().intValue() != enrolmentContext.getExecutionPeriod().getSemester().intValue()) {
@@ -67,30 +89,28 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     private RuleResult executeByYear(final EnrolmentContext enrolmentContext) {
         BigDecimal total = BigDecimal.ZERO;
 
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : filter(enrolmentContext, i -> i.isLeaf()
-                && i.getExecutionPeriod().getExecutionYear() == enrolmentContext.getExecutionPeriod().getExecutionYear())) {
-            final double ectsCredits = degreeModuleToEvaluate.getEctsCredits();
+        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext, i -> i
+                .getExecutionPeriod().getExecutionYear() == enrolmentContext.getExecutionPeriod().getExecutionYear())) {
 
-            total = total.add(BigDecimal.valueOf(ectsCredits));
+            final BigDecimal credits = BigDecimal.valueOf(degreeModuleToEvaluate.getEctsCredits());
+            total = total.add(credits);
         }
 
-        // TODO legidio
-        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalse("");
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
     }
 
     private RuleResult executeBySemester(final EnrolmentContext enrolmentContext) {
         BigDecimal total = BigDecimal.ZERO;
 
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : filter(enrolmentContext,
+        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext,
                 i -> i.getExecutionPeriod() == enrolmentContext.getExecutionPeriod())) {
-            final double ectsCreditsForPeriod =
-                    degreeModuleToEvaluate.getAccumulatedEctsCredits(enrolmentContext.getExecutionPeriod());
 
-            total = total.add(BigDecimal.valueOf(ectsCreditsForPeriod));
+            final BigDecimal credits =
+                    BigDecimal.valueOf(degreeModuleToEvaluate.getAccumulatedEctsCredits(enrolmentContext.getExecutionPeriod()));
+            total = total.add(credits);
         }
 
-        // TODO legidio
-        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalse("");
+        return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled();
     }
 
 }

@@ -30,22 +30,18 @@ import java.util.Collection;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleEnrolment;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleTransition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.Atomic;
 
 public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration_Base {
-
-    static private final Logger logger = LoggerFactory.getLogger(CurricularPeriodConfiguration.class);
 
     protected CurricularPeriodConfiguration() {
         super();
@@ -99,12 +95,19 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     }
 
     public RuleResult verifyRulesForEnrolment(final EnrolmentContext enrolmentContext) {
-        RuleResult result = RuleResult.createInitialFalse();
+        final RootCourseGroup degreeModule = getDegreeCurricularPlan().getRoot();
+        RuleResult result = RuleResult.createTrue(degreeModule);
+
+        if (getRuleEnrolmentSet().isEmpty()) {
+            result = CurricularPeriodRule.createFalseConfiguration(degreeModule);
+            CurricularPeriodRule.addMessagesPrefix(this, result);
+        }
 
         for (final RuleEnrolment rule : getRuleEnrolmentSet()) {
 
-            result = result.and(rule.execute(enrolmentContext));
+            result = rule.execute(enrolmentContext);
             if (result.isFalse()) {
+                CurricularPeriodRule.addMessagesPrefix(this, result);
                 break;
             }
         }
@@ -113,12 +116,19 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     }
 
     public RuleResult verifyRulesForTransition(final Curriculum curriculum) {
-        RuleResult result = RuleResult.createInitialFalse();
+        final RootCourseGroup degreeModule = getDegreeCurricularPlan().getRoot();
+        RuleResult result = RuleResult.createTrue(degreeModule);
+
+        if (getRuleTransitionSet().isEmpty()) {
+            result = CurricularPeriodRule.createFalseConfiguration(degreeModule);
+            CurricularPeriodRule.addMessagesPrefix(this, result);
+        }
 
         for (final RuleTransition rule : getRuleTransitionSet()) {
 
-            result = result.and(rule.execute(curriculum));
+            result = rule.execute(curriculum);
             if (result.isFalse()) {
+                CurricularPeriodRule.addMessagesPrefix(this, result);
                 break;
             }
         }
@@ -132,24 +142,6 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
         }
 
         return curricularPeriod.getDegreeCurricularPlan();
-    }
-
-    static public CurricularPeriod getCurricularYear(final DegreeCurricularPlan dcp, int year) {
-        CurricularPeriod result = null;
-
-        final CurricularPeriodInfoDTO dto = new CurricularPeriodInfoDTO(year, AcademicPeriod.YEAR);
-
-        final CurricularPeriod degreeStructure = dcp.getDegreeStructure();
-        if (degreeStructure != null) {
-            result = degreeStructure.getCurricularPeriod(dto);
-        }
-
-        if (result == null) {
-            logger.info("DegreeStructure for DCP [{}] not supporting curricular period [{},{}] ", dcp.getPresentationName(), dto
-                    .getPeriodType().getName(), dto.getOrder());
-        }
-
-        return result;
     }
 
 }

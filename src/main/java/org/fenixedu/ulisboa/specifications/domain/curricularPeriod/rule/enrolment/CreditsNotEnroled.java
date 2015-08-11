@@ -26,12 +26,21 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
+import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 
 import pt.ist.fenixframework.Atomic;
+
+import com.google.common.collect.Maps;
 
 public class CreditsNotEnroled extends CreditsNotEnroled_Base {
 
@@ -48,9 +57,82 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
     }
 
     @Override
-    public RuleResult execute(EnrolmentContext enrolmentContext) {
+    protected String getLabel() {
+        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
+                getConfiguration().getCurricularPeriod().getFullLabel());
+    }
+
+    @Override
+    public RuleResult execute(final EnrolmentContext enrolmentContext) {
         // TODO legidio
-        return RuleResult.createInitialFalse();
+        // ir buscar o curriculum
+        // pros approved ects
+        // os do ano curricular
+        // so temos lines
+        // saber o ano, agrupar
+        // aprovado + enroled + enroling > 60 (ou 30, se ao semestre), tudo OK
+        // senao, aviso
+
+        final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
+        final int year = getConfiguration().getCurricularPeriod().getAbsoluteOrderOfChild();
+        final CurricularPeriod configured = CurricularPeriodServices.getCurricularPeriod(dcp, year);
+        if (configured == null) {
+            return createFalseConfiguration();
+        }
+
+        final ICurriculum curriculum =
+                enrolmentContext.getRegistration().getCurriculum(enrolmentContext.getExecutionPeriod().getExecutionYear());
+
+        BigDecimal total = getCreditsApproved(curriculum, configured);
+        total = total.add(getCreditsEnroledAndEnroling(enrolmentContext, configured));
+
+        return total.compareTo(getCredits()) > 0 ? createTrue() : createWarningLabelled();
+    }
+
+    private BigDecimal getCreditsApproved(final ICurriculum curriculum, final CurricularPeriod curricularPeriod) {
+        BigDecimal result = BigDecimal.ZERO;
+
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = CurricularPeriodServices.mapYearCredits(curriculum);
+        final BigDecimal credits = curricularPeriodCredits.get(curricularPeriod);
+        if (credits != null) {
+            result = result.add(credits);
+        }
+
+        return result;
+    }
+
+    static private BigDecimal getCreditsEnroledAndEnroling(final EnrolmentContext enrolmentContext,
+            final CurricularPeriod curricularPeriod) {
+
+        BigDecimal result = BigDecimal.ZERO;
+
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = mapYearCredits(enrolmentContext);
+        final BigDecimal credits = curricularPeriodCredits.get(curricularPeriod);
+        if (credits != null) {
+            result = result.add(credits);
+        }
+
+        return result;
+    }
+
+    static private Map<CurricularPeriod, BigDecimal> mapYearCredits(final EnrolmentContext enrolmentContext) {
+        final Map<CurricularPeriod, BigDecimal> result = Maps.newHashMap();
+
+        final DegreeCurricularPlan dcp = enrolmentContext.getStudentCurricularPlan().getDegreeCurricularPlan();
+
+        for (final IDegreeModuleToEvaluate iter : getEnroledAndEnroling(enrolmentContext)) {
+
+            final int year = iter.getContext().getCurricularYear();
+            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);
+
+            if (curricularPeriod != null) {
+
+                final BigDecimal credits = BigDecimal.valueOf(iter.getEctsCredits());
+                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits);
+            }
+        }
+
+        return result;
     }
 
 }

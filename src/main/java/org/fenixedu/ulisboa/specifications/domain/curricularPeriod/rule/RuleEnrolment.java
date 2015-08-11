@@ -87,16 +87,25 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
     }
 
     @Override
+    protected CurricularPeriodConfiguration getConfiguration() {
+        return getConfigurationEnrolment();
+    }
+    
+    @Override
     protected DegreeCurricularPlan getDegreeCurricularPlan() {
         return getConfigurationEnrolment().getDegreeCurricularPlan();
     }
 
     abstract public RuleResult execute(final EnrolmentContext enrolmentContext);
 
-    static protected Set<IDegreeModuleToEvaluate> filter(final EnrolmentContext enrolmentContext,
-            final Predicate<IDegreeModuleToEvaluate> predicate) {
+    static protected Set<IDegreeModuleToEvaluate> getEnroledAndEnroling(final EnrolmentContext enrolmentContext) {
+        return enrolmentContext.getDegreeModulesToEvaluate().stream()
+                .filter(i -> i.isLeaf() && (i.isEnroled() || i.isEnroling())).collect(Collectors.toSet());
+    }
 
-        return enrolmentContext.getDegreeModulesToEvaluate().stream().filter(predicate).collect(Collectors.toSet());
+    static protected Set<IDegreeModuleToEvaluate> getEnroledAndEnroling(final EnrolmentContext enrolmentContext,
+            final Predicate<IDegreeModuleToEvaluate> predicate) {
+        return getEnroledAndEnroling(enrolmentContext).stream().filter(predicate).collect(Collectors.toSet());
     }
 
 }
