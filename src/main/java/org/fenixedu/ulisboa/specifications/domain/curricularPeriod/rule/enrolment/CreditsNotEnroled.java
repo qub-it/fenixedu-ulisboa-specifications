@@ -57,7 +57,7 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
     }
 
     @Override
-    protected String getLabel() {
+    public String getLabel() {
         return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
                 getConfiguration().getCurricularPeriod().getFullLabel());
     }

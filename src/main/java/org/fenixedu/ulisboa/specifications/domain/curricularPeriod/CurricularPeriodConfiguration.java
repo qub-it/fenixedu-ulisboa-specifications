@@ -33,15 +33,20 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleEnrolment;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleTransition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.Atomic;
 
 public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration_Base {
+
+    private static final Logger logger = LoggerFactory.getLogger(CurricularPeriodConfiguration.class);
 
     protected CurricularPeriodConfiguration() {
         super();
@@ -95,20 +100,25 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     }
 
     public RuleResult verifyRulesForEnrolment(final EnrolmentContext enrolmentContext) {
+        final Registration registration = enrolmentContext.getRegistration();
         final RootCourseGroup degreeModule = getDegreeCurricularPlan().getRoot();
         RuleResult result = RuleResult.createTrue(degreeModule);
 
         if (getRuleEnrolmentSet().isEmpty()) {
-            result = CurricularPeriodRule.createFalseConfiguration(degreeModule);
-            CurricularPeriodRule.addMessagesPrefix(this, result);
+            result = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
+            logger.info("[REG][{}][{}]", registration.getNumber(), result.getMessages().iterator().next().getMessage());
+            return result;
         }
 
         for (final RuleEnrolment rule : getRuleEnrolmentSet()) {
 
-            result = rule.execute(enrolmentContext);
-            if (result.isFalse()) {
-                CurricularPeriodRule.addMessagesPrefix(this, result);
-                break;
+            final RuleResult ruleResult = rule.execute(enrolmentContext);
+            if (!ruleResult.isTrue()) {
+                result = result.and(ruleResult);
+                logger.info("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+            } else if (rule.isExecutive()) {
+                logger.info("[RULE executive][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+                return ruleResult;
             }
         }
 
@@ -116,20 +126,25 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     }
 
     public RuleResult verifyRulesForTransition(final Curriculum curriculum) {
+        final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
         final RootCourseGroup degreeModule = getDegreeCurricularPlan().getRoot();
         RuleResult result = RuleResult.createTrue(degreeModule);
 
         if (getRuleTransitionSet().isEmpty()) {
-            result = CurricularPeriodRule.createFalseConfiguration(degreeModule);
-            CurricularPeriodRule.addMessagesPrefix(this, result);
+            result = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
+            logger.info("[REG][{}][{}]", registration.getNumber(), result.getMessages().iterator().next().getMessage());
+            return result;
         }
 
         for (final RuleTransition rule : getRuleTransitionSet()) {
 
-            result = rule.execute(curriculum);
-            if (result.isFalse()) {
-                CurricularPeriodRule.addMessagesPrefix(this, result);
-                break;
+            final RuleResult ruleResult = rule.execute(curriculum);
+            if (!ruleResult.isTrue()) {
+                result = result.and(ruleResult);
+                logger.info("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+            } else if (rule.isExecutive()) {
+                logger.info("[RULE executive][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+                return ruleResult;
             }
         }
 

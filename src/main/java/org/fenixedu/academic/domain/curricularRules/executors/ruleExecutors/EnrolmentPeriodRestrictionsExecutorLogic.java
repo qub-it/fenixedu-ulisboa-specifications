@@ -60,7 +60,7 @@ public class EnrolmentPeriodRestrictionsExecutorLogic implements CurricularRuleE
 //            return RuleResult.createNA(dcp.getRoot());
 //        }
 
-        RuleResult result = CurricularPeriodRule.createFalseConfiguration(dcp.getRoot());
+        RuleResult result = CurricularPeriodRule.createFalseConfiguration(dcp.getRoot(), null);
 
         final Registration registration = enrolmentContext.getRegistration();
         final int year = registration.getCurricularYear(enrolmentContext.getExecutionPeriod().getExecutionYear());

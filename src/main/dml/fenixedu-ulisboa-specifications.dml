@@ -29,6 +29,7 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+external class .org.fenixedu.academic.domain.student.StatuteType;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -224,6 +225,9 @@ class curricularPeriod.rule.CurricularPeriodRule {
 			String codesCSV;
 		}
 		
+		class curricularPeriod.rule.transition.StudentStatuteExecutiveRule extends curricularPeriod.rule.RuleTransition {
+		}
+		
 relation CurricularPeriodConfigurationRuleEnrolment {
 	curricularPeriod.CurricularPeriodConfiguration playsRole configurationEnrolment {
 		multiplicity 1..1;
@@ -238,6 +242,15 @@ relation CurricularPeriodConfigurationRuleTransition {
 		multiplicity 1..1;
 	}
 	curricularPeriod.rule.RuleTransition playsRole ruleTransition {
+		multiplicity *;
+	}
+}
+
+relation StatuteTypeRuleTransition {
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
+		multiplicity 1..1;
+	}
+	curricularPeriod.rule.transition.StudentStatuteExecutiveRule playsRole ruleTransition {
 		multiplicity *;
 	}
 }

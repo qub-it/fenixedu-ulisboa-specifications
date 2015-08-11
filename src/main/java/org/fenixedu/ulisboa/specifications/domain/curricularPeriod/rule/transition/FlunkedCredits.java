@@ -45,7 +45,7 @@ public class FlunkedCredits extends FlunkedCredits_Base {
     }
 
     @Override
-    protected String getLabel() {
+    public String getLabel() {
         if (getYearMin() == null) {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".total", getCredits()
                     .toString());

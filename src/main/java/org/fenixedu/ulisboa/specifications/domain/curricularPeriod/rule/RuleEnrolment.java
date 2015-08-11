@@ -90,7 +90,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
     protected CurricularPeriodConfiguration getConfiguration() {
         return getConfigurationEnrolment();
     }
-    
+
     @Override
     protected DegreeCurricularPlan getDegreeCurricularPlan() {
         return getConfigurationEnrolment().getDegreeCurricularPlan();
