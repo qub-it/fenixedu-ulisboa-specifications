@@ -12,6 +12,7 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentReq
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.service.factoryExecutors.DocumentRequestCreator;
+import org.fenixedu.academictreasury.services.reports.DocumentPrinter;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -28,6 +29,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
     public String documentsprint(Model model, RedirectAttributes redirectAttributes) {
         StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
         Registration registration = candidacy.getRegistration();
+
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
         documentRequestCreator.setChosenServiceRequestType(ServiceRequestType.findUnique(AcademicServiceRequestType.DOCUMENT,
                 DocumentRequestType.SCHOOL_REGISTRATION_DECLARATION));
@@ -39,7 +41,8 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         processConcludeAndDeliver(document);
         byte[] bytes = document.generateDocument();
         Model43PrintController.appendSummaryFile(bytes, candidacy);
-
+        Model43PrintController.appendSummaryFile(
+                DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF), candidacy);
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
     }
 
