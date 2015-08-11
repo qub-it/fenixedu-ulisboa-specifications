@@ -25,7 +25,8 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
     }
 
     @Atomic
-    static public StudentStatuteExecutiveRule create(final CurricularPeriodConfiguration configuration, final StatuteType statuteType) {
+    static public StudentStatuteExecutiveRule create(final CurricularPeriodConfiguration configuration,
+            final StatuteType statuteType) {
 
         final StudentStatuteExecutiveRule result = new StudentStatuteExecutiveRule();
         result.init(configuration, statuteType);
@@ -48,7 +49,8 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
 
     @Override
     public String getLabel() {
-        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
+        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getStatuteType().getName()
+                .getContent());
     }
 
     @Override
@@ -67,8 +69,8 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
     }
 
     static private String getMessagesSuffix(final ExecutionYear executionYear) {
-        return executionYear == null ? "" : BundleUtil.getString(MODULE_BUNDLE, "label.StudentStatuteExecutiveRule.suffix",
-                executionYear.toString());
+        return executionYear == null ? "" : BundleUtil.getString(MODULE_BUNDLE,
+                "label." + StudentStatuteExecutiveRule.class.getSimpleName() + ".suffix", executionYear.toString());
     }
 
 }
