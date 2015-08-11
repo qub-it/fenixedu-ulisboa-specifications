@@ -27,10 +27,12 @@ package org.fenixedu.ulisboa.specifications.domain.curricularPeriod;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -38,6 +40,7 @@ import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolmen
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsNotEnroled;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition.FlunkedCredits;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition.StudentStatuteExecutiveRule;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -288,6 +291,8 @@ public class CurricularPeriodConfigurationInitializer {
             FlunkedCredits.create(configYear6, BigDecimal.valueOf(20));
             FlunkedCredits.createForYear(configYear6, BigDecimal.valueOf(10), /* year */4);
             FlunkedCredits.createForYearInterval(configYear6, BigDecimal.ZERO, /* yearMin */1, /* yearMax */3);
+            // TODO legidio final Stream<StatuteType> stream = StatuteType.readAll(i -> i.getCode().equals("36"));
+            // TODO legidio StudentStatuteExecutiveRule.create(configYear6, stream.findFirst().get());
         }
     }
 
