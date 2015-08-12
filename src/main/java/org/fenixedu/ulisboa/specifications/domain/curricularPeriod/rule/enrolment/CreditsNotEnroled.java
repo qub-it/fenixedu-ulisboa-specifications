@@ -26,11 +26,13 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
@@ -83,10 +85,12 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         final ICurriculum curriculum =
                 enrolmentContext.getRegistration().getCurriculum(enrolmentContext.getExecutionPeriod().getExecutionYear());
 
-        BigDecimal total = getCreditsApproved(curriculum, configured);
-        total = total.add(getCreditsEnroledAndEnroling(enrolmentContext, configured));
+        BigDecimal approved = getCreditsApproved(curriculum, configured);
+        BigDecimal enroledAndEnroling = getCreditsEnroledAndEnroling(enrolmentContext, configured);
+        BigDecimal total = approved.add(enroledAndEnroling);
+        total = total.add(enroledAndEnroling);
 
-        return total.compareTo(getCredits()) > 0 ? createTrue() : createWarningLabelled(total);
+        return total.compareTo(getCredits()) >= 0 ? createTrue() : createWarningLabelled(approved, enroledAndEnroling);
     }
 
     private BigDecimal getCreditsApproved(final ICurriculum curriculum, final CurricularPeriod curricularPeriod) {
@@ -135,4 +139,17 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         return result;
     }
 
+    public RuleResult createWarningLabelled(final BigDecimal approved, final BigDecimal enroledAndEnroling) {
+        final String prefix =
+                BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix", getConfiguration().getCurricularPeriod()
+                        .getFullLabel());
+        final String literalMessage =
+                prefix
+                        + " "
+                        + getLabel()
+                        + " "
+                        + BundleUtil.getString(MODULE_BUNDLE, "label.CreditsNotEnroled.suffix", approved.toPlainString(),
+                                enroledAndEnroling.toPlainString());
+        return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
+    }
 }

@@ -81,7 +81,7 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
 
     public abstract String getLabel();
 
-    private DegreeModule getDegreeModule() {
+    protected DegreeModule getDegreeModule() {
         return getDegreeCurricularPlan().getRoot();
     }
 
