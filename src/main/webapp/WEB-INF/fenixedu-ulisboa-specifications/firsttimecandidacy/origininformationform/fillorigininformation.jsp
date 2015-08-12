@@ -147,8 +147,8 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select id="originInformationForm_raidesDegreeDesignation"
-						class="form-control" name="raidesDegreeDesignation">
+					<select id="originInformationForm_raidesDegreeDesignation" class="form-control" name="raidesDegreeDesignation">
+						<option value="${originInformationForm.raidesDegreeDesignation.externalId}" selected><c:out value='${originInformationForm.raidesDegreeDesignation.description}'/></option>
 					</select>
 				</div>
 			</div>
@@ -219,6 +219,8 @@ $(document).ready(function() {
    	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    		$("#originInformationForm_schoolLevel").trigger("change");
+   		
+   		updateDegreeDesignationsUrl();
 	});
 	//setup units provider
 	ajaxData = {

@@ -28,6 +28,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +59,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -87,8 +89,6 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             PersonalIngressionData personalData =
                     FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
 
-            form.setConclusionGrade(precedentDegreeInformation.getConclusionGrade());
-            form.setDegreeDesignation(precedentDegreeInformation.getDegreeDesignation());
             form.setSchoolLevel(precedentDegreeInformation.getSchoolLevel());
             if (form.getSchoolLevel() == SchoolLevelType.OTHER) {
                 form.setOtherSchoolLevel(precedentDegreeInformation.getOtherSchoolLevel());
@@ -99,6 +99,23 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
                 form.setInstitutionOid(institution.getExternalId());
                 form.setInstitutionName(institution.getName());
             }
+
+            String degreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
+            if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHigherEducation()) {
+                DegreeDesignation degreeDesignation;
+                if (institution != null) {
+                    Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
+                    degreeDesignation = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
+                    form.setRaidesDegreeDesignation(degreeDesignation);
+                } else {
+                    degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
+                    form.setRaidesDegreeDesignation(degreeDesignation);
+                }
+            } else {
+                form.setDegreeDesignation(degreeDesignationName);
+            }
+
+            form.setConclusionGrade(precedentDegreeInformation.getConclusionGrade());
             form.setConclusionYear(precedentDegreeInformation.getConclusionYear());
             form.setCountryWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getCountry());
             if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
@@ -110,9 +127,13 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             model.addAttribute("originInformationForm", form);
         } else {
             OriginInformationForm form = (OriginInformationForm) model.asMap().get("originInformationForm");
-            Unit institution = FenixFramework.getDomainObject(form.getInstitutionOid());
-            if (FenixFramework.isDomainObjectValid(institution)) {
-                form.setInstitutionName(institution.getName());
+            if (!StringUtils.isEmpty(form.getInstitutionOid())) {
+                DomainObject institutionObject = FenixFramework.getDomainObject(form.getInstitutionOid());
+                if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
+                    form.setInstitutionName(((Unit) institutionObject).getName());
+                } else {
+                    form.setInstitutionName(form.getInstitutionOid());
+                }
             }
         }
     }
@@ -179,14 +200,15 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         }
 
         String institution = form.getInstitutionOid();
-        Unit institutionUnit = FenixFramework.getDomainObject(institution);
-        if (!FenixFramework.isDomainObjectValid(institutionUnit)) {
-            institutionUnit = UnitUtils.readExternalInstitutionUnitByName(institution);
-            if (institutionUnit == null) {
-                institutionUnit = Unit.createNewNoOfficialExternalInstitution(institution);
+        DomainObject institutionObject = FenixFramework.getDomainObject(institution);
+        if (!(institutionObject instanceof Unit) || !FenixFramework.isDomainObjectValid(institutionObject)) {
+            institutionObject = UnitUtils.readExternalInstitutionUnitByName(institution);
+            if (institutionObject == null) {
+                institutionObject = Unit.createNewNoOfficialExternalInstitution(institution);
             }
         }
-        precedentDegreeInformation.setInstitution(institutionUnit);
+        precedentDegreeInformation.setInstitution((Unit) institutionObject);
+
         precedentDegreeInformation.setConclusionYear(form.getConclusionYear());
         precedentDegreeInformation.setCountry(form.getCountryWhereFinishedPreviousCompleteDegree());
         if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHighSchoolOrEquivalent()) {
@@ -307,6 +329,9 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         }
 
         public String getDegreeDesignation() {
+            if ((getSchoolLevel() != null) && getSchoolLevel().isHigherEducation() && (getRaidesDegreeDesignation() != null)) {
+                return getRaidesDegreeDesignation().getDescription();
+            }
             return degreeDesignation;
         }
 
@@ -347,7 +372,10 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         }
 
         public AcademicalInstitutionType getHighSchoolType() {
-            return highSchoolType;
+            if ((getSchoolLevel() != null) && (getSchoolLevel().isHighSchoolOrEquivalent())) {
+                return highSchoolType;
+            }
+            return null;
         }
 
         public void setHighSchoolType(AcademicalInstitutionType highSchoolType) {
