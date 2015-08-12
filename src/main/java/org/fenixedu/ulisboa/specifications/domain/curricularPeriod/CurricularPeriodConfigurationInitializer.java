@@ -230,8 +230,8 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear6 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear6, BigDecimal.valueOf(50));
-            CreditsNotEnroled.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsInEnrolmentPeriod.create(configYear6, BigDecimal.valueOf(40));
+            CreditsNotEnroled.create(configYear6, BigDecimal.valueOf(30));
         }
     }
 
