@@ -66,42 +66,52 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         // 60 - aprovados/ano curricular < X creditos
 
         final Set<CurricularPeriod> configured = Sets.newHashSet();
+
+        final int minYear;
+        final int maxYear;
+
         if (getYearMin() != null) {
+            minYear = getYearMin();
+            maxYear = getYearMax();
+        } else {
+            minYear = 1;
+            maxYear = Math.max(1, getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1);
+        }
 
-            final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
+        final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
 
-            for (int i = getYearMin(); i <= getYearMax(); i++) {
-                final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
+        for (int i = minYear; i <= maxYear; i++) {
+            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
 
-                if (curricularPeriod == null) {
-                    return createFalseConfiguration();
-                } else {
-                    configured.add(curricularPeriod);
-                }
+            if (curricularPeriod == null) {
+                return createFalseConfiguration();
+            } else {
+                configured.add(curricularPeriod);
             }
         }
 
-        final BigDecimal approved = getCreditsApproved(curriculum, configured);
-        final BigDecimal total = FLUNKED_CREDITS_BY_YEAR.min(approved);
+        final BigDecimal totalFlunked = calculateTotalFlunked(curriculum, configured);
 
-        return total.compareTo(getCredits()) < 0 ? createTrue() : createFalseLabelled(total);
+        return totalFlunked.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(totalFlunked);
     }
 
-    static private BigDecimal getCreditsApproved(final Curriculum curriculum, final Set<CurricularPeriod> configured) {
+    private BigDecimal calculateTotalFlunked(Curriculum curriculum, Set<CurricularPeriod> configured) {
 
         BigDecimal result = BigDecimal.ZERO;
-
         final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = CurricularPeriodServices.mapYearCredits(curriculum);
         final Set<CurricularPeriod> toInspect = configured.isEmpty() ? curricularPeriodCredits.keySet() : configured;
 
-        for (final CurricularPeriod iter : toInspect) {
-            final BigDecimal credits = curricularPeriodCredits.get(iter);
-            if (credits != null) {
-                result = result.add(credits);
-            }
+        for (final CurricularPeriod curricularPeriod : toInspect) {
+            final BigDecimal approved =
+                    curricularPeriodCredits.get(curricularPeriod) != null ? curricularPeriodCredits.get(curricularPeriod) : BigDecimal.ZERO;
+            final BigDecimal approvedWithLimit = FLUNKED_CREDITS_BY_YEAR.min(approved);
+            final BigDecimal flunked = FLUNKED_CREDITS_BY_YEAR.subtract(approvedWithLimit);
+
+            result = result.add(flunked);
         }
 
         return result;
+
     }
 
 }

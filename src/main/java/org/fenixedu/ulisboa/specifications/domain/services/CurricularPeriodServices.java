@@ -66,7 +66,9 @@ public class CurricularPeriodServices {
     static public int getCurricularYear(final CurriculumLine input) {
         final DegreeModule degreeModule = input.getDegreeModule();
         final ExecutionYear executionYear = input.getExecutionYear();
-        final Set<Context> contexts = input.getCurriculumGroup().getDegreeModule().getChildContextsSet();
+        final Set<Context> contexts =
+                input.getCurriculumGroup().isNoCourseGroupCurriculumGroup() ? Collections.emptySet() : input.getCurriculumGroup()
+                        .getDegreeModule().getChildContextsSet();
 
         final String report = input.print(StringUtils.EMPTY).toString();
 
@@ -120,18 +122,18 @@ public class CurricularPeriodServices {
             }
         }
 
+        for (final Map.Entry<CurricularPeriod, BigDecimal> entry : result.entrySet()) {
+            logger.info("{} - {} ECTS", entry.getKey().getFullLabel(), entry.getValue().toPlainString());
+        }
+
         return result;
     }
 
     static public void addYearCredits(final Map<CurricularPeriod, BigDecimal> result, final CurricularPeriod curricularPeriod,
             final BigDecimal credits) {
 
-        BigDecimal creditsYear = result.get(curricularPeriod);
-        if (creditsYear != null) {
-            creditsYear = creditsYear.add(credits);
-        } else {
-            result.put(curricularPeriod, credits);
-        }
+        final BigDecimal creditsYear = result.get(curricularPeriod);
+        result.put(curricularPeriod, creditsYear != null ? creditsYear.add(credits) : credits);
     }
 
 }
