@@ -73,11 +73,39 @@ class DisabilityType {
 	LocalizedString description (REQUIRED);
 }
 
-relation DisabilityTypeBennu{
+relation DisabilityTypeBennu {
 	.org.fenixedu.bennu.core.domain.Bennu playsRole root {
         multiplicity 1..1;
     }
-	DisabilityType playsRole disabilityTypes{
+	DisabilityType playsRole disabilityTypes {
+		multiplicity *;
+	}
+}
+
+class UniversityDiscoveryMeansAnswer {
+	String code (REQUIRED);
+	LocalizedString description (REQUIRED);
+}
+
+relation UniversityDiscoveryMeansAnswerBennu {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole root {
+        multiplicity 1..1;
+    }
+	UniversityDiscoveryMeansAnswer playsRole universityDiscoveryMeansAnswers {
+		multiplicity *;
+	}
+}
+
+class UniversityChoiceMotivationAnswer {
+	String code (REQUIRED);
+	LocalizedString description (REQUIRED);
+}
+
+relation UniversityChoiceMotivationAnswerBennu {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole root {
+        multiplicity 1..1;
+    }
+	UniversityChoiceMotivationAnswer playsRole universityChoiceMotivationAnswers {
 		multiplicity *;
 	}
 }
