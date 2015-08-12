@@ -2,8 +2,10 @@ package org.fenixedu.ulisboa.specifications.ui.helpdeskreport;
 
 import java.io.Serializable;
 
+import org.apache.commons.validator.EmailValidator;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
+import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 
 import pt.ist.fenixframework.FenixFramework;
 
@@ -105,12 +107,12 @@ public class HelpdeskReportForm implements Serializable {
     }
 
     public String getEmail() {
-        if (!Strings.isNullOrEmpty(email)) {
+        if (!Strings.isNullOrEmpty(email) && !email.equals("null")) {
             return email;
         } else if (Authenticate.isLogged()) {
             return Authenticate.getUser().getEmail();
         } else {
-            return "noreply@qub-it.com";
+            return PortalConfiguration.getInstance().getSupportEmailAddress();
         }
     }
 
