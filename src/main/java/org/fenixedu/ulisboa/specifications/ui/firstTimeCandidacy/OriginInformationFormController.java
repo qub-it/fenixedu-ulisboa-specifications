@@ -61,9 +61,8 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm originInformationForm, Model model,
             RedirectAttributes redirectAttributes) {
-        model.addAttribute("schoolLevelValues", org.fenixedu.academic.domain.SchoolLevelType.values());
-        model.addAttribute("highSchoolTypeValues",
-                org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType.values());
+        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
+        model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.values());
 
         try {
 

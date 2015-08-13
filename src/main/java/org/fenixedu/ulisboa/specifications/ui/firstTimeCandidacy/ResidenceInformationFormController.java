@@ -26,16 +26,23 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FiliationFormController.DistrictSubdivisionBean;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = PersonalInformationFormController.class)
@@ -49,7 +56,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     @RequestMapping(value = _FILLRESIDENCEINFORMATION_URI, method = RequestMethod.GET)
     public String fillresidenceinformation(Model model) {
-
+        model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation";
     }
 
@@ -60,13 +68,20 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         try {
 
             model.addAttribute("residenceInformationForm", residenceInformationForm);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts/", model, redirectAttributes);
+            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts/", model,
+                    redirectAttributes);
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
             return fillresidenceinformation(model);
         }
+    }
+
+    @RequestMapping(value = "/district/{oid}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody List<DistrictSubdivisionBean> requestKeyStoreEntries(@PathVariable("oid") District district, Model model) {
+        return district.getDistrictSubdivisionsSet().stream()
+                .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
     }
 
     public static class ResidenceInformationForm {

@@ -108,14 +108,16 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.districtOfResidence"/></div> 
 
 <div class="col-sm-10">
-	<input id="residenceInformationForm_districtOfResidence" class="form-control" type="text" name="districtofresidence"  value='<c:out value='${not empty param.districtofresidence ? param.districtofresidence : residenceInformationForm.districtOfResidence }'/>' />
-</div>	
+	<select id="residenceInformationForm_districtOfResidence" class="js-example-basic-single" name="districtofresidence">
+		</select>
+	</div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence"/></div> 
 
 <div class="col-sm-10">
-	<input id="residenceInformationForm_districtSubdivisionOfResidence" class="form-control" type="text" name="districtsubdivisionofresidence"  value='<c:out value='${not empty param.districtsubdivisionofresidence ? param.districtsubdivisionofresidence : residenceInformationForm.districtSubdivisionOfResidence }'/>' />
+	<select id="residenceInformationForm_districtSubdivisionOfResidence" class="js-example-basic-single" name="districtsubdivisionofresidence">
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
@@ -123,7 +125,6 @@ ${portal.toolkit()}
 
 <div class="col-sm-2">
 <select id="residenceInformationForm_dislocatedFromPermanentResidence" name="dislocatedfrompermanentresidence" class="form-control">
-<option value=""></option>
 <option value="false"><spring:message code="label.no"/></option>
 <option value="true"><spring:message code="label.yes"/></option>				
 </select>
@@ -136,14 +137,16 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeDistrictOfResidence"/></div> 
 
 <div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeDistrictOfResidence" class="form-control" type="text" name="schooltimedistrictofresidence"  value='<c:out value='${not empty param.schooltimedistrictofresidence ? param.schooltimedistrictofresidence : residenceInformationForm.schoolTimeDistrictOfResidence }'/>' />
+	<select id="residenceInformationForm_schoolTimeDistrictOfResidence" class="js-example-basic-single" name="schooltimedistrictofresidence">
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence"/></div> 
 
 <div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence" class="form-control" type="text" name="schooltimedistrictsubdivisionofresidence"  value='<c:out value='${not empty param.schooltimedistrictsubdivisionofresidence ? param.schooltimedistrictsubdivisionofresidence : residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence }'/>' />
+	<select id="residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence" class="js-example-basic-single" name="schooltimedistrictsubdivisionofresidence">
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
@@ -185,7 +188,8 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.countryOfResidence"/></div> 
 
 <div class="col-sm-10">
-	<input id="residenceInformationForm_countryOfResidence" class="form-control" type="text" name="countryofresidence"  value='<c:out value='${not empty param.countryofresidence ? param.countryofresidence : residenceInformationForm.countryOfResidence }'/>' />
+	<select id="residenceInformationForm_countryOfResidence" class="js-example-basic-single" name="countryofresidence">
+	</select>
 </div>	
 </div>		
   </div>
@@ -197,7 +201,139 @@ ${portal.toolkit()}
 
 <script>
 $(document).ready(function() {
-
+	//setup country options	             		
+	country_options = [
+	             			<c:forEach items="${countries_options}" var="element"> 
+	             				{
+	             					text : "<c:out value='${element.name}'/>",  
+	             					id : "<c:out value='${element.externalId}'/>"
+	             				},
+	             			</c:forEach>
+	             		];
+	             		$("#residenceInformationForm_countryOfResidence").select2(
+	             			{
+	             				data : country_options,
+	             			}	  
+	             	    );
+	             	    
+	             	    $("#residenceInformationForm_countryOfResidence").select2().select2('val', '<c:out value='${param.countryOfResidence}'/>');
+    
+     	 //setup districts of residence
+        	district_options = [
+  	             			<c:forEach items="${districts_options}" var="element"> 
+  	             				{
+  	             					text : "<c:out value='${element.name}'/>",  
+  	             					id : "<c:out value='${element.externalId}'/>"
+  	             				},
+  	             			</c:forEach>
+  	             		];
+  	
+  	             	   $("#residenceInformationForm_districtOfResidence").select2(
+  		             			{
+  		             				data : district_options,
+  		             			}	  
+  		             	    );
+  		             	    
+  		             	    $("#residenceInformationForm_districtOfResidence").select2().select2('val', '<c:out value='${param.districtOfResidence}'/>');
+  		             	 $("#residenceInformationForm_districtOfResidence").select2().on("select2:select", function(e) {
+  		                   populateSubDistrictsOfResidence(e);
+  		                 })
+  		             	    
+          	 populateSubDistrictsOfResidence = function(){
+          		 oid = $("#residenceInformationForm_districtOfResidence")[0].value; 
+          		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/district/" + oid, 
+          				success: function(result){
+          					 $("#residenceInformationForm_districtSubdivisionOfResidence").children().remove();
+          					 $("#residenceInformationForm_districtSubdivisionOfResidence").select2(
+        		             			{
+        		             				data : result,
+        		             			}	  
+        		             	    );
+          					$("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.districtSubdivisionOfResidence}'/>');
+          		 		}
+          		 });
+          		 
+          	 }
+    
+         	//setup sub-districts of residence
+         	$("#residenceInformationForm_districtSubdivisionOfResidence").select2()
+         	<c:if test="${not empty param.districtOfResidence}">
+         	sub-district_options = [
+   	             			<c:forEach items="${param.districtOfBirth.districtSubdivisionOfResidence}" var="element"> 
+   	             				{
+   	             					text : "<c:out value='${element.name}'/>",  
+   	             					id : "<c:out value='${element.externalId}'/>"
+   	             				},
+   	             			</c:forEach>
+   	             		];
+   	
+   	             	   $("#residenceInformationForm_districtSubdivisionOfResidence").select2(
+   		             			{
+   		             				data : district_options,
+   		             			}	  
+   		             	    );
+   		             	    
+   		             	    $("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.districtSubdivisionOfResidence}'/>');
+   	
+           	</c:if>
+            //setup districts of residence in school time
+        	district_options = [
+  	             			<c:forEach items="${districts_options}" var="element"> 
+  	             				{
+  	             					text : "<c:out value='${element.name}'/>",  
+  	             					id : "<c:out value='${element.externalId}'/>"
+  	             				},
+  	             			</c:forEach>
+  	             		];
+  	
+  	             	   $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2(
+  		             			{
+  		             				data : district_options,
+  		             			}	  
+  		             	    );
+  		             	    
+  		             	    $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2().select2('val', '<c:out value='${param.schoolTimeDistrictOfResidence}'/>');
+  		             	 $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2().on("select2:select", function(e) {
+  		                   populateSubDistrictsOfResidenceInSchoolTime(e);
+  		                 })
+  		             	    
+          	 populateSubDistrictsOfResidenceInSchoolTime = function(){
+          		 oid = $("#residenceInformationForm_schoolTimeDistrictOfResidence")[0].value; 
+          		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/district/" + oid, 
+          				success: function(result){
+          					 $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").children().remove();
+          					 $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2(
+        		             			{
+        		             				data : result,
+        		             			}	  
+        		             	    );
+          					$("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.schoolTimeDistrictSubdivisionOfResidence}'/>');
+          		 		}
+          		 });
+          		 
+          	 }
+    
+         	//setup sub-districts of residence in school time
+         	$("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2()
+         	<c:if test="${not empty param.districtOfBirth}">
+         	sub-district_options = [
+   	             			<c:forEach items="${param.districtOfBirth.districtSubDivision}" var="element"> 
+   	             				{
+   	             					text : "<c:out value='${element.name}'/>",  
+   	             					id : "<c:out value='${element.externalId}'/>"
+   	             				},
+   	             			</c:forEach>
+   	             		];
+   	
+   	             	   $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2(
+   		             			{
+   		             				data : district_options,
+   		             			}	  
+   		             	    );
+   		             	    
+   		             	    $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${param.schoolTimeDistrictSubdivisionOfResidence}'/>');
+   	
+           	</c:if>
 
 	});
 </script>

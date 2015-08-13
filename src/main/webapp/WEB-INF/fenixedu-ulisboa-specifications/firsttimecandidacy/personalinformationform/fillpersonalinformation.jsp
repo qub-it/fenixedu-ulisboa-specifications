@@ -11,8 +11,6 @@
 <spring:url var="datatablesI18NUrl" value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json"/>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/CSS/dataTables/dataTables.bootstrap.min.css"/>
 
-<!-- Choose ONLY ONE:  bennuToolkit OR bennuAngularToolkit -->
-<%--${portal.angularToolkit()} --%>
 ${portal.toolkit()}
 
 <link href="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/css/dataTables.responsive.css" rel="stylesheet"/>
@@ -90,9 +88,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="personalInformationForm_gender" class="form-control" name="gender">
-		<option value=""></option> <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
 		<c:forEach items="${genderValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -112,9 +109,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="personalInformationForm_idDocumentType" class="form-control" name="iddocumenttype">
-		<option value=""></option> <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
 		<c:forEach items="${idDocumentTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -147,7 +143,7 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.documentIdEmissionDate"/></div> 
 
 <div class="col-sm-4">
-	<input id="personalInformationForm_documentIdEmissionDate" class="form-control" type="text" name="documentidemissiondate"  bennu-datetime 
+	<input id="personalInformationForm_documentIdEmissionDate" class="form-control" type="text" name="documentidemissiondate"  bennu-date 
 	value = '<c:out value='${not empty param.documentidemissiondate ? param.documentidemissiondate : personalInformationForm.documentIdEmissionDate }'/>' />
 </div>
 </div>		
@@ -155,7 +151,7 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.documentIdExpirationDate"/></div> 
 
 <div class="col-sm-4">
-	<input id="personalInformationForm_documentIdExpirationDate" class="form-control" type="text" name="documentidexpirationdate"  bennu-datetime 
+	<input id="personalInformationForm_documentIdExpirationDate" class="form-control" type="text" name="documentidexpirationdate"  bennu-date 
 	value = '<c:out value='${not empty param.documentidexpirationdate ? param.documentidexpirationdate : personalInformationForm.documentIdExpirationDate }'/>' />
 </div>
 </div>		
@@ -171,9 +167,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="personalInformationForm_professionType" class="form-control" name="professiontype">
-		<option value=""></option> <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
 		<c:forEach items="${professionTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -186,9 +181,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="personalInformationForm_professionalCondition" class="form-control" name="professionalcondition">
-		<option value=""></option> <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
 		<c:forEach items="${professionalConditionValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -208,9 +202,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="personalInformationForm_maritalStatus" class="form-control" name="maritalstatus">
-		<option value=""></option> <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
 		<c:forEach items="${maritalStatusValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -222,7 +215,15 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.PersonalInformationForm.grantOwnerType"/></div> 
 
 <div class="col-sm-10">
-	<input id="personalInformationForm_grantOwnerType" class="form-control" type="text" name="grantownertype"  value='<c:out value='${not empty param.grantownertype ? param.grantownertype : personalInformationForm.grantOwnerType }'/>' />
+		<select id="personalInformationForm_grantOwnerType" class="form-control" name="grantownertype">
+		<option value=""></option> <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
+		<c:forEach items="${grantOwnerTypeValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		</c:forEach>
+	</select>
+	<script>
+		$("#personalInformationForm_grantOwnerType").val('<c:out value='${not empty param.grantownertype ? param.grantownertype : personalInformationForm.grantOwnerType }'/>');
+	</script>
 </div>	
 </div>		
 <div class="form-group row">

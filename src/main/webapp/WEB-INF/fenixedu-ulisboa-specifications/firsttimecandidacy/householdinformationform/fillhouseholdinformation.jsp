@@ -74,9 +74,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="householdInformationForm_motherSchoolLevel" class="form-control" name="motherschoollevel">
-		<option value=""></option>
-		<c:forEach items="${motherSchoolLevelValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		<c:forEach items="${schoolLevelValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -89,9 +88,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="householdInformationForm_motherProfessionType" class="form-control" name="motherprofessiontype">
-		<option value=""></option>
-		<c:forEach items="${motherProfessionTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		<c:forEach items="${professionTypeValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -104,9 +102,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="householdInformationForm_motherProfessionalCondition" class="form-control" name="motherprofessionalcondition">
-		<option value=""></option>
-		<c:forEach items="${motherProfessionalConditionValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		<c:forEach items="${professionalConditionValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -119,9 +116,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="householdInformationForm_fatherSchoolLevel" class="form-control" name="fatherschoollevel">
-		<option value=""></option> 
-		<c:forEach items="${fatherSchoolLevelValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		<c:forEach items="${schoolLevelValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -134,9 +130,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="householdInformationForm_fatherProfessionType" class="form-control" name="fatherprofessiontype">
-		<option value=""></option>
-		<c:forEach items="${fatherProfessionTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		<c:forEach items="${professionTypeValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -149,9 +144,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="householdInformationForm_fatherProfessionalCondition" class="form-control" name="fatherprofessionalcondition">
-		<option value=""></option>
-		<c:forEach items="${fatherProfessionalConditionValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+		<c:forEach items="${professionalConditionValues}" var="field">
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>

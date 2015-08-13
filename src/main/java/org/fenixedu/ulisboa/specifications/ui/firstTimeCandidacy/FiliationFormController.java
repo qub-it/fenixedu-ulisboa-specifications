@@ -26,18 +26,23 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.District;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = PersonalInformationFormController.class)
 @RequestMapping(FiliationFormController.CONTROLLER_URL)
@@ -45,23 +50,13 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform";
 
-    private FiliationForm getFiliationForm(Model model) {
-        return (FiliationForm) model.asMap().get("filiationForm");
-    }
-
-    private void setFiliationForm(FiliationForm filiationForm, Model model) {
-        model.addAttribute("filiationForm", filiationForm);
-    }
-
-    @Atomic
-    public void deleteFiliationForm(FiliationForm filiationForm) {
-    }
-
     private static final String _FILLFILIATION_URI = "/fillfiliation";
     public static final String FILLFILIATION_URL = CONTROLLER_URL + _FILLFILIATION_URI;
 
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.GET)
     public String fillfiliation(Model model) {
+        model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation";
     }
@@ -81,6 +76,12 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
                     + de.getLocalizedMessage(), model);
             return fillfiliation(model);
         }
+    }
+
+    @RequestMapping(value = "/district/{oid}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody List<DistrictSubdivisionBean> requestKeyStoreEntries(@PathVariable("oid") District district, Model model) {
+        return district.getDistrictSubdivisionsSet().stream()
+                .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
     }
 
     public static class FiliationForm {
@@ -163,6 +164,33 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         public void setCountryOfBirth(Country countryOfBirth) {
             this.countryOfBirth = countryOfBirth;
+        }
+    }
+
+    public static class DistrictSubdivisionBean {
+        String id;
+
+        String text;
+
+        public DistrictSubdivisionBean(String id, String text) {
+            this.id = id;
+            this.text = text;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
         }
     }
 }
