@@ -67,97 +67,134 @@ ${portal.toolkit()}
 			</c:if>
 
 <form method="post" class="form-horizontal">
-<div class="panel panel-default">
-  <div class="panel-body">
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.HouseholdInformationForm.motherSchoolLevel"/></div> 
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.motherSchoolLevel" />
+				</div>
 
-<div class="col-sm-4">
-	<select id="householdInformationForm_motherSchoolLevel" class="form-control" name="motherSchoolLevel">
-		<c:forEach items="${schoolLevelValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
+				<div class="col-sm-4">
+					<select id="householdInformationForm_motherSchoolLevel"
+						class="form-control" name="motherSchoolLevel">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${schoolLevelValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
 		$("#householdInformationForm_motherSchoolLevel").val('<c:out value='${not empty param.motherschoollevel ? param.motherschoollevel : householdInformationForm.motherSchoolLevel }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.HouseholdInformationForm.motherProfessionType"/></div> 
+	</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.motherProfessionType" />
+				</div>
 
-<div class="col-sm-4">
-	<select id="householdInformationForm_motherProfessionType" class="form-control" name="motherProfessionType">
-		<c:forEach items="${professionTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
+				<div class="col-sm-4">
+					<select id="householdInformationForm_motherProfessionType"
+						class="form-control" name="motherProfessionType">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${professionTypeValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
 		$("#householdInformationForm_motherProfessionType").val('<c:out value='${not empty param.motherprofessiontype ? param.motherprofessiontype : householdInformationForm.motherProfessionType }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.HouseholdInformationForm.motherProfessionalCondition"/></div> 
+	</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.motherProfessionalCondition" />
+				</div>
 
-<div class="col-sm-4">
-	<select id="householdInformationForm_motherProfessionalCondition" class="form-control" name="motherProfessionalCondition">
-		<c:forEach items="${professionalConditionValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
+				<div class="col-sm-4">
+					<select id="householdInformationForm_motherProfessionalCondition"
+						class="form-control" name="motherProfessionalCondition">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${professionalConditionValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
 		$("#householdInformationForm_motherProfessionalCondition").val('<c:out value='${not empty param.motherprofessionalcondition ? param.motherprofessionalcondition : householdInformationForm.motherProfessionalCondition }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.HouseholdInformationForm.fatherSchoolLevel"/></div> 
+	</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.fatherSchoolLevel" />
+				</div>
 
-<div class="col-sm-4">
-	<select id="householdInformationForm_fatherSchoolLevel" class="form-control" name="fatherSchoolLevel">
-		<c:forEach items="${schoolLevelValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
+				<div class="col-sm-4">
+					<select id="householdInformationForm_fatherSchoolLevel"
+						class="form-control" name="fatherSchoolLevel">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${schoolLevelValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
 		$("#householdInformationForm_fatherSchoolLevel").val('<c:out value='${not empty param.fatherschoollevel ? param.fatherschoollevel : householdInformationForm.fatherSchoolLevel }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.HouseholdInformationForm.fatherProfessionType"/></div> 
+	</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.fatherProfessionType" />
+				</div>
 
-<div class="col-sm-4">
-	<select id="householdInformationForm_fatherProfessionType" class="form-control" name="fatherProfessionType">
-		<c:forEach items="${professionTypeValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
+				<div class="col-sm-4">
+					<select id="householdInformationForm_fatherProfessionType"
+						class="form-control" name="fatherProfessionType">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${professionTypeValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
 		$("#householdInformationForm_fatherProfessionType").val('<c:out value='${not empty param.fatherprofessiontype ? param.fatherprofessiontype : householdInformationForm.fatherProfessionType }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.HouseholdInformationForm.fatherProfessionalCondition"/></div> 
+	</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.fatherProfessionalCondition" />
+				</div>
 
-<div class="col-sm-4">
-	<select id="householdInformationForm_fatherProfessionalCondition" class="form-control" name="fatherProfessionalCondition">
-		<c:forEach items="${professionalConditionValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
-		</c:forEach>
-	</select>
-	<script>
+				<div class="col-sm-4">
+					<select id="householdInformationForm_fatherProfessionalCondition"
+						class="form-control" name="fatherProfessionalCondition">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${professionalConditionValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
 		$("#householdInformationForm_fatherProfessionalCondition").val('<c:out value='${not empty param.fatherprofessionalcondition ? param.fatherprofessionalcondition : householdInformationForm.fatherProfessionalCondition }'/>');
-	</script>	
-</div>
-</div>		
-  </div>
-  <div class="panel-footer">
-		<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
+	</script>
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<input type="submit" class="btn btn-default" role="button"
+				value="<spring:message code="label.submit" />" />
+		</div>
 	</div>
-</div>
 </form>
 
 <script>
