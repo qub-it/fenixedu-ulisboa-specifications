@@ -231,6 +231,21 @@ relation DgesStudentImportationProcessStudentCandidacy {
 	}
 }
 
+// ==================== First Year School Configuration ====================
+
+class FirstYearRegistrationConfiguration{
+	boolean requiresVaccination;
+	boolean requiresCoursesEnrolment;
+	boolean requiresClassesEnrolment;
+}
+
+relation DegreeFirstYearRegistrationConfiguration{
+	.org.fenixedu.academic.domain.Degree playsRole degree{
+		multiplicity 1;
+	}
+	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfiguration;
+}
+
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information
 class ULisboaPortalConfiguration{
 }
