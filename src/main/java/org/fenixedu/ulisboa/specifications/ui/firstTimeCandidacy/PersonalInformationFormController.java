@@ -30,15 +30,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.PartySocialSecurityNumber;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -47,9 +42,6 @@ import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
-import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -68,7 +60,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
 public class PersonalInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -129,8 +121,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
 
             PersonalIngressionData personalData =
-                    getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy()
-                            .getPrecedentDegreeInformation());
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController
+                            .getStudentCandidacy().getPrecedentDegreeInformation());
             form.setGrantOwnerType(personalData.getGrantOwnerType());
             if (form.getGrantOwnerType() == null) {
                 form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
@@ -200,7 +192,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     private void writeData(PersonalInformationForm form) {
         Person person = AccessControl.getPerson();
         PersonalIngressionData personalData =
-                getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy().getPrecedentDegreeInformation());
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getStudentCandidacy()
+                        .getPrecedentDegreeInformation());
 
         LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
         LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
@@ -226,48 +219,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         personalData.setProfessionalCondition(form.getProfessionalCondition());
         personalData.setProfessionType(form.getProfessionType());
         personalData.setMaritalStatus(form.getMaritalStatus());
-    }
-
-    @Atomic
-    public static PersonalIngressionData getOrCreatePersonalIngressionData(PrecedentDegreeInformation precedentInformation) {
-        PersonalIngressionData personalData = null;
-        personalData = precedentInformation.getPersonalIngressionData();
-        Student student = AccessControl.getPerson().getStudent();
-        if (personalData == null) {
-            personalData = student.getPersonalIngressionDataByExecutionYear(ExecutionYear.readCurrentExecutionYear());
-            if (personalData != null) {
-                //if the student already has a PID it will have another PDI associated, it's necessary to add the new PDI
-                personalData.addPrecedentDegreesInformations(precedentInformation);
-            } else {
-                personalData = new PersonalIngressionData(ExecutionYear.readCurrentExecutionYear(), precedentInformation);
-            }
-        }
-
-        // It is necessary to create an early Registration so that the RAIDES objects are consistent
-        // see PrecedentDegreeInformation.checkHasAllRegistrationOrPhdInformation()
-        getOrCreateRegistration();
-
-        return personalData;
-    }
-
-    private static Registration getOrCreateRegistration() {
-        StudentCandidacy studentCandidacy = InstructionsController.getStudentCandidacy();
-        Registration registration = studentCandidacy.getRegistration();
-        if (registration != null) {
-            return registration;
-        }
-        registration = new Registration(studentCandidacy.getPerson(), studentCandidacy);
-
-        PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation();
-        pdi.setRegistration(registration);
-        pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
-
-        DegreeCurricularPlan degreeCurricularPlan = studentCandidacy.getExecutionDegree().getDegreeCurricularPlan();
-        ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
-        StudentCurricularPlan
-                .createBolonhaStudentCurricularPlan(registration, degreeCurricularPlan, new YearMonthDay(), semester);
-
-        return registration;
     }
 
     @RequestMapping(value = "/unit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")

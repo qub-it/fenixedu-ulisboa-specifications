@@ -20,13 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint")
 public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
     public String documentsprint(Model model, RedirectAttributes redirectAttributes) {
-        StudentCandidacy candidacy = InstructionsController.getStudentCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
         Registration registration = candidacy.getRegistration();
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
         documentRequestCreator.setChosenServiceRequestType(ServiceRequestType.findUnique(AcademicServiceRequestType.DOCUMENT,

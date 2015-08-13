@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses")
 public class ShowScheduledClassesController extends FenixeduUlisboaSpecificationsBaseController {
 

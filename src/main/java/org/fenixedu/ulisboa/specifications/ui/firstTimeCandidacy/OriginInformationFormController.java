@@ -60,7 +60,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
 public class OriginInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -83,9 +83,9 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             OriginInformationForm form = new OriginInformationForm();
 
             PrecedentDegreeInformation precedentDegreeInformation =
-                    InstructionsController.getStudentCandidacy().getPrecedentDegreeInformation();
+                    FirstTimeCandidacyController.getStudentCandidacy().getPrecedentDegreeInformation();
             PersonalIngressionData personalData =
-                    PersonalInformationFormController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
 
             form.setConclusionGrade(precedentDegreeInformation.getConclusionGrade());
             form.setDegreeDesignation(precedentDegreeInformation.getDegreeDesignation());
@@ -167,9 +167,9 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
     @Atomic
     protected void writeData(OriginInformationForm form) {
         PrecedentDegreeInformation precedentDegreeInformation =
-                InstructionsController.getStudentCandidacy().getPrecedentDegreeInformation();
+                FirstTimeCandidacyController.getStudentCandidacy().getPrecedentDegreeInformation();
         PersonalIngressionData personalData =
-                PersonalInformationFormController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());
         precedentDegreeInformation.setDegreeDesignation(form.getDegreeDesignation());

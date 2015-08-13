@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished")
 public class FinishedController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -22,7 +22,7 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
 
     @RequestMapping(value = "/printalldocuments", produces = "application/pdf")
     public ResponseEntity<byte[]> finishedToPrintAllDocuments(Model model, RedirectAttributes redirectAttributes) {
-        byte[] pdfBytes = InstructionsController.getStudentCandidacy().getSummaryFile().getContent();
+        byte[] pdfBytes = FirstTimeCandidacyController.getStudentCandidacy().getSummaryFile().getContent();
         String filename = AccessControl.getPerson().getStudent().getNumber() + ".pdf";
 
         HttpHeaders headers = new HttpHeaders();

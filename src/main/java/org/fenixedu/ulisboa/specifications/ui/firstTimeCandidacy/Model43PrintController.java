@@ -24,7 +24,7 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfCopyFields;
 import com.lowagie.text.pdf.PdfReader;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print")
 public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -47,7 +47,7 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
         }
         byte[] pdfBytes = stream.toByteArray();
 
-        appendSummaryFile(pdfBytes, InstructionsController.getStudentCandidacy());
+        appendSummaryFile(pdfBytes, FirstTimeCandidacyController.getStudentCandidacy());
 
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
