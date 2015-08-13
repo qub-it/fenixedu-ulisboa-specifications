@@ -158,9 +158,9 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         if (!validate(form, model)) {
             return fillpersonalinformation(model);
         }
-        writePersonalInformationData(form);
 
         try {
+            writeData(form);
             model.addAttribute("personalInformationForm", form);
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation/", model,
                     redirectAttributes);
@@ -197,7 +197,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     @Atomic
-    private void writePersonalInformationData(PersonalInformationForm form) {
+    private void writeData(PersonalInformationForm form) {
         Person person = AccessControl.getPerson();
         PersonalIngressionData personalData =
                 getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy().getPrecedentDegreeInformation());

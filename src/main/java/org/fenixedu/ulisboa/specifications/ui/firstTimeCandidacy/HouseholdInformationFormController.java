@@ -82,9 +82,9 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         if (!validate(form, model)) {
             return fillhouseholdinformation(model);
         }
-        writeData(form);
 
         try {
+            writeData(form);
             model.addAttribute("householdInformationForm", form);
             return redirect(
                     "/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation/",

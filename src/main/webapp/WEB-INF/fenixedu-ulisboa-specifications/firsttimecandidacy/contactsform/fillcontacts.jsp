@@ -67,67 +67,90 @@ ${portal.toolkit()}
 			</c:if>
 
 <form method="post" class="form-horizontal">
-<div class="panel panel-default">
-  <div class="panel-body">
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.phoneNumber"/></div> 
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.phoneNumber" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="contactsForm_phoneNumber" class="form-control" type="text" name="phoneNumber"  value='<c:out value='${not empty param.phonenumber ? param.phonenumber : contactsForm.phoneNumber }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.mobileNumber"/></div> 
+				<div class="col-sm-10">
+					<input id="contactsForm_phoneNumber" class="form-control"
+						type="text" name="phoneNumber" pattern="(\d{4,15})"
+						value='<c:out value='${not empty param.phonenumber ? param.phonenumber : contactsForm.phoneNumber }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.mobileNumber" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="contactsForm_mobileNumber" class="form-control" type="text" name="mobileNumber"  value='<c:out value='${not empty param.mobilenumber ? param.mobilenumber : contactsForm.mobileNumber }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.email"/></div> 
+				<div class="col-sm-10">
+					<input id="contactsForm_mobileNumber" class="form-control"
+						type="text" name="mobileNumber" pattern="(\d{4,15})"
+						value='<c:out value='${not empty param.mobilenumber ? param.mobilenumber : contactsForm.mobileNumber }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.email" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="contactsForm_email" class="form-control" type="text" name="email"  value='<c:out value='${not empty param.email ? param.email : contactsForm.email }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.webAddress"/></div> 
+				<div class="col-sm-10">
+					<input id="contactsForm_email" class="form-control" type="email"
+						name="email" required
+						value='<c:out value='${not empty param.email ? param.email : contactsForm.email }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.webAddress" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="contactsForm_webAddress" class="form-control" type="text" name="webAddress"  value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.isEmailAvailable"/></div> 
+				<div class="col-sm-10">
+					<input id="contactsForm_webAddress" class="form-control"
+						type="text" name="webAddress" pattern="^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
+						value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.isEmailAvailable" />
+				</div>
 
-<div class="col-sm-2">
-<select id="contactsForm_isEmailAvailable" name="isEmailAvailable" class="form-control">
-<option value="false"><spring:message code="label.no"/></option>
-<option value="true"><spring:message code="label.yes"/></option>				
-</select>
-	<script>
-		$("#contactsForm_isEmailAvailable").val('<c:out value='${not empty param.isemailavailable ? param.isemailavailable : contactsForm.isEmailAvailable }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ContactsForm.isHomepageAvailable"/></div> 
+				<div class="col-sm-2">
+					<select id="contactsForm_isEmailAvailable" name="isEmailAvailable"
+						class="form-control">
+						<option value="false"><spring:message code="label.no" /></option>
+						<option value="true"><spring:message code="label.yes" /></option>
+					</select>
+					<script>
+						$("#contactsForm_isEmailAvailable").val('<c:out value='${not empty param.isemailavailable ? param.isemailavailable : contactsForm.isEmailAvailable }'/>');
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.isHomepageAvailable" />
+				</div>
 
-<div class="col-sm-2">
-<select id="contactsForm_isHomepageAvailable" name="isHomepageAvailable" class="form-control">
-<option value="false"><spring:message code="label.no"/></option>
-<option value="true"><spring:message code="label.yes"/></option>				
-</select>
-	<script>
-		$("#contactsForm_isHomepageAvailable").val('<c:out value='${not empty param.ishomepageavailable ? param.ishomepageavailable : contactsForm.isHomepageAvailable }'/>');
-	</script>	
-</div>
-</div>		
-  </div>
-  <div class="panel-footer">
-		<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
+				<div class="col-sm-2">
+					<select id="contactsForm_isHomepageAvailable"
+						name="isHomepageAvailable" class="form-control">
+						<option value="false"><spring:message code="label.no" /></option>
+						<option value="true"><spring:message code="label.yes" /></option>
+					</select>
+					<script>
+						$("#contactsForm_isHomepageAvailable").val('<c:out value='${not empty param.ishomepageavailable ? param.ishomepageavailable : contactsForm.isHomepageAvailable }'/>');
+					</script>
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<input type="submit" class="btn btn-default" role="button"
+				value="<spring:message code="label.submit" />" />
+		</div>
 	</div>
-</div>
 </form>
 
 <script>
