@@ -262,13 +262,9 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select id="personalInformationForm_grantOwnerType"
-						class="form-control" name="grantOwnerType">
-						<option value=""></option>
-						<%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME--%>
+					<select id="personalInformationForm_grantOwnerType"	class="form-control" name="grantOwnerType">
 						<c:forEach items="${grantOwnerTypeValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field}' /></option>
+							<option value='<c:out value='${field}'/>'><c:out value='${field}' /></option>
 						</c:forEach>
 					</select>
 					<script>
