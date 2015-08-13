@@ -61,15 +61,6 @@ relation CgdCardRootDomainObject {
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
 }
 
-class PersonUlisboaSpecifications {
-	LocalDate vaccinationValidity;
-}
-
-relation PersonUlisboaSpecificationsPerson {
-	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
-	.org.fenixedu.academic.domain.Person playsRole person;
-}
-
 class DisabilityType {
 	String code (REQUIRED);
 	LocalizedString description (REQUIRED);
@@ -158,6 +149,25 @@ relation ProfessionTimeTypeBennu {
 	ProfessionTimeType playsRole professionTimeTypes {
 		multiplicity *;
 	}
+}
+
+class PersonUlisboaSpecifications {
+	LocalDate vaccinationValidity;
+	boolean hasDisabilities;
+	String otherDisabilityType;
+	boolean needsDisabilitySupport;
+}
+
+relation PersonUlisboaSpecificationsPerson {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
+	.org.fenixedu.academic.domain.Person playsRole person;
+}
+
+relation PersonUlisboaSpecificationsDisabilityType {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	DisabilityType playsRole disabilityType;
 }
 
 // ==================== ULisboa Specifications Root ====================
