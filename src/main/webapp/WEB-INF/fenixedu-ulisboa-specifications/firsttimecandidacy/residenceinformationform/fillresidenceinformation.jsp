@@ -160,9 +160,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="residenceInformationForm_parishOfResidence"
-						class="form-control" type="text" name="parishOfResidence"
-						value='<c:out value='${not empty param.parishofresidence ? param.parishofresidence : residenceInformationForm.parishOfResidence }'/>' />
+					<select id="residenceInformationForm_parishOfResidence" class="form-control" name="parishOfResidence"></select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -266,10 +264,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="residenceInformationForm_schoolTimeParishOfResidence"
-						class="form-control" type="text"
-						name="schoolTimeParishOfResidence"
-						value='<c:out value='${not empty param.schooltimeparishofresidence ? param.schooltimeparishofresidence : residenceInformationForm.schoolTimeParishOfResidence }'/>' />
+					<select id="residenceInformationForm_schoolTimeParishOfResidence" class="form-control" name="schoolTimeParishOfResidence"></select>
 				</div>
 			</div>
 		</div>
@@ -316,10 +311,10 @@ $(document).ready(function() {
   		             	    );
   		             	    
   		             	    $("#residenceInformationForm_districtOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.districtOfResidence.externalId}'/>');
-  		             	 $("#residenceInformationForm_districtOfResidence").select2().on("select2:select", function(e) {
-  		                   populateSubDistrictsOfResidence(e);
-  		                 })
-  		             	    
+		             	 $("#residenceInformationForm_districtOfResidence").select2().on("select2:select", function(e) {
+		                   populateSubDistrictsOfResidence(e);
+		                 })
+ 		             	    
           	 populateSubDistrictsOfResidence = function(){
           		 oid = $("#residenceInformationForm_districtOfResidence")[0].value; 
           		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/district/" + oid, 
@@ -357,6 +352,50 @@ $(document).ready(function() {
    		             	    $("#residenceInformationForm_districtSubdivisionOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.districtSubdivisionOfResidence.externalId}'/>');
    	
            	</c:if>
+           	
+       	 $("#residenceInformationForm_districtSubdivisionOfResidence").select2().on("select2:select", function(e) {
+       		populateParishesOfResidence(e);
+           })
+       	    
+		 populateParishesOfResidence = function(){
+			 oid = $("#residenceInformationForm_districtSubdivisionOfResidence")[0].value; 
+			 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/districtSubdivision/" + oid, 
+					success: function(result){
+						 //$("#filiationForm_districtSubdivisionOfBirth").select2("destroy");
+						 $("#residenceInformationForm_parishOfResidence").children().remove();
+						 $("#residenceInformationForm_parishOfResidence").select2(
+			             			{
+			             				data : result,
+			             			}	  
+			             	    );
+						$("#residenceInformationForm_parishOfResidence").select2();
+			 		}
+			 });
+			 
+		 }
+     	
+     	//setup parishes of residence
+	   	$("#residenceInformationForm_parishOfResidence").select2();
+	   	<c:if test="${not empty residenceInformationForm.districtSubdivisionOfResidence}">
+	   	subDistrictOptions = [
+		             			<c:forEach items="${residenceInformationForm.districtSubdivisionOfResidence.parish}" var="element"> 
+		             				{
+		             					text : "<c:out value='${element.name}'/>",  
+		             					id : "<c:out value='${element.externalId}'/>"
+		             				},
+		             			</c:forEach>
+		             		];
+		
+		             	   $("#residenceInformationForm_parishOfResidence").select2(
+			             			{
+			             				data : subDistrictOptions,
+			             			}	  
+			             	    );
+			             	    
+			             	    $("#residenceInformationForm_parishOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.parishOfResidence.externalId}'/>');
+		
+	     	</c:if>
+	     	       	
             //setup districts of residence in school time
         	  	
   	             	   $("#residenceInformationForm_schoolTimeDistrictOfResidence").select2(
@@ -409,4 +448,48 @@ $(document).ready(function() {
            	</c:if>
 
 	});
+	
+	 $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().on("select2:select", function(e) {
+    		populateParishesOfResidenceInSchoolTime(e);
+        })
+    	    
+		 populateParishesOfResidenceInSchoolTime = function(){
+			 oid = $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence")[0].value; 
+			 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/districtSubdivision/" + oid, 
+					success: function(result){
+						 //$("#filiationForm_districtSubdivisionOfBirth").select2("destroy");
+						 $("#residenceInformationForm_schoolTimeParishOfResidence").children().remove();
+						 $("#residenceInformationForm_schoolTimeParishOfResidence").select2(
+			             			{
+			             				data : result,
+			             			}	  
+			             	    );
+						$("#residenceInformationForm_schoolTimeParishOfResidence").select2();
+			 		}
+			 });
+			 
+		 }
+  	
+  	//setup parishes of residence
+	   	$("#residenceInformationForm_schoolTimeParishOfResidence").select2();
+	   	<c:if test="${not empty residenceInformationForm.districtSubdivisionOfResidence}">
+	   	subDistrictOptions = [
+		             			<c:forEach items="${residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence.parish}" var="element"> 
+		             				{
+		             					text : "<c:out value='${element.name}'/>",  
+		             					id : "<c:out value='${element.externalId}'/>"
+		             				},
+		             			</c:forEach>
+		             		];
+		
+		             	   $("#residenceInformationForm_schoolTimeParishOfResidence").select2(
+			             			{
+			             				data : subDistrictOptions,
+			             			}	  
+			             	    );
+			             	    
+			             	    $("#residenceInformationForm_schoolTimeParishOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeParishOfResidence.externalId}'/>');
+		
+	     	</c:if>
+	
 </script>

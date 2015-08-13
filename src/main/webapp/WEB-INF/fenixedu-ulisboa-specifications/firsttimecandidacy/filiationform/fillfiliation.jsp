@@ -132,9 +132,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="filiationForm_parishOfBirth" class="form-control"
-						type="text" name="parishOfBirth"
-						value='<c:out value='${not empty param.parishofbirth ? param.parishofbirth : filiationForm.parishOfBirth }'/>' />
+					<select id="filiationForm_parishOfBirth" class="form-control"  name="parishOfBirth"></select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -262,5 +260,50 @@ $(document).ready(function() {
    		             	    $("#filiationForm_districtSubdivisionOfBirth").select2().select2('val', '<c:out value='${filiationForm.districtSubdivisionOfBirth.externalId}'/>');
    	
            	</c:if>
+           	
+        	 $("#filiationForm_districtSubdivisionOfBirth").select2().on("select2:select", function(e) {
+                   populateParishes(e);
+                 })
+             	    
+			 populateParishes = function(){
+				 oid = $("#filiationForm_districtSubdivisionOfBirth")[0].value; 
+				 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/districtSubdivision/" + oid, 
+						success: function(result){
+							 //$("#filiationForm_districtSubdivisionOfBirth").select2("destroy");
+							 $("#filiationForm_parishOfBirth").children().remove();
+							 $("#filiationForm_parishOfBirth").select2(
+				             			{
+				             				data : result,
+				             			}	  
+				             	    );
+							$("#filiationForm_parishOfBirth").select2();
+				 		}
+				 });
+				 
+			 }
+           	
+           	//setup parishes
+         	$("#filiationForm_parishOfBirth").select2();
+         	<c:if test="${not empty filiationForm.districtSubdivisionOfBirth}">
+         	subDistrictOptions = [
+   	             			<c:forEach items="${filiationForm.districtSubdivisionOfBirth.parish}" var="element"> 
+   	             				{
+   	             					text : "<c:out value='${element.name}'/>",  
+   	             					id : "<c:out value='${element.externalId}'/>"
+   	             				},
+   	             			</c:forEach>
+   	             		];
+   	
+   	             	   $("#filiationForm_parishOfBirth").select2(
+   		             			{
+   		             				data : subDistrictOptions,
+   		             			}	  
+   		             	    );
+   		             	    
+   		             	    $("#filiationForm_parishOfBirth").select2().select2('val', '<c:out value='${filiationForm.parishOfBirth.externalId}'/>');
+   	
+           	</c:if>
+           	       	
+           	
 	});
 </script>
