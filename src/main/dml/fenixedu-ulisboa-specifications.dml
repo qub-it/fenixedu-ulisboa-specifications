@@ -301,3 +301,20 @@ relation StatuteTypeRuleTransition {
 }
 
 // ==================== END: CurricularPeriodConfiguration ====================
+
+// ==================== Parishes as domain objects
+class Parish{
+	String code (REQUIRED);
+    String name (REQUIRED);
+}
+
+relation ParsishDistrictSubdivision{
+	.org.fenixedu.academic.domain.DistrictSubdivision playsRole districtSubdivision{
+		multiplicity 1;
+	}
+	
+	Parish playsRole parish{
+		multiplicity *;
+	}
+}
+// ==================== END: Parishes as domain objects ====================
