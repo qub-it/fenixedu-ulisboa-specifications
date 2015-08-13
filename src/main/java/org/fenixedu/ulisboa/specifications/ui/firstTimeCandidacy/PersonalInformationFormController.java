@@ -45,7 +45,10 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
@@ -59,10 +62,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CitzenCardValidation.validateNumeroDocumentoCC;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
 public class PersonalInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
+
+    private static final String CITZEN_CARD_CHECK_DIGIT_FORMAT = "[0-9][a-zA-Z][a-zA-Z][0-9]";
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform";
 
@@ -165,6 +171,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
+        Person person = AccessControl.getPerson();
+        if (form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
+                && !validateNumeroDocumentoCC(person.getDocumentIdNumber() + form.getIdentificationDocumentSeriesNumber())
+                && !testsMode()) {
+
+            //This will never throw an error 
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.wrongCheckDigit"), model);
+            return false;
+        }
         if (form.getDocumentIdExpirationDate() == null) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                     "error.expirationDate.required"), model);
@@ -172,7 +188,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         }
 
         Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
-        Person person = AccessControl.getPerson();
         if (party != null && party != person) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                     "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"), model);
@@ -186,6 +201,10 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         }
 
         return true;
+    }
+
+    private boolean testsMode() {
+        return CoreConfiguration.getConfiguration().developmentMode() || ULisboaConfiguration.getConfiguration().isQualityMode();
     }
 
     @Atomic
@@ -209,7 +228,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         if (seriesNumerOrExtraDigit.matches("[0-9]|")) {
             person.setIdentificationDocumentExtraDigit(seriesNumerOrExtraDigit);
             person.setIdentificationDocumentSeriesNumber(null);
-        } else if (seriesNumerOrExtraDigit.matches("[0-9][a-zA-Z][a-zA-Z][0-9]")) {
+        } else if (seriesNumerOrExtraDigit.matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)) {
             person.setIdentificationDocumentSeriesNumber(seriesNumerOrExtraDigit);
             person.setIdentificationDocumentExtraDigit(null);
         }
@@ -295,7 +314,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         }
 
         public void setIdentificationDocumentSeriesNumber(String identificationDocumentSeriesNumber) {
-            this.identificationDocumentSeriesNumber = identificationDocumentSeriesNumber;
+            this.identificationDocumentSeriesNumber =
+                    identificationDocumentSeriesNumber != null ? identificationDocumentSeriesNumber.toUpperCase() : null;
         }
 
         public String getDocumentIdEmissionLocation() {
