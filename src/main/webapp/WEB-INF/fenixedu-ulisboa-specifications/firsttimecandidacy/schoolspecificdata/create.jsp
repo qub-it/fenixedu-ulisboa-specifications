@@ -54,38 +54,50 @@ ${portal.toolkit()}
 					
 				</div>	
 			</c:if>
-			<c:if test="${not empty errorMessages}">
-				<div class="alert alert-danger" role="alert">
+				<div id="errors" class="alert alert-danger" role="alert" style="display: none;">
 					
+			<c:if test="${not empty errorMessages}">
 					<c:forEach items="${errorMessages}" var="message"> 
 						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
   							${message}
   						</p>
 					</c:forEach>
+			</c:if>
 					
 				</div>	
-			</c:if>
 
-<form method="post" class="form-horizontal">
+<form id="mainForm" method="post" class="form-horizontal">
 <div class="panel panel-default">
   <div class="panel-body">
 <div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.SchoolSpecificData.name"/></div> 
+<div class="col-sm-2 control-label"><spring:message code="label.SchoolSpecificData.vaccinationValidity"/></div> 
 
 <div class="col-sm-10">
-	<input id="schoolSpecificData_name" class="form-control" type="text" name="name"  value='<c:out value='${not empty param.name ? param.name : schoolSpecificData.name }'/>' />
+	<input id="schoolSpecificData_vaccinationValidity" class="form-control" name="vaccinationValidity"  type="text" bennu-date required value='<c:out value='${schoolSpecificData.vaccinationValidity }'/>' />
 </div>	
 </div>		
   </div>
-  <div class="panel-footer">
-		<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
-	</div>
 </div>
 </form>
+<div class="panel-footer">
+	<button class="btn btn-default" onclick="submitform()" ><spring:message code="label.submit" /></button>
+</div>
 
 <script>
+function submitform(){
+	if(!$("#schoolSpecificData_vaccinationValidity")[0].value){
+		$("#errors")[0].innerHTML = "<p> <span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\">&nbsp;</span><spring:message code="label.error.fillVaccionatioValidity"/></p>"
+		$("#errors")[0].style.display="block";
+	}
+	else{
+		$("#mainForm").submit();	
+	}
+}
 $(document).ready(function() {
 
 
 	});
+	<c:if test="${not empty errorMessages}">
+		$("#errors")[0].style.display="block";
+	</c:if>
 </script>
