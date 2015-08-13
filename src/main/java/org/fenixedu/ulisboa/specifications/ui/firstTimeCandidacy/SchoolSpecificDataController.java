@@ -30,13 +30,17 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.joda.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,6 +52,8 @@ import pt.ist.fenixframework.Atomic;
 @BennuSpringController(value = InstructionsController.class)
 @RequestMapping(SchoolSpecificDataController.CONTROLLER_URL)
 public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsBaseController {
+
+    private static final String VACCINATION_VALIDITY = "vaccinationValidity";
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata";
 
@@ -77,18 +83,27 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
             //This should never happen, but strange things happen
             throw new RuntimeException("Functionality only provided for candidates with current dges process");
         }
+        fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create";
     }
 
+    private void fillFormIfRequired(Model model) {
+        Person person = AccessControl.getPerson();
+        if (!model.containsAttribute(VACCINATION_VALIDITY) && person.getPersonUlisboaSpecifications() != null) {
+            model.addAttribute(VACCINATION_VALIDITY, person.getPersonUlisboaSpecifications().getVaccinationValidity());
+        }
+    }
+
     @RequestMapping(value = _CREATE_URI, method = RequestMethod.POST)
-    public String create(@RequestParam(value = "name", required = false) java.lang.String name, Model model,
-            RedirectAttributes redirectAttributes) {
-
+    public String create(
+            @RequestParam(value = VACCINATION_VALIDITY) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate vaccinationValidity,
+            Model model, RedirectAttributes redirectAttributes) {
         try {
-
-            SchoolSpecificData schoolSpecificData = createSchoolSpecificData(name);
-
-            model.addAttribute("schoolSpecificData", schoolSpecificData);
+            if (vaccinationValidity == null) {
+                throw new RuntimeException(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "label.error.fillVaccionatioValidity"));
+            }
+            createSchoolSpecificData(vaccinationValidity);
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/", model,
                     redirectAttributes);
         } catch (Exception de) {
@@ -100,24 +115,7 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
     }
 
     @Atomic
-    public SchoolSpecificData createSchoolSpecificData(java.lang.String name) {
-
-        SchoolSpecificData schoolSpecificData = new SchoolSpecificData();
-        schoolSpecificData.setName(name);
-
-        return schoolSpecificData;
-    }
-
-    public static class SchoolSpecificData {
-        String name;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
+    public void createSchoolSpecificData(LocalDate vaccinationValidity) {
+        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setVaccinationValidity(vaccinationValidity);
     }
 }
