@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -37,6 +38,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = InstructionsController.class)
 @RequestMapping(HouseholdInformationFormController.CONTROLLER_URL)
@@ -53,15 +56,36 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         model.addAttribute("professionTypeValues", ProfessionType.values());
         model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
 
+        fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
     }
 
-    @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
-    public String fillhouseholdinformation(HouseholdInformationForm householdInformationForm, Model model,
-            RedirectAttributes redirectAttributes) {
-        try {
+    private void fillFormIfRequired(Model model) {
+        if (!model.containsAttribute("householdInformationForm")) {
+            HouseholdInformationForm form = new HouseholdInformationForm();
+            PersonalIngressionData personalData =
+                    PersonalInformationFormController.getOrCreatePersonalIngressionData(InstructionsController
+                            .getStudentCandidacy().getPrecedentDegreeInformation());
+            form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());
+            form.setFatherProfessionType(personalData.getFatherProfessionType());
+            form.setFatherSchoolLevel(personalData.getFatherSchoolLevel());
+            form.setMotherProfessionalCondition(personalData.getMotherProfessionalCondition());
+            form.setMotherProfessionType(personalData.getMotherProfessionType());
+            form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
 
-            model.addAttribute("householdInformationForm", householdInformationForm);
+            model.addAttribute("householdInformationForm", form);
+        }
+    }
+
+    @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
+    public String fillhouseholdinformation(HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!validate(form, model)) {
+            return fillhouseholdinformation(model);
+        }
+        writeData(form);
+
+        try {
+            model.addAttribute("householdInformationForm", form);
             return redirect(
                     "/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation/",
                     model, redirectAttributes);
@@ -71,6 +95,38 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
                     + de.getLocalizedMessage(), model);
             return fillhouseholdinformation(model);
         }
+    }
+
+    private boolean validate(HouseholdInformationForm form, Model model) {
+        if (form.getFatherProfessionalCondition() == null || form.getFatherProfessionType() == null
+                || form.getFatherSchoolLevel() == null) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"),
+                    model);
+            return false;
+        }
+        if (form.getMotherProfessionalCondition() == null || form.getMotherProfessionType() == null
+                || form.getMotherSchoolLevel() == null) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"),
+                    model);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Atomic
+    private void writeData(HouseholdInformationForm form) {
+        PersonalIngressionData personalData =
+                PersonalInformationFormController.getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy()
+                        .getPrecedentDegreeInformation());
+        personalData.setFatherProfessionalCondition(form.getFatherProfessionalCondition());
+        personalData.setFatherProfessionType(form.getFatherProfessionType());
+        personalData.setFatherSchoolLevel(form.getFatherSchoolLevel());
+        personalData.setMotherProfessionalCondition(form.getMotherProfessionalCondition());
+        personalData.setMotherProfessionType(form.getMotherProfessionType());
+        personalData.setMotherSchoolLevel(form.getMotherSchoolLevel());
     }
 
     public static class HouseholdInformationForm {

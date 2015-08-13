@@ -212,7 +212,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     @Atomic
-    private PersonalIngressionData getOrCreatePersonalIngressionData(PrecedentDegreeInformation precedentInformation) {
+    public static PersonalIngressionData getOrCreatePersonalIngressionData(PrecedentDegreeInformation precedentInformation) {
         PersonalIngressionData personalData = null;
         personalData = precedentInformation.getPersonalIngressionData();
         Student student = AccessControl.getPerson().getStudent();
@@ -233,7 +233,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         return personalData;
     }
 
-    private Registration getOrCreateRegistration() {
+    private static Registration getOrCreateRegistration() {
         StudentCandidacy studentCandidacy = InstructionsController.getStudentCandidacy();
         Registration registration = studentCandidacy.getRegistration();
         if (registration != null) {
