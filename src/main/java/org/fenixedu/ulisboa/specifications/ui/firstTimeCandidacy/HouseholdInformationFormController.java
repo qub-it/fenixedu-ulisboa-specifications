@@ -49,6 +49,9 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
 
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
     public String fillhouseholdinformation(Model model) {
+        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
+        model.addAttribute("professionTypeValues", ProfessionType.values());
+        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
     }
@@ -56,15 +59,6 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
     public String fillhouseholdinformation(HouseholdInformationForm householdInformationForm, Model model,
             RedirectAttributes redirectAttributes) {
-        model.addAttribute("motherSchoolLevelValues", org.fenixedu.academic.domain.SchoolLevelType.values());
-        model.addAttribute("motherProfessionTypeValues", org.fenixedu.academic.domain.ProfessionType.values());
-        model.addAttribute("motherProfessionalConditionValues",
-                org.fenixedu.academic.domain.ProfessionalSituationConditionType.values());
-        model.addAttribute("fatherSchoolLevelValues", org.fenixedu.academic.domain.SchoolLevelType.values());
-        model.addAttribute("fatherProfessionTypeValues", org.fenixedu.academic.domain.ProfessionType.values());
-        model.addAttribute("fatherProfessionalConditionValues",
-                org.fenixedu.academic.domain.ProfessionalSituationConditionType.values());
-
         try {
 
             model.addAttribute("householdInformationForm", householdInformationForm);

@@ -74,9 +74,8 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="originInformationForm_schoolLevel" class="form-control" name="schoollevel">
-		<option value=""></option>
 		<c:forEach items="${schoolLevelValues}" var="field">
-			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
+			<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}'/></option>
 		</c:forEach>
 	</select>
 	<script>
@@ -152,7 +151,6 @@ ${portal.toolkit()}
 
 <div class="col-sm-4">
 	<select id="originInformationForm_highSchoolType" class="form-control" name="highschooltype">
-		<option value=""></option>
 		<c:forEach items="${highSchoolTypeValues}" var="field">
 			<option value='<c:out value='${field}'/>'><c:out value='${field}'/></option>
 		</c:forEach>

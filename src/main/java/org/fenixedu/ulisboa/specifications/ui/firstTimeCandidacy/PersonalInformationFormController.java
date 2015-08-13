@@ -63,12 +63,12 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
     public String fillpersonalinformation(Model model) {
-        model.addAttribute("genderValues", org.fenixedu.academic.domain.person.Gender.values());
-        model.addAttribute("idDocumentTypeValues", org.fenixedu.academic.domain.person.IDDocumentType.values());
-        model.addAttribute("professionTypeValues", org.fenixedu.academic.domain.ProfessionType.values());
-        model.addAttribute("professionalConditionValues",
-                org.fenixedu.academic.domain.ProfessionalSituationConditionType.values());
-        model.addAttribute("maritalStatusValues", org.fenixedu.academic.domain.person.MaritalStatus.values());
+        model.addAttribute("genderValues", Gender.values());
+        model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
+        model.addAttribute("professionTypeValues", ProfessionType.values());
+        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
+        model.addAttribute("maritalStatusValues", MaritalStatus.values());
+        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }

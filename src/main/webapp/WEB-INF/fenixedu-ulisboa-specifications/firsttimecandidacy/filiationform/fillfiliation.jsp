@@ -73,14 +73,16 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.dateOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_dateOfBirth" class="form-control" type="text" name="dateofbirth"  value='<c:out value='${not empty param.dateofbirth ? param.dateofbirth : filiationForm.dateOfBirth }'/>' />
+	<input id="filiationForm_dateOfBirth" class="form-control" type="text" name="dateofbirth"  bennu-date
+		value='<c:out value='${not empty param.dateofbirth ? param.dateofbirth : filiationForm.dateOfBirth }'/>' />
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.nationality"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_nationality" class="form-control" type="text" name="nationality"  value='<c:out value='${not empty param.nationality ? param.nationality : filiationForm.nationality }'/>' />
+	<select id="filiationForm_nationality" class="js-example-basic-single" name="nationality">
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
@@ -94,14 +96,17 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.districtSubdivisionOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_districtSubdivisionOfBirth" class="form-control" type="text" name="districtsubdivisionofbirth"  value='<c:out value='${not empty param.districtsubdivisionofbirth ? param.districtsubdivisionofbirth : filiationForm.districtSubdivisionOfBirth }'/>' />
+	<select id="filiationForm_districtSubdivisionOfBirth" class="js-example-basic-single" name="districtsubdivisionofbirth">
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.districtOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_districtOfBirth" class="form-control" type="text" name="districtofbirth"  value='<c:out value='${not empty param.districtofbirth ? param.districtofbirth : filiationForm.districtOfBirth }'/>' />
+	<select id="filiationForm_districtOfBirth" class="js-example-basic-single" name="districtofbirth">
+		<option id=""></option>
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
@@ -122,7 +127,9 @@ ${portal.toolkit()}
 <div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.countryOfBirth"/></div> 
 
 <div class="col-sm-10">
-	<input id="filiationForm_countryOfBirth" class="form-control" type="text" name="countryofbirth"  value='<c:out value='${not empty param.countryofbirth ? param.countryofbirth : filiationForm.countryOfBirth }'/>' />
+	<option  id=""></option>
+	<select id="filiationForm_countryOfBirth" class="js-example-basic-single" name="countryOfBirth">
+	</select>
 </div>	
 </div>		
   </div>
@@ -134,7 +141,98 @@ ${portal.toolkit()}
 
 <script>
 $(document).ready(function() {
-
-
+	//setup country of birth	             		
+	country_options = [
+	             			<c:forEach items="${countries_options}" var="element"> 
+	             				{
+	             					text : "<c:out value='${element.name}'/>",  
+	             					id : "<c:out value='${element.externalId}'/>"
+	             				},
+	             			</c:forEach>
+	             		];
+	             		$("#filiationForm_countryOfBirth").select2(
+	             			{
+	             				data : country_options,
+	             			}	  
+	             	    );
+	             	    
+	             	    $("#filiationForm_countryOfBirth").select2().select2('val', '<c:out value='${param.countryOfBirth}'/>');
+    
+    //setup nationalities
+    	nationality_options = [
+	             			<c:forEach items="${countries_options}" var="element"> 
+	             				{
+	             					text : "<c:out value='${element.nationality}'/>",  
+	             					id : "<c:out value='${element.externalId}'/>"
+	             				},
+	             			</c:forEach>
+	             		];
+	
+	             	   $("#filiationForm_nationality").select2(
+		             			{
+		             				data : nationality_options,
+		             			}	  
+		             	    );
+		             	    
+		             	    $("#filiationForm_nationality").select2().select2('val', '<c:out value='${param.nationality}'/>');
+     	 //setup districts
+        	district_options = [
+  	             			<c:forEach items="${districts_options}" var="element"> 
+  	             				{
+  	             					text : "<c:out value='${element.name}'/>",  
+  	             					id : "<c:out value='${element.externalId}'/>"
+  	             				},
+  	             			</c:forEach>
+  	             		];
+  	
+  	             	   $("#filiationForm_districtOfBirth").select2(
+  		             			{
+  		             				data : district_options,
+  		             			}	  
+  		             	    );
+  		             	    
+  		             	    $("#filiationForm_districtOfBirth").select2().select2('val', '<c:out value='${param.districtOfBirth}'/>');
+  		             	 $("#filiationForm_districtOfBirth").select2().on("select2:select", function(e) {
+  		                   populateSubDistricts(e);
+  		                 })
+  		             	    
+          	 populateSubDistricts = function(){
+          		 oid = $("#filiationForm_districtOfBirth")[0].value; 
+          		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/district/" + oid, 
+          				success: function(result){
+          					 //$("#filiationForm_districtSubdivisionOfBirth").select2("destroy");
+          					 $("#filiationForm_districtSubdivisionOfBirth").children().remove();
+          					 $("#filiationForm_districtSubdivisionOfBirth").select2(
+        		             			{
+        		             				data : result,
+        		             			}	  
+        		             	    );
+          					$("#filiationForm_districtSubdivisionOfBirth").select2().select2('val', '<c:out value='${param.districtSubdivisionOfBirth}'/>');
+          		 		}
+          		 });
+          		 
+          	 }
+    
+         	//setup sub-districts
+         	$("#filiationForm_districtSubdivisionOfBirth").select2()
+         	<c:if test="${not empty param.districtOfBirth}">
+         	sub-district_options = [
+   	             			<c:forEach items="${param.districtOfBirth.districtSubDivision}" var="element"> 
+   	             				{
+   	             					text : "<c:out value='${element.name}'/>",  
+   	             					id : "<c:out value='${element.externalId}'/>"
+   	             				},
+   	             			</c:forEach>
+   	             		];
+   	
+   	             	   $("#filiationForm_districtSubdivisionOfBirth").select2(
+   		             			{
+   		             				data : district_options,
+   		             			}	  
+   		             	    );
+   		             	    
+   		             	    $("#filiationForm_districtSubdivisionOfBirth").select2().select2('val', '<c:out value='${param.districtSubdivisionOfBirth}'/>');
+   	
+           	</c:if>
 	});
 </script>
