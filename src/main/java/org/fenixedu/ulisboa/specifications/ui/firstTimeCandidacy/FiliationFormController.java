@@ -52,7 +52,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(FiliationFormController.CONTROLLER_URL)
 public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseController {
 

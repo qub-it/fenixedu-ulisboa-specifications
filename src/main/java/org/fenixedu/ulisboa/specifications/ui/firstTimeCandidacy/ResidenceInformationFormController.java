@@ -59,7 +59,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ResidenceInformationFormController.CONTROLLER_URL)
 public class ResidenceInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -78,10 +78,9 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     private void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("residenceInformationForm")) {
-            StudentCandidacy candidacy = InstructionsController.getStudentCandidacy();
+            StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
             PersonalIngressionData personalData =
-                    PersonalInformationFormController
-                            .getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
             Person person = AccessControl.getPerson();
 
             ResidenceInformationForm form = new ResidenceInformationForm();
@@ -194,9 +193,9 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     @Atomic
     protected void writeData(ResidenceInformationForm form) {
         Person person = AccessControl.getPerson();
-        StudentCandidacy candidacy = InstructionsController.getStudentCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
         PersonalIngressionData personalData =
-                PersonalInformationFormController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
         personalData.setCountryOfResidence(form.getCountryOfResidence());
         personalData.setDistrictSubdivisionOfResidence(form.getDistrictSubdivisionOfResidence());
         personalData.setDislocatedFromPermanentResidence(form.getDislocatedFromPermanentResidence());

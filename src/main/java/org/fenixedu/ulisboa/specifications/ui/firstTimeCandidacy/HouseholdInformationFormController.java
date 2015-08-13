@@ -41,7 +41,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(HouseholdInformationFormController.CONTROLLER_URL)
 public class HouseholdInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -64,7 +64,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         if (!model.containsAttribute("householdInformationForm")) {
             HouseholdInformationForm form = new HouseholdInformationForm();
             PersonalIngressionData personalData =
-                    PersonalInformationFormController.getOrCreatePersonalIngressionData(InstructionsController
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController
                             .getStudentCandidacy().getPrecedentDegreeInformation());
             form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());
             form.setFatherProfessionType(personalData.getFatherProfessionType());
@@ -119,7 +119,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
     @Atomic
     private void writeData(HouseholdInformationForm form) {
         PersonalIngressionData personalData =
-                PersonalInformationFormController.getOrCreatePersonalIngressionData(InstructionsController.getStudentCandidacy()
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getStudentCandidacy()
                         .getPrecedentDegreeInformation());
         personalData.setFatherProfessionalCondition(form.getFatherProfessionalCondition());
         personalData.setFatherProfessionType(form.getFatherProfessionType());

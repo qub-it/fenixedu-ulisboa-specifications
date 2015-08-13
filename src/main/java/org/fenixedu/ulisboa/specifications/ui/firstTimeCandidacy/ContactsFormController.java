@@ -49,7 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ContactsFormController.CONTROLLER_URL)
 public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseController {
 

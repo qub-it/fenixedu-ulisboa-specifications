@@ -10,7 +10,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
-@BennuSpringController(value = InstructionsController.class)
+@BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization")
 public class CgdDataAuthorizationController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -21,13 +21,13 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
 
     @RequestMapping(value = "/authorize")
     public String cgddataauthorizationToAuthorize(Model model, RedirectAttributes redirectAttributes) {
-        resetCandidacySummaryFile(InstructionsController.getStudentCandidacy());
+        resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
     }
 
     @RequestMapping(value = "/unauthorize")
     public String cgddataauthorizationToUnauthorize(Model model, RedirectAttributes redirectAttributes) {
-        resetCandidacySummaryFile(InstructionsController.getStudentCandidacy());
+        resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
 
