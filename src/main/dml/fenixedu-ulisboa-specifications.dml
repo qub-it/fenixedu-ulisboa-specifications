@@ -71,6 +71,7 @@ relation PersonUlisboaSpecificationsPerson {
 class DisabilityType {
 	String code (REQUIRED);
 	LocalizedString description (REQUIRED);
+	boolean other;
 }
 
 relation DisabilityTypeBennu {
@@ -85,6 +86,7 @@ relation DisabilityTypeBennu {
 class UniversityDiscoveryMeansAnswer {
 	String code (REQUIRED);
 	LocalizedString description (REQUIRED);
+	boolean other;
 }
 
 relation UniversityDiscoveryMeansAnswerBennu {
@@ -99,6 +101,7 @@ relation UniversityDiscoveryMeansAnswerBennu {
 class UniversityChoiceMotivationAnswer {
 	String code (REQUIRED);
 	LocalizedString description (REQUIRED);
+	boolean other;
 }
 
 relation UniversityChoiceMotivationAnswerBennu {

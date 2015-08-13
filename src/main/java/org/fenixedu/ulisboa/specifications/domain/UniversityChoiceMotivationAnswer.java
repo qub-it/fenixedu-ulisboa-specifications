@@ -44,6 +44,7 @@ public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivation
         this();
         setCode(code);
         setDescription(description);
+        setOther(false);
     }
 
     @Override
@@ -84,5 +85,9 @@ public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivation
     public void delete() {
         setRoot(null);
         deleteDomainObject();
+    }
+
+    public boolean isOther() {
+        return getOther();
     }
 }

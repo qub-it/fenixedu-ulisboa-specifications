@@ -44,6 +44,7 @@ public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnsw
         this();
         setCode(code);
         setDescription(description);
+        setOther(false);
     }
 
     @Override
@@ -85,5 +86,9 @@ public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnsw
     public void delete() {
         setRoot(null);
         deleteDomainObject();
+    }
+
+    public boolean isOther() {
+        return getOther();
     }
 }

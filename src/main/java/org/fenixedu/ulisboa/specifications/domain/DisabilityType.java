@@ -44,6 +44,7 @@ public class DisabilityType extends DisabilityType_Base {
         this();
         setCode(code);
         setDescription(description);
+        setOther(false);
     }
 
     @Override
@@ -84,5 +85,9 @@ public class DisabilityType extends DisabilityType_Base {
     public void delete() {
         setRoot(null);
         deleteDomainObject();
+    }
+
+    public boolean isOther() {
+        return getOther();
     }
 }
