@@ -95,7 +95,9 @@ public class CGDPdfFiller {
             setField("CB_0_0", "Yes"); // male
         }
 
-        setField("Cod_data_1", person.getDateOfBirthYearMonthDay().toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
+        if (person.getDateOfBirthYearMonthDay() != null) {
+            setField("Cod_data_1", person.getDateOfBirthYearMonthDay().toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
+        }
 
         setField("NIF1", person.getSocialSecurityNumber());
         setField("T_DocIdent", person.getDocumentIdNumber());
@@ -133,11 +135,13 @@ public class CGDPdfFiller {
         setField("T_NomePai", person.getNameOfFather());
         setField("T_NomeMae", person.getNameOfMother());
 
-        setField("T_NatPais", person.getCountryOfBirth().getName());
-        setField("T_Naturali", person.getDistrictOfBirth());
-        setField("T_NatConc", person.getDistrictSubdivisionOfBirth());
-        setField("T_NatFreg", person.getParishOfBirth());
-        setField("T_PaisRes", person.getCountryOfBirth().getCountryNationality().toString());
+        if (person.getCountryOfBirth() != null) {
+            setField("T_NatPais", person.getCountryOfBirth().getName());
+            setField("T_Naturali", person.getDistrictOfBirth());
+            setField("T_NatConc", person.getDistrictSubdivisionOfBirth());
+            setField("T_NatFreg", person.getParishOfBirth());
+            setField("T_PaisRes", person.getCountryOfBirth().getCountryNationality().toString());
+        }
 
         setField("T_Morada01", person.getAddress());
         setField("T_Localid01", person.getAreaOfAreaCode());
@@ -145,15 +149,19 @@ public class CGDPdfFiller {
 
         String postalCode = person.getPostalCode();
         int dashIndex = postalCode.indexOf('-');
-        setField("T_CodPos01", postalCode.substring(0, 4));
-        String last3Numbers = postalCode.substring(dashIndex + 1, dashIndex + 4);
-        setField("T_CodPos03_1", last3Numbers);
-        setField("T_Localid02_1", person.getAreaOfAreaCode());
+        if (postalCode != null && postalCode.length() >= dashIndex + 4) {
+            setField("T_CodPos01", postalCode.substring(0, 4));
+            String last3Numbers = postalCode.substring(dashIndex + 1, dashIndex + 4);
+            setField("T_CodPos03_1", last3Numbers);
+            setField("T_Localid02_1", person.getAreaOfAreaCode());
+        }
 
-        setField("T_Distrito", person.getDistrictOfResidence());
-        setField("T_Conc", person.getDistrictSubdivisionOfResidence());
-        setField("T_Freguesia", person.getParishOfResidence());
-        setField("T_PaisResid", person.getCountryOfResidence().getName());
+        if (person.getCountryOfResidence() != null) {
+            setField("T_Distrito", person.getDistrictOfResidence());
+            setField("T_Conc", person.getDistrictSubdivisionOfResidence());
+            setField("T_Freguesia", person.getParishOfResidence());
+            setField("T_PaisResid", person.getCountryOfResidence().getName());
+        }
 
         stamper.setFormFlattening(true);
         stamper.close();
