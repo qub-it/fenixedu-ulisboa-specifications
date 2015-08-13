@@ -67,136 +67,217 @@ ${portal.toolkit()}
 			</c:if>
 
 <form method="post" class="form-horizontal">
-<div class="panel panel-default">
-  <div class="panel-body">
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.address"/></div> 
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.countryOfResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_address" class="form-control" type="text" name="address"  value='<c:out value='${not empty param.address ? param.address : residenceInformationForm.address }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.areaCode"/></div> 
+				<div class="col-sm-10">
+					<select id="residenceInformationForm_countryOfResidence"
+						class="js-example-basic-single" name="countryOfResidence">
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ResidenceInformationForm.address" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_areaCode" class="form-control" type="text" name="areaCode"  value='<c:out value='${not empty param.areacode ? param.areacode : residenceInformationForm.areaCode }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.areaOfAreaCode"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_address" class="form-control"
+						type="text" name="address"
+						value='<c:out value='${not empty param.address ? param.address : residenceInformationForm.address }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ResidenceInformationForm.areaCode" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_areaOfAreaCode" class="form-control" type="text" name="areaOfAreaCode"  value='<c:out value='${not empty param.areaofareacode ? param.areaofareacode : residenceInformationForm.areaOfAreaCode }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.area"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_areaCode" class="form-control"
+						type="text" name="areaCode" pattern="(\d{4}-\d{3})"
+						value='<c:out value='${not empty param.areacode ? param.areacode : residenceInformationForm.areaCode }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.areaOfAreaCode" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_area" class="form-control" type="text" name="area"  value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.parishOfResidence"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_areaOfAreaCode"
+						class="form-control" type="text" name="areaOfAreaCode"
+						value='<c:out value='${not empty param.areaofareacode ? param.areaofareacode : residenceInformationForm.areaOfAreaCode }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ResidenceInformationForm.area" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_parishOfResidence" class="form-control" type="text" name="parishOfResidence"  value='<c:out value='${not empty param.parishofresidence ? param.parishofresidence : residenceInformationForm.parishOfResidence }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.districtOfResidence"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_area" class="form-control"
+						type="text" name="area"
+						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.districtOfResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="residenceInformationForm_districtOfResidence" class="js-example-basic-single" name="districtOfResidence">
-		</select>
-	</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence"/></div> 
+				<div class="col-sm-10">
+					<select id="residenceInformationForm_districtOfResidence"
+						class="js-example-basic-single" name="districtOfResidence">
+						<option id=""></option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="residenceInformationForm_districtSubdivisionOfResidence" class="js-example-basic-single" name="districtSubdivisionOfResidence">
-	</select>
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.dislocatedFromPermanentResidence"/></div> 
+				<div class="col-sm-10">
+					<select
+						id="residenceInformationForm_districtSubdivisionOfResidence"
+						class="js-example-basic-single"
+						name="districtSubdivisionOfResidence">
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.parishOfResidence" />
+				</div>
 
-<div class="col-sm-2">
-<select id="residenceInformationForm_dislocatedFromPermanentResidence" name="dislocatedFromPermanentResidence" class="form-control">
-<option value="false"><spring:message code="label.no"/></option>
-<option value="true"><spring:message code="label.yes"/></option>				
-</select>
-	<script>
-		$("#residenceInformationForm_dislocatedFromPermanentResidence").val('<c:out value='${not empty param.dislocatedfrompermanentresidence ? param.dislocatedfrompermanentresidence : residenceInformationForm.dislocatedFromPermanentResidence }'/>');
-	</script>	
-</div>
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeDistrictOfResidence"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_parishOfResidence"
+						class="form-control" type="text" name="parishOfResidence"
+						value='<c:out value='${not empty param.parishofresidence ? param.parishofresidence : residenceInformationForm.parishOfResidence }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="residenceInformationForm_schoolTimeDistrictOfResidence" class="js-example-basic-single" name="schoolTimeDistrictOfResidence">
-	</select>
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence"/></div> 
+				<div class="col-sm-2">
+					<select
+						id="residenceInformationForm_dislocatedFromPermanentResidence"
+						name="dislocatedFromPermanentResidence" class="form-control">
+						<option value="false"><spring:message code="label.no" /></option>
+						<option value="true"><spring:message code="label.yes" /></option>
+					</select>
+					<script>
+						$("#residenceInformationForm_dislocatedFromPermanentResidence").val('<c:out value='${not empty param.dislocatedfrompermanentresidence ? param.dislocatedfrompermanentresidence : residenceInformationForm.dislocatedFromPermanentResidence }'/>');
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeAddress" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence" class="js-example-basic-single" name="schoolTimeDistrictSubdivisionOfResidence">
-	</select>
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeAddress"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_schoolTimeAddress"
+						class="form-control" type="text" name="schoolTimeAddress"
+						value='<c:out value='${not empty param.schooltimeaddress ? param.schooltimeaddress : residenceInformationForm.schoolTimeAddress }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeAreaCode" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeAddress" class="form-control" type="text" name="schoolTimeAddress"  value='<c:out value='${not empty param.schooltimeaddress ? param.schooltimeaddress : residenceInformationForm.schoolTimeAddress }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeAreaCode"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_schoolTimeAreaCode"
+						class="form-control" type="text" name="schoolTimeAreaCode" pattern="(\d{4}-\d{3})"
+						value='<c:out value='${not empty param.schooltimeareacode ? param.schooltimeareacode : residenceInformationForm.schoolTimeAreaCode }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeAreaOfAreaCode" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeAreaCode" class="form-control" type="text" name="schoolTimeAreaCode"  value='<c:out value='${not empty param.schooltimeareacode ? param.schooltimeareacode : residenceInformationForm.schoolTimeAreaCode }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeAreaOfAreaCode"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_schoolTimeAreaOfAreaCode"
+						class="form-control" type="text" name="schoolTimeAreaOfAreaCode"
+						value='<c:out value='${not empty param.schooltimeareaofareacode ? param.schooltimeareaofareacode : residenceInformationForm.schoolTimeAreaOfAreaCode }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeArea" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeAreaOfAreaCode" class="form-control" type="text" name="schoolTimeAreaOfAreaCode"  value='<c:out value='${not empty param.schooltimeareaofareacode ? param.schooltimeareaofareacode : residenceInformationForm.schoolTimeAreaOfAreaCode }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeArea"/></div> 
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_schoolTimeArea"
+						class="form-control" type="text" name="schoolTimeArea"
+						value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeDistrictOfResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeArea" class="form-control" type="text" name="schoolTimeArea"  value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.schoolTimeParishOfResidence"/></div> 
+				<div class="col-sm-10">
+					<select id="residenceInformationForm_schoolTimeDistrictOfResidence"
+						class="js-example-basic-single"
+						name="schoolTimeDistrictOfResidence">
+						<option id=""></option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="residenceInformationForm_schoolTimeParishOfResidence" class="form-control" type="text" name="schoolTimeParishOfResidence"  value='<c:out value='${not empty param.schooltimeparishofresidence ? param.schooltimeparishofresidence : residenceInformationForm.schoolTimeParishOfResidence }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.ResidenceInformationForm.countryOfResidence"/></div> 
+				<div class="col-sm-10">
+					<select
+						id="residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence"
+						class="js-example-basic-single"
+						name="schoolTimeDistrictSubdivisionOfResidence">
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeParishOfResidence" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="residenceInformationForm_countryOfResidence" class="js-example-basic-single" name="countryOfResidence">
-	</select>
-</div>	
-</div>		
-  </div>
-  <div class="panel-footer">
-		<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_schoolTimeParishOfResidence"
+						class="form-control" type="text"
+						name="schoolTimeParishOfResidence"
+						value='<c:out value='${not empty param.schooltimeparishofresidence ? param.schooltimeparishofresidence : residenceInformationForm.schoolTimeParishOfResidence }'/>' />
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<input type="submit" class="btn btn-default" role="button"
+				value="<spring:message code="label.submit" />" />
+		</div>
 	</div>
-</div>
 </form>
 
 <script>
@@ -216,7 +297,7 @@ $(document).ready(function() {
 	             			}	  
 	             	    );
 	             	    
-	             	    $("#residenceInformationForm_countryOfResidence").select2().select2('val', '<c:out value='${param.countryOfResidence}'/>');
+	             	    $("#residenceInformationForm_countryOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.countryOfResidence.externalId}'/>');
     
      	 //setup districts of residence
         	district_options = [
