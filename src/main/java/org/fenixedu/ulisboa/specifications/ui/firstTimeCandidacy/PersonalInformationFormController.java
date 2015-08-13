@@ -93,10 +93,19 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     private void fillFormIfRequired(Model model) {
-        if (!model.containsAttribute("personalInformationForm")) {
-            PersonalInformationForm form = new PersonalInformationForm();
+        PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
+        Person person = AccessControl.getPerson();
+        if (form != null) {
+            //Read-only fields
+            form.setName(person.getName());
+            form.setUsername(person.getUsername());
+            form.setGender(person.getGender());
+            form.setDocumentIdNumber(person.getDocumentIdNumber());
+            form.setIdDocumentType(person.getIdDocumentType());
+        } else {
+            form = new PersonalInformationForm();
 
-            Person person = AccessControl.getPerson();
+            //Read-only fields
             form.setName(person.getName());
             form.setUsername(person.getUsername());
             form.setGender(person.getGender());
@@ -143,6 +152,12 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
     public String fillpersonalinformation(PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+
+        if (form.getDocumentIdExpirationDate() == null) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.expirationDate.required"), model);
+            return fillpersonalinformation(model);
+        }
 
         writePersonalInformationData(form);
         try {
