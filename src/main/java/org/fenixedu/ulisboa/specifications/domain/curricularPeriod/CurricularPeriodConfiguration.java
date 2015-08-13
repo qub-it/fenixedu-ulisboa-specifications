@@ -26,6 +26,7 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -102,23 +103,33 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     public RuleResult verifyRulesForEnrolment(final EnrolmentContext enrolmentContext) {
         final Registration registration = enrolmentContext.getRegistration();
         final RootCourseGroup degreeModule = getDegreeCurricularPlan().getRoot();
-        RuleResult result = RuleResult.createTrue(degreeModule);
 
         if (getRuleEnrolmentSet().isEmpty()) {
-            result = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
-            logger.info("[REG][{}][{}]", registration.getNumber(), result.getMessages().iterator().next().getMessage());
-            return result;
+            final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
+            logger.info("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
+            
+            return falseResult;
         }
 
-        for (final RuleEnrolment rule : getRuleEnrolmentSet()) {
+        //check executive rules first
+        for (final RuleEnrolment rule : getFilteredRuleEnrolment(true)) {
+
+            final RuleResult ruleResult = rule.execute(enrolmentContext);
+            if (ruleResult.isTrue()) {
+                return ruleResult;
+            }
+
+            logger.info("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+
+        }
+
+        RuleResult result = RuleResult.createTrue(degreeModule);
+        for (final RuleEnrolment rule : getFilteredRuleEnrolment(false)) {
 
             final RuleResult ruleResult = rule.execute(enrolmentContext);
             if (!ruleResult.isTrue()) {
                 result = result.and(ruleResult);
                 logger.info("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
-            } else if (rule.isExecutive()) {
-                logger.info("[RULE executive][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
-                return ruleResult;
             }
         }
 
@@ -128,27 +139,43 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     public RuleResult verifyRulesForTransition(final Curriculum curriculum) {
         final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
         final RootCourseGroup degreeModule = getDegreeCurricularPlan().getRoot();
-        RuleResult result = RuleResult.createTrue(degreeModule);
 
         if (getRuleTransitionSet().isEmpty()) {
-            result = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
-            logger.info("[REG][{}][{}]", registration.getNumber(), result.getMessages().iterator().next().getMessage());
-            return result;
+            final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
+            logger.info("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
+            return falseResult;
         }
 
-        for (final RuleTransition rule : getRuleTransitionSet()) {
+        //check executive rules first
+        for (final RuleTransition rule : getFilteredRuleTransition(true)) {
+
+            final RuleResult ruleResult = rule.execute(curriculum);
+            if (ruleResult.isTrue()) {
+                return ruleResult;
+            }
+
+            logger.info("[RULE executive][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+        }
+
+        RuleResult result = RuleResult.createTrue(degreeModule);
+        for (final RuleTransition rule : getFilteredRuleTransition(false)) {
 
             final RuleResult ruleResult = rule.execute(curriculum);
             if (!ruleResult.isTrue()) {
                 result = result.and(ruleResult);
                 logger.info("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
-            } else if (rule.isExecutive()) {
-                logger.info("[RULE executive][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
-                return ruleResult;
             }
         }
 
         return result;
+    }
+
+    private Collection<RuleTransition> getFilteredRuleTransition(boolean executive) {
+        return getRuleTransitionSet().stream().filter(r -> r.isExecutive() == executive).collect(Collectors.toSet());
+    }
+
+    private Collection<RuleEnrolment> getFilteredRuleEnrolment(boolean executive) {
+        return getRuleEnrolmentSet().stream().filter(r -> r.isExecutive() == executive).collect(Collectors.toSet());
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlan() {

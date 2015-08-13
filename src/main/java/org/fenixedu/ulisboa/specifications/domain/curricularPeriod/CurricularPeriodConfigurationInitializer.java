@@ -26,7 +26,10 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -260,6 +263,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             FlunkedCredits.create(configYear2, BigDecimal.valueOf(20));
+            createStudentStatuteExecutiveRuleFor(configYear2, "38");
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
@@ -267,6 +271,7 @@ public class CurricularPeriodConfigurationInitializer {
             }
             FlunkedCredits.create(configYear3, BigDecimal.valueOf(20));
             FlunkedCredits.createForYear(configYear3, BigDecimal.valueOf(10), /* year */1);
+            createStudentStatuteExecutiveRuleFor(configYear3, "39");
 
             final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
             if (configYear4 == null) {
@@ -275,6 +280,7 @@ public class CurricularPeriodConfigurationInitializer {
             FlunkedCredits.create(configYear4, BigDecimal.valueOf(20));
             FlunkedCredits.createForYear(configYear4, BigDecimal.valueOf(10), /* year */2);
             FlunkedCredits.createForYear(configYear4, BigDecimal.ZERO, /* year */1);
+            createStudentStatuteExecutiveRuleFor(configYear4, "40");
 
             final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
             if (configYear5 == null) {
@@ -283,6 +289,7 @@ public class CurricularPeriodConfigurationInitializer {
             FlunkedCredits.create(configYear5, BigDecimal.valueOf(20));
             FlunkedCredits.createForYear(configYear5, BigDecimal.valueOf(10), /* year */3);
             FlunkedCredits.createForYearInterval(configYear5, BigDecimal.ZERO, /* yearMin */1, /* yearMax */2);
+            createStudentStatuteExecutiveRuleFor(configYear5, "41");
 
             final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
             if (configYear6 == null) {
@@ -291,9 +298,19 @@ public class CurricularPeriodConfigurationInitializer {
             FlunkedCredits.create(configYear6, BigDecimal.valueOf(20));
             FlunkedCredits.createForYear(configYear6, BigDecimal.valueOf(10), /* year */4);
             FlunkedCredits.createForYearInterval(configYear6, BigDecimal.ZERO, /* yearMin */1, /* yearMax */3);
-            // TODO legidio final Stream<StatuteType> stream = StatuteType.readAll(i -> i.getCode().equals("36"));
-            // TODO legidio StudentStatuteExecutiveRule.create(configYear6, stream.findFirst().get());
+            createStudentStatuteExecutiveRuleFor(configYear6, "42");
+
         }
+    }
+
+    protected static void createStudentStatuteExecutiveRuleFor(final CurricularPeriodConfiguration configuration,
+            final String code) {
+        final List<StatuteType> statutesByCode = StatuteType.readAll(i -> i.getCode().equals(code)).collect(Collectors.toList());
+
+        if (!statutesByCode.isEmpty()) {
+            StudentStatuteExecutiveRule.create(configuration, statutesByCode.get(0));
+        }
+
     }
 
     static private void initRuleTransitionFL() {

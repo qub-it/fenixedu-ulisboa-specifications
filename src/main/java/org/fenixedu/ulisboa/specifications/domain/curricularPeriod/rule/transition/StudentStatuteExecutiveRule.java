@@ -34,7 +34,11 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
     }
 
     protected void init(final CurricularPeriodConfiguration configuration, final StatuteType statuteType) {
-        super.init(configuration, (BigDecimal) null /* credits */, (Integer) null /* yearMin */, (Integer) null /* yearMax */);
+        super.init(
+                configuration,
+                (BigDecimal) BigDecimal.ZERO/* credits; 0 hack, this rule does not need ects, but its a superclass requirement  */,
+                (Integer) null /* yearMin */, (Integer) null /* yearMax */);
+        super.setStatuteType(statuteType);
         checkRules();
     }
 
@@ -66,6 +70,15 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
         }
 
         return createFalseLabelled(getMessagesSuffix(executionYear));
+    }
+
+    @Atomic
+    @Override
+    public void delete() {
+
+        super.setStatuteType(null);
+
+        super.delete();
     }
 
     static private String getMessagesSuffix(final ExecutionYear executionYear) {
