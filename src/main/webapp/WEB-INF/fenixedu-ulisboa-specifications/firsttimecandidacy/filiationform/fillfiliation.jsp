@@ -76,7 +76,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<select id="filiationForm_countryOfBirth"
-						class="js-example-basic-single" name="countryOfBirth" required>
+						class="js-example-basic-single" name="countryOfBirth">
 					</select>
 				</div>
 			</div>
@@ -87,7 +87,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<select id="filiationForm_nationality"
-						class="js-example-basic-single" name="nationality" required>
+						class="js-example-basic-single" name="nationality">
 					</select>
 				</div>
 			</div>
