@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public class FenixeduUlisboaSpecificationsBaseController {
     private static final String ERROR_MESSAGES = "errorMessages";
@@ -61,6 +62,20 @@ public class FenixeduUlisboaSpecificationsBaseController {
         //Add here more attributes to the Model
         //model.addAttribute(<attr1Key>, <attr1Value>);
         //....
+    }
+
+    protected String redirect(String destinationAction, Model model, RedirectAttributes redirectAttributes) {
+        if (model.containsAttribute(INFO_MESSAGES)) {
+            redirectAttributes.addFlashAttribute(INFO_MESSAGES, model.asMap().get(INFO_MESSAGES));
+        }
+        if (model.containsAttribute(WARNING_MESSAGES)) {
+            redirectAttributes.addFlashAttribute(WARNING_MESSAGES, model.asMap().get(WARNING_MESSAGES));
+        }
+        if (model.containsAttribute(ERROR_MESSAGES)) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGES, model.asMap().get(ERROR_MESSAGES));
+        }
+
+        return "redirect:" + destinationAction;
     }
 
 }
