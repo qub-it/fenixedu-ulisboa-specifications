@@ -67,76 +67,105 @@ ${portal.toolkit()}
 			</c:if>
 
 <form method="post" class="form-horizontal">
-<div class="panel panel-default">
-  <div class="panel-body">
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.dateOfBirth"/></div> 
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.countryOfBirth" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="filiationForm_dateOfBirth" class="form-control" type="text" name="dateofbirth"  bennu-date
-		value='<c:out value='${not empty param.dateofbirth ? param.dateofbirth : filiationForm.dateOfBirth }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.nationality"/></div> 
+				<div class="col-sm-10">
+					<option id=""></option>
+					<select id="filiationForm_countryOfBirth"
+						class="js-example-basic-single" name="countryOfBirth" required>
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.nationality" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="filiationForm_nationality" class="js-example-basic-single" name="nationality">
-	</select>
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.parishOfBirth"/></div> 
+				<div class="col-sm-10">
+					<select id="filiationForm_nationality"
+						class="js-example-basic-single" name="nationality" required>
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.dateOfBirth" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="filiationForm_parishOfBirth" class="form-control" type="text" name="parishOfBirth"  value='<c:out value='${not empty param.parishofbirth ? param.parishofbirth : filiationForm.parishOfBirth }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.districtSubdivisionOfBirth"/></div> 
+				<div class="col-sm-10">
+					<input id="filiationForm_dateOfBirth" class="form-control"
+						type="text" name="dateOfBirth" bennu-date
+						value='<c:out value='${not empty param.dateofbirth ? param.dateofbirth : filiationForm.dateOfBirth }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.districtOfBirth" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="filiationForm_districtSubdivisionOfBirth" class="js-example-basic-single" name="districtSubdivisionOfBirth">
-	</select>
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.districtOfBirth"/></div> 
+				<div class="col-sm-10">
+					<select id="filiationForm_districtOfBirth"
+						class="js-example-basic-single" name="districtOfBirth">
+						<option id=""></option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.FiliationForm.districtSubdivisionOfBirth" />
+				</div>
 
-<div class="col-sm-10">
-	<select id="filiationForm_districtOfBirth" class="js-example-basic-single" name="districtOfBirth">
-		<option id=""></option>
-	</select>
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.fatherName"/></div> 
+				<div class="col-sm-10">
+					<select id="filiationForm_districtSubdivisionOfBirth"
+						class="js-example-basic-single" name="districtSubdivisionOfBirth">
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.parishOfBirth" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="filiationForm_fatherName" class="form-control" type="text" name="fatherName"  value='<c:out value='${not empty param.fathername ? param.fathername : filiationForm.fatherName }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.motherName"/></div> 
+				<div class="col-sm-10">
+					<input id="filiationForm_parishOfBirth" class="form-control"
+						type="text" name="parishOfBirth"
+						value='<c:out value='${not empty param.parishofbirth ? param.parishofbirth : filiationForm.parishOfBirth }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.fatherName" />
+				</div>
 
-<div class="col-sm-10">
-	<input id="filiationForm_motherName" class="form-control" type="text" name="motherName"  value='<c:out value='${not empty param.mothername ? param.mothername : filiationForm.motherName }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.FiliationForm.countryOfBirth"/></div> 
+				<div class="col-sm-10">
+					<input id="filiationForm_fatherName" class="form-control"
+						type="text" name="fatherName" required
+						value='<c:out value='${not empty param.fathername ? param.fathername : filiationForm.fatherName }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.motherName" />
+				</div>
 
-<div class="col-sm-10">
-	<option  id=""></option>
-	<select id="filiationForm_countryOfBirth" class="js-example-basic-single" name="countryOfBirth">
-	</select>
-</div>	
-</div>		
-  </div>
-  <div class="panel-footer">
-		<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
+				<div class="col-sm-10">
+					<input id="filiationForm_motherName" class="form-control"
+						type="text" name="motherName" required
+						value='<c:out value='${not empty param.mothername ? param.mothername : filiationForm.motherName }'/>' />
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<input type="submit" class="btn btn-default" role="button"
+				value="<spring:message code="label.submit" />" />
+		</div>
 	</div>
-</div>
 </form>
 
 <script>
@@ -217,7 +246,7 @@ $(document).ready(function() {
          	$("#filiationForm_districtSubdivisionOfBirth").select2()
          	<c:if test="${not empty param.districtOfBirth}">
          	sub-district_options = [
-   	             			<c:forEach items="${param.districtOfBirth.districtSubDivision}" var="element"> 
+   	             			<c:forEach items="${param.districtOfBirth.districtSubdivision}" var="element"> 
    	             				{
    	             					text : "<c:out value='${element.name}'/>",  
    	             					id : "<c:out value='${element.externalId}'/>"
