@@ -204,8 +204,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#personalInformationForm_professionType").val('<c:out value='${not empty param.professiontype ? param.professiontype : personalInformationForm.professionType }'/>');
-	</script>
+						$("#personalInformationForm_professionType").val('<c:out value='${not empty param.professiontype ? param.professiontype : personalInformationForm.professionType }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -223,8 +223,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#personalInformationForm_professionalCondition").val('<c:out value='${not empty param.professionalcondition ? param.professionalcondition : personalInformationForm.professionalCondition }'/>');
-	</script>
+						$("#personalInformationForm_professionalCondition").val('<c:out value='${not empty param.professionalcondition ? param.professionalcondition : personalInformationForm.professionalCondition }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -252,8 +252,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#personalInformationForm_maritalStatus").val('<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
-	</script>
+						$("#personalInformationForm_maritalStatus").val('<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -264,12 +264,12 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<select id="personalInformationForm_grantOwnerType"	class="form-control" name="grantOwnerType">
 						<c:forEach items="${grantOwnerTypeValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out value='${field}' /></option>
+							<option value='<c:out value='${field}'/>'><spring:message code="${field.qualifiedName}"/></option>
 						</c:forEach>
 					</select>
 					<script>
-		$("#personalInformationForm_grantOwnerType").val('<c:out value='${not empty param.grantownertype ? param.grantownertype : personalInformationForm.grantOwnerType }'/>');
-	</script>
+						$("#personalInformationForm_grantOwnerType").val('<c:out value='${not empty param.grantownertype ? param.grantownertype : personalInformationForm.grantOwnerType }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
