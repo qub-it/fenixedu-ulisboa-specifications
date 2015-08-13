@@ -101,9 +101,9 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         if (!validate(form, model)) {
             return fillfiliation(model);
         }
-        writeFiliationData(form);
 
         try {
+            writeFiliationData(form);
             model.addAttribute("filiationForm", form);
             return redirect(
                     "/fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation/",

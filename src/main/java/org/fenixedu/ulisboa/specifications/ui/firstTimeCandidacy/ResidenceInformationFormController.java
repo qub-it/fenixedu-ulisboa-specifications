@@ -124,14 +124,13 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         if (!validate(form, model)) {
             return fillresidenceinformation(model);
         }
-        writeData(form);
 
         try {
+            writeData(form);
             model.addAttribute("residenceInformationForm", form);
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts/", model,
                     redirectAttributes);
         } catch (Exception de) {
-
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
             return fillresidenceinformation(model);
@@ -267,7 +266,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 .findFirst().orElse(null);
     }
 
-    private static Comparator<PartyContact> CONTACT_COMPARATOR_BY_MODIFIED_DATE = new Comparator<PartyContact>() {
+    public static Comparator<PartyContact> CONTACT_COMPARATOR_BY_MODIFIED_DATE = new Comparator<PartyContact>() {
         @Override
         public int compare(PartyContact contact, PartyContact otherContact) {
             int result = contact.getLastModifiedDate().compareTo(otherContact.getLastModifiedDate());
