@@ -97,7 +97,7 @@ ${portal.toolkit()}
 	<input id="originInformationForm_conclusionGrade" class="form-control" type="text" name="conclusionGrade"  value='<c:out value='${not empty param.conclusiongrade ? param.conclusiongrade : originInformationForm.conclusionGrade }'/>' />
 </div>	
 </div>		
-<div class="form-group row">
+<div class="form-group row" id="originInformationForm_degreeDesignation_row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.degreeDesignation"/></div> 
 
 <div class="col-sm-10">
@@ -112,41 +112,30 @@ ${portal.toolkit()}
 </div>	
 </div>		
 <div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.birthYear"/></div> 
-
-<div class="col-sm-10">
-	<input id="originInformationForm_birthYear" class="form-control" type="text" name="birthYear"  value='<c:out value='${not empty param.birthyear ? param.birthyear : originInformationForm.birthYear }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.institution"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_institution" class="form-control" type="text" name="institution"  value='<c:out value='${not empty param.institution ? param.institution : originInformationForm.institution }'/>' />
+	<select id="originInformationForm_institution" class="form-control" name="institutionOid"></select>
 </div>	
 </div>		
-<div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.institutionName"/></div> 
-
-<div class="col-sm-10">
-	<input id="originInformationForm_institutionName" class="form-control" type="text" name="institutionName"  value='<c:out value='${not empty param.institutionname ? param.institutionname : originInformationForm.institutionName }'/>' />
-</div>	
-</div>		
-<div class="form-group row">
+<div class="form-group row" id="originInformationForm_raidesDegreeDesignation_row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.raidesDegreeDesignation"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_raidesDegreeDesignation" class="form-control" type="text" name="raidesDegreeDesignation"  value='<c:out value='${not empty param.raidesdegreedesignation ? param.raidesdegreedesignation : originInformationForm.raidesDegreeDesignation }'/>' />
+	<select id="originInformationForm_raidesDegreeDesignation" class="form-control" name="raidesDegreeDesignation" >
+	</select>
 </div>	
 </div>		
 <div class="form-group row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree"/></div> 
 
 <div class="col-sm-10">
-	<input id="originInformationForm_countryWhereFinishedPreviousCompleteDegree" class="form-control" type="text" name="countryWhereFinishedPreviousCompleteDegree"  value='<c:out value='${not empty param.countrywherefinishedpreviouscompletedegree ? param.countrywherefinishedpreviouscompletedegree : originInformationForm.countryWhereFinishedPreviousCompleteDegree }'/>' />
+	<select id="originInformationForm_countryWhereFinishedPreviousCompleteDegree" class="form-control" name="countryWhereFinishedPreviousCompleteDegree"  >
+	</select>  
+	
 </div>	
 </div>		
-<div class="form-group row">
+<div class="form-group row" id="originInformationForm_highSchoolType_row">
 <div class="col-sm-2 control-label"><spring:message code="label.OriginInformationForm.highSchoolType"/></div> 
 
 <div class="col-sm-4">
@@ -169,7 +158,144 @@ ${portal.toolkit()}
 
 <script>
 $(document).ready(function() {
-
-
+	//setup country options	             		
+	country_options = [
+	             			<c:forEach items="${countries}" var="element"> 
+	             				{
+	             					text : "<c:out value='${element.name}'/>",  
+	             					id : "<c:out value='${element.externalId}'/>"
+	             				},
+	             			</c:forEach>
+	             		];
+	             		$("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2(
+	             			{
+	             				data : country_options,
+	             			}	  
+	             	    );
+	             	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}'/>');
+    
 	});
+	//setup units provider
+	ajaxData = {
+		url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",	    
+	    dataType: 'json',
+	    delay: 250,
+	    data: function (params) {
+	      return {
+	        namePart: params.term, // search term
+	        page: params.page
+	      };
+	    },
+	    processResults: function (data, page) {
+	      newData = []
+	      for(var result in data){
+	    	  newData[result] = {
+	    			  text : data[result]["unitName"],
+	    			  id : data[result]["unitExternalId"],
+	    	  }
+	      }
+	      return {
+	        results: newData
+	      };
+	    },
+	    cache: true
+	  };
+	
+	
+	updateHighSchoolType = function(schoolLevelType, country){
+		country = $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree option:selected").text();
+		if( schoolLevelType == "HIGH_SCHOOL_OR_EQUIVALENT" && country=="Portugal"){
+			$("#originInformationForm_highSchoolType_row").show();
+		}
+		else{
+			$("#originInformationForm_highSchoolType_row").hide();
+		}
+	}
+	
+	$("#originInformationForm_institution").select2({ajax: ajaxData});
+	$("#originInformationForm_institution").select2('val', '<c:out value='${originInformationForm.institutionOid}'/>');
+	
+	$("#originInformationForm_highSchoolType_row").hide();
+	
+	
+	//Catch school level change events
+	$("#originInformationForm_schoolLevel").on("change", function(e){
+		//array of courses which are considered by fenix as being highed education
+		var higherEducation = [
+		                   <c:forEach items="${schoolLevelValues}" var="field">
+			                   	<c:if test="${field.higherEducation}">
+			                   		"${field.name}",
+			                   	</c:if>
+							</c:forEach>
+		                   ]
+		val = $("#originInformationForm_schoolLevel").val();
+		
+		updateHighSchoolType(val);
+		
+		if($.inArray(val, higherEducation) != -1){
+			$("#originInformationForm_raidesDegreeDesignation_row").show();
+			$("#originInformationForm_raidesDegreeDesignation").attr('required', true);
+			$("#originInformationForm_degreeDesignation_row").hide();
+			$("#originInformationForm_degreeDesignation").attr('required', false);
+			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",
+			$("#originInformationForm_institution").select2({ajax: ajaxData});
+		}
+		else{
+			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/externalUnit/",
+			$("#originInformationForm_institution").select2({ajax: ajaxData});
+			$("#originInformationForm_raidesDegreeDesignation_row").hide();
+			$("#originInformationForm_raidesDegreeDesignation").attr('required', false);
+			$("#originInformationForm_degreeDesignation_row").show();
+			$("#originInformationForm_degreeDesignation").attr('required', true);
+		}
+		
+		if(val == "OTHER"){
+			$("#originInformationForm_otherSchoolLevel").attr('readonly', false);
+		}
+		else{
+			$("#originInformationForm_otherSchoolLevel").attr('readonly', true);
+			$("#originInformationForm_otherSchoolLevel").val("");
+		}
+	});
+	//trigger change to update screen state
+	$("#originInformationForm_schoolLevel").trigger("change");
+	
+	ajaxDataForDegreesDesignations = {
+		    dataType: 'json',
+		    delay: 250,
+		    data: function (params) {
+		      return {
+		        namePart: params.term, // search term
+		        page: params.page
+		      };
+		    },
+		    processResults: function (data, page) {
+		      newData = []
+		      for(var result in data){
+		    	  newData[result] = {
+		    			  text : data[result]["degreeDesignationText"],
+		    			  id : data[result]["degreeDesignationId"],
+		    	  }
+		      }
+		      return {
+		        results: newData
+		      };
+		    },
+		    cache: true
+		  };
+	
+	updateDegreeDesignationsUrl = function(){
+		ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/degreeDesignation/" + $("#originInformationForm_institution").val(); 
+		$("#originInformationForm_raidesDegreeDesignation").select2({ajax: ajaxDataForDegreesDesignations});
+	}
+	updateDegreeDesignationsUrl();
+	$("#originInformationForm_institution").select2().on("select2:select", function(e) {
+		updateDegreeDesignationsUrl();
+	});
+	
+	$("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().on("select2:select", function(e) {
+		schoolLevelType = $("#originInformationForm_schoolLevel").val();
+		updateHighSchoolType(schoolLevelType);
+	});
+	
 </script>

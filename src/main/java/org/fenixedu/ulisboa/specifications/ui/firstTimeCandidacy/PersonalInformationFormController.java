@@ -53,6 +53,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -257,25 +258,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     public @ResponseBody List<UnitBean> readUnits(@RequestParam("namePart") String namePart, Model model) {
         return UnitName.findExternalUnit(namePart, 50).stream()
                 .map(un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName())).collect(Collectors.toList());
-    }
-
-    public static class UnitBean {
-        String unitExternalId;
-        String unitName;
-
-        public UnitBean(String unitExternalId, String unitName) {
-            super();
-            this.unitExternalId = unitExternalId;
-            this.unitName = unitName;
-        }
-
-        public String getUnitExternalId() {
-            return unitExternalId;
-        }
-
-        public String getUnitName() {
-            return unitName;
-        }
     }
 
     public static class PersonalInformationForm implements Serializable {
