@@ -52,7 +52,7 @@ import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.ui.FenixEduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.joda.time.DateTime;
 import org.springframework.ui.Model;
@@ -73,7 +73,7 @@ import com.google.gson.JsonObject;
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.shiftEnrolment",
         accessGroup = "activeStudents")
 @RequestMapping("/student/shiftEnrolment")
-public class ShiftEnrolmentController extends FenixEduUlisboaSpecificationsBaseController {
+public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
     public String home(Model model) {
