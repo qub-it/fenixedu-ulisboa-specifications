@@ -32,6 +32,13 @@ public class Parish extends Parish_Base {
         return districtSubdivision.getParishSet().stream().filter(p -> p.getName().equals(name)).findAny();
     }
 
+    public static Optional<Parish> findByCode(DistrictSubdivision districtSubdivision, String code) {
+        if (districtSubdivision == null) {
+            return Optional.empty();
+        }
+        return districtSubdivision.getParishSet().stream().filter(p -> p.getCode().equals(code)).findAny();
+    }
+
     private String normalizeString(String string) {
         if (!StringUtils.isEmpty(string)) {
             String[] split = string.split(" ");
