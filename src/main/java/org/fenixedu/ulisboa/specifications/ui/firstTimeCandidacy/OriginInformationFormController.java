@@ -6,7 +6,8 @@
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
- * Contributors: xpto@qub-it.com
+ * Contributors: joao.roxo@qub-it.com 
+ *               nuno.pinheiro@qub-it.com
  *
  * 
  * This file is part of FenixEdu Specifications.
@@ -147,8 +148,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         try {
             writeData(form);
             model.addAttribute("originInformationForm", form);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create/", model,
-                    redirectAttributes);
+            return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
