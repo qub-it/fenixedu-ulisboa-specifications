@@ -89,7 +89,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         model.addAttribute("professionTypeValues", ProfessionType.values());
         model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
         model.addAttribute("maritalStatusValues", MaritalStatus.values());
-        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
+        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.getTypesForFirstOrSecondCycle());
 
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
