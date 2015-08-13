@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.Person;
@@ -38,7 +39,8 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.joda.time.YearMonthDay;
+import org.joda.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,17 +71,32 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             filiationForm.setCountryOfBirth(Country.readDefault());
             filiationForm.setNationality(Country.readDefault());
             Person person = AccessControl.getPerson();
-            filiationForm.setDateOfBirth(person.getDateOfBirthYearMonthDay());
+            filiationForm.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
             model.addAttribute("filiationForm", filiationForm);
         }
     }
 
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.POST)
-    public String fillfiliation(FiliationForm filiationForm, Model model, RedirectAttributes redirectAttributes) {
+    public String fillfiliation(FiliationForm form, Model model, RedirectAttributes redirectAttributes) {
+
+        if (form.getDateOfBirth() == null) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.birthDate.required"),
+                    model);
+            return fillfiliation(model);
+        }
+
+        if (form.getCountryOfBirth().isDefaultCountry()) {
+            if (StringUtils.isEmpty(form.getDistrictOfBirth()) || StringUtils.isEmpty(form.getDistrictSubdivisionOfBirth())
+                    || StringUtils.isEmpty(form.getParishOfBirth())) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"), model);
+                return fillfiliation(model);
+            }
+        }
 
         try {
-
-            model.addAttribute("filiationForm", filiationForm);
+            model.addAttribute("filiationForm", form);
             return redirect(
                     "/fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation/",
                     model, redirectAttributes);
@@ -100,7 +117,8 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
     public static class FiliationForm {
 
-        private YearMonthDay dateOfBirth;
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate dateOfBirth;
 
         private Country nationality;
 
@@ -116,11 +134,11 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         private Country countryOfBirth;
 
-        public YearMonthDay getDateOfBirth() {
+        public LocalDate getDateOfBirth() {
             return dateOfBirth;
         }
 
-        public void setDateOfBirth(YearMonthDay dateOfBirth) {
+        public void setDateOfBirth(LocalDate dateOfBirth) {
             this.dateOfBirth = dateOfBirth;
         }
 
