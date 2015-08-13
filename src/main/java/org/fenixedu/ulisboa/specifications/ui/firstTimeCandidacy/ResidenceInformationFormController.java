@@ -48,6 +48,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.Parish;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FiliationFormController.DistrictSubdivisionBean;
 import org.springframework.ui.Model;
@@ -96,8 +97,10 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     personalData.getDistrictSubdivisionOfResidence() != null ? personalData.getDistrictSubdivisionOfResidence()
                             .getDistrict() : null;
             form.setDistrictOfResidence(district);
-            form.setDistrictSubdivisionOfResidence(personalData.getDistrictSubdivisionOfResidence());
-            form.setParishOfResidence(person.getDefaultPhysicalAddress().getParishOfResidence());
+            DistrictSubdivision districtSubdivisionOfResidence = personalData.getDistrictSubdivisionOfResidence();
+            form.setDistrictSubdivisionOfResidence(districtSubdivisionOfResidence);
+            form.setParishOfResidence(Parish.findByName(districtSubdivisionOfResidence,
+                    person.getDefaultPhysicalAddress().getParishOfResidence()).orElse(null));
 
             form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
             if (personalData.getDislocatedFromPermanentResidence() != null && personalData.getDislocatedFromPermanentResidence()) {
@@ -110,8 +113,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                         personalData.getSchoolTimeDistrictSubDivisionOfResidence() != null ? personalData
                                 .getSchoolTimeDistrictSubDivisionOfResidence().getDistrict() : null;
                 form.setSchoolTimeDistrictOfResidence(district);
-                form.setSchoolTimeDistrictSubdivisionOfResidence(personalData.getSchoolTimeDistrictSubDivisionOfResidence());
-                form.setSchoolTimeParishOfResidence(addressSchoolTime.getParishOfResidence());
+                DistrictSubdivision schoolTimeDistrictSubDivisionOfResidence =
+                        personalData.getSchoolTimeDistrictSubDivisionOfResidence();
+                form.setSchoolTimeDistrictSubdivisionOfResidence(schoolTimeDistrictSubDivisionOfResidence);
+                form.setSchoolTimeParishOfResidence(Parish.findByName(schoolTimeDistrictSubDivisionOfResidence,
+                        addressSchoolTime.getParishOfResidence()).orElse(null));
             }
 
             model.addAttribute("residenceInformationForm", form);
@@ -171,11 +177,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                         model);
                 return false;
             } else {
-                if (form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
-                        form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea(), form.getSchoolTimeParishOfResidence())
-                        && form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
-                                form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea(),
-                                form.getSchoolTimeParishOfResidence())) {
+                if ((form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
+                        form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea()) || form.getSchoolTimeParishOfResidence() != null)
+                        && (form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
+                                form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea()) || form
+                                .getSchoolTimeParishOfResidence() != null)) {
                     addErrorMessage(
                             BundleUtil
                                     .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
@@ -214,13 +220,14 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 || !StringUtils.equals(form.getAreaCode(), person.getDefaultPhysicalAddress().getAreaCode())
                 || !StringUtils.equals(form.getAreaOfAreaCode(), person.getDefaultPhysicalAddress().getAreaOfAreaCode())
                 || !StringUtils.equals(form.getArea(), person.getDefaultPhysicalAddress().getArea())
-                || !StringUtils.equals(form.getParishOfResidence(), person.getDefaultPhysicalAddress().getParishOfResidence())
+                || !StringUtils.equals(form.getParishOfResidence().getName(), person.getDefaultPhysicalAddress()
+                        .getParishOfResidence())
                 || !StringUtils.equals(subdivision, person.getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence())
                 || !StringUtils.equals(district, person.getDefaultPhysicalAddress().getDistrictOfResidence())
                 || (form.getCountryOfResidence() != person.getDefaultPhysicalAddress().getCountryOfResidence())) {
             physicalAddressData =
-                    new PhysicalAddressData(form.getAddress(), form.getAreaCode(), form.getAreaOfAreaCode(), form.getArea(),
-                            form.getParishOfResidence(), subdivision, district, form.getCountryOfResidence());
+                    new PhysicalAddressData(form.getAddress(), form.getAreaCode(), form.getAreaOfAreaCode(), form.getArea(), form
+                            .getParishOfResidence().getName(), subdivision, district, form.getCountryOfResidence());
             person.setDefaultPhysicalAddressData(physicalAddressData, true);
         }
 
@@ -232,18 +239,21 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     form.getSchoolTimeDistrictSubdivisionOfResidence() != null ? form
                             .getSchoolTimeDistrictSubdivisionOfResidence().getName() : null;
             PhysicalAddress schoolTimeAddress = getSchoolTimePhysicalAddress(person);
-            if (schoolTimeAddress == null || !StringUtils.equals(form.getSchoolTimeAddress(), schoolTimeAddress.getAddress())
+            if (schoolTimeAddress == null
+                    || !StringUtils.equals(form.getSchoolTimeAddress(), schoolTimeAddress.getAddress())
                     || !StringUtils.equals(form.getSchoolTimeAreaCode(), schoolTimeAddress.getAreaCode())
                     || !StringUtils.equals(form.getSchoolTimeAreaOfAreaCode(), schoolTimeAddress.getAreaOfAreaCode())
                     || !StringUtils.equals(form.getSchoolTimeArea(), schoolTimeAddress.getArea())
-                    || !StringUtils.equals(form.getSchoolTimeParishOfResidence(), schoolTimeAddress.getParishOfResidence())
+                    || !StringUtils.equals(form.getSchoolTimeParishOfResidence().getName(),
+                            schoolTimeAddress.getParishOfResidence())
                     || !StringUtils.equals(subdivision, schoolTimeAddress.getDistrictSubdivisionOfResidence())
                     || !StringUtils.equals(district, schoolTimeAddress.getDistrictOfResidence())) {
                 physicalAddressData =
                         new PhysicalAddressData(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
-                                form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea(),
-                                form.getSchoolTimeParishOfResidence(), form.getSchoolTimeDistrictSubdivisionOfResidence()
-                                        .getName(), form.getSchoolTimeDistrictSubdivisionOfResidence().getDistrict().getName(),
+                                form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea(), form
+                                        .getSchoolTimeParishOfResidence().getName(), form
+                                        .getSchoolTimeDistrictSubdivisionOfResidence().getName(), form
+                                        .getSchoolTimeDistrictSubdivisionOfResidence().getDistrict().getName(),
                                 Country.readDefault());
 
                 if (schoolTimeAddress != null) {
@@ -280,6 +290,14 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
     }
 
+    @RequestMapping(value = "/districtSubdivision/{oid}", method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public @ResponseBody List<DistrictSubdivisionBean> readParish(@PathVariable("oid") DistrictSubdivision districtSubdivision,
+            Model model) {
+        return districtSubdivision.getParishSet().stream()
+                .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
+    }
+
     public static class ResidenceInformationForm {
 
         private String address;
@@ -290,7 +308,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
         private String area; // location
 
-        private String parishOfResidence;
+        private Parish parishOfResidence;
 
         private District districtOfResidence;
 
@@ -310,7 +328,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
         private String schoolTimeArea;
 
-        private String schoolTimeParishOfResidence;
+        private Parish schoolTimeParishOfResidence;
 
         private Country countryOfResidence;
 
@@ -346,11 +364,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             this.area = area;
         }
 
-        public String getParishOfResidence() {
+        public Parish getParishOfResidence() {
             return parishOfResidence;
         }
 
-        public void setParishOfResidence(String parishOfResidence) {
+        public void setParishOfResidence(Parish parishOfResidence) {
             this.parishOfResidence = parishOfResidence;
         }
 
@@ -426,11 +444,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             this.schoolTimeArea = schoolTimeArea;
         }
 
-        public String getSchoolTimeParishOfResidence() {
+        public Parish getSchoolTimeParishOfResidence() {
             return schoolTimeParishOfResidence;
         }
 
-        public void setSchoolTimeParishOfResidence(String schoolTimeParishOfResidence) {
+        public void setSchoolTimeParishOfResidence(Parish schoolTimeParishOfResidence) {
             this.schoolTimeParishOfResidence = schoolTimeParishOfResidence;
         }
 
@@ -444,8 +462,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
         private boolean isSchoolTimeAddressComplete() {
             return isSchoolTimeRequiredInformationAddressFilled()
-                    && !isAnyEmpty(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeParishOfResidence,
-                            schoolTimeArea);
+                    && !isAnyEmpty(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeArea)
+                    && schoolTimeParishOfResidence != null;
         }
 
         private boolean isAnyEmpty(String... fields) {
@@ -462,16 +480,15 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         }
 
         private boolean isResidenceInformationFilled() {
-            return !(getDistrictOfResidence() == null || getDistrictSubdivisionOfResidence() == null
-                    || StringUtils.isEmpty(parishOfResidence) || StringUtils.isEmpty(address) || StringUtils.isEmpty(areaCode)
-                    || StringUtils.isEmpty(areaOfAreaCode) || StringUtils.isEmpty(area));
+            return !(getDistrictOfResidence() == null || getDistrictSubdivisionOfResidence() == null || parishOfResidence == null
+                    || StringUtils.isEmpty(address) || StringUtils.isEmpty(areaCode) || StringUtils.isEmpty(areaOfAreaCode) || StringUtils
+                        .isEmpty(area));
         }
 
         private boolean isAnySchoolTimeAddressInformationFilled() {
-            return getSchoolTimeDistrictOfResidence() != null
-                    || getSchoolTimeDistrictSubdivisionOfResidence() != null
-                    || isAnyFilled(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeParishOfResidence,
-                            schoolTimeArea);
+            return getSchoolTimeDistrictOfResidence() != null || getSchoolTimeDistrictSubdivisionOfResidence() != null
+                    || isAnyFilled(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeArea)
+                    || schoolTimeParishOfResidence != null;
         }
 
         private boolean isAnyFilled(final String... fields) {

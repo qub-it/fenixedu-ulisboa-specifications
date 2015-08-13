@@ -29,7 +29,6 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
@@ -39,6 +38,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.Parish;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -79,9 +79,13 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             District district = District.readByName(person.getDistrictOfBirth());
             if (district != null) {
                 form.setDistrictOfBirth(district);
-                form.setDistrictSubdivisionOfBirth(district.getDistrictSubdivisionByName(person.getDistrictSubdivisionOfBirth()));
+                DistrictSubdivision districtSubdivision =
+                        district.getDistrictSubdivisionByName(person.getDistrictSubdivisionOfBirth());
+                form.setDistrictSubdivisionOfBirth(districtSubdivision);
+                if (districtSubdivision != null) {
+                    form.setParishOfBirth(Parish.findByName(districtSubdivision, person.getParishOfBirth()).orElse(null));
+                }
             }
-            form.setParishOfBirth(person.getParishOfBirth());
             form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
             form.setNationality(person.getCountry());
             if (form.getNationality() == null) {
@@ -125,8 +129,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         }
 
         if (form.getCountryOfBirth().isDefaultCountry()) {
-            if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
-                    || StringUtils.isEmpty(form.getParishOfBirth())) {
+            if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null) {
                 addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                         "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"), model);
                 return false;
@@ -143,7 +146,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
         person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
-        person.setParishOfBirth(form.getParishOfBirth());
+        person.setParishOfBirth(form.getParishOfBirth().getName());
 
         person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
         person.setCountry(form.getNationality());
@@ -157,6 +160,14 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
                 .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
     }
 
+    @RequestMapping(value = "/districtSubdivision/{oid}", method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public @ResponseBody List<DistrictSubdivisionBean> readParish(@PathVariable("oid") DistrictSubdivision districtSubdivision,
+            Model model) {
+        return districtSubdivision.getParishSet().stream()
+                .map(ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName())).collect(Collectors.toList());
+    }
+
     public static class FiliationForm {
 
         @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -164,7 +175,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         private Country nationality;
 
-        private String parishOfBirth;
+        private Parish parishOfBirth;
 
         private DistrictSubdivision districtSubdivisionOfBirth;
 
@@ -192,11 +203,11 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             this.nationality = nationality;
         }
 
-        public String getParishOfBirth() {
+        public Parish getParishOfBirth() {
             return parishOfBirth;
         }
 
-        public void setParishOfBirth(String parishOfBirth) {
+        public void setParishOfBirth(Parish parishOfBirth) {
             this.parishOfBirth = parishOfBirth;
         }
 
@@ -247,6 +258,33 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         String text;
 
         public DistrictSubdivisionBean(String id, String text) {
+            this.id = id;
+            this.text = text;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+    public static class ParishBean {
+        String id;
+
+        String text;
+
+        public ParishBean(String id, String text) {
             this.id = id;
             this.text = text;
         }
