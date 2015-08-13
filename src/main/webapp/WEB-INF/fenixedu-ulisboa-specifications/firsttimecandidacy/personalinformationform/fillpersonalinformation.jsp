@@ -173,7 +173,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<input id="personalInformationForm_documentIdExpirationDate"
 						class="form-control" type="text" name="documentIdExpirationDate"
-						bennu-date required
+						bennu-date
 						value='<c:out value='${not empty param.documentidexpirationdate ? param.documentidexpirationdate : personalInformationForm.documentIdExpirationDate }'/>' />
 				</div>
 			</div>
@@ -187,7 +187,7 @@ ${portal.toolkit()}
 					<input id="personalInformationForm_socialSecurityNumber"
 						class="form-control" type="text" name="socialSecurityNumber"
 						value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
-						required pattern="(\d{9})"/>
+						pattern="(\d{9})"/>
 				</div>
 			</div>
 			<div class="form-group row">
