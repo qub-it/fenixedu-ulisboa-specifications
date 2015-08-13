@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -64,6 +65,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CitzenCardValidation.validateNumeroDocumentoCC;
+import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
@@ -188,6 +190,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             return false;
         }
 
+        if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !isValidcontrib(form.getSocialSecurityNumber())) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"), model);
+            return false;
+        }
         Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
         if (party != null && party != person) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
