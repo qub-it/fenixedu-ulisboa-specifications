@@ -113,6 +113,51 @@ relation UniversityChoiceMotivationAnswerBennu {
 	}
 }
 
+class SalarySpan {
+	String code (REQUIRED);
+	LocalizedString description (REQUIRED);
+	boolean other;
+}
+
+relation SalarySpanBennu {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole root {
+        multiplicity 1..1;
+    }
+	SalarySpan playsRole salarySpans {
+		multiplicity *;
+	}
+}
+
+class ResidenceType {
+	String code (REQUIRED);
+	LocalizedString description (REQUIRED);
+	boolean other;
+}
+
+relation ResidenceTypeBennu {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole root {
+        multiplicity 1..1;
+    }
+	ResidenceType playsRole residenceTypes {
+		multiplicity *;
+	}
+}
+
+class ProfessionTimeType {
+	String code (REQUIRED);
+	LocalizedString description (REQUIRED);
+	boolean other;
+}
+
+relation ProfessionTimeTypeBennu {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole root {
+        multiplicity 1..1;
+    }
+	ProfessionTimeType playsRole professionTimeTypes {
+		multiplicity *;
+	}
+}
+
 // ==================== ULisboa Specifications Root ====================
 
 class ULisboaSpecificationsRoot {

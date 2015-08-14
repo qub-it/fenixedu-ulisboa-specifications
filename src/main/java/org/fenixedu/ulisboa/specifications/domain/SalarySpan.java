@@ -34,14 +34,14 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnswer_Base implements
-        Comparable<UniversityDiscoveryMeansAnswer> {
-    private UniversityDiscoveryMeansAnswer() {
+public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan> {
+
+    private SalarySpan() {
         super();
         setRoot(Bennu.getInstance());
     }
 
-    public UniversityDiscoveryMeansAnswer(String code, LocalizedString description) {
+    public SalarySpan(String code, LocalizedString description) {
         this();
         setCode(code);
         setDescription(description);
@@ -53,8 +53,7 @@ public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnsw
         if (code == null || code.trim().isEmpty()) {
             super.setCode(null);
         } else {
-            if (readAll().filter(answer -> code.equals(answer.getCode()) && answer != UniversityDiscoveryMeansAnswer.this)
-                    .findAny().isPresent()) {
+            if (readAll().filter(salary -> code.equals(salary.getCode()) && salary != SalarySpan.this).findAny().isPresent()) {
                 throw new DomainException("error.code.alreadyUsed");
             }
             super.setCode(code);
@@ -62,16 +61,16 @@ public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnsw
     }
 
     @SafeVarargs
-    public static Stream<UniversityDiscoveryMeansAnswer> readAll(Predicate<UniversityDiscoveryMeansAnswer>... predicates) {
-        Stream<UniversityDiscoveryMeansAnswer> discovery = Bennu.getInstance().getUniversityDiscoveryMeansAnswersSet().stream();
-        for (Predicate<UniversityDiscoveryMeansAnswer> predicate : predicates) {
-            discovery = discovery.filter(predicate);
+    public static Stream<SalarySpan> readAll(Predicate<SalarySpan>... predicates) {
+        Stream<SalarySpan> disabilityTypes = Bennu.getInstance().getSalarySpansSet().stream();
+        for (Predicate<SalarySpan> predicate : predicates) {
+            disabilityTypes = disabilityTypes.filter(predicate);
         }
-        return discovery;
+        return disabilityTypes;
     }
 
-    public static UniversityDiscoveryMeansAnswer findByCode(String code) {
-        Predicate<UniversityDiscoveryMeansAnswer> matchesCode = discovery -> code.equals(discovery.getCode());
+    public static SalarySpan findByCode(String code) {
+        Predicate<SalarySpan> matchesCode = disabilityType -> code.equals(disabilityType.getCode());
         return readAll(matchesCode).findFirst().orElse(null);
     }
 
@@ -93,18 +92,18 @@ public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnsw
     }
 
     @Override
-    public int compareTo(UniversityDiscoveryMeansAnswer anotherAnswer) {
+    public int compareTo(SalarySpan anotherSalary) {
         //OTHER is the last option (ascending order)
-        if (isOther() && anotherAnswer.isOther()) {
+        if (isOther() && anotherSalary.isOther()) {
             return 0;
         }
         if (isOther()) {
             return 1;
         }
-        if (anotherAnswer.isOther()) {
+        if (anotherSalary.isOther()) {
             return -1;
         }
 
-        return getDescription().getContent().compareTo(anotherAnswer.getDescription().getContent());
+        return getDescription().getContent().compareTo(anotherSalary.getDescription().getContent());
     }
 }

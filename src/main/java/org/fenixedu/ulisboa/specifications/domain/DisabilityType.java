@@ -93,15 +93,18 @@ public class DisabilityType extends DisabilityType_Base implements Comparable<Di
     }
 
     @Override
-    public int compareTo(DisabilityType anotherOption) {
+    public int compareTo(DisabilityType anotherDisability) {
         //OTHER is the last option (ascending order)
+        if (isOther() && anotherDisability.isOther()) {
+            return 0;
+        }
         if (isOther()) {
             return 1;
         }
-        if (anotherOption.isOther()) {
+        if (anotherDisability.isOther()) {
             return -1;
         }
 
-        return getDescription().getContent().compareTo(anotherOption.getDescription().getContent());
+        return getDescription().getContent().compareTo(anotherDisability.getDescription().getContent());
     }
 }

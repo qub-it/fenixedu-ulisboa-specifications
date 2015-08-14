@@ -54,7 +54,7 @@ public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivation
         if (code == null || code.trim().isEmpty()) {
             super.setCode(null);
         } else {
-            if (readAll().filter(choice -> code.equals(choice.getCode()) && choice != UniversityChoiceMotivationAnswer.this)
+            if (readAll().filter(answer -> code.equals(answer.getCode()) && answer != UniversityChoiceMotivationAnswer.this)
                     .findAny().isPresent()) {
                 throw new DomainException("error.code.alreadyUsed");
             }
@@ -94,15 +94,18 @@ public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivation
     }
 
     @Override
-    public int compareTo(UniversityChoiceMotivationAnswer anotherOption) {
+    public int compareTo(UniversityChoiceMotivationAnswer anotherAnswer) {
         //OTHER is the last option (ascending order)
+        if (isOther() && anotherAnswer.isOther()) {
+            return 0;
+        }
         if (isOther()) {
             return 1;
         }
-        if (anotherOption.isOther()) {
+        if (anotherAnswer.isOther()) {
             return -1;
         }
 
-        return getDescription().getContent().compareTo(anotherOption.getDescription().getContent());
+        return getDescription().getContent().compareTo(anotherAnswer.getDescription().getContent());
     }
 }
