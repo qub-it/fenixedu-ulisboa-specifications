@@ -92,6 +92,10 @@ public class CurricularPeriodServices {
         final List<Integer> curricularYears = Lists.newArrayList();
         for (final Context context : contexts) {
 
+            if (!context.getChildDegreeModule().isLeaf()) {
+                continue;
+            }
+
             if (context.isValid(executionYear) && (degreeModule == null || context.getChildDegreeModule() == degreeModule)) {
                 curricularYears.add(context.getCurricularYear());
             }
