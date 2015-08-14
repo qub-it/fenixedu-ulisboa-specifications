@@ -76,11 +76,11 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
     public String getLabel() {
         if (getSemester() != null) {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester", getCredits()
-                    .toString(), getYearMin().toString(), getSemester().toString());
+                    .toString(), getSemester().toString(), getYearMin().toString());
 
         } else if (isForYear()) {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year", getCredits()
-                    .toString(), getSemester().toString(), getYearMin().toString());
+                    .toString(), getYearMin().toString());
 
         } else {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),

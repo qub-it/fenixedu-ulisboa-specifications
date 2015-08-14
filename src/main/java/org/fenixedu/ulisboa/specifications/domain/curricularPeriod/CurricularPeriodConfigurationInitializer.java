@@ -26,11 +26,9 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -193,17 +191,34 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear1 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
-            CreditsInCurricularPeriod.createForYearInterval(configYear1, BigDecimal.ZERO, /* yearMin */2, /* yearMax */6);
-            CreditsNotEnroled.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+
+            if (dcp.getDegree().getCode().equals("200") /*Doutoramento*/) {
+                CreditsInEnrolmentPeriod.create(configYear1, BigDecimal.valueOf(180));
+            } else {
+                CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsInCurricularPeriod.createForYearInterval(configYear1, BigDecimal.ZERO, /* yearMin */2,
+                        Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
+                CreditsNotEnroled.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            }
 
             final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
             if (configYear2 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(80));
-            CreditsInCurricularPeriod.createForYearInterval(configYear2, BigDecimal.ZERO, /* yearMin */3, /* yearMax */6);
-            CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+
+            if (dcp.getDegree().getCode().equals("103") /*MSA*/) {
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(70));
+                CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            } else if (dcp.getDegree().getCode().equals("113") /*MEZ*/) {
+                CreditsInEnrolmentPeriod.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            } else if (dcp.getDegree().getCode().equals("200") /*Doutoramento*/) {
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(180));
+            } else {
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(80));
+                CreditsInCurricularPeriod.createForYearInterval(configYear2, BigDecimal.ZERO, /* yearMin */3, /* yearMax */6);
+                CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            }
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
@@ -262,8 +277,17 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear2 == null) {
                 continue;
             }
-            FlunkedCredits.create(configYear2, BigDecimal.valueOf(20));
-            createStudentStatuteExecutiveRuleFor(configYear2, "38");
+
+            if (dcp.getDegree().getCode().equals("103") /*MSA*/) {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(10));
+            } else if (dcp.getDegree().getCode().equals("113") /*MEZ*/) {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(0));
+            } else if (dcp.getDegree().getCode().equals("200") /*Doutoramento*/) {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(0));
+            } else {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(20));
+                createStudentStatuteExecutiveRuleFor(configYear2, "38");
+            }
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
