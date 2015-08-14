@@ -34,7 +34,9 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivationAnswer_Base {
+public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivationAnswer_Base implements
+        Comparable<UniversityChoiceMotivationAnswer> {
+
     private UniversityChoiceMotivationAnswer() {
         super();
         setRoot(Bennu.getInstance());
@@ -89,5 +91,18 @@ public class UniversityChoiceMotivationAnswer extends UniversityChoiceMotivation
 
     public boolean isOther() {
         return getOther();
+    }
+
+    @Override
+    public int compareTo(UniversityChoiceMotivationAnswer anotherOption) {
+        //OTHER is the last option (ascending order)
+        if (isOther()) {
+            return 1;
+        }
+        if (anotherOption.isOther()) {
+            return -1;
+        }
+
+        return getDescription().getContent().compareTo(anotherOption.getDescription().getContent());
     }
 }

@@ -34,7 +34,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-public class DisabilityType extends DisabilityType_Base {
+public class DisabilityType extends DisabilityType_Base implements Comparable<DisabilityType> {
+
     private DisabilityType() {
         super();
         setRoot(Bennu.getInstance());
@@ -89,5 +90,18 @@ public class DisabilityType extends DisabilityType_Base {
 
     public boolean isOther() {
         return getOther();
+    }
+
+    @Override
+    public int compareTo(DisabilityType anotherOption) {
+        //OTHER is the last option (ascending order)
+        if (isOther()) {
+            return 1;
+        }
+        if (anotherOption.isOther()) {
+            return -1;
+        }
+
+        return getDescription().getContent().compareTo(anotherOption.getDescription().getContent());
     }
 }
