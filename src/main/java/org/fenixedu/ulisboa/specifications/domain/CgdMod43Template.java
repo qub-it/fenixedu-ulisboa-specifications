@@ -5,8 +5,13 @@ import org.fenixedu.bennu.core.groups.Group;
 
 public class CgdMod43Template extends CgdMod43Template_Base {
 
-    public CgdMod43Template() {
+    protected CgdMod43Template() {
         super();
+    }
+
+    protected CgdMod43Template(final String filename, final byte[] content) {
+        this();
+        init(filename, filename, content);
     }
 
     @Override

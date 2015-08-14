@@ -30,16 +30,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
@@ -72,6 +77,7 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
 
         model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
                 searchfirstyearregistrationconfigurationResultsDataSet);
+        model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
         return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
     }
 
@@ -114,6 +120,49 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
                 firstYearRegistrationConfiguration.delete();
             }
         }
+    }
+
+    @Atomic
+    @RequestMapping(value = _EDIT_URI + "/uploadTemplate", headers = ("content-type=multipart/*"), method = RequestMethod.POST)
+    public String uploadTemplate(@RequestParam(value = "mod43Template", required = true) MultipartFile mod43Template,
+            Model model, RedirectAttributes redirectAttributes) {
+        try {
+            String fileName = mod43Template.getOriginalFilename();
+            byte[] fileContent = mod43Template.getBytes();
+            FirstYearRegistrationGlobalConfiguration.getInstance().uploadMod43Template(fileName, fileContent);
+            List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
+                    getSearchUniverseDataSet();
+
+            model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
+                    searchfirstyearregistrationconfigurationResultsDataSet);
+            model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
+            return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
+        } catch (Exception e) {
+            addErrorMessage((BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "label.error.uploadMod43") + e.getLocalizedMessage()), model);
+            List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
+                    getSearchUniverseDataSet();
+
+            model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
+                    searchfirstyearregistrationconfigurationResultsDataSet);
+            model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
+            return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
+        }
+    }
+
+    @Atomic
+    @RequestMapping(value = _SEARCH_URI + "/cleanTemplate", method = RequestMethod.GET)
+    public String cleanTemplate(Model model, RedirectAttributes redirectAttributes) {
+
+        FirstYearRegistrationGlobalConfiguration.getInstance().cleanTemplate();
+
+        List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
+                getSearchUniverseDataSet();
+
+        model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
+                searchfirstyearregistrationconfigurationResultsDataSet);
+        model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
+        return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
     }
 
     private List<FirstYearRegistrationConfigurationBean> getSearchUniverseDataSet() {

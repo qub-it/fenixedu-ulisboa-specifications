@@ -69,7 +69,25 @@ ${portal.toolkit()}
 			</c:if>
 
 
-
+<div class="panel panel-primary">
+	<div class="panel-heading">
+	</div>
+	<div class="panel-body">
+		<form method="post" class="form-horizontal">
+			<table class="table">
+				<tbody>
+					<tr>
+						<th scope="row" class="col-xs-2"><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></th> 
+						<td class="col-xs-10">
+							<c:if test="${not empty firstYearRegistrationGlobalConfiguration.mod43Template}"><c:out value='${firstYearRegistrationGlobalConfiguration.mod43Template.displayName}'/><a class="trash-link" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/cleanTemplate"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;<spring:message code="action.delete"/></a></c:if>
+							<c:if test="${empty firstYearRegistrationGlobalConfiguration.mod43Template}"><em><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile.noTemplate"/></em></c:if>
+						</td> 
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
 
 
 <c:choose>
@@ -99,6 +117,12 @@ ${portal.toolkit()}
 		
 	</c:otherwise>
 </c:choose>
+
+<style>
+.trash-link {
+	margin-left: 20px;
+}
+</style>
 
 <script>
 	var searchfirstyearregistrationconfigurationDataSet = [

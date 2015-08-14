@@ -27,6 +27,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +64,15 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
     @RequestMapping(produces = "application/pdf")
     public String model43print(Model model, RedirectAttributes redirectAttributes) {
         Person person = Authenticate.getUser().getPerson();
-        InputStream pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
+
+        InputStream pdfTemplateStream;
+        if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
+            pdfTemplateStream =
+                    new ByteArrayInputStream(FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template()
+                            .getContent());
+        } else {
+            pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
+        }
 
         ByteArrayOutputStream stream;
         try {
