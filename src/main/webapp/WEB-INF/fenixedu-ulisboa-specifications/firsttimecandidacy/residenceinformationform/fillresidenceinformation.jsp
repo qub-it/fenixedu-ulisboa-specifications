@@ -267,6 +267,33 @@ ${portal.toolkit()}
 					<select id="residenceInformationForm_schoolTimeParishOfResidence" class="form-control" name="schoolTimeParishOfResidence"></select>
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ResidenceInformationForm.schoolTimeResidenceType" />
+				</div>
+
+				<div class="col-sm-4">
+					<select id="residenceInformationForm_schoolTimeResidenceType" class="form-control" name="schoolTimeResidenceType">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${residenceTypeValues}" var="residenceTypeValue">
+							<option value='<c:out value='${residenceTypeValue.externalId}'/>'><c:out value='${residenceTypeValue.description.content}' /></option>
+						</c:forEach>
+					</select>
+					<script>
+						$("#residenceInformationForm_schoolTimeResidenceType").val('<c:out value='${not empty param.schooltimeresidencetype ? param.schooltimeresidencetype : residenceInformationForm.schoolTimeResidenceType.externalId }'/>');
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ResidenceInformationForm.otherSchoolTimeResidenceType" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_otherSchoolTimeResidenceType" class="form-control" type="text" name="otherSchoolTimeResidenceType"
+						value='<c:out value='${not empty param.otherschooltimeresidencetype ? param.otherschooltimeresidencetype : residenceInformationForm.otherSchoolTimeResidenceType }'/>' />
+				</div>
+			</div>
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"
