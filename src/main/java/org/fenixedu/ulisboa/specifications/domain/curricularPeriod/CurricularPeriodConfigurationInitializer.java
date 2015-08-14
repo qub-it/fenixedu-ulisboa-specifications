@@ -209,15 +209,18 @@ public class CurricularPeriodConfigurationInitializer {
             if (dcp.getDegree().getCode().equals("103") /*MSA*/) {
                 CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(70));
                 CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
             } else if (dcp.getDegree().getCode().equals("113") /*MEZ*/) {
                 CreditsInEnrolmentPeriod.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
                 CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
             } else if (dcp.getDegree().getCode().equals("200") /*Doutoramento*/) {
                 CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(180));
             } else {
                 CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(80));
                 CreditsInCurricularPeriod.createForYearInterval(configYear2, BigDecimal.ZERO, /* yearMin */3, /* yearMax */6);
                 CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
             }
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
@@ -227,6 +230,8 @@ public class CurricularPeriodConfigurationInitializer {
             CreditsInEnrolmentPeriod.create(configYear3, BigDecimal.valueOf(80));
             CreditsInCurricularPeriod.createForYearInterval(configYear3, BigDecimal.ZERO, /* yearMin */4, /* yearMax */6);
             CreditsNotEnroled.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
 
             final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
             if (configYear4 == null) {
@@ -235,6 +240,9 @@ public class CurricularPeriodConfigurationInitializer {
             CreditsInEnrolmentPeriod.create(configYear4, BigDecimal.valueOf(80));
             CreditsInCurricularPeriod.createForYearInterval(configYear4, BigDecimal.ZERO, /* yearMin */5, /* yearMax */6);
             CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3);
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
 
             final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
             if (configYear5 == null) {
@@ -243,6 +251,10 @@ public class CurricularPeriodConfigurationInitializer {
             CreditsInEnrolmentPeriod.create(configYear5, BigDecimal.valueOf(80));
             CreditsInCurricularPeriod.createForYear(configYear5, BigDecimal.ZERO, /* year */6);
             CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 4);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
 
             final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
             if (configYear6 == null) {
@@ -250,6 +262,11 @@ public class CurricularPeriodConfigurationInitializer {
             }
             CreditsInEnrolmentPeriod.create(configYear6, BigDecimal.valueOf(40));
             CreditsNotEnroled.create(configYear6, BigDecimal.valueOf(30));
+            CreditsNotEnroled.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 5);
+            CreditsNotEnroled.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 4);
+            CreditsNotEnroled.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3);
+            CreditsNotEnroled.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
         }
     }
 

@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
@@ -52,16 +53,33 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
 
     @Atomic
     static public CreditsNotEnroled create(final CurricularPeriodConfiguration configuration, final BigDecimal credits) {
+        return create(configuration, credits, configuration.getCurricularPeriod().getAbsoluteOrderOfChild());
+    }
+
+    @Atomic
+    static public CreditsNotEnroled create(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
+            final Integer year) {
 
         final CreditsNotEnroled result = new CreditsNotEnroled();
-        result.init(configuration, credits, (Integer) null /* semester */);
+        result.init(configuration, credits, (Integer) null /* semester */, year);
         return result;
     }
 
-    @Override
-    public String getLabel() {
-        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
-                getConfiguration().getCurricularPeriod().getFullLabel());
+    protected void init(CurricularPeriodConfiguration configuration, BigDecimal credits, Integer semester, Integer year) {
+        super.init(configuration, credits, semester);
+        super.setYearMin(year);
+
+        checkRules();
+
+    }
+
+    private void checkRules() {
+        //
+        //CHANGE_ME add more busines validations
+        //
+        if (getYearMin() == null) {
+            throw new DomainException("error." + this.getClass().getSimpleName() + ".yearMin.required");
+        }
     }
 
     @Override
@@ -76,8 +94,7 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         // senao, aviso
 
         final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
-        final int year = getConfiguration().getCurricularPeriod().getAbsoluteOrderOfChild();
-        final CurricularPeriod configured = CurricularPeriodServices.getCurricularPeriod(dcp, year);
+        final CurricularPeriod configured = CurricularPeriodServices.getCurricularPeriod(dcp, getYearMin());
         if (configured == null) {
             return createFalseConfiguration();
         }
@@ -151,4 +168,11 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
                                 enroledAndEnroling.toPlainString());
         return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
     }
+
+    @Override
+    public String getLabel() {
+        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
+                getYearMin().toString());
+    }
+
 }

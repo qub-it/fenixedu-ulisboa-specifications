@@ -301,6 +301,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		}
 		
 		class curricularPeriod.rule.enrolment.CreditsNotEnroled extends curricularPeriod.rule.RuleEnrolment {
+			Integer yearMin;
 		}
 
 	class curricularPeriod.rule.RuleTransition extends curricularPeriod.rule.CurricularPeriodRule {
