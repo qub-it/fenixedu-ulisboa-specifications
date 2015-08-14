@@ -27,20 +27,28 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.DomainObject;
+import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(HouseholdInformationFormController.CONTROLLER_URL)
@@ -56,6 +64,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         model.addAttribute("schoolLevelValues", SchoolLevelType.values());
         model.addAttribute("professionTypeValues", ProfessionType.values());
         model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
+        model.addAttribute("salarySpanValues", SalarySpan.readAll().collect(Collectors.toList()));
 
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
@@ -73,6 +82,11 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
             form.setMotherProfessionalCondition(personalData.getMotherProfessionalCondition());
             form.setMotherProfessionType(personalData.getMotherProfessionType());
             form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
+
+            PersonUlisboaSpecifications personUl = AccessControl.getPerson().getPersonUlisboaSpecifications();
+            if (personUl != null && personUl.getHouseholdSalarySpan() != null) {
+                form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan().getExternalId());
+            }
 
             model.addAttribute("householdInformationForm", form);
         }
@@ -113,6 +127,12 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
                     model);
             return false;
         }
+        if (StringUtils.isEmpty(form.getHouseholdSalarySpan())) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"),
+                    model);
+            return false;
+        }
 
         return true;
     }
@@ -128,6 +148,13 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         personalData.setMotherProfessionalCondition(form.getMotherProfessionalCondition());
         personalData.setMotherProfessionType(form.getMotherProfessionType());
         personalData.setMotherSchoolLevel(form.getMotherSchoolLevel());
+
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+        DomainObject salarySpanObject = FenixFramework.getDomainObject(form.getHouseholdSalarySpan());
+        if (!(salarySpanObject instanceof SalarySpan) || !FenixFramework.isDomainObjectValid(salarySpanObject)) {
+            throw new RuntimeException("Could not materialize SalarySpan from ID: " + form.getHouseholdSalarySpan());
+        }
+        personUlisboa.setHouseholdSalarySpan((SalarySpan) salarySpanObject);
     }
 
     public static class HouseholdInformationForm {
@@ -143,6 +170,8 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         private ProfessionType fatherProfessionType;
 
         private ProfessionalSituationConditionType fatherProfessionalCondition;
+
+        private String householdSalarySpan;
 
         public SchoolLevelType getMotherSchoolLevel() {
             return motherSchoolLevel;
@@ -192,5 +221,12 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
             this.fatherProfessionalCondition = fatherProfessionalCondition;
         }
 
+        public String getHouseholdSalarySpan() {
+            return householdSalarySpan;
+        }
+
+        public void setHouseholdSalarySpan(String householdSalarySpan) {
+            this.householdSalarySpan = householdSalarySpan;
+        }
     }
 }

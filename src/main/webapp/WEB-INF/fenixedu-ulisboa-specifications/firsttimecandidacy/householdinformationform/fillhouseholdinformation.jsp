@@ -85,8 +85,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#householdInformationForm_motherSchoolLevel").val('<c:out value='${not empty param.motherschoollevel ? param.motherschoollevel : householdInformationForm.motherSchoolLevel }'/>');
-	</script>
+						$("#householdInformationForm_motherSchoolLevel").val('<c:out value='${not empty param.motherschoollevel ? param.motherschoollevel : householdInformationForm.motherSchoolLevel }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -105,8 +105,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#householdInformationForm_motherProfessionType").val('<c:out value='${not empty param.motherprofessiontype ? param.motherprofessiontype : householdInformationForm.motherProfessionType }'/>');
-	</script>
+						$("#householdInformationForm_motherProfessionType").val('<c:out value='${not empty param.motherprofessiontype ? param.motherprofessiontype : householdInformationForm.motherProfessionType }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -125,8 +125,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#householdInformationForm_motherProfessionalCondition").val('<c:out value='${not empty param.motherprofessionalcondition ? param.motherprofessionalcondition : householdInformationForm.motherProfessionalCondition }'/>');
-	</script>
+						$("#householdInformationForm_motherProfessionalCondition").val('<c:out value='${not empty param.motherprofessionalcondition ? param.motherprofessionalcondition : householdInformationForm.motherProfessionalCondition }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -145,8 +145,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#householdInformationForm_fatherSchoolLevel").val('<c:out value='${not empty param.fatherschoollevel ? param.fatherschoollevel : householdInformationForm.fatherSchoolLevel }'/>');
-	</script>
+						$("#householdInformationForm_fatherSchoolLevel").val('<c:out value='${not empty param.fatherschoollevel ? param.fatherschoollevel : householdInformationForm.fatherSchoolLevel }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -165,8 +165,8 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#householdInformationForm_fatherProfessionType").val('<c:out value='${not empty param.fatherprofessiontype ? param.fatherprofessiontype : householdInformationForm.fatherProfessionType }'/>');
-	</script>
+						$("#householdInformationForm_fatherProfessionType").val('<c:out value='${not empty param.fatherprofessiontype ? param.fatherprofessiontype : householdInformationForm.fatherProfessionType }'/>');
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -185,8 +185,25 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-		$("#householdInformationForm_fatherProfessionalCondition").val('<c:out value='${not empty param.fatherprofessionalcondition ? param.fatherprofessionalcondition : householdInformationForm.fatherProfessionalCondition }'/>');
-	</script>
+						$("#householdInformationForm_fatherProfessionalCondition").val('<c:out value='${not empty param.fatherprofessionalcondition ? param.fatherprofessionalcondition : householdInformationForm.fatherProfessionalCondition }'/>');
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.HouseholdInformationForm.householdSalarySpan" />
+				</div>
+
+				<div class="col-sm-4">
+					<select id="householdInformationForm_disabilityType" class="form-control" name="householdSalarySpan">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${salarySpanValues}" var="salarySpanValue">
+							<option value='<c:out value='${salarySpanValue.externalId}'/>'><c:out value='${salarySpanValue.description.content}' /></option>
+						</c:forEach>
+					</select>
+					<script>
+						$("#householdInformationForm_disabilityType").val('<c:out value='${not empty param.householdsalaryspan ? param.householdsalaryspan : householdInformationForm.householdSalarySpan }'/>');
+					</script>
 				</div>
 			</div>
 		</div>
