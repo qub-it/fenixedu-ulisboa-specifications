@@ -170,6 +170,7 @@ relation PersonUlDisabilityType {
 	DisabilityType playsRole disabilityType;
 }
 
+
 relation PersonUlUniversityDiscoveryMeansAnswer {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
 		multiplicity *;
@@ -186,6 +187,16 @@ relation PersonUlUniversityChoiceMotivationAnswer {
 	UniversityChoiceMotivationAnswer playsRole universityChoiceMotivationAnswers {
 		multiplicity *;
 	}
+}
+
+relation PrecedentDegreeInformationDistrict{
+	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
+	.org.fenixedu.academic.domain.District playsRole district;
+}
+
+relation PrecedentDegreeInformationDistrictSubdivision{
+	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
+	.org.fenixedu.academic.domain.DistrictSubdivision playsRole districtSubdivision;
 }
 
 // ==================== ULisboa Specifications Root ====================

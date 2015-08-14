@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.District;
+import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -74,6 +76,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
     public String fillorigininformation(Model model) {
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         model.addAttribute("schoolLevelValues", SchoolLevelType.values());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
@@ -122,6 +125,9 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
                 form.setCountryWhereFinishedPreviousCompleteDegree(Country.readDefault());
             }
+
+            form.setDistrictWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrict());
+            form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
 
             form.setHighSchoolType(personalData.getHighSchoolType());
 
@@ -182,6 +188,20 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
                     "error.personalInformation.year.before.birthday"), model);
             return false;
         }
+
+        if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.personalInformation.requiredCountry"), model);
+            return false;
+        }
+        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()) {
+            if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
+                    || form.getDistrictWhereFinishedPreviousCompleteDegree() == null) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.personalInformation.requiredDistrictAndSubdivisionForDefaultCountry"), model);
+                return false;
+            }
+        }
         return true;
     }
 
@@ -210,7 +230,12 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         precedentDegreeInformation.setInstitution((Unit) institutionObject);
 
         precedentDegreeInformation.setConclusionYear(form.getConclusionYear());
-        precedentDegreeInformation.setCountry(form.getCountryWhereFinishedPreviousCompleteDegree());
+        Country country = form.getCountryWhereFinishedPreviousCompleteDegree();
+        precedentDegreeInformation.setCountry(country);
+        if (country.isDefaultCountry()) {
+            precedentDegreeInformation.setDistrict(form.getDistrictWhereFinishedPreviousCompleteDegree());
+            precedentDegreeInformation.setDistrictSubdivision(form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree());
+        }
         if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHighSchoolOrEquivalent()) {
             precedentDegreeInformation.setCountryHighSchool(form.getCountryWhereFinishedPreviousCompleteDegree());
         }
@@ -301,6 +326,8 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         private DegreeDesignation raidesDegreeDesignation;
 
         private Country countryWhereFinishedPreviousCompleteDegree;
+        private District districtWhereFinishedPreviousCompleteDegree;
+        private DistrictSubdivision districtSubdivisionWhereFinishedPreviousCompleteDegree;
 
         private AcademicalInstitutionType highSchoolType;
 
@@ -392,6 +419,23 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
         public void setInstitutionName(String institutionName) {
             this.institutionName = institutionName;
+        }
+
+        public District getDistrictWhereFinishedPreviousCompleteDegree() {
+            return districtWhereFinishedPreviousCompleteDegree;
+        }
+
+        public void setDistrictWhereFinishedPreviousCompleteDegree(District districtWhereFinishedPreviousCompleteDegree) {
+            this.districtWhereFinishedPreviousCompleteDegree = districtWhereFinishedPreviousCompleteDegree;
+        }
+
+        public DistrictSubdivision getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() {
+            return districtSubdivisionWhereFinishedPreviousCompleteDegree;
+        }
+
+        public void setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(
+                DistrictSubdivision districtSubdivisionWhereFinishedPreviousCompleteDegree) {
+            this.districtSubdivisionWhereFinishedPreviousCompleteDegree = districtSubdivisionWhereFinishedPreviousCompleteDegree;
         }
 
     }
