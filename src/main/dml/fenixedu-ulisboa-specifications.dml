@@ -156,6 +156,7 @@ class PersonUlisboaSpecifications {
 	boolean needsDisabilitySupport;
 	String otherUniversityDiscoveryMeans;
 	String otherUniversityChoiceMotivation;
+	String otherDislocatedResidenceType;
 }
 
 relation PersonUlPerson {
@@ -168,6 +169,13 @@ relation PersonUlSalarySpan {
 		multiplicity *;
 	}
 	SalarySpan playsRole householdSalarySpan;
+}
+
+relation PersonUlResidenceType {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	ResidenceType playsRole dislocatedResidenceType;
 }
 
 relation PersonUlDisabilityType {

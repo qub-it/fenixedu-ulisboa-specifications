@@ -81,7 +81,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
             form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
 
             PersonUlisboaSpecifications personUl = AccessControl.getPerson().getPersonUlisboaSpecifications();
-            if (personUl != null && personUl.getHouseholdSalarySpan() != null) {
+            if (personUl != null) {
                 form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
             }
 

@@ -50,6 +50,8 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FiliationFormController.DistrictSubdivisionBean;
 import org.springframework.ui.Model;
@@ -60,6 +62,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ResidenceInformationFormController.CONTROLLER_URL)
@@ -74,6 +77,10 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     public String fillresidenceinformation(Model model) {
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+
+        List<ResidenceType> allResidenceTypes = ResidenceType.readAll().collect(Collectors.toList());
+        Collections.sort(allResidenceTypes);
+        model.addAttribute("residenceTypeValues", allResidenceTypes);
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation";
     }
@@ -84,6 +91,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             PersonalIngressionData personalData =
                     FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
             Person person = AccessControl.getPerson();
+            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
 
             ResidenceInformationForm form = new ResidenceInformationForm();
             form.setCountryOfResidence(personalData.getCountryOfResidence());
@@ -119,6 +127,10 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 form.setSchoolTimeDistrictSubdivisionOfResidence(schoolTimeDistrictSubDivisionOfResidence);
                 form.setSchoolTimeParishOfResidence(Parish.findByName(schoolTimeDistrictSubDivisionOfResidence,
                         addressSchoolTime.getParishOfResidence()).orElse(null));
+                if (personUl != null) {
+                    form.setSchoolTimeResidenceType(personUl.getDislocatedResidenceType());
+                    form.setOtherSchoolTimeResidenceType(personUl.getOtherDislocatedResidenceType());
+                }
             }
 
             model.addAttribute("residenceInformationForm", form);
@@ -179,10 +191,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 return false;
             } else {
                 if ((form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
-                        form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea()) || form.getSchoolTimeParishOfResidence() != null)
+                        form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea())
+                        || form.getSchoolTimeParishOfResidence() != null || form.getSchoolTimeResidenceType() != null)
                         && (form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(),
-                                form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea()) || form
-                                .getSchoolTimeParishOfResidence() != null)) {
+                                form.getSchoolTimeAreaOfAreaCode(), form.getSchoolTimeArea())
+                                || form.getSchoolTimeParishOfResidence() == null || form.getSchoolTimeResidenceType() == null)) {
                     addErrorMessage(
                             BundleUtil
                                     .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
@@ -190,8 +203,14 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                             model);
                     return false;
                 }
-            }
 
+                if (form.getSchoolTimeResidenceType() != null && form.getSchoolTimeResidenceType().isOther()
+                        && StringUtils.isEmpty(form.getOtherSchoolTimeResidenceType())) {
+                    addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                            "error.candidacy.workflow.ResidenceInformationForm.other.residence.type.required"), model);
+                    return false;
+                }
+            }
         }
 
         return true;
@@ -200,6 +219,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     @Atomic
     protected void writeData(ResidenceInformationForm form) {
         Person person = AccessControl.getPerson();
+        PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
         PersonalIngressionData personalData =
                 FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
@@ -266,6 +286,12 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     schoolTimeAddress.setValid();
                 }
             }
+
+            personUl.setDislocatedResidenceType(form.getSchoolTimeResidenceType());
+            personUl.setOtherDislocatedResidenceType(form.getOtherSchoolTimeResidenceType());
+        } else {
+            personUl.setDislocatedResidenceType(null);
+            personUl.setOtherDislocatedResidenceType("");
         }
     }
 
@@ -301,6 +327,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     public static class ResidenceInformationForm {
 
+        private Country countryOfResidence;
+
         private String address;
 
         private String areaCode; // zip code
@@ -331,7 +359,9 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
         private Parish schoolTimeParishOfResidence;
 
-        private Country countryOfResidence;
+        private ResidenceType schoolTimeResidenceType;
+
+        private String otherSchoolTimeResidenceType;
 
         public String getAddress() {
             return address;
@@ -464,7 +494,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         private boolean isSchoolTimeAddressComplete() {
             return isSchoolTimeRequiredInformationAddressFilled()
                     && !isAnyEmpty(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeArea)
-                    && schoolTimeParishOfResidence != null;
+                    && schoolTimeParishOfResidence != null && schoolTimeResidenceType != null;
         }
 
         private boolean isAnyEmpty(String... fields) {
@@ -487,9 +517,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         }
 
         private boolean isAnySchoolTimeAddressInformationFilled() {
-            return getSchoolTimeDistrictOfResidence() != null || getSchoolTimeDistrictSubdivisionOfResidence() != null
-                    || isAnyFilled(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeArea)
-                    || schoolTimeParishOfResidence != null;
+            return getSchoolTimeDistrictOfResidence() != null
+                    || getSchoolTimeDistrictSubdivisionOfResidence() != null
+                    || isAnyFilled(schoolTimeAddress, schoolTimeAreaCode, schoolTimeAreaOfAreaCode, schoolTimeArea,
+                            otherSchoolTimeResidenceType) || schoolTimeParishOfResidence != null
+                    || schoolTimeResidenceType != null;
         }
 
         private boolean isAnyFilled(final String... fields) {
@@ -500,6 +532,22 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             }
 
             return false;
+        }
+
+        public ResidenceType getSchoolTimeResidenceType() {
+            return schoolTimeResidenceType;
+        }
+
+        public void setSchoolTimeResidenceType(ResidenceType schoolTimeResidenceType) {
+            this.schoolTimeResidenceType = schoolTimeResidenceType;
+        }
+
+        public String getOtherSchoolTimeResidenceType() {
+            return otherSchoolTimeResidenceType;
+        }
+
+        public void setOtherSchoolTimeResidenceType(String otherSchoolTimeResidenceType) {
+            this.otherSchoolTimeResidenceType = otherSchoolTimeResidenceType;
         }
     }
 }
