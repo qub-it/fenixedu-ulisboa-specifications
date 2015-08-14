@@ -86,6 +86,36 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" />
+				</div>
+
+				<div class="col-sm-10">
+					<select
+						id="originInformationForm_districtWhereFinishedPreviousCompleteDegree"
+						class="form-control"
+						name="districtWhereFinishedPreviousCompleteDegree">
+					</select>
+
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" />
+				</div>
+
+				<div class="col-sm-10">
+					<select
+						id="originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree"
+						class="form-control"
+						name="districtSubdivisionWhereFinishedPreviousCompleteDegree">
+					</select>
+
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
 					<spring:message code="label.OriginInformationForm.schoolLevel" />
 				</div>
 
@@ -343,5 +373,68 @@ $(document).ready(function() {
 	$("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().on("select2:select", function(e) {
 		updateHighSchoolType();
 	});
+	
+	
+	
+	
+	//setup districts
+	district_options = [
+           			<c:forEach items="${districts_options}" var="element"> 
+           				{
+           					text : "<c:out value='${element.name}'/>",  
+           					id : "<c:out value='${element.externalId}'/>"
+           				},
+           			</c:forEach>
+           		];
+
+           	   $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2(
+	             			{
+	             				data : district_options,
+	             			}	  
+	             	    );
+	             	    
+	             	    $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtWhereFinishedPreviousCompleteDegree.externalId}'/>');
+	             	 $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2().on("select2:select", function(e) {
+	                   populateSubDistricts(e);
+	                 })
+	             	    
+  	 populateSubDistricts = function(){
+  		 oid = $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree")[0].value; 
+  		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/district/" + oid, 
+  				success: function(result){
+  					 //$("#originInformationForm_districtSubdivisionOfBirth").select2("destroy");
+  					 $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").children().remove();
+  					 $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2(
+		             			{
+		             				data : result,
+		             			}	  
+		             	    );
+  					$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2();
+  		 		}
+  		 });
+  		 
+  	 }
+
+ 	//setup sub-districts
+ 	$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2();
+ 	<c:if test="${not empty originInformationForm.districtWhereFinishedPreviousCompleteDegree}">
+ 	subDistrictOptions = [
+            			<c:forEach items="${originInformationForm.districtWhereFinishedPreviousCompleteDegree.districtSubdivisions}" var="element"> 
+            				{
+            					text : "<c:out value='${element.name}'/>",  
+            					id : "<c:out value='${element.externalId}'/>"
+            				},
+            			</c:forEach>
+            		];
+
+            	   $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2(
+	             			{
+	             				data : subDistrictOptions,
+	             			}	  
+	             	    );
+	             	    
+	             	    $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree.externalId}'/>');
+
+   	</c:if>
 	
 </script>
