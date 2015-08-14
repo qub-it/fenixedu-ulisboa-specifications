@@ -32,8 +32,8 @@ ${portal.toolkit()}
 </div>
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" onClick="saveForms()"><spring:message code="label.event.firstYearConfiguration.save" /> </a> |&nbsp;&nbsp;
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/"  ><spring:message code="label.event.firstYearConfiguration.cancel" /></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/"  ><spring:message code="label.event.firstYearConfiguration.cancel" /></a>&nbsp;|&nbsp;
+	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" onClick="saveForms()"><spring:message code="label.event.firstYearConfiguration.save" /> </a>
 </div>
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
@@ -61,7 +61,7 @@ ${portal.toolkit()}
 				<div class="alert alert-danger" role="alert">
 					
 					<c:forEach items="${errorMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+						<p id="errorMessages" > <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
   							${message}
   						</p>
 					</c:forEach>
@@ -70,7 +70,19 @@ ${portal.toolkit()}
 			</c:if>
 
 
-
+<form id="templateForm" class="form-horizontal" enctype="multipart/form-data" action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/uploadTemplate" method="POST">
+	<div class="panel panel-default">
+  		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label"><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></div> 
+				<div class="col-sm-4">
+					<input type="file" id="templateContent" name="mod43Template" accept="application/pdf" required />
+					<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
 
 
 <c:choose>
@@ -108,7 +120,7 @@ ${portal.toolkit()}
 					
 				</tr>
 				<c:forEach items="${editResultsDataSet}" var="searchResult">
-				<form action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/save" method="POST">
+				<form id="degreeForm" action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/save" method="POST">
 					<input type="hidden" name="degreeExternalId" value="${searchResult.degreeExternalId}">
 					<tr>
 						<td>${searchResult.degreeName}</td>
@@ -153,14 +165,20 @@ ${portal.toolkit()}
 	</c:otherwise>
 </c:choose>
 
+<style>
+#templateForm input {
+	display: inline-block;
+}
+</style>
+
 <script>
-$("form").submit(function(){
+$("#degreeForm").submit(function(){
     $.post($(this).attr('action'), $(this).serialize(), function(response){},'json');
     return false;
  });
 
 function saveForms(){
-	$("form").submit();
+	$("#degreeForm").submit();
 	changesDetected = false;
 };
 
@@ -177,7 +195,7 @@ $(":checkbox").on("change", function(){
 });
 window.onbeforeunload = function (e) {
 	if(changesDetected){
-		return "<spring:message code="label.event.firstYearConfiguration.notSavedError" />";
+		return '<spring:message code="label.event.firstYearConfiguration.notSavedError" />';
 	}
 }
 </script>

@@ -310,6 +310,13 @@ class FirstYearRegistrationGlobalConfiguration {
 class CgdMod43Template extends .org.fenixedu.bennu.io.domain.GenericFile {
 }
 
+relation BennuFirstYearRegistrationGlobalConfiguration {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole bennu;
+	FirstYearRegistrationGlobalConfiguration playsRole firstYearRegistrationGlobalConfigurations {
+		multiplicity *;
+	}
+}
+
 relation DegreeConfigurationGlobalConfiguration {
 	FirstYearRegistrationGlobalConfiguration playsRole globalConfiguration {
 		multiplicity 1;

@@ -6,6 +6,7 @@ public class FirstYearRegistrationConfiguration extends FirstYearRegistrationCon
 
     public FirstYearRegistrationConfiguration(Degree degree) {
         super();
+        setGlobalConfiguration(FirstYearRegistrationGlobalConfiguration.getInstance());
         setDegree(degree);
     }
 
