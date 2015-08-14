@@ -41,14 +41,11 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.DomainObject;
-import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(HouseholdInformationFormController.CONTROLLER_URL)
@@ -85,7 +82,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
 
             PersonUlisboaSpecifications personUl = AccessControl.getPerson().getPersonUlisboaSpecifications();
             if (personUl != null && personUl.getHouseholdSalarySpan() != null) {
-                form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan().getExternalId());
+                form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
             }
 
             model.addAttribute("householdInformationForm", form);
@@ -127,7 +124,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
                     model);
             return false;
         }
-        if (StringUtils.isEmpty(form.getHouseholdSalarySpan())) {
+        if (form.getHouseholdSalarySpan() == null) {
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"),
                     model);
@@ -150,11 +147,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         personalData.setMotherSchoolLevel(form.getMotherSchoolLevel());
 
         PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
-        DomainObject salarySpanObject = FenixFramework.getDomainObject(form.getHouseholdSalarySpan());
-        if (!(salarySpanObject instanceof SalarySpan) || !FenixFramework.isDomainObjectValid(salarySpanObject)) {
-            throw new RuntimeException("Could not materialize SalarySpan from ID: " + form.getHouseholdSalarySpan());
-        }
-        personUlisboa.setHouseholdSalarySpan((SalarySpan) salarySpanObject);
+        personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
     }
 
     public static class HouseholdInformationForm {
@@ -171,7 +164,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
 
         private ProfessionalSituationConditionType fatherProfessionalCondition;
 
-        private String householdSalarySpan;
+        private SalarySpan householdSalarySpan;
 
         public SchoolLevelType getMotherSchoolLevel() {
             return motherSchoolLevel;
@@ -221,11 +214,11 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
             this.fatherProfessionalCondition = fatherProfessionalCondition;
         }
 
-        public String getHouseholdSalarySpan() {
+        public SalarySpan getHouseholdSalarySpan() {
             return householdSalarySpan;
         }
 
-        public void setHouseholdSalarySpan(String householdSalarySpan) {
+        public void setHouseholdSalarySpan(SalarySpan householdSalarySpan) {
             this.householdSalarySpan = householdSalarySpan;
         }
     }
