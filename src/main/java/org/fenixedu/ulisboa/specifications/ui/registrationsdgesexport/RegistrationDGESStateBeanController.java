@@ -31,14 +31,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.ui.FenixEduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.registrationsDgesExport",
         accessGroup = "logged")
 @RequestMapping(RegistrationDGESStateBeanController.CONTROLLER_URL)
-public class RegistrationDGESStateBeanController extends FenixEduUlisboaSpecificationsBaseController {
+public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecificationsBaseController {
 
     public static final String CONTROLLER_URL = "/registrationsdgesexport";
 

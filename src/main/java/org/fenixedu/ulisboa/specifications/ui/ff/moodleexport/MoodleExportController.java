@@ -36,7 +36,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Teacher;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.ui.FenixEduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(MoodleExportController.CONTROLLER_URL)
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.moodleExport",
         accessGroup = "logged")
-public class MoodleExportController extends FenixEduUlisboaSpecificationsBaseController {
+public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseController {
 
     public static final String CONTROLLER_URL = "/ff/moodleexport";
 
