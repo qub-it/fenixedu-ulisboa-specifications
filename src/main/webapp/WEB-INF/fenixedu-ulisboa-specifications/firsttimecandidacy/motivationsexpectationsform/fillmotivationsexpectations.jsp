@@ -25,11 +25,14 @@ ${portal.toolkit()}
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js" ></script>
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/omnis.js"></script>
 
+<%@page import="java.util.List"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer"%>
 
 
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.firstTimeCandidacy.fillDisabilities" />
+	<h1><spring:message code="label.firstTimeCandidacy.fillMotivationsExpectations" />
 		<small></small>
 	</h1>
 </div>
@@ -74,59 +77,57 @@ ${portal.toolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.hasDisabilities" />
-				</div>
-
-				<div class="col-sm-2">
-					<select id="disabilitiesForm_hasDisabilities" name="hasDisabilities" class="form-control">
-						<option value="false"><spring:message code="label.no" /></option>
-						<option value="true"><spring:message code="label.yes" /></option>
-					</select>
-					<script>
-						$("#disabilitiesForm_hasDisabilities").val('<c:out value='${not empty param.hasdisabilities ? param.hasdisabilities : disabilitiesForm.hasDisabilities }'/>');
-					</script>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.disabilityType" />
-				</div>
-
-				<div class="col-sm-4">
-					<select id="disabilitiesForm_disabilityType" class="form-control" name="disabilityType">
-						<c:forEach items="${disabilityTypeValues}" var="disabilityTypeValue">
-							<option value='<c:out value='${disabilityTypeValue.externalId}'/>'><c:out value='${disabilityTypeValue.description.content}' /></option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#disabilitiesForm_disabilityType").val('<c:out value='${not empty param.disabilitytype ? param.disabilitytype : disabilitiesForm.disabilityType }'/>');
-					</script>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.otherDisabilityType" />
+					<spring:message code="label.MotivationsExpectationsForm.universityDiscoveryMeansAnswers" />
 				</div>
 
 				<div class="col-sm-10">
-					<input id="disabilitiesForm_otherDisabilityType" class="form-control" type="text" name="otherDisabilityType"
-						value='<c:out value='${not empty param.otherdisabilitytype ? param.otherdisabilitytype : disabilitiesForm.otherDisabilityType }'/>' />
+				<ul class="list-unstyled">
+					<% for (UniversityDiscoveryMeansAnswer answer : (List<UniversityDiscoveryMeansAnswer>) request.getAttribute("universityDiscoveryMeansAnswers")) { %>
+						<% Boolean isChecked = (Boolean) request.getAttribute("universityDiscoveryMeans_" + answer.getExternalId()); %>
+						<li><input id="<%= "motivationsexpectationsform_universityDiscoveryMeans_" + answer.getExternalId() %>" type="checkbox" name="<%= "universityDiscoveryMeans_" + answer.getExternalId() %>" <%= isChecked? "checked" : "" %>>
+							<label for="<%= "motivationsexpectationsform_universityDiscoveryMeans_" + answer.getExternalId() %>"><%= answer.getDescription().getContent() %></label>
+						</input></li>
+					<% } %>
+				</ul>
 				</div>
 			</div>
+			
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.DisabilitiesForm.needsDisabilitySupport" />
+					<spring:message code="label.MotivationsExpectationsForm.otherUniversityDiscoveryMeans" />
 				</div>
 
-				<div class="col-sm-2">
-					<select id="disabilitiesForm_needsDisabilitySupport" name="needsDisabilitySupport" class="form-control">
-						<option value="false"><spring:message code="label.no" /></option>
-						<option value="true"><spring:message code="label.yes" /></option>
-					</select>
-					<script>
-						$("#disabilitiesForm_needsDisabilitySupport").val('<c:out value='${not empty param.needsdisabilitysupport ? param.needsdisabilitysupport : disabilitiesForm.needsDisabilitySupport }'/>');
-					</script>
+				<div class="col-sm-10">
+					<input id="motivationsexpectationsform_otherUniversityDiscoveryMeans" class="form-control" type="text" name="otherUniversityDiscoveryMeans"
+						value='<c:out value='${not empty param.otheruniversitydiscoverymeans ? param.otheruniversitydiscoverymeans : motivationsexpectationsform.otherUniversityDiscoveryMeans }'/>' />
+				</div>
+			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.MotivationsExpectationsForm.universityChoiceMotivationAnswers" />
+				</div>
+
+				<div class="col-sm-10">
+				<ul class="list-unstyled">
+					<% for (UniversityChoiceMotivationAnswer answer : (List<UniversityChoiceMotivationAnswer>) request.getAttribute("universityChoiceMotivationAnswers")) { %>
+						<% Boolean isChecked = (Boolean) request.getAttribute("universityChoiceMotivation_" + answer.getExternalId()); %>
+						<li><input id="<%= "motivationsexpectationsform_universityChoiceMotivation_" + answer.getExternalId() %>" type="checkbox" name="<%= "universityChoiceMotivation_" + answer.getExternalId() %>" <%= isChecked? "checked" : "" %>>
+						 	<label for="<%= "motivationsexpectationsform_universityChoiceMotivation_" + answer.getExternalId() %>"><%= answer.getDescription().getContent() %></label>
+						 </input></li>
+					<% } %>
+				</ul>
+				</div>
+			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.MotivationsExpectationsForm.otherUniversityChoiceMotivation" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="motivationsexpectationsform_otherUniversityChoiceMotivation" class="form-control" type="text" name="otherUniversityChoiceMotivation"
+						value='<c:out value='${not empty param.otheruniversitychoicemotivation ? param.otheruniversitychoicemotivation : motivationsexpectationsform.otherUniversityChoiceMotivation }'/>' />
 				</div>
 			</div>
 		</div>

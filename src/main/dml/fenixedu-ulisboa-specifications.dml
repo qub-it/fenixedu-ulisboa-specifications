@@ -154,18 +154,38 @@ class PersonUlisboaSpecifications {
 	boolean hasDisabilities;
 	String otherDisabilityType;
 	boolean needsDisabilitySupport;
+	String otherUniversityDiscoveryMeans;
+	String otherUniversityChoiceMotivation;
 }
 
-relation PersonUlisboaSpecificationsPerson {
+relation PersonUlPerson {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
 	.org.fenixedu.academic.domain.Person playsRole person;
 }
 
-relation PersonUlisboaSpecificationsDisabilityType {
+relation PersonUlDisabilityType {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
 		multiplicity *;
 	}
 	DisabilityType playsRole disabilityType;
+}
+
+relation PersonUlUniversityDiscoveryMeansAnswer {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	UniversityDiscoveryMeansAnswer playsRole universityDiscoveryMeansAnswers {
+		multiplicity *;
+	}
+}
+
+relation PersonUlUniversityChoiceMotivationAnswer {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	UniversityChoiceMotivationAnswer playsRole universityChoiceMotivationAnswers {
+		multiplicity *;
+	}
 }
 
 // ==================== ULisboa Specifications Root ====================
