@@ -195,14 +195,14 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-4">
-					<select id="householdInformationForm_disabilityType" class="form-control" name="householdSalarySpan">
+					<select id="householdInformationForm_householdSalarySpan" class="form-control" name="householdSalarySpan">
 						<option value=""><spring:message code="label.choose.one"/></option>
 						<c:forEach items="${salarySpanValues}" var="salarySpanValue">
 							<option value='<c:out value='${salarySpanValue.externalId}'/>'><c:out value='${salarySpanValue.description.content}' /></option>
 						</c:forEach>
 					</select>
 					<script>
-						$("#householdInformationForm_disabilityType").val('<c:out value='${not empty param.householdsalaryspan ? param.householdsalaryspan : householdInformationForm.householdSalarySpan }'/>');
+						$("#householdInformationForm_householdSalarySpan").val('<c:out value='${not empty param.householdsalaryspan ? param.householdsalaryspan : householdInformationForm.householdSalarySpan.externalId }'/>');
 					</script>
 				</div>
 			</div>
