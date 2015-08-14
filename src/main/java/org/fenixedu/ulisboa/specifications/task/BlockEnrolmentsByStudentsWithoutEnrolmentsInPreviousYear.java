@@ -16,12 +16,15 @@ import org.fenixedu.bennu.scheduler.CronTask;
 import org.fenixedu.bennu.scheduler.annotation.Task;
 import org.joda.time.DateTime;
 
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
+
 import com.google.common.collect.Sets;
 
 @Task(englishTitle = "Block Enrolments By Students Without Enrolments In Previous Year", readOnly = true)
 public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends CronTask {
 
-    private static final String BUNDLE = "resources/FenixeduUlisboaSpecificationsResources";
+    private static final String BUNDLE = "resources.FenixeduUlisboaSpecificationsResources";
     private static final String LOCALE = CoreConfiguration.getConfiguration().defaultLocale();
 
     @Override
@@ -36,7 +39,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
             return;
 
         } else {
-            taskLog("Inspecting Registrations' activity in years %s and %s", previousExecutionYear.getQualifiedName(),
+            taskLog("Inspecting Registrations' activity in years %s and %s\n", previousExecutionYear.getQualifiedName(),
                     currentExecutionYear.getQualifiedName());
         }
 
@@ -68,25 +71,31 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
                 continue;
             }
 
+            if (!registration.getEnrolments(currentExecutionYear).isEmpty()) {
+                getLogger().warn("Ignoring Registration [{}]: has enrolments for {}", registrationInfo,
+                        startExecutionYear.getQualifiedName());
+                continue;
+            }
+
             boolean block = false;
             String reasons = StringUtils.EMPTY;
 
-            if (registration.getEnrolments(currentExecutionYear).isEmpty()) {
-                block = true;
-
-                final String reason =
-                        BundleUtil.getString(BUNDLE, LOCALE, "label.blockEnrolments.noEnrolmentsFound",
-                                currentExecutionYear.getQualifiedName());
-
-                reasons += "\n" + reason;
-                getLogger().debug("Will block Registration [{}]: {}", registrationInfo, reason);
-            }
+//            if (registration.getEnrolments(currentExecutionYear).isEmpty()) {
+//                block = true;
+//
+//                final String reason =
+//                        BundleUtil.getString(BUNDLE, "label.blockEnrolments.noEnrolmentsFound",
+//                                currentExecutionYear.getQualifiedName());
+//
+//                reasons += "\n" + reason;
+//                getLogger().debug("Will block Registration [{}]: {}", registrationInfo, reason);
+//            }
 
             if (registration.getEnrolments(previousExecutionYear).isEmpty()) {
                 block = true;
 
                 final String reason =
-                        BundleUtil.getString(BUNDLE, LOCALE, "label.blockEnrolments.noEnrolmentsFound",
+                        BundleUtil.getString(BUNDLE, "label.blockEnrolments.noEnrolmentsFound",
                                 previousExecutionYear.getQualifiedName());
 
                 reasons += "\n" + reason;
@@ -97,13 +106,11 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
 
                 try {
 
-                    final RegistrationState createdState =
-                            RegistrationState.createRegistrationState(registration, (Person) null, new DateTime(),
-                                    RegistrationStateType.INTERRUPTED);
-                    createdState.setRemarks(String.format("Estado criado automaticamente.%s", reasons));
+                    blockRegistration(registration, reasons);
 
                     blocked.add(registrationInfo);
                     getLogger().info("Blocking enrolments for Registration [{}]", registrationInfo);
+                    taskLog("Blocking enrolments for Registration [%s]\n", registrationInfo);
 
                 } catch (final Throwable t) {
 
@@ -114,8 +121,16 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
             }
         }
 
-        taskLog("Blocked {} Registrations", blocked.size());
-        taskLog("Failed blocking {} Registrations", failed.size());
+        taskLog("\nBlocked %d Registrations", blocked.size());
+        taskLog("\nFailed blocking %d Registrations", failed.size());
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    protected void blockRegistration(final Registration registration, String reasons) {
+        final RegistrationState createdState =
+                RegistrationState.createRegistrationState(registration, (Person) null, new DateTime(),
+                        RegistrationStateType.INTERRUPTED);
+        createdState.setRemarks(String.format("Estado criado automaticamente. %s", reasons));
     }
 
     static private RegistrationState getActiveStateCreatedInExecutionYear(final Registration registration,
