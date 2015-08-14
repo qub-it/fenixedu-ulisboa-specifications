@@ -27,6 +27,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +46,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(DisabilitiesFormController.CONTROLLER_URL)
@@ -57,7 +59,10 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
     public String filldisabilities(Model model) {
-        model.addAttribute("disabilityTypeValues", DisabilityType.readAll().collect(Collectors.toList()));
+        List<DisabilityType> allDisabilities = DisabilityType.readAll().collect(Collectors.toList());
+        Collections.sort(allDisabilities);
+        model.addAttribute("disabilityTypeValues", allDisabilities);
+
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform/filldisabilities";
     }
@@ -87,8 +92,7 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
         try {
             writeData(form);
             model.addAttribute("disabilitiesForm", form);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create/", model,
-                    redirectAttributes);
+            return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
