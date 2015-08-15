@@ -119,7 +119,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
                 return ruleResult;
             }
 
-            logger.info("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+            logger.info("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
 
         }
 
@@ -154,7 +154,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
                 return ruleResult;
             }
 
-            logger.info("[RULE executive][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+            logger.info("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
         }
 
         RuleResult result = RuleResult.createTrue(degreeModule);

@@ -127,7 +127,7 @@ public class CurricularPeriodServices {
         }
 
         for (final Map.Entry<CurricularPeriod, BigDecimal> entry : result.entrySet()) {
-            logger.info("{} - {} ECTS", entry.getKey().getFullLabel(), entry.getValue().toPlainString());
+            logger.debug("{} - {} ECTS", entry.getKey().getFullLabel(), entry.getValue().toPlainString());
         }
 
         return result;
