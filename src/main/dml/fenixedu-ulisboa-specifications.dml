@@ -348,6 +348,7 @@ relation StatuteTypeRuleTransition {
 
 // ==================== END: CurricularPeriodConfiguration ====================
 
+
 // ==================== Parishes as domain objects
 class Parish{
 	String code (REQUIRED);
@@ -364,3 +365,43 @@ relation ParsishDistrictSubdivision{
 	}
 }
 // ==================== END: Parishes as domain objects ====================
+
+
+// ======================= = HelpdeskConfigurations = =========================
+
+class helpdesk.HelpdeskConfigurations {
+}
+
+class helpdesk.HelpdeskRecipient {
+	String email;
+}
+
+relation BennuHelpdeskConfigurations {
+	helpdesk.HelpdeskConfigurations playsRole helpdeskConfiguration;
+	.org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+		multiplicity 1..1;
+	}
+}
+
+relation HelpdeskRecipients {
+	helpdesk.HelpdeskConfigurations playsRole recipientConfiguration;
+	helpdesk.HelpdeskRecipient playsRole recipients {
+		multiplicity *;
+	}
+}
+
+relation HelpdeskCCs {
+	helpdesk.HelpdeskConfigurations playsRole cCConfiguration;
+	helpdesk.HelpdeskRecipient playsRole cCs {
+		multiplicity *;
+	}
+}
+
+relation HelpdeskBCCs {
+	helpdesk.HelpdeskConfigurations playsRole bCCConfiguration;
+	helpdesk.HelpdeskRecipient playsRole bCCs {
+		multiplicity *;
+	}
+}
+
+// ======================= = ====================== = =========================
