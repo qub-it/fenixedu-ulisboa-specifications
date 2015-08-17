@@ -24,6 +24,7 @@ import org.apache.commons.validator.EmailValidator;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
@@ -31,6 +32,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.helpdesk.HelpdeskConfigurations;
+import org.fenixedu.ulisboa.specifications.domain.helpdesk.HelpdeskRecipient;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -95,26 +98,37 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
         if (PortalConfiguration.getInstance().getSupportEmailAddress() != null) {
             recipients.add(PortalConfiguration.getInstance().getSupportEmailAddress());
         }
+        for (HelpdeskRecipient recipient : HelpdeskConfigurations.getInstance().getRecipientsSet()) {
+            recipients.add(recipient.getEmail());
+        }
         return recipients;
     }
 
     private List<String> getCCs() {
-        List<String> cc = new ArrayList<String>();
+        List<String> ccs = new ArrayList<String>();
         if (Installation.getInstance().getAcademicEmailAddress() != null) {
-            cc.add(Installation.getInstance().getAcademicEmailAddress());
+            ccs.add(Installation.getInstance().getAcademicEmailAddress());
         }
-        return cc;
+        for (HelpdeskRecipient cc : HelpdeskConfigurations.getInstance().getCCsSet()) {
+            ccs.add(cc.getEmail());
+        }
+        return ccs;
     }
 
     private List<String> getBCCs() {
         List<String> bccs = new ArrayList<String>();
+        for (HelpdeskRecipient bcc : HelpdeskConfigurations.getInstance().getBCCsSet()) {
+            bccs.add(bcc.getEmail());
+        }
         return bccs;
     }
 
     private String generateEmailSubject(HelpdeskReportForm bean) {
         StringBuilder builder = new StringBuilder();
         MenuFunctionality functionality = bean.getMenuFunctionality();
-        builder.append("[Fenix] [");
+        builder.append("[Fenix ");
+        builder.append(Unit.getInstitutionAcronym());
+        builder.append("] [");
         builder.append(functionality != null ? functionality.getPathFromRoot().get(0).getTitle().getContent() : "").append("] ");
         builder.append('[').append(bean.getType().toUpperCase()).append("] ");
         builder.append(bean.getSubject());
