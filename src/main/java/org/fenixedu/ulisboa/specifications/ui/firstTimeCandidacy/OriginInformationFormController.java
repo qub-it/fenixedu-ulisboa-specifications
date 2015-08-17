@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController.DegreeDesignationBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
 import org.springframework.ui.Model;
@@ -245,20 +247,16 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = "/raidesUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") String namePart, Model model) {
-        List<UnitBean> collect =
-                UnitName.findExternalAcademicUnit(namePart, 50).stream()
-                        .map(un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName()))
-                        .collect(Collectors.toList());
-        return collect;
+        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
+        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
     }
 
     //Adds a false unit with OID=Name to enable the user adding new units
     @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
+        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
         List<UnitBean> collect =
-                UnitName.findExternalUnit(namePart, 50).stream()
-                        .map(un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName()))
-                        .collect(Collectors.toList());
+                UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
         collect.add(0, new UnitBean(namePart, namePart));
         return collect;
     }
@@ -279,30 +277,13 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         } else {
             possibleDesignations = unit.getDegreeDesignationSet();
         }
-        return possibleDesignations.stream()
-                .filter(dd -> StringNormalizer.normalize(dd.getDescription()).contains(StringNormalizer.normalize(namePart)))
-                .map(dd -> new DegreeDesignationBean(dd.getDescription(), dd.getExternalId())).limit(50)
+
+        Predicate<DegreeDesignation> matchesName =
+                dd -> StringNormalizer.normalize(dd.getDescription()).contains(StringNormalizer.normalize(namePart));
+        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
+                dd -> new DegreeDesignationBean(dd.getDescription(), dd.getExternalId());
+        return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
                 .collect(Collectors.toList());
-    }
-
-    public static class DegreeDesignationBean {
-        private final String degreeDesignationText;
-        private final String degreeDesignationId;
-
-        public DegreeDesignationBean(String degreeDesignationText, String degreeDesignationId) {
-            super();
-            this.degreeDesignationText = degreeDesignationText;
-            this.degreeDesignationId = degreeDesignationId;
-        }
-
-        public String getDegreeDesignationText() {
-            return degreeDesignationText;
-        }
-
-        public String getDegreeDesignationId() {
-            return degreeDesignationId;
-        }
-
     }
 
     public static class OriginInformationForm {

@@ -159,11 +159,19 @@ class PersonUlisboaSpecifications {
 	String otherUniversityDiscoveryMeans;
 	String otherUniversityChoiceMotivation;
 	String otherDislocatedResidenceType;
+    String firstOptionDegreeDesignation;
 }
 
 relation PersonUlPerson {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
 	.org.fenixedu.academic.domain.Person playsRole person;
+}
+
+relation PersonUlFirstOptionInstitution {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+    .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole firstOptionInstitution;
 }
 
 relation PersonUlProfessionTimeType {

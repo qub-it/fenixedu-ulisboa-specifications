@@ -31,7 +31,11 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.Cit
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,12 +50,14 @@ import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
+import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
@@ -61,6 +67,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,6 +75,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
@@ -94,6 +102,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         model.addAttribute("professionTypeValues", ProfessionType.values());
         model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
+
+        model.addAttribute("placingOption", FirstTimeCandidacyController.getStudentCandidacy().getPlacingOption());
 
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
@@ -136,6 +146,17 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
             if (personUl != null) {
                 form.setProfessionTimeType(personUl.getProfessionTimeType());
+
+                Unit institution = personUl.getFirstOptionInstitution();
+                if (institution != null) {
+                    form.setFirstOptionInstitution(institution);
+
+                    String degreeDesignationName = personUl.getFirstOptionDegreeDesignation();
+                    Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
+                    DegreeDesignation degreeDesignation =
+                            institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
+                    form.setFirstOptionDegreeDesignation(degreeDesignation);
+                }
             }
 
             PersonalIngressionData personalData =
@@ -265,6 +286,13 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         person.setMaritalStatus(form.getMaritalStatus());
         personalData.setMaritalStatus(form.getMaritalStatus());
 
+        if (1 < FirstTimeCandidacyController.getStudentCandidacy().getPlacingOption()) {
+            personUl.setFirstOptionInstitution(form.getFirstOptionInstitution());
+            if (form.getFirstOptionDegreeDesignation() != null) {
+                personUl.setFirstOptionDegreeDesignation(form.getFirstOptionDegreeDesignation().getDescription());
+            }
+        }
+
         personalData.setProfessionalCondition(form.getProfessionalCondition());
         person.setProfession(form.getProfession());
         personalData.setProfessionType(form.getProfessionType());
@@ -273,10 +301,55 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         personalData.setGrantOwnerProvider(form.getGrantOwnerProvider());
     }
 
-    @RequestMapping(value = "/unit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readUnits(@RequestParam("namePart") String namePart, Model model) {
-        return UnitName.findExternalUnit(namePart, 50).stream()
-                .map(un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName())).collect(Collectors.toList());
+    @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
+        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
+        return UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/academicUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody List<UnitBean> readAcademicUnits(@RequestParam("namePart") String namePart, Model model) {
+        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
+        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") String unitOid,
+            @RequestParam("namePart") String namePart, Model model) {
+        Unit unit = null;
+        try {
+            unit = FenixFramework.getDomainObject(unitOid);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+
+        Collection<DegreeDesignation> possibleDesignations = unit.getDegreeDesignationSet();
+        Predicate<DegreeDesignation> matchesName =
+                dd -> StringNormalizer.normalize(dd.getDescription()).contains(StringNormalizer.normalize(namePart));
+        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
+                dd -> new DegreeDesignationBean(dd.getDescription(), dd.getExternalId());
+        return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
+                .collect(Collectors.toList());
+    }
+
+    public static class DegreeDesignationBean {
+        private final String degreeDesignationText;
+        private final String degreeDesignationId;
+
+        public DegreeDesignationBean(String degreeDesignationText, String degreeDesignationId) {
+            super();
+            this.degreeDesignationText = degreeDesignationText;
+            this.degreeDesignationId = degreeDesignationId;
+        }
+
+        public String getDegreeDesignationText() {
+            return degreeDesignationText;
+        }
+
+        public String getDegreeDesignationId() {
+            return degreeDesignationId;
+        }
     }
 
     public static class PersonalInformationForm implements Serializable {
@@ -302,6 +375,9 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         private ProfessionTimeType professionTimeType;
         private GrantOwnerType grantOwnerType;
         private Unit grantOwnerProvider;
+
+        private Unit firstOptionInstitution;
+        private DegreeDesignation firstOptionDegreeDesignation;
 
         public String getName() {
             return name;
@@ -488,6 +564,22 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             default:
                 return true;
             }
+        }
+
+        public Unit getFirstOptionInstitution() {
+            return firstOptionInstitution;
+        }
+
+        public void setFirstOptionInstitution(Unit firstOptionInstitution) {
+            this.firstOptionInstitution = firstOptionInstitution;
+        }
+
+        public DegreeDesignation getFirstOptionDegreeDesignation() {
+            return firstOptionDegreeDesignation;
+        }
+
+        public void setFirstOptionDegreeDesignation(DegreeDesignation firstOptionDegreeDesignation) {
+            this.firstOptionDegreeDesignation = firstOptionDegreeDesignation;
         }
     }
 }
