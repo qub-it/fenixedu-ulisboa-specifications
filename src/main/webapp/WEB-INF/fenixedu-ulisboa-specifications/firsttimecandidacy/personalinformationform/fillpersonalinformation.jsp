@@ -186,20 +186,20 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="personalInformationForm_professionType" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.professionType" />
+				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
+					<spring:message code="label.PersonalInformationForm.maritalStatus" />
 				</label>
 
 				<div class="col-sm-4">
-					<select id="personalInformationForm_professionType"
-						class="form-control" name="professionType">
-						<c:forEach items="${professionTypeValues}" var="field">
+					<select id="personalInformationForm_maritalStatus"
+						class="form-control" name="maritalStatus">
+						<c:forEach items="${maritalStatusValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
 						</c:forEach>
 					</select>
 					<script>
-						$("#personalInformationForm_professionType").val('<c:out value='${not empty param.professiontype ? param.professiontype : personalInformationForm.professionType }'/>');
+						$("#personalInformationForm_maritalStatus").val('<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
 					</script>
 				</div>
 			</div>
@@ -234,20 +234,37 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.maritalStatus" />
+				<label for="personalInformationForm_professionTimeType" class="col-sm-2 control-label">
+					<spring:message code="label.PersonalInformationForm.professionTimeType" />
 				</label>
 
 				<div class="col-sm-4">
-					<select id="personalInformationForm_maritalStatus"
-						class="form-control" name="maritalStatus">
-						<c:forEach items="${maritalStatusValues}" var="field">
+					<select id="personalInformationForm_professionTimeType" class="form-control" name="professionTimeType">
+						<option value=""><spring:message code="label.choose.one"/></option>
+						<c:forEach items="${professionTimeTypeValues}" var="value">
+							<option value='<c:out value='${value.externalId}'/>'><c:out value='${value.description.content}' /></option>
+						</c:forEach>
+					</select>
+					<script>
+						$("#personalInformationForm_professionTimeType").val('<c:out value='${not empty param.professiontimetype ? param.professiontimetype : personalInformationForm.professionTimeType.externalId }'/>');
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="personalInformationForm_professionType" class="col-sm-2 control-label">
+					<spring:message code="label.PersonalInformationForm.professionType" />
+				</label>
+
+				<div class="col-sm-4">
+					<select id="personalInformationForm_professionType"
+						class="form-control" name="professionType">
+						<c:forEach items="${professionTypeValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
 						</c:forEach>
 					</select>
 					<script>
-						$("#personalInformationForm_maritalStatus").val('<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
+						$("#personalInformationForm_professionType").val('<c:out value='${not empty param.professiontype ? param.professiontype : personalInformationForm.professionType }'/>');
 					</script>
 				</div>
 			</div>
