@@ -27,6 +27,9 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CitzenCardValidation.validateNumeroDocumentoCC;
+import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +53,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
@@ -64,8 +68,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
-import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CitzenCardValidation.validateNumeroDocumentoCC;
-import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
@@ -87,9 +89,10 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     public String fillpersonalinformation(Model model) {
         model.addAttribute("genderValues", Gender.values());
         model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
-        model.addAttribute("professionTypeValues", ProfessionType.values());
-        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
         model.addAttribute("maritalStatusValues", MaritalStatus.values());
+        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
+        model.addAttribute("professionTypeValues", ProfessionType.values());
+        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
 
         fillFormIfRequired(model);
@@ -116,22 +119,36 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             form.setDocumentIdNumber(person.getDocumentIdNumber());
             form.setIdDocumentType(person.getIdDocumentType());
 
+            form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
+                    .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
+            form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
             YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
             YearMonthDay expirationDateOfDocumentIdYearMonthDay = person.getExpirationDateOfDocumentIdYearMonthDay();
             form.setDocumentIdEmissionDate(emissionDateOfDocumentIdYearMonthDay != null ? new LocalDate(person
                     .getEmissionDateOfDocumentIdYearMonthDay().toDateMidnight()) : null);
             form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
                     expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
-            form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
-            form.setProfession(person.getProfession());
+
             form.setSocialSecurityNumber(person.getSocialSecurityNumber());
             form.setMaritalStatus(person.getMaritalStatus());
-            form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
-                    .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
+            form.setProfession(person.getProfession());
+
+            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
+            if (personUl != null) {
+                form.setProfessionTimeType(personUl.getProfessionTimeType());
+            }
 
             PersonalIngressionData personalData =
                     FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController
                             .getStudentCandidacy().getPrecedentDegreeInformation());
+            form.setMaritalStatus(personalData.getMaritalStatus());
+            if (form.getMaritalStatus() == null) {
+                form.setMaritalStatus(MaritalStatus.SINGLE);
+            }
+            form.setProfessionType(personalData.getProfessionType());
+            if (form.getProfessionType() == null) {
+                form.setProfessionType(ProfessionType.OTHER);
+            }
             form.setGrantOwnerType(personalData.getGrantOwnerType());
             if (form.getGrantOwnerType() == null) {
                 form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
@@ -140,14 +157,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             form.setProfessionalCondition(personalData.getProfessionalCondition());
             if (form.getProfessionalCondition() == null) {
                 form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
-            }
-            form.setProfessionType(personalData.getProfessionType());
-            if (form.getProfessionType() == null) {
-                form.setProfessionType(ProfessionType.OTHER);
-            }
-            form.setMaritalStatus(personalData.getMaritalStatus());
-            if (form.getMaritalStatus() == null) {
-                form.setMaritalStatus(MaritalStatus.SINGLE);
             }
 
             model.addAttribute("personalInformationForm", form);
@@ -202,6 +211,19 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             return false;
         }
 
+        if (form.isStudentWorking()) {
+            if (StringUtils.isEmpty(form.getProfession())) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.profession.required"), model);
+                return false;
+            }
+            if (form.getProfessionTimeType() == null) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"), model);
+                return false;
+            }
+        }
+
         if (form.getGrantOwnerType().equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER) && form.getGrantOwnerProvider() == null) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                     "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
@@ -218,20 +240,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     @Atomic
     private void writeData(PersonalInformationForm form) {
         Person person = AccessControl.getPerson();
+        PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         PersonalIngressionData personalData =
                 FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getStudentCandidacy()
                         .getPrecedentDegreeInformation());
 
-        LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
-        LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
-        person.setEmissionDateOfDocumentIdYearMonthDay(documentIdEmissionDate != null ? new YearMonthDay(documentIdEmissionDate
-                .toDate()) : null);
-        person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
-                documentIdExpirationDate.toDate()) : null);
-        person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
-        person.setProfession(form.getProfession());
-        person.setSocialSecurityNumber(form.getSocialSecurityNumber());
-        person.setMaritalStatus(form.getMaritalStatus());
         String seriesNumerOrExtraDigit = form.getIdentificationDocumentSeriesNumber();
         if (seriesNumerOrExtraDigit.matches("[0-9]|")) {
             person.setIdentificationDocumentExtraDigit(seriesNumerOrExtraDigit);
@@ -240,12 +253,24 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             person.setIdentificationDocumentSeriesNumber(seriesNumerOrExtraDigit);
             person.setIdentificationDocumentExtraDigit(null);
         }
+        person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
+        LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
+        LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
+        person.setEmissionDateOfDocumentIdYearMonthDay(documentIdEmissionDate != null ? new YearMonthDay(documentIdEmissionDate
+                .toDate()) : null);
+        person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
+                documentIdExpirationDate.toDate()) : null);
 
+        person.setSocialSecurityNumber(form.getSocialSecurityNumber());
+        person.setMaritalStatus(form.getMaritalStatus());
+        personalData.setMaritalStatus(form.getMaritalStatus());
+
+        personalData.setProfessionalCondition(form.getProfessionalCondition());
+        person.setProfession(form.getProfession());
+        personalData.setProfessionType(form.getProfessionType());
+        personUl.setProfessionTimeType(form.getProfessionTimeType());
         personalData.setGrantOwnerType(form.getGrantOwnerType());
         personalData.setGrantOwnerProvider(form.getGrantOwnerProvider());
-        personalData.setProfessionalCondition(form.getProfessionalCondition());
-        personalData.setProfessionType(form.getProfessionType());
-        personalData.setMaritalStatus(form.getMaritalStatus());
     }
 
     @RequestMapping(value = "/unit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
@@ -270,10 +295,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate documentIdExpirationDate;
         private String socialSecurityNumber;
-        private ProfessionType professionType;
+        private MaritalStatus maritalStatus;
         private ProfessionalSituationConditionType professionalCondition;
         private String profession;
-        private MaritalStatus maritalStatus;
+        private ProfessionType professionType;
+        private ProfessionTimeType professionTimeType;
         private GrantOwnerType grantOwnerType;
         private Unit grantOwnerProvider;
 
@@ -410,5 +436,58 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             return serialVersionUID;
         }
 
+        public ProfessionTimeType getProfessionTimeType() {
+            return professionTimeType;
+        }
+
+        public void setProfessionTimeType(ProfessionTimeType professionTimeType) {
+            this.professionTimeType = professionTimeType;
+        }
+
+        public boolean isStudentWorking() {
+            if (isWorkingCondition()) {
+                return true;
+            }
+            if (!StringUtils.isEmpty(getProfession())) {
+                return true;
+            }
+            if (getProfessionTimeType() != null) {
+                return true;
+            }
+            if (isWorkingProfessionType()) {
+                return true;
+            }
+            return false;
+        }
+
+        private boolean isWorkingCondition() {
+            switch (getProfessionalCondition()) {
+            case WORKS_FOR_OTHERS:
+                return true;
+            case EMPLOYEER:
+                return true;
+            case INDEPENDENT_WORKER:
+                return true;
+            case WORKS_FOR_FAMILY_WITHOUT_PAYMENT:
+                return true;
+            case HOUSEWIFE:
+                return true;
+            case MILITARY_SERVICE:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        private boolean isWorkingProfessionType() {
+            switch (getProfessionType()) {
+            case UNKNOWN:
+                return false;
+            case OTHER:
+                return false;
+            default:
+                return true;
+            }
+        }
     }
 }

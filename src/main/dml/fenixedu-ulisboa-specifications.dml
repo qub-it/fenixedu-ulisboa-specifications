@@ -166,6 +166,13 @@ relation PersonUlPerson {
 	.org.fenixedu.academic.domain.Person playsRole person;
 }
 
+relation PersonUlProfessionTimeType {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	ProfessionTimeType playsRole professionTimeType;
+}
+
 relation PersonUlSalarySpan {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
 		multiplicity *;
