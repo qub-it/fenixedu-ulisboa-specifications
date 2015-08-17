@@ -40,6 +40,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -74,9 +75,20 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         if (!model.containsAttribute("filiationForm")) {
             FiliationForm form = new FiliationForm();
             Person person = AccessControl.getPerson();
-            form.setFatherName(person.getNameOfFather());
-            form.setMotherName(person.getNameOfMother());
+            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
+            form.setNationality(person.getCountry());
+            if (form.getNationality() == null) {
+                form.setNationality(Country.readDefault());
+            }
+            if (personUl != null) {
+                form.setSecondNationality(personUl.getSecondNationality());
+            }
 
+            form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
+            form.setCountryOfBirth(person.getCountryOfBirth());
+            if (form.getCountryOfBirth() == null) {
+                form.setCountryOfBirth(Country.readDefault());
+            }
             District district = District.readByName(person.getDistrictOfBirth());
             if (district != null) {
                 form.setDistrictOfBirth(district);
@@ -87,15 +99,9 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
                     form.setParishOfBirth(Parish.findByName(districtSubdivision, person.getParishOfBirth()).orElse(null));
                 }
             }
-            form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
-            form.setNationality(person.getCountry());
-            if (form.getNationality() == null) {
-                form.setNationality(Country.readDefault());
-            }
-            form.setCountryOfBirth(person.getCountryOfBirth());
-            if (form.getCountryOfBirth() == null) {
-                form.setCountryOfBirth(Country.readDefault());
-            }
+
+            form.setFatherName(person.getNameOfFather());
+            form.setMotherName(person.getNameOfMother());
 
             model.addAttribute("filiationForm", form);
         }
@@ -142,16 +148,19 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     @Atomic
     private void writeFiliationData(FiliationForm form) {
         Person person = AccessControl.getPerson();
-        person.setNameOfFather(form.getFatherName());
-        person.setNameOfMother(form.getMotherName());
 
+        person.setCountry(form.getNationality());
+        PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
+        personUl.setSecondNationality(form.getSecondNationality());
+
+        person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
+        person.setCountryOfBirth(form.getCountryOfBirth());
         person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
         person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
         person.setParishOfBirth(form.getParishOfBirth().getName());
 
-        person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
-        person.setCountry(form.getNationality());
-        person.setCountryOfBirth(form.getCountryOfBirth());
+        person.setNameOfFather(form.getFatherName());
+        person.setNameOfMother(form.getMotherName());
     }
 
     @RequestMapping(value = "/district/{oid}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
@@ -171,22 +180,24 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
     public static class FiliationForm {
 
+        private Country nationality;
+
+        private Country secondNationality;
+
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate dateOfBirth;
 
-        private Country nationality;
+        private Country countryOfBirth;
 
-        private Parish parishOfBirth;
+        private District districtOfBirth;
 
         private DistrictSubdivision districtSubdivisionOfBirth;
 
-        private District districtOfBirth;
+        private Parish parishOfBirth;
 
         private String fatherName;
 
         private String motherName;
-
-        private Country countryOfBirth;
 
         public LocalDate getDateOfBirth() {
             return dateOfBirth;
@@ -250,6 +261,14 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         public void setCountryOfBirth(Country countryOfBirth) {
             this.countryOfBirth = countryOfBirth;
+        }
+
+        public Country getSecondNationality() {
+            return secondNationality;
+        }
+
+        public void setSecondNationality(Country secondNationality) {
+            this.secondNationality = secondNationality;
         }
     }
 

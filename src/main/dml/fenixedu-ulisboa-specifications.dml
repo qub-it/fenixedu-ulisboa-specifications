@@ -165,6 +165,13 @@ relation PersonUlPerson {
 	.org.fenixedu.academic.domain.Person playsRole person;
 }
 
+relation PersonUlSecondNationality {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+    .org.fenixedu.academic.domain.Country playsRole secondNationality;
+}
+
 relation PersonUlFirstOptionInstitution {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
 		multiplicity *;
