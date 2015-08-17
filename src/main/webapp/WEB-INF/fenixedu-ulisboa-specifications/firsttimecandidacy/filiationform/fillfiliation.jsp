@@ -71,23 +71,24 @@ ${portal.toolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.countryOfBirth" />
-				</div>
-
-				<div class="col-sm-10">
-					<select id="filiationForm_countryOfBirth"
-						class="js-example-basic-single" name="countryOfBirth">
-					</select>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
 					<spring:message code="label.FiliationForm.nationality" />
 				</div>
 
 				<div class="col-sm-10">
 					<select id="filiationForm_nationality"
 						class="js-example-basic-single" name="nationality">
+					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.secondNationality" />
+				</div>
+
+				<div class="col-sm-10">
+					<select id="filiationForm_secondNationality"
+						class="js-example-basic-single" name="secondNationality">
+						<option value=""><spring:message code="label.choose.one"/></option>
 					</select>
 				</div>
 			</div>
@@ -100,6 +101,17 @@ ${portal.toolkit()}
 					<input id="filiationForm_dateOfBirth" class="form-control"
 						type="text" name="dateOfBirth" bennu-date
 						value='<c:out value='${not empty param.dateofbirth ? param.dateofbirth : filiationForm.dateOfBirth }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.FiliationForm.countryOfBirth" />
+				</div>
+
+				<div class="col-sm-10">
+					<select id="filiationForm_countryOfBirth"
+						class="js-example-basic-single" name="countryOfBirth">
+					</select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -200,7 +212,26 @@ $(document).ready(function() {
 		             			}	  
 		             	    );
 		             	    
-		             	    $("#filiationForm_nationality").select2().select2('val', '<c:out value='${filiationForm.nationality.externalId}'/>');
+	             	    $("#filiationForm_nationality").select2().select2('val', '<c:out value='${filiationForm.nationality.externalId}'/>');
+		             	    
+    //setup secondNationalities
+    	secondNationality_options = [
+	             			<c:forEach items="${countries_options}" var="element"> 
+	             				{
+	             					text : "<c:out value='${element.nationality}'/>",  
+	             					id : "<c:out value='${element.externalId}'/>"
+	             				},
+	             			</c:forEach>
+	             		];
+	
+	             	   $("#filiationForm_secondNationality").select2(
+		             			{
+		             				data : secondNationality_options,
+		             			}	  
+		             	    );
+		             	    
+		             	    $("#filiationForm_secondNationality").select2().select2('val', '<c:out value='${filiationForm.secondNationality.externalId}'/>');
+		             			             	    
      	 //setup districts
         	district_options = [
   	             			<c:forEach items="${districts_options}" var="element"> 
