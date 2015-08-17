@@ -203,6 +203,34 @@ ${portal.toolkit()}
 					</script>
 				</div>
 			</div>
+			<c:if test="${1 lt placingOption}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label">
+						<spring:message
+							code="label.PersonalInformationForm.firstOptionInstitution" />
+					</label>
+		
+					<div class="col-sm-10">
+						<select id="personalInformationForm_firstOptionInstitution" class="form-control" name="firstOptionInstitution">
+							<c:if test="${personalInformationForm.firstOptionInstitution != null}">
+								<option value="${personalInformationForm.firstOptionInstitution.externalId}" selected><c:out value='${personalInformationForm.firstOptionInstitution.name}'/></option>
+							</c:if>
+						</select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-2 control-label">
+						<spring:message
+							code="label.PersonalInformationForm.firstOptionDegreeDesignation" />
+					</div>
+	
+					<div class="col-sm-10">
+						<select id="personalInformationForm_firstOptionDegreeDesignation" class="form-control" name="firstOptionDegreeDesignation">
+							<option value="${personalInformationForm.firstOptionDegreeDesignation.externalId}" selected><c:out value='${personalInformationForm.firstOptionDegreeDesignation.description}'/></option>
+						</select>
+					</div>
+				</div>
+			</c:if>
 			<div class="form-group row">
 				<label for="personalInformationForm_professionalCondition" class="col-sm-2 control-label">
 					<spring:message
@@ -296,9 +324,6 @@ ${portal.toolkit()}
 						${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.name : ""}
 					</option> 
 					</select>
-					
-					
-					
 				</div>
 			</div>
 		</div>
@@ -314,7 +339,7 @@ $(document).ready(function() {
 		$("#personalInformationForm_grantOwnerProvider").select2(
 				{
 				  ajax: {
-				    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/unit/",
+				    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnit/",
 				    dataType: 'json',
 				    delay: 250,
 				    data: function (params) {
@@ -352,5 +377,65 @@ $(document).ready(function() {
 		$("#personalInformationForm_grantOwnerType").on("change", updateGrantProvider);
 		updateGrantProvider();
 		
+		
+		
+		$("#personalInformationForm_firstOptionInstitution").select2(
+				{
+				  ajax: {
+					    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/academicUnit/",
+				    dataType: 'json',
+				    delay: 250,
+				    data: function (params) {
+				      return {
+				        namePart: params.term, // search term
+				        page: params.page
+				      };
+				    },
+				    processResults: function (data, page) {
+				      newData = []
+				      for(var result in data){
+				    	  newData[result] = {
+				    			  text : data[result]["unitName"],
+				    			  id : data[result]["unitExternalId"],
+				    	  }
+				      }
+				      return {
+				        results: newData
+				      };
+				    },
+				    cache: true
+				  }});
+
+		ajaxDataForDegreesDesignations = {
+			    dataType: 'json',
+			    delay: 250,
+			    data: function (params) {
+			      return {
+			        namePart: params.term, // search term
+			        page: params.page
+			      };
+			    },
+			    processResults: function (data, page) {
+			      newData = []
+			      for(var result in data){
+			    	  newData[result] = {
+			    			  text : data[result]["degreeDesignationText"],
+			    			  id : data[result]["degreeDesignationId"],
+			    	  }
+			      }
+			      return {
+			        results: newData
+			      };
+			    },
+			    cache: true
+			  };
+		updateDegreeDesignationsUrl = function(){
+			ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/degreeDesignation/" + $("#personalInformationForm_firstOptionInstitution").val(); 
+			$("#personalInformationForm_firstOptionDegreeDesignation").select2({ajax: ajaxDataForDegreesDesignations});
+		}
+		updateDegreeDesignationsUrl();
+		$("#personalInformationForm_firstOptionInstitution").on("select2:select", function(e) {
+			updateDegreeDesignationsUrl();
+		});
 	});
 </script>
