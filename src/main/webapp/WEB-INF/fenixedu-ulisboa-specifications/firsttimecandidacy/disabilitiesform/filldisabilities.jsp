@@ -136,7 +136,29 @@ ${portal.toolkit()}
 	</div>
 </form>
 
+<style>
+	.form-control[disabled] {
+    	background: #dddddd;
+	}
+</style>
 <script>
 $(document).ready(function() {
+		function changeFieldsState(bool){
+			$("#disabilitiesForm_disabilityType").attr("disabled", bool);
+			$("#disabilitiesForm_otherDisabilityType").attr("disabled", bool);
+			$("#disabilitiesForm_needsDisabilitySupport").attr("disabled", bool);
+		}
+		<c:if test="${!disabilitiesForm.hasDisabilities}">
+			changeFieldsState(true);
+		</c:if>
+		
+		$("#disabilitiesForm_hasDisabilities").on("change", function(){
+			if($("#disabilitiesForm_hasDisabilities").val() == "true"){
+				changeFieldsState(false);
+			}
+			else{
+				changeFieldsState(true);	
+			}
+		});
 });
 </script>
