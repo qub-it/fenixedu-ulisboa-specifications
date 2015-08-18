@@ -52,14 +52,18 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
     public String cgddataauthorizationToAuthorize(Model model, RedirectAttributes redirectAttributes) {
         resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
         Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
-        StudentAccessServices.triggerSyncRegistrationToExternal(registration);
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
+        boolean wsCallSuccess = StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+        if (wsCallSuccess) {
+            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
+        } else {
+            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
+        }
     }
 
     @RequestMapping(value = "/unauthorize")
     public String cgddataauthorizationToUnauthorize(Model model, RedirectAttributes redirectAttributes) {
         resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
+        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
     }
 
     @Atomic

@@ -22,28 +22,47 @@ public class StudentAccessServices {
         syncExternalRegistrations.add(syncRegistrationWithExternalServices);
     }
 
-    public static void triggerSyncPersonToExternal(Person person) {
+    public static boolean triggerSyncPersonToExternal(Person person) {
+        boolean globalSuccess = true;
         for (SyncPersonWithExternalServices syncExternalPerson : syncExternalPersons) {
-            syncExternalPerson.syncPersonToExternal(person);
+            boolean callSuccess = syncExternalPerson.syncPersonToExternal(person);
+            if (!callSuccess) {
+                globalSuccess = false;
+            }
         }
+        return globalSuccess;
     }
 
-    public static void requestSyncPersonFromExternal(Person person) {
+    public static boolean requestSyncPersonFromExternal(Person person) {
+        boolean globalSuccess = true;
         for (SyncPersonWithExternalServices syncExternalPerson : syncExternalPersons) {
-            syncExternalPerson.syncPersonFromExternal(person);
+            boolean callSuccess = syncExternalPerson.syncPersonFromExternal(person);
+            if (!callSuccess) {
+                globalSuccess = false;
+            }
         }
+        return globalSuccess;
     }
 
-    public static void triggerSyncStudentToExternal(Student student) {
+    public static boolean triggerSyncStudentToExternal(Student student) {
+        boolean globalSuccess = true;
         for (SyncPersonWithExternalServices syncExternalPerson : syncExternalPersons) {
-            syncExternalPerson.syncStudentToExternal(student);
+            boolean callSuccess = syncExternalPerson.syncStudentToExternal(student);
+            if (!callSuccess) {
+                globalSuccess = false;
+            }
         }
+        return globalSuccess;
     }
 
-    public static void triggerSyncRegistrationToExternal(Registration registration) {
+    public static boolean triggerSyncRegistrationToExternal(Registration registration) {
+        boolean globalSuccess = true;
         for (SyncRegistrationWithExternalServices syncExternalRegistration : syncExternalRegistrations) {
-            syncExternalRegistration.syncRegistrationToExternal(registration);
+            boolean callSuccess = syncExternalRegistration.syncRegistrationToExternal(registration);
+            if (!callSuccess) {
+                globalSuccess = false;
+            }
         }
+        return globalSuccess;
     }
-
 }
