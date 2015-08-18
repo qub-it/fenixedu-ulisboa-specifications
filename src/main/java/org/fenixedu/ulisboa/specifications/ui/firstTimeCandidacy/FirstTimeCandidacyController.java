@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.candidacy.DegreeCandidacy;
@@ -44,6 +45,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.joda.time.YearMonthDay;
@@ -81,6 +83,9 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
 
     @RequestMapping(value = "/continue")
     public String instructionsToContinue(Model model, RedirectAttributes redirectAttributes) {
+        Person person = AccessControl.getPerson();
+        StudentAccessServices.requestSyncPersonFromExternal(person);
+
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation",
                 model, redirectAttributes);
     }

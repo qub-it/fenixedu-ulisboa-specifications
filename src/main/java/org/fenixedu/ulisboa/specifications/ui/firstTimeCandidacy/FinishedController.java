@@ -27,8 +27,11 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,6 +47,9 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
 
     @RequestMapping
     public String finished(Model model) {
+        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        Student student = registration.getStudent();
+        StudentAccessServices.triggerSyncStudentToExternal(student);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
     }
 

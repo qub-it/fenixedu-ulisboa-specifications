@@ -29,7 +29,9 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +51,8 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
     @RequestMapping(value = "/authorize")
     public String cgddataauthorizationToAuthorize(Model model, RedirectAttributes redirectAttributes) {
         resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
+        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        StudentAccessServices.triggerSyncRegistrationToExternal(registration);
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
     }
 

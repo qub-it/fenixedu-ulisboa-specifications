@@ -41,6 +41,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -115,6 +116,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         try {
             writeFiliationData(form);
+            StudentAccessServices.triggerSyncPersonToExternal(AccessControl.getPerson());
             model.addAttribute("filiationForm", form);
             return redirect(
                     "/fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation/",
