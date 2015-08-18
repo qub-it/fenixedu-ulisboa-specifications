@@ -312,6 +312,9 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		class curricularPeriod.rule.transition.FlunkedCredits extends curricularPeriod.rule.RuleTransition {
 		}
 		
+		class curricularPeriod.rule.transition.ApprovedCredits extends curricularPeriod.rule.RuleTransition {
+		}
+		
 		class curricularPeriod.rule.transition.FlunkedCurricularCourses extends curricularPeriod.rule.RuleTransition {
 			String codesCSV;
 		}
