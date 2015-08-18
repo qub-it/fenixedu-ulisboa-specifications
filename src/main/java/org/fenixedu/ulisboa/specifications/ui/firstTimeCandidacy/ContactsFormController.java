@@ -41,6 +41,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -121,6 +122,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
 
         try {
             writeData(form);
+            StudentAccessServices.triggerSyncPersonToExternal(AccessControl.getPerson());
             model.addAttribute("contactsForm", form);
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation/",
                     model, redirectAttributes);
