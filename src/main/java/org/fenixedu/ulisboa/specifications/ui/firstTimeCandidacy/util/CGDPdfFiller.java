@@ -59,7 +59,7 @@ public class CGDPdfFiller {
             return emailForSendingEmails;
         }
 
-        EmailAddress email = ContactsFormController.getDefaultContact(person, EmailAddress.class);
+        EmailAddress email = ContactsFormController.getDefaultPersonalContact(person, EmailAddress.class);
         return email != null ? email.getValue() : "";
     }
 

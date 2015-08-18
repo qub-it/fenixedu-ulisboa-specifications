@@ -110,24 +110,9 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     private void fillFormIfRequired(Model model) {
-        PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
-        Person person = AccessControl.getPerson();
-        if (form != null) {
-            //Read-only fields
-            form.setName(person.getName());
-            form.setUsername(person.getUsername());
-            form.setGender(person.getGender());
-            form.setDocumentIdNumber(person.getDocumentIdNumber());
-            form.setIdDocumentType(person.getIdDocumentType());
-        } else {
-            form = new PersonalInformationForm();
-
-            //Read-only fields
-            form.setName(person.getName());
-            form.setUsername(person.getUsername());
-            form.setGender(person.getGender());
-            form.setDocumentIdNumber(person.getDocumentIdNumber());
-            form.setIdDocumentType(person.getIdDocumentType());
+        if (!model.containsAttribute("personalInformationForm")) {
+            PersonalInformationForm form = new PersonalInformationForm();
+            Person person = AccessControl.getPerson();
 
             form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
                     .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
@@ -355,11 +340,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     public static class PersonalInformationForm implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        private String name;
-        private String username;
-        private Gender gender;
-        private String documentIdNumber;
-        private IDDocumentType idDocumentType;
         //can be either the series number or the extra digit
         private String identificationDocumentSeriesNumber;
         private String documentIdEmissionLocation;
@@ -380,43 +360,23 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         private DegreeDesignation firstOptionDegreeDesignation;
 
         public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
+            return AccessControl.getPerson().getName();
         }
 
         public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
+            return AccessControl.getPerson().getUsername();
         }
 
         public Gender getGender() {
-            return gender;
-        }
-
-        public void setGender(Gender gender) {
-            this.gender = gender;
+            return AccessControl.getPerson().getGender();
         }
 
         public String getDocumentIdNumber() {
-            return documentIdNumber;
-        }
-
-        public void setDocumentIdNumber(String documentIdNumber) {
-            this.documentIdNumber = documentIdNumber;
+            return AccessControl.getPerson().getDocumentIdNumber();
         }
 
         public IDDocumentType getIdDocumentType() {
-            return idDocumentType;
-        }
-
-        public void setIdDocumentType(IDDocumentType idDocumentType) {
-            this.idDocumentType = idDocumentType;
+            return AccessControl.getPerson().getIdDocumentType();
         }
 
         public String getIdentificationDocumentSeriesNumber() {

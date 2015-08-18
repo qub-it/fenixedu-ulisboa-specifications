@@ -92,25 +92,22 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.ContactsForm.email" />
-				</div>
+				<label class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.institutionalEmail" />
+				</label>
 
 				<div class="col-sm-10">
-					<input id="contactsForm_email" class="form-control" type="email"
-						name="email" required
-						value='<c:out value='${not empty param.email ? param.email : contactsForm.email }'/>' />
+					<div class="form-control-static"><c:out value='${not empty param.institutionalemail ? param.institutionalemail : contactsForm.institutionalEmail }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.ContactsForm.webAddress" />
+					<spring:message code="label.ContactsForm.personalEmail" />
 				</div>
 
 				<div class="col-sm-10">
-					<input id="contactsForm_webAddress" class="form-control"
-						type="text" name="webAddress" pattern="^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
-						value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
+					<input id="contactsForm_personalEmail" class="form-control" type="email" name="personalEmail" required
+						value='<c:out value='${not empty param.personalemail ? param.personalemail : contactsForm.personalEmail }'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -127,6 +124,17 @@ ${portal.toolkit()}
 					<script>
 						$("#contactsForm_isEmailAvailable").val('<c:out value='${not empty param.isemailavailable ? param.isemailavailable : contactsForm.isEmailAvailable }'/>');
 					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.webAddress" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="contactsForm_webAddress" class="form-control"
+						type="text" name="webAddress" pattern="^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
+						value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
