@@ -34,6 +34,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
+import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -71,25 +72,25 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
             Person person = AccessControl.getPerson();
             ContactsForm form = new ContactsForm();
 
-            Phone phone = getDefaultContact(person, Phone.class);
+            Phone phone = getDefaultPersonalContact(person, Phone.class);
             if (phone != null) {
                 form.setPhoneNumber(phone.getNumber());
             }
 
-            MobilePhone mobilePhone = getDefaultContact(person, MobilePhone.class);
+            MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
             if (mobilePhone != null) {
                 form.setMobileNumber(person.getDefaultMobilePhoneNumber());
             }
 
-            EmailAddress email = getDefaultContact(person, EmailAddress.class);
+            EmailAddress email = getDefaultPersonalContact(person, EmailAddress.class);
             if (email != null) {
-                form.setEmail(email.getValue());
+                form.setPersonalEmail(email.getValue());
                 form.setIsEmailAvailable(email.getVisibleToPublic());
             } else {
                 form.setIsEmailAvailable(false);
             }
 
-            WebAddress homepage = getDefaultContact(person, WebAddress.class);
+            WebAddress homepage = getDefaultPersonalContact(person, WebAddress.class);
             if (homepage != null) {
                 form.setWebAddress(homepage.getUrl());
                 form.setIsHomepageAvailable(homepage.getVisibleToPublic());
@@ -101,16 +102,17 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
         }
     }
 
-    public static <T extends PartyContact> T getDefaultContact(Person person, Class<T> partyContactClass) {
+    public static <T extends PartyContact> T getDefaultPersonalContact(Person person, Class<T> partyContactClass) {
         T defaultContact = (T) person.getDefaultPartyContact(partyContactClass);
-        if (defaultContact != null) {
+        if (defaultContact != null && defaultContact.getType().equals(PartyContactType.PERSONAL)) {
             return defaultContact;
         }
 
+        Predicate<PartyContact> contactIsPersonal = address -> address.getType().equals(PartyContactType.PERSONAL);
         Predicate<PartyContact> contactIsToBeDefault =
                 address -> !address.isActiveAndValid() && address.getPartyContactValidation().getToBeDefault();
         List<T> allContacts = (List<T>) person.getAllPartyContacts(partyContactClass);
-        return allContacts.stream().filter(contactIsToBeDefault)
+        return allContacts.stream().filter(contactIsPersonal).filter(contactIsToBeDefault)
                 .sorted(ResidenceInformationFormController.CONTACT_COMPARATOR_BY_MODIFIED_DATE).findFirst().orElse(null);
     }
 
@@ -145,36 +147,36 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     protected void writeData(ContactsForm form) {
         Person person = AccessControl.getPerson();
 
-        Phone phone = getDefaultContact(person, Phone.class);
+        Phone phone = getDefaultPersonalContact(person, Phone.class);
         if (phone != null) {
             phone.setNumber(form.getPhoneNumber());
         } else {
-            person.setDefaultPhoneNumber(form.getPhoneNumber());
+            phone = Phone.createPhone(person, form.getPhoneNumber(), PartyContactType.PERSONAL, true);
         }
 
-        MobilePhone mobilePhone = getDefaultContact(person, MobilePhone.class);
+        MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
         if (mobilePhone != null) {
             mobilePhone.setNumber(form.getMobileNumber());
         } else {
-            person.setDefaultMobilePhoneNumber(form.getMobileNumber());
+            mobilePhone = MobilePhone.createMobilePhone(person, form.getMobileNumber(), PartyContactType.PERSONAL, true);
         }
 
-        EmailAddress email = getDefaultContact(person, EmailAddress.class);
+        EmailAddress email = getDefaultPersonalContact(person, EmailAddress.class);
         if (email != null) {
-            email.setValue(form.getEmail());
+            email.setValue(form.getPersonalEmail());
             email.setVisibleToPublic(form.getIsEmailAvailable());
         } else {
-            person.setDefaultEmailAddressValue(form.getEmail(), false, form.getIsEmailAvailable());
+            email = EmailAddress.createEmailAddress(person, form.getPersonalEmail(), PartyContactType.PERSONAL, true);
+            email.setVisibleToPublic(form.getIsEmailAvailable());
         }
 
-        WebAddress homepage = getDefaultContact(person, WebAddress.class);
+        WebAddress homepage = getDefaultPersonalContact(person, WebAddress.class);
         if (homepage != null) {
             homepage.setUrl(form.getWebAddress());
             homepage.setVisibleToPublic(form.getIsHomepageAvailable());
         } else {
             if (!StringUtils.isEmpty(form.getWebAddress())) {
-                person.setDefaultWebAddressUrl(form.getWebAddress());
-                homepage = getDefaultContact(person, WebAddress.class);
+                homepage = WebAddress.createWebAddress(person, form.getWebAddress(), PartyContactType.PERSONAL, true);
                 homepage.setVisibleToPublic(form.getIsHomepageAvailable());
             }
         }
@@ -183,7 +185,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     public static class ContactsForm {
         private String phoneNumber;
         private String mobileNumber;
-        private String email;
+        private String personalEmail;
         private String webAddress;
         private boolean isEmailAvailable;
         private boolean isHomepageAvailable;
@@ -202,14 +204,6 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
 
         public void setMobileNumber(String mobileNumber) {
             this.mobileNumber = mobileNumber;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
         }
 
         public String getWebAddress() {
@@ -236,5 +230,16 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
             this.isHomepageAvailable = isHomepageAvailable;
         }
 
+        public String getInstitutionalEmail() {
+            return AccessControl.getPerson().getInstitutionalEmailAddressValue();
+        }
+
+        public String getPersonalEmail() {
+            return personalEmail;
+        }
+
+        public void setPersonalEmail(String personalEmail) {
+            this.personalEmail = personalEmail;
+        }
     }
 }
