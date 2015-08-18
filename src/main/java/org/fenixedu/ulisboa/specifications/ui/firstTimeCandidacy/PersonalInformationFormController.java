@@ -75,6 +75,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -159,7 +160,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             if (form.getGrantOwnerType() == null) {
                 form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
             }
-            form.setGrantOwnerProvider(personalData.getGrantOwnerProvider());
+            Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
+            form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
             form.setProfessionalCondition(personalData.getProfessionalCondition());
             if (form.getProfessionalCondition() == null) {
                 form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
@@ -230,7 +232,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             }
         }
 
-        if (form.getGrantOwnerType().equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER) && form.getGrantOwnerProvider() == null) {
+        if (form.getGrantOwnerType().equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
+                && StringUtils.isEmpty(form.getGrantOwnerProvider())) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                     "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
             return false;
@@ -282,14 +285,28 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         person.setProfession(form.getProfession());
         personalData.setProfessionType(form.getProfessionType());
         personUl.setProfessionTimeType(form.getProfessionTimeType());
-        personalData.setGrantOwnerType(form.getGrantOwnerType());
-        personalData.setGrantOwnerProvider(form.getGrantOwnerProvider());
+        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
+        personalData.setGrantOwnerType(grantOwnerType);
+        Unit grantOwnerProvider = FenixFramework.getDomainObject(form.getGrantOwnerProvider());
+        if (grantOwnerProvider == null
+                && (grantOwnerType == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER || grantOwnerType == GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
+            //We accept new institutions for these 2 cases
+            grantOwnerProvider = Unit.createNewNoOfficialExternalInstitution(form.getGrantOwnerProvider());
+        }
+        personalData.setGrantOwnerProvider(grantOwnerProvider);
     }
 
     @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
         Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
         return UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/externalUnitFreeOption", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    public @ResponseBody List<UnitBean> readExternalUnitsWithFreeOption(@RequestParam("namePart") String namePart, Model model) {
+        List<UnitBean> readExternalUnits = readExternalUnits(namePart, model);
+        readExternalUnits.add(0, new UnitBean(namePart, namePart));
+        return readExternalUnits;
     }
 
     @RequestMapping(value = "/academicUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
@@ -354,7 +371,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         private ProfessionType professionType;
         private ProfessionTimeType professionTimeType;
         private GrantOwnerType grantOwnerType;
-        private Unit grantOwnerProvider;
+        private String grantOwnerProvider;
 
         private Unit firstOptionInstitution;
         private DegreeDesignation firstOptionDegreeDesignation;
@@ -460,11 +477,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             this.grantOwnerType = grantOwnerType;
         }
 
-        public Unit getGrantOwnerProvider() {
+        public String getGrantOwnerProvider() {
             return grantOwnerProvider;
         }
 
-        public void setGrantOwnerProvider(Unit grantOwnerProvider) {
+        public void setGrantOwnerProvider(String grantOwnerProvider) {
             this.grantOwnerProvider = grantOwnerProvider;
         }
 
@@ -540,6 +557,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         public void setFirstOptionDegreeDesignation(DegreeDesignation firstOptionDegreeDesignation) {
             this.firstOptionDegreeDesignation = firstOptionDegreeDesignation;
+        }
+
+        public String getGrantOwnerProviderName() {
+            Unit unit = FenixFramework.getDomainObject(getGrantOwnerProvider());
+            if (unit == null) {
+                return getGrantOwnerProvider();
+            } else {
+                return unit.getName();
+            }
+
         }
     }
 }

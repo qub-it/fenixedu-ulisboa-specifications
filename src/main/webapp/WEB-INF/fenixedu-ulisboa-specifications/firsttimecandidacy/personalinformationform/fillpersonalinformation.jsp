@@ -320,9 +320,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<select id="personalInformationForm_grantOwnerProvider" class="form-control" name="grantOwnerProvider">
-					<option selected value='${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.externalId : "" }'>
-						${not empty personalInformationForm.grantOwnerProvider ? personalInformationForm.grantOwnerProvider.name : ""}
-					</option> 
+						 <option value="${personalInformationForm.grantOwnerProvider}" selected>${personalInformationForm.grantOwnerProviderName}</option>
 					</select>
 				</div>
 			</div>
@@ -336,10 +334,8 @@ ${portal.toolkit()}
 
 <script>
 $(document).ready(function() {
-		$("#personalInformationForm_grantOwnerProvider").select2(
-				{
-				  ajax: {
-				    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnit/",
+	
+		ajaxForGrantOwnerProvider = {
 				    dataType: 'json',
 				    delay: 250,
 				    data: function (params) {
@@ -361,7 +357,20 @@ $(document).ready(function() {
 				      };
 				    },
 				    cache: true
-				  }});
+		  };
+		
+		function updateGrantProviderAjax(){
+			val = $("#personalInformationForm_grantOwnerType").val();
+			if(val == "OTHER_INSTITUTION_GRANT_OWNER" || val == "ORIGIN_COUNTRY_GRANT_OWNER"){
+				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnitFreeOption/";
+			}
+			else{
+				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnit/";
+			}
+				$("#personalInformationForm_grantOwnerProvider").select2({ajax : ajaxForGrantOwnerProvider});
+		}
+		
+		updateGrantProviderAjax();
 		
 		updateGrantProvider = function(){
 				val = $("#personalInformationForm_grantOwnerType").val();
@@ -372,6 +381,7 @@ $(document).ready(function() {
 				}
 				else{
 					grantOwnerProvider.select2("enable", true);
+					updateGrantProviderAjax();
 				}
 		};
 		$("#personalInformationForm_grantOwnerType").on("change", updateGrantProvider);
