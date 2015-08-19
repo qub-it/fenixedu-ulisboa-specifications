@@ -311,9 +311,7 @@ $(document).ready(function() {
 		val = $("#originInformationForm_schoolLevel").val();
 		if($.inArray(val, higherEducation) != -1){
 			$("#originInformationForm_raidesDegreeDesignation_row").show();
-			$("#originInformationForm_raidesDegreeDesignation").attr('required', true);
 			$("#originInformationForm_degreeDesignation_row").hide();
-			$("#originInformationForm_degreeDesignation").attr('required', false);
 			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",
 			$("#originInformationForm_institution").select2({ajax: ajaxData});
 		}
@@ -321,9 +319,7 @@ $(document).ready(function() {
 			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/externalUnit/",
 			$("#originInformationForm_institution").select2({ajax: ajaxData});
 			$("#originInformationForm_raidesDegreeDesignation_row").hide();
-			$("#originInformationForm_raidesDegreeDesignation").attr('required', false);
 			$("#originInformationForm_degreeDesignation_row").show();
-			$("#originInformationForm_degreeDesignation").attr('required', true);
 		}
 		
 		if(val == "OTHER"){

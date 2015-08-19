@@ -75,14 +75,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
 public class PersonalInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
+    private static final String IDENTITY_CARD_CONTROL_DIGIT_FORMAT = "[0-9]";
+
     private static final String CITZEN_CARD_CHECK_DIGIT_FORMAT = "[0-9][a-zA-Z][a-zA-Z][0-9]";
+
+    private static final String SOCIAL_SECURITY_NUMBER_FORMAT = "\\d{9}";
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform";
 
@@ -192,11 +195,28 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     private boolean validate(PersonalInformationForm form, Model model) {
         Person person = AccessControl.getPerson();
+        if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
+            return false;
+        }
+        if (!form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
+                && !form.getIdentificationDocumentSeriesNumber().matches(IDENTITY_CARD_CONTROL_DIGIT_FORMAT)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
+            return false;
+        }
+
+        if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
+                && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
+            return false;
+        }
+
         if (form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
                 && !validateNumeroDocumentoCC(person.getDocumentIdNumber() + form.getIdentificationDocumentSeriesNumber())
                 && !testsMode()) {
-
-            //This will never throw an error 
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.wrongCheckDigit"), model);
             return false;

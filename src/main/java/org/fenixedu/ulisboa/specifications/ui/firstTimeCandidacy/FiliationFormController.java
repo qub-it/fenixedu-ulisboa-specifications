@@ -47,6 +47,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -130,6 +131,12 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     }
 
     private boolean validate(FiliationForm form, Model model) {
+        if ((StringUtils.isEmpty(form.getFatherName())) || (StringUtils.isEmpty(form.getMotherName()))) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.parentsName.required"),
+                    model);
+            return false;
+        }
         if (form.getDateOfBirth() == null) {
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.birthDate.required"),
