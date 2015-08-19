@@ -31,7 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses")
@@ -47,10 +52,12 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
     @RequestMapping
     public String chooseoptionalcourses(Model model, RedirectAttributes redirectAttributes) {
 
-        Degree degree = FirstTimeCandidacyController.getStudentCandidacy().getRegistration().getDegree();
+        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        Degree degree = registration.getDegree();
         if (degree.getFirstYearRegistrationConfiguration() == null
                 || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment()) {
             //School does not require first year course enrolment
+            createAutomaticEnrolments(registration, ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
             return chooseoptionalcoursesToContinue(model, redirectAttributes);
         }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses";
@@ -76,4 +83,16 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses", model, redirectAttributes);
     }
 
+    @Atomic
+    private void createAutomaticEnrolments(Registration registration, ExecutionSemester executionSemester) {
+        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionSemester);
+        if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {
+            studentCurricularPlan.createFirstTimeStudentEnrolmentsFor(executionSemester, AccessControl.getPerson().getUsername());
+            registration.updateEnrolmentDate(executionSemester.getExecutionYear());
+            if (studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR) {
+                studentCurricularPlan.createFirstTimeStudentEnrolmentsFor(executionSemester.getNextExecutionPeriod(),
+                        AccessControl.getPerson().getUsername());
+            }
+        }
+    }
 }
