@@ -98,21 +98,11 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="residenceInformationForm_areaCode" class="form-control"
-						type="text" name="areaCode" pattern="(\d{4}-\d{3})"
-						value='<c:out value='${not empty param.areacode ? param.areacode : residenceInformationForm.areaCode }'/>' />
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.ResidenceInformationForm.areaOfAreaCode" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_areaOfAreaCode"
-						class="form-control" type="text" name="areaOfAreaCode"
-						value='<c:out value='${not empty param.areaofareacode ? param.areaofareacode : residenceInformationForm.areaOfAreaCode }'/>' />
+					<select id="residenceInformationForm_areaCode" class="form-control" name="areaCode" >
+						<c:if test="${not empty residenceInformationForm.areaCode}">
+							<option selected value="${residenceInformationForm.areaCode}">${residenceInformationForm.areaCode}</option> 
+						</c:if>
+					</select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -200,21 +190,11 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="residenceInformationForm_schoolTimeAreaCode"
-						class="form-control" type="text" name="schoolTimeAreaCode" pattern="(\d{4}-\d{3})"
-						value='<c:out value='${not empty param.schooltimeareacode ? param.schooltimeareacode : residenceInformationForm.schoolTimeAreaCode }'/>' />
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeAreaOfAreaCode" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_schoolTimeAreaOfAreaCode"
-						class="form-control" type="text" name="schoolTimeAreaOfAreaCode"
-						value='<c:out value='${not empty param.schooltimeareaofareacode ? param.schooltimeareaofareacode : residenceInformationForm.schoolTimeAreaOfAreaCode }'/>' />
+					<select id="residenceInformationForm_schoolTimeAreaCode" class="form-control"  name="schoolTimeAreaCode">
+						<c:if test="${not empty residenceInformationForm.schoolTimeAreaCode}">
+							<option selected value="${residenceInformationForm.schoolTimeAreaCode}">${residenceInformationForm.schoolTimeAreaCode}</option> 
+						</c:if>
+					</select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -473,7 +453,64 @@ $(document).ready(function() {
    		             	    $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence.externalId}'/>');
    	
            	</c:if>
+           	
+           	
+           	//Setup postal codes
+           	
+    		$("#residenceInformationForm_areaCode").select2(
+    				{
+    				  ajax: {
+    				    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/postalCode",
+    				    dataType: 'json',
+    				    delay: 250,
+    				    data: function (params) {
+    				      return {
+   				    	  	postalCodePart: params.term, // search term
+    				        page: params.page
+    				      };
+    				    },
+    				    processResults: function (data, page) {
+    				      newData = []
+    				      for(var result in data){
+    				    	  newData[result] = {
+    				    			  text : data[result],
+    				    			  id : data[result],
+    				    	  }
+    				      }
+    				      return {
+    				        results: newData
+    				      };
+    				    },
+    				    cache: true
+    				  }});
+           	
 
+    		$("#residenceInformationForm_schoolTimeAreaCode").select2(
+    				{
+    				  ajax: {
+    				    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/postalCode",
+    				    dataType: 'json',
+    				    delay: 250,
+    				    data: function (params) {
+    				      return {
+   				    	  	postalCodePart: params.term, // search term
+    				        page: params.page
+    				      };
+    				    },
+    				    processResults: function (data, page) {
+    				      newData = []
+    				      for(var result in data){
+    				    	  newData[result] = {
+    				    			  text : data[result],
+    				    			  id : data[result],
+    				    	  }
+    				      }
+    				      return {
+    				        results: newData
+    				      };
+    				    },
+    				    cache: true
+    				  }});
 	});
 	
 	 $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().on("select2:select", function(e) {
