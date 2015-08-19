@@ -91,7 +91,8 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     private static Predicate<Candidacy> firstTimeCandidaciesPredicate =
-            c -> ((c instanceof DegreeCandidacy) || (c instanceof IMDCandidacy));
+            c -> ((c instanceof DegreeCandidacy) || (c instanceof IMDCandidacy))
+                    && ((StudentCandidacy) c).getExecutionYear().equals(ExecutionYear.readCurrentExecutionYear());
 
     public static StudentCandidacy getStudentCandidacy() {
         Stream<Candidacy> firstTimeCandidacies =
