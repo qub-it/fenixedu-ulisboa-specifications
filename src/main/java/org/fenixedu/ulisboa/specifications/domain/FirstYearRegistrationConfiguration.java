@@ -12,6 +12,7 @@ public class FirstYearRegistrationConfiguration extends FirstYearRegistrationCon
 
     public void delete() {
         setDegree(null);
+        setGlobalConfiguration(null);
         super.deleteDomainObject();
     }
 
