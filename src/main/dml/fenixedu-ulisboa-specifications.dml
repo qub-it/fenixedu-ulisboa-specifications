@@ -160,6 +160,7 @@ class PersonUlisboaSpecifications {
 	String otherUniversityChoiceMotivation;
 	String otherDislocatedResidenceType;
     String firstOptionDegreeDesignation;
+    boolean authorizeSharingDataWithCGD;
 }
 
 relation PersonUlPerson {
