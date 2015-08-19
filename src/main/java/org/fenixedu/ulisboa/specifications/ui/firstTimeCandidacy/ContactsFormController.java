@@ -56,6 +56,10 @@ import pt.ist.fenixframework.Atomic;
 @RequestMapping(ContactsFormController.CONTROLLER_URL)
 public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseController {
 
+    private static final String PHONE_PATTERN = "(\\d{4,15})";
+
+    private static final String URL_PATTERN = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?";
+
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform";
 
     private static final String _FILLCONTACTS_URI = "/fillcontacts";
@@ -140,6 +144,30 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     }
 
     private boolean validate(ContactsForm form, Model model) {
+        if (StringUtils.isEmpty(form.getPersonalEmail())) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.personalEmail.required"),
+                    model);
+            return false;
+        }
+
+        if (!StringUtils.isEmpty(form.getPhoneNumber()) && !form.getPhoneNumber().matches(PHONE_PATTERN)) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"), model);
+            return false;
+        }
+        if (!StringUtils.isEmpty(form.getMobileNumber()) && !form.getMobileNumber().matches(PHONE_PATTERN)) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"), model);
+            return false;
+        }
+
+        if (!StringUtils.isEmpty(form.getWebAddress()) && !form.getWebAddress().matches(URL_PATTERN)) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.webAddress"),
+                    model);
+            return false;
+        }
         return true;
     }
 

@@ -68,6 +68,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
 @RequestMapping(ResidenceInformationFormController.CONTROLLER_URL)
 public class ResidenceInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
+    private static final String AREA_CODE_PATTERN = "(\\d{4}-\\d{3})";
+
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform";
 
     private static final String _FILLRESIDENCEINFORMATION_URI = "/fillresidenceinformation";
@@ -180,6 +182,12 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     model);
             return false;
         }
+        if (StringUtils.isEmpty(form.getAreaCode()) || !form.getAreaCode().matches(AREA_CODE_PATTERN)) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),
+                    model);
+            return false;
+        }
 
         if (form.getDislocatedFromPermanentResidence()) {
             if (!form.isSchoolTimeRequiredInformationAddressFilled()) {
@@ -210,6 +218,13 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                             "error.candidacy.workflow.ResidenceInformationForm.other.residence.type.required"), model);
                     return false;
                 }
+            }
+
+            if (StringUtils.isEmpty(form.getSchoolTimeAreaCode()) || !form.getSchoolTimeAreaCode().matches(AREA_CODE_PATTERN)) {
+                addErrorMessage(
+                        BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),
+                        model);
+                return false;
             }
         }
 

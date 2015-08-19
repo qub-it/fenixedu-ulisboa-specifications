@@ -71,6 +71,10 @@ import pt.ist.fenixframework.FenixFramework;
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
 public class OriginInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
+    private static final String GRADE_FORMAT = "\\d{2}";
+
+    private static final String YEAR_FORMAT = "\\d{4}";
+
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform";
 
     private static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
@@ -165,6 +169,18 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
     }
 
     private boolean validate(OriginInformationForm form, Model model) {
+        if (StringUtils.isEmpty(form.getConclusionGrade()) || !form.getConclusionGrade().matches(GRADE_FORMAT)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.incorrect.conclusionGrade"), model);
+            return false;
+        }
+
+        if (form.getConclusionYear() == null || !form.getConclusionYear().toString().matches(YEAR_FORMAT)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.incorrect.conclusionYear"), model);
+            return false;
+        }
+
         if (form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
@@ -204,6 +220,21 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
                 return false;
             }
         }
+
+        if (form.getSchoolLevel().isHigherEducation()) {
+            if (form.getRaidesDegreeDesignation() == null) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.degreeDesignation.required"), model);
+                return false;
+            }
+        } else {
+            if (StringUtils.isEmpty(form.getDegreeDesignation())) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.degreeDesignation.required"), model);
+                return false;
+            }
+        }
+
         return true;
     }
 
