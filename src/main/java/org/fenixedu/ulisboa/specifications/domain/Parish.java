@@ -5,11 +5,13 @@ import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.bennu.core.domain.Bennu;
 
 public class Parish extends Parish_Base {
 
     public Parish(String code, String name, DistrictSubdivision districtSubdivision) {
         super();
+
         if (StringUtils.isEmpty(code)) {
             throw new DomainException("label.error.emptyCode");
         }
@@ -23,6 +25,8 @@ public class Parish extends Parish_Base {
         setCode(code);
         setName(normalizeString(name));
         setDistrictSubdivision(districtSubdivision);
+
+        setRoot(Bennu.getInstance());
     }
 
     public static Optional<Parish> findByName(DistrictSubdivision districtSubdivision, String name) {

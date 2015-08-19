@@ -367,6 +367,15 @@ relation ParsishDistrictSubdivision{
 		multiplicity *;
 	}
 }
+
+relation ParsishesRoot {
+	Parish playsRole parishes {
+		multiplicity *;
+	}
+	.org.fenixedu.bennu.core.domain.Bennu playsRole root;
+}
+
+
 // ==================== END: Parishes as domain objects ====================
 
 
