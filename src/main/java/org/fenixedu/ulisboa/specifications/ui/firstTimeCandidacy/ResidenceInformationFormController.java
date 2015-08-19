@@ -183,8 +183,9 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             return false;
         }
         if (!isValidPostalCodeUIFormat(form.getAreaCode())) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.incorrect.areaCode"), model);
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),
+                    model);
             return false;
         }
 
@@ -258,7 +259,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 || !StringUtils.equals(district, person.getDefaultPhysicalAddress().getDistrictOfResidence())
                 || (form.getCountryOfResidence() != person.getDefaultPhysicalAddress().getCountryOfResidence())) {
             Planet.getEarth().getPlace("PRT").getPostalCode(form.getAreaCode());
-            String areaCode = form.getAreaCode().substring(0, 7);
+            String areaCode = form.getAreaCode().substring(0, 8);
             String areaOfAreaCode = form.getAreaCode().substring(9);
             physicalAddressData =
                     new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(), form
@@ -284,7 +285,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     || !StringUtils.equals(subdivision, schoolTimeAddress.getDistrictSubdivisionOfResidence())
                     || !StringUtils.equals(district, schoolTimeAddress.getDistrictOfResidence())) {
 
-                String schoolTimeAreaCode = form.getSchoolTimeAreaCode().substring(0, 7);
+                String schoolTimeAreaCode = form.getSchoolTimeAreaCode().substring(0, 8);
                 String schoolTimeAreaOfAreaCode = form.getSchoolTimeAreaCode().substring(9);
                 physicalAddressData =
                         new PhysicalAddressData(form.getSchoolTimeAddress(), schoolTimeAreaCode, schoolTimeAreaOfAreaCode,
