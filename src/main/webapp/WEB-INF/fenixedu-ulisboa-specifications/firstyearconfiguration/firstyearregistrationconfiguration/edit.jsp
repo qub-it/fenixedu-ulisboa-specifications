@@ -120,7 +120,7 @@ ${portal.toolkit()}
 					
 				</tr>
 				<c:forEach items="${editResultsDataSet}" var="searchResult">
-				<form id="degreeForm" action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/save" method="POST">
+				<form class="degreeForm" action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/save" method="POST">
 					<input type="hidden" name="degreeExternalId" value="${searchResult.degreeExternalId}">
 					<tr>
 						<td>${searchResult.degreeName}</td>
@@ -172,13 +172,13 @@ ${portal.toolkit()}
 </style>
 
 <script>
-$("#degreeForm").submit(function(){
+$(".degreeForm").submit(function(){
     $.post($(this).attr('action'), $(this).serialize(), function(response){},'json');
     return false;
  });
 
 function saveForms(){
-	$("#degreeForm").submit();
+	$(".degreeForm").submit();
 	changesDetected = false;
 };
 
