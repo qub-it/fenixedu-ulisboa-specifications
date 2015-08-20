@@ -27,6 +27,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import org.fenixedu.academictreasury.ui.customer.CustomerAccountingController;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -38,13 +39,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
-    public String showtuition(Model model) {
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition";
-    }
+    public String showtuition(Model model, RedirectAttributes redirectAttributes) {
+        CustomerAccountingController customerAccountingController = new CustomerAccountingController();
+        customerAccountingController.readCustomer(model, redirectAttributes);
 
-    @RequestMapping(value = "/opentreasurydebts")
-    public String showtuitionToOpenTreasuryDebts(Model model, RedirectAttributes redirectAttributes) {
-        return redirect("CHANGEME", model, redirectAttributes);
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition";
     }
 
     @RequestMapping(value = "/continue")
