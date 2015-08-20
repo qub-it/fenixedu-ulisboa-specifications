@@ -29,12 +29,19 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
+import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -87,11 +94,35 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
     private void createAutomaticEnrolments(Registration registration, ExecutionSemester executionSemester) {
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionSemester);
         if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {
-            studentCurricularPlan.createFirstTimeStudentEnrolmentsFor(executionSemester, AccessControl.getPerson().getUsername());
+            createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(), studentCurricularPlan
+                    .getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester, AccessControl.getPerson()
+                    .getUsername());
             registration.updateEnrolmentDate(executionSemester.getExecutionYear());
             if (studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR) {
-                studentCurricularPlan.createFirstTimeStudentEnrolmentsFor(executionSemester.getNextExecutionPeriod(),
+                createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(), studentCurricularPlan
+                        .getDegreeCurricularPlan().getCurricularPeriodFor(1, 2), executionSemester.getNextExecutionPeriod(),
                         AccessControl.getPerson().getUsername());
+            }
+        }
+    }
+
+    void createFirstTimeStudentEnrolmentsFor(StudentCurricularPlan studentCurricularPlan, CurriculumGroup curriculumGroup,
+            CurricularPeriod curricularPeriod, ExecutionSemester executionSemester, String createdBy) {
+
+        if (curriculumGroup.getDegreeModule() != null) {
+            for (final Context context : curriculumGroup.getDegreeModule().getContextsWithCurricularCourseByCurricularPeriod(
+                    curricularPeriod, executionSemester)) {
+                new Enrolment(studentCurricularPlan, curriculumGroup, (CurricularCourse) context.getChildDegreeModule(),
+                        executionSemester, EnrollmentCondition.FINAL, createdBy);
+            }
+        }
+
+        if (!curriculumGroup.getCurriculumModulesSet().isEmpty()) {
+            for (final CurriculumModule curriculumModule : curriculumGroup.getCurriculumModulesSet()) {
+                if (!curriculumModule.isLeaf()) {
+                    createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, (CurriculumGroup) curriculumModule,
+                            curricularPeriod, executionSemester, createdBy);
+                }
             }
         }
     }
