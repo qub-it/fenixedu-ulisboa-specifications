@@ -150,6 +150,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<select id="originInformationForm_institution" class="form-control" name="institutionOid">
+						<option value=""></option>
 						<c:if test="${originInformationForm.institutionOid != null}">
 							<option value="${originInformationForm.institutionOid}" selected><c:out value='${originInformationForm.institutionName}'/></option>
 						</c:if>
@@ -296,9 +297,10 @@ $(document).ready(function() {
 	$("#originInformationForm_highSchoolType_row").hide();
 	
 	
+	schoolLevelChangeCount = 0;
 	//Catch school level change events
 	$("#originInformationForm_schoolLevel").on("change", function(e){
-		//array of courses which are considered by fenix as being highed education
+		//array of courses which are considered by fenix as being higher education
 		var higherEducation = [
 		                   <c:forEach items="${schoolLevelValues}" var="field">
 			                   	<c:if test="${field.higherEducation}">
@@ -307,7 +309,7 @@ $(document).ready(function() {
 							</c:forEach>
 		                   ]
 		updateHighSchoolType();
-
+		
 		val = $("#originInformationForm_schoolLevel").val();
 		if($.inArray(val, higherEducation) != -1){
 			$("#originInformationForm_raidesDegreeDesignation_row").show();
@@ -321,6 +323,14 @@ $(document).ready(function() {
 			$("#originInformationForm_raidesDegreeDesignation_row").hide();
 			$("#originInformationForm_degreeDesignation_row").show();
 		}
+		
+		// This is javascript: god knows why this is invoked twice. Maybe.
+		if (schoolLevelChangeCount > 1) {
+			$("#originInformationForm_institution").val("").trigger("change")
+			$("#originInformationForm_raidesDegreeDesignation").val("");
+			$("#originInformationForm_degreeDesignation").val("");
+		}
+		schoolLevelChangeCount++;
 		
 		if(val == "OTHER"){
 			$("#originInformationForm_otherSchoolLevel").attr('readonly', false);
