@@ -25,58 +25,29 @@ ${portal.toolkit()}
 
 
 <%-- TITLE --%>
-<div class="page-header">
+<div>
 	<h1><spring:message code="label.firstTimeCandidacy.showTuition" />
-		<small></small>
 	</h1>
 </div>
 
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/opentreasurydebts"><spring:message code="label.event.firstTimeCandidacy.openTreasuryDebts"  /></a>	|&nbsp;&nbsp;
-	
 		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
 </div>
-	<c:if test="${not empty infoMessages}">
-				<div class="alert alert-info" role="alert">
-					
-					<c:forEach items="${infoMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
-			<c:if test="${not empty warningMessages}">
-				<div class="alert alert-warning" role="alert">
-					
-					<c:forEach items="${warningMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
-			<c:if test="${not empty errorMessages}">
-				<div class="alert alert-danger" role="alert">
-					
-					<c:forEach items="${errorMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
 
+<div >
+<p><small>
+<spring:message code="label.firstTimeCandidacy.tutionInFurtherStep" />
+</small></p>
+</div>
+			
+<jsp:include page="/WEB-INF/academicTreasury/customer/readCustomer.jsp" />
 
 <script>
 $(document).ready(function() {
-
+		//Hide included page header
+		$(".page-header").hide();
 	
 	
 	});
