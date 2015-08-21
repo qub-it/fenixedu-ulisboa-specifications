@@ -36,12 +36,15 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -87,7 +90,9 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
         for (Registration registration : student.getRegistrationsToEnrolInShiftByStudent()) {
             for (EnrolmentPeriod enrolmentPeriod : registration.getActiveDegreeCurricularPlan().getEnrolmentPeriodsSet()) {
-                if (enrolmentPeriod.isForClasses() && enrolmentPeriod.isValid()) {
+                ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+                if (isValidPeriodForUser(enrolmentPeriod, registration.getStudentCurricularPlan(currentExecutionYear),
+                        currentExecutionYear)) {
                     boolean selected = selectedRegistration == registration && selectedEnrolmentPeriod == enrolmentPeriod;
                     enrolmentBeans.add(new EnrolmentPeriodDTO(registration, enrolmentPeriod, selected));
                 }
@@ -285,8 +290,8 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     public static class EnrolmentPeriodDTO implements Serializable, Comparable<EnrolmentPeriodDTO> {
 
-        private Registration registration;
-        private EnrolmentPeriod enrolmentPeriod;
+        private final Registration registration;
+        private final EnrolmentPeriod enrolmentPeriod;
         private Boolean selected;
 
         public EnrolmentPeriodDTO(Registration registration, EnrolmentPeriod enrolmentPeriod, Boolean selected) {
@@ -320,4 +325,22 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     }
 
+    private boolean isValidPeriodForUser(EnrolmentPeriod ep, StudentCurricularPlan studentCurricularPlan,
+            ExecutionYear currentExecutionYear) {
+        // Coditions to be valid:
+        // 1 - period has to be valid
+        //     AND
+        //          a - Student is candidate AND period is for candidate
+        //            OR
+        //          b - Period is for curricular courses (implicitly assuming student is not candidate)
+
+        if (ep.isValid()) {
+            if (studentCurricularPlan.isInCandidateEnrolmentProcess(currentExecutionYear)) {
+                return ep instanceof EnrolmentPeriodInClassesCandidate;
+            } else {
+                return ep.isForClasses();
+            }
+        }
+        return false;
+    }
 }
