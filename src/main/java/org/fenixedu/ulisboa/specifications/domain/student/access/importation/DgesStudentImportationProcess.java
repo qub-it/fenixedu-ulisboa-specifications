@@ -286,8 +286,6 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         String[] fields = splitLine(line, ADDRESS_AND_CONTACTS_LINE_FIELD_SPEC);
 
         degreeCandidateDTO.setAddress(fields[1].trim() + " " + fields[2].trim());
-        degreeCandidateDTO.setAreaCode(fields[3].trim());
-        degreeCandidateDTO.setAreaOfAreaCode(fields[4].trim());
         degreeCandidateDTO.setPhoneNumber(fields[5].trim());
     }
 
