@@ -31,6 +31,8 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.EnrolmentPeriod;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -57,6 +59,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBaseController {
 
     Logger logger = LoggerFactory.getLogger(ScheduleClassesController.class);
+
     @RequestMapping
     public String scheduleclasses(Model model, RedirectAttributes redirectAttributes) {
 
@@ -83,7 +86,22 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         //request
         String injectChecksumInUrl =
                 GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
-        return redirect(injectChecksumInUrl, model, redirectAttributes);
+//        return redirect(injectChecksumInUrl, model, redirectAttributes);
+
+        return redirect("/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
+                + getEnrolmentPeriodForSemester(executionSemester).getExternalId(), model, redirectAttributes);
+
+    }
+
+    private EnrolmentPeriod getEnrolmentPeriodForSemester(ExecutionSemester executionSemester) {
+        return executionSemester
+                .getEnrolmentPeriodSet()
+                .stream()
+                .filter(ep -> ep instanceof EnrolmentPeriodInClassesCandidate)
+                .findAny()
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "You need an open period for classes/shifts for candidates to enable shift enrolmentstude"));
     }
 
     @RequestMapping(value = "/continue")
@@ -102,7 +120,8 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
             executionSemesters = Collections.singleton(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
         }
         SchoolClass firstUnfilledClass = readFirstUnfilledClass(studentCurricularPlan.getRegistration(), executionSemesters);
-        logger.warn("Registering student " + studentCurricularPlan.getPerson().getUsername() + " to class " + firstUnfilledClass.getNome());
+        logger.warn("Registering student " + studentCurricularPlan.getPerson().getUsername() + " to class "
+                + firstUnfilledClass.getNome());
         enrolOnShifts(firstUnfilledClass, studentCurricularPlan.getRegistration());
     }
 
