@@ -43,6 +43,7 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,8 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
         Degree degree = registration.getDegree();
         if (degree.getFirstYearRegistrationConfiguration() == null
-                || !degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()) {
+                || !(degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment() || degree
+                        .getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment())) {
             //School does not require first year classes enrolment
             ExecutionSemester executionSemester = ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod();
             associateShiftsFor(registration.getStudentCurricularPlan(executionSemester));
@@ -83,14 +85,18 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         String link = "/student/studentShiftEnrollmentManager.do?method=start&executionSemesterID=%s&registrationOID=%s";
         String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
 
-        //request
-        String injectChecksumInUrl =
-                GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
-//        return redirect(injectChecksumInUrl, model, redirectAttributes);
-
-        return redirect("/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
-                + getEnrolmentPeriodForSemester(executionSemester).getExternalId(), model, redirectAttributes);
-
+        Degree degree = registration.getDegree();
+        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration = degree.getFirstYearRegistrationConfiguration();
+        if (firstYearRegistrationConfiguration.getRequiresClassesEnrolment()) {
+            String injectChecksumInUrl =
+                    GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
+            return redirect(injectChecksumInUrl, model, redirectAttributes);
+        }
+        if (firstYearRegistrationConfiguration.getRequiresShiftsEnrolment()) {
+            return redirect("/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
+                    + getEnrolmentPeriodForSemester(executionSemester).getExternalId(), model, redirectAttributes);
+        }
+        throw new RuntimeException("No classes or course enrolment for current degree");
     }
 
     private EnrolmentPeriod getEnrolmentPeriodForSemester(ExecutionSemester executionSemester) {
