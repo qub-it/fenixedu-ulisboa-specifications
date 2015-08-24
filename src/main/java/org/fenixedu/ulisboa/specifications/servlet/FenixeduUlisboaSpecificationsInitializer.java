@@ -36,8 +36,10 @@ import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
+import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
+import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
@@ -86,6 +88,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         if (!dynamicGroup.isDefined()) {
             dynamicGroup.toPersistentGroup();
         }
+
+        setupCustomExceptionHandler(event);
     }
 
     static private void configureEnrolmentEvaluationComparator() {
@@ -162,4 +166,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
     }
 
+    private void setupCustomExceptionHandler(ServletContextEvent event) {
+        ExceptionHandlerFilter.setExceptionHandler(new FenixEduUlisboaExceptionHandler(new PortalExceptionHandler(event
+                .getServletContext())));
+    }
 }
