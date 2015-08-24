@@ -3,6 +3,8 @@
               version="3.0">
     <name>fenixedu-ulisboa-specifications</name>
     <ordering>
-    	<after>bennu-portal</after>
+    	<after>
+    		<name>bennu-portal</name>
+   		</after>
     </ordering>
 </web-fragment>
