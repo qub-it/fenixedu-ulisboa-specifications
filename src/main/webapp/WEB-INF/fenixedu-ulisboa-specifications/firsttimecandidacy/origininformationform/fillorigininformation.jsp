@@ -255,25 +255,26 @@ $(document).ready(function() {
    	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    	 $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().on("change", function(){
-		  configureBirthInformationFieldsEditableState();
+   		configureOriginInformationFieldsEditableState();
 	   });
-   	 function configureBirthInformationFieldsEditableState(){
-		 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
-  		bool = $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").val() != defaultCountry;
-  		$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
-  		$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
-  		
-  		if(bool){
-      		$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").val("").trigger("change");
-      		$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").val("").trigger("change");
-  		}
-  	  }
-   	    
    	    
    		$("#originInformationForm_schoolLevel").trigger("change");
    		
    		updateDegreeDesignationsUrl();
 	});
+	
+function configureOriginInformationFieldsEditableState(){
+ 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
+	bool = $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").val() != defaultCountry;
+	$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
+	$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
+	
+	if(bool){
+		$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").val("").trigger("change");
+		$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").val("").trigger("change");
+	}
+}
+   
 	//setup units provider
 	ajaxData = {
 		url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",	    
@@ -469,5 +470,5 @@ $(document).ready(function() {
 	             	    $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    	</c:if>
-	
+   	configureOriginInformationFieldsEditableState();
 </script>
