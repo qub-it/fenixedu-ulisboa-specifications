@@ -117,11 +117,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     person.getDefaultPhysicalAddress().getParishOfResidence()).orElse(null));
 
             form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
-            if (personalData.getDislocatedFromPermanentResidence() != null && personalData.getDislocatedFromPermanentResidence()) {
-                PhysicalAddress addressSchoolTime = getSchoolTimePhysicalAddress(person);
-                form.setSchoolTimeAddress(addressSchoolTime.getAddress());
-                form.setSchoolTimeAreaCode(addressSchoolTime.getAreaCode() + " " + addressSchoolTime.getAreaOfAreaCode());
-                form.setSchoolTimeArea(addressSchoolTime.getArea());
+            if (personalData.getDislocatedFromPermanentResidence() == Boolean.TRUE) {
                 district =
                         personalData.getSchoolTimeDistrictSubDivisionOfResidence() != null ? personalData
                                 .getSchoolTimeDistrictSubDivisionOfResidence().getDistrict() : null;
@@ -129,8 +125,14 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 DistrictSubdivision schoolTimeDistrictSubDivisionOfResidence =
                         personalData.getSchoolTimeDistrictSubDivisionOfResidence();
                 form.setSchoolTimeDistrictSubdivisionOfResidence(schoolTimeDistrictSubDivisionOfResidence);
-                form.setSchoolTimeParishOfResidence(Parish.findByName(schoolTimeDistrictSubDivisionOfResidence,
-                        addressSchoolTime.getParishOfResidence()).orElse(null));
+                if (getSchoolTimePhysicalAddress(person) != null) {
+                    PhysicalAddress addressSchoolTime = getSchoolTimePhysicalAddress(person);
+                    form.setSchoolTimeAddress(addressSchoolTime.getAddress());
+                    form.setSchoolTimeAreaCode(addressSchoolTime.getAreaCode() + " " + addressSchoolTime.getAreaOfAreaCode());
+                    form.setSchoolTimeArea(addressSchoolTime.getArea());
+                    form.setSchoolTimeParishOfResidence(Parish.findByName(schoolTimeDistrictSubDivisionOfResidence,
+                            addressSchoolTime.getParishOfResidence()).orElse(null));
+                }
                 if (personUl != null) {
                     form.setSchoolTimeResidenceType(personUl.getDislocatedResidenceType());
                     form.setOtherSchoolTimeResidenceType(personUl.getOtherDislocatedResidenceType());
