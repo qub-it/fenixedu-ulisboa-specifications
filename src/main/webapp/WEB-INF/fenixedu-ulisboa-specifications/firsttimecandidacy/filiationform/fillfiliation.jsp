@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -196,7 +197,24 @@ $(document).ready(function() {
 	             	    );
 	             	    
 	             	    $("#filiationForm_countryOfBirth").select2().select2('val', '<c:out value='${filiationForm.countryOfBirth.externalId}'/>');
-    
+	             	   $("#filiationForm_countryOfBirth").select2().on("change", function(){
+	             		  configureBirthInformationFieldsEditableState();
+	             	   });
+	             	  function configureBirthInformationFieldsEditableState(){
+             		 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
+	             		bool = $("#filiationForm_countryOfBirth").val() != defaultCountry;
+	             		$("#filiationForm_districtOfBirth").attr("disabled", bool);
+	             		$("#filiationForm_districtSubdivisionOfBirth").attr("disabled", bool);
+	             		$("#filiationForm_parishOfBirth").attr("disabled", bool);
+	             		
+	             		if(bool){
+		             		$("#filiationForm_districtOfBirth").val("").trigger("change");
+		             		$("#filiationForm_districtSubdivisionOfBirth").val("").trigger("change");
+		             		$("#filiationForm_parishOfBirth").val("").trigger("change");
+	             		}
+	             	  }
+	             	 
+	             	  
     //setup nationalities
     	nationality_options = [
 	             			<c:forEach items="${countries_options}" var="element"> 
@@ -339,6 +357,6 @@ $(document).ready(function() {
    	
            	</c:if>
            	       	
-           	
+           	configureBirthInformationFieldsEditableState();    	
 	});
 </script>

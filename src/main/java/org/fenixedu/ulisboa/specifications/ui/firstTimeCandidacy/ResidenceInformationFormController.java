@@ -184,7 +184,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     model);
             return false;
         }
-        if (!isValidPostalCodeUIFormat(form.getAreaCode())) {
+        if (form.getCountryOfResidence().isDefaultCountry() && !isValidPostalCodeUIFormat(form.getAreaCode())) {
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),
                     model);
@@ -247,8 +247,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         }
 
         String district =
-                form.getDistrictSubdivisionOfResidence().getDistrict() != null ? form.getDistrictSubdivisionOfResidence()
-                        .getDistrict().getName() : null;
+                form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getDistrict()
+                        .getName() : null;
         String subdivision =
                 form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getName() : null;
         PhysicalAddressData physicalAddressData;
@@ -261,11 +261,17 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                 || !StringUtils.equals(district, person.getDefaultPhysicalAddress().getDistrictOfResidence())
                 || (form.getCountryOfResidence() != person.getDefaultPhysicalAddress().getCountryOfResidence())) {
             Planet.getEarth().getPlace("PRT").getPostalCode(form.getAreaCode());
-            String areaCode = form.getAreaCode().substring(0, 8);
-            String areaOfAreaCode = form.getAreaCode().substring(9);
+            String areaCode = "";
+            String areaOfAreaCode = "";
+            if (form.getAreaCode() != null) {
+                areaCode = form.getAreaCode().substring(0, 8);
+                areaOfAreaCode = form.getAreaCode().substring(9);
+            }
+            Parish parishOfResidence = form.getParishOfResidence();
             physicalAddressData =
-                    new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(), form
-                            .getParishOfResidence().getName(), subdivision, district, form.getCountryOfResidence());
+                    new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(),
+                            parishOfResidence != null ? parishOfResidence.getName() : "", subdivision, district,
+                            form.getCountryOfResidence());
 
             person.setDefaultPhysicalAddressData(physicalAddressData, true);
         }
@@ -352,10 +358,13 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     @RequestMapping(value = "/postalCode", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody List<String> readPostalCodes(@RequestParam("postalCodePart") String postalCodePart, Model model) {
-        return Planet.getEarth().getPlace("PRT").getPlaces().stream().flatMap(d -> d.getPlaces().stream())
-                .flatMap(m -> m.getPlaces().stream()).flatMap(l -> l.getPlaces().stream())
-                .map(pc -> pc.exportAsString().split(";")[4] + " " + pc.parent.name).filter(pc -> pc.startsWith(postalCodePart))
-                .limit(50).collect(Collectors.toList());
+        List<String> collect =
+                Planet.getEarth().getPlace("PRT").getPlaces().stream().flatMap(d -> d.getPlaces().stream())
+                        .flatMap(m -> m.getPlaces().stream()).flatMap(l -> l.getPlaces().stream())
+                        .map(pc -> pc.exportAsString().split(";")[4] + " " + pc.parent.name)
+                        .filter(pc -> pc.startsWith(postalCodePart)).limit(50).collect(Collectors.toList());
+        collect.add(0, "");
+        return collect;
 
     }
 
@@ -564,6 +573,6 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     //Area codes are coming from the UI with the area of the areaCode appended 
     private boolean isValidPostalCodeUIFormat(String areaCode) {
-        return areaCode.matches("[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9] [a-zA-Z\\s]*");
+        return areaCode != null ? areaCode.matches("[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9] [a-zA-Z\\s]*") : false;
     }
 }

@@ -162,9 +162,11 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
         person.setCountryOfBirth(form.getCountryOfBirth());
+        if(person.getCountryOfBirth().isDefaultCountry()) {
         person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
         person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
         person.setParishOfBirth(form.getParishOfBirth().getName());
+        }
 
         person.setNameOfFather(form.getFatherName());
         person.setNameOfMother(form.getMotherName());

@@ -103,6 +103,7 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         }
     }
 
+    @Atomic
     public void createAutomaticEnrolments(Registration registration, ExecutionSemester executionSemester) {
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionSemester);
         if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {

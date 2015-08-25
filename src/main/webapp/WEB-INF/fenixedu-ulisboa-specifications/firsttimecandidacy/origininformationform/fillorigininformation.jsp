@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -253,6 +254,22 @@ $(document).ready(function() {
    	    );
    	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
+   	 $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().on("change", function(){
+		  configureBirthInformationFieldsEditableState();
+	   });
+   	 function configureBirthInformationFieldsEditableState(){
+		 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
+  		bool = $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").val() != defaultCountry;
+  		$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
+  		$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
+  		
+  		if(bool){
+      		$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").val("").trigger("change");
+      		$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").val("").trigger("change");
+  		}
+  	  }
+   	    
+   	    
    		$("#originInformationForm_schoolLevel").trigger("change");
    		
    		updateDegreeDesignationsUrl();
@@ -301,21 +318,27 @@ $(document).ready(function() {
 	$("#originInformationForm_highSchoolType_row").hide();
 	
 	
+	function isHigherEducation(val){
+		var higherEducation = [
+			                   <c:forEach items="${schoolLevelValues}" var="field">
+				                   	<c:if test="${field.higherEducation}">
+				                   		"${field.name}",
+				                   	</c:if>
+								</c:forEach>
+			                   ]
+		return $.inArray(val, higherEducation) > -1;
+	}
+	
 	schoolLevelChangeCount = 0;
 	//Catch school level change events
 	$("#originInformationForm_schoolLevel").on("change", function(e){
 		//array of courses which are considered by fenix as being higher education
-		var higherEducation = [
-		                   <c:forEach items="${schoolLevelValues}" var="field">
-			                   	<c:if test="${field.higherEducation}">
-			                   		"${field.name}",
-			                   	</c:if>
-							</c:forEach>
-		                   ]
+		
 		updateHighSchoolType();
 		
 		val = $("#originInformationForm_schoolLevel").val();
-		if($.inArray(val, higherEducation) != -1){
+		
+		if(isHigherEducation(val)){
 			$("#originInformationForm_raidesDegreeDesignation_row").show();
 			$("#originInformationForm_degreeDesignation_row").hide();
 			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",

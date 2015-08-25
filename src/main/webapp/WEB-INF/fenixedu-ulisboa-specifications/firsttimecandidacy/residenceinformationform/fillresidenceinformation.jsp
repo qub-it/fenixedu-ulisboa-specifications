@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -94,7 +95,18 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.areaCode" />*
+					<spring:message code="label.ResidenceInformationForm.area" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_area" class="form-control"
+						type="text" name="area"
+						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ResidenceInformationForm.areaCode" />
 				</div>
 
 				<div class="col-sm-10">
@@ -103,17 +115,6 @@ ${portal.toolkit()}
 							<option selected value="${residenceInformationForm.areaCode}">${residenceInformationForm.areaCode}</option> 
 						</c:if>
 					</select>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.area" />*
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_area" class="form-control"
-						type="text" name="area"
-						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -189,20 +190,6 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeAreaCode" />
-				</div>
-
-				<div class="col-sm-10">
-					<select id="residenceInformationForm_schoolTimeAreaCode" class="form-control"  name="schoolTimeAreaCode">
-						<c:if test="${not empty residenceInformationForm.schoolTimeAreaCode}">
-							<option selected value="${residenceInformationForm.schoolTimeAreaCode}">${residenceInformationForm.schoolTimeAreaCode}</option> 
-						</c:if>
-					</select>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeArea" />
 				</div>
 
@@ -210,6 +197,21 @@ ${portal.toolkit()}
 					<input id="residenceInformationForm_schoolTimeArea"
 						class="form-control" type="text" name="schoolTimeArea"
 						value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.ResidenceInformationForm.schoolTimeAreaCode" />
+				</div>
+
+				<div class="col-sm-10">
+					<select id="residenceInformationForm_schoolTimeAreaCode" class="form-control"  name="schoolTimeAreaCode">
+						<option value=""></option>
+						<c:if test="${not empty residenceInformationForm.schoolTimeAreaCode}">
+							<option selected value="${residenceInformationForm.schoolTimeAreaCode}">${residenceInformationForm.schoolTimeAreaCode}</option> 
+						</c:if>
+					</select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -306,7 +308,26 @@ $(document).ready(function() {
 	             	    );
 	             	    
 	             	    $("#residenceInformationForm_countryOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.countryOfResidence.externalId}'/>');
-    
+		             	
+	             	    $("#residenceInformationForm_countryOfResidence").select2().on("change", function(){
+	             	    		configureResidenceInformationFieldsEditableState();
+	             	   });
+			             	  function configureResidenceInformationFieldsEditableState(){
+		             		 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
+			             		bool = $("#residenceInformationForm_countryOfResidence").val() != defaultCountry;
+			             		$("#residenceInformationForm_districtOfResidence").attr("disabled", bool);
+			             		$("#residenceInformationForm_districtSubdivisionOfResidence").attr("disabled", bool);
+			             		$("#residenceInformationForm_parishOfResidence").attr("disabled", bool);
+			             		$("#residenceInformationForm_areaCode").attr("disabled", bool);
+			             		
+			             		if(bool){
+				             		$("#filiationForm_districtOfBirth").val("").trigger("change");
+				             		$("#filiationForm_districtSubdivisionOfBirth").val("").trigger("change");
+				             		$("#filiationForm_parishOfBirth").val("").trigger("change");
+				             		$("#residenceInformationForm_areaCode").val("").trigger("change");
+			             		}
+			             	  }
+
      	 //setup districts of residence
         	district_options = [
   	             			<c:forEach items="${districts_options}" var="element"> 
@@ -523,7 +544,7 @@ $(document).ready(function() {
     				    },
     				    cache: true
     				  }});
-	});
+    	
 	
 	 $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence").select2().on("select2:select", function(e) {
     		populateParishesOfResidenceInSchoolTime(e);
@@ -568,5 +589,8 @@ $(document).ready(function() {
 			             	    $("#residenceInformationForm_schoolTimeParishOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeParishOfResidence.externalId}'/>');
 		
 	     	</c:if>
-	
+	     	populateParishesOfResidenceInSchoolTime();
+	    	//Force disable state in screen startup
+	     	configureResidenceInformationFieldsEditableState();
+	});
 </script>
