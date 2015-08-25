@@ -570,7 +570,7 @@ $(document).ready(function() {
   	
   	//setup parishes of residence
 	   	$("#residenceInformationForm_schoolTimeParishOfResidence").select2();
-	   	<c:if test="${not empty residenceInformationForm.districtSubdivisionOfResidence}">
+	   	<c:if test="${not empty residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence}">
 	   	subDistrictOptions = [
 		             			<c:forEach items="${residenceInformationForm.schoolTimeDistrictSubdivisionOfResidence.parish}" var="element"> 
 		             				{
@@ -585,12 +585,13 @@ $(document).ready(function() {
 			             				data : subDistrictOptions,
 			             			}	  
 			             	    );
-			             	    
-			             	    $("#residenceInformationForm_schoolTimeParishOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeParishOfResidence.externalId}'/>');
+
+		             	   $("#residenceInformationForm_schoolTimeParishOfResidence").select2().select2('val', '<c:out value='${residenceInformationForm.schoolTimeParishOfResidence.externalId}'/>');
 		
 	     	</c:if>
-	     	populateParishesOfResidenceInSchoolTime();
 	    	//Force disable state in screen startup
 	     	configureResidenceInformationFieldsEditableState();
 	});
+	
 </script>
+
