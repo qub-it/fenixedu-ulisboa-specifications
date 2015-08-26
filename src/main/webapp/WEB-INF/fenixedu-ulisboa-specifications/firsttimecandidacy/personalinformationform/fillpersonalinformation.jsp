@@ -120,9 +120,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
+				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />*
+						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
 				</label>
 
 				<div class="col-sm-10">
@@ -160,9 +160,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="personalInformationForm_documentIdExpirationDate" class="col-sm-2 control-label">
+				<label for="personalInformationForm_documentIdExpirationDate" class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.PersonalInformationForm.documentIdExpirationDate" />*
+						code="label.PersonalInformationForm.documentIdExpirationDate" />
 				</label>
 
 				<div class="col-sm-4">
@@ -331,6 +331,17 @@ ${portal.toolkit()}
 		</div>
 	</div>
 </form>
+
+<style>
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
+</style>
 
 <script>
 $(document).ready(function() {

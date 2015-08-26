@@ -101,8 +101,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.ContactsForm.personalEmail" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.ContactsForm.personalEmail" />
 				</div>
 
 				<div class="col-sm-10">
@@ -160,6 +160,17 @@ ${portal.toolkit()}
 		</div>
 	</div>
 </form>
+
+<style>
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
+</style>
 
 <script>
 $(document).ready(function() {

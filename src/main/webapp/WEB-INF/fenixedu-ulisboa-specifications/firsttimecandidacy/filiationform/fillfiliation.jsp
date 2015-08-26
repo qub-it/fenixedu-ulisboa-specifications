@@ -71,8 +71,8 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.nationality" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiliationForm.nationality" />
 				</div>
 
 				<div class="col-sm-10">
@@ -94,8 +94,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.dateOfBirth" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiliationForm.dateOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
@@ -105,8 +105,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.countryOfBirth" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiliationForm.countryOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
@@ -116,8 +116,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.districtOfBirth" />*
+				<div class="col-sm-2 control-label required-field" id="labelDistrictOfBirth">
+					<spring:message code="label.FiliationForm.districtOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
@@ -127,9 +127,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfBirth">
 					<spring:message
-						code="label.FiliationForm.districtSubdivisionOfBirth" />*
+						code="label.FiliationForm.districtSubdivisionOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
@@ -139,8 +139,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.parishOfBirth" />*
+				<div class="col-sm-2 control-label required-field" id="labelParishOfBirth">
+					<spring:message code="label.FiliationForm.parishOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
@@ -150,8 +150,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.fatherName" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiliationForm.fatherName" />
 				</div>
 
 				<div class="col-sm-10">
@@ -161,8 +161,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.motherName" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiliationForm.motherName" />
 				</div>
 
 				<div class="col-sm-10">
@@ -178,6 +178,17 @@ ${portal.toolkit()}
 		</div>
 	</div>
 </form>
+
+<style>
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
+</style>
 
 <script>
 $(document).ready(function() {
@@ -211,6 +222,14 @@ $(document).ready(function() {
 		             		$("#filiationForm_districtOfBirth").val("").trigger("change");
 		             		$("#filiationForm_districtSubdivisionOfBirth").val("").trigger("change");
 		             		$("#filiationForm_parishOfBirth").val("").trigger("change");
+		             		
+		             		$('#labelDistrictOfBirth').removeClass("required-field");
+		             		$('#labelDistrictSubdivisionOfBirth').removeClass("required-field");
+		             		$('#labelParishOfBirth').removeClass("required-field");
+	             		} else {
+	             			$('#labelDistrictOfBirth').addClass("required-field");
+	             			$('#labelDistrictSubdivisionOfBirth').addClass("required-field");
+	             			$('#labelParishOfBirth').addClass("required-field");
 	             		}
 	             	  }
 	             	 

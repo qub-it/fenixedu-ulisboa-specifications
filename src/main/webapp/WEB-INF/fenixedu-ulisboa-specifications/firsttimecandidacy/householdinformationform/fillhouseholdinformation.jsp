@@ -70,9 +70,9 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.HouseholdInformationForm.motherSchoolLevel" />*
+						code="label.HouseholdInformationForm.motherSchoolLevel" />
 				</div>
 
 				<div class="col-sm-4">
@@ -90,9 +90,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.HouseholdInformationForm.motherProfessionType" />*
+						code="label.HouseholdInformationForm.motherProfessionType" />
 				</div>
 
 				<div class="col-sm-4">
@@ -110,9 +110,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.HouseholdInformationForm.motherProfessionalCondition" />*
+						code="label.HouseholdInformationForm.motherProfessionalCondition" />
 				</div>
 
 				<div class="col-sm-4">
@@ -130,9 +130,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.HouseholdInformationForm.fatherSchoolLevel" />*
+						code="label.HouseholdInformationForm.fatherSchoolLevel" />
 				</div>
 
 				<div class="col-sm-4">
@@ -150,9 +150,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.HouseholdInformationForm.fatherProfessionType" />*
+						code="label.HouseholdInformationForm.fatherProfessionType" />
 				</div>
 
 				<div class="col-sm-4">
@@ -170,9 +170,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.HouseholdInformationForm.fatherProfessionalCondition" />*
+						code="label.HouseholdInformationForm.fatherProfessionalCondition" />
 				</div>
 
 				<div class="col-sm-4">
@@ -190,8 +190,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.HouseholdInformationForm.householdSalarySpan" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.HouseholdInformationForm.householdSalarySpan" />
 				</div>
 
 				<div class="col-sm-4">
@@ -213,6 +213,17 @@ ${portal.toolkit()}
 		</div>
 	</div>
 </form>
+
+<style>
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
+</style>
 
 <script>
 $(document).ready(function() {

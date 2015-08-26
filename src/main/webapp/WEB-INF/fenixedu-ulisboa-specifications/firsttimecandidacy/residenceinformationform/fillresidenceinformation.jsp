@@ -71,9 +71,9 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
-						code="label.ResidenceInformationForm.countryOfResidence" />*
+						code="label.ResidenceInformationForm.countryOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
@@ -83,8 +83,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.address" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.ResidenceInformationForm.address" />
 				</div>
 
 				<div class="col-sm-10">
@@ -94,8 +94,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.area" />*
+				<div class="col-sm-2 control-label required-field" id="labelArea">
+					<spring:message code="label.ResidenceInformationForm.area" />
 				</div>
 
 				<div class="col-sm-10">
@@ -105,8 +105,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.areaCode" />*
+				<div class="col-sm-2 control-label required-field" id="labelAreaCode">
+					<spring:message code="label.ResidenceInformationForm.areaCode" />
 				</div>
 
 				<div class="col-sm-10">
@@ -118,9 +118,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field" id="labelDistrictOfBirth">
 					<spring:message
-						code="label.ResidenceInformationForm.districtOfResidence" />*
+						code="label.ResidenceInformationForm.districtOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
@@ -131,9 +131,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfBirth">
 					<spring:message
-						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />*
+						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
@@ -146,9 +146,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field" id="labelParishOfBirth">
 					<spring:message
-						code="label.ResidenceInformationForm.parishOfResidence" />*
+						code="label.ResidenceInformationForm.parishOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
@@ -290,6 +290,17 @@ ${portal.toolkit()}
 	</div>
 </form>
 
+<style>
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
+</style>
+
 <script>
 $(document).ready(function() {
 	//setup country options	             		
@@ -325,6 +336,18 @@ $(document).ready(function() {
 				             		$("#filiationForm_districtSubdivisionOfBirth").val("").trigger("change");
 				             		$("#filiationForm_parishOfBirth").val("").trigger("change");
 				             		$("#residenceInformationForm_areaCode").val("").trigger("change");
+
+				             		$('#labelArea').removeClass("required-field");
+				             		$('#labelAreaCode').removeClass("required-field");
+				             		$('#labelDistrictOfBirth').removeClass("required-field");
+				             		$('#labelDistrictSubdivisionOfBirth').removeClass("required-field");
+				             		$('#labelParishOfBirth').removeClass("required-field");
+			             		} else {
+			             			$('#labelArea').addClass("required-field");
+				             		$('#labelAreaCode').addClass("required-field");
+			             			$('#labelDistrictOfBirth').addClass("required-field");
+			             			$('#labelDistrictSubdivisionOfBirth').addClass("required-field");
+			             			$('#labelParishOfBirth').addClass("required-field");
 			             		}
 			             	  }
 

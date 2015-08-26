@@ -70,7 +70,7 @@ ${portal.toolkit()}
 <div class="panel panel-default">
   <div class="panel-body">
 <div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.SchoolSpecificData.vaccinationValidity"/>*</div>
+<div class="col-sm-2 control-label required-field"><spring:message code="label.SchoolSpecificData.vaccinationValidity"/></div>
 
 <div class="col-sm-10">
 	<input id="schoolSpecificData_vaccinationValidity" class="form-control" name="vaccinationValidity"  type="text" bennu-date value='<c:out value='${vaccinationValidity}'/>' />
@@ -82,6 +82,17 @@ ${portal.toolkit()}
 <div class="panel-footer">
 	<button class="btn btn-default" onclick="submitform()" ><spring:message code="label.submit" /></button>
 </div>
+
+<style>
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
+</style>
 
 <script>
 function submitform(){

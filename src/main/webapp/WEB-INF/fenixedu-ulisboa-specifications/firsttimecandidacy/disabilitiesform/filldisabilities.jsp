@@ -73,8 +73,8 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.hasDisabilities" />*
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.DisabilitiesForm.hasDisabilities" />
 				</div>
 
 				<div class="col-sm-2">
@@ -88,8 +88,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.disabilityType" />*
+				<div class="col-sm-2 control-label required-field" id="labelDisabilityType">
+					<spring:message code="label.DisabilitiesForm.disabilityType" />
 				</div>
 
 				<div class="col-sm-4">
@@ -105,8 +105,8 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.otherDisabilityType" />*
+				<div class="col-sm-2 control-label required-field" id="labelOtherDisabilityType">
+					<spring:message code="label.DisabilitiesForm.otherDisabilityType" />
 				</div>
 
 				<div class="col-sm-10">
@@ -115,9 +115,9 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field" id="labelNeedsDisabilitySupport">
 					<spring:message
-						code="label.DisabilitiesForm.needsDisabilitySupport" />*
+						code="label.DisabilitiesForm.needsDisabilitySupport" />
 				</div>
 
 				<div class="col-sm-2">
@@ -142,6 +142,14 @@ ${portal.toolkit()}
 	.form-control[disabled] {
     	background: #dddddd;
 	}
+	.required-field:after {
+		content: '*';
+		color: #e06565;
+		font-weight: 900;
+		margin-left: 2px;
+		font-size: 14px;
+		display: inline;
+	}
 </style>
 <script>
 $(document).ready(function() {
@@ -149,6 +157,16 @@ $(document).ready(function() {
 			$("#disabilitiesForm_disabilityType").attr("disabled", bool);
 			$("#disabilitiesForm_otherDisabilityType").attr("disabled", bool);
 			$("#disabilitiesForm_needsDisabilitySupport").attr("disabled", bool);
+			
+			if (bool) {
+				$('#labelDisabilityType').removeClass("required-field");
+				$('#labelOtherDisabilityType').removeClass("required-field");
+				$('#labelNeedsDisabilitySupport').removeClass("required-field");
+			} else {
+				$('#labelDisabilityType').addClass("required-field");
+				$('#labelOtherDisabilityType').addClass("required-field");
+				$('#labelNeedsDisabilitySupport').addClass("required-field");
+			}
 		}
 		<c:if test="${!disabilitiesForm.hasDisabilities}">
 			changeFieldsState(true);
