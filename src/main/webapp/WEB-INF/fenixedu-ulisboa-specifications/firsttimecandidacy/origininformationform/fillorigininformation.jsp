@@ -237,6 +237,7 @@ ${portal.toolkit()}
 </form>
 
 <script>
+	defaultCountry = <%=Country.readDefault().getExternalId()%>;
 $(document).ready(function() {
 	//setup country options	             		
 	country_options = [
@@ -256,6 +257,8 @@ $(document).ready(function() {
 
    	 $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().on("change", function(){
    		configureOriginInformationFieldsEditableState();
+   		//enforce change event in school level to recalculate units provider endpoint
+   		$("#originInformationForm_schoolLevel").trigger("change");
 	   });
    	    
    		$("#originInformationForm_schoolLevel").trigger("change");
@@ -263,10 +266,12 @@ $(document).ready(function() {
    		updateDegreeDesignationsUrl();
    		configureOriginInformationFieldsEditableState();
 	});
-	
+function currentSelectedCountry(){
+	return $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").val();
+}
+
 function configureOriginInformationFieldsEditableState(){
- 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
-	bool = $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").val() != defaultCountry;
+	bool = currentSelectedCountry() != defaultCountry;
 	$("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
 	$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").attr("disabled", bool);
 	
@@ -340,7 +345,7 @@ function configureOriginInformationFieldsEditableState(){
 		
 		val = $("#originInformationForm_schoolLevel").val();
 		
-		if(isHigherEducation(val)){
+		if(isHigherEducation(val) && currentSelectedCountry() == defaultCountry){
 			$("#originInformationForm_raidesDegreeDesignation_row").show();
 			$("#originInformationForm_degreeDesignation_row").hide();
 			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",
