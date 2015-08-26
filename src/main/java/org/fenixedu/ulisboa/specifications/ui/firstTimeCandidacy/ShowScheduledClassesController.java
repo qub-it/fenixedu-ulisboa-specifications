@@ -27,7 +27,17 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +53,14 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
 
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
+        if (registrationRequiresManualClassEnrolment(registration)
+                && !checkClassEnrolments(registration, ExecutionYear.readCurrentExecutionYear())) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "label.firstTimeCandidacy.error.invalidNumberOfShiftsEnrolments"), model);
+            return new ScheduleClassesController().scheduleclasses(model, redirectAttributes);
+        }
+
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses";
     }
 
@@ -52,5 +70,30 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition", model, redirectAttributes);
+    }
+
+    private boolean registrationRequiresManualClassEnrolment(Registration registration) {
+        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
+                registration.getDegree().getFirstYearRegistrationConfiguration();
+        return firstYearRegistrationConfiguration != null
+                && (firstYearRegistrationConfiguration.getRequiresClassesEnrolment() || firstYearRegistrationConfiguration
+                        .getRequiresShiftsEnrolment());
+    }
+
+    private boolean checkClassEnrolments(Registration registration, ExecutionYear currentExecutionYear) {
+        //Compare the number of semesters for which the student has enrolments with the number os expected semesters (1 ou 2 depending if it has opened periods)
+        Set<ExecutionSemester> executionPeriodsSet = currentExecutionYear.getExecutionPeriodsSet();
+        int numberOfExpectedSemestersToBeEnroled =
+                registration
+                        .getStudentCurricularPlan(currentExecutionYear)
+                        .getDegreeCurricularPlan()
+                        .getEnrolmentPeriodsSet()
+                        .stream()
+                        .filter(ep -> executionPeriodsSet.contains(ep.getExecutionPeriod())
+                                && ep instanceof EnrolmentPeriodInClassesCandidate).collect(Collectors.toList()).size();
+        int numberOfEnroledSemesters =
+                registration.getShiftsSet().stream().map(shift -> shift.getExecutionPeriod())
+                        .filter(ep -> executionPeriodsSet.contains(ep)).collect(Collectors.toList()).size();
+        return numberOfEnroledSemesters == numberOfExpectedSemestersToBeEnroled;
     }
 }

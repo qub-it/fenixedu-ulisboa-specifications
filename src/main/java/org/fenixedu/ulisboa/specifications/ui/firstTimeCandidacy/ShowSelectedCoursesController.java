@@ -27,6 +27,13 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.stream.Collectors;
+
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -42,7 +49,20 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
+
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
+        if (registrationRequiresManualCourseEnrolment(registration)
+                && !checkCourseEnrolments(registration, ExecutionYear.readCurrentExecutionYear())) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "label.firstTimeCandidacy.error.invalidNumberOfCourseEnrolments"), model);
+            return new ChooseOptionalCoursesController().chooseoptionalcourses(model, redirectAttributes);
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses";
+    }
+
+    private boolean registrationRequiresManualCourseEnrolment(Registration registration) {
+        return registration.getDegree().getFirstYearRegistrationConfiguration() != null
+                && registration.getDegree().getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
     }
 
     @RequestMapping(value = "/continue")
@@ -51,5 +71,16 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses", model, redirectAttributes);
+    }
+
+    private boolean checkCourseEnrolments(Registration registration, ExecutionYear currentExecutionYear) {
+        //Compare the number of semesters for which the student has enrolments with the number os expected semesters (1 ou 2 depending if is yearly)
+        int numberOfSemestersInWhichHasEnrolments =
+                registration.getEnrolments(currentExecutionYear).stream().map(en -> en.getExecutionPeriod()).distinct()
+                        .collect(Collectors.toList()).size();
+        int expectedNumberOfSemestersToHaveEnrolments =
+                registration.getStudentCurricularPlan(currentExecutionYear).getDegreeCurricularPlan()
+                        .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR ? 2 : 1;
+        return expectedNumberOfSemestersToHaveEnrolments == numberOfSemestersInWhichHasEnrolments;
     }
 }
