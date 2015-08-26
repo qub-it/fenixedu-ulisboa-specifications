@@ -40,9 +40,12 @@ public class StudentActive {
     public static boolean isActiveStudent(Student student) {
         boolean hasActiveRegistrationsWithEnrolments = false;
         boolean activeRegistrationCreatedInTheLastMonth = false;
-        ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
-        ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
+        boolean isFirstYearFirstTime = false;
+        boolean isOtherKindOfCandidate = false;
+
         if (student != null) {
+            ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+            ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
             Predicate<? super Registration> registrationHasEnrolmentsInLast2Years =
                     registration -> !registration.getEnrolments(currentExecutionYear).isEmpty()
                             || !registration.getEnrolments(previousExecutionYear).isEmpty();
@@ -72,35 +75,35 @@ public class StudentActive {
                                         && registration.getStartDate().isAfter(lastMonth)
                                         && registration.getStartDate().isBefore(tomorrow)).collect(Collectors.toList()).isEmpty();
             }
-        }
-        //
-        // Detect if it's 1st year, 1st time
-        //
-        boolean isFirstYearFirstTime =
-                student.getPerson()
-                        .getCandidaciesSet()
-                        .stream()
-                        .filter(candidacy -> candidacy instanceof StudentCandidacy)
-                        .map(StudentCandidacy.class::cast)
-                        .anyMatch(
-                                studentCandidacy -> studentCandidacy.isActive() && studentCandidacy.getEntryPhase() != null
-                                        && studentCandidacy.getExecutionYear() == currentExecutionYear);
+            //
+            // Detect if it's 1st year, 1st time
+            //
+            isFirstYearFirstTime =
+                    student.getPerson()
+                            .getCandidaciesSet()
+                            .stream()
+                            .filter(candidacy -> candidacy instanceof StudentCandidacy)
+                            .map(StudentCandidacy.class::cast)
+                            .anyMatch(
+                                    studentCandidacy -> studentCandidacy.isActive() && studentCandidacy.getEntryPhase() != null
+                                            && studentCandidacy.getExecutionYear() == currentExecutionYear);
 
-        // Removing detecion of other kind of candidate (still leaving the code just in case) 
-        // Ana Rute asked us to not send other candidates has active students, only 1stYearFirstTime.
-        // This will be sent with the student flag active (and then synchronized with IDM) when they 
-        // finalize their candidacy situation and become an actual student
-        //
-        // 27 July 2015 - Paulo Abrantes
-        boolean isOtherKindOfCandidate =
-                student.getPerson()
-                        .getCandidaciesSet()
-                        .stream()
-                        .filter(candidacy -> candidacy instanceof StudentCandidacy)
-                        .map(StudentCandidacy.class::cast)
-                        .anyMatch(
-                                candidacy -> candidacy.getRegistration() != null && candidacy.getRegistration().isActive()
-                                        && candidacy.getExecutionYear() == currentExecutionYear);
+            // Removing detecion of other kind of candidate (still leaving the code just in case) 
+            // Ana Rute asked us to not send other candidates has active students, only 1stYearFirstTime.
+            // This will be sent with the student flag active (and then synchronized with IDM) when they 
+            // finalize their candidacy situation and become an actual student
+            //
+            // 27 July 2015 - Paulo Abrantes
+            isOtherKindOfCandidate =
+                    student.getPerson()
+                            .getCandidaciesSet()
+                            .stream()
+                            .filter(candidacy -> candidacy instanceof StudentCandidacy)
+                            .map(StudentCandidacy.class::cast)
+                            .anyMatch(
+                                    candidacy -> candidacy.getRegistration() != null && candidacy.getRegistration().isActive()
+                                            && candidacy.getExecutionYear() == currentExecutionYear);
+        }
 
         return hasActiveRegistrationsWithEnrolments || isFirstYearFirstTime || activeRegistrationCreatedInTheLastMonth;
     }
