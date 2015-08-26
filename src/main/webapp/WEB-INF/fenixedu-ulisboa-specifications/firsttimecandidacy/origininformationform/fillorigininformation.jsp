@@ -261,6 +261,7 @@ $(document).ready(function() {
    		$("#originInformationForm_schoolLevel").trigger("change");
    		
    		updateDegreeDesignationsUrl();
+   		configureOriginInformationFieldsEditableState();
 	});
 	
 function configureOriginInformationFieldsEditableState(){
@@ -470,5 +471,4 @@ function configureOriginInformationFieldsEditableState(){
 	             	    $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    	</c:if>
-   	configureOriginInformationFieldsEditableState();
 </script>
