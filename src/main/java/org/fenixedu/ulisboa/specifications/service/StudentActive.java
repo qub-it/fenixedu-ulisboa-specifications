@@ -33,6 +33,8 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 public class StudentActive {
@@ -65,15 +67,15 @@ public class StudentActive {
                 // This solution was discussed with João Rafael and Daniela Mendes from ULisboa.
                 //
                 // 21 August 2015 - Paulo Abrantes
-                YearMonthDay today = new YearMonthDay();
-                YearMonthDay lastMonth = today.minusMonths(1);
-                YearMonthDay tomorrow = today.plusDays(1);
+                LocalDate today = new LocalDate();
+                DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
                 activeRegistrationCreatedInTheLastMonth =
-                        !student.getActiveRegistrations()
+                        student.getActiveRegistrations()
                                 .stream()
-                                .filter(registration -> registration.getStartDate() != null
-                                        && registration.getStartDate().isAfter(lastMonth)
-                                        && registration.getStartDate().isBefore(tomorrow)).collect(Collectors.toList()).isEmpty();
+                                .filter(registration -> registration.getLastRegistrationState(currentExecutionYear) != null
+                                        && registration.getLastRegistrationState(currentExecutionYear).isActive()
+                                        && registration.getLastRegistrationState(currentExecutionYear).getStateDate()
+                                                .isAfter(lastMonth)).findAny().isPresent();
             }
             //
             // Detect if it's 1st year, 1st time
@@ -107,5 +109,4 @@ public class StudentActive {
 
         return hasActiveRegistrationsWithEnrolments || isFirstYearFirstTime || activeRegistrationCreatedInTheLastMonth;
     }
-
 }
