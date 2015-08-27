@@ -293,6 +293,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 	}
 	
 		class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod extends curricularPeriod.rule.RuleEnrolment {
+			boolean includeEnrolments;
 		}
 		
 		class curricularPeriod.rule.enrolment.CreditsInCurricularPeriod extends curricularPeriod.rule.RuleEnrolment {

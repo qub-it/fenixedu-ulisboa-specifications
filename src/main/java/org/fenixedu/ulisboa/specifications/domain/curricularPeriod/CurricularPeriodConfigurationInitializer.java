@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -272,11 +273,16 @@ public class CurricularPeriodConfigurationInitializer {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
             logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
 
+            final boolean includeEnrolmentsOnValidation =
+                    StringUtils.equals(dcp.getDegree().getCode(), "5595")
+                            || StringUtils.equals(dcp.getDegree().getCode(), "9822");
+
             final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
             if (configYear1 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+
+            CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod.createForYearInterval(configYear1, BigDecimal.ZERO, 2/* yearMin */,
                     Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
 
@@ -284,7 +290,7 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear2 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84));
+            CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84), includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod.createForYearInterval(configYear2, BigDecimal.ZERO, 3/* yearMin */,
                     Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
 
@@ -292,7 +298,7 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear3 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear3, BigDecimal.valueOf(84));
+            CreditsInEnrolmentPeriod.create(configYear3, BigDecimal.valueOf(84), includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod.createForYearInterval(configYear3, BigDecimal.ZERO, /* yearMin */4,
                     Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
 
@@ -300,7 +306,7 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear4 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear4, BigDecimal.valueOf(84));
+            CreditsInEnrolmentPeriod.create(configYear4, BigDecimal.valueOf(84), includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod.createForYearInterval(configYear4, BigDecimal.ZERO, /* yearMin */5,
                     Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
 
@@ -308,7 +314,7 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear5 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear5, BigDecimal.valueOf(84));
+            CreditsInEnrolmentPeriod.create(configYear5, BigDecimal.valueOf(84), includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod
                     .createForYear(configYear5, BigDecimal.ZERO, Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
 
@@ -316,7 +322,7 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear6 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear6, BigDecimal.valueOf(84));
+            CreditsInEnrolmentPeriod.create(configYear6, BigDecimal.valueOf(84), includeEnrolmentsOnValidation);
 
         }
     }
@@ -328,7 +334,6 @@ public class CurricularPeriodConfigurationInitializer {
     static private void initRuleEnrolmentFL() {
         // TODO legidio
     }
-
 
     static private void initRuleTransitionFF() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
@@ -524,7 +529,7 @@ public class CurricularPeriodConfigurationInitializer {
                     FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked));
         }
     }
-    
+
     static private void initRuleTransitionFMD() {
         // TODO legidio
     }

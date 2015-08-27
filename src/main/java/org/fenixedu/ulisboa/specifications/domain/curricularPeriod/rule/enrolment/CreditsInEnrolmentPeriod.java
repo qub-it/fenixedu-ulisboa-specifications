@@ -26,12 +26,17 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -39,12 +44,22 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
 
     protected CreditsInEnrolmentPeriod() {
         super();
+        setIncludeEnrolments(false);
     }
 
     @Atomic
     static public CreditsInEnrolmentPeriod createForSemester(final CurricularPeriodConfiguration configuration,
             final BigDecimal credits, final Integer semester) {
         return create(configuration, credits, semester);
+    }
+
+    @Atomic
+    static public CreditsInEnrolmentPeriod create(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
+            final boolean includeEnrolments) {
+        final CreditsInEnrolmentPeriod result = create(configuration, credits, /* semester */(Integer) null);
+        result.setIncludeEnrolments(includeEnrolments);
+
+        return result;
     }
 
     @Atomic
@@ -71,7 +86,7 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
         }
     }
-    
+
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
         if (getSemester() != null) {
@@ -89,11 +104,29 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     private RuleResult executeByYear(final EnrolmentContext enrolmentContext) {
         BigDecimal total = BigDecimal.ZERO;
 
+        final Set<DegreeModule> processedDegreeModules = Sets.newHashSet();
+        
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext, i -> i
                 .getExecutionPeriod().getExecutionYear() == enrolmentContext.getExecutionPeriod().getExecutionYear())) {
 
+            processedDegreeModules.add(degreeModuleToEvaluate.getDegreeModule());
+
             final BigDecimal credits = BigDecimal.valueOf(degreeModuleToEvaluate.getEctsCredits());
             total = total.add(credits);
+        }
+
+        if (getIncludeEnrolments()) {
+            for (final Enrolment enrolment : enrolmentContext.getStudentCurricularPlan().getEnrolmentsSet()) {
+
+                if (processedDegreeModules.contains(enrolment.getCurricularCourse())) {
+                    continue;
+                }
+
+                if (enrolment.getExecutionYear() == enrolmentContext.getExecutionYear()
+                        && enrolment.getExecutionPeriod() != enrolmentContext.getExecutionPeriod()) {
+                    total = total.add(enrolment.getEctsCreditsForCurriculum());
+                }
+            }
         }
 
         return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(total);
