@@ -38,6 +38,7 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsEnroledAsFirstTime;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsInCurricularPeriod;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsNotEnroled;
@@ -397,7 +398,21 @@ public class CurricularPeriodConfigurationInitializer {
     }
 
     static private void initRuleEnrolmentFL() {
-        // TODO legidio
+        for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
+            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+
+            for (int i = 1; i <= dcp.getDurationInYears(); i++) {
+                
+                final CurricularPeriodConfiguration config = findOrCreateConfig(dcp, i);
+                if (config == null) {
+                    continue;
+                }
+
+                CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(84));
+                CreditsEnroledAsFirstTime.create(config, BigDecimal.valueOf(60));
+            }
+
+        }
     }
 
     static private void initRuleTransitionFF() {
