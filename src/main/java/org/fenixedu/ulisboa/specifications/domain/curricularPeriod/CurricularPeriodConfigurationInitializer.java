@@ -43,6 +43,7 @@ import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolmen
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsNotEnroled;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition.ApprovedCredits;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition.FlunkedCredits;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition.FlunkedCurricularCourses;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition.StudentStatuteExecutiveRule;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.slf4j.Logger;
@@ -328,7 +329,71 @@ public class CurricularPeriodConfigurationInitializer {
     }
 
     static private void initRuleEnrolmentFMD() {
-        // TODO legidio
+        for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
+            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+
+            final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
+            if (configYear1 == null) {
+                continue;
+            }
+            CreditsInEnrolmentPeriod.createForSemester(configYear1, BigDecimal.valueOf(45), 1);
+            CreditsInEnrolmentPeriod.createForSemester(configYear1, BigDecimal.valueOf(45), 2);
+            CreditsInCurricularPeriod.createForYearInterval(configYear1, BigDecimal.ZERO, /* yearMin */2, /* yearMax */
+                    Math.min(dcp.getDurationInYears(), 5));
+            CreditsNotEnroled.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+
+            final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
+            if (configYear2 == null) {
+                continue;
+            }
+            CreditsInEnrolmentPeriod.createForSemester(configYear2, BigDecimal.valueOf(45), 1);
+            CreditsInEnrolmentPeriod.createForSemester(configYear2, BigDecimal.valueOf(45), 2);
+            CreditsInCurricularPeriod.createForYearInterval(configYear2, BigDecimal.ZERO, /* yearMin */3, /* yearMax */
+                    Math.min(dcp.getDurationInYears(), 5));
+            CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
+
+            final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
+            if (configYear3 == null) {
+                continue;
+            }
+            CreditsInEnrolmentPeriod.createForSemester(configYear3, BigDecimal.valueOf(45), 1);
+            CreditsInEnrolmentPeriod.createForSemester(configYear3, BigDecimal.valueOf(45), 2);
+            if (dcp.getDegreeDuration().intValue() > 3) {
+                CreditsInCurricularPeriod.createForYearInterval(configYear3, BigDecimal.ZERO, /* yearMin */4, /* yearMax */
+                        Math.min(dcp.getDurationInYears(), 5));
+            }
+            CreditsNotEnroled.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
+
+            final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
+            if (configYear4 == null) {
+                continue;
+            }
+            CreditsInEnrolmentPeriod.createForSemester(configYear4, BigDecimal.valueOf(45), 1);
+            CreditsInEnrolmentPeriod.createForSemester(configYear4, BigDecimal.valueOf(45), 2);
+            if (dcp.getDegreeDuration().intValue() > 4) {
+                CreditsInCurricularPeriod.createForYearInterval(configYear4, BigDecimal.ZERO, /* yearMin */5, /* yearMax */5);
+            }
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3);
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
+
+            final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
+            if (configYear5 == null) {
+                continue;
+            }
+            CreditsInEnrolmentPeriod.createForSemester(configYear5, BigDecimal.valueOf(45), 1);
+            CreditsInEnrolmentPeriod.createForSemester(configYear5, BigDecimal.valueOf(45), 2);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 4);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+            CreditsNotEnroled.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1);
+
+        }
     }
 
     static private void initRuleEnrolmentFL() {
@@ -531,7 +596,57 @@ public class CurricularPeriodConfigurationInitializer {
     }
 
     static private void initRuleTransitionFMD() {
-        // TODO legidio
+        for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
+            logger.info("Init RuleTransition for {}", dcp.getPresentationName());
+
+            final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
+            if (configYear2 == null) {
+                continue;
+            }
+
+            if (StringUtils.equals(dcp.getDegree().getCode(), "9556" /*LHO*/)) {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
+                FlunkedCurricularCourses.create(configYear2, BigDecimal.ZERO, 1, "9200114,9200112");
+            } else if (StringUtils.equals(dcp.getDegree().getCode(), "9791" /*LPD*/)) {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
+            } else {
+                FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
+            }
+
+            final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
+            if (configYear3 == null) {
+                continue;
+            }
+
+            if (StringUtils.equals(dcp.getDegree().getCode(), "9556" /*LHO*/)) {
+                FlunkedCredits.create(configYear3, BigDecimal.valueOf(15));
+                FlunkedCurricularCourses.create(configYear3, BigDecimal.ZERO, 1, "9200114,9200112");
+                FlunkedCurricularCourses.create(configYear3, BigDecimal.ZERO, 2, "9200127,9200126");
+            } else if (StringUtils.equals(dcp.getDegree().getCode(), "9791" /*LPD*/)) {
+                FlunkedCredits.create(configYear3, BigDecimal.valueOf(15));
+            } else {
+                FlunkedCredits.create(configYear3, BigDecimal.ZERO);
+            }
+
+            final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
+            if (configYear4 == null) {
+                continue;
+            }
+            FlunkedCredits.create(configYear4, BigDecimal.ZERO);
+
+            final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
+            if (configYear5 == null) {
+                continue;
+            }
+            FlunkedCredits.create(configYear5, BigDecimal.ZERO);
+
+            final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
+            if (configYear6 == null) {
+                continue;
+            }
+            FlunkedCredits.create(configYear6, BigDecimal.ZERO);
+
+        }
     }
 
 }

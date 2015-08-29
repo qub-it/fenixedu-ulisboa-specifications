@@ -53,8 +53,16 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
 
     private Set<CompetenceCourse> getCompetenceCourses() {
         if (this.competenceCourses == null) {
+            loadCompetenceCourses();
+        }
 
-            this.competenceCourses = Sets.newHashSet();
+        return this.competenceCourses;
+    }
+
+    private synchronized void loadCompetenceCourses() {
+        if (this.competenceCourses == null) {
+
+            final Set<CompetenceCourse> loadedCompetenceCourses = Sets.newHashSet();
             if (StringUtils.isNotBlank(getCodesCSV())) {
 
                 for (final String code : getCodesCSV().split(",")) {
@@ -63,12 +71,15 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
                     if (competenceCourse == null) {
                         logger.warn("[{}], for DCP [{}]: unable to find Competence Course [{}]", this, getDegreeCurricularPlan()
                                 .getPresentationName(), code);
+                    } else {
+                        loadedCompetenceCourses.add(competenceCourse);
                     }
                 }
             }
+
+            this.competenceCourses = loadedCompetenceCourses;
         }
 
-        return this.competenceCourses;
     }
 
     @Override
@@ -79,12 +90,13 @@ public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
 
     @Override
     public RuleResult execute(final Curriculum curriculum) {
-        final Set<CompetenceCourse> toInspect = getCompetenceCourses();
+        final Set<CompetenceCourse> toInspect = Sets.newHashSet();
+        toInspect.addAll(getCompetenceCourses());
 
         for (final ICurriculumEntry entry : curriculum.getCurricularYearEntries()) {
             for (Iterator<CompetenceCourse> iterator = toInspect.iterator(); iterator.hasNext();) {
                 final CompetenceCourse competenceCourse = iterator.next();
-                if (entry.getCode().equals(competenceCourse.getCode())) {
+                if (StringUtils.equals(entry.getCode(), competenceCourse.getCode())) {
                     iterator.remove();
                     break;
                 }

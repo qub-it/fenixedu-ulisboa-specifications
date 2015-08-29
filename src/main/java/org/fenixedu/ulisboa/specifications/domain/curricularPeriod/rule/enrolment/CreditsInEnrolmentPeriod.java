@@ -27,6 +27,7 @@ package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolme
 
 import java.math.BigDecimal;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -36,9 +37,9 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 
-import com.google.common.collect.Sets;
-
 import pt.ist.fenixframework.Atomic;
+
+import com.google.common.collect.Sets;
 
 public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
 
@@ -105,7 +106,7 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
         BigDecimal total = BigDecimal.ZERO;
 
         final Set<DegreeModule> processedDegreeModules = Sets.newHashSet();
-        
+
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext, i -> i
                 .getExecutionPeriod().getExecutionYear() == enrolmentContext.getExecutionPeriod().getExecutionYear())) {
 
@@ -135,8 +136,11 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     private RuleResult executeBySemester(final EnrolmentContext enrolmentContext) {
         BigDecimal total = BigDecimal.ZERO;
 
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext,
-                i -> i.getExecutionPeriod() == enrolmentContext.getExecutionPeriod())) {
+        final Predicate<IDegreeModuleToEvaluate> filter =
+                i -> i.isAnnualCurricularCourse(enrolmentContext.getExecutionYear()) ? i.getExecutionPeriod().getExecutionYear() == enrolmentContext
+                        .getExecutionYear() : i.getExecutionPeriod() == enrolmentContext.getExecutionPeriod();
+
+        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext, filter)) {
 
             final BigDecimal credits =
                     BigDecimal.valueOf(degreeModuleToEvaluate.getAccumulatedEctsCredits(enrolmentContext.getExecutionPeriod()));
