@@ -368,7 +368,8 @@ ${portal.angularToolkit()}
 						hiddenDays: [0],						
 						editable: false,
 						eventLimit: true, // allow "more" link when too many events
-						events : "${eventsUrl}"
+						events : "${eventsUrl}",
+						height: "auto"
 					});
 				
 			});
