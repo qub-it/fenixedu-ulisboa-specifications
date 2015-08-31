@@ -61,6 +61,11 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
             return new ScheduleClassesController().scheduleclasses(model, redirectAttributes);
         }
 
+        // Add attributes to enable ajax schedule reading
+        // For now we will only present the schedule for the current semester, we may be required in the future to present it for both semesters
+        model.addAttribute("registration", registration);
+        model.addAttribute("semester", ExecutionSemester.readActualExecutionSemester());
+
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses";
     }
 

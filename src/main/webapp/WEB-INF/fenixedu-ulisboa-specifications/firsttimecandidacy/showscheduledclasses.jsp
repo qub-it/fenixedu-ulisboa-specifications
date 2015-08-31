@@ -71,11 +71,4 @@ ${portal.toolkit()}
 				</div>	
 			</c:if>
 
-
-<script>
-$(document).ready(function() {
-
-	
-	
-	});
-</script>
+<jsp:include page="scheduledClassesWidget.jsp"/>
