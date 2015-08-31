@@ -27,8 +27,6 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
-import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
-import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -59,14 +57,13 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         authorizeSharingDataWithCGD(true);
-        resetCandidacySummaryFile(FirstTimeCandidacyController.getCandidacy());
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
-
         boolean wsCallSuccess = StudentAccessServices.triggerSyncRegistrationToExternal(registration);
         if (wsCallSuccess) {
             return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
         } else {
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
+            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint/withModel43", model,
+                    redirectAttributes);
         }
     }
 
@@ -76,21 +73,12 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         authorizeSharingDataWithCGD(false);
-        resetCandidacySummaryFile(FirstTimeCandidacyController.getCandidacy());
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
+        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint/withModel43", model,
+                redirectAttributes);
     }
 
     @Atomic
     private void authorizeSharingDataWithCGD(boolean authorize) {
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setAuthorizeSharingDataWithCGD(authorize);
-    }
-
-    @Atomic
-    public static void resetCandidacySummaryFile(StudentCandidacy studentCandidacy) {
-        CandidacySummaryFile summaryFile = studentCandidacy.getSummaryFile();
-        if (summaryFile != null) {
-            summaryFile.setStudentCandidacy(null);
-            summaryFile.delete();
-        }
     }
 }

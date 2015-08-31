@@ -27,8 +27,16 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
+import javax.servlet.ServletContext;
+
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -40,13 +48,21 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSig
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.service.factoryExecutors.DocumentRequestCreator;
 import org.fenixedu.academictreasury.services.reports.DocumentPrinter;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.pdf.PdfCopyFields;
+import com.lowagie.text.pdf.PdfReader;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint")
@@ -57,9 +73,51 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
+        printToCandidacySummaryFile(false);
+        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
+    }
+
+    @RequestMapping(value = "/withModel43")
+    public String documentsprintWithModel43(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
+        printToCandidacySummaryFile(true);
+        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
+    }
+
+    private void printToCandidacySummaryFile(boolean includeModel43) {
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
+        resetCandidacySummaryFile(candidacy);
 
+        byte[] registrationDeclarationbytes = printRegistrationDeclaration(candidacy, registration);
+        appendSummaryFile(registrationDeclarationbytes, candidacy);
+
+        if (includeModel43) {
+            byte[] model43bytes = printModel43();
+            appendSummaryFile(model43bytes, candidacy);
+        }
+
+        byte[] tuitionPlanbytes = DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF);
+        appendSummaryFile(tuitionPlanbytes, candidacy);
+    }
+
+    @Atomic
+    private static void resetCandidacySummaryFile(StudentCandidacy studentCandidacy) {
+        CandidacySummaryFile summaryFile = studentCandidacy.getSummaryFile();
+        if (summaryFile != null) {
+            summaryFile.setStudentCandidacy(null);
+            summaryFile.delete();
+        }
+    }
+
+    private @Autowired ServletContext context;
+
+    private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
+
+    @Atomic
+    private byte[] printRegistrationDeclaration(StudentCandidacy candidacy, Registration registration) {
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
         documentRequestCreator.setChosenServiceRequestType(ServiceRequestType.findUnique(AcademicServiceRequestType.DOCUMENT,
                 DocumentRequestType.SCHOOL_REGISTRATION_DECLARATION));
@@ -69,31 +127,68 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         DocumentRequest document = (DocumentRequest) documentRequestCreator.execute();
         resetDocumentSigner(document);
         processConcludeAndDeliver(document);
-        byte[] bytes = document.generateDocument();
-        Model43PrintController.appendSummaryFile(bytes, candidacy);
-        Model43PrintController.appendSummaryFile(
-                DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF), candidacy);
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
+
+        return document.generateDocument();
     }
 
-    @RequestMapping(value = "/continue")
-    public String documentsprintToContinue(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
-        }
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
-    }
-
-    @Atomic
     private void resetDocumentSigner(DocumentRequest documentRequest) {
         documentRequest.setDocumentSigner(DocumentSigner.findDefaultDocumentSignature());
     }
 
-    @Atomic
     private void processConcludeAndDeliver(DocumentRequest documentRequest) {
         documentRequest.setNumberOfPages(1);
         documentRequest.process();
         documentRequest.concludeServiceRequest();
         documentRequest.delivered();
+    }
+
+    private byte[] printModel43() {
+        Person person = Authenticate.getUser().getPerson();
+
+        InputStream pdfTemplateStream;
+        if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
+            pdfTemplateStream =
+                    new ByteArrayInputStream(FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template()
+                            .getContent());
+        } else {
+            pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
+        }
+
+        ByteArrayOutputStream stream;
+        try {
+            CGDPdfFiller cgdPdfFiller = new CGDPdfFiller();
+            stream = cgdPdfFiller.getFilledPdf(person, pdfTemplateStream);
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return stream.toByteArray();
+    }
+
+    @Atomic
+    private static void appendSummaryFile(byte[] pdfByteArray, StudentCandidacy studentCandidacy) {
+        CandidacySummaryFile existingSummary = studentCandidacy.getSummaryFile();
+        if (existingSummary != null) {
+            byte[] existingContent = existingSummary.getContent();
+            pdfByteArray = concatenateDocs(existingContent, pdfByteArray).toByteArray();
+            existingSummary.setStudentCandidacy(null);
+            existingSummary.delete();
+        }
+
+        studentCandidacy.setSummaryFile(new CandidacySummaryFile(studentCandidacy.getPerson().getStudent().getNumber() + ".pdf",
+                pdfByteArray, studentCandidacy));
+    }
+
+    private static ByteArrayOutputStream concatenateDocs(byte[] existingDoc, byte[] newDoc) {
+        ByteArrayOutputStream concatenatedPdf = new ByteArrayOutputStream();
+        try {
+            PdfCopyFields copy = new PdfCopyFields(concatenatedPdf);
+            copy.addDocument(new PdfReader(existingDoc));
+            copy.addDocument(new PdfReader(newDoc));
+            copy.close();
+        } catch (DocumentException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return concatenatedPdf;
     }
 }
