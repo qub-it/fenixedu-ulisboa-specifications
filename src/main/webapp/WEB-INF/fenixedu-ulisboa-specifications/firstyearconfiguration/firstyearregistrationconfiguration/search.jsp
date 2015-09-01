@@ -68,7 +68,7 @@ ${portal.toolkit()}
 				</div>	
 			</c:if>
 
-
+<h2><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></h2>
 <div class="panel panel-primary">
 	<div class="panel-heading">
 	</div>
@@ -88,8 +88,27 @@ ${portal.toolkit()}
 		</form>
 	</div>
 </div>
+<h2><spring:message code="label.FirstYearRegistrationConfiguration.introductionText"/></h2>
+<div class="panel panel-primary">
+	<div class="panel-heading">
+	</div>
+	<div class="panel-body">
+		<form method="post" class="form-horizontal">
+			<table class="table">
+				<tbody>
+					<tr>
+						<th scope="row" class="col-xs-2"><spring:message code="label.FirstYearRegistrationConfiguration.introductionText"/></th> 
+						<td class="col-xs-10">
+							<textarea readonly bennu-localized-string><c:out value='${firstYearRegistrationGlobalConfiguration.introductionText.json()}' /></textarea>
+						</td> 
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
 
-
+<h2><spring:message code="label.FirstYearRegistrationConfiguration.configurationByDegree"/></h2>
 <c:choose>
 	<c:when test="${not empty searchfirstyearregistrationconfigurationResultsDataSet}">
 		<table id="searchfirstyearregistrationconfigurationTable" class="table responsive table-bordered table-hover">
@@ -174,5 +193,12 @@ ${portal.toolkit()}
 		    } );
 		  
 	}); 
+	
+	
+	$(document).ready(function() {
+
+		
+		$("textarea").attr("readonly", true);
+	});
 </script>
 

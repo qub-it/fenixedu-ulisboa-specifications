@@ -32,8 +32,7 @@ ${portal.toolkit()}
 </div>
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/"  ><spring:message code="label.event.firstYearConfiguration.cancel" /></a>&nbsp;|&nbsp;
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" onClick="saveForms()"><spring:message code="label.event.firstYearConfiguration.save" /> </a>
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/"  ><spring:message code="label.event.firstYearConfiguration.cancel" /></a>
 </div>
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
@@ -70,6 +69,7 @@ ${portal.toolkit()}
 			</c:if>
 
 
+<h2><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></h2>
 <form id="templateForm" class="form-horizontal" enctype="multipart/form-data" action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/uploadTemplate" method="POST">
 	<div class="panel panel-default">
   		<div class="panel-body">
@@ -85,6 +85,25 @@ ${portal.toolkit()}
 </form>
 
 
+<h2><spring:message code="label.FirstYearRegistrationConfiguration.introductionText"/></h2>
+<form id="introductionTextForm" class="form-horizontal" action="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/introductionText" method="POST">
+	<div class="panel panel-default">
+  		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label"><spring:message code="label.FirstYearRegistrationConfiguration.introductionText"/></div> 
+				<div class="col-sm-4">
+					<textarea type="text" id="introductionText" name="introductionText" required bennu-localized-string ><c:out value='${firstYearRegistrationGlobalConfiguration.introductionText.json()}' /></textarea>
+					<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<h2><spring:message code="label.FirstYearRegistrationConfiguration.configurationByDegree"/></h2>
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" onClick="saveForms()"><spring:message code="label.event.firstYearConfiguration.save" /> </a>
+</div>
 <c:choose>
 	<c:when test="${not empty editResultsDataSet}">
 		<table id="editTable" class="table responsive table-bordered table-hover">

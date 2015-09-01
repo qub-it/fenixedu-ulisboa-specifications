@@ -34,6 +34,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -98,6 +99,7 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
         List<FirstYearRegistrationConfigurationBean> editResultsDataSet = getSearchUniverseDataSet();
 
         model.addAttribute("editResultsDataSet", editResultsDataSet);
+        model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
         return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit";
     }
 
@@ -169,6 +171,13 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
     private List<FirstYearRegistrationConfigurationBean> getSearchUniverseDataSet() {
         return Bennu.getInstance().getDegreesSet().stream().filter(d -> d.isActive())
                 .map(d -> new FirstYearRegistrationConfigurationBean(d)).collect(Collectors.toList());
+    }
+
+    @Atomic
+    @RequestMapping(value = _EDIT_URI + "/introductionText", method = RequestMethod.POST)
+    public String writeIntroductionText(@RequestParam("introductionText") LocalizedString introductionText, Model model) {
+        FirstYearRegistrationGlobalConfiguration.getInstance().setIntroductionText(introductionText);
+        return search(model);
     }
 
     public static class FirstYearRegistrationConfigurationBean {

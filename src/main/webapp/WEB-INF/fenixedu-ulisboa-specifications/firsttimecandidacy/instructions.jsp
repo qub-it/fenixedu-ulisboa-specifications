@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration"%>
 <%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -95,7 +96,7 @@ ${portal.toolkit()}
 </c:if>
 
 <div class="well start">
-	<p><spring:message code="label.firstTimeCandidacy.instructions.details" arguments='<%= Unit.getInstitutionName().getContent()  %>' htmlEscape="false"/></p>
+	<%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %>
 </div>
 
 <div>
