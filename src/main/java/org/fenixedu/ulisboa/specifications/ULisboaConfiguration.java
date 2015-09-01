@@ -26,6 +26,12 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "quality.mode.masterPassword")
         public String getMasterPassword();
+
+        @ConfigurationProperty(key = "services.sas.activeStudents.enabled", defaultValue = "false")
+        public Boolean getActiveStudentsServoceEnable();
+
+        @ConfigurationProperty(key = "services.sas.activeStudents.threadNumber", defaultValue = "20")
+        public Integer getActiveStudentsThreadNumber();
     }
 
     public static ConfigurationProperties getConfiguration() {
