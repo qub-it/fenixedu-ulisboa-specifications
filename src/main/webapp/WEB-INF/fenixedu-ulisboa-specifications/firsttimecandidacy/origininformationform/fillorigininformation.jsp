@@ -18,8 +18,8 @@ ${portal.toolkit()}
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/dataTables.responsive.js"></script>
 <link href="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/css/dataTables.tableTools.css" rel="stylesheet"/>
 <script src="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/js/dataTables.tableTools.js"></script>
-<link href="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/css/select2.min.css" rel="stylesheet" />
-<script src="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/js/select2.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.full.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js" ></script>
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/omnis.js"></script>
 
@@ -249,6 +249,9 @@ ${portal.toolkit()}
 
 <script>
 	defaultCountry = <%=Country.readDefault().getExternalId()%>;
+	sortFunction = function(a,b) {
+		return a.text.localeCompare(b.text);
+	};
 $(document).ready(function() {
 	//setup country options	             		
 	country_options = [
@@ -258,7 +261,7 @@ $(document).ready(function() {
 	             					id : "<c:out value='${element.externalId}'/>"
 	             				},
 	             			</c:forEach>
-	             		];
+	             		].sort(sortFunction);
    		$("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2(
    			{
    				data : country_options,
@@ -318,7 +321,7 @@ function configureOriginInformationFieldsEditableState(){
 	    	  }
 	      }
 	      return {
-	        results: newData
+	        results: newData.sort(sortFunction)
 	      };
 	    },
 	    cache: true
@@ -339,7 +342,7 @@ function configureOriginInformationFieldsEditableState(){
 	$("#originInformationForm_institution").select2({
 		ajax: ajaxData,
 		sorter: function(data) {
-	        return data.sort();
+	        return data.sort(sortFunction);
 	    }
 	});
 	$("#originInformationForm_institution").select2('val', '<c:out value='${originInformationForm.institutionOid}'/>');
@@ -416,7 +419,7 @@ function configureOriginInformationFieldsEditableState(){
 		    	  }
 		      }
 		      return {
-		        results: newData
+		        results: newData.sort(sortFunction)
 		      };
 		    },
 		    cache: true
@@ -446,7 +449,7 @@ function configureOriginInformationFieldsEditableState(){
            					id : "<c:out value='${element.externalId}'/>"
            				},
            			</c:forEach>
-           		];
+           		].sort(sortFunction);
 
            	   $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2(
 	             			{
@@ -467,7 +470,7 @@ function configureOriginInformationFieldsEditableState(){
   					 $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").children().remove();
   					 $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2(
 		             			{
-		             				data : result,
+		             				data : result.sort(sortFunction),
 		             			}	  
 		             	    );
   					$("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2();
@@ -487,7 +490,7 @@ function configureOriginInformationFieldsEditableState(){
             					id : "<c:out value='${element.externalId}'/>"
             				},
             			</c:forEach>
-            		];
+            		].sort(sortFunction);
 
             	   $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2(
 	             			{
