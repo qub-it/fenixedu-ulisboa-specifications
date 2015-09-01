@@ -26,6 +26,7 @@
  */
 package org.fenixedu.ulisboa.specifications.service;
 
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -43,7 +45,7 @@ public class StudentActive {
         boolean hasActiveRegistrationsWithEnrolments = false;
         boolean activeRegistrationCreatedInTheLastMonth = false;
         boolean isFirstYearFirstTime = false;
-        boolean isOtherKindOfCandidate = false;
+//        boolean isOtherKindOfCandidate = false;
 
         if (student != null) {
             ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
@@ -51,9 +53,10 @@ public class StudentActive {
             Predicate<? super Registration> registrationHasEnrolmentsInLast2Years =
                     registration -> !registration.getEnrolments(currentExecutionYear).isEmpty()
                             || !registration.getEnrolments(previousExecutionYear).isEmpty();
+            List<Registration> activeRegistrations = student.getActiveRegistrations();
             hasActiveRegistrationsWithEnrolments =
-                    !student.getActiveRegistrations().stream().filter(registrationHasEnrolmentsInLast2Years)
-                            .collect(Collectors.toList()).isEmpty();
+                    !activeRegistrations.stream().filter(registrationHasEnrolmentsInLast2Years).collect(Collectors.toList())
+                            .isEmpty();
 
             if (!hasActiveRegistrationsWithEnrolments) {
                 // There are special kinds of students, for example in protocols, where they are created in Fenix,
@@ -69,26 +72,33 @@ public class StudentActive {
                 // 21 August 2015 - Paulo Abrantes
                 LocalDate today = new LocalDate();
                 DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
-                activeRegistrationCreatedInTheLastMonth =
-                        student.getActiveRegistrations()
-                                .stream()
-                                .filter(registration -> registration.getLastRegistrationState(currentExecutionYear) != null
-                                        && registration.getLastRegistrationState(currentExecutionYear).isActive()
-                                        && registration.getLastRegistrationState(currentExecutionYear).getStateDate()
-                                                .isAfter(lastMonth)).findAny().isPresent();
+                for (Registration activeRegistration : activeRegistrations) {
+                    RegistrationState lastRegistrationState = activeRegistration.getLastRegistrationState(currentExecutionYear);
+                    activeRegistrationCreatedInTheLastMonth =
+                            lastRegistrationState != null && lastRegistrationState.isActive()
+                                    && lastRegistrationState.getStateDate() != null
+                                    && lastRegistrationState.getStateDate().isAfter(lastMonth);
+
+                    if (activeRegistrationCreatedInTheLastMonth) {
+                        break;
+                    }
+                }
             }
             //
             // Detect if it's 1st year, 1st time
             //
-            isFirstYearFirstTime =
-                    student.getPerson()
-                            .getCandidaciesSet()
-                            .stream()
-                            .filter(candidacy -> candidacy instanceof StudentCandidacy)
-                            .map(StudentCandidacy.class::cast)
-                            .anyMatch(
-                                    studentCandidacy -> studentCandidacy.isActive() && studentCandidacy.getEntryPhase() != null
-                                            && studentCandidacy.getExecutionYear() == currentExecutionYear);
+            if (!hasActiveRegistrationsWithEnrolments && !activeRegistrationCreatedInTheLastMonth) {
+                isFirstYearFirstTime =
+                        student.getPerson()
+                                .getCandidaciesSet()
+                                .stream()
+                                .filter(candidacy -> candidacy instanceof StudentCandidacy)
+                                .map(StudentCandidacy.class::cast)
+                                .anyMatch(
+                                        studentCandidacy -> studentCandidacy.isActive()
+                                                && studentCandidacy.getEntryPhase() != null
+                                                && studentCandidacy.getExecutionYear() == currentExecutionYear);
+            }
 
             // Removing detecion of other kind of candidate (still leaving the code just in case) 
             // Ana Rute asked us to not send other candidates has active students, only 1stYearFirstTime.
@@ -96,15 +106,15 @@ public class StudentActive {
             // finalize their candidacy situation and become an actual student
             //
             // 27 July 2015 - Paulo Abrantes
-            isOtherKindOfCandidate =
-                    student.getPerson()
-                            .getCandidaciesSet()
-                            .stream()
-                            .filter(candidacy -> candidacy instanceof StudentCandidacy)
-                            .map(StudentCandidacy.class::cast)
-                            .anyMatch(
-                                    candidacy -> candidacy.getRegistration() != null && candidacy.getRegistration().isActive()
-                                            && candidacy.getExecutionYear() == currentExecutionYear);
+//            isOtherKindOfCandidate =
+//                    student.getPerson()
+//                            .getCandidaciesSet()
+//                            .stream()
+//                            .filter(candidacy -> candidacy instanceof StudentCandidacy)
+//                            .map(StudentCandidacy.class::cast)
+//                            .anyMatch(
+//                                    candidacy -> candidacy.getRegistration() != null && candidacy.getRegistration().isActive()
+//                                            && candidacy.getExecutionYear() == currentExecutionYear);
         }
 
         return hasActiveRegistrationsWithEnrolments || isFirstYearFirstTime || activeRegistrationCreatedInTheLastMonth;
