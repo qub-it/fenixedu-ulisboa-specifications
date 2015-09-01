@@ -497,4 +497,9 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
             }
         };
     }
+
+    @Override
+    public String getFilename() {
+        return "log.txt";
+    }
 }

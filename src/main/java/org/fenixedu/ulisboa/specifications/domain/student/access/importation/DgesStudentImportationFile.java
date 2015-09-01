@@ -22,6 +22,8 @@ package org.fenixedu.ulisboa.specifications.domain.student.access.importation;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.spaces.domain.Space;
 
 import pt.ist.fenixframework.Atomic;
@@ -52,5 +54,10 @@ public class DgesStudentImportationFile extends DgesStudentImportationFile_Base 
         }
 
         return new DgesStudentImportationFile(contents, filename);
+    }
+
+    @Override
+    public boolean isAccessible(User user) {
+        return Group.parse("academic(scope=ADMINISTRATION) | academic(scope=OFFICE) | #managers").isMember(user);
     }
 }
