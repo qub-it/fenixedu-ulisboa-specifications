@@ -50,4 +50,19 @@ public class UlisboaEnrolmentContextHandler extends EnrolmentContextHandler {
         }
         return Optional.empty();
     }
+
+    @Override
+    public Optional<String> getReturnURLForStudentInFullClasses(HttpServletRequest request, Registration registration) {
+        if (registration == null) {
+            return Optional.empty();
+        }
+        boolean inCandidateEnrolmentProcess =
+                registration.getStudentCurricularPlanForCurrentExecutionYear().isInCandidateEnrolmentProcess(
+                        ExecutionYear.readCurrentExecutionYear());
+        if (inCandidateEnrolmentProcess) {
+            return Optional.of(request.getContextPath()
+                    + "/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses");
+        }
+        return new DefaultEnrolmentContextHandler().getReturnURLForStudentInFullClasses(request, registration);
+    }
 }

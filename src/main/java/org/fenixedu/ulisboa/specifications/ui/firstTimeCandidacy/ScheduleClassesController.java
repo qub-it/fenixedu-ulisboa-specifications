@@ -89,8 +89,8 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
 
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
-        String link = "/student/studentShiftEnrollmentManager.do?method=start&executionSemesterID=%s&registrationOID=%s";
-        String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
+        String link = "/student/schoolClassStudentEnrollment.do?method=prepare&workflowRegistrationOid=%s";
+        String format = String.format(link, registration.getExternalId());
 
         Degree degree = registration.getDegree();
         FirstYearRegistrationConfiguration firstYearRegistrationConfiguration = degree.getFirstYearRegistrationConfiguration();
