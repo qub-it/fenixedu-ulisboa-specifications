@@ -46,7 +46,7 @@ abstract public class AnyCurricularCourseExceptionsInitializer {
         } else {
             AnyCurricularCourseExceptionsConfiguration.getInstance().getCompetenceCoursesSet().clear();
             AnyCurricularCourseExceptionsConfiguration.getInstance().getCompetenceCoursesSet().addAll(competenceCourses);
-            logger.info("Cleared current configuration and added found CompetenceCourses, done");
+            logger.info("Cleared current configuration and added {} found CompetenceCourses, done", competenceCourses.size());
         }
     }
 
