@@ -64,7 +64,7 @@ public class EnrolmentPeriodRestrictionsExecutorLogic implements CurricularRuleE
 
         final Registration registration = enrolmentContext.getRegistration();
         final int year = registration.getCurricularYear(enrolmentContext.getExecutionPeriod().getExecutionYear());
-        logger.info("Verifying restrictions for Registration Nr. [{}] in [{}] curricular year", registration.getNumber(), year);
+        logger.debug("Verifying restrictions for Registration Nr. [{}] in [{}] curricular year", registration.getNumber(), year);
 
         final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);
         if (curricularPeriod != null) {

@@ -188,7 +188,7 @@ abstract public class CurricularYearCalculatorInitializer {
                 }
             }
 
-            logger.info("[REG][{}][CURRICULAR_YEAR][{}]", registration.getNumber(), String.valueOf(result));
+            logger.debug("[REG][{}][CURRICULAR_YEAR][{}]", registration.getNumber(), String.valueOf(result));
             return result;
         }
 
