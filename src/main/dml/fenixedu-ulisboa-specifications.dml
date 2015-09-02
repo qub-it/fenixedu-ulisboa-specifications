@@ -162,6 +162,7 @@ class PersonUlisboaSpecifications {
 	String otherDislocatedResidenceType;
     String firstOptionDegreeDesignation;
     boolean authorizeSharingDataWithCGD;
+    String dgesTempIdCode;
 }
 
 relation PersonUlPerson {

@@ -40,6 +40,7 @@ import org.fenixedu.academic.util.StringFormatter;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.spaces.domain.Space;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.joda.time.YearMonthDay;
 
 public class DegreeCandidateDTO {
@@ -220,6 +221,7 @@ public class DegreeCandidateDTO {
             person.setIdentification(getDocumentIdNumber(), IDDocumentType.CITIZEN_CARD);
         } else {
             person.setIdentification(getDocumentIdNumber(), IDDocumentType.OTHER);
+            PersonUlisboaSpecifications.findOrCreate(person).setDgesTempIdCode(getDocumentIdNumber());
         }
 
         person.setMaritalStatus(MaritalStatus.SINGLE);

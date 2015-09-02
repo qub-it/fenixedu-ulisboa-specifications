@@ -131,9 +131,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         form = new PersonalInformationForm();
 
-        form.setDocumentIdNumber(person.getDocumentIdNumber());
-        form.setIdDocumentType(person.getIdDocumentType());
-
         form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
                 .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
@@ -150,6 +147,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
+            if (!StringUtils.equals(personUl.getDgesTempIdCode(), person.getDocumentIdNumber())) {
+                form.setDocumentIdNumber(person.getDocumentIdNumber());
+                form.setIdDocumentType(person.getIdDocumentType());
+            }
+
             form.setProfessionTimeType(personUl.getProfessionTimeType());
 
             Unit institution = personUl.getFirstOptionInstitution();
@@ -162,6 +164,9 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                         institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
                 form.setFirstOptionDegreeDesignation(degreeDesignation);
             }
+        } else {
+            form.setDocumentIdNumber(person.getDocumentIdNumber());
+            form.setIdDocumentType(person.getIdDocumentType());
         }
 
         PersonalIngressionData personalData =
@@ -372,6 +377,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         if (form.getIsForeignStudent()) {
             person.setIdDocumentType(form.getIdDocumentType());
             person.setDocumentIdNumber(form.getDocumentIdNumber());
+            personUl.setDgesTempIdCode("");
         }
 
         GrantOwnerType grantOwnerType = form.getGrantOwnerType();
