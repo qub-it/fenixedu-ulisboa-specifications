@@ -32,6 +32,7 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.Cit
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +105,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         model.addAttribute("genderValues", Gender.values());
-        model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
+
         model.addAttribute("maritalStatusValues", MaritalStatus.values());
         model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
         model.addAttribute("professionTypeValues", ProfessionType.values());
@@ -113,11 +114,20 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         model.addAttribute("placingOption", FirstTimeCandidacyController.getCandidacy().getPlacingOption());
 
-        fillFormIfRequired(model);
+        PersonalInformationForm form = fillFormIfRequired(model);
+        model.addAttribute("personalInformationForm", form);
+        if (!form.getIsForeignStudent()) {
+            ArrayList<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
+            idDocumentTypeValues.add(IDDocumentType.CITIZEN_CARD);
+            idDocumentTypeValues.add(IDDocumentType.IDENTITY_CARD);
+            model.addAttribute("idDocumentTypeValues", idDocumentTypeValues);
+        } else {
+            model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }
 
-    private void fillFormIfRequired(Model model) {
+    private PersonalInformationForm fillFormIfRequired(Model model) {
         Person person = AccessControl.getPerson();
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
@@ -126,7 +136,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                 form.setIdDocumentType(person.getIdDocumentType());
             }
             model.addAttribute("personalInformationForm", form);
-            return;
+            return form;
         }
 
         form = new PersonalInformationForm();
@@ -191,7 +201,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
         }
 
-        model.addAttribute("personalInformationForm", form);
+        return form;
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
@@ -218,17 +228,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     private boolean validate(PersonalInformationForm form, Model model) {
         Person person = AccessControl.getPerson();
         IDDocumentType idType = form.getIdDocumentType();
+        if (idType == null) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
+            return false;
+        }
         if (form.getIsForeignStudent()) {
             if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"), model);
                 return false;
             }
-            if (idType == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
-                return false;
-            }
-        } else {
-            idType = person.getIdDocumentType();
+
         }
 
         if (idType.equals(IDDocumentType.IDENTITY_CARD)) {
@@ -374,8 +383,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         personalData.setProfessionType(form.getProfessionType());
         personUl.setProfessionTimeType(form.getProfessionTimeType());
 
+        person.setIdDocumentType(form.getIdDocumentType());
         if (form.getIsForeignStudent()) {
-            person.setIdDocumentType(form.getIdDocumentType());
             person.setDocumentIdNumber(form.getDocumentIdNumber());
             personUl.setDgesTempIdCode("");
         }
