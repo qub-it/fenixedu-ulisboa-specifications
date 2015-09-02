@@ -28,8 +28,10 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.fenixedu.academic.domain.EmergencyContact;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
@@ -105,6 +107,9 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
                 form.setIsHomepageAvailable(false);
             }
 
+            form.setEmergencyContact(Optional.ofNullable(person.getProfile().getEmergencyContact())
+                    .map(EmergencyContact::getContact).orElse(null));
+
             model.addAttribute("contactsForm", form);
         }
     }
@@ -174,6 +179,11 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
                     model);
             return false;
         }
+        if (StringUtils.isEmpty(form.getEmergencyContact()) || !form.getEmergencyContact().matches(PHONE_PATTERN)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.incorrect.emergencyContact"), model);
+            return false;
+        }
         return true;
     }
 
@@ -214,6 +224,8 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
                 homepage.setVisibleToPublic(form.getIsHomepageAvailable());
             }
         }
+
+        EmergencyContact.updateEmergencyContact(person.getProfile(), form.getEmergencyContact());
     }
 
     public static class ContactsForm {
@@ -223,6 +235,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
         private String webAddress;
         private boolean isEmailAvailable;
         private boolean isHomepageAvailable;
+        private String emergencyContact;
 
         public String getPhoneNumber() {
             return phoneNumber;
@@ -274,6 +287,14 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
 
         public void setPersonalEmail(String personalEmail) {
             this.personalEmail = personalEmail;
+        }
+
+        public String getEmergencyContact() {
+            return emergencyContact;
+        }
+
+        public void setEmergencyContact(String emergencyContact) {
+            this.emergencyContact = emergencyContact;
         }
     }
 }

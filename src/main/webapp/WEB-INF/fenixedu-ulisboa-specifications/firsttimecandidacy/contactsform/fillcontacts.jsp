@@ -92,6 +92,17 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.ContactsForm.emergencyContact" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="contactsForm_emergencyContact" class="form-control"
+						type="text" name="emergencyContact" required pattern="(\d{4,15})"
+						value='<c:out value='${contactsForm.emergencyContact}'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
 				<label class="col-sm-2 control-label">
 					<spring:message code="label.ContactsForm.institutionalEmail" />
 				</label>
