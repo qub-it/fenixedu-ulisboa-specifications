@@ -466,17 +466,19 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
     private StudentCandidacy createCandidacy(DegreeCandidateDTO degreeCandidateDTO, Person person) {
         ExecutionDegree executionDegree = degreeCandidateDTO.getExecutionDegree(getExecutionYear(), getSpace());
-        StudentCandidacy candidacy = null;
-
-        if (executionDegree.getDegree().getDegreeType().isBolonhaDegree()
-                || executionDegree.getDegree().getDegreeType().isIntegratedMasterDegree()) {
-            candidacy =
-                    new FirstTimeCandidacy(person, executionDegree, getPerson(), degreeCandidateDTO.getEntryGrade(),
-                            degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
-                            degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
-        } else {
-            throw new RuntimeException("Unexpected degree type from DGES file");
+        if (executionDegree == null) {
+            throw new RuntimeException("Could not find execution degree with ministry code: "
+                    + degreeCandidateDTO.getDegreeCode());
         }
+        if (!executionDegree.getDegree().getDegreeType().isBolonhaDegree()
+                && !executionDegree.getDegree().getDegreeType().isIntegratedMasterDegree()) {
+            throw new RuntimeException("Unexpected degree type: "
+                    + executionDegree.getDegree().getDegreeType().getName().getContent());
+        }
+        StudentCandidacy candidacy =
+                new FirstTimeCandidacy(person, executionDegree, getPerson(), degreeCandidateDTO.getEntryGrade(),
+                        degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
+                        degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
 
         candidacy.setHighSchoolType(degreeCandidateDTO.getHighSchoolType());
         candidacy.setFirstTimeCandidacy(true);
