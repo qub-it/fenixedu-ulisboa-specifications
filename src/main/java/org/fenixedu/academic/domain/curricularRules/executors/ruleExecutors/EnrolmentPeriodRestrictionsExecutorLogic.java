@@ -30,23 +30,26 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictions;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor.CurricularRuleExecutorLogic;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnrolmentPeriodRestrictionsExecutorLogic implements CurricularRuleExecutorLogic {
+public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricularRuleExecutorLogic {
 
     static private final Logger logger = LoggerFactory.getLogger(EnrolmentPeriodRestrictionsExecutorLogic.class);
 
     static public void configure() {
         CurricularRuleExecutorFactory.findExecutor(EnrolmentPeriodRestrictions.class).setLogic(
                 new EnrolmentPeriodRestrictionsExecutorLogic());
+    }
+
+    @Override
+    protected String getCurricularRuleLabelKey() {
+        return "label.anyCurricularCourseExceptions";
     }
 
     @Override
@@ -60,7 +63,7 @@ public class EnrolmentPeriodRestrictionsExecutorLogic implements CurricularRuleE
 //            return RuleResult.createNA(dcp.getRoot());
 //        }
 
-        RuleResult result = CurricularPeriodRule.createFalseConfiguration(dcp.getRoot(), null);
+        RuleResult result = createFalseConfiguration(dcp.getRoot(), null);
 
         final Registration registration = enrolmentContext.getRegistration();
         final int year = registration.getCurricularYear(enrolmentContext.getExecutionPeriod().getExecutionYear());

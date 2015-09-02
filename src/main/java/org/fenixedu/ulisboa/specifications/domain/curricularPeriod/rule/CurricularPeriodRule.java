@@ -31,9 +31,9 @@ import java.util.Collections;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AbstractCurricularRuleExecutorLogic;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
@@ -99,11 +99,8 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     static private RuleResult createFalseConfiguration(final DegreeModule degreeModule, final String prefix) {
-        final String literalMessage =
-                prefix
-                        + BundleUtil.getString(Bundle.APPLICATION, "curricularRules.ruleExecutors.logic.unavailable",
-                                BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
-        return RuleResult.createFalseWithLiteralMessage(degreeModule, literalMessage);
+        return AbstractCurricularRuleExecutorLogic.createFalseConfiguration(degreeModule, prefix,
+                "label.enrolmentPeriodRestrictions");
     }
 
     public RuleResult createFalseLabelled(final BigDecimal suffix) {

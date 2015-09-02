@@ -84,15 +84,6 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
 
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
-        // TODO legidio
-        // ir buscar o curriculum
-        // pros approved ects
-        // os do ano curricular
-        // so temos lines
-        // saber o ano, agrupar
-        // aprovado + enroled + enroling > 60 (ou 30, se ao semestre), tudo OK
-        // senao, aviso
-
         final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
         final CurricularPeriod configured = CurricularPeriodServices.getCurricularPeriod(dcp, getYearMin());
         if (configured == null) {

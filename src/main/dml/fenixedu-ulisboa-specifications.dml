@@ -28,7 +28,9 @@
 
 package org.fenixedu.ulisboa.specifications.domain;
 
+external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
 external class .org.fenixedu.academic.domain.student.StatuteType;
 
 class UsernameSequenceGenerator {
@@ -356,6 +358,30 @@ relation StatuteTypeRuleTransition {
 
 // ==================== END: CurricularPeriodConfiguration ====================
 
+// ==================== BEGIN: CurricularRule Executor Logics ====================
+
+class curricularRules.AnyCurricularCourseExceptionsConfiguration {
+}
+
+relation AnyCurricularCourseExceptionsConfigurationRoot {
+	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
+		multiplicity 1..1;
+	}
+	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
+		multiplicity 0..1;
+	}
+}
+
+relation AnyCurricularCourseExceptionsCompetenceCourse {
+	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
+		multiplicity *;
+	}
+	.org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourses {
+		multiplicity *;
+	}
+}
+
+// ==================== END: CurricularRule Executor Logics ====================
 
 // ==================== Parishes as domain objects
 class Parish{

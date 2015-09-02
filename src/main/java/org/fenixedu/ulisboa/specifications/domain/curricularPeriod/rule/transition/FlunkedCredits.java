@@ -62,9 +62,6 @@ public class FlunkedCredits extends FlunkedCredits_Base {
 
     @Override
     public RuleResult execute(final Curriculum curriculum) {
-        // TODO legidio
-        // 60 - aprovados/ano curricular < X creditos
-
         final Set<CurricularPeriod> configured = Sets.newHashSet();
 
         final int minYear;
