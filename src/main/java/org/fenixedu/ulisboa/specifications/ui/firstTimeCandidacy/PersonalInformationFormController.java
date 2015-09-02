@@ -285,11 +285,13 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     model);
             return false;
         }
-        Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
-        if (party != null && party != person) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"), model);
-            return false;
+        if (!PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER.equals(form.getSocialSecurityNumber())) {
+            Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
+            if (party != null && party != person) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"), model);
+                return false;
+            }
         }
 
         if (form.isStudentWorking()) {
@@ -346,7 +348,12 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
                 documentIdExpirationDate.toDate()) : null);
 
-        person.setSocialSecurityNumber(form.getSocialSecurityNumber());
+        String socialSecurityNumber = form.getSocialSecurityNumber();
+        if (StringUtils.isEmpty(socialSecurityNumber)) {
+            socialSecurityNumber = PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER;
+        }
+        person.setSocialSecurityNumber(socialSecurityNumber);
+
         person.setMaritalStatus(form.getMaritalStatus());
         personalData.setMaritalStatus(form.getMaritalStatus());
 
