@@ -96,7 +96,10 @@ ${portal.toolkit()}
 </c:if>
 
 <div class="well start">
-	<%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %>
+	<p><spring:message code="label.firstTimeCandidacy.instructions.details" arguments='<%= Unit.getInstitutionName().getContent()  %>' htmlEscape="false"/></p>
+	<p>&nbsp;</p>
+	<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p>
+	
 </div>
 
 <div>
