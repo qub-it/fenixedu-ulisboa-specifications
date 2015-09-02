@@ -24,6 +24,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with FenixEdu fenixedu-ulisboa-specifications.  If not, see <http://www.gnu.org/licenses/>.
 --%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
@@ -37,7 +38,10 @@
   <tr>
     <th class="width14em">Validade da Vacina Antitetânica:</th>
     <td>
-	    <% if (personBean.getPerson().getPersonUlisboaSpecifications() == null) { %>
+	    <%
+	    	PersonUlisboaSpecifications personUl = personBean.getPerson().getPersonUlisboaSpecifications();
+	    	if ((personUl == null) || (personUl.getVaccinationValidity() == null)) {
+	    %>
 	    	-
     	<% } else { %>
 	    	<fr:view name="personBean" property="person.personUlisboaSpecifications.vaccinationValidity"/>
