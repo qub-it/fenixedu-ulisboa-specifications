@@ -99,7 +99,7 @@ ${portal.toolkit()}
 	<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { %>
 		<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p>
 	<% } else { %>
-		<p><spring:message code="label.firstTimeCandidacy.instructions.details" arguments='<%= Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
+		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
 	<% } %>
 	<p>&nbsp;</p>
 	<p><spring:message code="label.firstTimeCandidacy.instructions.details" htmlEscape="false"/></p>

@@ -72,7 +72,7 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
         Student student = registration.getStudent();
         StudentAccessServices.triggerSyncStudentToExternal(student);
         if (!student.getPerson().getPersonUlisboaSpecifications().getAuthorizeSharingDataWithCGD()) {
-            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
+            addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
         }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
     }

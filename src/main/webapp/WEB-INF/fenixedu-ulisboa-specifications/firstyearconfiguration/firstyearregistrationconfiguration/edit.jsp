@@ -92,7 +92,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label"><spring:message code="label.FirstYearRegistrationConfiguration.introductionText"/></div> 
 				<div class="col-sm-4">
-					<textarea type="text" id="introductionText" name="introductionText" required bennu-localized-string ><c:out value='${firstYearRegistrationGlobalConfiguration.introductionText.json()}' /></textarea>
+					<textarea type="text" id="introductionText" name="introductionText" bennu-localized-string ><c:out value='${firstYearRegistrationGlobalConfiguration.introductionText.json()}' /></textarea>
 					<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />"/>
 				</div>
 			</div>
