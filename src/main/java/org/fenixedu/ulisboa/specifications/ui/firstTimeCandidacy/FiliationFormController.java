@@ -47,6 +47,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessSe
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -132,6 +133,8 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            de.printStackTrace();
             return fillfiliation(model, redirectAttributes);
         }
     }

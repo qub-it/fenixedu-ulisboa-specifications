@@ -67,6 +67,7 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseC
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,6 +76,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.sun.istack.logging.Logger;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
@@ -223,8 +226,9 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             model.addAttribute("personalInformationForm", form);
             return redirect(FiliationFormController.FILLFILIATION_URL, model, redirectAttributes);
         } catch (Exception de) {
-
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            de.printStackTrace();
             return fillpersonalinformation(model, redirectAttributes);
         }
     }

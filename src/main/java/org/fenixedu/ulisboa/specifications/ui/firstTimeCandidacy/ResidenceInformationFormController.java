@@ -56,6 +56,7 @@ import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FiliationFormController.DistrictSubdivisionBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FiliationFormController.ParishBean;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -167,6 +168,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            de.printStackTrace();
             return fillresidenceinformation(model, redirectAttributes);
         }
     }

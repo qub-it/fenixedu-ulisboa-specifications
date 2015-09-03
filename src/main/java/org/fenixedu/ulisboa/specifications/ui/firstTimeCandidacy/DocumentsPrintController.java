@@ -46,6 +46,7 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentReq
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.service.factoryExecutors.DocumentRequestCreator;
 import org.fenixedu.academictreasury.services.reports.DocumentPrinter;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -53,6 +54,7 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -163,6 +165,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             CGDPdfFiller cgdPdfFiller = new CGDPdfFiller();
             stream = cgdPdfFiller.getFilledPdf(person, pdfTemplateStream);
         } catch (IOException | DocumentException e) {
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             e.printStackTrace();
             throw new RuntimeException(e);
         }

@@ -41,6 +41,7 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -121,6 +122,8 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            de.printStackTrace();
             return fillmotivationsexpectations(model, redirectAttributes);
         }
     }
