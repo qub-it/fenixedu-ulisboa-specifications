@@ -90,9 +90,14 @@ ${portal.toolkit()}
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div>
-				<a class="btn btn-primary panel-heading btn-panel-heading" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/authorize" ><spring:message code="label.CgdDataAuthorization.accept" htmlEscape="false"/></a>
+				<a class="btn btn-primary panel-heading btn-panel-heading cgd-accept-panel-heading" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/authorize" >
+					<span class="cgd-accept-title"><spring:message code="label.CgdDataAuthorization.accept" htmlEscape="false"/></span>
+					<span class="cgd-accept-icon glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+					<span class="cgd-accept-action glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
+					<span class="cgd-accept-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
+				</a>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body cgd-accept-panel-body">
 				<spring:message code="label.CgdDataAuthorization.acceptanceConditions" htmlEscape="false"/>
 			</div>
 		</div>
@@ -101,9 +106,14 @@ ${portal.toolkit()}
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div>
-				<a class="btn btn-default panel-heading btn-panel-heading" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/unauthorize" ><spring:message code="label.CgdDataAuthorization.refuse" htmlEscape="false"/></a>
+				<a class="btn btn-default panel-heading btn-panel-heading cgd-decline-panel-heading" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/unauthorize" >
+					<span class="cgd-decline-title"><spring:message code="label.CgdDataAuthorization.refuse" htmlEscape="false"/></span>
+					<span class="cgd-decline-icon glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+					<span class="cgd-decline-action glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
+					<span class="cgd-decline-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
+				</a>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body cgd-decline-panel-body">
 				<spring:message code="label.CgdDataAuthorization.refusalConditions" htmlEscape="false"/>
 			</div>
 		</div>
@@ -140,15 +150,151 @@ ${portal.toolkit()}
 	    border: 0;
 	    font-size: 15px;
 	}
+	.cgd-accept-icon,.cgd-decline-icon {
+		float: right;
+	}
+	.cgd-accept-action {
+		margin: 0 46%;
+	    color: #d7ffe4;
+	    font-size: 17px;
+	    border-radius: 29px;
+	    border-width: 2px;
+	    border-style: solid;
+	    padding: 6px 7px;
+		-webkit-box-shadow: 0px 0px 3px 1px rgba(189,254,211,1);
+		-moz-box-shadow: 0px 0px 3px 1px rgba(189,254,211,1);
+		box-shadow: 0px 0px 3px 1px rgba(189,254,211,1);
+		display: none;
+	}
+	.cgd-accept-loader {
+		margin: 0 46%;
+	    color: #d7ffe4;
+	    font-size: 24px;
+		display: none;
+		-webkit-animation: rotate 1s linear infinite;
+		-moz-animation: rotate 1s linear infinite;
+		-o-animation: rotate 1s linear infinite;
+		animation: rotate 1s linear infinite;
+	}
+	.cgd-decline-action {
+		margin: 0 46%;
+	    color: #f2f2f2;
+	    font-size: 17px;
+	    border-radius: 29px;
+	    border-width: 2px;
+	    border-style: solid;
+	    padding: 6px 7px;
+		-webkit-box-shadow: 0px 0px 3px 1px rgba(242,242,242,1);
+		-moz-box-shadow: 0px 0px 3px 1px rgba(242,242,242,1);
+		box-shadow: 0px 0px 3px 1px rgba(242,242,242,1);
+		display: none;
+	}
+	.cgd-decline-loader {
+		margin: 0 46%;
+	    color: #f2f2f2;
+	    font-size: 24px;
+		display: none;
+		-webkit-animation: rotate 1s linear infinite;
+		-moz-animation: rotate 1s linear infinite;
+		-o-animation: rotate 1s linear infinite;
+		animation: rotate 1s linear infinite;
+	}
 	.furtherInfo {
 		text-align: center;
+	}
+	
+	@-webkit-keyframes rotate {
+		from {
+			-webkit-transform: rotate(0deg);
+		}
+		to { 
+			-webkit-transform: rotate(360deg);
+		}
+	}
+	@-moz-keyframes rotate {
+		from {
+			-webkit-transform: rotate(0deg);
+		}
+		to { 
+			-webkit-transform: rotate(360deg);
+		}
+	}
+	@-o-keyframes rotate {
+		from {
+			-webkit-transform: rotate(0deg);
+		}
+		to { 
+			-webkit-transform: rotate(360deg);
+		}
+	}
+	@keyframes rotate {
+		from {
+			-webkit-transform: rotate(0deg);
+		}
+		to { 
+			-webkit-transform: rotate(360deg);
+		}
 	}
 </style>
 
 <script>
-$(document).ready(function() {
-
-	
-	
+$(document).ready( function () {
+	var acceptHeaderColor = $('.cgd-accept-panel-heading').css('background-color');
+	var acceptBodyColor = $('.cgd-accept-panel-body').css('background-color');
+	$('.cgd-accept-panel-heading').hover( function () {
+		$('.cgd-accept-action').finish();
+		$('.cgd-decline-action').finish();
+		$('.cgd-accept-title,.cgd-accept-icon').hide();
+		$('.cgd-accept-action').fadeIn("200");			
+		$('.cgd-accept-panel-heading').css('background-color','#179b43');			
+		$('.cgd-accept-panel-body').css('background-color','#e6ffee');
+	}, function () {
+		$('.cgd-accept-action').hide();
+		$('.cgd-accept-title,.cgd-accept-icon').show();
+		$('.cgd-accept-panel-heading').css('background-color', acceptHeaderColor);
+		$('.cgd-accept-panel-body').css('background-color', acceptBodyColor);
 	});
+	$('.cgd-accept-panel-heading').click( function () {
+		$('.cgd-accept-action').finish();
+		$('.cgd-decline-action').finish();
+		$('.cgd-accept-panel-heading').unbind();
+		$('.cgd-decline-panel-heading').unbind();
+		$('.cgd-accept-title,.cgd-accept-icon,.cgd-accept-action').hide();
+		$('.cgd-accept-loader').show();
+		$('.cgd-accept-panel-heading').css('background-color','#179b43');			
+		$('.cgd-accept-panel-body').css('background-color','#e6ffee');
+		$('.cgd-accept-panel-heading').css('cursor','progress');
+		$('.cgd-decline-panel-heading').css('cursor','progress');
+		$('html').css('cursor','progress');
+	});
+	
+	var declineHeaderColor = $('.cgd-decline-panel-heading').css('background-color');
+	var declineBodyColor = $('.cgd-decline-panel-body').css('background-color');
+	$('.cgd-decline-panel-heading').hover( function () {
+		$('.cgd-accept-action').finish();
+		$('.cgd-decline-action').finish();
+		$('.cgd-decline-title,.cgd-decline-icon').hide();
+		$('.cgd-decline-action').fadeIn("200");			
+		$('.cgd-decline-panel-heading').css('background-color','#898989');			
+		$('.cgd-decline-panel-body').css('background-color','#f2f2f2');
+	}, function () {
+		$('.cgd-decline-action').hide();
+		$('.cgd-decline-title,.cgd-decline-icon').show();
+		$('.cgd-decline-panel-heading').css('background-color', declineHeaderColor);
+		$('.cgd-decline-panel-body').css('background-color', declineBodyColor);
+	});
+	$('.cgd-decline-panel-heading').click( function () {
+		$('.cgd-accept-action').finish();
+		$('.cgd-decline-action').finish();
+		$('.cgd-accept-panel-heading').unbind();
+		$('.cgd-decline-panel-heading').unbind();
+		$('.cgd-decline-title,.cgd-decline-icon,.cgd-decline-action').hide();
+		$('.cgd-decline-loader').show()
+		$('.cgd-decline-panel-heading').css('background-color','#898989');			
+		$('.cgd-decline-panel-body').css('background-color','#f2f2f2');
+		$('.cgd-accept-panel-heading').css('cursor','progress');
+		$('.cgd-decline-panel-heading').css('cursor','progress');
+		$('html').css('cursor','progress');
+	});
+});
 </script>

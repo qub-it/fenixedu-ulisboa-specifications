@@ -73,7 +73,7 @@ ${portal.toolkit()}
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
 	
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class=""  href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/opencourseenrollments"><spring:message code="label.event.firstTimeCandidacy.openCourseEnrollments"  /></a>
+		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;<a class=""  href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/opencourseenrollments"><spring:message code="label.event.firstTimeCandidacy.openCourseEnrollments"  /></a>
 
 </div>
 

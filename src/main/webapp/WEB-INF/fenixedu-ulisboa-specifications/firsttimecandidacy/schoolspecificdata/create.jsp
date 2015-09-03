@@ -84,7 +84,7 @@ ${portal.toolkit()}
 </div>
 </form>
 <div class="panel-footer">
-	<button class="btn btn-default" onclick="submitform()" ><spring:message code="label.submit" /></button>
+	<button class="btn btn-primary" onclick="submitform()" ><spring:message code="label.submit" /></button>
 </div>
 
 <style>

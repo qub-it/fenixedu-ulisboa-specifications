@@ -7,6 +7,7 @@
     - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
   
    Contributors: shezad.anavarali@qub-it.com
+   				 diogo.simoes@qub-it.com
   
    
    This file is part of FenixEdu fenixedu-ulisboa-specifications.
@@ -68,13 +69,16 @@ ${portal.angularToolkit()}
 
 
 <style>
-.nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
-    text-decoration: none;
-    background-color: #eee;
-}
-.fc-today {
-   background: transparent !important;
-} 
+	.nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
+	    text-decoration: none;
+	    background-color: #eee;
+	}
+	.fc-today {
+	   background: transparent !important;
+	}
+	.btn-finish {
+		margin: 12px 0 0 48px;
+	}
 </style>
 
 <h1><spring:message code="label.title.shiftEnrolment"/></h1>
@@ -114,12 +118,10 @@ ${portal.angularToolkit()}
 				<c:if test="${enrolmentBean.selected}"><c:set var="selectedEnrolmentBean" value="${enrolmentBean}" /></c:if>
 			</c:forEach>
 			<c:if test="${not empty returnURL }">
-    			<li role="presentation" class="<c:out value="${enrolmentBean.selected ? 'active' : ' '}" />">
-					<a href="${returnURL}">
+			<a href="${returnURL}" class="btn btn-default btn-finish" >
 					 	<spring:message code="message.shiftEnrolment.finishEnrolment"/>
 						<br/><span class="small text-muted"></span>
 					</a>
-				</li>
     		</c:if>
 		</ul>	
 		<p>&nbsp;</p>

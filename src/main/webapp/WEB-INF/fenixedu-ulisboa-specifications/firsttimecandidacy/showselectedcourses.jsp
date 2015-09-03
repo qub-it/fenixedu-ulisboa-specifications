@@ -32,9 +32,11 @@ ${portal.toolkit()}
 </div>
 
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/back"><spring:message code="label.back"/></a>
+	&nbsp;&nbsp;|&nbsp;&nbsp;
+	<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
+		
 </div>
-
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
 					
@@ -118,10 +120,6 @@ ${portal.toolkit()}
 	<div><spring:message code="label.total.credits" arguments="${secondSemesterCredits}"/></div>
 <br/>
 </c:if>
-
-<div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
-</div>
 
 <script>
 $(document).ready(function() {
