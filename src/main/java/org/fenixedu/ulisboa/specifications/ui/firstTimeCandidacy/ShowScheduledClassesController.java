@@ -30,6 +30,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -72,6 +73,9 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
                     "label.firstTimeCandidacy.error.invalidNumberOfShiftsEnrolments"), model);
             return new ScheduleClassesController().scheduleclasses(model, redirectAttributes);
         }
+        if (shouldBeSkipped()) {
+            return showscheduledclassesToContinue(model, redirectAttributes);
+        }
 
         // Add attributes to enable ajax schedule reading
         // For now we will only present the schedule for the current semester, we may be required in the future to present it for both semesters
@@ -112,5 +116,25 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
                 registration.getShiftsSet().stream().map(shift -> shift.getExecutionPeriod())
                         .filter(ep -> executionPeriodsSet.contains(ep)).collect(Collectors.toSet()).size();
         return numberOfEnroledSemesters == numberOfExpectedSemestersToBeEnroled;
+    }
+
+    public static boolean shouldBeSkipped() {
+        if (isManualEnrolments() || currentPersonHasEnrolments()) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isManualEnrolments() {
+        Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
+        FirstYearRegistrationConfiguration registrationConfiguration = degree.getFirstYearRegistrationConfiguration();
+        return registrationConfiguration != null
+                && (degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment() || degree
+                        .getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment());
+    }
+
+    public static boolean currentPersonHasEnrolments() {
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
+        return !registration.getShiftsForCurrentExecutionPeriod().isEmpty();
     }
 }

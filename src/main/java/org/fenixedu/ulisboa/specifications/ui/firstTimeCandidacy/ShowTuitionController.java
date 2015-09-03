@@ -52,6 +52,9 @@ public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseCont
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(Model model, RedirectAttributes redirectAttributes) {
+        if (ShowScheduledClassesController.shouldBeSkipped()) {
+            return redirect(ShowSelectedCoursesController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect(ShowScheduledClassesController.CONTROLLER_URL, model, redirectAttributes);
     }
 
