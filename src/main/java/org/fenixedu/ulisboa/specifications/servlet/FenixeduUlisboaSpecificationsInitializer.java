@@ -30,10 +30,12 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
+import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
@@ -41,6 +43,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -49,11 +52,14 @@ import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPer
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
+import pt.ist.fenixframework.dml.DeletionListener;
+import pt.ist.fenixframework.FenixFramework;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
@@ -92,6 +98,26 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
 
         setupCustomExceptionHandler(event);
+        setupListenerForDegreeDelete();
+
+        EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
+    }
+
+    private void setupListenerForDegreeDelete() {
+        //we need to delete FirstTime Configuration when a degree is deleted
+//        Degree.getRelationDegreeFirstYearRegistrationConfiguration().removeListener(new Relation
+
+        FenixFramework.getDomainModel().registerDeletionListener(Degree.class, new DeletionListener<Degree>() {
+
+            @Override
+            public void deleting(Degree degree) {
+                FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
+                        degree.getFirstYearRegistrationConfiguration();
+                if (firstYearRegistrationConfiguration != null) {
+                    firstYearRegistrationConfiguration.delete();
+                }
+            }
+        });
     }
 
     static private void configureEnrolmentEvaluationComparator() {

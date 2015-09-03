@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -37,14 +38,13 @@ import java.util.Locale;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.QueueJob;
 import org.fenixedu.academic.domain.QueueJobResult;
-import org.fenixedu.academic.domain.candidacy.DegreeCandidacy;
-import org.fenixedu.academic.domain.candidacy.IMDCandidacy;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -57,6 +57,7 @@ import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.MatchingPersonException;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.NotFoundPersonException;
@@ -205,29 +206,35 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
     /**
      * <pre>
-     * tipo_linha  char(1)     valor '*'
+     * tipo_linha       char(1)     valor '*'
      * 
-     * curso_sup   char(4)     codigo curso colocacao  (ver codigos no Guia)
-     * num_bi      char(9)     numero de b.i. do aluno
-     * loc_bi      char(2)     local emissao do b.i.  (ver codigos)
-     * sexo        char(1)     sexo do aluno
-     * data_nasc   char(8)     data de nascimento AAAAMMDD
-     * conting     char(1)     contingente candidatura (ver codigos)
-     * prefcol     char(1)     nr de opcao VALIDA a q corresp. colocacao (1-6)
-     * etapcol     num(2)      etapa de colocacao (1-17)
+     * curso_sup        char(4)     codigo curso colocacao  (ver codigos no Guia)
+     * num_bi           char(9)     numero de b.i. do aluno
+     * loc_bi           char(2)     local emissao do b.i.  (ver codigos)
+     * sexo             char(1)     sexo do aluno
+     * data_nasc        char(8)     data de nascimento AAAAMMDD
+     * conting          char(1)     contingente candidatura (ver codigos)
+     * prefcol          char(1)     nr de opcao VALIDA a q corresp. colocacao (1-6)
+     * etapcol          num(2)      etapa de colocacao (1-17)
      * 
-     * estado      char(2)     não utilizado
-     * exclusao    char(1)     não utilizado
-     * militar     char(1)     não utilizado
-     * deficiente  char(1)     não utilizado
-     * GAES        char(3)     não utilizado
-     * numCand     num(5)      não utilizado
+     * estado           char(2)     não utilizado
+     * exclusao         char(1)     não utilizado
+     * militar          char(1)     não utilizado
+     * deficiente       char(1)     não utilizado
+     * GAES             char(3)     não utilizado
+     * numCand          num(5)      não utilizado
      * 
-     * pontos      num(5,1)    nota crit. seriacao para este curso (0.0-100.0)
-     * nome        char(60)    nome (sem espacos a direita)
+     * pontos           num(5,1)    nota crit. seriacao para este curso (0.0-100.0)
+     * nome             char(70)    nome (sem espacos a direita)
+     * 
+     * ResideDistrito   char(2)     não utilizado
+     * ResideConcelho   char(2)     não utilizado
+     * ResidePais       char(2)     não utilizado
+     * PaisNacional     char(2)     nacionalidade (código País de 2 caracteres)
+     * ResidePortugal   char(1)     não utilizado
      * </pre>
      */
-    private static int[] MAIN_INFORMATION_LINE_FIELD_SPEC = new int[] { 1, 4, 9, 2, 1, 8, 1, 1, 2, 13, 5, 60 };
+    private static int[] MAIN_INFORMATION_LINE_FIELD_SPEC = new int[] { 1, 4, 9, 2, 1, 8, 1, 1, 2, 13, 5, 70, 2, 2, 2, 2, 1 };
 
     /**
      * <pre>
@@ -261,6 +268,11 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         highSchoolEntryGrade = highSchoolEntryGrade.divide(new BigDecimal(10), RoundingMode.HALF_EVEN);
         degreeCandidateDTO.setHighSchoolFinalGrade(highSchoolEntryGrade.setScale(0, RoundingMode.HALF_EVEN).toString());
         degreeCandidateDTO.setName(fields[11].trim());
+        Country nationality = Country.readByTwoLetterCode(fields[15].trim());
+        if (nationality == null) {
+            throw new RuntimeException("Cannot import student with unknown nationality: " + fields[15].trim());
+        }
+        degreeCandidateDTO.setNationality(nationality);
     }
 
     private Gender parseGender(String gender) {
@@ -286,8 +298,6 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         String[] fields = splitLine(line, ADDRESS_AND_CONTACTS_LINE_FIELD_SPEC);
 
         degreeCandidateDTO.setAddress(fields[1].trim() + " " + fields[2].trim());
-        degreeCandidateDTO.setAreaCode(fields[3].trim());
-        degreeCandidateDTO.setAreaOfAreaCode(fields[4].trim());
         degreeCandidateDTO.setPhoneNumber(fields[5].trim());
     }
 
@@ -306,11 +316,25 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         return result;
     }
 
+    private static final List<String> possibleManagers = Arrays.asList("manager", "admin", "qubit_admin", "qubIT_admin",
+            "qubIt_admin");
+
+    private User getPossibleManager() {
+        for (String possibleManager : possibleManagers) {
+            User manager = User.findByUsername(possibleManager);
+            if (manager != null) {
+                return manager;
+            }
+        }
+
+        return null;
+    }
+
     private void createDegreeCandidacies(List<DegreeCandidateDTO> degreeCandidateDTOs) {
         int processed = 0;
         int personsCreated = 0;
 
-        Authenticate.mock(User.findByUsername("manager"));
+        Authenticate.mock(getPossibleManager());
         try {
             for (final DegreeCandidateDTO degreeCandidateDTO : degreeCandidateDTOs) {
 
@@ -442,23 +466,19 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
     private StudentCandidacy createCandidacy(DegreeCandidateDTO degreeCandidateDTO, Person person) {
         ExecutionDegree executionDegree = degreeCandidateDTO.getExecutionDegree(getExecutionYear(), getSpace());
-        StudentCandidacy candidacy = null;
-
-        if (executionDegree.getDegree().getDegreeType().isBolonhaDegree()) {
-            candidacy =
-                    new DegreeCandidacy(person, executionDegree, getPerson(), degreeCandidateDTO.getEntryGrade(),
-                            degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
-                            degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
-
-        } else if (executionDegree.getDegree().getDegreeType().isIntegratedMasterDegree()) {
-            candidacy =
-                    new IMDCandidacy(person, executionDegree, getPerson(), degreeCandidateDTO.getEntryGrade(),
-                            degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
-                            degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
-
-        } else {
-            throw new RuntimeException("Unexpected degree type from DGES file");
+        if (executionDegree == null) {
+            throw new RuntimeException("Could not find execution degree with ministry code: "
+                    + degreeCandidateDTO.getDegreeCode());
         }
+        if (!executionDegree.getDegree().getDegreeType().isBolonhaDegree()
+                && !executionDegree.getDegree().getDegreeType().isIntegratedMasterDegree()) {
+            throw new RuntimeException("Unexpected degree type: "
+                    + executionDegree.getDegree().getDegreeType().getName().getContent());
+        }
+        StudentCandidacy candidacy =
+                new FirstTimeCandidacy(person, executionDegree, getPerson(), degreeCandidateDTO.getEntryGrade(),
+                        degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
+                        degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
 
         candidacy.setHighSchoolType(degreeCandidateDTO.getHighSchoolType());
         candidacy.setFirstTimeCandidacy(true);
@@ -466,5 +486,22 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         candidacy.setDgesStudentImportationProcess(this);
 
         return candidacy;
+    }
+
+    public static java.util.function.Predicate<Registration> registrationHasDgesImportationProcessForCurrentYear() {
+        return new java.util.function.Predicate<Registration>() {
+            @Override
+            public boolean test(Registration r) {
+                return r.getStudentCandidacy() != null
+                        && r.getStudentCandidacy().getDgesStudentImportationProcess() != null
+                        && r.getStudentCandidacy().getDgesStudentImportationProcess().getExecutionYear() == ExecutionYear
+                                .readCurrentExecutionYear();
+            }
+        };
+    }
+
+    @Override
+    public String getFilename() {
+        return "log.txt";
     }
 }

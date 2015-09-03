@@ -32,7 +32,7 @@
 				<executions>
 					<execution>
 						<id>initialize</id>
-						<phase>initialize</phase>
+						<phase>prepare-package</phase>
 						<configuration>
 							<target>
 								<property name="basedir" refid="maven.project" />
@@ -40,7 +40,7 @@
 								<echo
 									message="ANTRUN: copy resources and convert to UTF-8 to webapp/WEB-INF/resources" />
 
-								<copy todir="${basedir}/src/main/webapp/WEB-INF/resources"
+								<copy todir="${basedir}/target/classes/META-INF/resources/WEB-INF/resources/"
 									encoding="ISO-8859-15" outputencoding="UTF-8" overwrite="true">
 									<fileset dir="${basedir}/src/main/resources/resources/" />
 								</copy>
@@ -75,6 +75,11 @@
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic</artifactId>
 			<version>${version.org.fenixedu.academic}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fenixedu</groupId>
+			<artifactId>fenixedu-academic-treasury</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lowagie</groupId>

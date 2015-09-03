@@ -19,6 +19,7 @@
  **/
 package org.fenixedu.ulisboa.specifications.domain.student.access;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -39,6 +40,7 @@ import org.fenixedu.academic.util.StringFormatter;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.spaces.domain.Space;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.joda.time.YearMonthDay;
 
 public class DegreeCandidateDTO {
@@ -74,6 +76,8 @@ public class DegreeCandidateDTO {
     private Double entryGrade;
 
     private EntryPhase entryPhase;
+
+    private Country nationality;
 
     public String getDegreeCode() {
         return degreeCode;
@@ -211,7 +215,14 @@ public class DegreeCandidateDTO {
         final Person person = new Person(profile);
 
         person.setGender(getGender());
-        person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
+        Country nationality = getNationality();
+        person.setCountry(nationality);
+        if (nationality != null && nationality.isDefaultCountry()) {
+            person.setIdentification(getDocumentIdNumber(), IDDocumentType.CITIZEN_CARD);
+        } else {
+            person.setIdentification(getDocumentIdNumber(), IDDocumentType.OTHER);
+            PersonUlisboaSpecifications.findOrCreate(person).setDgesTempIdCode(getDocumentIdNumber());
+        }
 
         person.setMaritalStatus(MaritalStatus.SINGLE);
         person.setDateOfBirthYearMonthDay(getDateOfBirth());
@@ -235,6 +246,14 @@ public class DegreeCandidateDTO {
 
     public ExecutionDegree getExecutionDegree(final ExecutionYear executionYear, Space space) {
         return ExecutionDegree.readByDegreeCodeAndExecutionYearAndCampus(getDegreeCode(), executionYear, space);
+    }
+
+    public Country getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(Country nationality) {
+        this.nationality = nationality;
     }
 
     public static abstract class MatchingPersonException extends Exception {

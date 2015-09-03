@@ -61,15 +61,6 @@ relation CgdCardRootDomainObject {
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
 }
 
-class PersonUlisboaSpecifications {
-	LocalDate vaccinationValidity;
-}
-
-relation PersonUlisboaSpecificationsPerson {
-	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
-	.org.fenixedu.academic.domain.Person playsRole person;
-}
-
 class DisabilityType {
 	String code (REQUIRED);
 	LocalizedString description (REQUIRED);
@@ -160,6 +151,96 @@ relation ProfessionTimeTypeBennu {
 	}
 }
 
+class PersonUlisboaSpecifications {
+	LocalDate vaccinationValidity;
+	boolean hasDisabilities;
+	String otherDisabilityType;
+	//Boolean because this slot must support null (= not filled in) 
+	Boolean needsDisabilitySupport;
+	String otherUniversityDiscoveryMeans;
+	String otherUniversityChoiceMotivation;
+	String otherDislocatedResidenceType;
+    String firstOptionDegreeDesignation;
+    boolean authorizeSharingDataWithCGD;
+    String dgesTempIdCode;
+}
+
+relation PersonUlPerson {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
+	.org.fenixedu.academic.domain.Person playsRole person;
+}
+
+relation PersonUlSecondNationality {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+    .org.fenixedu.academic.domain.Country playsRole secondNationality;
+}
+
+relation PersonUlFirstOptionInstitution {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+    .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole firstOptionInstitution;
+}
+
+relation PersonUlProfessionTimeType {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	ProfessionTimeType playsRole professionTimeType;
+}
+
+relation PersonUlSalarySpan {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	SalarySpan playsRole householdSalarySpan;
+}
+
+relation PersonUlResidenceType {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	ResidenceType playsRole dislocatedResidenceType;
+}
+
+relation PersonUlDisabilityType {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	DisabilityType playsRole disabilityType;
+}
+
+
+relation PersonUlUniversityDiscoveryMeansAnswer {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	UniversityDiscoveryMeansAnswer playsRole universityDiscoveryMeansAnswers {
+		multiplicity *;
+	}
+}
+
+relation PersonUlUniversityChoiceMotivationAnswer {
+	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
+		multiplicity *;
+	}
+	UniversityChoiceMotivationAnswer playsRole universityChoiceMotivationAnswers {
+		multiplicity *;
+	}
+}
+
+relation PrecedentDegreeInformationDistrict{
+	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
+	.org.fenixedu.academic.domain.District playsRole district;
+}
+
+relation PrecedentDegreeInformationDistrictSubdivision{
+	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
+	.org.fenixedu.academic.domain.DistrictSubdivision playsRole districtSubdivision;
+}
+
 // ==================== ULisboa Specifications Root ====================
 
 class ULisboaSpecificationsRoot {
@@ -232,6 +313,56 @@ relation DgesStudentImportationProcessStudentCandidacy {
 		multiplicity *;
 	}
 }
+
+class candidacy.FirstTimeCandidacy extends .org.fenixedu.academic.domain.candidacy.StudentCandidacy {
+}
+
+
+// ==================== First Year School Configuration ====================
+
+class FirstYearRegistrationConfiguration{
+	boolean requiresVaccination;
+	boolean requiresCoursesEnrolment;
+	boolean requiresClassesEnrolment;
+	boolean requiresShiftsEnrolment;
+}
+
+relation DegreeFirstYearRegistrationConfiguration{
+	.org.fenixedu.academic.domain.Degree playsRole degree{
+		multiplicity 1;
+	}
+	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfiguration;
+}
+
+class FirstYearRegistrationGlobalConfiguration {
+	LocalizedString introductionText;
+}
+
+class CgdMod43Template extends .org.fenixedu.bennu.io.domain.GenericFile {
+}
+
+relation BennuFirstYearRegistrationGlobalConfiguration {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole bennu;
+	FirstYearRegistrationGlobalConfiguration playsRole firstYearRegistrationGlobalConfigurations {
+		multiplicity *;
+	}
+}
+
+relation DegreeConfigurationGlobalConfiguration {
+	FirstYearRegistrationGlobalConfiguration playsRole globalConfiguration {
+		multiplicity 1;
+	}
+	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfigurations {
+		multiplicity *;
+	}
+}
+
+relation GlobalConfigurationTemplate {
+	FirstYearRegistrationGlobalConfiguration playsRole globalConfiguration {
+		multiplicity 1;
+	}
+	CgdMod43Template playsRole mod43Template;
+}	
 
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information
 class ULisboaPortalConfiguration{
