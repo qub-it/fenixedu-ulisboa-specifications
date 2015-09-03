@@ -33,6 +33,10 @@ ${portal.toolkit()}
 </div>
 
 <%-- NAVIGATION --%>
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/back"><spring:message code="label.back"/></a>	
+</div>
+
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
 

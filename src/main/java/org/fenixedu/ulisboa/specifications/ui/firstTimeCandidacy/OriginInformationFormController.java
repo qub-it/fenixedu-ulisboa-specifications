@@ -70,11 +70,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
-
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
+
+import com.google.common.base.Strings;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
@@ -88,6 +88,11 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     private static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
     public static final String FILLORIGININFORMATION_URL = CONTROLLER_URL + _FILLORIGININFORMATION_URI;
+
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(ContactsFormController.FILLCONTACTS_URL, model, redirectAttributes);
+    }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
     public String fillorigininformation(Model model, RedirectAttributes redirectAttributes) {

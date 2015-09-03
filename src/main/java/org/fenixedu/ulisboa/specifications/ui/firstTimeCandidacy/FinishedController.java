@@ -44,13 +44,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished")
+@RequestMapping(FinishedController.CONTROLLER_URL)
 public class FinishedController extends FenixeduUlisboaSpecificationsBaseController {
+
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
+
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(CgdDataAuthorizationController.CONTROLLER_URL, model, redirectAttributes);
+    }
 
     @RequestMapping
     public String finished(Model model, RedirectAttributes redirectAttributes) {

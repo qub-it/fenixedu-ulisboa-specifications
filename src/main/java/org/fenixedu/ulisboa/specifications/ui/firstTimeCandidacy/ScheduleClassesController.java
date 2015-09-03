@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
@@ -57,10 +58,17 @@ import pt.ist.fenixframework.Atomic;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses")
+@RequestMapping(ScheduleClassesController.CONTROLLER_URL)
 public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBaseController {
 
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses";
+
     Logger logger = LoggerFactory.getLogger(ScheduleClassesController.class);
+
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(ShowSelectedCoursesController.CONTROLLER_URL, model, redirectAttributes);
+    }
 
     @RequestMapping
     public String scheduleclasses(Model model, RedirectAttributes redirectAttributes) {
@@ -68,17 +76,25 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
 
-        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
-        Degree degree = registration.getDegree();
-        if (degree.getFirstYearRegistrationConfiguration() == null
-                || !(degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment() || degree
-                        .getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment())) {
-            //School does not require first year classes enrolment
+        if (shouldBeSkipped()) {
+            Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
             ExecutionSemester executionSemester = ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod();
             associateShiftsFor(registration.getStudentCurricularPlan(executionSemester));
             return scheduleclassesToContinue(model, redirectAttributes);
         }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses";
+    }
+
+    public static boolean shouldBeSkipped() {
+        Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
+        if (degree.getFirstYearRegistrationConfiguration() == null) {
+            return true;
+        }
+        if (!degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()
+                && !degree.getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment()) {
+            return true;
+        }
+        return false;
     }
 
     @RequestMapping(value = "/openshiftenrollments")
@@ -122,7 +138,7 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses", model, redirectAttributes);
+        return redirect(ShowScheduledClassesController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     public void associateShiftsFor(final StudentCurricularPlan studentCurricularPlan) {

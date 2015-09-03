@@ -65,8 +65,12 @@ import com.lowagie.text.pdf.PdfCopyFields;
 import com.lowagie.text.pdf.PdfReader;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint")
+@RequestMapping(DocumentsPrintController.CONTROLLER_URL)
 public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseController {
+
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint";
+
+    public static final String WITH_MODEL43_URL = CONTROLLER_URL + "/withModel43";
 
     @RequestMapping
     public String documentsprint(Model model, RedirectAttributes redirectAttributes) {
@@ -74,7 +78,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         printToCandidacySummaryFile(false);
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
+        return redirect(FinishedController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @RequestMapping(value = "/withModel43")
@@ -83,7 +87,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         printToCandidacySummaryFile(true);
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
+        return redirect(FinishedController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     private void printToCandidacySummaryFile(boolean includeModel43) {

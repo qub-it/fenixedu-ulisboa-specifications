@@ -101,9 +101,11 @@ ${portal.toolkit()}
 	<p><spring:message code="label.firstTimeCandidacy.instructions.details" htmlEscape="false"/></p>
 </div>
 
-<div>
-	<a class="btn btn-primary start" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/home/continue"><span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.firstTimeCandidacy.start"  /></a>
-</div>
+<c:if test="${empty errorMessages}">
+	<div>
+		<a class="btn btn-primary start" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/home/continue"><span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.firstTimeCandidacy.start"  /></a>
+	</div>
+</c:if>
 
 
 <style>

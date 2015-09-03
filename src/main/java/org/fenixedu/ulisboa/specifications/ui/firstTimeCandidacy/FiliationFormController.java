@@ -67,6 +67,11 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     private static final String _FILLFILIATION_URI = "/fillfiliation";
     public static final String FILLFILIATION_URL = CONTROLLER_URL + _FILLFILIATION_URI;
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(PersonalInformationFormController.FILLPERSONALINFORMATION_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.GET)
     public String fillfiliation(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
@@ -123,9 +128,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             writeData(form);
             StudentAccessServices.triggerSyncPersonToExternal(AccessControl.getPerson());
             model.addAttribute("filiationForm", form);
-            return redirect(
-                    "/fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation/",
-                    model, redirectAttributes);
+            return redirect(HouseholdInformationFormController.FILLHOUSEHOLDINFORMATION_URL, model, redirectAttributes);
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);

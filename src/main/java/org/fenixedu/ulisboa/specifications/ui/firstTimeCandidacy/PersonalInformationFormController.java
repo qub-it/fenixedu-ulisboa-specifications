@@ -99,6 +99,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         return "forward:" + CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;
     }
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
     public String fillpersonalinformation(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
@@ -216,8 +221,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         try {
             writeData(form);
             model.addAttribute("personalInformationForm", form);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation/", model,
-                    redirectAttributes);
+            return redirect(FiliationFormController.FILLFILIATION_URL, model, redirectAttributes);
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);

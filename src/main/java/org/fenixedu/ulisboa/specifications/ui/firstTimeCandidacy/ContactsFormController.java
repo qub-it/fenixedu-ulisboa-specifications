@@ -67,6 +67,11 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     private static final String _FILLCONTACTS_URI = "/fillcontacts";
     public static final String FILLCONTACTS_URL = CONTROLLER_URL + _FILLCONTACTS_URI;
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(ResidenceInformationFormController.FILLRESIDENCEINFORMATION_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _FILLCONTACTS_URI, method = RequestMethod.GET)
     public String fillcontacts(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
@@ -141,8 +146,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
             writeData(form);
             StudentAccessServices.triggerSyncPersonToExternal(AccessControl.getPerson());
             model.addAttribute("contactsForm", form);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation/",
-                    model, redirectAttributes);
+            return redirect(OriginInformationFormController.FILLORIGININFORMATION_URL, model, redirectAttributes);
         } catch (DomainException domainEx) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey()),
                     model);

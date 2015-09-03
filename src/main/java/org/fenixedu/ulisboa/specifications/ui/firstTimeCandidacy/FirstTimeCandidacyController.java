@@ -68,9 +68,6 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/home";
 
-    private static final String _INSTRUCTIONS_URI = "/instructions";
-    public static final String INSTRUCTIONS_URL = CONTROLLER_URL + _INSTRUCTIONS_URI;
-
     @RequestMapping
     public String home(Model model) {
         Person person = AccessControl.getPerson();
@@ -102,8 +99,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         Person person = AccessControl.getPerson();
         StudentAccessServices.requestSyncPersonFromExternal(person);
 
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation",
-                model, redirectAttributes);
+        return redirect(PersonalInformationFormController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     private static Predicate<Candidacy> arefirstTime = c -> (c instanceof FirstTimeCandidacy)

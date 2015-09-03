@@ -41,11 +41,25 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping("/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses")
+@RequestMapping(ShowSelectedCoursesController.CONTROLLER_URL)
 public class ShowSelectedCoursesController extends FenixeduUlisboaSpecificationsBaseController {
+
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses";
+
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        if (!ChooseOptionalCoursesController.shouldBeSkipped()) {
+            return redirect(ChooseOptionalCoursesController.CONTROLLER_URL, model, redirectAttributes);
+        } else if (!SchoolSpecificDataController.shouldBeSkipped()) {
+            return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
+        } else {
+            return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
+        }
+    }
 
     @RequestMapping
     public String showselectedcourses(Model model, RedirectAttributes redirectAttributes) {
@@ -92,7 +106,7 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
-        return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses", model, redirectAttributes);
+        return redirect(ScheduleClassesController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     private boolean checkCourseEnrolments(Registration registration, ExecutionYear currentExecutionYear) {

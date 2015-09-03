@@ -77,6 +77,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     private static final String _FILLRESIDENCEINFORMATION_URI = "/fillresidenceinformation";
     public static final String FILLRESIDENCEINFORMATION_URL = CONTROLLER_URL + _FILLRESIDENCEINFORMATION_URI;
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(HouseholdInformationFormController.FILLHOUSEHOLDINFORMATION_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _FILLRESIDENCEINFORMATION_URI, method = RequestMethod.GET)
     public String fillresidenceinformation(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
@@ -158,8 +163,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         try {
             writeData(form);
             model.addAttribute("residenceInformationForm", form);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts/", model,
-                    redirectAttributes);
+            return redirect(ContactsFormController.FILLCONTACTS_URL, model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);

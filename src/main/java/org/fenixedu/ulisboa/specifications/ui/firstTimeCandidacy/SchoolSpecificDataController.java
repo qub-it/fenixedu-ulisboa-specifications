@@ -27,18 +27,13 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
-import java.util.Optional;
-import java.util.function.Predicate;
-
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.domain.student.access.importation.DgesStudentImportationProcess;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -61,34 +56,29 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
     private static final String _CREATE_URI = "/create";
     public static final String CREATE_URL = CONTROLLER_URL + _CREATE_URI;
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _CREATE_URI, method = RequestMethod.GET)
     public String create(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
-        Predicate<? super Registration> hasDgesImportationProcessForCurrentYear =
-                DgesStudentImportationProcess.registrationHasDgesImportationProcessForCurrentYear();
-        Optional<Registration> findAny =
-                AccessControl.getPerson().getStudent().getRegistrationsSet().stream()
-                        .filter(hasDgesImportationProcessForCurrentYear).findAny();
-        if (findAny.isPresent()) {
-            Registration registration = findAny.get();
-            Degree degree = registration.getDegree();
-            //TODO refactor code : School specific data could be more than vaccination but
-            //since vaccination is the only "school specific data" for now, this is complies with the requirements
-            if (degree.getFirstYearRegistrationConfiguration() == null
-                    || !degree.getFirstYearRegistrationConfiguration().getRequiresVaccination()) {
-                //School does not require specific data
-                return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/", model,
-                        redirectAttributes);
-            }
 
-        } else {
-            //This should never happen, but strange things happen
-            throw new RuntimeException("Functionality only provided for candidates with current dges process");
+        if (shouldBeSkipped()) {
+            return redirect(ChooseOptionalCoursesController.CONTROLLER_URL, model, redirectAttributes);
         }
+
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create";
+    }
+
+    public static boolean shouldBeSkipped() {
+        Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
+        return degree.getFirstYearRegistrationConfiguration() == null
+                || !degree.getFirstYearRegistrationConfiguration().getRequiresVaccination();
     }
 
     private void fillFormIfRequired(Model model) {
@@ -111,8 +101,7 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
                         "label.error.fillVaccionatioValidity"));
             }
             createSchoolSpecificData(vaccinationValidity);
-            return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses/", model,
-                    redirectAttributes);
+            return redirect(ChooseOptionalCoursesController.CONTROLLER_URL, model, redirectAttributes);
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")

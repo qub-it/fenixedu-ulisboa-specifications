@@ -55,6 +55,11 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
     private static final String _FILLDISABILITIES_URI = "/filldisabilities";
     public static final String FILLDISABILITIES_URL = CONTROLLER_URL + _FILLDISABILITIES_URI;
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(OriginInformationFormController.FILLORIGININFORMATION_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
     public String filldisabilities(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {

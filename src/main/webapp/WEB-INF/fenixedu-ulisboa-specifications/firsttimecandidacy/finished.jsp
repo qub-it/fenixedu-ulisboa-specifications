@@ -34,6 +34,10 @@ ${portal.toolkit()}
 	</h1>
 </div>
 
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/finished/back"><spring:message code="label.back"/></a>	
+</div>
+
 <div class="well">
 	<spring:message code="label.firstTimeCandidacy.finished.details" />
 </div>

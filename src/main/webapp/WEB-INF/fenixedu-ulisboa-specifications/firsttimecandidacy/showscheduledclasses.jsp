@@ -31,12 +31,11 @@ ${portal.toolkit()}
 	</h1>
 </div>
 
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses/back"><spring:message code="label.back"/></a>	
+</div>
 
 <%-- NAVIGATION --%>
-<div class="well well-sm" style="display:inline-block">
-	
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
-</div>
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
 					
@@ -72,3 +71,7 @@ ${portal.toolkit()}
 			</c:if>
 
 <jsp:include page="scheduledClassesWidget.jsp"/>
+
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
+</div>

@@ -59,6 +59,11 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
     private static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
     public static final String FILLMOTIVATIONSEXPECTATIONS_URL = CONTROLLER_URL + _FILLMOTIVATIONSEXPECTATIONS_URI;
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
+    }
+
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
     public String fillmotivationsexpectations(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {

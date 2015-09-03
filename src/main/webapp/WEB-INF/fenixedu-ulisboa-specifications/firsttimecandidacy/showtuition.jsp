@@ -30,12 +30,11 @@ ${portal.toolkit()}
 	</h1>
 </div>
 
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/back"><spring:message code="label.back"/></a>	
+</div>
+
 <%-- NAVIGATION --%>
-<c:if test="${empty errorMessages}">
-	<div class="well well-sm" style="display:inline-block">
-			<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
-	</div>
-</c:if>
 
 <div >
 <p><small>
@@ -44,6 +43,12 @@ ${portal.toolkit()}
 </div>
 			
 <jsp:include page="/WEB-INF/academicTreasury/customer/readCustomer.jsp" />
+
+<c:if test="${empty errorMessages}">
+	<div class="well well-sm" style="display:inline-block">
+			<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
+	</div>
+</c:if>
 
 <script>
 $(document).ready(function() {
