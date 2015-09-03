@@ -71,55 +71,62 @@ ${portal.toolkit()}
 				</div>	
 			</c:if>
 
+<div class="col-md-12">
+	<div class="col-md-4">
+		<c:if test="${not empty firstSemesterEnrolments}">
+			<h2>${currentYear}&nbsp;<small><spring:message code="label.enrolments.first.semester" /></small></h2>
+			
+			<!-- Table -->
+			<table class="table table-striped">
+				<tbody>
+					<c:forEach items="${firstSemesterEnrolments}" var="enrolment">
+						<tr>
+							<td class="strong">
+								${enrolment.name.content}
+							</td>
+							<td class="">
+								<spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/>
+							</td>
+						</tr>
+					</c:forEach>
+				</tbody>						
+			</table>
+			<h5 class="strong"><spring:message code="label.total.credits" arguments="${firstSemesterCredits}"/></h5>
+		</c:if>
+	</div>
+	<div class="col-md-4">
+		<c:if test="${not empty secondSemesterEnrolments}">
+			<h2>${currentYear}&nbsp;<small><spring:message code="label.enrolments.second.semester" /></small></h2>
+			
+			<!-- Table -->
+			<table class="table table-striped">
+				<tbody>
+					<c:forEach items="${secondSemesterEnrolments}" var="enrolment">
+						<tr>
+							<td class="strong">
+								${enrolment.name.content}
+							</td>
+							<td class="">
+								<spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/>
+							</td>
+						</tr>
+					</c:forEach>
+				</tbody>						
+			</table>
+			<h5 class="strong"><spring:message code="label.total.credits" arguments="${secondSemesterCredits}"/></h5>
+		</c:if>
+	</div>
+</div>
 
-<%-- NAVIGATION --%>
-<div class="h3">${currentYear}</div>
 
-<c:if test="${not empty firstSemesterEnrolments}">
-	<div class="h4">
-		<spring:message code="label.enrolments.first.semester" />
-	</div>
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<c:forEach items="${firstSemesterEnrolments}" var="enrolment">
-			<div class="form-group row">
-				<div class="col-sm-2">
-					<div><strong>${enrolment.name.content}</strong></div>
-				</div>
-				<div class="col-sm-10">
-					<div><spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/></div>
-				</div>
-			</div>
-			</c:forEach>
-		</div>
-	</div>
-	
-	<div><spring:message code="label.total.credits" arguments="${firstSemesterCredits}"/></div>
-<br/>
-</c:if>
-
-<c:if test="${not empty secondSemesterEnrolments}">
-	<div class="h4">
-		<spring:message code="label.enrolments.second.semester" />
-	</div>
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<c:forEach items="${secondSemesterEnrolments}" var="enrolment">
-			<div class="form-group row">
-				<div class="col-sm-2">
-					<div><strong>${enrolment.name.content}</strong></div>
-				</div>
-				<div class="col-sm-10">
-					<div><spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/></div>
-				</div>
-			</div>
-			</c:forEach>
-		</div>
-	</div>
-	
-	<div><spring:message code="label.total.credits" arguments="${secondSemesterCredits}"/></div>
-<br/>
-</c:if>
+<style>
+	.strong {
+		font-weight: bold;
+	}
+	.table {
+		width: auto;
+	}
+</style>
 
 <script>
 $(document).ready(function() {
