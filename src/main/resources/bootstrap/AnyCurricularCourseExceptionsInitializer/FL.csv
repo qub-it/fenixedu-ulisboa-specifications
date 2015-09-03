@@ -59,16 +59,18 @@
 24473	Recolha de Informação e Análise de Dados 	6
 97645	Seminário (Artes do Espectáculo)	12
 98126	Seminário (Artes e Culturas Comparadas)	12
-51260	Seminário (Tradução)	12
-78172	Seminário	6
+51260_12ects	Seminário (Tradução)	12
+78172_6ects	Seminário	6
 76361	Seminário 1	6
 76394	Seminário 2	6
 78600	Estágio Curricular [Estudos Africanos]	12
 78611	Seminário [Estudos Africanos - Linguística]	12
 78002	Seminário [Estudos Africanos - Literaturas de Língua Portuguesa]	12
 34496	Seminário de Investigação (Filosofia)	12
-12975	Seminário/Estágio [Major em Estudos Ingleses]	6
-12986	Seminário/Estágio [Major em Estudos Norte-Americanos]	6
+12975_6ects	Seminário/Estágio [Major em Estudos Ingleses]	6
+12975_12ects	Seminário/Estágio [Major em Estudos Ingleses]	12
+12986_6ects	Seminário/Estágio [Major em Estudos Norte-Americanos]	6
+12986_12ects	Seminário/Estágio [Major em Estudos Norte-Americanos]	12
 12990	Seminário/Estágio/Programa Internacional (Comunicação e Cultura)	12
 56482	Sistemas Políticos Comparados na Ásia Contemporânea 	6
 77700	Técnicas de Documentação Gráfica em Arqueologia	6
@@ -84,9 +86,8 @@
 57393	Evolução das Ideias em Física	3
 85101	Evolução do Pensamento Matemático	3
 85102	Haverá Limites na Ciência?	3
-57413	Sustentabilidade Energética	3
-71717	Terra, Ambiente e Clima	3
-58756	Economia do Desenvolvimento	6
+57413_3ects	Sustentabilidade Energética	3
+58793	Economia do Desenvolvimento	6
 58757	Ética em Economia e Negócios Internacionais	6
 58758	História do Pensamento Económico	6
 58759	Ética Empresarial	6
@@ -116,7 +117,6 @@
 58043	Paleontologia	6
 58133	Riscos Geológicos	6
 58155	Sistemas Terrestres e Desenvolvimento Sustentável	6
-57413	Sustentabilidade Energética	3
 71717	Terra, Ambiente e Clima	3
 58788	Laboratório Numérico	6
 58789	Sistemas de Informação Geográfica	6
@@ -156,31 +156,6 @@
 57674	Cálculo Diferencial e Integral II	6
 57685	Cálculo Diferencial e Integral III	6
 58021	Matemática Finita	6
-58790	Análise da Informação Económica e Empresarial	6
-58792	Cooperação Internacional para o Desenvolvimento	6
-58793	Economia do Desenvolvimento	6
-58794	Economia I	6
-58795	Economia Portuguesa e Europeia	4
-58796	Economia, Instituições e Desenvolvimento	6
-58797	Empreendedorismo	6
-58803	Estratégia e Prospectiva	6
-58757	Ética em Economia e Negócios Internacionais	6
-58805	Gestão Financeira I	6
-58758	História do Pensamento Económico	6
-58807	História Económica e Empresarial	6
-58808	Introdução à Gestão	6
-58809	Marketing Operacional	6
-58804	Macroeconomia II	6
-58806	Estratégia Empresarial	6
-58810	Gestão de Competências	6
-58812	Economia II	6
-58813	Sociologia	6
-58814	Sociologia do Trabalho e da Empresa	6
-58815	Desigualdades, Exclusão  Social e Políticas Públicas	6
-58759	Ética Empresarial	6
-58760	Instituições Internacionais e Direito Comunitário	6
-58761	Política Económica e Actividade Empresarial	6
-58762	Política Social	6
 57375	Artes Plásticas 1	9
 57424	Desenho 2	6
 57361	Desenho 3	6
@@ -227,7 +202,7 @@
 58826	Bioquímica Computacional	6
 57514	Fundamentos de Química	9
 58166	Técnicas Laboratoriais em Química	3
-62805	Biologia Celular 	6
+62805_6ects	Biologia Celular 	6
 66505	Biologia Animal I	6
 57461	Biologia Vegetal	6
 58394	Fisiologia Animal	6
@@ -249,8 +224,8 @@
 58860	Desenvolvimento Motor	4
 58861	Actividade Motora Adaptada	3
 58862	Psicologia do Desporto	4
-58863	Cinesiologia	3.5
-58864	Fisiologia do Exercício	3.5
+58863	Cinesiologia	3,5
+58864	Fisiologia do Exercício	3,5
 58865	Biomecânica	4
 58866	Nutrição e Actividade Física	3
 58867	Metodologia do Treino	3
@@ -340,7 +315,7 @@
 58810	Gestão de Competências	6
 58813	Sociologia	6
 58814	Sociologia do Trabalho e da Empresa	6
-58833	A Ciência da Antiguidade ao Renascimento	6
+58833_6ects	A Ciência da Antiguidade ao Renascimento	6
 58881	Ciência e Arte	6
 58844	Temas da Filosofia da Ciência Contemporânea	6
 57652	Ciência e Cultura	6
@@ -409,7 +384,7 @@
 713434	Dissertação	48
 714876	Teoria do Património Cultural	12
 714880	Seminário de Orientação	12
-714891	Dissertação de Mestrado	48
+714891_48ects	Dissertação de Mestrado	48
 714922	Seminário de orientação (dissertação/trabalho de projeto)	12
 715313	Seminário de Orientação	12
 715324	Dissertação	48
@@ -505,3 +480,83 @@
 811523_36ects	Trabalho de Projecto	36
 811534_36ects	Estágio com Relatório	36
 911603_42ects	Dissertação	42
+712422_12ects	Arqueologia da Morte	12
+712380_12ects	Métodos e Técnicas de Informação Arqueológica	12
+712411_12ects	Métodos e Técnicas de Trabalho de Campo	12
+716325	Seminário de Orientação de Tese 1	6
+716336	Seminário de Orientação de Tese 2	6
+712455_12ects	Sistemas Tecnológicos de Produção Artefactual 1	12
+712466_12ects	Sistemas Tecnológicos de Produção Artefactual 2	12
+716340	Tese	60
+555723	Arte e Espaço	12
+555734	Arte e Produção	12
+555712	Arte e Tecnologia	12
+555532	Artes Performativas e da Imagem em Movimento: Composição musical	12
+555510	Artes Performativas e da Imagem em Movimento: Imagem	12
+555792	Artes Performativas e da Imagem em Movimento: Interpretação (Teatro)	12
+555490	Artes Performativas e da Imagem em Movimento: Movimento	12
+555501	Artes Performativas e da Imagem em Movimento: Teoria	12
+555486	Artes Performativas e da Imagem em Movimento: Voz	12
+555622	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Anatomia Artística	9
+555633	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Ciências da Arte	9
+555883	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Filosofia da Paisagem: Fundamentos e Perspectivas 	9
+555644	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Instalação	9
+555885	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Metafísica e Cultura no Séc. XX	9
+555655	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Multimédia	9
+555856	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas: Para uma escrita inventiva em investigação em artes: métodos e processos	9
+555886	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas:Experiência Poética na Cultura Luso-Brasileira	9
+555884	Estudos Avançados em Artes ou Estudos Avançados em Artes, Literaturas e Culturas:História e Filosofia da Arte na Idade Média	9
+555745	Seminário de Orientação I	30
+555756	Seminário de Orientação II	30
+555475	Teorias da Arte	9
+555760	Tese	60
+555701	Tópicos em Estudos de Dança	9
+555692	Tópicos em Estudos de Música	9
+555681	Tópicos em Estudos de Teatro	9
+555670	Tópicos em Estudos Fílmicos	9
+122446	Seminário de Orientação 1	30
+122450	Seminário de Orientação 2	30
+812210	Seminário de orientação I	30
+812221	Seminário de orientação II	30
+812153	Tese	60
+410674	Dissertação	60
+410652	Seminário de Orientação I	18
+410663	Seminário de Orientação II	30
+913572	Interarts Seminar	12
+913571	Topics in Comparative Studies I	12
+913573	Topics in Comparative Studies II	12
+913574	Topics in Comparative Studies III	12
+912966	Introdução à Investigação Avançada em Estudos de Teatro	12
+122424	Seminário de Investigação I	30
+122435	Seminário de Investigação II	30
+912992	Seminário de Investigação	6
+913006	Seminário de Orientação	24
+913010	Seminário de Orientação	30
+913054	Tese	0
+311705	Seminário de Investigação III	24
+311716	Tese	96
+311685	Seminário de Investigação I	24
+311696	Seminário de Investigação II	24
+716834	Dissertação	60
+716823	Estado da Arte e Novas Perspectivas	12
+716860	Seminário de Investigação	12
+716845	Seminário de Orientação I	12
+716856	Seminário de Orientação II	12
+715892	Coordenação do Projecto de Investigação I	12
+715901	Coordenação do Projecto de Investigação II	12
+716654	Tese	0
+555330	Elaboração da Tese	120
+812243	Seminário de Investigação 1	18
+812254	Seminário de Investigação 2	30
+717149	Seminário de Acompanhamento I	6
+717150	Seminário de Acompanhamento II	6
+717151	Seminário de Acompanhamento III	6
+717152	Seminário de Acompanhamento IV	6
+717153	Seminário de Acompanhamento V	6
+717154	Seminário de Acompanhamento VI	6
+717155	Tese I	24
+717156	Tese II	24
+717157	Tese III	24
+717158	Tese IV	24
+717159	Tese V	24
+717160	Tese VI	24
