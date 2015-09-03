@@ -206,7 +206,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
                     "message.shiftEnrolment.addShift.success"), model);
         } catch (DomainException e) {
-            addErrorMessage(e.getLocalizedMessage(), model);
+            addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
         }
 
         model.addAttribute("registration", registration);
@@ -218,7 +218,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
     @Atomic
     protected void addShiftService(Registration registration, Shift shift) {
         if (!shift.reserveForStudent(registration)) {
-            throw new DomainException("error.registration.replaceSchoolClass.shiftFull", shift.getNome(),
+            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(),
                     shift.getShiftTypesPrettyPrint(), shift.getExecutionCourse().getName());
         }
     }
