@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
@@ -34,6 +36,7 @@ import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
@@ -68,6 +71,9 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         Student student = registration.getStudent();
         StudentAccessServices.triggerSyncStudentToExternal(student);
+        if (!student.getPerson().getPersonUlisboaSpecifications().getAuthorizeSharingDataWithCGD()) {
+            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
     }
 

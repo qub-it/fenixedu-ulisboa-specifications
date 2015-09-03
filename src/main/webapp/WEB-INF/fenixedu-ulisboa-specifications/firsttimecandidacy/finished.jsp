@@ -38,19 +38,6 @@ ${portal.toolkit()}
 	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/finished/back"><spring:message code="label.back"/></a>	
 </div>
 
-<div class="well">
-	<spring:message code="label.firstTimeCandidacy.finished.details" />
-</div>
-
-<div class="well">
-	<spring:message code="label.firstTimeCandidacy.finished.details.more" />
-</div>
-
-<%-- NAVIGATION --%>
-<div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/finished/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
-</div>
-
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
 					
@@ -84,6 +71,24 @@ ${portal.toolkit()}
 					
 				</div>	
 			</c:if>
+
+<div class="well">
+	<spring:message code="label.firstTimeCandidacy.finished.details" />
+</div>
+
+<div class="well">
+	<spring:message code="label.firstTimeCandidacy.finished.details.more" />
+	<ul>
+		<li><spring:message code="label.firstTimeCandidacy.finished.details.registrationDeclaration"/></li>
+		<li><spring:message code="label.firstTimeCandidacy.finished.details.model43"/></li>
+		<li><spring:message code="label.firstTimeCandidacy.finished.details.tuitionPayments"/></li>
+	</ul>
+</div>
+
+<%-- NAVIGATION --%>
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/finished/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
+</div>
 
 
 <script>
