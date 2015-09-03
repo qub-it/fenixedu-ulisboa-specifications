@@ -77,7 +77,7 @@ ${portal.toolkit()}
 			<c:forEach items="${firstSemesterEnrolments}" var="enrolment">
 			<div class="form-group row">
 				<div class="col-sm-2">
-					<div><strong>${enrolment.name}</strong></div>
+					<div><strong>${enrolment.name.content}</strong></div>
 				</div>
 				<div class="col-sm-10">
 					<div><spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/></div>
@@ -100,7 +100,7 @@ ${portal.toolkit()}
 			<c:forEach items="${secondSemesterEnrolments}" var="enrolment">
 			<div class="form-group row">
 				<div class="col-sm-2">
-					<div><strong>${enrolment.name}</strong></div>
+					<div><strong>${enrolment.name.content}</strong></div>
 				</div>
 				<div class="col-sm-10">
 					<div><spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/></div>

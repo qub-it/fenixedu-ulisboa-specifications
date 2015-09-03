@@ -30,11 +30,12 @@ ${portal.toolkit()}
 	</h1>
 </div>
 
-
 <%-- NAVIGATION --%>
-<div class="well well-sm" style="display:inline-block">
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
-</div>
+<c:if test="${empty errorMessages}">
+	<div class="well well-sm" style="display:inline-block">
+			<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
+	</div>
+</c:if>
 
 <div >
 <p><small>

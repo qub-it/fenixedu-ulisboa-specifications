@@ -197,7 +197,7 @@ $(document).ready(function() {
 	country_options = [
 	             			<c:forEach items="${countries_options}" var="element"> 
 	             				{
-	             					text : "<c:out value='${element.name}'/>",  
+	             					text : "<c:out value='${element.localizedName.content}'/>",  
 	             					id : "<c:out value='${element.externalId}'/>"
 	             				},
 	             			</c:forEach>
@@ -239,7 +239,7 @@ $(document).ready(function() {
     	secondNationality_options = [
 	             			<c:forEach items="${countries_options}" var="element"> 
 	             				{
-	             					text : "<c:out value='${element.nationality}'/>",  
+	             					text : "<c:out value='${element.countryNationality.content}'/>",  
 	             					id : "<c:out value='${element.externalId}'/>"
 	             				},
 	             			</c:forEach>

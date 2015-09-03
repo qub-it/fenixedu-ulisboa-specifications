@@ -27,11 +27,14 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academictreasury.ui.customer.CustomerAccountingController;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -56,7 +59,12 @@ public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseCont
         createTuitions(registration);
         createTuitions(registration);
 
-        checkTuitions(registration);
+        try {
+            checkTuitions(registration);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.could.not.create.tuitions"), model);
+        }
         CustomerAccountingController customerAccountingController = new CustomerAccountingController();
         customerAccountingController.readCustomer(model, redirectAttributes);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition";
