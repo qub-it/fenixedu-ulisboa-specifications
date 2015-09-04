@@ -46,6 +46,15 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
 
     protected CurricularPeriodRule() {
         super();
+        setHideMessagePrefix(false);
+    }
+
+    public void messagePrefixDisabled() {
+        setHideMessagePrefix(true);
+    }
+
+    public void messagePrefixEnabled() {
+        setHideMessagePrefix(false);
     }
 
     public void init(final BigDecimal credits) {
@@ -95,7 +104,7 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
 
     static public RuleResult createFalseConfiguration(final DegreeModule degreeModule,
             final CurricularPeriodConfiguration configuration) {
-        return createFalseConfiguration(degreeModule, getMessagesPrefix(configuration));
+        return createFalseConfiguration(degreeModule, getMessagesPrefix(configuration, true));
     }
 
     static private RuleResult createFalseConfiguration(final DegreeModule degreeModule, final String prefix) {
@@ -122,12 +131,12 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     private String getMessagesPrefix() {
-        return getMessagesPrefix(getConfiguration());
+        return getMessagesPrefix(getConfiguration(), getHideMessagePrefix());
     }
 
-    static private String getMessagesPrefix(final CurricularPeriodConfiguration configuration) {
-        return configuration == null ? "" : (BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix",
-                configuration.getCurricularPeriod().getFullLabel()) + " ");
+    static private String getMessagesPrefix(final CurricularPeriodConfiguration configuration, final boolean hideMessagePrefix) {
+        return hideMessagePrefix || configuration == null ? "" : (BundleUtil.getString(MODULE_BUNDLE,
+                "label.CurricularPeriodRule.prefix", configuration.getCurricularPeriod().getFullLabel()) + " ");
     }
 
     static private String getMessagesSuffix(final BigDecimal total) {

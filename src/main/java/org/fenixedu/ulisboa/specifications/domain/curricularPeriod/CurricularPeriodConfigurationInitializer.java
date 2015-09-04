@@ -38,6 +38,7 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsEnroledAsFirstTime;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsInCurricularPeriod;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod;
@@ -402,14 +403,17 @@ public class CurricularPeriodConfigurationInitializer {
             logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
 
             for (int i = 1; i <= dcp.getDurationInYears(); i++) {
-                
+
                 final CurricularPeriodConfiguration config = findOrCreateConfig(dcp, i);
                 if (config == null) {
                     continue;
                 }
 
-                CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(84));
-                CreditsEnroledAsFirstTime.create(config, BigDecimal.valueOf(60));
+                CurricularPeriodRule rule = CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(84));
+                rule.messagePrefixDisabled();
+
+                rule = CreditsEnroledAsFirstTime.create(config, BigDecimal.valueOf(60));
+                rule.messagePrefixDisabled();
             }
 
         }
@@ -578,35 +582,45 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear2 == null) {
                 continue;
             }
-            ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
+            CurricularPeriodRule rule =
+                    ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
+            rule.messagePrefixDisabled();
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
                 continue;
             }
-            ApprovedCredits.create(configYear3,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked));
+            rule =
+                    ApprovedCredits.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2))
+                            .subtract(maxFlunked));
+            rule.messagePrefixDisabled();
 
             final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
             if (configYear4 == null) {
                 continue;
             }
-            ApprovedCredits.create(configYear4,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked));
+            rule =
+                    ApprovedCredits.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3))
+                            .subtract(maxFlunked));
+            rule.messagePrefixDisabled();
 
             final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
             if (configYear5 == null) {
                 continue;
             }
-            ApprovedCredits.create(configYear5,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked));
+            rule =
+                    ApprovedCredits.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4))
+                            .subtract(maxFlunked));
+            rule.messagePrefixDisabled();
 
             final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
             if (configYear6 == null) {
                 continue;
             }
-            ApprovedCredits.create(configYear6,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked));
+            rule =
+                    ApprovedCredits.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5))
+                            .subtract(maxFlunked));
+            rule.messagePrefixDisabled();
         }
     }
 

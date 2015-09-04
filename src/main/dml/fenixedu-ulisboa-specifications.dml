@@ -419,6 +419,7 @@ relation CurricularPeriodConfigurations {
 
 class curricularPeriod.rule.CurricularPeriodRule {
 	BigDecimal credits;
+	boolean hideMessagePrefix;
 }
 
 	class curricularPeriod.rule.RuleEnrolment extends curricularPeriod.rule.CurricularPeriodRule {
