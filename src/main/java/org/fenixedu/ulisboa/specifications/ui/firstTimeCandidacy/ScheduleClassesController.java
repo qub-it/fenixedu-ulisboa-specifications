@@ -178,10 +178,8 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         if (schoolClass == null) {
             throw new DomainException("error.RegistrationOperation.avaliable.schoolClass.not.found");
         }
-
-        for (final Shift shift : schoolClass.getAssociatedShiftsSet()) {
-            shift.addStudents(registration);
-        }
+        
+        registration.replaceSchoolClass(schoolClass, schoolClass.getExecutionPeriod());
     }
 
     class MostFilledFreeClass implements Comparator<SchoolClass> {
