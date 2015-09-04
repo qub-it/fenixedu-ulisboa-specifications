@@ -77,6 +77,26 @@ ${portal.toolkit()}
 
 </div>
 
+<div class="well">
+	<c:if test="${hasAnnualEnrollments}">
+		<spring:message code="label.firstTimeCandidacy.info.annualEnrollments" htmlEscape="false"/>
+	</c:if>
+	<c:if test="${not hasAnnualEnrollments}">
+		<spring:message code="label.firstTimeCandidacy.info.semesterEnrollments" htmlEscape="false"/>
+	</c:if>
+	
+</div>
+
+<style>
+.quote {
+		font-size: 12px;
+		font-family: Monospace;
+		background-color: #e7e7e7;
+		padding: 4px 8px;
+		border-radius: 4px;
+	}
+</style>
+
 <script>
 $(document).ready(function() {
 

@@ -82,6 +82,9 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
             associateShiftsFor(registration.getStudentCurricularPlan(executionSemester));
             return scheduleclassesToContinue(model, redirectAttributes);
         }
+
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
+        model.addAttribute("hasAnnualShifts", hasAnnualShifts(registration));
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses";
     }
 
@@ -146,7 +149,7 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         if (!studentCurricularPlan.getStudent().getShiftsFor(ExecutionSemester.readActualExecutionSemester()).isEmpty()) {
             return;
         }
-        if (studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR) {
+        if (hasAnnualShifts(studentCurricularPlan)) {
             executionSemesters = ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet();
         } else {
             executionSemesters = Collections.singleton(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
@@ -178,7 +181,7 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         if (schoolClass == null) {
             throw new DomainException("error.RegistrationOperation.avaliable.schoolClass.not.found");
         }
-        
+
         registration.replaceSchoolClass(schoolClass, schoolClass.getExecutionPeriod());
     }
 
@@ -225,6 +228,15 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     private Integer getNumberOfEnrolledStudents(SchoolClass schoolClass) {
         return schoolClass.getAssociatedShiftsSet().stream().map(shift -> shift.getStudentsSet().size()).findAny().orElse(0);
+    }
+
+    boolean hasAnnualShifts(StudentCurricularPlan studentCurricularPlan) {
+        return studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
+    }
+
+    boolean hasAnnualShifts(Registration registration) {
+        return hasAnnualShifts(registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear()
+                .getFirstExecutionPeriod()));
     }
 
 }

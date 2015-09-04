@@ -72,9 +72,29 @@ ${portal.toolkit()}
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
 	
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses/openshiftenrollments"><spring:message code="label.event.firstTimeCandidacy.openShiftEnrollments"  /></a>
+		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses/openshiftenrollments"><spring:message code="label.event.firstTimeCandidacy.openShiftEnrollments"  /></a>
 		
 </div>
+
+<div class="well">
+	<c:if test="${hasAnnualShifts}">
+		<spring:message code="label.firstTimeCandidacy.info.annualShifts" htmlEscape="false"/>
+	</c:if>
+	<c:if test="${not hasAnnualShifts}">
+		<spring:message code="label.firstTimeCandidacy.info.semesterShifts" htmlEscape="false"/>
+	</c:if>
+	
+</div>
+
+<style>
+.quote {
+		font-size: 12px;
+		font-family: Monospace;
+		background-color: #e7e7e7;
+		padding: 4px 8px;
+		border-radius: 4px;
+	}
+</style>
 
 <script>
 $(document).ready(function() {

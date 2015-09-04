@@ -83,6 +83,7 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
             createAutomaticEnrolments(registration, ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
             return chooseoptionalcoursesToContinue(model, redirectAttributes);
         }
+        model.addAttribute("hasAnnualEnrollments", hasAnnualEnrollments(registration));
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses";
     }
 
@@ -135,7 +136,7 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
                     .getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester, AccessControl.getPerson()
                     .getUsername());
             registration.updateEnrolmentDate(executionSemester.getExecutionYear());
-            if (studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR) {
+            if (hasAnnualEnrollments(studentCurricularPlan)) {
                 createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(), studentCurricularPlan
                         .getDegreeCurricularPlan().getCurricularPeriodFor(1, 2), executionSemester.getNextExecutionPeriod(),
                         AccessControl.getPerson().getUsername());
@@ -162,5 +163,14 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
                 }
             }
         }
+    }
+
+    boolean hasAnnualEnrollments(StudentCurricularPlan studentCurricularPlan) {
+        return studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
+    }
+
+    boolean hasAnnualEnrollments(Registration registration) {
+        return hasAnnualEnrollments(registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear()
+                .getFirstExecutionPeriod()));
     }
 }
