@@ -27,10 +27,6 @@ public class DegreeCurricularPlansForDegreeForOptionalEnrollment extends DegreeC
             if (!result.contains(current)) {
                 bean.setDegreeCurricularPlan(null);
             }
-
-            if (result.size() == 1) {
-                bean.setDegreeCurricularPlan(result.iterator().next());
-            }
         }
 
         Collections.sort(result, DegreeCurricularPlan.COMPARATOR_BY_NAME);

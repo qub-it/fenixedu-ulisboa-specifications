@@ -56,10 +56,6 @@ public class DegreesByDegreeTypeForOptionalEnrollment extends DegreesByDegreeTyp
             if (!result.contains(current)) {
                 bean.setDegree(null);
             }
-
-            if (result.size() == 1) {
-                bean.setDegree(result.iterator().next());
-            }
         }
 
         Collections.sort(result, Degree.COMPARATOR_BY_NAME);
