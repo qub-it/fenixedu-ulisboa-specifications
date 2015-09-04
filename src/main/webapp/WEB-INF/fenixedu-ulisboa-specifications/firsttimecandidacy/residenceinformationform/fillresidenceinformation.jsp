@@ -339,9 +339,9 @@ $(document).ready(function() {
 			             		$("#residenceInformationForm_areaCode").attr("disabled", bool);
 			             		
 			             		if(bool){
-				             		$("#filiationForm_districtOfBirth").val("").trigger("change");
-				             		$("#filiationForm_districtSubdivisionOfBirth").val("").trigger("change");
-				             		$("#filiationForm_parishOfBirth").val("").trigger("change");
+				             		$("#residenceInformationForm_districtOfResidence").val("").trigger("change");
+				             		$("#residenceInformationForm_districtSubdivisionOfResidence").val("").trigger("change");
+				             		$("#residenceInformationForm_parishOfResidence").val("").trigger("change");
 				             		$("#residenceInformationForm_areaCode").val("").trigger("change");
 
 				             		$('#labelArea').removeClass("required-field");
@@ -428,7 +428,7 @@ $(document).ready(function() {
 			 oid = $("#residenceInformationForm_districtSubdivisionOfResidence")[0].value; 
 			 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/districtSubdivision/" + oid, 
 					success: function(result){
-						 //$("#filiationForm_districtSubdivisionOfBirth").select2("destroy");
+						 //$("#residenceInformationForm_districtSubdivisionOfBirth").select2("destroy");
 						 $("#residenceInformationForm_parishOfResidence").children().remove();
 						 $("#residenceInformationForm_parishOfResidence").select2(
 			             			{
@@ -584,7 +584,7 @@ $(document).ready(function() {
 			 oid = $("#residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence")[0].value; 
 			 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/districtSubdivision/" + oid, 
 					success: function(result){
-						 //$("#filiationForm_districtSubdivisionOfBirth").select2("destroy");
+						 //$("#residenceInformationForm_districtSubdivisionOfBirth").select2("destroy");
 						 $("#residenceInformationForm_schoolTimeParishOfResidence").children().remove();
 						 $("#residenceInformationForm_schoolTimeParishOfResidence").select2(
 			             			{

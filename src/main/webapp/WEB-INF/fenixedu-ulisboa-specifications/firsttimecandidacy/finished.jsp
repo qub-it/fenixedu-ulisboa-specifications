@@ -35,7 +35,7 @@ ${portal.toolkit()}
 </div>
 
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/finished/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint/back"><spring:message code="label.back"/></a>	
 </div>
 
 	<c:if test="${not empty infoMessages}">
@@ -87,7 +87,7 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/finished/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
+	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
 </div>
 
 

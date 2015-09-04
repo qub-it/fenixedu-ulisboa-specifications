@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,7 +38,9 @@ import java.util.Locale;
 import javax.servlet.ServletContext;
 
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
+import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -46,18 +50,26 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentReq
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.service.factoryExecutors.DocumentRequestCreator;
 import org.fenixedu.academictreasury.services.reports.DocumentPrinter;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
@@ -74,13 +86,18 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
 
     public static final String WITH_MODEL43_URL = CONTROLLER_URL + "/withModel43";
 
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
+    public String back(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(CgdDataAuthorizationController.CONTROLLER_URL, model, redirectAttributes);
+    }
+
     @RequestMapping
     public String documentsprint(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
-        printToCandidacySummaryFile(false);
-        return redirect(FinishedController.CONTROLLER_URL, model, redirectAttributes);
+        printToCandidacySummaryFile(model, false);
+        return finished(model);
     }
 
     @RequestMapping(value = "/withModel43")
@@ -88,25 +105,48 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
-        printToCandidacySummaryFile(true);
-        return redirect(FinishedController.CONTROLLER_URL, model, redirectAttributes);
+        printToCandidacySummaryFile(model, true);
+        return finished(model);
     }
 
-    private void printToCandidacySummaryFile(boolean includeModel43) {
+    public String finished(Model model) {
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
+        Student student = registration.getStudent();
+        StudentAccessServices.triggerSyncStudentToExternal(student);
+        if (!student.getPerson().getPersonUlisboaSpecifications().getAuthorizeSharingDataWithCGD()) {
+            addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
+        }
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
+    }
+
+    private void printToCandidacySummaryFile(Model model, boolean includeModel43) {
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
         resetCandidacySummaryFile(candidacy);
 
-        byte[] registrationDeclarationbytes = printRegistrationDeclaration(candidacy, registration);
-        appendSummaryFile(registrationDeclarationbytes, candidacy);
-
-        if (includeModel43) {
-            byte[] model43bytes = printModel43();
-            appendSummaryFile(model43bytes, candidacy);
+        try {
+            printRegistrationDeclaration(candidacy, registration);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.registrationDeclaration.print.failed"),
+                    model);
         }
 
-        byte[] tuitionPlanbytes = DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF);
-        appendSummaryFile(tuitionPlanbytes, candidacy);
+        if (includeModel43) {
+            try {
+                printModel43(candidacy);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.model43.print.failed"), model);
+            }
+        }
+
+        try {
+            printTuitionPaymentPlan(candidacy, registration);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.tuitionPayment.print.failed"), model);
+        }
     }
 
     @Atomic
@@ -123,7 +163,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
     private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
 
     @Atomic
-    private byte[] printRegistrationDeclaration(StudentCandidacy candidacy, Registration registration) {
+    private void printRegistrationDeclaration(StudentCandidacy candidacy, Registration registration) {
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
         documentRequestCreator.setChosenServiceRequestType(ServiceRequestType.findUnique(AcademicServiceRequestType.DOCUMENT,
                 DocumentRequestType.SCHOOL_REGISTRATION_DECLARATION));
@@ -134,7 +174,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         resetDocumentSigner(document);
         processConcludeAndDeliver(document);
 
-        return document.generateDocument();
+        appendSummaryFile(document.generateDocument(), candidacy);
     }
 
     private void resetDocumentSigner(DocumentRequest documentRequest) {
@@ -148,7 +188,8 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         documentRequest.delivered();
     }
 
-    private byte[] printModel43() {
+    @Atomic
+    private void printModel43(StudentCandidacy candidacy) {
         Person person = Authenticate.getUser().getPerson();
 
         InputStream pdfTemplateStream;
@@ -169,10 +210,16 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return stream.toByteArray();
+
+        appendSummaryFile(stream.toByteArray(), candidacy);
     }
 
     @Atomic
+    private void printTuitionPaymentPlan(StudentCandidacy candidacy, Registration registration) {
+        byte[] tuitionPlanbytes = DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF);
+        appendSummaryFile(tuitionPlanbytes, candidacy);
+    }
+
     private static void appendSummaryFile(byte[] pdfByteArray, StudentCandidacy studentCandidacy) {
         CandidacySummaryFile existingSummary = studentCandidacy.getSummaryFile();
         if (existingSummary != null) {
@@ -197,5 +244,40 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             throw new RuntimeException(e);
         }
         return concatenatedPdf;
+    }
+
+    @RequestMapping(value = "/printalldocuments", produces = "application/pdf")
+    public ResponseEntity<byte[]> finishedToPrintAllDocuments(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            // Cannot return redirect() with a return type of ResponseEntity<byte[]>
+            throw new RuntimeException("Cannot finish candidacy - period is not open");
+        }
+        Person person = AccessControl.getPerson();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        concludeStudentCandidacy(person, candidacy);
+
+        byte[] pdfBytes = new byte[0];
+        if (candidacy.getSummaryFile() != null) {
+            pdfBytes = candidacy.getSummaryFile().getContent();
+        }
+        String filename = person.getStudent().getNumber() + ".pdf";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline;filename=" + filename);
+        headers.setContentType(MediaType.parseMediaType("application/pdf"));
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(pdfBytes, headers, HttpStatus.OK);
+
+        Authenticate.logout(request.getSession());
+
+        return response;
+    }
+
+    @Atomic
+    private void concludeStudentCandidacy(Person person, StudentCandidacy candidacy) {
+        AdmittedCandidacySituation situation = new AdmittedCandidacySituation(candidacy, person);
+        situation.setSituationDate(situation.getSituationDate().minusMinutes(1));
+
+        new RegisteredCandidacySituation(candidacy, person);
     }
 }
