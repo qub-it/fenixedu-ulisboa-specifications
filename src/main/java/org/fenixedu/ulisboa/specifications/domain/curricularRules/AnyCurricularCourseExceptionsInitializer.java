@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AnyCurricularCourseExceptionsExecutorLogic;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,24 +30,27 @@ abstract public class AnyCurricularCourseExceptionsInitializer {
         AnyCurricularCourseExceptionsExecutorLogic.configure();
         AnyCurricularCourseExceptionsConfiguration.init();
 
-        final String acronym = Bennu.getInstance().getInstitutionUnit().getAcronym().toUpperCase();
-        logger.info("Init for " + acronym);
+        if (ULisboaConfiguration.getConfiguration().getAnyCurricularCourseExceptionsInitialize()) {
 
-        final URL inputFileUrl =
-                AnyCurricularCourseExceptionsInitializer.class.getClassLoader().getResource(
-                        "bootstrap/AnyCurricularCourseExceptionsInitializer/" + acronym + ".csv");
-        if (inputFileUrl == null) {
-            logger.info("Init not found for " + acronym);
-            return;
-        }
+            final String acronym = Bennu.getInstance().getInstitutionUnit().getAcronym().toUpperCase();
+            logger.info("Init for " + acronym);
 
-        final Set<CompetenceCourse> competenceCourses = findCompetenceCourses(inputFileUrl);
-        if (competenceCourses.isEmpty()) {
-            logger.info("No CompetenceCourses found, done");
-        } else {
-            AnyCurricularCourseExceptionsConfiguration.getInstance().getCompetenceCoursesSet().clear();
-            AnyCurricularCourseExceptionsConfiguration.getInstance().getCompetenceCoursesSet().addAll(competenceCourses);
-            logger.info("Cleared current configuration and added {} found CompetenceCourses, done", competenceCourses.size());
+            final URL inputFileUrl =
+                    AnyCurricularCourseExceptionsInitializer.class.getClassLoader().getResource(
+                            "bootstrap/AnyCurricularCourseExceptionsInitializer/" + acronym + ".csv");
+            if (inputFileUrl == null) {
+                logger.info("Init not found for " + acronym);
+                return;
+            }
+
+            final Set<CompetenceCourse> competenceCourses = findCompetenceCourses(inputFileUrl);
+            if (competenceCourses.isEmpty()) {
+                logger.info("No CompetenceCourses found, nothing done");
+            } else {
+                AnyCurricularCourseExceptionsConfiguration.getInstance().getCompetenceCoursesSet().clear();
+                AnyCurricularCourseExceptionsConfiguration.getInstance().getCompetenceCoursesSet().addAll(competenceCourses);
+                logger.info("Cleared current configuration and added {} found CompetenceCourses, done", competenceCourses.size());
+            }
         }
     }
 

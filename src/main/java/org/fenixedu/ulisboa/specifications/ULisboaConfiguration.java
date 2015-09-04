@@ -21,6 +21,9 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curricularYearConfiguration.initialize", defaultValue = "false")
         public Boolean getCurricularPeriodConfigurationInitialize();
 
+        @ConfigurationProperty(key = "domain.academic.anyCurricularCourseExceptions.initialize", defaultValue = "false")
+        public Boolean getAnyCurricularCourseExceptionsInitialize();
+
         @ConfigurationProperty(key = "quality.mode")
         public Boolean isQualityMode();
 
