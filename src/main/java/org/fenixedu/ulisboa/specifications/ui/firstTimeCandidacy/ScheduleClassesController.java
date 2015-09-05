@@ -30,6 +30,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
@@ -43,6 +44,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -171,9 +173,20 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         ExecutionDegree executionDegree =
                 registration.getDegree().getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator()
                         .next();
-        return executionDegree.getSchoolClassesSet().stream()
-                .filter(sc -> sc.getAnoCurricular().equals(1) && executionSemesters.contains(sc.getExecutionPeriod()))
-                .sorted(new MostFilledFreeClass()).findFirst();
+        Optional<SchoolClass> findFirst =
+                executionDegree.getSchoolClassesSet().stream()
+                        .filter(sc -> sc.getAnoCurricular().equals(1) && executionSemesters.contains(sc.getExecutionPeriod()))
+                        .sorted(new MostFilledFreeClass()).findFirst();
+        if (findFirst.isPresent()) {
+            int sc1NumOfEnrolledStudents = getNumberOfEnrolledStudents(findFirst.get());
+            int sc1AvailableSlots = avaliableSlots(findFirst.get(), sc1NumOfEnrolledStudents);
+            if (sc1AvailableSlots == 0) {
+                logger.error("No shifts available! Person " + AccessControl.getPerson().getName()
+                        + " will have no assigned class.");
+                return Optional.empty();
+            }
+        }
+        return findFirst;
     }
 
     @Atomic
@@ -221,13 +234,18 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         }
     }
 
+    //We are only interested in shifts which do not have more than one class (ignore shared shifts)
+    Predicate<? super Shift> shiftsWithOneClass = s -> s.getAssociatedClassesSet().size() == 1;
+
     private int avaliableSlots(SchoolClass schoolClass, int sc1NumOfEnrolledStudents) {
-        return schoolClass.getAssociatedShiftsSet().stream().mapToInt(shift -> shift.getLotacao()).min().orElse(0)
+        return schoolClass.getAssociatedShiftsSet().stream().filter(shiftsWithOneClass).mapToInt(shift -> shift.getLotacao())
+                .min().orElse(0)
                 - sc1NumOfEnrolledStudents;
     }
 
     private Integer getNumberOfEnrolledStudents(SchoolClass schoolClass) {
-        return schoolClass.getAssociatedShiftsSet().stream().map(shift -> shift.getStudentsSet().size()).findAny().orElse(0);
+        return schoolClass.getAssociatedShiftsSet().stream().filter(shiftsWithOneClass)
+                .map(shift -> shift.getStudentsSet().size()).findAny().orElse(0);
     }
 
     boolean hasAnnualShifts(StudentCurricularPlan studentCurricularPlan) {
