@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,6 +83,7 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         model.addAttribute("universityChoiceMotivationAnswers", allChoiceMotivations);
 
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillMotivationsExpectations.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/motivationsexpectationsform/fillmotivationsexpectations";
     }
 

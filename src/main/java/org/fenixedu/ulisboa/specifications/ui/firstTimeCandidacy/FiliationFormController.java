@@ -81,6 +81,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillFiliation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation";
     }
 

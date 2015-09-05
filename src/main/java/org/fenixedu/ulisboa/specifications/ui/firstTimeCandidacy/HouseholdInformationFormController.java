@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ProfessionType;
@@ -73,6 +75,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         model.addAttribute("salarySpanValues", SalarySpan.readAll().collect(Collectors.toList()));
 
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
     }
 

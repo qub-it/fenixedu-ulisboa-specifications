@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -95,6 +97,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         Collections.sort(allResidenceTypes);
         model.addAttribute("residenceTypeValues", allResidenceTypes);
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillResidenceInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation";
     }
 

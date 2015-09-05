@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -72,6 +74,7 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
         }
 
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.createSchoolSpecificData.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/create";
     }
 

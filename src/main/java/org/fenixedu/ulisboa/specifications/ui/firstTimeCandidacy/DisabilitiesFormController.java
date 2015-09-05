@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,6 +73,7 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
         model.addAttribute("disabilityTypeValues", allDisabilities);
 
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillDisabilities.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform/filldisabilities";
     }
 

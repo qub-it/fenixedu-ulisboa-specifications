@@ -77,8 +77,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.sun.istack.logging.Logger;
-
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
@@ -132,6 +130,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         } else {
             model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
         }
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillPersonalInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }
 

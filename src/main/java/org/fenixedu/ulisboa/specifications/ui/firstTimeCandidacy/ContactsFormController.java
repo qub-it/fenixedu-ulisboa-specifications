@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -79,6 +81,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillContacts.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts";
     }
 

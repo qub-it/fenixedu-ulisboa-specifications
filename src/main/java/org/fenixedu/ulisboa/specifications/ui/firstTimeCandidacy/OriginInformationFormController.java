@@ -105,6 +105,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
         fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillOriginInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
     }
 
