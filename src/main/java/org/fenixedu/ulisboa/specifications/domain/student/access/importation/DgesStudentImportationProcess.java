@@ -404,6 +404,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
                 StudentAccessServices.triggerSyncPersonToExternal(person);
             }
+
+            LOG_WRITER.println("Total de pessoas criadas: " + personsCreated);
         } finally {
             Authenticate.unmock();
         }
