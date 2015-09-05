@@ -30,11 +30,15 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
@@ -59,6 +63,7 @@ import org.slf4j.LoggerFactory;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.dml.DeletionListener;
+import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 import pt.ist.fenixframework.FenixFramework;
 
 @WebListener
@@ -99,6 +104,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         setupCustomExceptionHandler(event);
         setupListenerForDegreeDelete();
+        setupListenerForEnrolmentDelete();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
     }
@@ -115,6 +121,18 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                         degree.getFirstYearRegistrationConfiguration();
                 if (firstYearRegistrationConfiguration != null) {
                     firstYearRegistrationConfiguration.delete();
+                }
+            }
+        });
+    }
+    
+    private void setupListenerForEnrolmentDelete() {
+        Attends.getRelationAttendsEnrolment().addListener(new RelationAdapter<Enrolment, Attends>() {
+            @Override
+            public void beforeRemove(Enrolment enrolment, Attends attends) {
+                final Registration registration = attends.getRegistration();
+                if (registration != null) {
+                    attends.getExecutionCourse().getAssociatedShifts().forEach(s -> s.removeStudents(registration));
                 }
             }
         });
