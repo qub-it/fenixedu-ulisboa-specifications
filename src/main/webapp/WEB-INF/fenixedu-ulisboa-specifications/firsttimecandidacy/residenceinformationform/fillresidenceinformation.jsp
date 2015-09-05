@@ -72,7 +72,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.ResidenceInformationForm.countryOfResidence" />
+						code="label.ResidenceInformationForm.countryOfResidence" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -83,7 +83,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.address" />
+					<spring:message code="label.ResidenceInformationForm.address" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -94,7 +94,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.areaCode" />
+					<spring:message code="label.ResidenceInformationForm.areaCode" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -107,7 +107,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.ResidenceInformationForm.area" />
+					<spring:message code="label.ResidenceInformationForm.area" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -119,7 +119,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.ResidenceInformationForm.districtOfResidence" />
+						code="label.ResidenceInformationForm.districtOfResidence" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -132,7 +132,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
+						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -147,7 +147,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.ResidenceInformationForm.parishOfResidence" />
+						code="label.ResidenceInformationForm.parishOfResidence" />*
 				</div>
 
 				<div class="col-sm-10">

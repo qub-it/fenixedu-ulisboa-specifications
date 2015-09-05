@@ -122,7 +122,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
 					<spring:message
-						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
+						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />*
 				</label>
 
 				<div class="col-sm-10">
@@ -162,7 +162,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdExpirationDate" class="col-sm-2 control-label">
 					<spring:message
-						code="label.PersonalInformationForm.documentIdExpirationDate" />
+						code="label.PersonalInformationForm.documentIdExpirationDate" />*
 				</label>
 
 				<div class="col-sm-4">

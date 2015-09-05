@@ -70,7 +70,7 @@ ${portal.toolkit()}
 <div class="panel panel-default">
   <div class="panel-body">
 <div class="form-group row">
-<div class="col-sm-2 control-label"><spring:message code="label.SchoolSpecificData.vaccinationValidity"/></div> 
+<div class="col-sm-2 control-label"><spring:message code="label.SchoolSpecificData.vaccinationValidity"/>*</div>
 
 <div class="col-sm-10">
 	<input id="schoolSpecificData_vaccinationValidity" class="form-control" name="vaccinationValidity"  type="text" bennu-date value='<c:out value='${vaccinationValidity}'/>' />

@@ -74,7 +74,7 @@ ${portal.toolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.hasDisabilities" />
+					<spring:message code="label.DisabilitiesForm.hasDisabilities" />*
 				</div>
 
 				<div class="col-sm-2">
@@ -89,7 +89,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.disabilityType" />
+					<spring:message code="label.DisabilitiesForm.disabilityType" />*
 				</div>
 
 				<div class="col-sm-4">
@@ -106,7 +106,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.DisabilitiesForm.otherDisabilityType" />
+					<spring:message code="label.DisabilitiesForm.otherDisabilityType" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -117,7 +117,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.DisabilitiesForm.needsDisabilitySupport" />
+						code="label.DisabilitiesForm.needsDisabilitySupport" />*
 				</div>
 
 				<div class="col-sm-2">

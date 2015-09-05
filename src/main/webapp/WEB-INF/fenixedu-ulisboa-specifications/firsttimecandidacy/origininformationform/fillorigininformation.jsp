@@ -72,7 +72,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree" />
+						code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -87,7 +87,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" />
+						code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -103,7 +103,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" />
+						code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -118,7 +118,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.OriginInformationForm.schoolLevel" />
+					<spring:message code="label.OriginInformationForm.schoolLevel" />*
 				</div>
 
 				<div class="col-sm-4">
@@ -148,7 +148,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.OriginInformationForm.institution" />
+					<spring:message code="label.OriginInformationForm.institution" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -164,7 +164,7 @@ ${portal.toolkit()}
 				id="originInformationForm_degreeDesignation_row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.OriginInformationForm.degreeDesignation" />
+						code="label.OriginInformationForm.degreeDesignation" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -177,7 +177,7 @@ ${portal.toolkit()}
 				id="originInformationForm_raidesDegreeDesignation_row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.OriginInformationForm.raidesDegreeDesignation" />
+						code="label.OriginInformationForm.raidesDegreeDesignation" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -188,7 +188,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.OriginInformationForm.conclusionGrade" />
+					<spring:message code="label.OriginInformationForm.conclusionGrade" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -199,7 +199,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.OriginInformationForm.conclusionYear" />
+					<spring:message code="label.OriginInformationForm.conclusionYear" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -211,7 +211,7 @@ ${portal.toolkit()}
 			<div class="form-group row"
 				id="originInformationForm_highSchoolType_row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.OriginInformationForm.highSchoolType" />
+					<spring:message code="label.OriginInformationForm.highSchoolType" />*
 				</div>
 
 				<div class="col-sm-4">

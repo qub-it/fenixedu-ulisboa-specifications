@@ -71,7 +71,7 @@ ${portal.toolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.nationality" />
+					<spring:message code="label.FiliationForm.nationality" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -94,7 +94,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.dateOfBirth" />
+					<spring:message code="label.FiliationForm.dateOfBirth" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -105,7 +105,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.countryOfBirth" />
+					<spring:message code="label.FiliationForm.countryOfBirth" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -116,7 +116,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.districtOfBirth" />
+					<spring:message code="label.FiliationForm.districtOfBirth" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -128,7 +128,7 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.FiliationForm.districtSubdivisionOfBirth" />
+						code="label.FiliationForm.districtSubdivisionOfBirth" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -139,7 +139,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.parishOfBirth" />
+					<spring:message code="label.FiliationForm.parishOfBirth" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -150,7 +150,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.fatherName" />
+					<spring:message code="label.FiliationForm.fatherName" />*
 				</div>
 
 				<div class="col-sm-10">
@@ -161,7 +161,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.motherName" />
+					<spring:message code="label.FiliationForm.motherName" />*
 				</div>
 
 				<div class="col-sm-10">

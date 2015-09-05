@@ -102,7 +102,7 @@ ${portal.toolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.ContactsForm.personalEmail" />
+					<spring:message code="label.ContactsForm.personalEmail" />*
 				</div>
 
 				<div class="col-sm-10">
