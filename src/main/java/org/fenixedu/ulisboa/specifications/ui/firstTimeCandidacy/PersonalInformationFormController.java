@@ -329,11 +329,14 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             }
         }
 
-        if (form.getGrantOwnerType().equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
-                && StringUtils.isEmpty(form.getGrantOwnerProvider())) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
-            return false;
+        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
+        if (grantOwnerType.equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
+                || grantOwnerType.equals(GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
+            if (StringUtils.isEmpty(form.getGrantOwnerProvider())) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
+                return false;
+            }
         }
 
         return true;
@@ -398,13 +401,17 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         GrantOwnerType grantOwnerType = form.getGrantOwnerType();
         personalData.setGrantOwnerType(grantOwnerType);
-        Unit grantOwnerProvider = FenixFramework.getDomainObject(form.getGrantOwnerProvider());
-        if (grantOwnerProvider == null
-                && (grantOwnerType == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER || grantOwnerType == GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
-            //We accept new institutions for these 2 cases
-            grantOwnerProvider = Unit.createNewNoOfficialExternalInstitution(form.getGrantOwnerProvider());
+        if (grantOwnerType != null && !grantOwnerType.equals(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP)) {
+            Unit grantOwnerProvider = FenixFramework.getDomainObject(form.getGrantOwnerProvider());
+            if (grantOwnerProvider == null
+                    && (grantOwnerType == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER || grantOwnerType == GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
+                //We accept new institutions for these 2 cases
+                grantOwnerProvider = Unit.createNewNoOfficialExternalInstitution(form.getGrantOwnerProvider());
+            }
+            personalData.setGrantOwnerProvider(grantOwnerProvider);
+        } else {
+            personalData.setGrantOwnerProvider(null);
         }
-        personalData.setGrantOwnerProvider(grantOwnerProvider);
     }
 
     @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
