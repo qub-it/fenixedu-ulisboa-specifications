@@ -311,7 +311,7 @@ ${portal.angularToolkit()}
 							<table class="table table-bordered" ng-show="shiftsToEnrol.length > 0">
 								<tbody>
 									<tr ng-repeat="shift in shiftsToEnrol track by $index">
-										<td>{{shift.lessons}} ({{shift.type}})</td>
+										<td>{{shift.lessons}}</td>
 										<td>
 											<a href="${pageContext.request.contextPath}/student/shiftEnrolment/addShift/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.enrolmentPeriod.externalId}/{{shift.externalId}}">
 												<span class="glyphicon glyphicon-plus-sign" data-toggle="tooltip" data-placement="right" title='<spring:message code="label.shiftEnrolment.enrol"/>'></span>
