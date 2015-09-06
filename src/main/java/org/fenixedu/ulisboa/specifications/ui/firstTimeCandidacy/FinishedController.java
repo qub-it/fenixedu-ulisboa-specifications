@@ -75,7 +75,7 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(pdfBytes, headers, HttpStatus.OK);
 
-        Authenticate.unmock();
+        Authenticate.logout(request.getSession());
 
         return response;
     }
