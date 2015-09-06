@@ -78,6 +78,8 @@ public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseCont
         }
         CustomerAccountingController customerAccountingController = new CustomerAccountingController();
         customerAccountingController.readCustomer(model, redirectAttributes);
+
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.showTuition.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition";
     }
 

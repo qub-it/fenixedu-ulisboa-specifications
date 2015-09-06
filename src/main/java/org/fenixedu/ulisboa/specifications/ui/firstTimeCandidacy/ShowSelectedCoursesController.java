@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -93,6 +95,8 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
         model.addAttribute("firstSemesterCredits", firstSemCredits);
         model.addAttribute("secondSemesterEnrolments", secondSemEnrolments);
         model.addAttribute("secondSemesterCredits", secondSemCredits);
+
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.showSelectedCourses.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses";
     }
 

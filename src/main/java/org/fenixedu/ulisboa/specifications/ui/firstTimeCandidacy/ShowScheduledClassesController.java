@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,6 +84,7 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
         model.addAttribute("registration", registration);
         model.addAttribute("semester", ExecutionSemester.readActualExecutionSemester());
 
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.showScheduledClasses.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses";
     }
 

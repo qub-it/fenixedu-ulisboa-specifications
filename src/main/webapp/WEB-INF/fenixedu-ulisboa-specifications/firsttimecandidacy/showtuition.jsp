@@ -38,14 +38,6 @@ ${portal.toolkit()}
 	</c:if>	
 </div>
 
-<%-- NAVIGATION --%>
-
-<div >
-<p><small>
-<spring:message code="label.firstTimeCandidacy.tutionInFurtherStep" />
-</small></p>
-</div>
-			
 <jsp:include page="/WEB-INF/academicTreasury/customer/readCustomer.jsp" />
 
 <script>

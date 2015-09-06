@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
@@ -45,6 +47,7 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -87,6 +90,8 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         model.addAttribute("hasAnnualShifts", hasAnnualShifts(registration));
+
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.scheduleClasses.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses";
     }
 

@@ -114,8 +114,10 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         Student student = registration.getStudent();
         StudentAccessServices.triggerSyncStudentToExternal(student);
         if (!student.getPerson().getPersonUlisboaSpecifications().getAuthorizeSharingDataWithCGD()) {
-            addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
+            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
         }
+
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.documentsPrint.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
     }
 
