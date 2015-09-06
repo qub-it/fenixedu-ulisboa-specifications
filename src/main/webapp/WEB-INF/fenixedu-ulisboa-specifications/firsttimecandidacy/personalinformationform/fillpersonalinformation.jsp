@@ -135,7 +135,9 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_idDocumentType" class="form-control" name="idDocumentType" >
-						<option value=""></option>
+						<c:if test="${personalInformationForm.isForeignStudent}">
+							<option value=""></option>
+						</c:if>
 						<c:forEach items="${idDocumentTypeValues}" var="documentType">
 							<option value="${documentType}">${documentType.localizedName}</option>
 						</c:forEach>
