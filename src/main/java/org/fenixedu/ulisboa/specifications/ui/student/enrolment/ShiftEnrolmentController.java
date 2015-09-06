@@ -130,6 +130,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             try {
                 final List<ShiftToEnrol> shiftsToEnrol =
                         ReadShiftsToEnroll.runReadShiftsToEnroll(selectedRegistration, executionSemester);
+                shiftsToEnrol.sort((s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
                 model.addAttribute("shiftsToEnrol", shiftsToEnrol);
 //                model.addAttribute("numberOfExecutionCoursesHavingNotEnroledShifts",
 //                        getNumberOfExecutionCoursesHavingNotEnroledShiftsFor(selectedRegistration, executionSemester));
@@ -218,8 +219,8 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
     @Atomic
     protected void addShiftService(Registration registration, Shift shift) {
         if (!shift.reserveForStudent(registration)) {
-            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(),
-                    shift.getShiftTypesPrettyPrint(), shift.getExecutionCourse().getName());
+            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(), shift
+                    .getExecutionCourse().getName());
         }
     }
 
