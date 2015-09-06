@@ -42,6 +42,7 @@ ${portal.angularToolkit()}
 			function($scope, $http) {
 
 				$scope.fetchPossibleShiftsToEnrol = function(registrationID, executionCourseID, shiftType) {
+					$scope.shiftsToEnrol = null;
 					$http.get(window.contextPath + '/student/shiftEnrolment/possibleShiftsToEnrol.json/' + registrationID + '/' + executionCourseID + '/' + shiftType).success(
 							function(result) {
 								$scope.shiftsToEnrol = result;
@@ -79,6 +80,21 @@ ${portal.angularToolkit()}
 	.btn-finish {
 		margin: 12px 0 0 48px;
 	}
+	
+	.glyphicon.spinning {
+	    animation: spin 1s infinite linear;
+	    -webkit-animation: spin2 1s infinite linear;
+	}
+	
+	@keyframes spin {
+	    from { transform: scale(1) rotate(0deg); }
+	    to { transform: scale(1) rotate(360deg); }
+	}
+	
+	@-webkit-keyframes spin2 {
+	    from { -webkit-transform: rotate(0deg); }
+	    to { -webkit-transform: rotate(360deg); }
+	}	
 </style>
 
 <h1><spring:message code="label.title.shiftEnrolment"/></h1>
@@ -146,7 +162,7 @@ ${portal.angularToolkit()}
 					<%-- <th class="text-center"><spring:message code="label.shiftType.description.pratic"/></th> --%>
 					<th class="text-center"><spring:message code="label.shiftType.description.laboratory"/></th>
 					<%-- <th class="text-center"><spring:message code="label.shiftType.description.theoricoPratic"/></th> --%>
-					<th class="text-center"><spring:message code="label.shiftType.description.theoricoPratic"/> / <spring:message code="label.shiftType.description.problems"/></th>
+					<th class="text-center"><spring:message code="label.shiftType.description.problems"/> / <spring:message code="label.shiftType.description.theoricoPratic"/></th>
 					<th class="text-center"><spring:message code="label.shiftType.description.fieldWork"/></th>
 					<th class="text-center"><spring:message code="label.shiftType.description.seminary"/></th>
 					<th class="text-center"><spring:message code="label.shiftType.description.trainingPeriod"/></th>
@@ -320,9 +336,12 @@ ${portal.angularToolkit()}
 									</tr>
 								</tbody>
 							</table>					
-							<span ng-show="!shiftsToEnrol.length" class="text-danger">
+							<span ng-show="shiftsToEnrol.length == 0" class="text-danger">
 								<spring:message code="message.shiftEnrolment.noShiftsAvailableToEnrol"/>
-							</span>
+							</span>		
+							<span ng-show="shiftsToEnrol == null">
+								<span class="glyphicon glyphicon-refresh spinning"></span>
+							</span>	
 						</div>					
 						<div class="modal-footer">
 							<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="button.cancel"/></button>						
