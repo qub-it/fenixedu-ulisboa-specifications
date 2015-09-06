@@ -330,7 +330,7 @@ ${portal.angularToolkit()}
 										<td>{{shift.lessons}}</td>
 										<td>
 											<a href="${pageContext.request.contextPath}/student/shiftEnrolment/addShift/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.enrolmentPeriod.externalId}/{{shift.externalId}}">
-												<span class="glyphicon glyphicon-plus-sign" data-toggle="tooltip" data-placement="right" title='<spring:message code="label.shiftEnrolment.enrol"/>'></span>
+												<span class="glyphicon glyphicon-plus-sign fa-2x" data-toggle="tooltip" data-placement="right" title='<spring:message code="label.shiftEnrolment.enrol"/>'></span>
 											</a>
 										</td>
 									</tr>
