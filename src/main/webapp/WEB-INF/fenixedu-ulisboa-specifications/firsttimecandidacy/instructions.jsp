@@ -102,7 +102,7 @@ ${portal.toolkit()}
 		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
 	<% } %>
 	<p>&nbsp;</p>
-	<p>-</p>
+	<p>&nbsp;</p>
 	<p>&nbsp;</p>
 	<p><spring:message code="label.firstTimeCandidacy.instructions.details" htmlEscape="false"/></p>
 </div>
