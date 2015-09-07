@@ -87,9 +87,15 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
+	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
 </div>
 
+<style>
+	.slogan {
+		font-weight: bold;
+		font-size: 17px;
+	}
+</style>
 
 <script>
 $(document).ready(function() {
