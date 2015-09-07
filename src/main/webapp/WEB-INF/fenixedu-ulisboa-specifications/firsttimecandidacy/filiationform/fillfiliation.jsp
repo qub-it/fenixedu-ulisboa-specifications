@@ -265,7 +265,7 @@ $(document).ready(function() {
   	             					id : "<c:out value='${element.externalId}'/>"
   	             				},
   	             			</c:forEach>
-  	             		];
+  	             		].sort(sortFunction);
   	
   	             	   $("#filiationForm_districtOfBirth").select2(
   		             			{
@@ -286,7 +286,7 @@ $(document).ready(function() {
           					 $("#filiationForm_districtSubdivisionOfBirth").children().remove();
           					 $("#filiationForm_districtSubdivisionOfBirth").select2(
         		             			{
-        		             				data : result,
+        		             				data : result.sort(sortFunction),
         		             			}	  
         		             	    );
           					$("#filiationForm_districtSubdivisionOfBirth").select2();
@@ -307,7 +307,7 @@ $(document).ready(function() {
    	             					id : "<c:out value='${element.externalId}'/>"
    	             				},
    	             			</c:forEach>
-   	             		];
+   	             		].sort(sortFunction);
    	
    	             	   $("#filiationForm_districtSubdivisionOfBirth").select2(
    		             			{
@@ -331,7 +331,7 @@ $(document).ready(function() {
 							 $("#filiationForm_parishOfBirth").children().remove();
 							 $("#filiationForm_parishOfBirth").select2(
 				             			{
-				             				data : result,
+				             				data : result.sort(sortFunction),
 				             			}	  
 				             	    );
 							$("#filiationForm_parishOfBirth").select2();
@@ -351,7 +351,7 @@ $(document).ready(function() {
    	             					id : "<c:out value='${element.externalId}'/>"
    	             				},
    	             			</c:forEach>
-   	             		];
+   	             		].sort(sortFunction);
    	
    	             	   $("#filiationForm_parishOfBirth").select2(
    		             			{
