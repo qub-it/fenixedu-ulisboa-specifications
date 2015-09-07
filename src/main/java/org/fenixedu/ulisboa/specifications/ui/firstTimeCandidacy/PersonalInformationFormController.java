@@ -33,6 +33,7 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.Fis
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -112,7 +113,10 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         }
         model.addAttribute("genderValues", Gender.values());
 
-        model.addAttribute("maritalStatusValues", MaritalStatus.values());
+        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+        model.addAttribute("maritalStatusValues", maritalStatusValues);
         model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
         model.addAttribute("professionTypeValues", ProfessionType.values());
         model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
