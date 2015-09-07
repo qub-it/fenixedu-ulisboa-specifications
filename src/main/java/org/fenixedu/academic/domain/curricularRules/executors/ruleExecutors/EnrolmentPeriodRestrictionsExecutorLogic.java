@@ -49,7 +49,7 @@ public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricular
 
     @Override
     protected String getCurricularRuleLabelKey() {
-        return "label.anyCurricularCourseExceptions";
+        return "label.enrolmentPeriodRestrictions";
     }
 
     @Override
