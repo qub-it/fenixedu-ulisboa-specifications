@@ -152,8 +152,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         form = new PersonalInformationForm();
 
-        form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
-                .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
         YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
         YearMonthDay expirationDateOfDocumentIdYearMonthDay = person.getExpirationDateOfDocumentIdYearMonthDay();
@@ -251,32 +249,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         }
 
-        if (idType.equals(IDDocumentType.IDENTITY_CARD)) {
-            if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
-                return false;
-            }
-
-            if (!form.getIdentificationDocumentSeriesNumber().matches(IDENTITY_CARD_CONTROL_DIGIT_FORMAT)) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
-                return false;
-            }
-        }
-        if (idType.equals(IDDocumentType.CITIZEN_CARD)) {
-            if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
-                return false;
-            }
-
-            if (!form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
-                return false;
-            }
-        }
         if (!form.getIsForeignStudent()) {
             if (StringUtils.isEmpty(form.getSocialSecurityNumber())
                     || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
@@ -293,12 +265,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             }
         }
 
-        if (form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
-                && !validateNumeroDocumentoCC(person.getDocumentIdNumber() + form.getIdentificationDocumentSeriesNumber())
-                && !testsMode()) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.wrongCheckDigit"), model);
-            return false;
-        }
         if (form.getDocumentIdExpirationDate() == null) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.expirationDate.required"), model);
             return false;
@@ -360,14 +326,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                 FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
                         .getPrecedentDegreeInformation());
 
-        String seriesNumerOrExtraDigit = form.getIdentificationDocumentSeriesNumber();
-        if (seriesNumerOrExtraDigit.matches("[0-9]|")) {
-            person.setIdentificationDocumentExtraDigit(seriesNumerOrExtraDigit);
-            person.setIdentificationDocumentSeriesNumber(null);
-        } else if (seriesNumerOrExtraDigit.matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)) {
-            person.setIdentificationDocumentSeriesNumber(seriesNumerOrExtraDigit);
-            person.setIdentificationDocumentExtraDigit(null);
-        }
         person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
         LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
         LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
@@ -536,15 +494,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         public void setIdDocumentType(IDDocumentType idDocumentType) {
             this.idDocumentType = idDocumentType;
-        }
-
-        public String getIdentificationDocumentSeriesNumber() {
-            return identificationDocumentSeriesNumber;
-        }
-
-        public void setIdentificationDocumentSeriesNumber(String identificationDocumentSeriesNumber) {
-            this.identificationDocumentSeriesNumber =
-                    identificationDocumentSeriesNumber != null ? identificationDocumentSeriesNumber.toUpperCase() : null;
         }
 
         public String getDocumentIdEmissionLocation() {

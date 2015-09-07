@@ -202,7 +202,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     model);
             return false;
         }
-        if (form.getCountryOfResidence().isDefaultCountry() && !isValidPostalCodeUIFormat(form.getAreaCode())) {
+        if (form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getAreaCode())) {
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),
                     model);

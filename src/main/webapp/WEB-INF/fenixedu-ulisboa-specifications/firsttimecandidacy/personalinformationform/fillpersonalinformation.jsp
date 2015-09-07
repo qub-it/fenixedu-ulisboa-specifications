@@ -147,39 +147,6 @@ ${portal.toolkit()}
 					</script>
 				</div>
 			</div>
-			<c:if test="${not personalInformationForm.isForeignStudent}">
-				<div class="form-group row">
-					<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
-						<spring:message
-							code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
-					</label>
-	
-					<div class="col-sm-10">
-						<input
-							id="personalInformationForm_identificationDocumentSeriesNumber"
-							class="form-control" type="text"
-							name="identificationDocumentSeriesNumber"
-							value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>'
-							required pattern="[0-9]|([0-9][a-zA-Z][a-zA-Z][0-9])" />
-					</div>
-				</div>
-			</c:if>
-			<c:if test="${personalInformationForm.isForeignStudent}">
-				<div class="form-group row">
-					<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
-						<spring:message
-							code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
-					</label>
-	
-					<div class="col-sm-10">
-						<input
-							id="personalInformationForm_identificationDocumentSeriesNumber"
-							class="form-control" type="text"
-							name="identificationDocumentSeriesNumber"
-							value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>' />
-					</div>
-				</div>
-			</c:if>
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
 					<spring:message
