@@ -127,16 +127,18 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         }
         if (firstYearRegistrationConfiguration.getRequiresShiftsEnrolment()) {
             return redirect("/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
-                    + getEnrolmentPeriodForSemester(executionSemester).getExternalId(), model, redirectAttributes);
+                    + getEnrolmentPeriodForSemester(executionSemester, registration).getExternalId(), model, redirectAttributes);
         }
         throw new RuntimeException("No classes or course enrolment for current degree");
     }
 
-    private EnrolmentPeriod getEnrolmentPeriodForSemester(ExecutionSemester executionSemester) {
-        return executionSemester
-                .getEnrolmentPeriodSet()
+    private EnrolmentPeriod getEnrolmentPeriodForSemester(ExecutionSemester executionSemester, Registration registration) {
+        return registration
+                .getDegree()
+                .getMostRecentDegreeCurricularPlan()
+                .getEnrolmentPeriodsSet()
                 .stream()
-                .filter(ep -> ep instanceof EnrolmentPeriodInClassesCandidate)
+                .filter(ep -> ep instanceof EnrolmentPeriodInClassesCandidate && ep.getExecutionPeriod() == executionSemester)
                 .findAny()
                 .orElseThrow(
                         () -> new RuntimeException(
