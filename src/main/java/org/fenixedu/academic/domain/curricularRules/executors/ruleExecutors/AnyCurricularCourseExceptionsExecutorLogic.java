@@ -27,6 +27,8 @@ package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -72,7 +74,7 @@ public class AnyCurricularCourseExceptionsExecutorLogic extends AbstractCurricul
             if (result.isTrue()) {
                 result =
                         verifyCompetenceCourses((AnyCurricularCourseExceptions) curricularRule, sourceDegreeModuleToEvaluate,
-                                curricularCourseToEnrol);
+                                curricularCourseToEnrol, enrolmentContext);
             }
         }
 
@@ -134,19 +136,38 @@ public class AnyCurricularCourseExceptionsExecutorLogic extends AbstractCurricul
     }
 
     private RuleResult verifyCompetenceCourses(final AnyCurricularCourseExceptions rule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol) {
+            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol,
+            final EnrolmentContext enrolmentContext) {
 
         RuleResult result = createFalseConfiguration(sourceDegreeModuleToEvaluate.getDegreeModule());
 
         final CompetenceCourse competenceCourse = curricularCourseToEnrol.getCompetenceCourse();
-        if (ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet()
-                .contains(competenceCourse)) {
+        final DegreeCurricularPlan chosenDegreeCurricularPlan = curricularCourseToEnrol.getDegreeCurricularPlan();
+        final StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
+
+        if (isException(competenceCourse, chosenDegreeCurricularPlan, studentCurricularPlan)) {
 
             result =
                     createResultFalse(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrol,
                             "curricularRules.ruleExecutors.AnyCurricularCourseExceptions.not.offered");
         } else {
             result = RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+        }
+
+        return result;
+    }
+
+    static public boolean isException(final CompetenceCourse competenceCourse,
+            final DegreeCurricularPlan chosenDegreeCurricularPlan, final StudentCurricularPlan studentCurricularPlan) {
+
+        boolean result = false;
+
+        // can only be considered an exception if the user chose other DCP than his own
+        if (chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan()) {
+
+            result =
+                    ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration()
+                            .getCompetenceCoursesSet().contains(competenceCourse);
         }
 
         return result;
