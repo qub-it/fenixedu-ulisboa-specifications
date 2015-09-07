@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration"%>
 <%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -99,7 +100,7 @@ ${portal.toolkit()}
 	<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { %>
 		<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p>
 	<% } else { %>
-		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
+		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent() + ", " + Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
 	<% } %>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
