@@ -52,7 +52,14 @@ public class CurricularPeriodServices {
 
         final CurricularPeriod degreeStructure = dcp.getDegreeStructure();
         if (degreeStructure != null) {
-            result = degreeStructure.getCurricularPeriod(dto);
+
+            // test for self, bug fix on CurricularPeriod.getCurricularPeriod(CurricularPeriodInfoDTO...)
+            if (degreeStructure.getAbsoluteOrderOfChild() == year
+                    && degreeStructure.getAcademicPeriod().equals(AcademicPeriod.YEAR)) {
+                result = degreeStructure;
+            } else {
+                result = degreeStructure.getCurricularPeriod(dto);
+            }
         }
 
         if (result == null) {
