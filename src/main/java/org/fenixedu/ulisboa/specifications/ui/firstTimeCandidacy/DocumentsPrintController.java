@@ -97,7 +97,10 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         printToCandidacySummaryFile(model, false);
-        return finished(model);
+
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
+        Student student = registration.getStudent();
+        return finished(student, model);
     }
 
     @RequestMapping(value = "/withModel43")
@@ -106,16 +109,19 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         printToCandidacySummaryFile(model, true);
-        return finished(model);
-    }
 
-    public String finished(Model model) {
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         Student student = registration.getStudent();
-        StudentAccessServices.triggerSyncStudentToExternal(student);
         if (!student.getPerson().getPersonUlisboaSpecifications().getAuthorizeSharingDataWithCGD()) {
             addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
+        } else {
+            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.deliverDocumentByHand"), model);
         }
+        return finished(student, model);
+    }
+
+    public String finished(Student student, Model model) {
+        StudentAccessServices.triggerSyncStudentToExternal(student);
 
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.documentsPrint.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
