@@ -38,7 +38,7 @@ public class CurricularPeriodServices {
             result = dcp.getCurricularPeriodFor(year, semester);
 
             if (result == null) {
-                logger.info("Unsupported Curricular Period [Y{},S{}], DCP [{}] ", dcp.getPresentationName(), year, semester);
+                logger.info("Unsupported Curricular Period [Y{},S{}], DCP [{}] ", year, semester, dcp.getPresentationName());
             }
         }
 
@@ -56,8 +56,8 @@ public class CurricularPeriodServices {
         }
 
         if (result == null) {
-            logger.info("Unsupported Curricular Period [{},{}], DCP [{}]", dcp.getPresentationName(), dto.getPeriodType()
-                    .getName(), dto.getOrder());
+            logger.info("Unsupported Curricular Period [{},{}], DCP [{}]", dto.getPeriodType().getName(), dto.getOrder(),
+                    dcp.getPresentationName());
         }
 
         return result;
