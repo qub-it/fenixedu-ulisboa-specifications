@@ -48,4 +48,8 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
         return null;
     }
 
+    @Override
+    public boolean isFirstCycleCandidacy() {
+        return true;
+    }
 }
