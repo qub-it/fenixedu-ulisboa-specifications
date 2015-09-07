@@ -104,7 +104,6 @@ ${portal.toolkit()}
 	<% } %>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
-	<p>&nbsp;</p>
 	<p><spring:message code="label.firstTimeCandidacy.instructions.details" htmlEscape="false"/></p>
 </div>
 
