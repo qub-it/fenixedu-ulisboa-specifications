@@ -34,7 +34,6 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.Fis
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -56,6 +55,7 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -440,17 +440,26 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         try {
             unit = FenixFramework.getDomainObject(unitOid);
         } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
+            //Not a unit, so it is a custom value, ignore
         }
 
-        Collection<DegreeDesignation> possibleDesignations = unit.getDegreeDesignationSet();
+        Collection<DegreeDesignation> possibleDesignations;
+        if (unit == null) {
+            possibleDesignations = Bennu.getInstance().getDegreeDesignationsSet();
+        } else {
+            possibleDesignations = unit.getDegreeDesignationSet();
+        }
+
         Predicate<DegreeDesignation> matchesName =
-                dd -> StringNormalizer.normalize(dd.getDescription()).contains(StringNormalizer.normalize(namePart));
+                dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
         Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
-                dd -> new DegreeDesignationBean(dd.getDescription(), dd.getExternalId());
+                dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
         return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
                 .collect(Collectors.toList());
+    }
+
+    private static String getFullDescription(DegreeDesignation designation) {
+        return designation.getDegreeClassification().getDescription1() + " - " + designation.getDescription();
     }
 
     public static class DegreeDesignationBean {
