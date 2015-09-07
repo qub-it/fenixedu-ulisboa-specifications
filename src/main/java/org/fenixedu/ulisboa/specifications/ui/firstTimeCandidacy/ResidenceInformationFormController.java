@@ -194,14 +194,6 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                     model);
             return false;
         }
-        if (form.isAnySchoolTimeAddressInformationFilled() && !form.getDislocatedFromPermanentResidence()) {
-            addErrorMessage(
-                    BundleUtil
-                            .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                    "error.candidacy.workflow.ResidenceInformationForm.only.dislocated.students.should.fill.school.time.address.information"),
-                    model);
-            return false;
-        }
         if (form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getAreaCode())) {
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),

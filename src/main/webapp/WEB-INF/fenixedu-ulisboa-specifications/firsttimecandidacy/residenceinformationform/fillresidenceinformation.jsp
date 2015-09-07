@@ -179,7 +179,7 @@ ${portal.toolkit()}
 					</script>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeAddress" />
@@ -191,7 +191,7 @@ ${portal.toolkit()}
 						value='<c:out value='${not empty param.schooltimeaddress ? param.schooltimeaddress : residenceInformationForm.schoolTimeAddress }'/>' />
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeArea" />
@@ -203,7 +203,7 @@ ${portal.toolkit()}
 						value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeAreaCode" />
@@ -218,7 +218,7 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeDistrictOfResidence" />
@@ -232,7 +232,7 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence" />
@@ -247,7 +247,7 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeParishOfResidence" />
@@ -259,7 +259,7 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.ResidenceInformationForm.schoolTimeResidenceType" />
 				</div>
@@ -276,7 +276,7 @@ ${portal.toolkit()}
 					</script>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row schoolTimeField">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.ResidenceInformationForm.otherSchoolTimeResidenceType" />
 				</div>
@@ -621,6 +621,19 @@ $(document).ready(function() {
 	     	</c:if>
 	    	//Force disable state in screen startup
 	     	configureResidenceInformationFieldsEditableState();
+	    	
+	    	
+	     	updateSchoolTimeFieldsVisibility = function(){
+	     		isDislocated = "true" == $("#residenceInformationForm_dislocatedFromPermanentResidence").val();
+	     		if(isDislocated){
+		     		$(".schoolTimeField").show();
+	     		}
+	     		else{
+		     		$(".schoolTimeField").hide();
+	     		}
+	     	}
+	     	$("#residenceInformationForm_dislocatedFromPermanentResidence").on("change",updateSchoolTimeFieldsVisibility); 
+	     	updateSchoolTimeFieldsVisibility();
 	});
 	
 </script>
