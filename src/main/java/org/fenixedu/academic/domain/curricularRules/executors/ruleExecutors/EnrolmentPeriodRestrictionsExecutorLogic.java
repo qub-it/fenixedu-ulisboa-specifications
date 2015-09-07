@@ -63,7 +63,7 @@ public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricular
 //            return RuleResult.createNA(dcp.getRoot());
 //        }
 
-        RuleResult result = createFalseConfiguration(dcp.getRoot(), null);
+        RuleResult result = createFalseConfiguration(dcp.getRoot());
 
         final Registration registration = enrolmentContext.getRegistration();
         final int year = registration.getCurricularYear(enrolmentContext.getExecutionPeriod().getExecutionYear());

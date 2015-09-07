@@ -60,7 +60,7 @@ public class AnyCurricularCourseExceptionsExecutorLogic extends AbstractCurricul
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
 
         // init result with wrong configuration message
-        RuleResult result = createFalseConfiguration(sourceDegreeModuleToEvaluate.getDegreeModule(), null);
+        RuleResult result = createFalseConfiguration(sourceDegreeModuleToEvaluate.getDegreeModule());
 
         final CurricularCourse curricularCourseToEnrol = getCurricularCourseFromOptional(sourceDegreeModuleToEvaluate);
         if (curricularCourseToEnrol != null) {
@@ -136,7 +136,7 @@ public class AnyCurricularCourseExceptionsExecutorLogic extends AbstractCurricul
     private RuleResult verifyCompetenceCourses(final AnyCurricularCourseExceptions rule,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol) {
 
-        RuleResult result = createFalseConfiguration(sourceDegreeModuleToEvaluate.getDegreeModule(), null);
+        RuleResult result = createFalseConfiguration(sourceDegreeModuleToEvaluate.getDegreeModule());
 
         final CompetenceCourse competenceCourse = curricularCourseToEnrol.getCompetenceCourse();
         if (ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet()

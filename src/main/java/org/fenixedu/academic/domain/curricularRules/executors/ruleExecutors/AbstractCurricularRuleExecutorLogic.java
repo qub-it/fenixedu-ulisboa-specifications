@@ -25,6 +25,7 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor.CurricularRuleExecutorLogic;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -33,8 +34,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 abstract public class AbstractCurricularRuleExecutorLogic implements CurricularRuleExecutorLogic {
 
-    public RuleResult createFalseConfiguration(final DegreeModule degreeModule, final String prefix) {
-        return createFalseConfiguration(degreeModule, prefix, getCurricularRuleLabelKey());
+    public RuleResult createFalseConfiguration(final DegreeModule degreeModule) {
+        return createFalseConfiguration(degreeModule, StringUtils.EMPTY, getCurricularRuleLabelKey());
     }
 
     static public RuleResult createFalseConfiguration(final DegreeModule degreeModule, final String prefix,
