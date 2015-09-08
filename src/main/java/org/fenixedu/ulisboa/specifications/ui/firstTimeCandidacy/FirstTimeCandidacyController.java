@@ -27,16 +27,18 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.EnrolmentPeriod;
+import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
-import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
@@ -89,6 +91,10 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.academicalActsBlocked"),
                     model);
         }
+        if (!isPeriodOpen()) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.firstTimeCandidacy.period.closed"), model);
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/instructions";
     }
 
@@ -102,11 +108,11 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     private static Predicate<Candidacy> arefirstTime = c -> (c instanceof FirstTimeCandidacy)
-            && ((StudentCandidacy) c).getExecutionYear().equals(ExecutionYear.readCurrentExecutionYear());
+            && ((FirstTimeCandidacy) c).getExecutionYear().equals(ExecutionYear.readCurrentExecutionYear());
 
-    public static StudentCandidacy getStudentCandidacy() {
+    public static FirstTimeCandidacy getCandidacy() {
         Stream<Candidacy> firstTimeCandidacies = AccessControl.getPerson().getCandidaciesSet().stream().filter(arefirstTime);
-        return (StudentCandidacy) firstTimeCandidacies.findAny().get();
+        return (FirstTimeCandidacy) firstTimeCandidacies.findAny().get();
     }
 
     @Atomic
@@ -132,7 +138,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     private static Registration getOrCreateRegistration() {
-        StudentCandidacy studentCandidacy = FirstTimeCandidacyController.getStudentCandidacy();
+        FirstTimeCandidacy studentCandidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = studentCandidacy.getRegistration();
         if (registration != null) {
             return registration;
@@ -143,10 +149,9 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         pdi.setRegistration(registration);
         pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
 
-        DegreeCurricularPlan degreeCurricularPlan = studentCandidacy.getExecutionDegree().getDegreeCurricularPlan();
+        DegreeCurricularPlan curricularPlan = studentCandidacy.getExecutionDegree().getDegreeCurricularPlan();
         ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
-        StudentCurricularPlan
-                .createBolonhaStudentCurricularPlan(registration, degreeCurricularPlan, new YearMonthDay(), semester);
+        StudentCurricularPlan.createBolonhaStudentCurricularPlan(registration, curricularPlan, new YearMonthDay(), semester);
 
         RegistrationState registeredState = registration.getActiveState();
         registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
@@ -154,5 +159,11 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
                 RegistrationStateType.INACTIVE);
 
         return registration;
+    }
+
+    public static boolean isPeriodOpen() {
+        Predicate<EnrolmentPeriod> isPeriodOpen = ep -> ep instanceof EnrolmentPeriodInCurricularCoursesCandidate && ep.isValid();
+        Set<EnrolmentPeriod> periods = getCandidacy().getExecutionDegree().getDegreeCurricularPlan().getEnrolmentPeriodsSet();
+        return periods.stream().filter(isPeriodOpen).findAny().isPresent();
     }
 }

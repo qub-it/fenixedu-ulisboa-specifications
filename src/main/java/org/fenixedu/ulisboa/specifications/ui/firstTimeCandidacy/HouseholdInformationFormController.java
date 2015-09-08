@@ -57,7 +57,10 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
     public static final String FILLHOUSEHOLDINFORMATION_URL = CONTROLLER_URL + _FILLHOUSEHOLDINFORMATION_URI;
 
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
-    public String fillhouseholdinformation(Model model) {
+    public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         model.addAttribute("schoolLevelValues", SchoolLevelType.values());
         model.addAttribute("professionTypeValues", ProfessionType.values());
         model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
@@ -71,8 +74,8 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
         if (!model.containsAttribute("householdInformationForm")) {
             HouseholdInformationForm form = new HouseholdInformationForm();
             PersonalIngressionData personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController
-                            .getStudentCandidacy().getPrecedentDegreeInformation());
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
+                            .getPrecedentDegreeInformation());
             form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());
             form.setFatherProfessionType(personalData.getFatherProfessionType());
             form.setFatherSchoolLevel(personalData.getFatherSchoolLevel());
@@ -91,8 +94,11 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
 
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
     public String fillhouseholdinformation(HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return fillhouseholdinformation(model);
+            return fillhouseholdinformation(model, redirectAttributes);
         }
 
         try {
@@ -105,7 +111,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
 
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return fillhouseholdinformation(model);
+            return fillhouseholdinformation(model, redirectAttributes);
         }
     }
 
@@ -137,7 +143,7 @@ public class HouseholdInformationFormController extends FenixeduUlisboaSpecifica
     @Atomic
     private void writeData(HouseholdInformationForm form) {
         PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getStudentCandidacy()
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
                         .getPrecedentDegreeInformation());
         personalData.setFatherProfessionalCondition(form.getFatherProfessionalCondition());
         personalData.setFatherProfessionType(form.getFatherProfessionType());

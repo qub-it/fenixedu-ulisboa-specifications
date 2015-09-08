@@ -38,13 +38,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ShowScheduledClassesController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
-    public String showscheduledclasses(Model model) {
+    public String showscheduledclasses(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses";
     }
 
     @RequestMapping(value = "/continue")
     public String showscheduledclassesToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/showtuition", model, redirectAttributes);
     }
 }

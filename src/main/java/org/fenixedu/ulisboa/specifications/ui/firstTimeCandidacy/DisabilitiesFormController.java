@@ -56,7 +56,10 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
     public static final String FILLDISABILITIES_URL = CONTROLLER_URL + _FILLDISABILITIES_URI;
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
-    public String filldisabilities(Model model) {
+    public String filldisabilities(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         List<DisabilityType> allDisabilities = DisabilityType.readAll().collect(Collectors.toList());
         Collections.sort(allDisabilities);
         model.addAttribute("disabilityTypeValues", allDisabilities);
@@ -83,8 +86,11 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.POST)
     public String filldisabilities(DisabilitiesForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return filldisabilities(model);
+            return filldisabilities(model, redirectAttributes);
         }
 
         try {
@@ -94,7 +100,7 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return filldisabilities(model);
+            return filldisabilities(model, redirectAttributes);
         }
     }
 

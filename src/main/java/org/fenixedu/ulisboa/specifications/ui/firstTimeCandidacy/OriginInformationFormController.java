@@ -81,7 +81,10 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
     public static final String FILLORIGININFORMATION_URL = CONTROLLER_URL + _FILLORIGININFORMATION_URI;
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
-    public String fillorigininformation(Model model) {
+    public String fillorigininformation(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         model.addAttribute("schoolLevelValues", SchoolLevelType.values());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
@@ -95,7 +98,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             OriginInformationForm form = new OriginInformationForm();
 
             PrecedentDegreeInformation precedentDegreeInformation =
-                    FirstTimeCandidacyController.getStudentCandidacy().getPrecedentDegreeInformation();
+                    FirstTimeCandidacyController.getCandidacy().getPrecedentDegreeInformation();
             PersonalIngressionData personalData =
                     FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
 
@@ -153,8 +156,11 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return fillorigininformation(model);
+            return fillorigininformation(model, redirectAttributes);
         }
 
         try {
@@ -164,7 +170,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return fillorigininformation(model);
+            return fillorigininformation(model, redirectAttributes);
         }
     }
 
@@ -248,7 +254,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
     @Atomic
     protected void writeData(OriginInformationForm form) {
         PrecedentDegreeInformation precedentDegreeInformation =
-                FirstTimeCandidacyController.getStudentCandidacy().getPrecedentDegreeInformation();
+                FirstTimeCandidacyController.getCandidacy().getPrecedentDegreeInformation();
         PersonalIngressionData personalData =
                 FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
 

@@ -53,8 +53,11 @@ import pt.ist.fenixframework.Atomic;
 public class FinishedController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
-    public String finished(Model model) {
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+    public String finished(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         Student student = registration.getStudent();
         StudentAccessServices.triggerSyncStudentToExternal(student);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/finished";
@@ -62,8 +65,12 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
 
     @RequestMapping(value = "/printalldocuments", produces = "application/pdf")
     public ResponseEntity<byte[]> finishedToPrintAllDocuments(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            // Cannot return redirect() with a return type of ResponseEntity<byte[]>
+            throw new RuntimeException("Cannot finish candidacy - period is not open");
+        }
         Person person = AccessControl.getPerson();
-        StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         closeStudentCandidacy(person, candidacy);
 
         byte[] pdfBytes = candidacy.getSummaryFile().getContent();

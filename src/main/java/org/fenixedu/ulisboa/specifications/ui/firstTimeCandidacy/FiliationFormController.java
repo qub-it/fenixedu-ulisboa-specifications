@@ -68,7 +68,10 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     public static final String FILLFILIATION_URL = CONTROLLER_URL + _FILLFILIATION_URI;
 
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.GET)
-    public String fillfiliation(Model model) {
+    public String fillfiliation(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         fillFormIfRequired(model);
@@ -113,8 +116,11 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
     @RequestMapping(value = _FILLFILIATION_URI, method = RequestMethod.POST)
     public String fillfiliation(FiliationForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return fillfiliation(model);
+            return fillfiliation(model, redirectAttributes);
         }
 
         try {
@@ -127,7 +133,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
-            return fillfiliation(model);
+            return fillfiliation(model, redirectAttributes);
         }
     }
 
@@ -162,10 +168,10 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
         person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
         person.setCountryOfBirth(form.getCountryOfBirth());
-        if(person.getCountryOfBirth().isDefaultCountry()) {
-        person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
-        person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
-        person.setParishOfBirth(form.getParishOfBirth().getName());
+        if (person.getCountryOfBirth().isDefaultCountry()) {
+            person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
+            person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
+            person.setParishOfBirth(form.getParishOfBirth().getName());
         }
 
         person.setNameOfFather(form.getFatherName());

@@ -61,7 +61,10 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping
     public String chooseoptionalcourses(Model model, RedirectAttributes redirectAttributes) {
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         activateRegistration(registration);
 
         Degree degree = registration.getDegree();
@@ -77,8 +80,11 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
     @RequestMapping(value = "/opencourseenrollments")
     public String chooseoptionalcoursesToOpenCourseEnrollments(Model model, RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         String link = "/student/bolonhaStudentEnrollment.do?method=prepare&executionSemesterID=%s&registrationOid=%s";
         String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
 
@@ -91,6 +97,9 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = "/continue")
     public String chooseoptionalcoursesToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses", model, redirectAttributes);
     }
 

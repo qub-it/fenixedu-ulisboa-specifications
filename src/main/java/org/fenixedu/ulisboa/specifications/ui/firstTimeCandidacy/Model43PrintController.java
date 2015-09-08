@@ -63,6 +63,9 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
 
     @RequestMapping(produces = "application/pdf")
     public String model43print(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         Person person = Authenticate.getUser().getPerson();
 
         InputStream pdfTemplateStream;
@@ -84,13 +87,16 @@ public class Model43PrintController extends FenixeduUlisboaSpecificationsBaseCon
         }
         byte[] pdfBytes = stream.toByteArray();
 
-        appendSummaryFile(pdfBytes, FirstTimeCandidacyController.getStudentCandidacy());
+        appendSummaryFile(pdfBytes, FirstTimeCandidacyController.getCandidacy());
 
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
 
     @RequestMapping(value = "/continue")
     public String model43printToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/documentsprint", model, redirectAttributes);
     }
 

@@ -63,6 +63,9 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
 
     @RequestMapping(value = _CREATE_URI, method = RequestMethod.GET)
     public String create(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         Predicate<? super Registration> hasDgesImportationProcessForCurrentYear =
                 DgesStudentImportationProcess.registrationHasDgesImportationProcessForCurrentYear();
         Optional<Registration> findAny =
@@ -99,6 +102,9 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
     public String create(
             @RequestParam(value = VACCINATION_VALIDITY) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate vaccinationValidity,
             Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         try {
             if (vaccinationValidity == null) {
                 throw new RuntimeException(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,

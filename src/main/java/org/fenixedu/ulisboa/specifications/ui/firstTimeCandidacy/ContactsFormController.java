@@ -66,7 +66,10 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     public static final String FILLCONTACTS_URL = CONTROLLER_URL + _FILLCONTACTS_URI;
 
     @RequestMapping(value = _FILLCONTACTS_URI, method = RequestMethod.GET)
-    public String fillcontacts(Model model) {
+    public String fillcontacts(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts";
     }
@@ -122,8 +125,11 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
 
     @RequestMapping(value = _FILLCONTACTS_URI, method = RequestMethod.POST)
     public String fillcontacts(ContactsForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return fillcontacts(model);
+            return fillcontacts(model, redirectAttributes);
         }
 
         try {
@@ -135,11 +141,11 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
         } catch (DomainException domainEx) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey()),
                     model);
-            return fillcontacts(model);
+            return fillcontacts(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return fillcontacts(model);
+            return fillcontacts(model, redirectAttributes);
         }
     }
 

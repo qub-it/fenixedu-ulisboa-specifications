@@ -60,7 +60,10 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
     public static final String FILLMOTIVATIONSEXPECTATIONS_URL = CONTROLLER_URL + _FILLMOTIVATIONSEXPECTATIONS_URI;
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
-    public String fillmotivationsexpectations(Model model) {
+    public String fillmotivationsexpectations(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         List<UniversityDiscoveryMeansAnswer> allDiscoveryMeans =
                 UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList());
         Collections.sort(allDiscoveryMeans);
@@ -97,10 +100,13 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.POST)
     public String fillmotivationsexpectations(MotivationsExpectationsForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         form.populateFormValues(request);
         if (!validate(form, model)) {
             model.addAttribute("motivationsexpectationsform", form);
-            return fillmotivationsexpectations(model);
+            return fillmotivationsexpectations(model, redirectAttributes);
         }
 
         try {
@@ -110,7 +116,7 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return fillmotivationsexpectations(model);
+            return fillmotivationsexpectations(model, redirectAttributes);
         }
     }
 

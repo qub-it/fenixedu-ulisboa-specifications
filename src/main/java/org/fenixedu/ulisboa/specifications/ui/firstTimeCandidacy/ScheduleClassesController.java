@@ -64,8 +64,11 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     @RequestMapping
     public String scheduleclasses(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
 
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         Degree degree = registration.getDegree();
         if (degree.getFirstYearRegistrationConfiguration() == null
                 || !(degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment() || degree
@@ -80,9 +83,12 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     @RequestMapping(value = "/openshiftenrollments")
     public String scheduleclassesToOpenShiftEnrollments(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
 
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         String link = "/student/studentShiftEnrollmentManager.do?method=start&executionSemesterID=%s&registrationOID=%s";
         String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
 
@@ -113,6 +119,9 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     @RequestMapping(value = "/continue")
     public String scheduleclassesToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/showscheduledclasses", model, redirectAttributes);
     }
 

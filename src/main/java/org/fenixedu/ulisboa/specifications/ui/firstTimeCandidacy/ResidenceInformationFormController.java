@@ -78,7 +78,10 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     public static final String FILLRESIDENCEINFORMATION_URL = CONTROLLER_URL + _FILLRESIDENCEINFORMATION_URI;
 
     @RequestMapping(value = _FILLRESIDENCEINFORMATION_URI, method = RequestMethod.GET)
-    public String fillresidenceinformation(Model model) {
+    public String fillresidenceinformation(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
 
@@ -91,7 +94,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     private void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("residenceInformationForm")) {
-            StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
+            StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
             PersonalIngressionData personalData =
                     FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
             Person person = AccessControl.getPerson();
@@ -145,8 +148,11 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
     @RequestMapping(value = _FILLRESIDENCEINFORMATION_URI, method = RequestMethod.POST)
     public String fillresidenceinformation(ResidenceInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return fillresidenceinformation(model);
+            return fillresidenceinformation(model, redirectAttributes);
         }
 
         try {
@@ -157,7 +163,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return fillresidenceinformation(model);
+            return fillresidenceinformation(model, redirectAttributes);
         }
     }
 
@@ -237,7 +243,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
     protected void writeData(ResidenceInformationForm form) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         PersonalIngressionData personalData =
                 FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
         personalData.setCountryOfResidence(form.getCountryOfResidence());

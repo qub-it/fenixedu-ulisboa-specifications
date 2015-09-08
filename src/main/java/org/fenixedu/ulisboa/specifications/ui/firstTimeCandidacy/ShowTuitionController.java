@@ -46,7 +46,10 @@ public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseCont
 
     @RequestMapping
     public String showtuition(Model model, RedirectAttributes redirectAttributes) {
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
 
         //Temporary Fix: due to asyncronous calls that create tuition debts from rules in the academic-treasury
         // it is necessary to invoke the tuition creation twice, in two diferent transactions.
@@ -75,6 +78,9 @@ public class ShowTuitionController extends FenixeduUlisboaSpecificationsBaseCont
 
     @RequestMapping(value = "/continue")
     public String showtuitionToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization", model, redirectAttributes);
     }
 }

@@ -46,15 +46,21 @@ import pt.ist.fenixframework.Atomic;
 public class CgdDataAuthorizationController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
-    public String cgddataauthorization(Model model) {
+    public String cgddataauthorization(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization";
     }
 
     @RequestMapping(value = "/authorize")
     public String cgddataauthorizationToAuthorize(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         authorizeSharingDataWithCGD(true);
-        resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
-        Registration registration = FirstTimeCandidacyController.getStudentCandidacy().getRegistration();
+        resetCandidacySummaryFile(FirstTimeCandidacyController.getCandidacy());
+        Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
 
         boolean wsCallSuccess = StudentAccessServices.triggerSyncRegistrationToExternal(registration);
         if (wsCallSuccess) {
@@ -66,8 +72,11 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
 
     @RequestMapping(value = "/unauthorize")
     public String cgddataauthorizationToUnauthorize(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         authorizeSharingDataWithCGD(false);
-        resetCandidacySummaryFile(FirstTimeCandidacyController.getStudentCandidacy());
+        resetCandidacySummaryFile(FirstTimeCandidacyController.getCandidacy());
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/model43print", model, redirectAttributes);
     }
 

@@ -98,7 +98,10 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
-    public String fillpersonalinformation(Model model) {
+    public String fillpersonalinformation(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         model.addAttribute("genderValues", Gender.values());
         model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
         model.addAttribute("maritalStatusValues", MaritalStatus.values());
@@ -107,7 +110,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
 
-        model.addAttribute("placingOption", FirstTimeCandidacyController.getStudentCandidacy().getPlacingOption());
+        model.addAttribute("placingOption", FirstTimeCandidacyController.getCandidacy().getPlacingOption());
 
         fillFormIfRequired(model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
@@ -149,8 +152,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             }
 
             PersonalIngressionData personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController
-                            .getStudentCandidacy().getPrecedentDegreeInformation());
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
+                            .getPrecedentDegreeInformation());
             form.setMaritalStatus(personalData.getMaritalStatus());
             if (form.getMaritalStatus() == null) {
                 form.setMaritalStatus(MaritalStatus.SINGLE);
@@ -176,8 +179,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
     public String fillpersonalinformation(PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         if (!validate(form, model)) {
-            return fillpersonalinformation(model);
+            return fillpersonalinformation(model, redirectAttributes);
         }
 
         try {
@@ -189,7 +195,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            return fillpersonalinformation(model);
+            return fillpersonalinformation(model, redirectAttributes);
         }
     }
 
@@ -273,7 +279,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getStudentCandidacy()
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
                         .getPrecedentDegreeInformation());
 
         String seriesNumerOrExtraDigit = form.getIdentificationDocumentSeriesNumber();
@@ -296,7 +302,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         person.setMaritalStatus(form.getMaritalStatus());
         personalData.setMaritalStatus(form.getMaritalStatus());
 
-        if (1 < FirstTimeCandidacyController.getStudentCandidacy().getPlacingOption()) {
+        if (1 < FirstTimeCandidacyController.getCandidacy().getPlacingOption()) {
             personUl.setFirstOptionInstitution(form.getFirstOptionInstitution());
             if (form.getFirstOptionDegreeDesignation() != null) {
                 personUl.setFirstOptionDegreeDesignation(form.getFirstOptionDegreeDesignation().getDescription());

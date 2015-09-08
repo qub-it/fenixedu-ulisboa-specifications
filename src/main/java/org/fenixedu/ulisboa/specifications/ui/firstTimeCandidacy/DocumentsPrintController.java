@@ -54,7 +54,10 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
 
     @RequestMapping
     public String documentsprint(Model model, RedirectAttributes redirectAttributes) {
-        StudentCandidacy candidacy = FirstTimeCandidacyController.getStudentCandidacy();
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
 
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
@@ -75,6 +78,9 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
 
     @RequestMapping(value = "/continue")
     public String documentsprintToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/finished", model, redirectAttributes);
     }
 

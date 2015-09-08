@@ -38,12 +38,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ShowSelectedCoursesController extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
-    public String showselectedcourses(Model model) {
+    public String showselectedcourses(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses";
     }
 
     @RequestMapping(value = "/continue")
     public String showselectedcoursesToContinue(Model model, RedirectAttributes redirectAttributes) {
+        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        }
         return redirect("/fenixedu-ulisboa-specifications/firsttimecandidacy/scheduleclasses", model, redirectAttributes);
     }
 }
