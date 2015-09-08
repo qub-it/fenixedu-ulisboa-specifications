@@ -75,6 +75,17 @@ ${portal.toolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.phoneNumber" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="contactsForm_phoneNumber" class="form-control"
+						type="text" name="phoneNumber" pattern="(\d{4,15})"
+						value='<c:out value='${not empty param.phonenumber ? param.phonenumber : contactsForm.phoneNumber }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
 					<spring:message code="label.ContactsForm.mobileNumber" />
 				</div>
 
@@ -96,6 +107,15 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
+				<label class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.institutionalEmail" />
+				</label>
+
+				<div class="col-sm-10">
+					<div class="form-control-static"><c:out value='${not empty param.institutionalemail ? param.institutionalemail : contactsForm.institutionalEmail }' /></div>
+				</div>
+			</div>
+			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message code="label.ContactsForm.personalEmail" />
 				</div>
@@ -103,6 +123,49 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="contactsForm_personalEmail" class="form-control" type="email" name="personalEmail" required
 						value='<c:out value='${not empty param.personalemail ? param.personalemail : contactsForm.personalEmail }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.isEmailAvailable" />
+				</div>
+
+				<div class="col-sm-2">
+					<select id="contactsForm_isEmailAvailable" name="isEmailAvailable"
+						class="form-control">
+						<option value="false"><spring:message code="label.no" /></option>
+						<option value="true"><spring:message code="label.yes" /></option>
+					</select>
+					<script>
+						$("#contactsForm_isEmailAvailable").val('<c:out value='${not empty param.isemailavailable ? param.isemailavailable : contactsForm.isEmailAvailable }'/>');
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.webAddress" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="contactsForm_webAddress" class="form-control"
+						type="text" name="webAddress" pattern="^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
+						value='<c:out value='${not empty param.webaddress ? param.webaddress : contactsForm.webAddress }'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.ContactsForm.isHomepageAvailable" />
+				</div>
+
+				<div class="col-sm-2">
+					<select id="contactsForm_isHomepageAvailable"
+						name="isHomepageAvailable" class="form-control">
+						<option value="false"><spring:message code="label.no" /></option>
+						<option value="true"><spring:message code="label.yes" /></option>
+					</select>
+					<script>
+						$("#contactsForm_isHomepageAvailable").val('<c:out value='${not empty param.ishomepageavailable ? param.ishomepageavailable : contactsForm.isHomepageAvailable }'/>');
+					</script>
 				</div>
 			</div>
 		</div>

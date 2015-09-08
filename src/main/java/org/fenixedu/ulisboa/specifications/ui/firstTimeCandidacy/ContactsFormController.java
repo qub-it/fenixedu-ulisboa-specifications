@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
+import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
@@ -88,6 +89,11 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
         if (!model.containsAttribute("contactsForm")) {
             Person person = AccessControl.getPerson();
             ContactsForm form = new ContactsForm();
+
+            Phone phone = getDefaultPersonalContact(person, Phone.class);
+            if (phone != null) {
+                form.setPhoneNumber(phone.getNumber());
+            }
 
             MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
             if (mobilePhone != null) {
@@ -168,6 +174,11 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
             return false;
         }
 
+        if (!StringUtils.isEmpty(form.getPhoneNumber()) && !form.getPhoneNumber().matches(PHONE_PATTERN)) {
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"), model);
+            return false;
+        }
         if (!StringUtils.isEmpty(form.getMobileNumber()) && !form.getMobileNumber().matches(PHONE_PATTERN)) {
             addErrorMessage(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"), model);
@@ -191,6 +202,13 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     @Atomic
     protected void writeData(ContactsForm form) {
         Person person = AccessControl.getPerson();
+
+        Phone phone = getDefaultPersonalContact(person, Phone.class);
+        if (phone != null) {
+            phone.setNumber(form.getPhoneNumber());
+        } else {
+            phone = Phone.createPhone(person, form.getPhoneNumber(), PartyContactType.PERSONAL, true);
+        }
 
         MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
         if (mobilePhone != null) {
@@ -223,12 +241,21 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
     }
 
     public static class ContactsForm {
+        private String phoneNumber;
         private String mobileNumber;
         private String personalEmail;
         private String webAddress;
         private boolean isEmailAvailable;
         private boolean isHomepageAvailable;
         private String emergencyContact;
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
 
         public String getMobileNumber() {
             return mobileNumber;
