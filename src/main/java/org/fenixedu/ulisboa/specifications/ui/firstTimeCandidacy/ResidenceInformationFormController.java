@@ -221,13 +221,6 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
                             model);
                     return false;
                 }
-
-                if (!StringUtils.isEmpty(form.getSchoolTimeAreaCode())
-                        && !isValidPostalCodeUIFormat(form.getSchoolTimeAreaCode())) {
-                    addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.candidacy.workflow.wrongAreaCodeFormatSchoolTime"), model);
-                    return false;
-                }
             }
 
             if (form.getSchoolTimeResidenceType() != null && form.getSchoolTimeResidenceType().isOther()
@@ -579,10 +572,5 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         public void setOtherSchoolTimeResidenceType(String otherSchoolTimeResidenceType) {
             this.otherSchoolTimeResidenceType = otherSchoolTimeResidenceType;
         }
-    }
-
-    //Area codes are coming from the UI with the area of the areaCode appended 
-    private boolean isValidPostalCodeUIFormat(String areaCode) {
-        return areaCode != null ? areaCode.matches("[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9] [a-zA-Z\\s]*") : false;
     }
 }
