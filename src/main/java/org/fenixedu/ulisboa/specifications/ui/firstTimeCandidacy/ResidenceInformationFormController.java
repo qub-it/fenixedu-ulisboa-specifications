@@ -114,10 +114,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             if (form.getCountryOfResidence() == null) {
                 form.setCountryOfResidence(Country.readDefault());
             }
-            PhysicalAddress defaultPhysicalAddress = person.getDefaultPhysicalAddress();
-            form.setAddress(defaultPhysicalAddress.getAddress());
-            form.setAreaCode(defaultPhysicalAddress.getAreaCode() + " " + defaultPhysicalAddress.getAreaOfAreaCode());
-            form.setArea(defaultPhysicalAddress.getArea());
+
             District district =
                     personalData.getDistrictSubdivisionOfResidence() != null ? personalData.getDistrictSubdivisionOfResidence()
                             .getDistrict() : null;
@@ -125,8 +122,15 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
 
             DistrictSubdivision districtSubdivisionOfResidence = personalData.getDistrictSubdivisionOfResidence();
             form.setDistrictSubdivisionOfResidence(districtSubdivisionOfResidence);
-            form.setParishOfResidence(Parish.findByName(districtSubdivisionOfResidence,
-                    person.getDefaultPhysicalAddress().getParishOfResidence()).orElse(null));
+
+            PhysicalAddress defaultPhysicalAddress = person.getDefaultPhysicalAddress();
+            if (defaultPhysicalAddress != null) {
+                form.setAddress(defaultPhysicalAddress.getAddress());
+                form.setAreaCode(defaultPhysicalAddress.getAreaCode() + " " + defaultPhysicalAddress.getAreaOfAreaCode());
+                form.setArea(defaultPhysicalAddress.getArea());
+                form.setParishOfResidence(Parish.findByName(districtSubdivisionOfResidence,
+                        person.getDefaultPhysicalAddress().getParishOfResidence()).orElse(null));
+            }
 
             form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
             if (personalData.getDislocatedFromPermanentResidence() == Boolean.TRUE) {
