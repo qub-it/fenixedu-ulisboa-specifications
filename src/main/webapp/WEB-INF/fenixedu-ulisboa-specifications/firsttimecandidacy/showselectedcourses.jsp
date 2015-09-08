@@ -82,7 +82,7 @@ ${portal.toolkit()}
 					<c:forEach items="${firstSemesterEnrolments}" var="enrolment">
 						<tr>
 							<td class="strong">
-								${enrolment.name.content}
+								${enrolment.curricularCourse.nameI18N.content}
 							</td>
 							<td class="">
 								<spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/>
@@ -104,7 +104,7 @@ ${portal.toolkit()}
 					<c:forEach items="${secondSemesterEnrolments}" var="enrolment">
 						<tr>
 							<td class="strong">
-								${enrolment.name.content}
+								${enrolment.curricularCourse.nameI18N.content}
 							</td>
 							<td class="">
 								<spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/>
