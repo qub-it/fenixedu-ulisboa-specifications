@@ -100,7 +100,7 @@ ${portal.toolkit()}
 	<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { %>
 		<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p>
 	<% } else { %>
-		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent() + ", " + Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
+		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent().replaceAll(","," -") + ", " + Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
 	<% } %>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
