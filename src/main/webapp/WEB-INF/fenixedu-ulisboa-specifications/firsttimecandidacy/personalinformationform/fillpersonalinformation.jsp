@@ -298,7 +298,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<select id="personalInformationForm_professionTimeType" class="form-control" name="professionTimeType">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${professionTimeTypeValues}" var="value">
 							<option value='<c:out value='${value.externalId}'/>'><c:out value='${value.description.content}' /></option>
 						</c:forEach>

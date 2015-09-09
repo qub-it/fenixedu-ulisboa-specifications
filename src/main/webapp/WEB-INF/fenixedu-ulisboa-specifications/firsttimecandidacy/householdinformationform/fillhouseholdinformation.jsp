@@ -82,7 +82,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<select id="householdInformationForm_motherSchoolLevel"
 						class="form-control" name="motherSchoolLevel">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${schoolLevelValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -102,7 +102,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<select id="householdInformationForm_motherProfessionType"
 						class="form-control" name="motherProfessionType">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${professionTypeValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -122,7 +122,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<select id="householdInformationForm_motherProfessionalCondition"
 						class="form-control" name="motherProfessionalCondition">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${professionalConditionValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -142,7 +142,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<select id="householdInformationForm_fatherSchoolLevel"
 						class="form-control" name="fatherSchoolLevel">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${schoolLevelValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -162,7 +162,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<select id="householdInformationForm_fatherProfessionType"
 						class="form-control" name="fatherProfessionType">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${professionTypeValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -182,7 +182,7 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<select id="householdInformationForm_fatherProfessionalCondition"
 						class="form-control" name="fatherProfessionalCondition">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${professionalConditionValues}" var="field">
 							<option value='<c:out value='${field}'/>'><c:out
 									value='${field.localizedName}' /></option>
@@ -200,7 +200,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-4">
 					<select id="householdInformationForm_householdSalarySpan" class="form-control" name="householdSalarySpan">
-						<option value=""><spring:message code="label.choose.one"/></option>
+						<option value=""></option>
 						<c:forEach items="${salarySpanValues}" var="salarySpanValue">
 							<option value='<c:out value='${salarySpanValue.externalId}'/>'><c:out value='${salarySpanValue.description.content}' /></option>
 						</c:forEach>
