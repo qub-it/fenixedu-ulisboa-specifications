@@ -76,10 +76,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select id="filiationForm_nationality"
-						class="js-example-basic-single" name="nationality">
-						<option value=""></option>
-					</select>
+					<div class="form-control-static"><c:out value='${not empty param.nationality ? param.nationality : personalInformationForm.nationality.name }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">

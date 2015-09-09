@@ -121,7 +121,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         }
 
         try {
-            writeFiliationData(form);
+            writeData(form);
             StudentAccessServices.triggerSyncPersonToExternal(AccessControl.getPerson());
             model.addAttribute("filiationForm", form);
             return redirect(
@@ -135,10 +135,6 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     }
 
     private boolean validate(FiliationForm form, Model model) {
-        if (form.getNationality() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.nationality.required"), model);
-            return false;
-        }
         if ((StringUtils.isEmpty(form.getFatherName())) || (StringUtils.isEmpty(form.getMotherName()))) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.parentsName.required"), model);
             return false;
@@ -160,10 +156,8 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     }
 
     @Atomic
-    private void writeFiliationData(FiliationForm form) {
+    private void writeData(FiliationForm form) {
         Person person = AccessControl.getPerson();
-
-        person.setCountry(form.getNationality());
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         personUl.setSecondNationality(form.getSecondNationality());
 
