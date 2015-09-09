@@ -198,7 +198,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="originInformationForm_conclusionGrade"
-						class="form-control" type="text" name="conclusionGrade" required pattern="\d{2}"
+						class="form-control" type="text" name="conclusionGrade" required pattern="\d{2}" title="<spring:message code="label.OriginInformationForm.conclusionGrade.required"/>"
 						value='<c:out value='${not empty param.conclusiongrade ? param.conclusiongrade : originInformationForm.conclusionGrade }'/>' />
 				</div>
 			</div>
@@ -209,7 +209,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="originInformationForm_conclusionYear"
-						class="form-control" type="text" name="conclusionYear" required pattern="\d{4}"
+						class="form-control" type="text" name="conclusionYear" required pattern="\d{4}" title="<spring:message code="label.OriginInformationForm.conclusionYear.required"/>"
 						value='<c:out value='${not empty param.conclusionyear ? param.conclusionyear : originInformationForm.conclusionYear }'/>' />
 				</div>
 			</div>

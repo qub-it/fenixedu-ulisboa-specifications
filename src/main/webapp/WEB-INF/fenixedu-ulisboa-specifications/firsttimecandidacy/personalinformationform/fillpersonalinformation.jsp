@@ -122,7 +122,7 @@ ${portal.toolkit()}
 					</label>
 	
 					<div class="col-sm-10">
-						<input id="personalInformationForm_documentIdNumber" class="form-control" type="text" name="documentIdNumber" required
+						<input id="personalInformationForm_documentIdNumber" class="form-control" type="text" name="documentIdNumber" required title="<spring:message code="label.field.required"/>"
 							value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }'/>
 					</div>
 				</div>
@@ -196,7 +196,7 @@ ${portal.toolkit()}
 						<input id="personalInformationForm_socialSecurityNumber"
 							class="form-control" type="text" name="socialSecurityNumber"
 							value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
-							required pattern="(\d{9})"/>
+							required pattern="(\d{9})" title="<spring:message code="label.PersonalInformationForm.socialSecurityNumber.required"/>"/>
 					</div>
 				</div>
 			</c:if>

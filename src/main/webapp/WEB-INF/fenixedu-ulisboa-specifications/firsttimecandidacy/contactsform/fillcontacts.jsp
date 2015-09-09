@@ -102,7 +102,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="contactsForm_emergencyContact" class="form-control"
-						type="text" name="emergencyContact" required pattern="(\d{4,15})"
+						type="text" name="emergencyContact" required pattern="(\d{4,15})" title="<spring:message code="label.ContactsForm.emergencyContact.required"/>"
 						value='<c:out value='${contactsForm.emergencyContact}'/>' />
 				</div>
 			</div>
@@ -121,7 +121,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="contactsForm_personalEmail" class="form-control" type="email" name="personalEmail" required
+					<input id="contactsForm_personalEmail" class="form-control" type="email" name="personalEmail" required title="<spring:message code="label.field.required"/>"
 						value='<c:out value='${not empty param.personalemail ? param.personalemail : contactsForm.personalEmail }'/>' />
 				</div>
 			</div>

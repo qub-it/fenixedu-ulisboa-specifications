@@ -158,7 +158,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="filiationForm_fatherName" class="form-control"
-						type="text" name="fatherName" required
+						type="text" name="fatherName" required title="<spring:message code="label.field.required"/>"
 						value='<c:out value='${not empty param.fathername ? param.fathername : filiationForm.fatherName }'/>' />
 				</div>
 			</div>
@@ -169,7 +169,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="filiationForm_motherName" class="form-control"
-						type="text" name="motherName" required
+						type="text" name="motherName" required title="<spring:message code="label.field.required"/>"
 						value='<c:out value='${not empty param.mothername ? param.mothername : filiationForm.motherName }'/>' />
 				</div>
 			</div>
