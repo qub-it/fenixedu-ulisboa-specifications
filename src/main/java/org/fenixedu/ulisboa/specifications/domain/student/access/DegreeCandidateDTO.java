@@ -218,8 +218,6 @@ public class DegreeCandidateDTO {
         person.setCountry(nationality);
         if (nationality != null && nationality.isDefaultCountry()) {
             person.setIdentification(getDocumentIdNumber(), IDDocumentType.CITIZEN_CARD);
-        } else {
-            person.setIdentification(getDocumentIdNumber(), IDDocumentType.OTHER);
         }
 
         person.setMaritalStatus(MaritalStatus.SINGLE);

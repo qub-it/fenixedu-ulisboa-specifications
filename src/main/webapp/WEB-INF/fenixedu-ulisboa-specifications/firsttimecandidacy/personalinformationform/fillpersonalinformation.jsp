@@ -100,40 +100,92 @@ ${portal.toolkit()}
 					<div class="form-control-static"><c:out value='${not empty param.gender ? param.gender : personalInformationForm.gender.localizedName }' /></div>
 				</div>
 			</div>
-			<div class="form-group row">
-				<label class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.documentIdNumber" />
-				</label>
-
-				<div class="col-sm-10">
-					<div class="form-control-static"><c:out value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }' /></div>
+			<c:if test="${not personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label">
+						<spring:message code="label.PersonalInformationForm.documentIdNumber" />
+					</label>
+	
+					<div class="col-sm-10">
+						<div class="form-control-static"><c:out value='${personalInformationForm.documentIdNumber }' /></div>
+					</div>
 				</div>
-			</div>
-			<div class="form-group row">
-				<label class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.idDocumentType" />
-				</label>
-
-				<div class="col-sm-4">
-					<div class="form-control-static"><c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType.localizedName }' /></div>
+			</c:if>
+			<c:if test="${personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label required-field">
+						<spring:message code="label.PersonalInformationForm.documentIdNumber" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input id="personalInformationForm_documentIdNumber" class="form-control" type="text" name="documentIdNumber" required
+							value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }'/>
+					</div>
 				</div>
-			</div>
-			<div class="form-group row">
-				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
-				</label>
-
-				<div class="col-sm-10">
-					<input
-						id="personalInformationForm_identificationDocumentSeriesNumber"
-						class="form-control" type="text"
-						name="identificationDocumentSeriesNumber"
-						value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>'
-						pattern="[0-9]|([0-9][a-zA-Z][a-zA-Z][0-9])" />
+			</c:if>
+			<c:if test="${not personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label required-field">
+						<spring:message code="label.PersonalInformationForm.idDocumentType" />
+					</label>
+	
+					<div class="col-sm-4">
+						<div class="form-control-static"><c:out value='${personalInformationForm.idDocumentType.localizedName }' /></div>
+					</div>
 				</div>
-			</div>
+			</c:if>
+			<c:if test="${personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label required-field">
+						<spring:message code="label.PersonalInformationForm.idDocumentType" />
+					</label>
+	
+					<div class="col-sm-4">
+						<select id="personalInformationForm_idDocumentType" class="form-control" name="idDocumentType" >
+							<option value=""></option>
+							<c:forEach items="${idDocumentTypeValues}" var="documentType">
+								<option value="${documentType}">${documentType.localizedName}</option>
+							</c:forEach>
+						</select>
+						<script>
+							$("#personalInformationForm_idDocumentType").val('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
+						</script>
+					</div>
+				</div>
+			</c:if>
+			<c:if test="${not personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
+						<spring:message
+							code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input
+							id="personalInformationForm_identificationDocumentSeriesNumber"
+							class="form-control" type="text"
+							name="identificationDocumentSeriesNumber"
+							value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>'
+							required pattern="[0-9]|([0-9][a-zA-Z][a-zA-Z][0-9])" />
+					</div>
+				</div>
+			</c:if>
+			<c:if test="${personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
+						<spring:message
+							code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input
+							id="personalInformationForm_identificationDocumentSeriesNumber"
+							class="form-control" type="text"
+							name="identificationDocumentSeriesNumber"
+							value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>' />
+					</div>
+				</div>
+			</c:if>
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
 					<spring:message

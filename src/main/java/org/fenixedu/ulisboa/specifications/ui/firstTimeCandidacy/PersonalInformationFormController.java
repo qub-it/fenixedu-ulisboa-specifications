@@ -27,6 +27,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CitzenCardValidation.validateNumeroDocumentoCC;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
 
@@ -39,6 +40,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -53,7 +55,6 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -117,64 +118,75 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     private void fillFormIfRequired(Model model) {
-        if (!model.containsAttribute("personalInformationForm")) {
-            PersonalInformationForm form = new PersonalInformationForm();
-            Person person = AccessControl.getPerson();
-
-            form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
-                    .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
-            form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
-            YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
-            YearMonthDay expirationDateOfDocumentIdYearMonthDay = person.getExpirationDateOfDocumentIdYearMonthDay();
-            form.setDocumentIdEmissionDate(emissionDateOfDocumentIdYearMonthDay != null ? new LocalDate(person
-                    .getEmissionDateOfDocumentIdYearMonthDay().toDateMidnight()) : null);
-            form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
-                    expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
-
-            form.setSocialSecurityNumber(person.getSocialSecurityNumber());
-            form.setMaritalStatus(person.getMaritalStatus());
-            form.setProfession(person.getProfession());
-
-            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
-            if (personUl != null) {
-                form.setProfessionTimeType(personUl.getProfessionTimeType());
-
-                Unit institution = personUl.getFirstOptionInstitution();
-                if (institution != null) {
-                    form.setFirstOptionInstitution(institution);
-
-                    String degreeDesignationName = personUl.getFirstOptionDegreeDesignation();
-                    Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
-                    DegreeDesignation degreeDesignation =
-                            institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
-                    form.setFirstOptionDegreeDesignation(degreeDesignation);
-                }
+        Person person = AccessControl.getPerson();
+        PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
+        if (form != null) {
+            if (!form.getIsForeignStudent()) {
+                form.setDocumentIdNumber(person.getDocumentIdNumber());
+                form.setIdDocumentType(person.getIdDocumentType());
             }
-
-            PersonalIngressionData personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
-                            .getPrecedentDegreeInformation());
-            form.setMaritalStatus(personalData.getMaritalStatus());
-            if (form.getMaritalStatus() == null) {
-                form.setMaritalStatus(MaritalStatus.SINGLE);
-            }
-            form.setProfessionType(personalData.getProfessionType());
-            if (form.getProfessionType() == null) {
-                form.setProfessionType(ProfessionType.OTHER);
-            }
-            form.setGrantOwnerType(personalData.getGrantOwnerType());
-            if (form.getGrantOwnerType() == null) {
-                form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
-            }
-            Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
-            form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
-            form.setProfessionalCondition(personalData.getProfessionalCondition());
-            if (form.getProfessionalCondition() == null) {
-                form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
-            }
-
             model.addAttribute("personalInformationForm", form);
+            return;
         }
+
+        form = new PersonalInformationForm();
+
+        form.setDocumentIdNumber(person.getDocumentIdNumber());
+        form.setIdDocumentType(person.getIdDocumentType());
+
+        form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue() != null ? person
+                .getIdentificationDocumentSeriesNumberValue() : person.getIdentificationDocumentExtraDigitValue());
+        form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
+        YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
+        YearMonthDay expirationDateOfDocumentIdYearMonthDay = person.getExpirationDateOfDocumentIdYearMonthDay();
+        form.setDocumentIdEmissionDate(emissionDateOfDocumentIdYearMonthDay != null ? new LocalDate(person
+                .getEmissionDateOfDocumentIdYearMonthDay().toDateMidnight()) : null);
+        form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
+                expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
+
+        form.setSocialSecurityNumber(person.getSocialSecurityNumber());
+        form.setMaritalStatus(person.getMaritalStatus());
+        form.setProfession(person.getProfession());
+
+        PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
+        if (personUl != null) {
+            form.setProfessionTimeType(personUl.getProfessionTimeType());
+
+            Unit institution = personUl.getFirstOptionInstitution();
+            if (institution != null) {
+                form.setFirstOptionInstitution(institution);
+
+                String degreeDesignationName = personUl.getFirstOptionDegreeDesignation();
+                Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
+                DegreeDesignation degreeDesignation =
+                        institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
+                form.setFirstOptionDegreeDesignation(degreeDesignation);
+            }
+        }
+
+        PersonalIngressionData personalData =
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
+                        .getPrecedentDegreeInformation());
+        form.setMaritalStatus(personalData.getMaritalStatus());
+        if (form.getMaritalStatus() == null) {
+            form.setMaritalStatus(MaritalStatus.SINGLE);
+        }
+        form.setProfessionType(personalData.getProfessionType());
+        if (form.getProfessionType() == null) {
+            form.setProfessionType(ProfessionType.OTHER);
+        }
+        form.setGrantOwnerType(personalData.getGrantOwnerType());
+        if (form.getGrantOwnerType() == null) {
+            form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
+        }
+        Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
+        form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
+        form.setProfessionalCondition(personalData.getProfessionalCondition());
+        if (form.getProfessionalCondition() == null) {
+            form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
+        }
+
+        model.addAttribute("personalInformationForm", form);
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
@@ -193,25 +205,46 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
-                    + de.getLocalizedMessage(), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             return fillpersonalinformation(model, redirectAttributes);
         }
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
         Person person = AccessControl.getPerson();
-        IDDocumentType idType = person.getIdDocumentType();
-        if (idType.equals(IDDocumentType.CITIZEN_CARD) || idType.equals(IDDocumentType.IDENTITY_CARD)) {
+        IDDocumentType idType = form.getIdDocumentType();
+        if (form.getIsForeignStudent()) {
+            if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"), model);
+                return false;
+            }
+            if (idType == null) {
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
+                return false;
+            }
+        }
+        if (idType.equals(IDDocumentType.IDENTITY_CARD)) {
             if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                addErrorMessage(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
                 return false;
             }
 
-            if (!form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
-                    && !form.getIdentificationDocumentSeriesNumber().matches(IDENTITY_CARD_CONTROL_DIGIT_FORMAT)) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+            if (!form.getIdentificationDocumentSeriesNumber().matches(IDENTITY_CARD_CONTROL_DIGIT_FORMAT)) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
+                return false;
+            }
+        }
+        if (idType.equals(IDDocumentType.CITIZEN_CARD)) {
+            if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
+                return false;
+            }
+
+            if (!form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
                 return false;
             }
@@ -219,7 +252,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
                 && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+            addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
             return false;
         }
@@ -227,36 +260,36 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         if (form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
                 && !validateNumeroDocumentoCC(person.getDocumentIdNumber() + form.getIdentificationDocumentSeriesNumber())
                 && !testsMode()) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.wrongCheckDigit"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.wrongCheckDigit"), model);
             return false;
         }
         if (form.getDocumentIdExpirationDate() == null) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.expirationDate.required"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.expirationDate.required"), model);
             return false;
         }
 
         if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !isValidcontrib(form.getSocialSecurityNumber())) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"), model);
+            addErrorMessage(
+                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"),
+                    model);
             return false;
         }
         Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
         if (party != null && party != person) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+            addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"), model);
             return false;
         }
 
         if (form.isStudentWorking()) {
             if (StringUtils.isEmpty(form.getProfession())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.profession.required"), model);
+                addErrorMessage(
+                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.profession.required"),
+                        model);
                 return false;
             }
             if (form.getProfessionTimeType() == null) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                addErrorMessage(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"), model);
                 return false;
             }
@@ -264,7 +297,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         if (form.getGrantOwnerType().equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
                 && StringUtils.isEmpty(form.getGrantOwnerProvider())) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+            addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
             return false;
         }
@@ -317,6 +350,12 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         person.setProfession(form.getProfession());
         personalData.setProfessionType(form.getProfessionType());
         personUl.setProfessionTimeType(form.getProfessionTimeType());
+
+        if (form.getIsForeignStudent()) {
+            person.setIdDocumentType(form.getIdDocumentType());
+            person.setDocumentIdNumber(form.getDocumentIdNumber());
+        }
+
         GrantOwnerType grantOwnerType = form.getGrantOwnerType();
         personalData.setGrantOwnerType(grantOwnerType);
         Unit grantOwnerProvider = FenixFramework.getDomainObject(form.getGrantOwnerProvider());
@@ -407,6 +446,9 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         private Unit firstOptionInstitution;
         private DegreeDesignation firstOptionDegreeDesignation;
+        private String documentIdNumber;
+
+        private IDDocumentType idDocumentType;
 
         public String getName() {
             return AccessControl.getPerson().getName();
@@ -421,11 +463,19 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         }
 
         public String getDocumentIdNumber() {
-            return AccessControl.getPerson().getDocumentIdNumber();
+            return documentIdNumber;
+        }
+
+        public void setDocumentIdNumber(String documentIdNumber) {
+            this.documentIdNumber = documentIdNumber;
         }
 
         public IDDocumentType getIdDocumentType() {
-            return AccessControl.getPerson().getIdDocumentType();
+            return idDocumentType;
+        }
+
+        public void setIdDocumentType(IDDocumentType idDocumentType) {
+            this.idDocumentType = idDocumentType;
         }
 
         public String getIdentificationDocumentSeriesNumber() {
@@ -598,7 +648,11 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             } else {
                 return unit.getName();
             }
+        }
 
+        public boolean getIsForeignStudent() {
+            Country nationality = AccessControl.getPerson().getCountry();
+            return nationality == null || !nationality.isDefaultCountry();
         }
     }
 }
