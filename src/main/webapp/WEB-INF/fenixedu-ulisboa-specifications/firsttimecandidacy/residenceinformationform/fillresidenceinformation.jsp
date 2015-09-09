@@ -156,7 +156,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select id="residenceInformationForm_parishOfResidence" class="form-control" name="parishOfResidence">
+					<select id="residenceInformationForm_parishOfResidence" class="js-example-basic-single" name="parishOfResidence">
 						<option value=""></option>
 					</select>
 				</div>
@@ -254,7 +254,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select id="residenceInformationForm_schoolTimeParishOfResidence" class="form-control" name="schoolTimeParishOfResidence">
+					<select id="residenceInformationForm_schoolTimeParishOfResidence" class="js-example-basic-single" name="schoolTimeParishOfResidence">
 						<option value=""></option>
 					</select>
 				</div>
