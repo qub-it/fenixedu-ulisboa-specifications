@@ -40,15 +40,17 @@ public class CgdCard extends CgdCard_Base {
     @Override
     public void setMifareCode(String mifareCode) {
         String code = mifareCode;
-        String possibleLength = mifareCode.substring(0, 4);
-        Integer valueOf = Integer.valueOf(possibleLength);
-        String possibleCode = mifareCode.substring(4);
-        // Codes may be insered with the check digits if so we have 
-        // to add them.
-        //
-        // 7 September 2015 - Paulo Abrantes
-        if (possibleCode.length() != valueOf) {
-            code = StringUtils.leftPad(String.valueOf(mifareCode.length()), 4, "0") + mifareCode;
+        if (!StringUtils.isEmpty(mifareCode) && mifareCode.length() > 4) {
+            String possibleLength = mifareCode.substring(0, 4);
+            Integer valueOf = Integer.valueOf(possibleLength);
+            String possibleCode = mifareCode.substring(4);
+            // Codes may be insered with the check digits if so we have 
+            // to add them.
+            //
+            // 7 September 2015 - Paulo Abrantes
+            if (possibleCode.length() != valueOf) {
+                code = StringUtils.leftPad(String.valueOf(mifareCode.length()), 4, "0") + mifareCode;
+            }
         }
         super.setMifareCode(code);
         setLastMifareModication(new LocalDate());
