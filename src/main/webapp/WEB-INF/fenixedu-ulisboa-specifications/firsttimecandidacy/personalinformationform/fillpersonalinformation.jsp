@@ -418,12 +418,12 @@ $(document).ready(function() {
 				grantOwnerProvider = $("#personalInformationForm_grantOwnerProvider");
 				if(val == "STUDENT_WITHOUT_SCHOLARSHIP"){
 					grantOwnerProvider.select2("enable", false);
-					grantOwnerProvider.select2('val', '');
 				}
 				else{
 					grantOwnerProvider.select2("enable", true);
 					updateGrantProviderAjax();
 				}
+				grantOwnerProvider.select2('val', '');
 		};
 		$("#personalInformationForm_grantOwnerType").on("change", updateGrantProvider);
 		updateGrantProvider();
