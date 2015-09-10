@@ -409,11 +409,22 @@ public class CurricularPeriodConfigurationInitializer {
                     continue;
                 }
 
-                CurricularPeriodRule rule = CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(84));
-                rule.messagePrefixDisabled();
+                if (dcp.getDegree().getCode().equals("5618")) {
+                    CurricularPeriodRule rule = CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(120));
+                    rule.messagePrefixDisabled();
 
-                rule = CreditsEnroledAsFirstTime.create(config, BigDecimal.valueOf(60));
-                rule.messagePrefixDisabled();
+                } else if (dcp.getDegree().getCode().equals("5153")) {
+                    CurricularPeriodRule rule = CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(96));
+                    rule.messagePrefixDisabled();
+
+                } else {
+                    CurricularPeriodRule rule = CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(84));
+                    rule.messagePrefixDisabled();
+
+                    rule = CreditsEnroledAsFirstTime.create(config, BigDecimal.valueOf(60));
+                    rule.messagePrefixDisabled();
+                }
+
             }
 
         }
