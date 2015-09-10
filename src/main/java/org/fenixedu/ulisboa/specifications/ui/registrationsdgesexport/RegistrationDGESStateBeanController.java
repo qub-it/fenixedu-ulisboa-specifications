@@ -88,6 +88,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     private RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
+        String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
         String documentIdNumber = studentCandidacy.getPerson().getDocumentIdNumber();
         String name = studentCandidacy.getPerson().getName();
         String registrationStatus = "";
@@ -96,17 +97,19 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         } else {
             registrationStatus = "Não";
         }
-        return new RegistrationDGESStateBean(documentIdNumber, name, registrationStatus);
+        return new RegistrationDGESStateBean(degreeCode, documentIdNumber, name, registrationStatus);
     }
 
     public static class RegistrationDGESStateBean {
+        private String degreeCode;
         String idNumber;
 
         String name;
         String registrationState;
 
-        public RegistrationDGESStateBean(String idNumber, String name, String registrationState) {
+        public RegistrationDGESStateBean(String degreeCode, String idNumber, String name, String registrationState) {
             super();
+            this.degreeCode = degreeCode;
             this.idNumber = idNumber;
             this.name = name;
             this.registrationState = registrationState;
@@ -134,6 +137,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         public void setRegistrationState(String registrationState) {
             this.registrationState = registrationState;
+        }
+
+        public String getDegreeCode() {
+            return degreeCode;
+        }
+
+        public void setDegreeCode(String degreeCode) {
+            this.degreeCode = degreeCode;
         }
     }
 

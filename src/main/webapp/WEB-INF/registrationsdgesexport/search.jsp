@@ -99,6 +99,7 @@ ${portal.toolkit()}
 		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover">
 			<thead>
 				<tr>
+					<th>Curso</th>
 					<th>Nº BI</th>
 					<th>Matrícula</th>
 					<th>S/N</th>
@@ -125,6 +126,7 @@ ${portal.toolkit()}
 				<%-- Field access / formatting  here CHANGE_ME --%>
 				{
 				"DT_RowId" : '<c:out value='${searchResult.name}'/>',
+"degreeCode" : "<c:out value='${searchResult.degreeCode}'/>",
 "idnumber" : "<c:out value='${searchResult.idNumber}'/>",
 "name" : "<c:out value='${searchResult.name}'/>",
 "registrationstate" : "<c:out value='${searchResult.registrationState}'/>",
@@ -141,6 +143,7 @@ ${portal.toolkit()}
 			url : "${datatablesI18NUrl}",			
 		},
 		"columns": [
+			{ data: 'degreeCode' },
 			{ data: 'idnumber' },
 			{ data: 'name' },
 			{ data: 'registrationstate' },
