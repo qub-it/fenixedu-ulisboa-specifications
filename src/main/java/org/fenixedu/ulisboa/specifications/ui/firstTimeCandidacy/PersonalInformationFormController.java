@@ -222,7 +222,10 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
                 return false;
             }
+        } else {
+            idType = person.getIdDocumentType();
         }
+
         if (idType.equals(IDDocumentType.IDENTITY_CARD)) {
             if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
                 addErrorMessage(BundleUtil.getString(BUNDLE,
@@ -249,12 +252,20 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                 return false;
             }
         }
-
-        if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
-                && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
-            return false;
+        if (!form.getIsForeignStudent()) {
+            if (StringUtils.isEmpty(form.getSocialSecurityNumber())
+                    || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
+                return false;
+            }
+        } else {
+            if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
+                    && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+                addErrorMessage(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
+                return false;
+            }
         }
 
         if (form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)

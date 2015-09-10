@@ -224,19 +224,36 @@ ${portal.toolkit()}
 						value='<c:out value='${not empty param.documentidexpirationdate ? param.documentidexpirationdate : personalInformationForm.documentIdExpirationDate }'/>' />
 				</div>
 			</div>
-			<div class="form-group row">
-				<label for="personalInformationForm_socialSecurityNumber" class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.socialSecurityNumber" />
-				</label>
-
-				<div class="col-sm-10">
-					<input id="personalInformationForm_socialSecurityNumber"
-						class="form-control" type="text" name="socialSecurityNumber"
-						value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
-						pattern="(\d{9})"/>
+			<c:if test="${not personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label for="personalInformationForm_socialSecurityNumber" class="col-sm-2 control-label required-field">
+						<spring:message
+							code="label.PersonalInformationForm.socialSecurityNumber" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input id="personalInformationForm_socialSecurityNumber"
+							class="form-control" type="text" name="socialSecurityNumber"
+							value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
+							required pattern="(\d{9})"/>
+					</div>
 				</div>
-			</div>
+			</c:if>
+			<c:if test="${personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label for="personalInformationForm_socialSecurityNumber" class="col-sm-2 control-label">
+						<spring:message
+							code="label.PersonalInformationForm.socialSecurityNumber" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input id="personalInformationForm_socialSecurityNumber"
+							class="form-control" type="text" name="socialSecurityNumber"
+							value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
+							pattern="(\d{9})"/>
+					</div>
+				</div>
+			</c:if>
 			<div class="form-group row">
 				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.maritalStatus" />
