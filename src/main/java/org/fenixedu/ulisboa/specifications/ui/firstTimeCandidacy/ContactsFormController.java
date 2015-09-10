@@ -97,7 +97,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
 
             MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
             if (mobilePhone != null) {
-                form.setMobileNumber(person.getDefaultMobilePhoneNumber());
+                form.setMobileNumber(mobilePhone.getNumber());
             }
 
             EmailAddress email = getDefaultPersonalContact(person, EmailAddress.class);
