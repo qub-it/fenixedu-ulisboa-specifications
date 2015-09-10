@@ -320,11 +320,15 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         }
 
         Predicate<DegreeDesignation> matchesName =
-                dd -> StringNormalizer.normalize(dd.getDescription()).contains(StringNormalizer.normalize(namePart));
+                dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
         Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
-                dd -> new DegreeDesignationBean(dd.getDescription(), dd.getExternalId());
+                dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
         return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
                 .collect(Collectors.toList());
+    }
+
+    private static String getFullDescription(DegreeDesignation designation) {
+        return designation.getDegreeClassification().getDescription1() + " - " + designation.getDescription();
     }
 
     public static class OriginInformationForm {
