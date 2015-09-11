@@ -76,7 +76,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<div class="form-control-static"><c:out value='${not empty param.nationality ? param.nationality : filiationForm.nationality.name }' /></div>
+					<div class="form-control-static"><c:out value='${not empty param.nationality ? param.nationality : filiationForm.nationality.countryNationality.content }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">

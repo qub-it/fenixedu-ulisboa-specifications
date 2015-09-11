@@ -131,8 +131,6 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
             personUlisboa.setNeedsDisabilitySupport(form.getNeedsDisabilitySupport());
         } else {
             personUlisboa.setDisabilityType(null);
-            personUlisboa.setOtherDisabilityType("");
-            personUlisboa.setNeedsDisabilitySupport(false);
         }
     }
 

@@ -90,10 +90,10 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
                         .getEnrolmentPeriodsSet()
                         .stream()
                         .filter(ep -> executionPeriodsSet.contains(ep.getExecutionPeriod())
-                                && ep instanceof EnrolmentPeriodInClassesCandidate).collect(Collectors.toList()).size();
+                                && ep instanceof EnrolmentPeriodInClassesCandidate).collect(Collectors.toSet()).size();
         int numberOfEnroledSemesters =
                 registration.getShiftsSet().stream().map(shift -> shift.getExecutionPeriod())
-                        .filter(ep -> executionPeriodsSet.contains(ep)).collect(Collectors.toList()).size();
+                        .filter(ep -> executionPeriodsSet.contains(ep)).collect(Collectors.toSet()).size();
         return numberOfEnroledSemesters == numberOfExpectedSemestersToBeEnroled;
     }
 }
