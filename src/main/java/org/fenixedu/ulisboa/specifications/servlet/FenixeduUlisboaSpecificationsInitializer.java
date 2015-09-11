@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
-import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.academic.domain.student.Registration;
@@ -55,6 +54,7 @@ import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.slf4j.Logger;
@@ -62,9 +62,9 @@ import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
+import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
-import pt.ist.fenixframework.FenixFramework;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
@@ -88,6 +88,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         CurricularYearCalculatorInitializer.init();
         CurricularPeriodConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
+        RegistrationRegimeVerifierInitializer.init();
         configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
@@ -125,7 +126,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             }
         });
     }
-    
+
     private void setupListenerForEnrolmentDelete() {
         Attends.getRelationAttendsEnrolment().addListener(new RelationAdapter<Enrolment, Attends>() {
             @Override
