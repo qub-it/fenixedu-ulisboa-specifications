@@ -15,6 +15,9 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "gradescale.typequalitative.logic.class")
         public String typeQualitativeGradeScaleLogic();
 
+        @ConfigurationProperty(key = "domain.academic.registrationRegimeVerifier.override", defaultValue = "true")
+        public Boolean getRegistrationRegimeVerifierOverride();
+        
         @ConfigurationProperty(key = "domain.academic.curricularYearCalculator.override", defaultValue = "true")
         public Boolean getCurricularYearCalculatorOverride();
 
@@ -35,6 +38,7 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "services.sas.activeStudents.threadNumber", defaultValue = "20")
         public Integer getActiveStudentsThreadNumber();
+
     }
 
     public static ConfigurationProperties getConfiguration() {
