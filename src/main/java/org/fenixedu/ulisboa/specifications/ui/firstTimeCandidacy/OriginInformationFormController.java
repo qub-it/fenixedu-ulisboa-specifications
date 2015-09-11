@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -41,6 +42,8 @@ import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
+import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
+import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
@@ -48,14 +51,17 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.StringNormalizer;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController.DegreeDesignationBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
+import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +69,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Strings;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
@@ -267,7 +275,14 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         if (!(institutionObject instanceof Unit) || !FenixFramework.isDomainObjectValid(institutionObject)) {
             institutionObject = UnitUtils.readExternalInstitutionUnitByName(institution);
             if (institutionObject == null) {
-                institutionObject = Unit.createNewNoOfficialExternalInstitution(institution);
+                Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
+                Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
+                Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
+                institutionObject =
+                        Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
+                                resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
+                                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
+                                null, null);
             }
         }
         precedentDegreeInformation.setInstitution((Unit) institutionObject);
@@ -284,6 +299,34 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         }
 
         personalData.setHighSchoolType(form.getHighSchoolType());
+    }
+
+    private static String resolveAcronym(String acronym, String name) {
+        final Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
+        final Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
+        final List<String> takenAcronyms = new ArrayList<String>();
+        String resolvedAcronym = acronym;
+        for (Unit school : highschools.getChildUnitByAcronym("official-highschools").getSubUnits()) {
+            takenAcronyms.add(school.getAcronym());
+        }
+        for (Unit school : highschools.getChildUnitByAcronym("adhoc-highschools").getSubUnits()) {
+            takenAcronyms.add(school.getAcronym());
+        }
+        if (Strings.isNullOrEmpty(resolvedAcronym)) {
+            resolvedAcronym = "";
+            for (String letter : name.split("[^A-Z]+")) {
+                resolvedAcronym += letter;
+            }
+        }
+        if (takenAcronyms.contains(resolvedAcronym)) {
+            int version = 0;
+            String versionedAcronym = resolvedAcronym + String.format("%02d", version);
+            while (takenAcronyms.contains(versionedAcronym)) {
+                versionedAcronym = resolvedAcronym + String.format("%02d", ++version);
+            }
+            return versionedAcronym;
+        }
+        return resolvedAcronym;
     }
 
     @RequestMapping(value = "/raidesUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")

@@ -336,7 +336,12 @@ function configureOriginInformationFieldsEditableState(){
 		}
 	}
 	
-	$("#originInformationForm_institution").select2({ajax: ajaxData});
+	$("#originInformationForm_institution").select2({
+		ajax: ajaxData,
+		sorter: function(data) {
+	        return data.sort();
+	    }
+	});
 	$("#originInformationForm_institution").select2('val', '<c:out value='${originInformationForm.institutionOid}'/>');
 	
 	$("#originInformationForm_highSchoolType_row").hide();
