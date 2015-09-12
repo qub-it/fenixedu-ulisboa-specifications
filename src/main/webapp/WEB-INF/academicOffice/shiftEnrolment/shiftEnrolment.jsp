@@ -26,6 +26,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib uri="http://jakarta.apache.org/taglibs/datetime-1.0" prefix="dt" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <html:xhtml/>
 ${portal.angularToolkit()}
@@ -377,6 +378,28 @@ ${portal.angularToolkit()}
 			
 			<p>&nbsp;</p>
 			<h3><spring:message code="label.shiftEnrolment.registrationSchedule"/>:</h3>
+			
+			<c:if test="${not empty selectedEnrolmentBean.lessonsOverlaps}">
+				<div class="alert alert-warning" role="alert">
+					<p><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> 
+					<strong><spring:message code="message.shiftEnrolment.overlappingLessons"/>:</strong></p>
+					<c:forEach items="${selectedEnrolmentBean.lessonsOverlaps}" var="lessonOverlap">
+							<c:out value="${lessonOverlap.key.diaSemana}" />
+							<dt:format pattern="HH:mm"><c:out value="${lessonOverlap.key.inicio.timeInMillis}" /></dt:format> - 
+							<dt:format pattern="HH:mm"><c:out value="${lessonOverlap.key.fim.timeInMillis}" /></dt:format>
+							&nbsp;(<c:out value="${lessonOverlap.key.shift.executionCourse.name} - ${lessonOverlap.key.shift.shiftTypesCodePrettyPrint}" />) 
+							<span class="glyphicon glyphicon glyphicon-flash" aria-hidden="true"></span> 
+							<c:forEach items="${lessonOverlap.value}" var="otherLesson">
+								<c:out value="${otherLesson.diaSemana}" />
+								<dt:format pattern="HH:mm"><c:out value="${otherLesson.inicio.timeInMillis}" /></dt:format> - 
+								<dt:format pattern="HH:mm"><c:out value="${otherLesson.fim.timeInMillis}" /></dt:format>
+								&nbsp;(<c:out value="${otherLesson.shift.executionCourse.name} - ${otherLesson.shift.shiftTypesCodePrettyPrint}" />) 
+							</c:forEach>
+							<br/>
+					</c:forEach>				
+				</div>
+			</c:if>			
+			
 			<div id="calendar"></div>
 			
 			<spring:url var="eventsUrl" value="/academicAdministration/shiftEnrolment/currentSchedule.json/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.executionSemester.externalId}"/>

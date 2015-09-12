@@ -28,8 +28,12 @@ package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionCourse;
@@ -52,6 +56,8 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -255,6 +261,35 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
         public int compareTo(EnrolmentPeriodDTO o) {
             int result = Degree.COMPARATOR_BY_NAME_AND_ID.compare(getRegistration().getDegree(), o.getRegistration().getDegree());
             return result == 0 ? getExecutionSemester().compareTo(o.getExecutionSemester()) : result;
+        }
+
+        public Map<Lesson, Collection<Lesson>> getLessonsOverlaps() {
+            final Map<Lesson, Collection<Lesson>> overlapsMap = new HashMap<Lesson, Collection<Lesson>>();
+
+            final List<Lesson> allLessons =
+                    registration.getShiftsFor(getExecutionSemester()).stream().flatMap(s -> s.getAssociatedLessonsSet().stream())
+                            .collect(Collectors.toList());
+            while (!allLessons.isEmpty()) {
+                final Lesson lesson = allLessons.remove(0);
+                final Set<Lesson> overlappingLessons =
+                        allLessons.stream().filter(l -> getLessonIntervalHack(l).overlaps(getLessonIntervalHack(lesson)))
+                                .collect(Collectors.toSet());
+                if (!overlappingLessons.isEmpty()) {
+                    overlapsMap.put(lesson, overlappingLessons);
+                }
+            }
+
+            return overlapsMap;
+        }
+
+        /**
+         * HACK: this interval is not accurate, because it doesn't takes into account lesson instance dates
+         */
+        private static Interval getLessonIntervalHack(final Lesson lesson) {
+            final int weekDay = lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat();
+            return new Interval(new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime())
+                    .withDayOfWeek(weekDay), new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime())
+                    .withDayOfWeek(weekDay));
         }
 
     }
