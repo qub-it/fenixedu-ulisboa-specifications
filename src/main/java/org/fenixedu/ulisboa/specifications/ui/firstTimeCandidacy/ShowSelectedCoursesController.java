@@ -27,8 +27,11 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -57,6 +60,25 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
                     "label.firstTimeCandidacy.error.invalidNumberOfCourseEnrolments"), model);
             return new ChooseOptionalCoursesController().chooseoptionalcourses(model, redirectAttributes);
         }
+
+        ExecutionSemester firstSemester = ExecutionSemester.readActualExecutionSemester();
+        ExecutionSemester secondSemester = firstSemester.getNextExecutionPeriod();
+        Collection<Enrolment> firstSemEnrolments = registration.getEnrolments(firstSemester);
+        float firstSemCredits = 0f;
+        for (Enrolment enrolment : firstSemEnrolments) {
+            firstSemCredits += enrolment.getEctsCredits();
+        }
+        Collection<Enrolment> secondSemEnrolments = registration.getEnrolments(secondSemester);
+        float secondSemCredits = 0f;
+        for (Enrolment enrolment : secondSemEnrolments) {
+            secondSemCredits += enrolment.getEctsCredits();
+        }
+
+        model.addAttribute("currentYear", ExecutionYear.readCurrentExecutionYear().getYear());
+        model.addAttribute("firstSemesterEnrolments", firstSemEnrolments);
+        model.addAttribute("firstSemesterCredits", firstSemCredits);
+        model.addAttribute("secondSemesterEnrolments", secondSemEnrolments);
+        model.addAttribute("secondSemesterCredits", secondSemCredits);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses";
     }
 
@@ -74,7 +96,7 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
     }
 
     private boolean checkCourseEnrolments(Registration registration, ExecutionYear currentExecutionYear) {
-        //Compare the number of semesters for which the student has enrolments with the number os expected semesters (1 ou 2 depending if is yearly)
+        //Compare the number of semesters for which the student has enrolments with the number of expected semesters (1 or 2 depending if is yearly)
         int numberOfSemestersInWhichHasEnrolments =
                 registration.getEnrolments(currentExecutionYear).stream().map(en -> en.getExecutionPeriod()).distinct()
                         .collect(Collectors.toList()).size();

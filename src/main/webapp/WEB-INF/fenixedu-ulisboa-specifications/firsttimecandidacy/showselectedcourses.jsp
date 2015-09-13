@@ -30,13 +30,6 @@ ${portal.toolkit()}
 		<small></small>
 	</h1>
 </div>
-
-
-<%-- NAVIGATION --%>
-<div class="well well-sm" style="display:inline-block">
-	
-		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
-</div>
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
 					
@@ -71,6 +64,59 @@ ${portal.toolkit()}
 				</div>	
 			</c:if>
 
+
+<%-- NAVIGATION --%>
+<div class="h3">${currentYear}</div>
+
+<c:if test="${not empty firstSemesterEnrolments}">
+	<div class="h4">
+		<spring:message code="label.enrolments.first.semester" />
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<c:forEach items="${firstSemesterEnrolments}" var="enrolment">
+			<div class="form-group row">
+				<div class="col-sm-2">
+					<div><strong>${enrolment.name}</strong></div>
+				</div>
+				<div class="col-sm-10">
+					<div><spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/></div>
+				</div>
+			</div>
+			</c:forEach>
+		</div>
+	</div>
+	
+	<div><spring:message code="label.total.credits" arguments="${firstSemesterCredits}"/></div>
+<br/>
+</c:if>
+
+<c:if test="${not empty secondSemesterEnrolments}">
+	<div class="h4">
+		<spring:message code="label.enrolments.second.semester" />
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<c:forEach items="${secondSemesterEnrolments}" var="enrolment">
+			<div class="form-group row">
+				<div class="col-sm-2">
+					<div><strong>${enrolment.name}</strong></div>
+				</div>
+				<div class="col-sm-10">
+					<div><spring:message code="label.credits" arguments="${enrolment.ectsCredits}"/></div>
+				</div>
+			</div>
+			</c:forEach>
+		</div>
+	</div>
+	
+	<div><spring:message code="label.total.credits" arguments="${secondSemesterCredits}"/></div>
+<br/>
+</c:if>
+
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
+</div>
 
 <script>
 $(document).ready(function() {
