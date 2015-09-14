@@ -11,7 +11,6 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.CronTask;
 import org.fenixedu.bennu.scheduler.annotation.Task;
 import org.joda.time.DateTime;
@@ -25,7 +24,6 @@ import com.google.common.collect.Sets;
 public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends CronTask {
 
     private static final String BUNDLE = "resources.FenixeduUlisboaSpecificationsResources";
-    private static final String LOCALE = CoreConfiguration.getConfiguration().defaultLocale();
 
     @Override
     public void runTask() throws Exception {
@@ -55,11 +53,17 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
                 continue;
             }
 
-            final ExecutionYear startExecutionYear = registration.getStartExecutionYear();
-            if (!startExecutionYear.isBefore(currentExecutionYear)) {
+            final ExecutionYear registrationYear = registration.getRegistrationYear();
+            if (registrationYear == null) {
 
-                getLogger().debug("Ignoring Registration [{}]: start execution year is {}", registrationInfo,
-                        startExecutionYear.getQualifiedName());
+                getLogger().debug("Ignoring Registration [{}]: registration year is null", registrationInfo);
+                continue;
+            }
+
+            if (!registrationYear.isBefore(currentExecutionYear)) {
+
+                getLogger().debug("Ignoring Registration [{}]: registration year is {}", registrationInfo,
+                        registrationYear.getQualifiedName());
                 continue;
             }
 
@@ -67,13 +71,13 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
             if (state != null) {
 
                 getLogger().warn("Ignoring Registration [{}]: has active {} state for {}", registrationInfo,
-                        state.getStateType().getName(), startExecutionYear.getQualifiedName());
+                        state.getStateType().getName(), registrationYear.getQualifiedName());
                 continue;
             }
 
             if (!registration.getEnrolments(currentExecutionYear).isEmpty()) {
                 getLogger().warn("Ignoring Registration [{}]: has enrolments for {}", registrationInfo,
-                        startExecutionYear.getQualifiedName());
+                        registrationYear.getQualifiedName());
                 continue;
             }
 
