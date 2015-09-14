@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -71,7 +72,9 @@ public class CurricularPeriodServices {
     }
 
     static public int getCurricularYear(final CurriculumLine input) {
-        final DegreeModule degreeModule = input.getDegreeModule();
+        final DegreeModule degreeModule =
+                input instanceof OptionalEnrolment ? ((OptionalEnrolment) input).getOptionalCurricularCourse() : input
+                        .getDegreeModule();
         final ExecutionYear executionYear = input.getExecutionYear();
         final Set<Context> contexts =
                 input.getCurriculumGroup().isNoCourseGroupCurriculumGroup() ? Collections.emptySet() : input.getCurriculumGroup()
