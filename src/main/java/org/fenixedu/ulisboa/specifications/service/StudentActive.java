@@ -34,10 +34,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.YearMonthDay;
 
 public class StudentActive {
 
@@ -70,14 +66,23 @@ public class StudentActive {
                 // This solution was discussed with João Rafael and Daniela Mendes from ULisboa.
                 //
                 // 21 August 2015 - Paulo Abrantes
-                LocalDate today = new LocalDate();
-                DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
+                //
+                // UPDATE UPDATE UPDATE
+                // 
+                // There was a modification in the code so that registrationYear is a setter property, and we'll
+                // now start using that slot instead of looking at the last active state.
+                //
+                // 15 September 2015 - Paulo Abrantes
+//                LocalDate today = new LocalDate();
+//                DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
                 for (Registration activeRegistration : activeRegistrations) {
-                    RegistrationState lastRegistrationState = activeRegistration.getLastRegistrationState(currentExecutionYear);
-                    activeRegistrationCreatedInTheLastMonth =
-                            lastRegistrationState != null && lastRegistrationState.isActive()
-                                    && lastRegistrationState.getStateDate() != null
-                                    && lastRegistrationState.getStateDate().isAfter(lastMonth);
+                    activeRegistrationCreatedInTheLastMonth = activeRegistration.getRegistrationYear() == currentExecutionYear;
+
+//                    RegistrationState lastRegistrationState = activeRegistration.getLastRegistrationState(currentExecutionYear);
+//                    activeRegistrationCreatedInTheLastMonth =
+//                            lastRegistrationState != null && lastRegistrationState.isActive()
+//                                    && lastRegistrationState.getStateDate() != null
+//                                    && lastRegistrationState.getStateDate().isAfter(lastMonth);
 
                     if (activeRegistrationCreatedInTheLastMonth) {
                         break;
