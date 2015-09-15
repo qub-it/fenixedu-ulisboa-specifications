@@ -141,7 +141,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             } catch (NotAuthorizedException e) {
                 addErrorMessage(e.getLocalizedMessage(), model);
             } catch (FenixServiceException e) {
-                addErrorMessage(e.getLocalizedMessage(), model);
+                addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
 //            addActionMessage(request, "error.enrollment.period.closed", exception.getArgs());
             } catch (DomainException e) {
                 addErrorMessage(e.getLocalizedMessage(), model);
