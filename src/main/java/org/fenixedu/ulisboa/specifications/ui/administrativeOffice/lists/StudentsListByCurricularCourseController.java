@@ -37,7 +37,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
                 "executionSemesters",
                 Bennu.getInstance().getExecutionPeriodsSet().stream()
                         .sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed()).collect(Collectors.toList()));
-        return "academicAdminOffice/lists/studentsByCurricularCourses";
+        return "academicOffice/lists/studentsByCurricularCourses";
     }
 
     @RequestMapping(value = "/executionSemesters/{executionSemester}", method = RequestMethod.GET,
