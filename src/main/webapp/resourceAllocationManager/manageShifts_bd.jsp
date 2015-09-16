@@ -188,6 +188,8 @@
 			<logic:notEqual name="numberOfLessons" value="0">
 	        	<td class="listClasses aleft" rowspan="<%= pageContext.findAttribute("numberOfLessons") %>">
 			</logic:notEqual>
+				<bean:define id="executionCourse" name="infoShift" property="shift.executionCourse" type="org.fenixedu.academic.domain.ExecutionCourse" />
+				<strong><%= org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices.getCode(executionCourse) %></strong> 
 				<bean:write name="infoShift" property="shift.executionCourse.name"/> (<bean:write name="infoShift" property="infoDisciplinaExecucao.sigla"/>)
 			</td>
 			<logic:equal name="numberOfLessons" value="0">
