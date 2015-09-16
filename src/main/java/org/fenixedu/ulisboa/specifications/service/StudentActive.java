@@ -34,6 +34,9 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 public class StudentActive {
 
@@ -73,17 +76,19 @@ public class StudentActive {
                 // now start using that slot instead of looking at the last active state.
                 //
                 // 15 September 2015 - Paulo Abrantes
-//                LocalDate today = new LocalDate();
-//                DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
+                LocalDate today = new LocalDate();
+                DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
                 for (Registration activeRegistration : activeRegistrations) {
                     activeRegistrationCreatedInTheLastMonth = activeRegistration.getRegistrationYear() == currentExecutionYear;
 
-//                    RegistrationState lastRegistrationState = activeRegistration.getLastRegistrationState(currentExecutionYear);
-//                    activeRegistrationCreatedInTheLastMonth =
-//                            lastRegistrationState != null && lastRegistrationState.isActive()
-//                                    && lastRegistrationState.getStateDate() != null
-//                                    && lastRegistrationState.getStateDate().isAfter(lastMonth);
-
+                    if (!activeRegistrationCreatedInTheLastMonth) {
+                        RegistrationState lastRegistrationState =
+                                activeRegistration.getLastRegistrationState(currentExecutionYear);
+                        activeRegistrationCreatedInTheLastMonth =
+                                lastRegistrationState != null && lastRegistrationState.isActive()
+                                        && lastRegistrationState.getStateDate() != null
+                                        && lastRegistrationState.getStateDate().isAfter(lastMonth);
+                    }
                     if (activeRegistrationCreatedInTheLastMonth) {
                         break;
                     }
