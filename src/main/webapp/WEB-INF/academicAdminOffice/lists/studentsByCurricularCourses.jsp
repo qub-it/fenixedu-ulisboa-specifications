@@ -60,6 +60,7 @@ ${portal.toolkit()}
 								$("#executionDegrees").children().remove();
 								formattedData = [{id : "-1",text : ""}].concat(data);
 								$("#executionDegrees").select2({data: formattedData});
+								$("#executionDegrees").trigger("change");
 							}
 					});
 				});
@@ -74,12 +75,14 @@ ${portal.toolkit()}
 			</div>
 			<script type="text/javascript">
 				$("#executionDegrees").on("change", function(){
+
 					if($("#executionDegrees").val() != "-1"){
 						$("#listBy").attr('disabled', false);
 					}
 					else{
 						$("#listBy").attr('disabled', true);
 					}
+					$("#listBy").select2().val('');
 					$("#listBy").trigger("change");
 				});
 			</script>
@@ -108,16 +111,21 @@ ${portal.toolkit()}
 						url = "${pageContext.request.contextPath}/studentsListByCurricularCourse/executionSemesters/" + executionSemester + "/" + degree + "/classes";
 					}
 					else if(!val){
+						$("#selectCourseOrClass").select2().val("-1");
+						$("#selectCourseOrClass").trigger("change");
+						$("#selectCourseOrClass").attr("disabled", true);
 						hideSelectShift();
 						return;
 					}
 					$("#selectCourseOrClass").attr("disabled", false);
-					$("#selectCourseOrClass").trigger("change");
+					
 					$.ajax({url : url, 
 						success : function(data){
 							$("#selectCourseOrClass").children().remove();
 							formattedData = [{id : "-1",text : ""}].concat(data);
 							$("#selectCourseOrClass").select2({data: formattedData});
+							$("#selectCourseOrClass").select2().val("-1");
+							$("#selectCourseOrClass").trigger("change");
 						}
 					});
 
@@ -135,13 +143,16 @@ ${portal.toolkit()}
 				$("#selectCourseOrClass").on("change",function(){
 					val = $("#selectCourseOrClass").val();
 			  		listBy = $("#listBy").val();
+			  		if(val == "-1"){
+			  			$('#listTable').dataTable().fnClearTable();	
+			  		}
 			  		if(listBy == "CLASS"){		  			
 						$.ajax({ url : "${pageContext.request.contextPath}/studentsListByCurricularCourse/classes/" + val,
 								success : updateTable
 						});
 			  		}
 			  		if(listBy == "COURSE"){
-			  			debugger;
+			  			$('#listTable').dataTable().fnClearTable();
 			  			if(val == "-1"){
 			  				$("#selectShiftEntry").hide();
 			  				return;
