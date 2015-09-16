@@ -222,6 +222,10 @@ ${portal.toolkit()}
 				{ data: 'email' },
 				{ data: 'studentNumber' }
 			],
+	"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', 
+       "tableTools": {
+           "sSwfPath": "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"        	
+      }
 	});
 	table.columns.adjust().draw();
 	
