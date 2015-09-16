@@ -196,9 +196,9 @@ ${portal.toolkit()}
 	<thead>
 		<tr>
 			<%--!!!  Field names here --%>
+			<th><spring:message code="label.studentsListByCurricularCourse.number"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.name"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.email"/></th>
-			<th><spring:message code="label.studentsListByCurricularCourse.number"/></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -229,9 +229,9 @@ ${portal.toolkit()}
 		url : "${datatablesI18NUrl}",			
 	},
 	"columns": [
+				{ data: 'studentNumber' },
 				{ data: 'name' },
-				{ data: 'email' },
-				{ data: 'studentNumber' }
+				{ data: 'email' }
 			],
 	"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', 
        "tableTools": {

@@ -1,19 +1,18 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.lists;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
@@ -46,53 +45,53 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     public @ResponseBody String getAvailableDegreesForExecutionSemester(
             @PathVariable("executionSemester") ExecutionSemester executionSemester) {
         JsonArray result = new JsonArray();
-        ExecutionYear executionYear = executionSemester.getExecutionYear();
-        Bennu.getInstance().getDegreesSet().stream()
-                .filter(degree -> !degree.getExecutionDegreesForExecutionYear(executionYear).isEmpty())
-                .sorted(Degree.COMPARATOR_BY_NAME).forEach(degree -> addDegree(result, degree, executionYear));
+
+        executionSemester.getExecutionYear().getExecutionDegreesSet().stream()
+                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME)
+                .forEach(ed -> addDegree(result, ed));
+
         return new GsonBuilder().create().toJson(result);
     }
 
-    private void addDegree(JsonArray response, Degree degree, ExecutionYear executionYear) {
+    private void addDegree(JsonArray response, ExecutionDegree executionDegree) {
         JsonObject degreeJson = new JsonObject();
-        degreeJson.addProperty("text", degree.getNameI18N(executionYear).getContent() + " - " + degree.getDegreeTypeName());
-        degreeJson.addProperty("id", degree.getExternalId());
+        degreeJson.addProperty("text", executionDegree.getPresentationName());
+        degreeJson.addProperty("id", executionDegree.getExternalId());
         response.add(degreeJson);
     }
 
-    @RequestMapping(value = "/executionSemesters/{executionSemester}/{degree}/classes", method = RequestMethod.GET,
+    @RequestMapping(value = "/executionSemesters/{executionSemester}/{executionDegree}/classes", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableClassesForDegreeInExecutionSemester(
-            @PathVariable("executionSemester") ExecutionSemester executionSemester, @PathVariable("degree") Degree degree) {
+            @PathVariable("executionSemester") ExecutionSemester executionSemester,
+            @PathVariable("executionDegree") ExecutionDegree executionDegree) {
         JsonArray result = new JsonArray();
-        degree.getExecutionDegreesForExecutionYear(executionSemester.getExecutionYear()).stream()
-                .flatMap(ed -> ed.getSchoolClassesSet().stream()).filter(sc -> sc.getExecutionPeriod() == executionSemester)
+        executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionPeriod() == executionSemester)
                 .sorted(SchoolClass.COMPARATOR_BY_NAME).distinct().forEach(sc -> addSchooClass(result, sc));
         return new GsonBuilder().create().toJson(result);
     }
 
     private void addSchooClass(JsonArray result, SchoolClass sc) {
         JsonObject schoolClassJson = new JsonObject();
-        schoolClassJson.addProperty("text", sc.getNome());
+        schoolClassJson.addProperty("text", sc.getEditablePartOfName().toString());
         schoolClassJson.addProperty("id", sc.getExternalId());
         result.add(schoolClassJson);
     }
 
-    @RequestMapping(value = "/executionSemesters/{executionSemester}/{degree}/courses", method = RequestMethod.GET,
+    @RequestMapping(value = "/executionSemesters/{executionSemester}/{executionDegree}/courses", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableCoursesForDegreeInExecutionSemester(
-            @PathVariable("executionSemester") ExecutionSemester executionSemester, @PathVariable("degree") Degree degree) {
+            @PathVariable("executionSemester") ExecutionSemester executionSemester,
+            @PathVariable("executionDegree") ExecutionDegree executionDegree) {
         JsonArray result = new JsonArray();
-        degree.getExecutionDegreesForExecutionYear(executionSemester.getExecutionYear()).stream()
-                .flatMap(ed -> ed.getDegreeCurricularPlan().getExecutionCoursesByExecutionPeriod(executionSemester).stream())
+        executionDegree.getDegreeCurricularPlan().getExecutionCoursesByExecutionPeriod(executionSemester).stream()
                 .sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).forEach(ec -> addExecutionCourse(result, ec));
-
         return new GsonBuilder().create().toJson(result);
     }
 
     private void addExecutionCourse(JsonArray result, ExecutionCourse ec) {
         JsonObject schoolClassJson = new JsonObject();
-        schoolClassJson.addProperty("text", ec.getName());
+        schoolClassJson.addProperty("text", "(" + ExecutionCourseServices.getCode(ec) + ") " + ec.getName());
         schoolClassJson.addProperty("id", ec.getExternalId());
         result.add(schoolClassJson);
     }
@@ -116,10 +115,8 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     @RequestMapping(value = "/classes/{class}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody String getStudentsEnroledInClass(@PathVariable("class") SchoolClass schoolClass) {
         JsonArray result = new JsonArray();
-        //We are only interested in shifts which do not have more than one class (ignore shared shifts)
-        Predicate<? super Shift> shiftsWithOneClass = s -> s.getAssociatedClassesSet().size() == 1;
-        schoolClass.getAssociatedShiftsSet().stream().filter(shiftsWithOneClass).flatMap(s -> s.getStudentsSet().stream())
-                .map(r -> r.getStudent()).sorted(Student.NAME_COMPARATOR).forEach(student -> addStudent(result, student));
+        schoolClass.getRegistrationsSet().stream().map(r -> r.getStudent()).sorted(Student.NAME_COMPARATOR)
+                .forEach(student -> addStudent(result, student));
         return new GsonBuilder().create().toJson(result);
     }
 
