@@ -1,14 +1,26 @@
 package org.fenixedu.ulisboa.specifications.ui.identificationcardservices;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
 
 import javax.servlet.ServletContext;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
@@ -32,8 +44,60 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
     private @Autowired ServletContext context;
     private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
 
+    private static final Comparator<Registration> REGISTRATION_COMPARATOR = new Comparator<Registration>() {
+
+        @Override
+        public int compare(Registration registration1, Registration registration2) {
+            SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears = registration1.getSortedEnrolmentsExecutionYears();
+            SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears2 = registration2.getSortedEnrolmentsExecutionYears();
+
+            if (sortedEnrolmentsExecutionYears.isEmpty() && !sortedEnrolmentsExecutionYears.isEmpty()) {
+                return 1;
+            } else if (!sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears.isEmpty()) {
+                return -1;
+            } else {
+                return sortedEnrolmentsExecutionYears.last().compareTo(sortedEnrolmentsExecutionYears2.last());
+            }
+        }
+    };
+
     @RequestMapping
     public String home(Model model) {
+        return "fenixedu-ulisboa-specifications/identificationcardservices/idservices";
+    }
+
+    @RequestMapping(value = "/sendCGDMod43")
+    public String sendCGDMod43(Model model, RedirectAttributes redirectAttributes) {
+        Person person = AccessControl.getPerson();
+        Student student = person.getStudent();
+        Registration registrationToSend = null;
+        boolean sent = false;
+        if (student != null) {
+            List<Registration> activeRegistrations = student.getActiveRegistrations();
+            int size = activeRegistrations.size();
+            if (size == 1) {
+                registrationToSend = activeRegistrations.iterator().next();
+            } else if (size > 1) {
+                ExecutionYear executionYear = ExecutionYear.readCurrentExecutionYear();
+                Optional<Registration> findFirst =
+                        activeRegistrations.stream()
+                                .filter(registration -> registration.getStartExecutionYear() == executionYear)
+                                .sorted(REGISTRATION_COMPARATOR).findFirst();
+                if (findFirst.isPresent()) {
+                    registrationToSend = findFirst.get();
+                }
+            }
+        }
+        if (registrationToSend != null) {
+            sent = StudentAccessServices.triggerSyncRegistrationToExternal(registrationToSend);
+        }
+
+        if (sent) {
+            addInfoMessage(BundleUtil.getString(BUNDLE, "label.webserviceCall.cgd.form43.success"), model);
+        } else {
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.webserviceCall.cgd.form43.fail"), model);
+        }
+
         return "fenixedu-ulisboa-specifications/identificationcardservices/idservices";
     }
 

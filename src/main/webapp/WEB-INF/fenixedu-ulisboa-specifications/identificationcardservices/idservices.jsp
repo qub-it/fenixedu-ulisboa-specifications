@@ -10,9 +10,12 @@
 	</h1>
 </div>
 <%-- NAVIGATION --%>
-<%-- <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/qubdocsreports/documentpurposetypes/documentpurposetypeinstance/create"   ><spring:message code="label.event.create" /></a>
-</div> --%>
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true">
+	</span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" >
+		<spring:message code="label.event.sendMod43" />
+	</a>
+</div> 
 
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">		
