@@ -9,13 +9,6 @@
 		<small></small>
 	</h1>
 </div>
-<%-- NAVIGATION --%>
-<div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true">
-	</span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" >
-		<spring:message code="label.event.sendMod43" />
-	</a>
-</div> 
 
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">		
@@ -55,9 +48,19 @@
 			<table class="table">
 				<tbody>
 					<tr>
-						<th scope="row" class="col-xs-1"><strong><spring:message code="label.identificationCardServices.cgdmod43" /></strong></th> 
-						<td>
-							<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><spring:message code="label.action.downloadCGDMod43" /></a>
+						<th scope="row" class="action-label col-xs-1"><strong><spring:message code="label.identificationCardServices.cgdmod43" /></strong></th> 
+						<td  class="col-xs-11">
+							<c:if test="${empty webserviceSuccess}">
+								<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a>
+							</c:if>
+							<c:if test="${not empty webserviceSuccess}">
+								<c:if test="${webserviceSuccess}">
+									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a>
+								</c:if>
+								<c:if test="${not webserviceSuccess}">
+									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
+								</c:if>
+							</c:if>
 						</td> 
 					</tr>
 				</tbody>
@@ -65,4 +68,13 @@
 		</form>
 	</div>
 </div>
+
+<style>
+	.table > tbody > tr > th.action-label {
+		vertical-align: middle;
+	}
+	.action-icon {
+		margin-right: 6px;
+	}
+</style>
 

@@ -97,6 +97,7 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
         } else {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.webserviceCall.cgd.form43.fail"), model);
         }
+        model.addAttribute("webserviceSuccess", sent);
 
         return "fenixedu-ulisboa-specifications/identificationcardservices/idservices";
     }
