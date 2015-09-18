@@ -580,3 +580,10 @@ relation HelpdeskBCCs {
 }
 
 // ======================= = ====================== = =========================
+
+// ======================= = Access control specific for 2nd cycle candidates = =========================
+class SpecialIngressionsAndOtherCyclesPersistentGroup extends .org.fenixedu.bennu.core.domain.groups.GroupConstant{
+}
+class SecondCycleFirstYearPersistentGroup extends .org.fenixedu.bennu.core.domain.groups.GroupConstant{
+}
+
