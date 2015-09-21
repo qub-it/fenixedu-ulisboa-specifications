@@ -199,6 +199,8 @@ ${portal.toolkit()}
 			<th><spring:message code="label.studentsListByCurricularCourse.number"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.name"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.email"/></th>
+			<th><spring:message code="label.studentsListByCurricularCourse.institutionalEmail"/></th>
+			<th><spring:message code="label.studentsListByCurricularCourse.degreeCode"/></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -231,7 +233,9 @@ ${portal.toolkit()}
 	"columns": [
 				{ data: 'studentNumber' },
 				{ data: 'name' },
-				{ data: 'email' }
+				{ data: 'email' },
+				{ data: 'institutionalEmail' },
+				{ data: 'degreeCode' }
 			],
 	"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', 
        "tableTools": {

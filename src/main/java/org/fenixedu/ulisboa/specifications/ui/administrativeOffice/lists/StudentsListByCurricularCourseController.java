@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.lists;
 
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -112,28 +114,34 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         result.add(schoolClassJson);
     }
 
+    Comparator<? super Registration> registrationComparatorByStudentName = (x, y) -> Student.NAME_COMPARATOR.compare(
+            x.getStudent(), y.getStudent());
+
     @RequestMapping(value = "/classes/{class}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody String getStudentsEnroledInClass(@PathVariable("class") SchoolClass schoolClass) {
         JsonArray result = new JsonArray();
-        schoolClass.getRegistrationsSet().stream().map(r -> r.getStudent()).sorted(Student.NAME_COMPARATOR)
-                .forEach(student -> addStudent(result, student));
+        schoolClass.getRegistrationsSet().stream().sorted(registrationComparatorByStudentName).distinct()
+                .forEach(registration -> addStudent(result, registration));
         return new GsonBuilder().create().toJson(result);
     }
 
     @RequestMapping(value = "/shifts/{shift}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody String getStudentsEnroledInShift(@PathVariable("shift") Shift shift) {
         JsonArray result = new JsonArray();
-        shift.getStudentsSet().stream().map(r -> r.getStudent()).sorted(Student.NAME_COMPARATOR)
-                .forEach(student -> addStudent(result, student));
+        shift.getStudentsSet().stream().sorted(registrationComparatorByStudentName).distinct()
+                .forEach(registration -> addStudent(result, registration));
         return new GsonBuilder().create().toJson(result);
     }
 
-    private void addStudent(JsonArray result, Student student) {
+    private void addStudent(JsonArray result, Registration registration) {
         JsonObject schoolClassJson = new JsonObject();
-        schoolClassJson.addProperty("name", student.getName());
-        schoolClassJson.addProperty("email", calculatePersonalEmail(student));
-        schoolClassJson.addProperty("studentNumber", student.getNumber());
-        schoolClassJson.addProperty("id", student.getExternalId());
+        schoolClassJson.addProperty("name", registration.getStudent().getName());
+        schoolClassJson.addProperty("email", calculatePersonalEmail(registration.getStudent()));
+        schoolClassJson.addProperty("institutionalEmail", registration.getStudent().getPerson()
+                .getInstitutionalEmailAddressValue());
+        schoolClassJson.addProperty("studentNumber", registration.getStudent().getNumber());
+        schoolClassJson.addProperty("id", registration.getStudent().getExternalId());
+        schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
         result.add(schoolClassJson);
     }
 
