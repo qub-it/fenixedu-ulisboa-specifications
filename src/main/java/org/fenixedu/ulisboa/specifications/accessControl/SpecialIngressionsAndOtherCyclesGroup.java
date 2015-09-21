@@ -119,7 +119,7 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
             }
 
             return registration.getRegistrationDataByExecutionYearSet().stream()
-                    .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear())
+                    .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear() || rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear())
                     .anyMatch(rdby -> wasReingression(rdby));
         };
 
