@@ -51,10 +51,12 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
             SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears = registration1.getSortedEnrolmentsExecutionYears();
             SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears2 = registration2.getSortedEnrolmentsExecutionYears();
 
-            if (sortedEnrolmentsExecutionYears.isEmpty() && !sortedEnrolmentsExecutionYears.isEmpty()) {
+            if (sortedEnrolmentsExecutionYears.isEmpty() && !sortedEnrolmentsExecutionYears2.isEmpty()) {
                 return 1;
-            } else if (!sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears.isEmpty()) {
+            } else if (!sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears2.isEmpty()) {
                 return -1;
+            } else if (sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears2.isEmpty()) {
+                return 0;
             } else {
                 return sortedEnrolmentsExecutionYears.last().compareTo(sortedEnrolmentsExecutionYears2.last());
             }
