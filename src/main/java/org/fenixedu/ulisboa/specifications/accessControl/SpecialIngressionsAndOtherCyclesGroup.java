@@ -118,18 +118,21 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
                 return true;
             }
 
-            return registration.getRegistrationDataByExecutionYearSet().stream()
-                    .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear() || rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear())
+            return registration
+                    .getRegistrationDataByExecutionYearSet()
+                    .stream()
+                    .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear()
+                            || rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear())
                     .anyMatch(rdby -> wasReingression(rdby));
         };
 
     private boolean wasReingression(RegistrationDataByExecutionYear registrationDataByExecutionYear) {
-        LocalDate startDate = registrationDataByExecutionYear.getEnrolmentDate();
+        LocalDate reingressionDate = registrationDataByExecutionYear.getReingressionDate();
 
         //re-ingressions date @ FL
-        return registrationDataByExecutionYear.getReingression() && startDate != null
-                && startDate.isAfter(new DateTime(2015, 7, 15, 0, 0).toLocalDate())
-                && startDate.isBefore(new DateTime(2015, 9, 17, 23, 59).toLocalDate());
+        return registrationDataByExecutionYear.getReingression() && reingressionDate != null
+                && reingressionDate.isAfter(new DateTime(2015, 7, 15, 0, 0).toLocalDate())
+                && reingressionDate.isBefore(new DateTime(2015, 9, 17, 23, 59).toLocalDate());
     }
 
     boolean isMemberStudent(Student student) {
