@@ -52,12 +52,13 @@ public class CgdCard extends CgdCard_Base {
                 code = StringUtils.leftPad(String.valueOf(mifareCode.length()), 4, "0") + mifareCode;
             }
         }
+
         super.setMifareCode(code);
         setLastMifareModication(new LocalDate());
     }
 
     @Atomic
-    protected void delete() {
+    public void delete() {
         setPerson(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
