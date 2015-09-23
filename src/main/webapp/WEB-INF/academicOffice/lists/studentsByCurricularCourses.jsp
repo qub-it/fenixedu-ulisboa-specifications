@@ -168,6 +168,14 @@ ${portal.toolkit()}
 	  							}
 			  				}
 						);
+						
+			  			$.ajax(
+	  						{
+	  							url :  "${pageContext.request.contextPath}/studentsListByCurricularCourse/executionCourseRegistrations/" + val,
+			  					success : updateTable
+			  				}
+						);						
+						
 		  			}
 		  		});
 				
@@ -198,9 +206,10 @@ ${portal.toolkit()}
 			<%--!!!  Field names here --%>
 			<th><spring:message code="label.studentsListByCurricularCourse.number"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.name"/></th>
+			<th><spring:message code="label.studentsListByCurricularCourse.degreeCode"/></th>
+			<th><spring:message code="label.studentsListByCurricularCourse.degree"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.email"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.institutionalEmail"/></th>
-			<th><spring:message code="label.studentsListByCurricularCourse.degreeCode"/></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -233,9 +242,10 @@ ${portal.toolkit()}
 	"columns": [
 				{ data: 'studentNumber' },
 				{ data: 'name' },
+				{ data: 'degreeCode' },
+				{ data: 'degree' },
 				{ data: 'email' },
-				{ data: 'institutionalEmail' },
-				{ data: 'degreeCode' }
+				{ data: 'institutionalEmail' }
 			],
 	"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', 
        "tableTools": {

@@ -117,6 +117,16 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     Comparator<? super Registration> registrationComparatorByStudentName = (x, y) -> Student.NAME_COMPARATOR.compare(
             x.getStudent(), y.getStudent());
 
+    @RequestMapping(value = "/executionCourseRegistrations/{executionCourse}", method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public @ResponseBody String getRegistrationsForExecutionCourse(
+            @PathVariable("executionCourse") ExecutionCourse executionCourse) {
+        JsonArray result = new JsonArray();
+        executionCourse.getAttendsSet().stream().map(a -> a.getRegistration()).sorted(registrationComparatorByStudentName)
+                .distinct().forEach(registration -> addStudent(result, registration));
+        return new GsonBuilder().create().toJson(result);
+    }
+
     @RequestMapping(value = "/classes/{class}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody String getStudentsEnroledInClass(@PathVariable("class") SchoolClass schoolClass) {
         JsonArray result = new JsonArray();
@@ -142,6 +152,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         schoolClassJson.addProperty("studentNumber", registration.getStudent().getNumber());
         schoolClassJson.addProperty("id", registration.getStudent().getExternalId());
         schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
+        schoolClassJson.addProperty("degree", registration.getLastDegreeCurricularPlan().getPresentationName());
         result.add(schoolClassJson);
     }
 
