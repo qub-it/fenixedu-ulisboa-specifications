@@ -296,7 +296,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
                 event.addProperty("start", startTime.toString());
                 event.addProperty("end", endTime.toString());
                 event.addProperty("title", shift.getExecutionCourse().getName() + " (" + shift.getShiftTypesCodePrettyPrint()
-                        + ")");
+                        + " - " + shift.getNome() + ")");
                 result.add(event);
             }
         }
