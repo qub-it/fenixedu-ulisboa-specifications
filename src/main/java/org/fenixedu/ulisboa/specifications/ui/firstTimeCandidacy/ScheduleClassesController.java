@@ -180,33 +180,23 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         ExecutionDegree executionDegree =
                 registration.getDegree().getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator()
                         .next();
-        Optional<SchoolClass> findFirst =
-                executionDegree
-                        .getSchoolClassesSet()
-                        .stream()
-                        .filter(sc -> sc.getAnoCurricular().equals(1) && executionSemesters.contains(sc.getExecutionPeriod())
-                                && getFreeVacancies(sc) > 0).sorted(new MostFilledFreeClass()).findFirst();
-//        if (findFirst.isPresent()) {
-//            int sc1NumOfEnrolledStudents = getNumberOfEnrolledStudents(findFirst.get());
-//            int sc1AvailableSlots = avaliableSlots(findFirst.get(), sc1NumOfEnrolledStudents);
-//            if (sc1AvailableSlots == 0) {
-//                logger.error("No shifts available! Person " + AccessControl.getPerson().getName()
-//                        + " will have no assigned class.");
-//                return Optional.empty();
-//            }
-//        }
-        return findFirst;
+        return executionDegree
+                .getSchoolClassesSet()
+                .stream()
+                .filter(sc -> sc.getAnoCurricular().equals(1) && executionSemesters.contains(sc.getExecutionPeriod())
+                        && getFreeVacancies(sc) > 0).sorted(new MostFilledFreeClass()).findFirst();
     }
-    
+
     private Integer getFreeVacancies(SchoolClass schoolClass) {
-        final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
-                .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
+        final Optional<Shift> minShift =
+                schoolClass.getAssociatedShiftsSet().stream()
+                        .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
         return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
     }
 
     private Integer getShiftVacancies(final Shift shift) {
         return shift.getLotacao() - shift.getStudentsSet().size();
-    }    
+    }
 
     @Atomic
     protected void enrolOnShifts(final SchoolClass schoolClass, final Registration registration) {
@@ -221,66 +211,15 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         // Return at the beggining the course which is the most filled, but still has space
         // This allows a "fill first" kind of school class scheduling
 
-        // Expected behaviour: 
-        // Case 1: In the first iteration, all the conditions are false, the classes will be ordered by name
-        // Case 2: In the second iteration the first element will always have its condition as true and all the others will have their conditions as false
-        // Case 3: When the class is filled, its conditions will also be false, so it will stop being the first. To avoid other resolution by name, we force availability == 0 classes to go to the end of the list
         @Override
         public int compare(SchoolClass sc1, SchoolClass sc2) {
             Integer sc1Vacancies = getFreeVacancies(sc1);
             Integer sc2Vacancies = getFreeVacancies(sc2);
-            
-            return sc1Vacancies.compareTo(sc2Vacancies) != 0 ? sc1Vacancies.compareTo(sc2Vacancies) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
-            
-//            int sc1NumOfEnrolledStudents = getNumberOfEnrolledStudents(sc1);
-//            int sc1AvailableSlots = avaliableSlots(sc1, sc1NumOfEnrolledStudents);
-//            int sc2NumOfEnrolledStudents = getNumberOfEnrolledStudents(sc2);
-//            int sc2AvailableSlots = avaliableSlots(sc2, sc2NumOfEnrolledStudents);
 
-//            //Case 2
-//            if (sc1NumOfEnrolledStudents > 0 && sc1AvailableSlots > 0) {
-//                return -1;
-//            }
-//            if (sc2NumOfEnrolledStudents > 0 && sc2AvailableSlots > 0) {
-//                return 1;
-//            }
-//
-//            //Case 3
-//            if (sc1AvailableSlots == 0) {
-//                return 1;
-//            }
-//            if (sc2AvailableSlots == 0) {
-//                return -1;
-//            }
-//
-//            //Case 1 
-//            return SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
-        }
-        
-        private Integer getFreeVacancies(SchoolClass schoolClass) {
-            final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
-                    .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
-            return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
+            return sc1Vacancies.compareTo(sc2Vacancies) != 0 ? sc1Vacancies.compareTo(sc2Vacancies) : SchoolClass.COMPARATOR_BY_NAME
+                    .compare(sc1, sc2);
         }
 
-        private Integer getShiftVacancies(final Shift shift) {
-            return shift.getLotacao() - shift.getStudentsSet().size();
-        }
-        
-    }
-
-    //We are only interested in shifts which do not have more than one class (ignore shared shifts)
-    Predicate<? super Shift> shiftsWithOneClass = s -> s.getAssociatedClassesSet().size() == 1;
-
-    private int avaliableSlots(SchoolClass schoolClass, int sc1NumOfEnrolledStudents) {
-        return schoolClass.getAssociatedShiftsSet().stream().filter(shiftsWithOneClass).mapToInt(shift -> shift.getLotacao())
-                .min().orElse(0)
-                - sc1NumOfEnrolledStudents;
-    }
-
-    private Integer getNumberOfEnrolledStudents(SchoolClass schoolClass) {
-        return schoolClass.getAssociatedShiftsSet().stream().filter(shiftsWithOneClass)
-                .map(shift -> shift.getStudentsSet().size()).findAny().orElse(0);
     }
 
     boolean hasAnnualShifts(StudentCurricularPlan studentCurricularPlan) {
