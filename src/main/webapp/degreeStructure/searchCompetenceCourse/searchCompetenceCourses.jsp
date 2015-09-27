@@ -74,7 +74,7 @@
 										<bean:message key="button.edit" bundle="APPLICATION_RESOURCES" />
 									</html:link>									
 								</h5>
-								<h5><bean:message key="label.shifts" bundle="APPLICATION_RESOURCES" />:</h5>
+								<h5 class="text-muted"><bean:message key="label.shifts" bundle="APPLICATION_RESOURCES" />:</h5>
 								<c:forEach items="${ec.associatedShifts}" var="shift">
 									<bean:define id="shift" name="shift" type="org.fenixedu.academic.domain.Shift"/>
 									<bean:define id="shiftLink"><c:out value="/manageShift.do?method=prepareEditShift&page=0&shift_oid=${shift.externalId}&execution_course_oid=${ec.externalId}&academicInterval=${ec.executionPeriod.academicInterval.academicCalendarEntry.externalId}_${ec.executionPeriod.academicInterval.academicCalendar.externalId}&curricular_year_oid=${curricularYearId}&execution_degree_oid=${ed.externalId}" /></bean:define>								
@@ -84,6 +84,11 @@
 											(<%= shift.getStudentsSet().size() %> / <c:out value="${shift.lotacao}"/>)
 										</span>
 									</html:link>
+								</c:forEach>
+								<h5 class="mtop2 text-muted"><bean:message key="title.teachers" bundle="APPLICATION_RESOURCES" />:</h5>
+								<c:forEach items="${ec.professorships}" var="professorship">
+									<c:out value="${professorship.person.name}" />
+									<c:if test="${professorship.responsibleFor}"><span class="badge"><bean:message key="label.responsible" bundle="APPLICATION_RESOURCES" /></span></c:if><br/>
 								</c:forEach>
 							  </div>
 							</c:if>
@@ -120,7 +125,7 @@
 										<bean:message key="button.edit" bundle="APPLICATION_RESOURCES" />
 									</html:link>									
 								</h5>
-								<h5><bean:message key="label.shifts" bundle="APPLICATION_RESOURCES" />:</h5>
+								<h5 class="text-muted"><bean:message key="label.shifts" bundle="APPLICATION_RESOURCES" />:</h5>
 								<c:forEach items="${ec.associatedShifts}" var="shift">
 									<bean:define id="shift" name="shift" type="org.fenixedu.academic.domain.Shift"/>
 									<bean:define id="shiftLink"><c:out value="/manageShift.do?method=prepareEditShift&page=0&shift_oid=${shift.externalId}&execution_course_oid=${ec.externalId}&academicInterval=${ec.executionPeriod.academicInterval.academicCalendarEntry.externalId}_${ec.executionPeriod.academicInterval.academicCalendar.externalId}&curricular_year_oid=${curricularYearId}&execution_degree_oid=${ed.externalId}" /></bean:define>								
@@ -131,6 +136,11 @@
 										</span>
 									</html:link>
 								</c:forEach>
+								<h5 class="mtop2 text-muted"><bean:message key="title.teachers" bundle="APPLICATION_RESOURCES" />:</h5>
+								<c:forEach items="${ec.professorships}" var="professorship">
+									<c:out value="${professorship.person.name}" />
+									<c:if test="${professorship.responsibleFor}"><span class="badge"><bean:message key="label.responsible" bundle="APPLICATION_RESOURCES" /></span></c:if><br/>
+								</c:forEach>								
 							  </div>
 							</c:if>
 						</c:forEach>
