@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 public class SecondCycleFirstYearGroup extends CustomGroup {
     public static final String GROUP_OPERATOR = "secondCycleFirstYear";
     static DegreeType masterBolonha = DegreeType.matching(x -> x.getCode().equals("BOLONHA_MASTER_DEGREE")).get();
+    static DegreeType phdBolonha = DegreeType.matching(x -> x.getCode().equals("BOLONHA_PHD")).get();
 
     @Override
     public String getPresentationName() {
@@ -31,7 +32,8 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
 
     @Override
     public Set<User> getMembers() {
-        return ExecutionYear.readCurrentExecutionYear().getStudentsSet().stream().filter(r -> r.getDegreeType() == masterBolonha)
+        return ExecutionYear.readCurrentExecutionYear().getStudentsSet().stream()
+                .filter(r -> r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha)
                 .map(r -> r.getPerson().getUser()).collect(Collectors.toSet());
     }
 
@@ -58,7 +60,7 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
                 .stream()
                 .anyMatch(
                         r -> r.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear()
-                                && r.getDegreeType() == masterBolonha);
+                                && (r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha));
     }
 
     @Override
