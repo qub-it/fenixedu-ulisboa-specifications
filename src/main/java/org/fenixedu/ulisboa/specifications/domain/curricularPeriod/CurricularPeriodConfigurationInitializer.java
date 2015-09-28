@@ -163,7 +163,7 @@ public class CurricularPeriodConfigurationInitializer {
                     continue;
                 }
                 // TODO legidio, config next week...
-                CreditsInEnrolmentPeriod.create(configYear1, BigDecimal.valueOf(200));
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(200));
                 
             } else {
 
