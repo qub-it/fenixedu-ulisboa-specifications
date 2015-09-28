@@ -28,7 +28,6 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
-import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CitzenCardValidation.validateNumeroDocumentoCC;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.FiscalCodeValidation.isValidcontrib;
 
 import java.io.Serializable;
@@ -126,14 +125,12 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         PersonalInformationForm form = fillFormIfRequired(model);
         model.addAttribute("personalInformationForm", form);
-        if (!form.getIsForeignStudent()) {
-            ArrayList<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
-            idDocumentTypeValues.add(IDDocumentType.CITIZEN_CARD);
-            idDocumentTypeValues.add(IDDocumentType.IDENTITY_CARD);
-            model.addAttribute("idDocumentTypeValues", idDocumentTypeValues);
-        } else {
-            model.addAttribute("idDocumentTypeValues", IDDocumentType.values());
-        }
+
+        List<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
+        idDocumentTypeValues.addAll(Arrays.asList(IDDocumentType.values()));
+        idDocumentTypeValues.remove(IDDocumentType.CITIZEN_CARD);
+        model.addAttribute("idDocumentTypeValues", idDocumentTypeValues);
+
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillPersonalInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }

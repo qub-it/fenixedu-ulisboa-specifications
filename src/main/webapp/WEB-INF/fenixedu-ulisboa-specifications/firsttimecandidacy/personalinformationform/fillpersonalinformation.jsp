@@ -128,25 +128,37 @@ ${portal.toolkit()}
 				</div>
 			</c:if>
 			
-			<div class="form-group row">
-				<label class="col-sm-2 control-label required-field">
-					<spring:message code="label.PersonalInformationForm.idDocumentType" />
-				</label>
-
-				<div class="col-sm-4">
-					<select id="personalInformationForm_idDocumentType" class="form-control" name="idDocumentType" >
-						<c:if test="${personalInformationForm.isForeignStudent}">
-							<option value=""></option>
-						</c:if>
-						<c:forEach items="${idDocumentTypeValues}" var="documentType">
-							<option value="${documentType}">${documentType.localizedName}</option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#personalInformationForm_idDocumentType").val('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
-					</script>
+			<c:if test="${not personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label">
+						<spring:message code="label.PersonalInformationForm.idDocumentType" />
+					</label>
+	
+					<div class="col-sm-10">
+						<div class="form-control-static"><c:out value='${personalInformationForm.idDocumentType.localizedName }' /></div>
+					</div>
 				</div>
-			</div>
+			</c:if>
+			<c:if test="${personalInformationForm.isForeignStudent}">
+				<div class="form-group row">
+					<label class="col-sm-2 control-label required-field">
+						<spring:message code="label.PersonalInformationForm.idDocumentType" />
+					</label>
+	
+					<div class="col-sm-4">
+						<select id="personalInformationForm_idDocumentType" class="form-control" name="idDocumentType" >
+							<option value=""></option>
+							<c:forEach items="${idDocumentTypeValues}" var="documentType">
+								<option value="${documentType}">${documentType.localizedName}</option>
+							</c:forEach>
+						</select>
+						<script>
+							$("#personalInformationForm_idDocumentType").val('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
+						</script>
+					</div>
+				</div>
+			</c:if>
+			
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
 					<spring:message

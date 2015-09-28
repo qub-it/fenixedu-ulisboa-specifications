@@ -218,7 +218,7 @@ public class DegreeCandidateDTO {
         Country nationality = getNationality();
         person.setCountry(nationality);
         if (nationality != null && nationality.isDefaultCountry()) {
-            person.setIdentification(getDocumentIdNumber(), IDDocumentType.CITIZEN_CARD);
+            person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
         } else {
             person.setIdentification(getDocumentIdNumber(), IDDocumentType.OTHER);
             PersonUlisboaSpecifications.findOrCreate(person).setDgesTempIdCode(getDocumentIdNumber());
