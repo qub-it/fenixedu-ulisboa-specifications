@@ -24,6 +24,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with FenixEdu fenixedu-ulisboa-specifications.  If not, see <http://www.gnu.org/licenses/>.
 --%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
@@ -33,19 +34,21 @@
 
 <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean"/>
 
-<h3 class="mbottom025"><bean:message key="label.others" bundle="APPLICATION_RESOURCES"/></h3>
-<table class="tstyle1 thright thlight mtop0">
-  <tr>
-    <th class="width14em">Validade da Vacina Antitetânica:</th>
-    <td>
-	    <%
-	    	PersonUlisboaSpecifications personUl = personBean.getPerson().getPersonUlisboaSpecifications();
-	    	if ((personUl == null) || (personUl.getVaccinationValidity() == null)) {
-	    %>
-	    	-
-    	<% } else { %>
-	    	<fr:view name="personBean" property="person.personUlisboaSpecifications.vaccinationValidity"/>
-	    <% } %>
-    </td>
-  </tr>
-</table>
+<% if (FirstYearRegistrationConfiguration.requiresVaccination(personBean.getPerson())) {%>
+	<h3 class="mbottom025"><bean:message key="label.others" bundle="APPLICATION_RESOURCES"/></h3>
+	<table class="tstyle1 thright thlight mtop0">
+	  <tr>
+	    <th class="width14em">Validade da Vacina Antitetânica:</th>
+	    <td>
+		    <%
+		    	PersonUlisboaSpecifications personUl = personBean.getPerson().getPersonUlisboaSpecifications();
+		    	if ((personUl == null) || (personUl.getVaccinationValidity() == null)) {
+		    %>
+		    	-
+	    	<% } else { %>
+		    	<fr:view name="personBean" property="person.personUlisboaSpecifications.vaccinationValidity"/>
+		    <% } %>
+	    </td>
+	  </tr>
+	</table>
+<% } %>

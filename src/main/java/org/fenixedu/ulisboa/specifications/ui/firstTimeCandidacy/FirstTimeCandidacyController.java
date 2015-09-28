@@ -106,8 +106,12 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
             && ((FirstTimeCandidacy) c).getExecutionYear().equals(ExecutionYear.readCurrentExecutionYear());
 
     public static FirstTimeCandidacy getCandidacy() {
-        Stream<Candidacy> firstTimeCandidacies = AccessControl.getPerson().getCandidaciesSet().stream().filter(arefirstTime);
-        return (FirstTimeCandidacy) firstTimeCandidacies.findAny().get();
+        return getCandidacy(AccessControl.getPerson());
+    }
+
+    public static FirstTimeCandidacy getCandidacy(Person person) {
+        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(arefirstTime);
+        return (FirstTimeCandidacy) firstTimeCandidacies.findAny().orElse(null);
     }
 
     @Atomic
