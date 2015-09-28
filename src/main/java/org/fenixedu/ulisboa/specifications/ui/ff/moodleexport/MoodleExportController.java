@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Teacher;
@@ -116,7 +117,15 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         String lastName = firstAndLastName.split(" ")[1];
         moodleExportBean.setFirstname(firstName);
         moodleExportBean.setLastname(lastName);
+        
         moodleExportBean.setEmail(person.getInstitutionalEmailAddressValue());
+        if (StringUtils.isEmpty(person.getInstitutionalEmailAddressValue())) {
+            final String defaultEmailAddress = person.getDefaultEmailAddressValue();
+            if (StringUtils.isNotEmpty(defaultEmailAddress) && defaultEmailAddress.endsWith("@campus.ul.pt")) {
+                moodleExportBean.setEmail(defaultEmailAddress);
+            }
+        }
+        
         moodleExportBean.setUsername(person.getUsername());
         moodleExportBean.setAuth("shibboleth");
     }
