@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.ui.identificationcardservices;
 
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -107,7 +109,14 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
     @RequestMapping(value = "/downloadCGDMod43", produces = "application/pdf")
     public ResponseEntity<byte[]> downloadCGDMod43(Model model, RedirectAttributes redirectAttributes) {
         Person person = Authenticate.getUser().getPerson();
-        InputStream pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
+        InputStream pdfTemplateStream;
+        if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
+            pdfTemplateStream =
+                    new ByteArrayInputStream(FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template()
+                            .getContent());
+        } else {
+            pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
+        }
 
         ByteArrayOutputStream stream;
         try {

@@ -50,17 +50,19 @@
 					<tr>
 						<th scope="row" class="action-label col-xs-1"><strong><spring:message code="label.identificationCardServices.cgdmod43" /></strong></th> 
 						<td  class="col-xs-11">
-							<c:if test="${empty webserviceSuccess}">
-								<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a>
-							</c:if>
-							<c:if test="${not empty webserviceSuccess}">
-								<c:if test="${webserviceSuccess}">
-									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a>
-								</c:if>
-								<c:if test="${not webserviceSuccess}">
-									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
-								</c:if>
-							</c:if>
+<!-- 							dsimoes 29-09-2015: Disabling webservice invocation upon SCUL request. -->
+<%-- 							<c:if test="${empty webserviceSuccess}"> --%>
+<%-- 								<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a> --%>
+<%-- 							</c:if> --%>
+<%-- 							<c:if test="${not empty webserviceSuccess}"> --%>
+<%-- 								<c:if test="${webserviceSuccess}"> --%>
+<%-- 									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a> --%>
+<%-- 								</c:if> --%>
+<%-- 								<c:if test="${not webserviceSuccess}"> --%>
+<%-- 									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a> --%>
+<%-- 								</c:if> --%>
+<%-- 							</c:if> --%>
+							<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
 						</td> 
 					</tr>
 				</tbody>
