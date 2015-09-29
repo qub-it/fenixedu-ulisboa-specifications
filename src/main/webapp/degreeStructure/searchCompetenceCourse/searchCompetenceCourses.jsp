@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
+<%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 
 <h2><bean:message key="label.search.competenceCourses" bundle="BOLONHA_MANAGER_RESOURCES" /></h2>
@@ -17,6 +18,19 @@
 	</fr:schema>
 </fr:edit>
 
+<logic:messagesPresent message="true" property="error">
+	<div class="alert alert-danger alert-dismissible" role="alert">
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	  <html:messages id="messages" message="true" bundle="BOLONHA_MANAGER_RESOURCES" property="error"><bean:write name="messages" /></html:messages>
+	</div>
+</logic:messagesPresent>
+<logic:messagesPresent message="true" property="success">
+	<div class="alert alert-success alert-dismissible" role="alert">
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	  <html:messages id="messages" message="true" bundle="BOLONHA_MANAGER_RESOURCES" property="success"><bean:write name="messages" /></html:messages>
+	</div>
+</logic:messagesPresent>
+
 <c:if test="${not empty searchBean.competenceCourse}">
 	<c:set value="${searchBean.competenceCourse}" var="competenceCourse" />
 	
@@ -31,6 +45,12 @@
 		paramId="competenceCourseID" paramName="competenceCourse" paramProperty="externalId">
 		<bean:message key="button.edit" bundle="APPLICATION_RESOURCES" />
 	</html:link>
+	<c:if test="${competenceCourse.curricularStage.name == 'PUBLISHED'}">
+		<html:link styleClass="btn btn-default" page="/degreeStructure/searchCompetenceCourse.do?method=approveCompetenceCourse"
+			paramId="competenceCourseID" paramName="competenceCourse" paramProperty="externalId">
+			<bean:message key="label.approve" bundle="SCIENTIFIC_COUNCIL_RESOURCES" />
+		</html:link>
+	</c:if>
 </div>
 
 <p>&nbsp;</p>	

@@ -13,6 +13,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.ui.struts.action.BolonhaManager.BolonhaManagerApplication.CompetenceCourseManagementApp;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.bennu.core.presentationTier.renderers.autoCompleteProvider.AutoCompleteProvider;
@@ -33,9 +35,27 @@ public class SearchCompetenceCoursesDA extends FenixDispatchAction {
 
     @EntryPoint
     public ActionForward search(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        SearchCompetenceCourseBean searchBean =
+        final SearchCompetenceCourseBean searchBean =
                 getRenderedObject("searchBean") != null ? getRenderedObject("searchBean") : new SearchCompetenceCourseBean();
         RenderUtils.invalidateViewState();
+        request.setAttribute("searchBean", searchBean);
+        return mapping.findForward("searchCompetenceCourse");
+    }
+
+    public ActionForward approveCompetenceCourse(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+        final CompetenceCourse competenceCourse = getDomainObject(request, "competenceCourseID");
+
+        try {
+            atomic(() -> competenceCourse.changeCurricularStage(CurricularStage.APPROVED));
+            addActionMessage("success", request, "successAction");
+        } catch (DomainException e) {
+            addActionMessage("error", request, e.getMessage());
+            e.printStackTrace();
+        }
+
+        final SearchCompetenceCourseBean searchBean = new SearchCompetenceCourseBean();
+        searchBean.setCompetenceCourse(competenceCourse);
         request.setAttribute("searchBean", searchBean);
         return mapping.findForward("searchCompetenceCourse");
     }
