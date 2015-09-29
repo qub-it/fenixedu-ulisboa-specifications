@@ -90,6 +90,16 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
                 .sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).forEach(ec -> addExecutionCourse(result, ec));
         return new GsonBuilder().create().toJson(result);
     }
+    
+    @RequestMapping(value = "/executionSemesters/{executionSemester}/courses", method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public @ResponseBody String getAvailableCoursesForExecutionSemester(
+            @PathVariable("executionSemester") ExecutionSemester executionSemester) {
+        JsonArray result = new JsonArray();
+        executionSemester.getAssociatedExecutionCoursesSet().stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR)
+                .forEach(ec -> addExecutionCourse(result, ec));
+        return new GsonBuilder().create().toJson(result);
+    }    
 
     private void addExecutionCourse(JsonArray result, ExecutionCourse ec) {
         JsonObject schoolClassJson = new JsonObject();

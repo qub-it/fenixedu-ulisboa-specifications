@@ -63,6 +63,20 @@ ${portal.toolkit()}
 								$("#executionDegrees").trigger("change");
 							}
 					});
+					
+					$.ajax({url : "${pageContext.request.contextPath}/studentsListByCurricularCourse/executionSemesters/" + id + "/courses", 
+							success : function(data){
+								$("#listBy").val("COURSE");
+								$("#listBy").attr('disabled', false);
+								$("#selectCourseOrClass").attr("disabled", false);
+								$("#selectCourseOrClass").children().remove();
+								formattedData = [{id : "-1",text : ""}].concat(data);
+								$("#selectCourseOrClass").select2({data: formattedData});
+								$("#selectCourseOrClass").select2().val("-1");
+								$("#selectCourseOrClass").trigger("change");
+							}
+					});					
+					
 				});
 			</script>
 			<div class="form-group row">
