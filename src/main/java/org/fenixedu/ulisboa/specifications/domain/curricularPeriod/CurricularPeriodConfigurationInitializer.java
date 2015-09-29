@@ -151,7 +151,7 @@ public class CurricularPeriodConfigurationInitializer {
 
             final DegreeType degreeType = dcp.getDegree().getDegreeType();
             if (degreeType.isSecondCycle() && degreeType.hasExactlyOneCycleType()) {
-                
+
                 final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
                 if (configYear1 == null) {
                     continue;
@@ -164,7 +164,7 @@ public class CurricularPeriodConfigurationInitializer {
                 }
                 // TODO legidio, config next week...
                 CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(200));
-                
+
             } else {
 
                 final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
@@ -616,6 +616,7 @@ public class CurricularPeriodConfigurationInitializer {
             CurricularPeriodRule rule =
                     ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
             rule.messagePrefixDisabled();
+            createStudentStatuteExecutiveRuleFor(configYear2, "102");
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
@@ -625,6 +626,7 @@ public class CurricularPeriodConfigurationInitializer {
                     ApprovedCredits.create(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2))
                             .subtract(maxFlunked));
             rule.messagePrefixDisabled();
+            createStudentStatuteExecutiveRuleFor(configYear3, "103");
 
             final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
             if (configYear4 == null) {
@@ -634,6 +636,7 @@ public class CurricularPeriodConfigurationInitializer {
                     ApprovedCredits.create(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3))
                             .subtract(maxFlunked));
             rule.messagePrefixDisabled();
+            createStudentStatuteExecutiveRuleFor(configYear4, "104");
 
             final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
             if (configYear5 == null) {
@@ -643,6 +646,7 @@ public class CurricularPeriodConfigurationInitializer {
                     ApprovedCredits.create(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4))
                             .subtract(maxFlunked));
             rule.messagePrefixDisabled();
+            createStudentStatuteExecutiveRuleFor(configYear5, "105");
 
             final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
             if (configYear6 == null) {
@@ -652,6 +656,7 @@ public class CurricularPeriodConfigurationInitializer {
                     ApprovedCredits.create(configYear6, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5))
                             .subtract(maxFlunked));
             rule.messagePrefixDisabled();
+            createStudentStatuteExecutiveRuleFor(configYear6, "106");
         }
     }
 
