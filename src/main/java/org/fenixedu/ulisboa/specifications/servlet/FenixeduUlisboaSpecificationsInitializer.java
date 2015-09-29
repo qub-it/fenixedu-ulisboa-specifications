@@ -57,6 +57,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparato
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
+import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +109,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForEnrolmentDelete();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
+
+        StudentCurricularPlanLayout.registerStudentCurricularPlanLayout();
     }
 
     private void setupListenerForDegreeDelete() {
