@@ -60,7 +60,7 @@
 		<c:set var="curricularYearId" value="" />
 		<h4 class="mtop2">
 			<strong>
-				<c:out value="${dcp.presentationName}"/> <span class="badge"><c:out value="${dcp.state.name}"/></span>
+				<c:out value="[${dcp.degree.code}] ${dcp.presentationName}"/> <span class="badge"><c:out value="${dcp.state.name}"/></span>
 			</strong>
 			<c:forEach items="${curricularCourse.parentContextsSet}" var="context">
 				<br/>
