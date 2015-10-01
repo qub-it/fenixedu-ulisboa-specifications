@@ -15,6 +15,9 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "gradescale.typequalitative.logic.class")
         public String typeQualitativeGradeScaleLogic();
 
+        @ConfigurationProperty(key = "domain.academic.enrolmentPredicate.override", defaultValue = "true")
+        public Boolean getEnrolmentPredicateOverride();
+        
         @ConfigurationProperty(key = "domain.academic.registrationRegimeVerifier.override", defaultValue = "true")
         public Boolean getRegistrationRegimeVerifierOverride();
         
