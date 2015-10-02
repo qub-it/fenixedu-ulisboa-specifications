@@ -332,7 +332,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
     private void createDegreeCandidacies(List<DegreeCandidateDTO> degreeCandidateDTOs) {
         int processed = 0;
-        int personsCreated = 0;
+        int peopleCreated = 0;
+        int candidaciesCreated = 0;
 
         Authenticate.mock(getPossibleManager());
         try {
@@ -352,13 +353,14 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
                     if (person.getUser() == null) {
                         person.setUser(new User(person.getProfile()));
                     }
+                    LOG_WRITER.println("Pessoa Existente");
                 } catch (DegreeCandidateDTO.NotFoundPersonException e) {
                     person = degreeCandidateDTO.createPerson();
                     LOG_WRITER.println("Pessoa Criada");
-                    personsCreated++;
+                    peopleCreated++;
                 } catch (DegreeCandidateDTO.TooManyMatchedPersonsException e) {
                     LOG_WRITER.println(String.format(
-                            "Candidato com a Identificação %s possui mais do que uma identidade no sistema",
+                            "ERROR: Candidato com a Identificação %s possui mais do que uma identidade no sistema",
                             degreeCandidateDTO.getDocumentIdNumber()));
                     continue;
                 } catch (DegreeCandidateDTO.MatchingPersonException e) {
@@ -366,28 +368,29 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
                 }
 
                 if ((person.getStudent() != null) && !person.getStudent().getRegistrationsSet().isEmpty()) {
-                    LOG_WRITER.println(String.format("Candidato com a Identificação %s é aluno com o nº %s com matriculas",
+                    LOG_WRITER.println(String.format(
+                            "Warning: Candidato com a Identificação %s é aluno com o nº %s com matriculas",
                             degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
 
                     boolean hasEnrolmentsInExecutionYear = false;
                     for (Registration registration : person.getStudent().getActiveRegistrations()) {
                         if (registration.getEnrolments(getExecutionYear()).size() > 0) {
-                            LOG_WRITER
-                                    .println(String
-                                            .format("Candidato com a Identificação %s é aluno com o nº %s possui matriculas com inscrições no ano lectivo de candidatura",
-                                                    degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
                             hasEnrolmentsInExecutionYear = true;
                             break;
                         }
                     }
 
                     if (hasEnrolmentsInExecutionYear) {
+                        LOG_WRITER
+                                .println(String
+                                        .format("ERROR: Candidato com a Identificação %s é aluno com o nº %s possui matriculas com inscrições no ano lectivo de candidatura",
+                                                degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
                         continue;
                     }
                 }
 
                 if (person.getTeacher() != null) {
-                    LOG_WRITER.println(String.format("Candidato com a Identificação %s é docente com o username %s",
+                    LOG_WRITER.println(String.format("ERROR: Candidato com a Identificação %s é docente com o username %s",
                             degreeCandidateDTO.getDocumentIdNumber(), person.getUsername()));
                     continue;
                 }
@@ -401,11 +404,14 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
                 StudentCandidacy studentCandidacy = createCandidacy(degreeCandidateDTO, person);
                 new StandByCandidacySituation(studentCandidacy, getPerson());
+                candidaciesCreated++;
+                LOG_WRITER.println("Candidatura Criada");
 
                 StudentAccessServices.triggerSyncPersonToExternal(person);
             }
 
-            LOG_WRITER.println("Total de pessoas criadas: " + personsCreated);
+            LOG_WRITER.println("Total de pessoas criadas: " + peopleCreated);
+            LOG_WRITER.println("Total de candidaturas criadas: " + candidaciesCreated);
         } finally {
             Authenticate.unmock();
         }

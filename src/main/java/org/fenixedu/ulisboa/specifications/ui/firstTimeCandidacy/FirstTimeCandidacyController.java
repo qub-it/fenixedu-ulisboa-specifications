@@ -27,17 +27,19 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.EnrolmentPeriod;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
@@ -71,15 +73,11 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     @RequestMapping
     public String home(Model model) {
         Person person = AccessControl.getPerson();
-        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(arefirstTime);
+        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(isFirstTime).filter(isOpen);
         long count = firstTimeCandidacies.count();
         if (count == 0) {
             throw new RuntimeException(
-                    "Students with no FirstTimeCandidacies are not supported in the first time registration flow");
-        }
-        if (count > 1) {
-            throw new RuntimeException(
-                    "Students with multiple FirstTimeCandidacies are not supported in the first time registration flow");
+                    "Students with no open FirstTimeCandidacies are not supported in the first time registration flow");
         }
 
         if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
@@ -102,16 +100,24 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         return redirect(PersonalInformationFormController.CONTROLLER_URL, model, redirectAttributes);
     }
 
-    private static Predicate<Candidacy> arefirstTime = c -> (c instanceof FirstTimeCandidacy)
-            && ((FirstTimeCandidacy) c).getExecutionYear().equals(ExecutionYear.readCurrentExecutionYear());
+    private static Predicate<Candidacy> isFirstTime = c -> (c instanceof FirstTimeCandidacy);
+    private static Predicate<Candidacy> isOpen = c -> CandidacySituationType.STAND_BY.equals(c.getActiveCandidacySituationType());
 
     public static FirstTimeCandidacy getCandidacy() {
         return getCandidacy(AccessControl.getPerson());
     }
 
     public static FirstTimeCandidacy getCandidacy(Person person) {
-        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(arefirstTime);
-        return (FirstTimeCandidacy) firstTimeCandidacies.findAny().orElse(null);
+        Set<FirstTimeCandidacy> candidacies = new HashSet<>();
+        for (Candidacy candidacy : person.getCandidaciesSet()) {
+            if (candidacy instanceof FirstTimeCandidacy) {
+                candidacies.add((FirstTimeCandidacy) candidacy);
+            }
+        }
+
+        Stream<FirstTimeCandidacy> firstTimeCandidacies =
+                candidacies.stream().filter(isFirstTime).filter(isOpen).sorted(FirstTimeCandidacy.COMPARATOR_BY_DATE);
+        return firstTimeCandidacies.findFirst().orElse(null);
     }
 
     @Atomic
@@ -160,31 +166,10 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         return registration;
     }
 
-    public static EnrolmentPeriodInCurricularCoursesCandidate getCandidacyPeriod(DegreeCurricularPlan dcp) {
-        Predicate<EnrolmentPeriod> isCandidateEnrolmentPeriod =
-                ep -> ep instanceof EnrolmentPeriodInCurricularCoursesCandidate
-                        && ep.getExecutionPeriod().equals(ExecutionSemester.readActualExecutionSemester());
-        Stream<EnrolmentPeriod> periods = dcp.getEnrolmentPeriodsSet().stream().filter(isCandidateEnrolmentPeriod);
-        long count = periods.count();
-        if (count == 0) {
-            return null;
-        }
-        if (count > 1) {
-            throw new RuntimeException("Multiple configured periods (EnrolmentPeriodInCurricularCoursesCandidate) for the dcp: "
-                    + dcp.getName() + " and the semester: " + ExecutionSemester.readActualExecutionSemester().getName());
-        }
-
-        // Repeat the asign to the periods stream, because the previous count() operation is "terminal"
-        periods = dcp.getEnrolmentPeriodsSet().stream().filter(isCandidateEnrolmentPeriod);
-        return (EnrolmentPeriodInCurricularCoursesCandidate) periods.findFirst().get();
-    }
-
     public static boolean isPeriodOpen() {
-        DegreeCurricularPlan dcp = getCandidacy().getExecutionDegree().getDegreeCurricularPlan();
-        EnrolmentPeriodInCurricularCoursesCandidate period = getCandidacyPeriod(dcp);
+        EnrolmentPeriodInCurricularCoursesCandidate period = getCandidacy().findCandidacyPeriod();
         if (period == null) {
-            throw new RuntimeException("No configured periods (EnrolmentPeriodInCurricularCoursesCandidate) for the dcp: "
-                    + dcp.getName() + " and the semester: " + ExecutionSemester.readActualExecutionSemester().getName());
+            return false;
         }
         return period.isValid();
     }
