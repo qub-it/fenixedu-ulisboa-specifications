@@ -157,13 +157,14 @@ public class CurricularPeriodConfigurationInitializer {
                     continue;
                 }
                 CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsInCurricularPeriod.createForYearInterval(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1, 2);
 
                 final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
                 if (configYear2 == null) {
                     continue;
                 }
-                // TODO legidio, config next week...
-                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(200));
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84));
+                CreditsInCurricularPeriod.createForYear(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
 
             } else {
 
