@@ -10,6 +10,7 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import pt.ist.fenixframework.FenixFramework;
 
@@ -37,13 +38,13 @@ public class ManageRegistrationSchoolClasses extends CustomTask {
         taskLog("[%d] %s\n", student.getNumber(), student.getName());
 
         if (executionSemester != null) {
-            final Optional<SchoolClass> oldSchoolClassOptional = registration.getSchoolClassBy(executionSemester);
+            final Optional<SchoolClass> oldSchoolClassOptional = RegistrationServices.getSchoolClassBy(registration, executionSemester);
             if (oldSchoolClassOptional.isPresent()) {
                 final SchoolClass oldSchoolClass = oldSchoolClassOptional.get();
                 taskLog("Old SchoolClass: [%s - %dA] %s\n", oldSchoolClass.getEditablePartOfName(),
                         oldSchoolClass.getAnoCurricular(), oldSchoolClass.getExecutionDegree().getPresentationName());
             }
-            registration.replaceSchoolClass(schoolClass, executionSemester);
+            RegistrationServices.replaceSchoolClass(registration, schoolClass, executionSemester);
             if (schoolClass != null) {
                 taskLog("New SchoolClass: [%s - %dA] %s\n", schoolClass.getEditablePartOfName(), schoolClass.getAnoCurricular(),
                         schoolClass.getExecutionDegree().getPresentationName());
