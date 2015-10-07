@@ -9,17 +9,29 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.ShiftEnrolment;
+import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacyOperationType;
 import org.fenixedu.academic.domain.candidacy.CandidacySituation;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.util.workflow.Operation;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.joda.time.DateTime;
+
+import pt.ist.fenixframework.Atomic;
 
 public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
 
@@ -80,5 +92,52 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
         Stream<EnrolmentPeriod> periods = getExecutionDegree().getDegreeCurricularPlan().getEnrolmentPeriodsSet().stream();
         periods = periods.filter(isForCandidates).filter(endsAfterThisCandidacy).sorted(periodComparatorByEndDate);
         return (EnrolmentPeriodInCurricularCoursesCandidate) periods.findFirst().orElse(null);
+    }
+
+    @Override
+    public boolean cancelCandidacy() {
+        if (isConcluded()) {
+            return false;
+        }
+
+        Registration registration = getRegistration();
+        if (registration != null) {
+            for (Enrolment enrolment : registration.getEnrolments(getExecutionYear())) {
+                enrolment.delete();
+            }
+
+            for (ShiftEnrolment shiftEnrolment : registration.getShiftEnrolmentsSet()) {
+                shiftEnrolment.delete();
+            }
+            registration.getShiftsSet().clear();
+
+            if (registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
+                RegistrationState registeredState =
+                        RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
+                                RegistrationStateType.REGISTERED);
+                registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
+            }
+            if (!registration.getActiveState().getStateType().equals(RegistrationStateType.CANCELED)) {
+                RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
+                        RegistrationStateType.CANCELED);
+            }
+        }
+
+        new CancelledCandidacySituation(this);
+        return true;
+    }
+
+    @Atomic
+    public boolean revertCancel() {
+        if (!isCancelled()) {
+            return false;
+        }
+
+        new StandByCandidacySituation(this);
+        return true;
+    }
+
+    private boolean isCancelled() {
+        return CandidacySituationType.CANCELLED.equals(getActiveCandidacySituationType());
     }
 }

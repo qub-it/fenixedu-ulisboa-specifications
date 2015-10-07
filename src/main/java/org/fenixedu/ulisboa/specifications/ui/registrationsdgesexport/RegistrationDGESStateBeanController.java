@@ -34,14 +34,21 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import pt.ist.fenixframework.FenixFramework;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.registrationsDgesExport",
         accessGroup = "logged")
@@ -70,6 +77,18 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return "registrationsdgesexport/search";
     }
 
+    @RequestMapping(value = "/reactivate/{candidacyId}")
+    public String reActivateCandidacy(Model model, @PathVariable("candidacyId") String candidacyId,
+            RedirectAttributes redirectAttributes) {
+        FirstTimeCandidacy candidacy = FenixFramework.getDomainObject(candidacyId);
+        if (!FenixFramework.isDomainObjectValid(candidacy)) {
+            throw new RuntimeException("Invalid externalId: " + candidacyId + " is not a FirstTimeCandidacy");
+        }
+
+        candidacy.revertCancel();
+        return redirect(CONTROLLER_URL, model, redirectAttributes);
+    }
+
     private Collection<Integer> getPhases() {
         EntryPhase[] values = EntryPhase.values();
         List<Integer> phases = new ArrayList<>();
@@ -90,27 +109,35 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     private RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
         String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
         String documentIdNumber = studentCandidacy.getPerson().getDocumentIdNumber();
+        String candidacyState =
+                BundleUtil.getString("resources/EnumerationResources", studentCandidacy.getActiveCandidacySituationType()
+                        .getQualifiedName());
         String name = studentCandidacy.getPerson().getName();
         String registrationStatus = "";
-        if (studentCandidacy.getRegistration() != null && !studentCandidacy.getRegistration().isCanceled()) {
+        if (studentCandidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
             registrationStatus = "Sim";
         } else {
             registrationStatus = "Não";
         }
-        return new RegistrationDGESStateBean(degreeCode, documentIdNumber, name, registrationStatus);
+        return new RegistrationDGESStateBean(studentCandidacy.getExternalId(), degreeCode, documentIdNumber, candidacyState,
+                name, registrationStatus);
     }
 
     public static class RegistrationDGESStateBean {
+        private String candidacyId;
         private String degreeCode;
-        String idNumber;
+        private String idNumber;
+        private String candidacyState;
+        private String name;
+        private String registrationState;
 
-        String name;
-        String registrationState;
-
-        public RegistrationDGESStateBean(String degreeCode, String idNumber, String name, String registrationState) {
+        public RegistrationDGESStateBean(String candidacyId, String degreeCode, String idNumber, String candidacyState,
+                String name, String registrationState) {
             super();
+            this.candidacyId = candidacyId;
             this.degreeCode = degreeCode;
             this.idNumber = idNumber;
+            this.setCandidacyState(candidacyState);
             this.name = name;
             this.registrationState = registrationState;
         }
@@ -146,6 +173,21 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         public void setDegreeCode(String degreeCode) {
             this.degreeCode = degreeCode;
         }
-    }
 
+        public String getCandidacyState() {
+            return candidacyState;
+        }
+
+        public void setCandidacyState(String candidacyState) {
+            this.candidacyState = candidacyState;
+        }
+
+        public String getCandidacyId() {
+            return candidacyId;
+        }
+
+        public void setCandidacyId(String candidacyId) {
+            this.candidacyId = candidacyId;
+        }
+    }
 }

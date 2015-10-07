@@ -9,18 +9,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ShiftEnrolment;
-import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
-import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.scheduler.CronTask;
@@ -90,36 +82,9 @@ public class CancelOutOfDateCandidacies extends CronTask {
                 continue;
             }
 
-            if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)
-                    || candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.CANCELLED)) {
-                continue;
+            if (candidacy.cancelCandidacy()) {
+                count++;
             }
-
-            Registration registration = candidacy.getRegistration();
-            if (registration != null) {
-                for (Enrolment enrolment : registration.getEnrolments(candidacy.getExecutionYear())) {
-                    enrolment.delete();
-                }
-
-                for (ShiftEnrolment shiftEnrolment : registration.getShiftEnrolmentsSet()) {
-                    shiftEnrolment.delete();
-                }
-                registration.getShiftsSet().clear();
-
-                if (registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
-                    RegistrationState registeredState =
-                            RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                                    RegistrationStateType.REGISTERED);
-                    registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
-                }
-                if (!registration.getActiveState().getStateType().equals(RegistrationStateType.CANCELED)) {
-                    RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                            RegistrationStateType.CANCELED);
-                }
-            }
-
-            new CancelledCandidacySituation(candidacy);
-            count++;
         }
         if (count > 0) {
             taskLog("Successfully cancelled " + count + " FirstTimeCandidacies.");

@@ -99,21 +99,25 @@ ${portal.toolkit()}
 		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover">
 			<thead>
 				<tr>
-					<th>Curso</th>
-					<th>Nº BI</th>
-					<th>Matrícula</th>
-					<th>S/N</th>
+					<th><spring:message code="label.studentsListByCurricularCourse.degree"/></th>
+					<th><spring:message code="label.identification.number"/></th>
+					<th><spring:message code="label.student"/></th>
+					<th><spring:message code="label.is.registered"/></th>
+					<th><spring:message code="label.candidacy"/></th>
 				</tr>
 			</thead>
 			<tbody>
 				
 			</tbody>
 		</table>
+		<form id="revertCancelForm" action="/registrationsdgesexport/reactivate/">
+			<button id="revertCancelButton" disabled onclick="return confirm('<spring:message code="label.remove.cancellation.confirm"/>');"><spring:message code="label.remove.cancellation"/></button>
+		</form>
 	</c:when>
 	<c:otherwise>
 				<div class="alert alert-warning" role="alert">
 					
-					<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>			<spring:message code="label.noResultsFound" /></p>
+					<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span><spring:message code="label.noResultsFound" /></p>
 					
 				</div>	
 		
@@ -125,11 +129,12 @@ ${portal.toolkit()}
 			<c:forEach items="${searchregistrationdgesstatebeanResultsDataSet}" var="searchResult">
 				<%-- Field access / formatting  here CHANGE_ME --%>
 				{
-				"DT_RowId" : '<c:out value='${searchResult.name}'/>',
+				"DT_RowId" : '<c:out value='${searchResult.candidacyId}'/>',
 "degreeCode" : "<c:out value='${searchResult.degreeCode}'/>",
 "idnumber" : "<c:out value='${searchResult.idNumber}'/>",
 "name" : "<c:out value='${searchResult.name}'/>",
 "registrationstate" : "<c:out value='${searchResult.registrationState}'/>",
+"candidacyState" : "<c:out value='${searchResult.candidacyState}'/>",
 			},
             </c:forEach>
     ];
@@ -139,28 +144,37 @@ ${portal.toolkit()}
 	
 
 
-		var table = $('#searchregistrationdgesstatebeanTable').DataTable({language : {
-			url : "${datatablesI18NUrl}",			
-		},
-		"columns": [
-			{ data: 'degreeCode' },
-			{ data: 'idnumber' },
-			{ data: 'name' },
-			{ data: 'registrationstate' },
-			
-		],
-		"data" : searchregistrationdgesstatebeanDataSet,
-"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
-        "tableTools": {
-            "sSwfPath": "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"        	
-        }
+		var table = $('#searchregistrationdgesstatebeanTable').DataTable({
+			language : {
+				url : "${datatablesI18NUrl}",			
+			},
+			columns: [
+				{ data: 'degreeCode' },
+				{ data: 'idnumber' },
+				{ data: 'name' },
+				{ data: 'registrationstate' },
+				{ data: 'candidacyState' },	
+			],
+			data : searchregistrationdgesstatebeanDataSet,
+			dom: '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
+        	tableTools: {
+                sRowSelect: "single",
+            	sSwfPath: "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
+        	}
 		});
 		table.columns.adjust().draw();
 		
 		  $('#searchregistrationdgesstatebeanTable tbody').on( 'click', 'tr', function () {
+			  	if ($(this).hasClass('selected')) {
+			  		$("#revertCancelButton").prop('disabled', true);
+			  		$("#revertCancelForm").attr('action', '${pageContext.request.contextPath}/registrationsdgesexport/reactivate/');
+			  	} else {
+			  		$("#revertCancelButton").prop('disabled', false);
+			  		$("#revertCancelForm").attr('action', '${pageContext.request.contextPath}/registrationsdgesexport/reactivate/' + $(this).attr('id'));
+			  	}
 		        $(this).toggleClass('selected');
+		        $(this).children().removeClass("sorting_1");
 		    } );
-		  
 	}); 
 </script>
 
