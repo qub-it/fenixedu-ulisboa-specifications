@@ -50,6 +50,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,7 +205,7 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
             throw new DomainException("error.RegistrationOperation.avaliable.schoolClass.not.found");
         }
 
-        registration.replaceSchoolClass(schoolClass, schoolClass.getExecutionPeriod());
+        RegistrationServices.replaceSchoolClass(registration, schoolClass, schoolClass.getExecutionPeriod());
     }
 
     class MostFilledFreeClass implements Comparator<SchoolClass> {

@@ -58,6 +58,7 @@ import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
@@ -173,7 +174,8 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         final Set<Shift> shifts = new HashSet<>();
 
         // if student has a school class and it has shifts for EC and type, we only can allow him to add those shifts
-        final Optional<SchoolClass> optionalSchoolClass = registration.getSchoolClassBy(executionCourse.getExecutionPeriod());
+        final Optional<SchoolClass> optionalSchoolClass =
+                RegistrationServices.getSchoolClassBy(registration, executionCourse.getExecutionPeriod());
         if (optionalSchoolClass.isPresent()) {
             shifts.addAll(optionalSchoolClass.get().getAssociatedShiftsSet().stream()
                     .filter(s -> s.getExecutionCourse() == executionCourse && s.getTypes().contains(shiftType))

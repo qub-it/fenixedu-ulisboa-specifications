@@ -39,6 +39,7 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.commons.spreadsheet.StyledExcelSpreadsheet;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 @StrutsFunctionality(app = AcademicAdminListingsApp.class, path = "students-by-curricular-course",
         titleKey = "link.studentsListByCurricularCourse", accessGroup = "academic(STUDENT_LISTINGS)")
@@ -147,7 +148,7 @@ public class StudentsListByCurricularCourseDA extends
             spreadsheet.addCell(enrolment.getEvaluationSeason().getName().getContent());
 
             final ExecutionSemester executionSemester = enrolment.getExecutionPeriod();
-            Optional<SchoolClass> schoolClassOptional = registration.getSchoolClassBy(executionSemester);
+            Optional<SchoolClass> schoolClassOptional = RegistrationServices.getSchoolClassBy(registration, executionSemester);
             spreadsheet.addCell(schoolClassOptional.isPresent() ? schoolClassOptional.get().getEditablePartOfName() : "");
             List<Shift> shifts = registration.getShiftsFor(enrolment.getExecutionCourseFor(executionSemester));
             spreadsheet.addCell(shifts.stream().map(s -> s.getNome() + " (" + s.getShiftTypesPrettyPrint() + ")")

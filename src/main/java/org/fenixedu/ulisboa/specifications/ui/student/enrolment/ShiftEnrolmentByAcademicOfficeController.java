@@ -53,6 +53,7 @@ import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.joda.time.DateTime;
@@ -254,7 +255,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
         }
 
         public SchoolClass getSchoolClass() {
-            return getRegistration().getSchoolClassBy(executionSemester).orElse(null);
+            return RegistrationServices.getSchoolClassBy(getRegistration(), executionSemester).orElse(null);
         }
 
         @Override

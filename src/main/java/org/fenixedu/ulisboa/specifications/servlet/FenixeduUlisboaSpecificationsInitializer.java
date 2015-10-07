@@ -36,6 +36,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
@@ -109,6 +110,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupCustomExceptionHandler(event);
         setupListenerForDegreeDelete();
         setupListenerForEnrolmentDelete();
+        setupListenerForSchoolClassDelete();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 
@@ -140,6 +142,16 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 if (registration != null) {
                     attends.getExecutionCourse().getAssociatedShifts().forEach(s -> s.removeStudents(registration));
                 }
+            }
+        });
+    }
+    
+    private void setupListenerForSchoolClassDelete() {
+        FenixFramework.getDomainModel().registerDeletionListener(SchoolClass.class, new DeletionListener<SchoolClass>() {
+
+            @Override
+            public void deleting(SchoolClass schoolClass) {
+                schoolClass.getRegistrationsSet().clear();
             }
         });
     }

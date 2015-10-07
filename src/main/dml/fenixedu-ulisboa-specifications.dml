@@ -32,6 +32,8 @@ external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
 external class .org.fenixedu.academic.domain.student.StatuteType;
+external class .org.fenixedu.academic.domain.student.Registration;
+external class .org.fenixedu.academic.domain.SchoolClass;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -587,3 +589,15 @@ class SpecialIngressionsAndOtherCyclesPersistentGroup extends .org.fenixedu.benn
 class SecondCycleFirstYearPersistentGroup extends .org.fenixedu.bennu.core.domain.groups.GroupConstant{
 }
 
+// ======================= = Enrolment in Scool Classes begin = =========================
+
+relation RegistrationSchoolClass {
+    .org.fenixedu.academic.domain.SchoolClass playsRole schoolClasses {
+        multiplicity *;
+    }
+    .org.fenixedu.academic.domain.student.Registration playsRole registrations {
+        multiplicity *;
+    }
+}
+
+// ======================= = Enrolment in Scool Classes end = =========================
