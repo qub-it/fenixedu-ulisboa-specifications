@@ -34,6 +34,7 @@ external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourse
 external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.student.Registration;
 external class .org.fenixedu.academic.domain.SchoolClass;
+external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -601,3 +602,10 @@ relation RegistrationSchoolClass {
 }
 
 // ======================= = Enrolment in Scool Classes end = =========================
+
+
+// ======================= = ULisboaServiceRequest = =========================
+class ULisboaServiceRequest extends .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest {
+	boolean isValid;
+}
+// ======================= = ===================== = =========================
