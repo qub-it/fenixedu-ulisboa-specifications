@@ -55,6 +55,7 @@ import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
@@ -112,6 +113,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
 
+        ServiceRequestSlot.initBaseSlots();
+
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 
         StudentCurricularPlanLayout.registerStudentCurricularPlanLayout();
@@ -145,7 +148,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             }
         });
     }
-    
+
     private void setupListenerForSchoolClassDelete() {
         FenixFramework.getDomainModel().registerDeletionListener(SchoolClass.class, new DeletionListener<SchoolClass>() {
 

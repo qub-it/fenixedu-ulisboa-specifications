@@ -28,6 +28,9 @@
 
 package org.fenixedu.ulisboa.specifications.domain;
 
+
+enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
+
 external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
@@ -35,6 +38,10 @@ external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.student.Registration;
 external class .org.fenixedu.academic.domain.SchoolClass;
 external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
+external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
+external class .org.fenixedu.academic.domain.student.Registration;
+external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
+external class .org.fenixedu.academic.domain.ExecutionYear;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -605,7 +612,102 @@ relation RegistrationSchoolClass {
 
 
 // ======================= = ULisboaServiceRequest = =========================
-class ULisboaServiceRequest extends .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest {
-	boolean isValid;
+
+class serviceRequests.ULisboaServiceRequest extends .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest {
+    boolean isValid;
 }
-// ======================= = ===================== = =========================
+
+class serviceRequests.ServiceRequestSlot {
+    String code;
+    UIComponentType uiComponentType;
+    LocalizedString label;
+}
+
+relation ServiceRequestSlotBennu {
+    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+
+    public serviceRequests.ServiceRequestSlot playsRole serviceRequestSlots {
+        multiplicity *;
+    }
+}
+
+relation ServiceRequestTypeServiceRequestSlot {
+    public .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType playsRole serviceRequestTypes {
+        multiplicity *;
+    }
+
+    public serviceRequests.ServiceRequestSlot playsRole serviceRequestSlots {
+        multiplicity *;
+    }
+}
+
+class serviceRequests.ServiceRequestProperty {
+    Locale locale;
+    String string;
+    Boolean booleanValue;
+    CycleType cycleType;
+    Integer integer;
+}
+
+relation ServiceRequestPropertyBennu {
+    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole ServiceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation ServiceRequestSlotServiceRequestProperty {
+    public serviceRequests.ServiceRequestSlot playsRole serviceRequestSlot {
+        multiplicity 1..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation ULisboaServiceRequestServiceRequestProperty {
+    public serviceRequests.ULisboaServiceRequest playsRole uLisboaServiceRequest {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+// slots
+relation RegistrationServiceRequestProperty {
+    public .org.fenixedu.academic.domain.student.Registration playsRole registration {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole {
+        multiplicity *;
+    }
+}
+
+relation DocumentPurposeTypeInstanceServiceRequestProperty {
+    public .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance playsRole documentPurposeTypeInstance {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole {
+        multiplicity *;
+    }
+}
+
+relation ExecutionYearServiceRequestProperty {
+    public .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole {
+        multiplicity *;
+    }
+}
