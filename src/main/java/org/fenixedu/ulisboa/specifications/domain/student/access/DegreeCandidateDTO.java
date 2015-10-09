@@ -19,6 +19,7 @@
  **/
 package org.fenixedu.ulisboa.specifications.domain.student.access;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -74,6 +75,8 @@ public class DegreeCandidateDTO {
     private Double entryGrade;
 
     private EntryPhase entryPhase;
+
+    private Country nationality;
 
     public String getDegreeCode() {
         return degreeCode;
@@ -211,6 +214,7 @@ public class DegreeCandidateDTO {
         final Person person = new Person(profile);
 
         person.setGender(getGender());
+        person.setCountry(getNationality());
         person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
 
         person.setMaritalStatus(MaritalStatus.SINGLE);
@@ -235,6 +239,14 @@ public class DegreeCandidateDTO {
 
     public ExecutionDegree getExecutionDegree(final ExecutionYear executionYear, Space space) {
         return ExecutionDegree.readByDegreeCodeAndExecutionYearAndCampus(getDegreeCode(), executionYear, space);
+    }
+
+    public Country getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(Country nationality) {
+        this.nationality = nationality;
     }
 
     public static abstract class MatchingPersonException extends Exception {

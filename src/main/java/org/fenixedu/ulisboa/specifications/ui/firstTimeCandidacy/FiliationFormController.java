@@ -84,9 +84,6 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             Person person = AccessControl.getPerson();
             PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
             form.setNationality(person.getCountry());
-            if (form.getNationality() == null) {
-                form.setNationality(Country.readDefault());
-            }
             if (personUl != null) {
                 form.setSecondNationality(personUl.getSecondNationality());
             }
@@ -138,6 +135,10 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
     }
 
     private boolean validate(FiliationForm form, Model model) {
+        if (form.getNationality() == null) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.nationality.required"), model);
+            return false;
+        }
         if ((StringUtils.isEmpty(form.getFatherName())) || (StringUtils.isEmpty(form.getMotherName()))) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.parentsName.required"), model);
             return false;

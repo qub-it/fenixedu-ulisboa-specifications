@@ -78,6 +78,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<select id="filiationForm_nationality"
 						class="js-example-basic-single" name="nationality">
+						<option value=""></option>
 					</select>
 				</div>
 			</div>
