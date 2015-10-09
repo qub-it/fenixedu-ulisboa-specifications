@@ -652,6 +652,13 @@ class serviceRequests.ServiceRequestProperty {
     Integer integer;
 }
 
+relation ULisboaServiceRequestRegistration {
+	public serviceRequests.ULisboaServiceRequest playsRole uLisboaServiceRequests {
+		multiplicity *;
+	}
+	public .org.fenixedu.academic.domain.student.Registration playsRole registration;
+}
+
 relation ServiceRequestPropertyBennu {
     protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
         multiplicity 1..1;

@@ -9,7 +9,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -115,8 +114,6 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
             return;
         }
 
-        createStaticSlot(Constants.REGISTRATION, UIComponentType.DROP_DOWN_ONE_VALUE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.registration"));
         createStaticSlot(Constants.LANGUAGE, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.language"));
         createStaticSlot(Constants.DOCUMENT_PURPOSE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
@@ -148,55 +145,41 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     }
 
     @Atomic
-    public static void createProperty(String serviceRequestSlotCode, String propertyValue) {
+    public static ServiceRequestProperty createProperty(String serviceRequestSlotCode, String propertyValue) {
         ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
         switch (serviceRequestSlotCode) {
-        case Constants.REGISTRATION:
-            Registration registration = (Registration) FenixFramework.getDomainObject(propertyValue);
-            ServiceRequestProperty.createRegistrationProperty(registration, serviceRequestSlot);
-            break;
         case Constants.LANGUAGE:
             Locale language = Locale.forLanguageTag(propertyValue);
-            ServiceRequestProperty.createLocaleProperty(language, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createLocaleProperty(language, serviceRequestSlot);
         case Constants.DOCUMENT_PURPOSE_TYPE:
             DocumentPurposeTypeInstance documentPurposeTypeInstance =
                     (DocumentPurposeTypeInstance) FenixFramework.getDomainObject(propertyValue);
-            ServiceRequestProperty.createDocumentPurposeTypeInstanceProperty(documentPurposeTypeInstance, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createDocumentPurposeTypeInstanceProperty(documentPurposeTypeInstance,
+                    serviceRequestSlot);
         case Constants.OTHER_DOCUMENT_PURPOSE:
-            ServiceRequestProperty.createStringProperty(propertyValue, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createStringProperty(propertyValue, serviceRequestSlot);
         case Constants.IS_DETAILED:
             Boolean detailed = Boolean.valueOf(propertyValue);
-            ServiceRequestProperty.createBooleanProperty(detailed, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createBooleanProperty(detailed, serviceRequestSlot);
         case Constants.IS_URGENT:
             Boolean urgent = Boolean.valueOf(propertyValue);
-            ServiceRequestProperty.createBooleanProperty(urgent, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createBooleanProperty(urgent, serviceRequestSlot);
         case Constants.CYCLE_TYPE:
             CycleType cycleType = CycleType.valueOf(propertyValue);
-            ServiceRequestProperty.createCycleTypeProperty(cycleType, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createCycleTypeProperty(cycleType, serviceRequestSlot);
         case Constants.NUMBER_OF_UNITS:
             Integer numberOfUnits = Integer.valueOf(propertyValue);
-            ServiceRequestProperty.createIntegerProperty(numberOfUnits, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createIntegerProperty(numberOfUnits, serviceRequestSlot);
         case Constants.NUMBER_OF_DAYS:
             Integer numberOfDays = Integer.valueOf(propertyValue);
-            ServiceRequestProperty.createIntegerProperty(numberOfDays, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createIntegerProperty(numberOfDays, serviceRequestSlot);
         case Constants.NUMBER_OF_PAGES:
             Integer numberOfPages = Integer.valueOf(propertyValue);
-            ServiceRequestProperty.createIntegerProperty(numberOfPages, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createIntegerProperty(numberOfPages, serviceRequestSlot);
         case Constants.EXECUTION_YEAR:
             ExecutionYear executionYear = (ExecutionYear) FenixFramework.getDomainObject(propertyValue);
-            ServiceRequestProperty.createExecutionYearProperty(executionYear, serviceRequestSlot);
-            break;
+            return ServiceRequestProperty.createExecutionYearProperty(executionYear, serviceRequestSlot);
         case Constants.CURRICULAR_PLAN:
-
         case Constants.APPROVED_COURSES:
         case Constants.ENROLLED_COURSES:
         case Constants.CREDITS:

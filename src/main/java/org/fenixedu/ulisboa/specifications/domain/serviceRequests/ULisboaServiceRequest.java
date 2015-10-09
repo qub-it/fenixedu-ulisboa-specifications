@@ -28,18 +28,49 @@
 
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
+import java.util.Locale;
+import java.util.Optional;
+
 import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
+import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
+import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
+import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.joda.time.DateTime;
 
 public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
-    public ULisboaServiceRequest() {
+    protected ULisboaServiceRequest() {
         super();
+    }
+
+    protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration) {
+        this();
+        setRequestDate(new DateTime());
+        setServiceRequestType(serviceRequestType);
+        setRegistration(registration);
+    }
+
+    static public ULisboaServiceRequest createULisboaServiceRequest(ULisboaServiceRequestBean bean) {
+        ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration());
+        for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
+            ServiceRequestProperty property = ServiceRequestSlot.createProperty(propertyBean.getCode(), propertyBean.getValue());
+            request.addServiceRequestProperties(property);
+        }
+        return request;
+    }
+
+    @Override
+    protected void disconnect() {
+        // TODO Ver qual o processo mais correcto para apagar/editar estas instâncias.
+        //      Rever fields do ASR que possam fazer sentido utilizar aqui (e.g. AcademicServiceRequestYear)
+        super.disconnect();
     }
 
     /*
@@ -51,62 +82,90 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     @Override
     public boolean isToPrint() {
         // TODO Delegar no ServiceRequestType.isPrintable()
-        return getServiceRequestType().getPayable();
+        return false;
     }
 
     @Override
     public Person getPerson() {
-        return getRegistration().getPerson();
-    }
-
-    @Override
-    public Registration getRegistration() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return null;
+        return hasRegistation() ? getRegistration().getPerson() : null;
     }
 
     @Override
     public boolean hasRegistation() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return false;
+        return getRegistration() != null;
+    }
+
+    @Override
+    public Locale getLanguage() {
+        ServiceRequestProperty languageProperty = findProperty(Constants.LANGUAGE).orElse(null);
+        return languageProperty != null ? languageProperty.getLocale() : null;
     }
 
     @Override
     public boolean hasLanguage() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return false;
+        return findProperty(Constants.LANGUAGE).isPresent();
+    }
+
+    @Override
+    public boolean isDetailed() {
+        ServiceRequestProperty detailedProperty = findProperty(Constants.IS_DETAILED).orElse(null);
+        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
+    }
+
+    @Override
+    public Integer getNumberOfUnits() {
+        ServiceRequestProperty unitsProperty = findProperty(Constants.NUMBER_OF_UNITS).orElse(null);
+        return unitsProperty != null ? unitsProperty.getInteger() : null;
     }
 
     @Override
     public boolean hasNumberOfUnits() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return false;
+        return findProperty(Constants.NUMBER_OF_UNITS).isPresent();
     }
 
     @Override
     public boolean isUrgent() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return false;
+        ServiceRequestProperty urgentProperty = findProperty(Constants.IS_URGENT).orElse(null);
+        return urgentProperty != null && urgentProperty.getBooleanValue() != null ? urgentProperty.getBooleanValue() : false;
+    }
+
+    @Override
+    public Integer getNumberOfPages() {
+        ServiceRequestProperty pagesProperty = findProperty(Constants.NUMBER_OF_PAGES).orElse(null);
+        return pagesProperty != null ? pagesProperty.getInteger() : null;
     }
 
     @Override
     public boolean hasNumberOfPages() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return false;
+        return findProperty(Constants.NUMBER_OF_PAGES).isPresent();
     }
 
     @Override
     public CycleType getCycleType() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return null;
+        ServiceRequestProperty cycleProperty = findProperty(Constants.CYCLE_TYPE).orElse(null);
+        return cycleProperty != null ? cycleProperty.getCycleType() : null;
     }
 
     @Override
     public boolean hasCycleType() {
-        // TODO Delegar na ServiceRequestProperty correspondente.
-        return false;
+        return findProperty(Constants.CYCLE_TYPE).isPresent();
     }
 
+    @Override
+    public String getDescription() {
+        return getServiceRequestType().getName().getContent();
+    }
+
+    private Optional<ServiceRequestProperty> findProperty(String slotCode) {
+        return getServiceRequestPropertiesSet().stream()
+                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+    }
+
+    /*
+     * ****************
+     * <Deprecated API>
+     * ****************
+     */
     @Deprecated
     @Override
     public boolean isPayedUponCreation() {
@@ -154,5 +213,10 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         // TODO Auto-generated method stub
         return null;
     }
+    /*
+     * *****************
+     * </Deprecated API>
+     * *****************
+     */
 
 }
