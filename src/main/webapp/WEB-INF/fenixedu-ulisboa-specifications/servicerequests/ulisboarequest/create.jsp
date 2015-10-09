@@ -26,6 +26,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.util.Constants"%>
 <%@page import="org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeType"%>
@@ -90,7 +91,8 @@ ${portal.angularToolkit()}
 <%-- NAVIGATION --%>
 
 <% 
-  Registration registration = (Registration) request.getAttribute("registration"); 
+  ULisboaServiceRequestBean bean = (ULisboaServiceRequestBean) request.getAttribute("ulisboaServiceRequestBean");
+  Registration registration = bean.getRegistration();
   String url = "/academicAdministration/student.do?method=visualizeRegistration&registrationID="+ registration.getExternalId();
 %>
 
@@ -160,6 +162,17 @@ ${portal.angularToolkit()}
                   {name: '<spring:message code="label.no"/>', value: false},
                   {name: '<spring:message code="label.yes"/>', value: true}
                 ];
+                //Convert properties values
+                $scope.formatPropertiesValues = function(json) {
+                	angular.forEach(json.serviceRequestPropertyBeans, function(index, element) {
+                		if(element.uiComponentType != 'TEXT') {
+                			json.serviceRequestPropertyBeans[index].value = angular.fromJson(element.value);
+                		}
+                	});
+                	return json;
+                }
+                
+                //Dependencies for ngShow
                 $scope.showElement = function (elementId) {
                 	return $scope.otherDocumentPurposeDependency(elementId);
                 };
@@ -181,7 +194,7 @@ ${portal.angularToolkit()}
 <form name='form' method="post" class="form-horizontal"
     ng-app="angularAppAcademicRequest"
     ng-controller="AcademicRequestController"
-    action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${registration.externalId}'>
+    action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'>
 
     <input type="hidden" name="postback"
         value='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_POSTBACK_URL %>' />
@@ -248,15 +261,15 @@ ${portal.angularToolkit()}
                     </ui-select> 
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT'"
                            type="text" ng-model="serviceRequestProperty.value" name="{{ serviceRequestProperty.code }}" 
-                           value='<c:out value='${requestScope[componentBean.component.name]}'/>'
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'NUMBER'"
                            type="number" ng-model="serviceRequestProperty.value" name="{{ serviceRequestProperty.code }}" 
-                           value='<c:out value='${requestScope[componentBean.component.name]}'/>'
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
                            type="text" ng-localized-string="serviceRequestProperty.value" name="{{ serviceRequestProperty.code }}"
-                           value='<c:out value='${requestScope[componentBean.component.name]}'/>'
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />    
                 </div>
             </div>

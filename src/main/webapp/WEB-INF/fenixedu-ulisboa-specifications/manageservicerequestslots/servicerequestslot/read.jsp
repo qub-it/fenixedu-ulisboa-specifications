@@ -144,7 +144,7 @@ ${portal.toolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.ServiceRequestSlot.label" /></th>
-                        <td><c:out value='${serviceRequestSlot.label}' /></td>
+                        <td><c:out value='${serviceRequestSlot.label.content}' /></td>
                     </tr>
 				</tbody>
 			</table>

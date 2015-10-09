@@ -36,14 +36,12 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         if (getULisboaServiceRequestBean(model) == null) {
             setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration), model);
         }
-        model.addAttribute("registration", registration);
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
 
     @RequestMapping(value = _CREATE_URI + "{oid}", method = RequestMethod.POST)
     public String createAcademicRequest(@PathVariable(value = "oid") Registration registration, @RequestParam(value = "bean",
             required = true) ULisboaServiceRequestBean bean, Model model) {
-        model.addAttribute("registration", registration);
         setULisboaServiceRequestBean(bean, model);
 
         //TODOJN 
