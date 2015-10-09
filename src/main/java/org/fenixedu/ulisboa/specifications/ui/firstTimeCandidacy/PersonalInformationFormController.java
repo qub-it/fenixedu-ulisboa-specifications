@@ -234,16 +234,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     private boolean validate(PersonalInformationForm form, Model model) {
         Person person = AccessControl.getPerson();
         IDDocumentType idType = form.getIdDocumentType();
-        if (idType == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
-            return false;
-        }
         if (form.getIsForeignStudent()) {
+            if (idType == null) {
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
+                return false;
+            }
+
             if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"), model);
                 return false;
             }
-
         }
 
         if (!form.getIsForeignStudent()) {

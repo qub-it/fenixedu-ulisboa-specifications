@@ -134,16 +134,8 @@ ${portal.toolkit()}
 						<spring:message code="label.PersonalInformationForm.idDocumentType" />
 					</label>
 	
-					<div class="col-sm-4">
-						<select id="personalInformationForm_idDocumentType" class="form-control" name="idDocumentType" >
-							<option value=""></option>
-							<c:forEach items="${idDocumentTypeValues}" var="documentType">
-								<option value="${documentType}">${documentType.localizedName}</option>
-							</c:forEach>
-						</select>
-						<script>
-							$("#personalInformationForm_idDocumentType").val('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
-						</script>
+					<div class="col-sm-10">
+						<div class="form-control-static"><c:out value='${personalInformationForm.idDocumentType.localizedName }' /></div>
 					</div>
 				</div>
 			</c:if>
