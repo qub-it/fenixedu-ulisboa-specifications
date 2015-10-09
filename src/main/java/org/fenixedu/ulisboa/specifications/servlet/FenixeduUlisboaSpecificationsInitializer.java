@@ -93,6 +93,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         AnyCurricularCourseExceptionsInitializer.init();
         RegistrationRegimeVerifierInitializer.init();
         EnrolmentPredicateInitializer.init();
+        StudentCurricularPlanLayout.register();
         configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
@@ -113,8 +114,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForSchoolClassDelete();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
-
-        StudentCurricularPlanLayout.registerStudentCurricularPlanLayout();
     }
 
     private void setupListenerForDegreeDelete() {
@@ -145,7 +144,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             }
         });
     }
-    
+
     private void setupListenerForSchoolClassDelete() {
         FenixFramework.getDomainModel().registerDeletionListener(SchoolClass.class, new DeletionListener<SchoolClass>() {
 
