@@ -71,7 +71,7 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
         }
         Person person = AccessControl.getPerson();
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
-        closeStudentCandidacy(person, candidacy);
+        concludeStudentCandidacy(person, candidacy);
 
         byte[] pdfBytes = candidacy.getSummaryFile().getContent();
         String filename = person.getStudent().getNumber() + ".pdf";
@@ -88,7 +88,7 @@ public class FinishedController extends FenixeduUlisboaSpecificationsBaseControl
     }
 
     @Atomic
-    private void closeStudentCandidacy(Person person, StudentCandidacy candidacy) {
+    private void concludeStudentCandidacy(Person person, StudentCandidacy candidacy) {
         AdmittedCandidacySituation situation = new AdmittedCandidacySituation(candidacy, person);
         situation.setSituationDate(situation.getSituationDate().minusMinutes(1));
 

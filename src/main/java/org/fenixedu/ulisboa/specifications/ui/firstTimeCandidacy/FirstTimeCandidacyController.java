@@ -27,7 +27,6 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -161,9 +160,32 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         return registration;
     }
 
+    public static EnrolmentPeriodInCurricularCoursesCandidate getCandidacyPeriod(DegreeCurricularPlan dcp) {
+        Predicate<EnrolmentPeriod> isCandidateEnrolmentPeriod =
+                ep -> ep instanceof EnrolmentPeriodInCurricularCoursesCandidate
+                        && ep.getExecutionPeriod().equals(ExecutionSemester.readActualExecutionSemester());
+        Stream<EnrolmentPeriod> periods = dcp.getEnrolmentPeriodsSet().stream().filter(isCandidateEnrolmentPeriod);
+        long count = periods.count();
+        if (count == 0) {
+            return null;
+        }
+        if (count > 1) {
+            throw new RuntimeException("Multiple configured periods (EnrolmentPeriodInCurricularCoursesCandidate) for the dcp: "
+                    + dcp.getName() + " and the semester: " + ExecutionSemester.readActualExecutionSemester().getName());
+        }
+
+        // Repeat the asign to the periods stream, because the previous count() operation is "terminal"
+        periods = dcp.getEnrolmentPeriodsSet().stream().filter(isCandidateEnrolmentPeriod);
+        return (EnrolmentPeriodInCurricularCoursesCandidate) periods.findFirst().get();
+    }
+
     public static boolean isPeriodOpen() {
-        Predicate<EnrolmentPeriod> isPeriodOpen = ep -> ep instanceof EnrolmentPeriodInCurricularCoursesCandidate && ep.isValid();
-        Set<EnrolmentPeriod> periods = getCandidacy().getExecutionDegree().getDegreeCurricularPlan().getEnrolmentPeriodsSet();
-        return periods.stream().filter(isPeriodOpen).findAny().isPresent();
+        DegreeCurricularPlan dcp = getCandidacy().getExecutionDegree().getDegreeCurricularPlan();
+        EnrolmentPeriodInCurricularCoursesCandidate period = getCandidacyPeriod(dcp);
+        if (period == null) {
+            throw new RuntimeException("No configured periods (EnrolmentPeriodInCurricularCoursesCandidate) for the dcp: "
+                    + dcp.getName() + " and the semester: " + ExecutionSemester.readActualExecutionSemester().getName());
+        }
+        return period.isValid();
     }
 }
