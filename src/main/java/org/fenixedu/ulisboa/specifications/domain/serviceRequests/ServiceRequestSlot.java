@@ -27,11 +27,13 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         setBennu(Bennu.getInstance());
     }
 
-    protected ServiceRequestSlot(final String code, final UIComponentType uiComponentType, final LocalizedString label) {
+    protected ServiceRequestSlot(final String code, final UIComponentType uiComponentType, final LocalizedString label,
+            final boolean changeable) {
         this();
         setCode(code);
         setUiComponentType(uiComponentType);
         setLabel(label);
+        setChangeable(changeable);
         checkRules();
     }
 
@@ -52,6 +54,10 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
     @Atomic
     public void edit(final String code, final UIComponentType uiComponentType, final LocalizedString label) {
+        if (!getChangeable()) {
+            throw new DomainException("error.ServiceRequestSlot.unchangeableSlot");
+        }
+
         setCode(code);
         setUiComponentType(uiComponentType);
         setLabel(label);
@@ -66,6 +72,9 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         }
         if (!getServiceRequestTypesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Constants.BUNDLE, "error.ServiceRequestSlot.connected.ServiceRequestTypes"));
+        }
+        if (!getChangeable()) {
+            blockers.add(BundleUtil.getString(Constants.BUNDLE, "error.ServiceRequestSlot.unchangeableSlot"));
         }
     }
 
@@ -90,44 +99,51 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     }
 
     @Atomic
-    public static ServiceRequestSlot create(final String code, final UIComponentType uiComponentType, final LocalizedString label) {
-        return new ServiceRequestSlot(code, uiComponentType, label);
+    public static ServiceRequestSlot createDynamicSlot(final String code, final UIComponentType uiComponentType,
+            final LocalizedString label) {
+        return new ServiceRequestSlot(code, uiComponentType, label, true);
     }
 
-    public static void initBaseSlots() {
+    @Atomic
+    public static ServiceRequestSlot createStaticSlot(final String code, final UIComponentType uiComponentType,
+            final LocalizedString label) {
+        return new ServiceRequestSlot(code, uiComponentType, label, false);
+    }
+
+    public static void initStaticSlots() {
         if (findAll().count() != 0) {
             return;
         }
 
-        create(Constants.REGISTRATION, UIComponentType.DROP_DOWN_ONE_VALUE,
+        createStaticSlot(Constants.REGISTRATION, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.registration"));
-        create(Constants.LANGUAGE, UIComponentType.DROP_DOWN_ONE_VALUE,
+        createStaticSlot(Constants.LANGUAGE, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.language"));
-        create(Constants.DOCUMENT_PURPOSE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
+        createStaticSlot(Constants.DOCUMENT_PURPOSE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.documentPurposeType"));
-        create(Constants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT,
+        createStaticSlot(Constants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
-        create(Constants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
+        createStaticSlot(Constants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.isDetailed"));
-        create(Constants.IS_URGENT, UIComponentType.DROP_DOWN_BOOLEAN,
+        createStaticSlot(Constants.IS_URGENT, UIComponentType.DROP_DOWN_BOOLEAN,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.isUrgent"));
-        create(Constants.CYCLE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
+        createStaticSlot(Constants.CYCLE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.cycleType"));
-        create(Constants.NUMBER_OF_UNITS, UIComponentType.NUMBER,
+        createStaticSlot(Constants.NUMBER_OF_UNITS, UIComponentType.NUMBER,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfUnits"));
-        create(Constants.NUMBER_OF_DAYS, UIComponentType.NUMBER,
+        createStaticSlot(Constants.NUMBER_OF_DAYS, UIComponentType.NUMBER,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfDays"));
-        create(Constants.NUMBER_OF_PAGES, UIComponentType.NUMBER,
+        createStaticSlot(Constants.NUMBER_OF_PAGES, UIComponentType.NUMBER,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfPages"));
-        create(Constants.CURRICULAR_PLAN, UIComponentType.DROP_DOWN_ONE_VALUE,
+        createStaticSlot(Constants.CURRICULAR_PLAN, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.curricularPlan"));
-        create(Constants.APPROVED_COURSES, UIComponentType.DROP_DOWN_MULTIPLE,
+        createStaticSlot(Constants.APPROVED_COURSES, UIComponentType.DROP_DOWN_MULTIPLE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.approvedCourses"));
-        create(Constants.ENROLLED_COURSES, UIComponentType.DROP_DOWN_MULTIPLE,
+        createStaticSlot(Constants.ENROLLED_COURSES, UIComponentType.DROP_DOWN_MULTIPLE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.enrolledCourses"));
-        create(Constants.CREDITS, UIComponentType.NUMBER,
+        createStaticSlot(Constants.CREDITS, UIComponentType.NUMBER,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.credits"));
-        create(Constants.EXECUTION_YEAR, UIComponentType.DROP_DOWN_ONE_VALUE,
+        createStaticSlot(Constants.EXECUTION_YEAR, UIComponentType.DROP_DOWN_ONE_VALUE,
                 BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.executionYear"));
     }
 

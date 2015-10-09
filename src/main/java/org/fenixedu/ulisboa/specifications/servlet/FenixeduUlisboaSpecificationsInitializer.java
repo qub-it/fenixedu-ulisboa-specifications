@@ -113,7 +113,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
 
-        ServiceRequestSlot.initBaseSlots();
+        ServiceRequestSlot.initStaticSlots();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 

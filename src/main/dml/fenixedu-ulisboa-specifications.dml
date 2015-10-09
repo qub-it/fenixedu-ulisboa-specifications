@@ -621,6 +621,7 @@ class serviceRequests.ServiceRequestSlot {
     String code;
     UIComponentType uiComponentType;
     LocalizedString label;
+    boolean changeable;
 }
 
 relation ServiceRequestSlotBennu {
