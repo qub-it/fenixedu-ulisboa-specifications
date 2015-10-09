@@ -201,16 +201,20 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     private boolean validate(PersonalInformationForm form, Model model) {
         Person person = AccessControl.getPerson();
-        if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
-            return false;
-        }
-        if (!form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
-                && !form.getIdentificationDocumentSeriesNumber().matches(IDENTITY_CARD_CONTROL_DIGIT_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
-            return false;
+        IDDocumentType idType = person.getIdDocumentType();
+        if (idType.equals(IDDocumentType.CITIZEN_CARD) || idType.equals(IDDocumentType.IDENTITY_CARD)) {
+            if (StringUtils.isEmpty(form.getIdentificationDocumentSeriesNumber())) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
+                return false;
+            }
+
+            if (!form.getIdentificationDocumentSeriesNumber().matches(CITZEN_CARD_CHECK_DIGIT_FORMAT)
+                    && !form.getIdentificationDocumentSeriesNumber().matches(IDENTITY_CARD_CONTROL_DIGIT_FORMAT)) {
+                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"), model);
+                return false;
+            }
         }
 
         if (!StringUtils.isEmpty(form.getSocialSecurityNumber())

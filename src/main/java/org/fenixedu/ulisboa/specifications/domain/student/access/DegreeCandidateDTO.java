@@ -214,8 +214,13 @@ public class DegreeCandidateDTO {
         final Person person = new Person(profile);
 
         person.setGender(getGender());
-        person.setCountry(getNationality());
-        person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
+        Country nationality = getNationality();
+        person.setCountry(nationality);
+        if (nationality != null && nationality.isDefaultCountry()) {
+            person.setIdentification(getDocumentIdNumber(), IDDocumentType.CITIZEN_CARD);
+        } else {
+            person.setIdentification(getDocumentIdNumber(), IDDocumentType.OTHER);
+        }
 
         person.setMaritalStatus(MaritalStatus.SINGLE);
         person.setDateOfBirthYearMonthDay(getDateOfBirth());

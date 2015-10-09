@@ -120,7 +120,7 @@ ${portal.toolkit()}
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
+				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label">
 					<spring:message
 						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
 				</label>
@@ -131,7 +131,7 @@ ${portal.toolkit()}
 						class="form-control" type="text"
 						name="identificationDocumentSeriesNumber"
 						value='<c:out value='${not empty param.identificationdocumentseriesnumber ? param.identificationdocumentseriesnumber : personalInformationForm.identificationDocumentSeriesNumber }'/>'
-						required pattern="[0-9]|([0-9][a-zA-Z][a-zA-Z][0-9])" />
+						pattern="[0-9]|([0-9][a-zA-Z][a-zA-Z][0-9])" />
 				</div>
 			</div>
 			<div class="form-group row">
