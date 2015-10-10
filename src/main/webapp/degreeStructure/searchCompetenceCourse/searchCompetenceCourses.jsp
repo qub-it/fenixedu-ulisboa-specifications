@@ -64,7 +64,13 @@
 			</strong>
 			<c:forEach items="${curricularCourse.parentContextsSet}" var="context">
 				<br/>
-				<small><c:out value="${context.parentCourseGroup.oneFullName} (${context.curricularPeriod.fullLabel})"/></small>
+				<small>
+					<c:if test="${empty context.endExecutionPeriod}"><strong></c:if>
+					<c:out value="${context.parentCourseGroup.oneFullName} (${context.curricularPeriod.fullLabel})"/>
+					<c:out value="${context.beginExecutionPeriod.qualifiedName}" /> <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> 
+					<c:if test="${not empty  context.endExecutionPeriod}"> <c:out value="${context.endExecutionPeriod.qualifiedName}" /></c:if>
+					<c:if test="${empty context.endExecutionPeriod}"> ... </strong></c:if>
+				</small>
 				<bean:define id="curricularYear" name="context" property="curricularYear" />
 				<c:set var="curricularYearId"><%= org.fenixedu.academic.domain.CurricularYear.readByYear(Integer.valueOf(curricularYear.toString())).getExternalId() %></c:set>
 			</c:forEach>			
