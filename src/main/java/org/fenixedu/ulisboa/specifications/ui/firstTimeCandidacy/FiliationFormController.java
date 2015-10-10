@@ -83,7 +83,6 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             FiliationForm form = new FiliationForm();
             Person person = AccessControl.getPerson();
             PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
-            form.setNationality(person.getCountry());
             if (personUl != null) {
                 form.setSecondNationality(personUl.getSecondNationality());
             }
@@ -196,8 +195,6 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
 
     public static class FiliationForm {
 
-        private Country nationality;
-
         private Country secondNationality;
 
         @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -224,11 +221,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         }
 
         public Country getNationality() {
-            return nationality;
-        }
-
-        public void setNationality(Country nationality) {
-            this.nationality = nationality;
+            return AccessControl.getPerson().getCountry();
         }
 
         public Parish getParishOfBirth() {

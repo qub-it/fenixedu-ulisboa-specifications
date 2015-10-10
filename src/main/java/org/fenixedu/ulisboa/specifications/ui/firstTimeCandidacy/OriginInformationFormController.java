@@ -27,6 +27,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -46,7 +48,6 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -168,84 +169,80 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             model.addAttribute("originInformationForm", form);
             return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
         } catch (Exception de) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
-                    + de.getLocalizedMessage(), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             return fillorigininformation(model, redirectAttributes);
         }
     }
 
     private boolean validate(OriginInformationForm form, Model model) {
         if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.personalInformation.requiredCountry"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
             return false;
         }
         if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()) {
             if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
                     || form.getDistrictWhereFinishedPreviousCompleteDegree() == null) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.personalInformation.requiredDistrictAndSubdivisionForDefaultCountry"), model);
+                addErrorMessage(
+                        BundleUtil.getString(BUNDLE, "error.personalInformation.requiredDistrictAndSubdivisionForDefaultCountry"),
+                        model);
                 return false;
             }
         }
 
         if (form.getSchoolLevel() == null || form.getSchoolLevel() == SchoolLevelType.OTHER
                 && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+            addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
             return false;
         }
 
         if (StringUtils.isEmpty(StringUtils.trim(form.getInstitutionOid()))) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"), model);
+            addErrorMessage(
+                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"),
+                    model);
             return false;
         }
 
         if (form.getSchoolLevel().isHigherEducation()) {
             if (form.getRaidesDegreeDesignation() == null) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.degreeDesignation.required"), model);
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;
             }
         } else {
             if (StringUtils.isEmpty(form.getDegreeDesignation())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.degreeDesignation.required"), model);
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;
             }
         }
 
         if (StringUtils.isEmpty(form.getConclusionGrade()) || !form.getConclusionGrade().matches(GRADE_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.incorrect.conclusionGrade"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"), model);
             return false;
         }
 
         if (form.getConclusionYear() == null || !form.getConclusionYear().toString().matches(YEAR_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.incorrect.conclusionYear"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"), model);
             return false;
         }
 
         LocalDate now = new LocalDate();
         if (now.getYear() < form.getConclusionYear()) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.personalInformation.year.after.current"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"), model);
             return false;
         }
 
         int birthYear = AccessControl.getPerson().getDateOfBirthYearMonthDay().getYear();
         if (form.getConclusionYear() < birthYear) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.personalInformation.year.before.birthday"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"), model);
             return false;
         }
 
-        if (form.getSchoolLevel().isHighSchoolOrEquivalent() && form.getHighSchoolType() == null) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.highSchoolType.required"), model);
-            return false;
+        if (form.getSchoolLevel().isHighSchoolOrEquivalent()
+                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()) {
+            if (form.getHighSchoolType() == null) {
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.highSchoolType.required"), model);
+                return false;
+            }
         }
 
         return true;

@@ -76,7 +76,7 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<div class="form-control-static"><c:out value='${not empty param.nationality ? param.nationality : personalInformationForm.nationality.name }' /></div>
+					<div class="form-control-static"><c:out value='${not empty param.nationality ? param.nationality : filiationForm.nationality.name }' /></div>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -230,25 +230,6 @@ $(document).ready(function() {
 	             			$('#labelParishOfBirth').addClass("required-field");
 	             		}
 	             	  }
-	             	 
-	             	  
-    //setup nationalities
-    	nationality_options = [
-	             			<c:forEach items="${countries_options}" var="element"> 
-	             				{
-	             					text : "<c:out value='${element.nationality}'/>",  
-	             					id : "<c:out value='${element.externalId}'/>"
-	             				},
-	             			</c:forEach>
-	             		];
-	
-	             	   $("#filiationForm_nationality").select2(
-		             			{
-		             				data : nationality_options,
-		             			}	  
-		             	    );
-		             	    
-	             	    $("#filiationForm_nationality").select2().select2('val', '<c:out value='${filiationForm.nationality.externalId}'/>');
 		             	    
     //setup secondNationalities
     	secondNationality_options = [
