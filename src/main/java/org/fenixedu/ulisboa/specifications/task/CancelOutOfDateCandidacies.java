@@ -81,7 +81,8 @@ public class CancelOutOfDateCandidacies extends CronTask {
 
         int count = 0;
         for (FirstTimeCandidacy candidacy : getAllFirstTimeCandidacies(dcp)) {
-            if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
+            if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)
+                    || candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.CANCELLED)) {
                 continue;
             }
 
@@ -102,8 +103,10 @@ public class CancelOutOfDateCandidacies extends CronTask {
                                     RegistrationStateType.REGISTERED);
                     registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
                 }
-                RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                        RegistrationStateType.CANCELED);
+                if (!registration.getActiveState().getStateType().equals(RegistrationStateType.CANCELED)) {
+                    RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
+                            RegistrationStateType.CANCELED);
+                }
             }
 
             new CancelledCandidacySituation(candidacy);
