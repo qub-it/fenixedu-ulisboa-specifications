@@ -268,7 +268,11 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         highSchoolEntryGrade = highSchoolEntryGrade.divide(new BigDecimal(10), RoundingMode.HALF_EVEN);
         degreeCandidateDTO.setHighSchoolFinalGrade(highSchoolEntryGrade.setScale(0, RoundingMode.HALF_EVEN).toString());
         degreeCandidateDTO.setName(fields[11].trim());
-        degreeCandidateDTO.setNationality(Country.readByTwoLetterCode(fields[15].trim()));
+        Country nationality = Country.readByTwoLetterCode(fields[15].trim());
+        if (nationality == null) {
+            throw new RuntimeException("Cannot import student with unknown nationality: " + fields[15].trim());
+        }
+        degreeCandidateDTO.setNationality(nationality);
     }
 
     private Gender parseGender(String gender) {
