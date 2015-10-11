@@ -159,7 +159,7 @@ ${portal.angularToolkit()}
                     <ui-select id="serviceRequestType_active"
                         ng-model="$parent.object.active"
                         theme="bootstrap" > 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
@@ -178,7 +178,7 @@ ${portal.angularToolkit()}
                     <ui-select id="serviceRequestType_payable"
                         ng-model="$parent.object.payable"
                         theme="bootstrap" > 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
@@ -197,7 +197,26 @@ ${portal.angularToolkit()}
                     <ui-select id="serviceRequestType_notifyUponConclusion"
                         ng-model="$parent.object.notifyUponConclusion"
                         theme="bootstrap" > 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select> 
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message
+                        code="label.ServiceRequestType.printable" />
+                </div>
+
+                <div class="col-sm-2">
+                    <ui-select id="serviceRequestType_printable"
+                        ng-model="$parent.object.printable"
+                        theme="bootstrap" > 
+                        <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
@@ -216,7 +235,7 @@ ${portal.angularToolkit()}
                     <ui-select id="serviceRequestType_serviceRequestCategory"
                         ng-model="$parent.object.serviceRequestCategory"
                         theme="bootstrap" > 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match>
                             {{$select.selected.text}}
                         </ui-select-match> 
                         <ui-select-choices repeat="element.id as element in object.serviceRequestCategoryDataSource | filter: $select.search">

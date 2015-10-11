@@ -158,6 +158,8 @@ ${portal.toolkit()}
                             code="label.ServiceRequestType.payable" /></th>
                     <th><spring:message
                             code="label.ServiceRequestType.notifyUponConclusion" /></th>
+                    <th><spring:message
+                            code="label.ServiceRequestType.printable" /></th>
                     <%-- Operations Column --%>
                     <th></th>
                 </tr>
@@ -190,6 +192,7 @@ ${portal.toolkit()}
 "active" : "<c:if test="${searchResult.active}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.active}"><spring:message code="label.false" /></c:if>",
 "payable" :"<c:if test="${searchResult.payable}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.payable}"><spring:message code="label.false" /></c:if>",
 "notifyUponConclusion" : "<c:if test="${searchResult.notifyUponConclusion}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.notifyUponConclusion}"><spring:message code="label.false" /></c:if>",
+"printable" : "<c:if test="${searchResult.printable}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.printable}"><spring:message code="label.false" /></c:if>",
 "actions" :
 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ServiceRequestTypeController.READ_URL %>${searchResult.externalId}\"><spring:message code='label.view'/></a>" +
 " <a  class=\"btn btn-xs btn-danger\" href=\"#\" onClick=\"javascript:processDelete('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>" +
@@ -210,15 +213,15 @@ ${portal.toolkit()}
 			{ data: 'active' },
 			{ data: 'payable' },
 			{ data: 'notifyUponConclusion'},
-			{ data: 'actions' }
+            { data: 'printable'},
+			{ data: 'actions',className:"all" }
 			
 		],
 		//CHANGE_ME adjust the actions column width if needed
 		"columnDefs": [
 		//54
 		//128
-		               { "width": "108px", "targets": 3 },
-		               { "width": "54px", "targets": 2 } 
+		               { "width": "128px", "targets": 7 } 
 		             ],
 		"data" : searchservicerequesttypeDataSet,
 		//Documentation: https://datatables.net/reference/option/dom

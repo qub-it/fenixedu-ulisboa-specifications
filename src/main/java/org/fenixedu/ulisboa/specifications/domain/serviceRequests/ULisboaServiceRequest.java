@@ -81,8 +81,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     @Override
     public boolean isToPrint() {
-        // TODO Delegar no ServiceRequestType.isPrintable()
-        return false;
+        return getServiceRequestType().isPrintable();
     }
 
     @Override
@@ -175,42 +174,36 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     @Deprecated
     @Override
     public boolean isPossibleToSendToOtherEntity() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Deprecated
     @Override
     public boolean isManagedWithRectorateSubmissionBatch() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Deprecated
     @Override
     public EventType getEventType() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Deprecated
     @Override
     public AcademicServiceRequestType getAcademicServiceRequestType() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Deprecated
     @Override
     public boolean hasPersonalInfo() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Deprecated
     @Override
     public AcademicProgram getAcademicProgram() {
-        // TODO Auto-generated method stub
         return null;
     }
     /*

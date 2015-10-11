@@ -18,6 +18,7 @@ public class ServiceRequestTypeBean implements IBean {
     private boolean active;
     private boolean payable;
     private boolean notifyUponConclusion;
+    private boolean printable;
     private ServiceRequestCategory serviceRequestCategory;
     private List<TupleDataSourceBean> serviceRequestCategoryDataSource;
     private List<ServiceRequestSlot> serviceRequestSlots;
@@ -62,6 +63,14 @@ public class ServiceRequestTypeBean implements IBean {
 
     public void setNotifyUponConclusion(boolean notifyUponConclusion) {
         this.notifyUponConclusion = notifyUponConclusion;
+    }
+
+    public boolean isPrintable() {
+        return printable;
+    }
+
+    public void setPrintable(boolean printable) {
+        this.printable = printable;
     }
 
     public ServiceRequestCategory getServiceRequestCategory() {
@@ -124,8 +133,9 @@ public class ServiceRequestTypeBean implements IBean {
         setCode(serviceRequestType.getCode());
         setName(serviceRequestType.getName());
         setActive(serviceRequestType.getActive());
-        setPayable(serviceRequestType.getPayable());
-        setNotifyUponConclusion(serviceRequestType.getNotifyUponConclusion());
+        setPayable(serviceRequestType.isPayable());
+        setNotifyUponConclusion(serviceRequestType.isToNotifyUponConclusion());
+        setPrintable(serviceRequestType.isPrintable());
         setServiceRequestCategory(serviceRequestType.getServiceRequestCategory());
         setServiceRequestSlots(serviceRequestType.getServiceRequestSlotsSet().stream().collect(Collectors.toList()));
         setNumberOfUnitsLabel(serviceRequestType.getNumberOfUnitsLabel());

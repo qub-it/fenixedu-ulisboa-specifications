@@ -139,7 +139,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     public ServiceRequestType createServiceRequestType(final ServiceRequestTypeBean bean) {
         final ServiceRequestType serviceRequestType =
                 ServiceRequestType.create(bean.getCode(), bean.getName(), bean.isActive(), bean.isPayable(),
-                        bean.isNotifyUponConclusion(), bean.getServiceRequestCategory());
+                        bean.isNotifyUponConclusion(), bean.isPrintable(), bean.getServiceRequestCategory());
         for (ServiceRequestSlot serviceRequestSlot : bean.getServiceRequestSlots()) {
             serviceRequestType.addServiceRequestSlots(serviceRequestSlot);
         }
@@ -187,7 +187,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     @Atomic
     public void updateServiceRequestType(ServiceRequestType serviceRequestType, ServiceRequestTypeBean bean) {
         serviceRequestType.edit(bean.getCode(), bean.getName(), bean.isActive(), bean.isPayable(), bean.isNotifyUponConclusion(),
-                bean.getServiceRequestCategory(), bean.getNumberOfUnitsLabel());
+                bean.isPrintable(), bean.getServiceRequestCategory(), bean.getNumberOfUnitsLabel());
         for (ServiceRequestSlot serviceRequestSlot : serviceRequestType.getServiceRequestSlotsSet()) {
             if (!bean.getServiceRequestSlots().contains(serviceRequestSlot)) {
                 serviceRequestType.removeServiceRequestSlots(serviceRequestSlot);
