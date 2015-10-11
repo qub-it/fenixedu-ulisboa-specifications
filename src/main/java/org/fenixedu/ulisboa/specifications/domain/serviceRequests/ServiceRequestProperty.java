@@ -15,6 +15,7 @@ import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.ulisboa.specifications.util.Constants;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
 
 public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
@@ -66,6 +67,24 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
         setBennu(null);
         deleteDomainObject();
+    }
+
+    @Override
+    public DocumentPurposeTypeInstance getDocumentPurposeTypeInstance() {
+        boolean isValid = FenixFramework.isDomainObjectValid(super.getDocumentPurposeTypeInstance());
+        return isValid ? super.getDocumentPurposeTypeInstance() : null;
+    }
+
+    @Override
+    public Registration getRegistration() {
+        boolean isValid = FenixFramework.isDomainObjectValid(super.getRegistration());
+        return isValid ? super.getRegistration() : null;
+    }
+
+    @Override
+    public ExecutionYear getExecutionYear() {
+        boolean isValid = FenixFramework.isDomainObjectValid(super.getExecutionYear());
+        return isValid ? super.getExecutionYear() : null;
     }
 
     public static Stream<ServiceRequestProperty> findAll() {

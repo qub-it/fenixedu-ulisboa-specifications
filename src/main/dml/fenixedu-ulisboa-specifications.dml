@@ -664,7 +664,7 @@ relation ServiceRequestPropertyBennu {
         multiplicity 1..1;
     }
 
-    public serviceRequests.ServiceRequestProperty playsRole ServiceRequestProperties {
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
         multiplicity *;
     }
 }
@@ -689,15 +689,15 @@ relation ULisboaServiceRequestServiceRequestProperty {
     }
 }
 
-// slots
+//slots
 relation RegistrationServiceRequestProperty {
-    public .org.fenixedu.academic.domain.student.Registration playsRole registration {
-        multiplicity 0..1;
-    }
+ public .org.fenixedu.academic.domain.student.Registration playsRole registration {
+     multiplicity 0..1;
+ }
 
-    public serviceRequests.ServiceRequestProperty playsRole {
-        multiplicity *;
-    }
+ public serviceRequests.ServiceRequestProperty playsRole {
+     multiplicity *;
+ }
 }
 
 relation DocumentPurposeTypeInstanceServiceRequestProperty {
