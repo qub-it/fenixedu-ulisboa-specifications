@@ -133,6 +133,13 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
             return false;
         }
 
+        Registration registration = getRegistration();
+        if (registration != null) {
+            RegistrationState state = registration.getActiveState();
+            if (state.getStateType().equals(RegistrationStateType.CANCELED)) {
+                state.delete();
+            }
+        }
         new StandByCandidacySituation(this);
         return true;
     }
