@@ -45,8 +45,8 @@ abstract public class EnrolmentPredicateInitializer {
 
         if (ULisboaConfiguration.getConfiguration().getEnrolmentPredicateOverride()) {
 
-            Enrolment.PREDICATE_SEASON = PREDICATE_SEASON;
-            Enrolment.PREDICATE_IMPROVEMENT = PREDICATE_IMPROVEMENT;
+            Enrolment.setPredicateSeason(PREDICATE_SEASON);
+            Enrolment.setPredicateImprovement(PREDICATE_IMPROVEMENT);
             logger.info("Overriding default");
 
         } else {
