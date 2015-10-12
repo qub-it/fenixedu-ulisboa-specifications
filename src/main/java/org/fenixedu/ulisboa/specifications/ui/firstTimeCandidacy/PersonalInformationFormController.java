@@ -352,8 +352,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         personalData.setProfessionType(form.getProfessionType());
         personUl.setProfessionTimeType(form.getProfessionTimeType());
 
-        person.setIdDocumentType(form.getIdDocumentType());
         if (form.getIsForeignStudent()) {
+            person.setIdDocumentType(form.getIdDocumentType());
             person.setDocumentIdNumber(form.getDocumentIdNumber());
             personUl.setDgesTempIdCode("");
         }
