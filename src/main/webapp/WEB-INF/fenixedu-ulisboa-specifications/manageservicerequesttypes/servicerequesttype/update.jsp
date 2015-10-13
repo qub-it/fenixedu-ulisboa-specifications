@@ -67,6 +67,7 @@ ${portal.angularToolkit()}
     <a class="" href="${pageContext.request.contextPath}<%= ServiceRequestTypeController.READ_URL %>${serviceRequestType.externalId}">
         <spring:message code="label.event.back" />
     </a>
+    &nbsp; 
 </div>
 
 <c:if test="${not empty infoMessages}">

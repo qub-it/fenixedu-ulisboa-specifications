@@ -64,6 +64,7 @@ ${portal.angularToolkit()}
     <a class="" href="${pageContext.request.contextPath}<%= ServiceRequestTypeController.SEARCH_URL %>">
         <spring:message code="label.event.back" />
     </a> 
+    &nbsp;
 </div>
 <c:if test="${not empty infoMessages}">
     <div class="alert alert-info" role="alert">

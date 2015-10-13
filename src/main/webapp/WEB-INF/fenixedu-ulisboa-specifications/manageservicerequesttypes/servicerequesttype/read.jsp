@@ -60,12 +60,13 @@ ${portal.toolkit()}
     <a class="" href="${pageContext.request.contextPath}<%= ServiceRequestTypeController.SEARCH_URL %>">
         <spring:message code="label.event.back" />
     </a> 
-    |&nbsp;&nbsp; 
+    &nbsp;|&nbsp; 
     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
     &nbsp;
     <a class="" href="${pageContext.request.contextPath}<%= ServiceRequestTypeController.UPDATE_URL %>${serviceRequestType.externalId}">
         <spring:message code="label.event.update" />
     </a> 
+    &nbsp;
 </div>
 <c:if test="${not empty infoMessages}">
     <div class="alert alert-info" role="alert">
@@ -178,7 +179,7 @@ ${portal.toolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message
-                                code="label.ServiceRequestType.serviceRequestSlots" /></th>
+                                code="label.ServiceRequestType.serviceRequestSlot" /></th>
                         <td>
                             <c:forEach var="slot" items="${ serviceRequestType.serviceRequestSlotsSet }" >
                                 <p><c:out value="${ slot.code }"/></p>

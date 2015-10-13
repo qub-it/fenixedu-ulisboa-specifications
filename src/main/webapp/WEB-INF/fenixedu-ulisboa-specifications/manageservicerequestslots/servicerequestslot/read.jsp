@@ -139,8 +139,8 @@ ${portal.toolkit()}
 						<td><c:out value='${serviceRequestSlot.code}' /></td>
 					</tr>
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.ServiceRequestSlot.uicomponenttype" /></th>
-                        <td><c:out value='${serviceRequestSlot.uiComponentType}' /></td>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.ServiceRequestSlot.uiComponentType" /></th>
+                        <td><c:out value='${serviceRequestSlot.uiComponentType.descriptionI18N.content}' /></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.ServiceRequestSlot.label" /></th>
