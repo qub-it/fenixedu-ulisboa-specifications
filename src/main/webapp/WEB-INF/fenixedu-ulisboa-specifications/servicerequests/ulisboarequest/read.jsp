@@ -26,7 +26,6 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
-<%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -78,7 +77,7 @@ ${portal.toolkit()}
 <%-- TITLE --%>
 <div class="page-header">
     <h1>
-        <spring:message code="label.academicRequest.viewHistoryLog" />
+        <spring:message code="label.academicRequest.readAcademicRequest" />
         <small>
         </small>
     </h1>
@@ -99,6 +98,51 @@ ${portal.toolkit()}
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
         <spring:message code="label.event.back" />
     </a>
+
+
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.process" />
+    </a>
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.conclude" />
+    </a>
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.deliver" />
+    </a>
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.reject" />
+    </a>
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.print" />
+    </a>
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.cancel" />
+    </a>
+
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -169,89 +213,70 @@ ${portal.toolkit()}
     </div>
 </div>
 
-<c:choose>
-    <c:when test="${not empty uLisboaServiceRequestList}">
-        <table id="historicAcademicServiceRequestsTable"
-            class="table responsive table-bordered table-hover" width="100%">
-            <thead>
-                <tr>
-                    <%--!!!  Field names here --%>
-                    <th><spring:message code="label.academicRequest.requestDate" /></th>
-                    <th><spring:message code="label.academicRequest.activeSituationDate" /></th>
-                    <th><spring:message code="label.academicRequest.serviceRequestNumberYear" /></th>
-                    <th><spring:message code="label.academicRequest.description" /></th>
-                    <th><spring:message code="label.academicRequest.currentState" /></th>
-                    <%-- Operations Column --%>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <spring:message code="label.details" />
+        </h3>
+    </div>
+    <div class="panel-body">
+        <form method="post" class="form-horizontal">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.requestDate" /></th>
+                        <td><c:out value='${serviceRequest.requestDate.toString("YYYY-MM-dd")}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.activeSituationDate" /></th>
+                        <td><c:out value='${serviceRequest.activeSituationDate.toString("YYYY-MM-dd")}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.serviceRequestNumberYear" /></th>
+                        <td><c:out value='${serviceRequest.serviceRequestNumberYear}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.description" /></th>
+                        <td><c:out value='${serviceRequest.description}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.currentState" /></th>
+                        <td><c:out value='${serviceRequest.academicServiceRequestSituationType.localizedName}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.ULisboaServiceRequest.documentType" /></th>
+                        <td><c:out value='${serviceRequest.serviceRequestType.name.content}' /></td>
+                    </tr>
+                    <c:forEach var="property" items="${ serviceRequest.serviceRequestPropertiesSet }">
+                        <tr>
+                            <th scope="row" class="col-xs-3"><spring:message code="${ property.serviceRequestSlot.label.content }" /></th>
+                            <td>
+                                <c:if test="${ property.booleanValue }">
+                                    <spring:message code="label.yes" />
+                                </c:if>
+                                <c:if test="${ property.booleanValue != null && not property.booleanValue }">
+                                    <spring:message code="label.no" />                                
+                                </c:if>
+                                <c:if test="${ property.booleanValue == null }">
+                                    <c:out value='${ property.string } ${ property.integer } 
+                                                ${ property.locale.language } 
+                                                ${ property.cycleType.description } 
+                                                ${ property.localizedString.content } 
+                                                ${ propety.registration } ${ property.executionYear.name } 
+                                                ${ property.documentPurposeTypeInstance.name.content }' />
+                                </c:if>
+                            </td>
+                        </tr>                    
+                    </c:forEach>
 
-            </tbody>
-        </table>
-    </c:when>
-    <c:otherwise>
-        <div class="alert alert-warning" role="alert">
-            <p>
-                <span class="glyphicon glyphicon-exclamation-sign"
-                    aria-hidden="true">&nbsp;</span>
-                <spring:message code="label.noResultsFound" />
-            </p>
-        </div>
-    </c:otherwise>
-</c:choose>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
 
 <script>
-    var uLisboaServiceRequestsDataSet = [
-        <c:forEach items="${uLisboaServiceRequestList}" var="request">
-        {
-            "requestDate" : '<c:out value='${request.requestDate.toString("YYYY-MM-dd")}'/>',
-            "activeSituationDate" : '<c:out value='${request.activeSituationDate.toString("YYYY-MM-dd")}'/>',
-            "serviceRequestNumberYear" : '<c:out value='${request.serviceRequestNumberYear}'/>',
-            "description" : '<c:out value='${request.description}'/>',
-            "academicServiceRequestSituationType" : '<c:out value='${request.academicServiceRequestSituationType.localizedName}'/>',
-            "actions" :
-                " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
-                " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}\"><spring:message code='label.print'/></a>" +
-                "" 
-        },
-        </c:forEach>
-    ];
-    
     $(document).ready(function() {
 
-    
-
-
-        var table = $('#historicAcademicServiceRequestsTable').DataTable({language : {
-            url : "${datatablesI18NUrl}",           
-        },
-        "columns": [
-            { data: 'requestDate' },
-            { data: 'activeSituationDate' },
-            { data: 'serviceRequestNumberYear' },
-            { data: 'description' },
-            { data: 'academicServiceRequestSituationType' },
-            { data: 'actions',className:"all" }
-        ],
-        "columnDefs": [
-            { "width": "128px", "targets": 5 } 
-        ],
-        "data" : uLisboaServiceRequestsDataSet,
-        //Documentation: https://datatables.net/reference/option/dom
-//"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
-//"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
-"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
-//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
-        "tableTools": {
-            "sSwfPath": "${pageContext.request.contextPath}/static/treasury/swf/copy_csv_xls_pdf.swf"
-        }
-        });
-        table.columns.adjust().draw();
-        
-//           $('#searchvattypeTable tbody').on( 'click', 'tr', function () {
-//                 $(this).toggleClass('selected');
-//             } );
-          
-    }); 
+    });
 </script>

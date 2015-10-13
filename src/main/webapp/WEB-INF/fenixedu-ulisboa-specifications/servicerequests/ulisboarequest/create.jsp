@@ -85,7 +85,8 @@ ${portal.angularToolkit()}
 <%-- TITLE --%>
 <div class="page-header">
     <h1>
-        EU <small></small>
+        <spring:message code="label.servicerequests.ULisboaServiceRequest.createULisboaServiceRequest" />
+        <small></small>
     </h1>
 </div>
 <%-- NAVIGATION --%>
@@ -99,11 +100,11 @@ ${portal.angularToolkit()}
 
 <div class="well well-sm" style="display: inline-block">
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-    &nbsp; 
     <a class=""
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
         <spring:message code="label.event.back" />
     </a>
+    &nbsp; 
 </div>
 <c:if test="${not empty infoMessages}">
     <div class="alert alert-info" role="alert">
@@ -152,9 +153,9 @@ ${portal.angularToolkit()}
     	return -1;
     };
 
-    angular.module('angularAppAcademicRequest',
+    angular.module('angularAppULisboaServiceRequest',
             [ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
-            'AcademicRequestController', [ '$scope', function($scope) {
+            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
                 $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
                 $scope.postBack = createAngularPostbackFunction($scope);
@@ -188,12 +189,13 @@ ${portal.angularToolkit()}
                 	}
                 	return false;
                 }
+                $scope.language = '${pageContext.request.locale}'.replace(/_/g,"-");
             } ]);
 </script>
 
 <form name='form' method="post" class="form-horizontal"
-    ng-app="angularAppAcademicRequest"
-    ng-controller="AcademicRequestController"
+    ng-app="angularAppULisboaServiceRequest"
+    ng-controller="ULisboaServiceRequestController"
     action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'>
 
     <input type="hidden" name="postback"
@@ -205,10 +207,10 @@ ${portal.angularToolkit()}
         <div class="panel-body">
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
-                    <spring:message code="label.AcademicRequest.documentType" />
+                    <spring:message code="label.ULisboaServiceRequest.documentType" />
                 </div>
-                <div class="col-sm-4">
-                    <ui-select id="academicRequest_documentType" on-select="postBack($model)"
+                <div class="col-sm-5">
+                    <ui-select id="uLisboaServiceRequest_documentType" on-select="postBack($model)"
                         ng-model="$parent.object.serviceRequestType"
                         theme="bootstrap"> <ui-select-match allow-clear="true">
                     {{$select.selected.text}}
@@ -223,9 +225,9 @@ ${portal.angularToolkit()}
 
             <div class="form-group row" ng-repeat="serviceRequestProperty in object.serviceRequestPropertyBeans" ng-show="showElement(serviceRequestProperty.code)">
                 <div class="col-sm-2 control-label">
-                    <spring:message code="label.AcademicRequest.{{ serviceRequestProperty.code }}" />
+                    {{ serviceRequestProperty.label[language] }}
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                     <ui-select id="{{ serviceRequestProperty.code}}"
                         ng-model="serviceRequestProperty.value"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
@@ -269,6 +271,10 @@ ${portal.angularToolkit()}
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
                            type="text" ng-localized-string="serviceRequestProperty.value" name="{{ serviceRequestProperty.code }}"
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
+                    />
+                    <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'DATE'"
+                           type="text" bennu-date="serviceRequestProperty.value" name="{{ serviceRequestProperty.code }}" 
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />    
                 </div>

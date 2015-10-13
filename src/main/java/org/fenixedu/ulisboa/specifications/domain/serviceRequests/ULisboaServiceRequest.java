@@ -30,21 +30,36 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.util.Constants;
-import org.joda.time.DateTime;
+
+import pt.ist.fenixframework.Atomic;
 
 public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
+
+    /**
+     * AcademicServiceRequest API used
+     * get/set RequestDate
+     * get/set AcademicServiceRequestYear
+     * get/set ServiceRequestNumber
+     * get/set AdministrativeOffice
+     * get/set ServiceRequestType
+     * get/set Registration
+     * get/add AcademicServiceRequestSituation
+     */
 
     protected ULisboaServiceRequest() {
         super();
@@ -52,12 +67,13 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration) {
         this();
-        setRequestDate(new DateTime());
+        init(registration);
         setServiceRequestType(serviceRequestType);
         setRegistration(registration);
     }
 
-    static public ULisboaServiceRequest createULisboaServiceRequest(ULisboaServiceRequestBean bean) {
+    @Atomic
+    public static ULisboaServiceRequest createULisboaServiceRequest(ULisboaServiceRequestBean bean) {
         ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration());
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
             ServiceRequestProperty property = ServiceRequestSlot.createProperty(propertyBean.getCode(), propertyBean.getValue());
@@ -70,6 +86,11 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     protected void disconnect() {
         // TODO Ver qual o processo mais correcto para apagar/editar estas instâncias.
         //      Rever fields do ASR que possam fazer sentido utilizar aqui (e.g. AcademicServiceRequestYear)
+        for (ServiceRequestProperty property : getServiceRequestPropertiesSet()) {
+            property.delete();
+        }
+        setRegistration(null);
+        setServiceRequestType(null);
         super.disconnect();
     }
 
@@ -158,6 +179,30 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     private Optional<ServiceRequestProperty> findProperty(String slotCode) {
         return getServiceRequestPropertiesSet().stream()
                 .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+    }
+
+    public static Stream<ULisboaServiceRequest> findAll() {
+        return Bennu.getInstance().getAcademicServiceRequestsSet().stream()
+                .filter(request -> request instanceof ULisboaServiceRequest).map(ULisboaServiceRequest.class::cast);
+    }
+
+    public static Stream<ULisboaServiceRequest> findByRegistration(Registration registration) {
+        return findAll().filter(request -> request.getRegistration().equals(registration));
+    }
+
+    public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(Registration registration) {
+        return findByRegistration(registration).filter(
+                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
+    }
+
+    public static Stream<ULisboaServiceRequest> findProcessingAcademicServiceRequests(Registration registration) {
+        return findByRegistration(registration).filter(
+                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.PROCESSING);
+    }
+
+    public static Stream<ULisboaServiceRequest> findToDeliverAcademicServiceRequests(Registration registration) {
+        return findByRegistration(registration).filter(
+                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED);
     }
 
     /*

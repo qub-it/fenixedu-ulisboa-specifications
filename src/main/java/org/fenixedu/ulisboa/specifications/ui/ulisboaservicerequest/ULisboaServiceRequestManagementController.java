@@ -1,8 +1,11 @@
 package org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest;
 
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.qubdocs.ui.FenixeduQubdocsReportsController;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -44,8 +47,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             required = true) ULisboaServiceRequestBean bean, Model model) {
         setULisboaServiceRequestBean(bean, model);
 
-        //TODOJN 
-//        academicservicerequest = ULisboaServiceRequest.create();
+        ULisboaServiceRequest request = ULisboaServiceRequest.createULisboaServiceRequest(bean);
 
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
@@ -66,6 +68,29 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     @RequestMapping(value = _HISTORY_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
     public String viewRequestHistory(@PathVariable(value = "oid") Registration registration, Model model) {
         model.addAttribute("registration", registration);
+        model.addAttribute("uLisboaServiceRequestList",
+                ULisboaServiceRequest.findByRegistration(registration).collect(Collectors.toList()));
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/history";
     }
+
+    private static final String _READ_ACADEMIC_REQUEST_URI = "/read/";
+    public static final String READ_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _READ_ACADEMIC_REQUEST_URI;
+
+    @RequestMapping(value = _READ_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
+    public String read(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model) {
+        model.addAttribute("registration", serviceRequest.getRegistration());
+        model.addAttribute("serviceRequest", serviceRequest);
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
+    }
+
+    private static final String _PROCESS_ACADEMIC_REQUEST_URI = "/process/";
+    public static final String PROCESS_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PROCESS_ACADEMIC_REQUEST_URI;
+
+    @RequestMapping(value = _PROCESS_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
+    public String process(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model) {
+        model.addAttribute("registration", serviceRequest.getRegistration());
+        model.addAttribute("serviceRequest", serviceRequest);
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/????????";
+    }
+
 }
