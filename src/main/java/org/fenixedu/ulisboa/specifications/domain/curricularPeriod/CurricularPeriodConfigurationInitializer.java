@@ -297,6 +297,8 @@ public class CurricularPeriodConfigurationInitializer {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
             logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
 
+            // exceptions
+            final boolean configYear2ExtendedEcts = StringUtils.equals(dcp.getDegree().getCode(), "5315");
             final boolean includeEnrolmentsOnValidation =
                     StringUtils.equals(dcp.getDegree().getCode(), "5595")
                             || StringUtils.equals(dcp.getDegree().getCode(), "9822");
@@ -305,7 +307,6 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear1 == null) {
                 continue;
             }
-
             CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod.createForYearInterval(configYear1, BigDecimal.ZERO, 2/* yearMin */,
                     Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
@@ -314,7 +315,8 @@ public class CurricularPeriodConfigurationInitializer {
             if (configYear2 == null) {
                 continue;
             }
-            CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84), includeEnrolmentsOnValidation);
+            CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(configYear2ExtendedEcts ? 120 : 84),
+                    includeEnrolmentsOnValidation);
             CreditsInCurricularPeriod.createForYearInterval(configYear2, BigDecimal.ZERO, 3/* yearMin */,
                     Math.min(dcp.getDurationInYears(), 6)/* yearMax */);
 
