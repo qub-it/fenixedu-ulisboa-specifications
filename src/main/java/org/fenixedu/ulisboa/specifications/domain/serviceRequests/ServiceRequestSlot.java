@@ -15,9 +15,13 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
@@ -147,44 +151,43 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     @Atomic
     public static ServiceRequestProperty createProperty(String serviceRequestSlotCode, String propertyValue) {
         ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
-        switch (serviceRequestSlotCode) {
-        case Constants.LANGUAGE:
-            Locale language = Locale.forLanguageTag(propertyValue);
-            return ServiceRequestProperty.createLocaleProperty(language, serviceRequestSlot);
-        case Constants.DOCUMENT_PURPOSE_TYPE:
-            DocumentPurposeTypeInstance documentPurposeTypeInstance =
-                    (DocumentPurposeTypeInstance) FenixFramework.getDomainObject(propertyValue);
-            return ServiceRequestProperty.createDocumentPurposeTypeInstanceProperty(documentPurposeTypeInstance,
-                    serviceRequestSlot);
-        case Constants.OTHER_DOCUMENT_PURPOSE:
+        switch (serviceRequestSlot.getUiComponentType()) {
+        case DROP_DOWN_BOOLEAN:
+            return ServiceRequestProperty.createBooleanProperty(Boolean.valueOf(propertyValue), serviceRequestSlot);
+        case NUMBER:
+            return ServiceRequestProperty.createIntegerProperty(Integer.valueOf(propertyValue), serviceRequestSlot);
+        case TEXT:
             return ServiceRequestProperty.createStringProperty(propertyValue, serviceRequestSlot);
-        case Constants.IS_DETAILED:
-            Boolean detailed = Boolean.valueOf(propertyValue);
-            return ServiceRequestProperty.createBooleanProperty(detailed, serviceRequestSlot);
-        case Constants.IS_URGENT:
-            Boolean urgent = Boolean.valueOf(propertyValue);
-            return ServiceRequestProperty.createBooleanProperty(urgent, serviceRequestSlot);
-        case Constants.CYCLE_TYPE:
-            CycleType cycleType = CycleType.valueOf(propertyValue);
-            return ServiceRequestProperty.createCycleTypeProperty(cycleType, serviceRequestSlot);
-        case Constants.NUMBER_OF_UNITS:
-            Integer numberOfUnits = Integer.valueOf(propertyValue);
-            return ServiceRequestProperty.createIntegerProperty(numberOfUnits, serviceRequestSlot);
-        case Constants.NUMBER_OF_DAYS:
-            Integer numberOfDays = Integer.valueOf(propertyValue);
-            return ServiceRequestProperty.createIntegerProperty(numberOfDays, serviceRequestSlot);
-        case Constants.NUMBER_OF_PAGES:
-            Integer numberOfPages = Integer.valueOf(propertyValue);
-            return ServiceRequestProperty.createIntegerProperty(numberOfPages, serviceRequestSlot);
-        case Constants.EXECUTION_YEAR:
-            ExecutionYear executionYear = (ExecutionYear) FenixFramework.getDomainObject(propertyValue);
-            return ServiceRequestProperty.createExecutionYearProperty(executionYear, serviceRequestSlot);
-        case Constants.CURRICULAR_PLAN:
-        case Constants.APPROVED_COURSES:
-        case Constants.ENROLLED_COURSES:
-        case Constants.CREDITS:
+        case TEXT_LOCALIZED_STRING:
+            JsonObject jsonObject = new JsonParser().parse(propertyValue).getAsJsonObject();
+            return ServiceRequestProperty.createLocalizedStringProperty(LocalizedString.fromJson(jsonObject), serviceRequestSlot);
+        case DATE:
+            return ServiceRequestProperty.createDateTimeProperty(new DateTime(propertyValue), serviceRequestSlot);
+        case DROP_DOWN_MULTIPLE:
+        case DROP_DOWN_ONE_VALUE:
         default:
-            throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            switch (serviceRequestSlotCode) {
+            case Constants.LANGUAGE:
+                Locale language = new Locale(propertyValue);
+                return ServiceRequestProperty.createLocaleProperty(language, serviceRequestSlot);
+            case Constants.DOCUMENT_PURPOSE_TYPE:
+                DocumentPurposeTypeInstance documentPurposeTypeInstance =
+                        (DocumentPurposeTypeInstance) FenixFramework.getDomainObject(propertyValue);
+                return ServiceRequestProperty.createDocumentPurposeTypeInstanceProperty(documentPurposeTypeInstance,
+                        serviceRequestSlot);
+            case Constants.CYCLE_TYPE:
+                CycleType cycleType = CycleType.valueOf(propertyValue);
+                return ServiceRequestProperty.createCycleTypeProperty(cycleType, serviceRequestSlot);
+            case Constants.EXECUTION_YEAR:
+                ExecutionYear executionYear = (ExecutionYear) FenixFramework.getDomainObject(propertyValue);
+                return ServiceRequestProperty.createExecutionYearProperty(executionYear, serviceRequestSlot);
+            case Constants.CURRICULAR_PLAN:
+            case Constants.APPROVED_COURSES:
+            case Constants.ENROLLED_COURSES:
+            case Constants.CREDITS:
+            default:
+                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            }
         }
     }
 }

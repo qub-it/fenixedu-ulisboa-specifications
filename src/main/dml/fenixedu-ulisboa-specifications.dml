@@ -651,6 +651,7 @@ class serviceRequests.ServiceRequestProperty {
     Boolean booleanValue;
     CycleType cycleType;
     Integer integer;
+    DateTime dateTime;
 }
 
 relation ULisboaServiceRequestRegistration {

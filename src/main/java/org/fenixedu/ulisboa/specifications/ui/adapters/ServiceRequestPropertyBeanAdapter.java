@@ -49,6 +49,7 @@ public class ServiceRequestPropertyBeanAdapter implements JsonSerializer<Service
         //Handle as a string
         case TEXT:
         case DROP_DOWN_ONE_VALUE:
+        case DATE:
         default:
             object.addProperty("value", src.getValue());
             break;

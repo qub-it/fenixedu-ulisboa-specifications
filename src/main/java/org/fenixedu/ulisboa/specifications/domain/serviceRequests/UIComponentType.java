@@ -5,7 +5,7 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.util.Constants;
 
 public enum UIComponentType {
-    DROP_DOWN_ONE_VALUE, DROP_DOWN_MULTIPLE, DROP_DOWN_BOOLEAN, TEXT_LOCALIZED_STRING, TEXT, NUMBER;
+    DROP_DOWN_ONE_VALUE, DROP_DOWN_MULTIPLE, DROP_DOWN_BOOLEAN, TEXT_LOCALIZED_STRING, TEXT, NUMBER, DATE;
 
     public boolean isSingleDropDown() {
         return this == DROP_DOWN_ONE_VALUE;
@@ -29,6 +29,10 @@ public enum UIComponentType {
 
     public boolean isNumberBox() {
         return this == NUMBER;
+    }
+
+    public boolean isDateBox() {
+        return this == DATE;
     }
 
     public boolean needDataSource() {
