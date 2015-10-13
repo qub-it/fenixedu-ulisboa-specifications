@@ -647,6 +647,7 @@ relation ServiceRequestTypeServiceRequestSlot {
 class serviceRequests.ServiceRequestProperty {
     Locale locale;
     String string;
+    LocalizedString localizedString;
     Boolean booleanValue;
     CycleType cycleType;
     Integer integer;

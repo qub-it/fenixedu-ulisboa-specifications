@@ -10,9 +10,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
-import org.fenixedu.ulisboa.specifications.util.Constants;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
@@ -25,14 +24,16 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     }
 
     protected ServiceRequestProperty(Locale locale, Boolean booleanValue, CycleType cycleType, Integer integer, String string,
-            Registration registration, ExecutionYear executionYear, DocumentPurposeTypeInstance documentPurposeTypeInstance,
-            ServiceRequestSlot serviceRequestSlot) {
+            LocalizedString localizedString, Registration registration, ExecutionYear executionYear,
+            DocumentPurposeTypeInstance documentPurposeTypeInstance, ServiceRequestSlot serviceRequestSlot) {
+        this();
         //Values
         setLocale(locale);
         setBooleanValue(booleanValue);
         setCycleType(cycleType);
         setInteger(integer);
         setString(string);
+        setLocalizedString(localizedString);
         setRegistration(registration);
         setExecutionYear(executionYear);
         setDocumentPurposeTypeInstance(documentPurposeTypeInstance);
@@ -51,15 +52,13 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     @Override
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
-        if (getULisboaServiceRequest() != null) {
-            blockers.add(BundleUtil.getString(Constants.BUNDLE, "error.ServiceRequestSlot.connected.ULisboaServiceRequest"));
-        }
     }
 
     @Atomic
     public void delete() {
         TreasuryDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
+        setULisboaServiceRequest(null);
         setDocumentPurposeTypeInstance(null);
         setExecutionYear(null);
         setRegistration(null);
@@ -93,43 +92,49 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
     @Atomic
     public static ServiceRequestProperty createLocaleProperty(Locale value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(value, null, null, null, null, null, null, null, serviceRequestSlot);
+        return new ServiceRequestProperty(value, null, null, null, null, null, null, null, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createBooleanProperty(Boolean value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, value, null, null, null, null, null, null, serviceRequestSlot);
+        return new ServiceRequestProperty(null, value, null, null, null, null, null, null, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createCycleTypeProperty(CycleType value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, null, value, null, null, null, null, null, serviceRequestSlot);
+        return new ServiceRequestProperty(null, null, value, null, null, null, null, null, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createIntegerProperty(Integer value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, null, null, value, null, null, null, null, serviceRequestSlot);
+        return new ServiceRequestProperty(null, null, null, value, null, null, null, null, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createStringProperty(String value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, null, null, null, value, null, null, null, serviceRequestSlot);
+        return new ServiceRequestProperty(null, null, null, null, value, null, null, null, null, serviceRequestSlot);
+    }
+
+    @Atomic
+    public static ServiceRequestProperty createLocalizedStringProperty(LocalizedString value,
+            ServiceRequestSlot serviceRequestSlot) {
+        return new ServiceRequestProperty(null, null, null, null, null, value, null, null, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createRegistrationProperty(Registration value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, null, null, null, null, value, null, null, serviceRequestSlot);
+        return new ServiceRequestProperty(null, null, null, null, null, null, value, null, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createExecutionYearProperty(ExecutionYear value, ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, null, null, null, null, null, value, null, serviceRequestSlot);
+        return new ServiceRequestProperty(null, null, null, null, null, null, null, value, null, serviceRequestSlot);
     }
 
     @Atomic
     public static ServiceRequestProperty createDocumentPurposeTypeInstanceProperty(DocumentPurposeTypeInstance value,
             ServiceRequestSlot serviceRequestSlot) {
-        return new ServiceRequestProperty(null, null, null, null, null, null, null, value, serviceRequestSlot);
+        return new ServiceRequestProperty(null, null, null, null, null, null, null, null, value, serviceRequestSlot);
     }
 
 }
