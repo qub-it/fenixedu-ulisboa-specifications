@@ -66,4 +66,9 @@ public class ServiceRequestPropertyBean implements IBean {
         setLabel(serviceRequestSlot.getLabel());
     }
 
+    public boolean isValueStoredAsString() {
+        return getUiComponent() == UIComponentType.TEXT || getUiComponent() == UIComponentType.DROP_DOWN_ONE_VALUE
+                || getUiComponent() == UIComponentType.DATE;
+    }
+
 }

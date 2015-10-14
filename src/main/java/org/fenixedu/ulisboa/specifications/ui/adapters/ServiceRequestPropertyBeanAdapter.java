@@ -65,7 +65,7 @@ public class ServiceRequestPropertyBeanAdapter implements JsonSerializer<Service
         bean.setUiComponentType(context.deserialize(jsonBean.get("uiComponentType"), UIComponentType.class));
         bean.setLabel(context.deserialize(jsonBean.get("label"), LocalizedString.class));
         if (jsonBean.get("value") != null) {
-            if (bean.getUiComponent() == UIComponentType.TEXT || bean.getUiComponent() == UIComponentType.DROP_DOWN_ONE_VALUE) {
+            if (bean.isValueStoredAsString()) {
                 bean.setValue(jsonBean.get("value").getAsString());
             } else {
                 bean.setValue(jsonBean.get("value").toString());

@@ -151,6 +151,9 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     @Atomic
     public static ServiceRequestProperty createProperty(String serviceRequestSlotCode, String propertyValue) {
         ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
+        if (propertyValue == null) {
+            return ServiceRequestProperty.createProperty(serviceRequestSlot);
+        }
         switch (serviceRequestSlot.getUiComponentType()) {
         case DROP_DOWN_BOOLEAN:
             return ServiceRequestProperty.createBooleanProperty(Boolean.valueOf(propertyValue), serviceRequestSlot);
@@ -168,7 +171,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         default:
             switch (serviceRequestSlotCode) {
             case Constants.LANGUAGE:
-                Locale language = new Locale(propertyValue);
+                Locale language = Locale.forLanguageTag(propertyValue);
                 return ServiceRequestProperty.createLocaleProperty(language, serviceRequestSlot);
             case Constants.DOCUMENT_PURPOSE_TYPE:
                 DocumentPurposeTypeInstance documentPurposeTypeInstance =

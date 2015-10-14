@@ -163,15 +163,6 @@ ${portal.angularToolkit()}
                   {name: '<spring:message code="label.no"/>', value: false},
                   {name: '<spring:message code="label.yes"/>', value: true}
                 ];
-                //Convert properties values
-                $scope.formatPropertiesValues = function(json) {
-                	angular.forEach(json.serviceRequestPropertyBeans, function(index, element) {
-                		if(element.uiComponentType != 'TEXT') {
-                			json.serviceRequestPropertyBeans[index].value = angular.fromJson(element.value);
-                		}
-                	});
-                	return json;
-                }
                 
                 //Dependencies for ngShow
                 $scope.showElement = function (elementId) {
@@ -190,12 +181,18 @@ ${portal.angularToolkit()}
                 	return false;
                 }
                 $scope.language = '${pageContext.request.locale}'.replace(/_/g,"-");
+                $scope.submitForm = function (model) {
+                	angular.forEach($scope.object.serviceRequestPropertyBeans, function(index, element) {
+                		element.dataSource= undefined;
+                    });
+                }
             } ]);
 </script>
 
 <form name='form' method="post" class="form-horizontal"
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
+    ng-submit="submitForm($model)"
     action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'>
 
     <input type="hidden" name="postback"

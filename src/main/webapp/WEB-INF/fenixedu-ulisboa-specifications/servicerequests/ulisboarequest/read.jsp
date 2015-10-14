@@ -100,6 +100,14 @@ ${portal.toolkit()}
     </a>
 
 
+
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.revert" />
+    </a>
     &nbsp;|&nbsp;
     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
     &nbsp; 
@@ -122,7 +130,7 @@ ${portal.toolkit()}
         <spring:message code="label.event.deliver" />
     </a>
     &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+    <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
     &nbsp; 
     <a class=""
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
@@ -136,7 +144,7 @@ ${portal.toolkit()}
         <spring:message code="label.print" />
     </a>
     &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
     &nbsp; 
     <a class=""
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
@@ -259,9 +267,10 @@ ${portal.toolkit()}
                                 </c:if>
                                 <c:if test="${ property.booleanValue == null }">
                                     <c:out value='${ property.string } ${ property.integer } 
-                                                ${ property.locale.language } 
+                                                ${ property.locale.displayLanguage }
                                                 ${ property.cycleType.description } 
-                                                ${ property.localizedString.content } 
+                                                ${ property.localizedString.content }
+                                                ${ property.dateTime.toLocalDate() } 
                                                 ${ propety.registration } ${ property.executionYear.name } 
                                                 ${ property.documentPurposeTypeInstance.name.content }' />
                                 </c:if>

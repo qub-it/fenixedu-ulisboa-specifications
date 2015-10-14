@@ -144,4 +144,9 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return new ServiceRequestProperty(null, null, null, null, null, null, null, null, null, value, serviceRequestSlot);
     }
 
+    @Atomic
+    public static ServiceRequestProperty createProperty(ServiceRequestSlot serviceRequestSlot) {
+        return new ServiceRequestProperty(null, null, null, null, null, null, null, null, null, null, serviceRequestSlot);
+    }
+
 }

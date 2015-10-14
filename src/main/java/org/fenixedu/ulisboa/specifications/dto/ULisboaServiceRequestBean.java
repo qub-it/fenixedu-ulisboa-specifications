@@ -148,7 +148,7 @@ public class ULisboaServiceRequestBean implements IBean {
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 return CoreConfiguration.supportedLocales().stream().map(x -> {
                     TupleDataSourceBean tuple = new TupleDataSourceBean();
-                    tuple.setId(x.toString());
+                    tuple.setId(x.toString().replace("_", "-"));
                     tuple.setText(x.getDisplayLanguage());
                     return tuple;
                 }).collect(Collectors.toList());
