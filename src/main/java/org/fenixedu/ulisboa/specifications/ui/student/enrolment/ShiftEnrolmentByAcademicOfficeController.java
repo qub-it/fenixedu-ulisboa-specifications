@@ -47,13 +47,13 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.ShiftToEnrol;
-import org.fenixedu.academic.service.services.enrollment.shift.ReadShiftsToEnroll;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.shift.ReadShiftsToEnroll;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.joda.time.DateTime;
@@ -88,16 +88,15 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
         final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
         for (final ExecutionSemester otherExecutionSemester : executionSemester.getExecutionYear().getExecutionPeriodsSet()) {
-            enrolmentBeans.add(new EnrolmentPeriodDTO(registration, otherExecutionSemester,
-                    otherExecutionSemester == executionSemester));
+            enrolmentBeans.add(
+                    new EnrolmentPeriodDTO(registration, otherExecutionSemester, otherExecutionSemester == executionSemester));
         }
 
         if (!enrolmentBeans.isEmpty()) {
             enrolmentBeans.sort((eb1, eb2) -> eb1.compareTo(eb2));
 
             try {
-                final List<ShiftToEnrol> shiftsToEnrol =
-                        ReadShiftsToEnroll.runReadShiftsToEnroll(registration, executionSemester);
+                final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll.read(registration, executionSemester);
                 shiftsToEnrol.sort((s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
                 model.addAttribute("shiftsToEnrol", shiftsToEnrol);
             } catch (NotAuthorizedException e) {
@@ -141,7 +140,8 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     @RequestMapping(value = "addShift/{registrationOid}/{semesterOid}/{shiftOid}")
     public String addShift(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift, Model model) {
+            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
+            Model model) {
 
         checkUserIfAcademicOfficeStaff();
 
@@ -159,14 +159,15 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     @Atomic
     protected void addShiftService(Registration registration, Shift shift) {
         if (!shift.reserveForStudent(registration)) {
-            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(), shift
-                    .getExecutionCourse().getName());
+            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(),
+                    shift.getExecutionCourse().getName());
         }
     }
 
     @RequestMapping(value = "removeShift/{registrationOid}/{semesterOid}/{shiftOid}")
     public String removeShift(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift, Model model) {
+            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
+            Model model) {
 
         checkUserIfAcademicOfficeStaff();
 
@@ -199,12 +200,10 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
             for (Lesson lesson : shift.getAssociatedLessonsSet()) {
                 final DateTime now = new DateTime();
                 final DateTime weekDay = now.withDayOfWeek(lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat());
-                final DateTime startTime =
-                        weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(), lesson.getBeginHourMinuteSecond()
-                                .getMinuteOfHour(), 0, 0);
-                final DateTime endTime =
-                        weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(), lesson.getEndHourMinuteSecond()
-                                .getMinuteOfHour(), 0, 0);
+                final DateTime startTime = weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(),
+                        lesson.getBeginHourMinuteSecond().getMinuteOfHour(), 0, 0);
+                final DateTime endTime = weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(),
+                        lesson.getEndHourMinuteSecond().getMinuteOfHour(), 0, 0);
 
                 final JsonObject event = new JsonObject();
                 event.addProperty("id", lesson.getExternalId());
@@ -267,9 +266,8 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
         public Map<Lesson, Collection<Lesson>> getLessonsOverlaps() {
             final Map<Lesson, Collection<Lesson>> overlapsMap = new HashMap<Lesson, Collection<Lesson>>();
 
-            final List<Lesson> allLessons =
-                    registration.getShiftsFor(getExecutionSemester()).stream().flatMap(s -> s.getAssociatedLessonsSet().stream())
-                            .collect(Collectors.toList());
+            final List<Lesson> allLessons = registration.getShiftsFor(getExecutionSemester()).stream()
+                    .flatMap(s -> s.getAssociatedLessonsSet().stream()).collect(Collectors.toList());
             while (!allLessons.isEmpty()) {
                 final Lesson lesson = allLessons.remove(0);
                 final Set<Lesson> overlappingLessons =
@@ -288,9 +286,9 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
          */
         private static Interval getLessonIntervalHack(final Lesson lesson) {
             final int weekDay = lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat();
-            return new Interval(new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime())
-                    .withDayOfWeek(weekDay), new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime())
-                    .withDayOfWeek(weekDay));
+            return new Interval(
+                    new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay),
+                    new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay));
         }
 
     }
