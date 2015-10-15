@@ -49,7 +49,6 @@ import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
-import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
@@ -113,8 +112,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForDegreeDelete();
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
-
-        RegistrationObservations.setupDeleteListener();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
     }
