@@ -37,6 +37,7 @@ import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
@@ -98,7 +99,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     public String processSearchToDeleteAction(@PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType,
             final Model model, final RedirectAttributes redirectAttributes) {
         try {
-            serviceRequestType.delete();
+            deleteServiceRequestType(serviceRequestType);
 
             addInfoMessage(BundleUtil.getString(BUNDLE, "message.ServiceRequestType.removed.with.success"), model);
             return redirect(SEARCH_URL, model, redirectAttributes);
@@ -107,6 +108,12 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         }
 
         return read(serviceRequestType, model);
+    }
+
+    //TODOJN o delete não protege nada
+    @Atomic
+    public void deleteServiceRequestType(ServiceRequestType serviceRequestType) {
+        serviceRequestType.delete();
     }
 
     private static final String CREATE_URI = "/create/";
@@ -142,6 +149,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
                         bean.isNotifyUponConclusion(), bean.isPrintable(), bean.getServiceRequestCategory());
         for (ServiceRequestSlot serviceRequestSlot : bean.getServiceRequestSlots()) {
             serviceRequestType.addServiceRequestSlots(serviceRequestSlot);
+        }
+        for (ULisboaServiceRequestValidator validator : bean.getValidators()) {
+            serviceRequestType.addULisboaServiceRequestValidators(validator);
         }
         return serviceRequestType;
     }
@@ -188,6 +198,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     public void updateServiceRequestType(ServiceRequestType serviceRequestType, ServiceRequestTypeBean bean) {
         serviceRequestType.edit(bean.getCode(), bean.getName(), bean.isActive(), bean.isPayable(), bean.isNotifyUponConclusion(),
                 bean.isPrintable(), bean.getServiceRequestCategory(), bean.getNumberOfUnitsLabel());
+        //Update the Service Request Slots
         for (ServiceRequestSlot serviceRequestSlot : serviceRequestType.getServiceRequestSlotsSet()) {
             if (!bean.getServiceRequestSlots().contains(serviceRequestSlot)) {
                 serviceRequestType.removeServiceRequestSlots(serviceRequestSlot);
@@ -198,5 +209,17 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
                 serviceRequestType.addServiceRequestSlots(newServiceRequestSlot);
             }
         }
+        //Update the ULisboa Service Request Validators
+        for (ULisboaServiceRequestValidator validator : serviceRequestType.getULisboaServiceRequestValidatorsSet()) {
+            if (!bean.getValidators().contains(validator)) {
+                serviceRequestType.removeULisboaServiceRequestValidators(validator);
+            }
+        }
+        for (ULisboaServiceRequestValidator newValidator : bean.getValidators()) {
+            if (!serviceRequestType.getULisboaServiceRequestValidatorsSet().contains(newValidator)) {
+                serviceRequestType.addULisboaServiceRequestValidators(newValidator);
+            }
+        }
+
     }
 }

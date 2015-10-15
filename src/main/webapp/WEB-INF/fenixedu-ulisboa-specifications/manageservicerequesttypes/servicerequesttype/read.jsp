@@ -186,6 +186,15 @@ ${portal.toolkit()}
                             </c:forEach>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message
+                                code="label.ServiceRequestType.uLisboaServiceRequestValidators" /></th>
+                        <td>
+                            <c:forEach var="slot" items="${ serviceRequestType.uLisboaServiceRequestValidatorsSet }" >
+                                <p><c:out value="${ slot.name.content }"/></p>
+                            </c:forEach>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </form>

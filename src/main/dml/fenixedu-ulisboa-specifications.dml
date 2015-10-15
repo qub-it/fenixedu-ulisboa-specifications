@@ -617,6 +617,34 @@ class serviceRequests.ULisboaServiceRequest extends .org.fenixedu.academic.domai
     boolean isValid;
 }
 
+class serviceRequests.validators.ULisboaServiceRequestValidator {
+    LocalizedString name;
+}
+
+class serviceRequests.validators.MockULisboaServiceRequestValidator extends serviceRequests.validators.ULisboaServiceRequestValidator {
+    
+}
+
+relation ULisboaServiceRequestValidatorBennu {
+    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+
+    public serviceRequests.validators.ULisboaServiceRequestValidator playsRole uLisboaServiceRequestValidators {
+        multiplicity *;
+    }
+}
+
+relation ULisboaServiceRequestValidatorServiceRequestType {
+    public .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType playsRole serviceRequestTypes {
+        multiplicity *;
+    }
+
+    public serviceRequests.validators.ULisboaServiceRequestValidator playsRole uLisboaServiceRequestValidators {
+        multiplicity *;
+    }
+}
+
 class serviceRequests.ServiceRequestSlot {
     String code;
     UIComponentType uiComponentType;

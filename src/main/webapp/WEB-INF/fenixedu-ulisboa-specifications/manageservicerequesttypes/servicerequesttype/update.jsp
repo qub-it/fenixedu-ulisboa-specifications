@@ -265,6 +265,24 @@ ${portal.angularToolkit()}
             </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
+                    <spring:message code="label.ServiceRequestType.uLisboaServiceRequestValidators" />
+                </div>
+
+                <div class="col-sm-10">
+                    <ui-select id="serviceRequestType_uLisboaServiceRequestValidators"
+                        ng-model="$parent.object.validators"
+                        theme="bootstrap" multiple> 
+                        <ui-select-match allow-clear="true">
+                            {{$item.text}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="element.id as element in object.validatorsDataSource | filter: $select.search">
+                            <span ng-bind-html="element.text | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>                
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
                     <spring:message code="label.ServiceRequestType.numberOfUnitsLabel" />
                 </div>
                 <div class="col-sm-10">

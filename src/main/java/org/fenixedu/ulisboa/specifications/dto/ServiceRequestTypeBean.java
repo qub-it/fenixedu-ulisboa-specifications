@@ -10,6 +10,7 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
 
 public class ServiceRequestTypeBean implements IBean {
 
@@ -23,6 +24,8 @@ public class ServiceRequestTypeBean implements IBean {
     private List<TupleDataSourceBean> serviceRequestCategoryDataSource;
     private List<ServiceRequestSlot> serviceRequestSlots;
     private List<TupleDataSourceBean> serviceRequestSlotsDataSource;
+    private List<ULisboaServiceRequestValidator> validators;
+    private List<TupleDataSourceBean> validatorsDataSource;
     private LocalizedString numberOfUnitsLabel;
 
     public String getCode() {
@@ -115,6 +118,27 @@ public class ServiceRequestTypeBean implements IBean {
         }).collect(Collectors.toList());
     }
 
+    public List<ULisboaServiceRequestValidator> getValidators() {
+        return validators;
+    }
+
+    public void setValidators(List<ULisboaServiceRequestValidator> validators) {
+        this.validators = validators;
+    }
+
+    public List<TupleDataSourceBean> getValidatorsDataSource() {
+        return validatorsDataSource;
+    }
+
+    public void setValidatorsDataSource(List<ULisboaServiceRequestValidator> validatorsSet) {
+        this.serviceRequestSlotsDataSource = validatorsSet.stream().map(srs -> {
+            TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
+            tupleDataSourceBean.setId(srs.getExternalId());
+            tupleDataSourceBean.setText(srs.getName().getContent());
+            return tupleDataSourceBean;
+        }).collect(Collectors.toList());
+    }
+
     public LocalizedString getNumberOfUnitsLabel() {
         return numberOfUnitsLabel;
     }
@@ -126,6 +150,7 @@ public class ServiceRequestTypeBean implements IBean {
     public ServiceRequestTypeBean() {
         setServiceRequestCategoryDataSource(Arrays.asList(ServiceRequestCategory.values()));
         setServiceRequestSlotsDataSource(ServiceRequestSlot.findAll().collect(Collectors.toList()));
+        setValidators(ULisboaServiceRequestValidator.findAll().collect(Collectors.toList()));
     }
 
     public ServiceRequestTypeBean(ServiceRequestType serviceRequestType) {
@@ -138,6 +163,7 @@ public class ServiceRequestTypeBean implements IBean {
         setPrintable(serviceRequestType.isPrintable());
         setServiceRequestCategory(serviceRequestType.getServiceRequestCategory());
         setServiceRequestSlots(serviceRequestType.getServiceRequestSlotsSet().stream().collect(Collectors.toList()));
+        setValidators(serviceRequestType.getULisboaServiceRequestValidatorsSet().stream().collect(Collectors.toList()));
         setNumberOfUnitsLabel(serviceRequestType.getNumberOfUnitsLabel());
     }
 }
