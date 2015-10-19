@@ -64,7 +64,7 @@ abstract public class AnyCurricularCourseExceptionsInitializer {
                 if (competenceCourse == null) {
                     logger.info("Not Found [CompetenceCourse][CODE][{}]", code);
                 } else {
-                    logger.info("Found [CompetenceCourse][CODE][{}]", code);
+                    logger.debug("Found [CompetenceCourse][CODE][{}]", code);
                     result.add(competenceCourse);
                 }
             }

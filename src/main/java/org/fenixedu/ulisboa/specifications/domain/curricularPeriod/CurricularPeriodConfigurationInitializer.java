@@ -147,7 +147,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleEnrolmentFF() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+            logger.debug("Init RuleEnrolment for {}", dcp.getPresentationName());
 
             final DegreeType degreeType = dcp.getDegree().getDegreeType();
             if (degreeType.isSecondCycle() && degreeType.hasExactlyOneCycleType()) {
@@ -208,7 +208,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleEnrolmentFMV() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+            logger.debug("Init RuleEnrolment for {}", dcp.getPresentationName());
 
             final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
             if (configYear1 == null) {
@@ -295,7 +295,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleEnrolmentRUL() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+            logger.debug("Init RuleEnrolment for {}", dcp.getPresentationName());
 
             // exceptions
             final boolean configYear2ExtendedEcts = StringUtils.equals(dcp.getDegree().getCode(), "5315");
@@ -355,7 +355,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleEnrolmentFMD() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+            logger.debug("Init RuleEnrolment for {}", dcp.getPresentationName());
 
             final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
             if (configYear1 == null) {
@@ -423,7 +423,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleEnrolmentFL() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleEnrolment for {}", dcp.getPresentationName());
+            logger.debug("Init RuleEnrolment for {}", dcp.getPresentationName());
 
             for (int i = 1; i <= dcp.getDurationInYears(); i++) {
 
@@ -455,7 +455,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleTransitionFF() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleTransition for {}", dcp.getPresentationName());
+            logger.debug("Init RuleTransition for {}", dcp.getPresentationName());
 
             BigDecimal maxFlunked = BigDecimal.valueOf(24);
 
@@ -498,7 +498,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleTransitionFMV() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleTransition for {}", dcp.getPresentationName());
+            logger.debug("Init RuleTransition for {}", dcp.getPresentationName());
 
             final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
             if (configYear2 == null) {
@@ -566,7 +566,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleTransitionRUL() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleTransition for {}", dcp.getPresentationName());
+            logger.debug("Init RuleTransition for {}", dcp.getPresentationName());
 
             BigDecimal maxFlunked = BigDecimal.valueOf(24);
 
@@ -608,7 +608,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleTransitionFL() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleTransition for {}", dcp.getPresentationName());
+            logger.debug("Init RuleTransition for {}", dcp.getPresentationName());
 
             BigDecimal maxFlunked = BigDecimal.valueOf(24);
 
@@ -665,7 +665,7 @@ public class CurricularPeriodConfigurationInitializer {
 
     static private void initRuleTransitionFMD() {
         for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
-            logger.info("Init RuleTransition for {}", dcp.getPresentationName());
+            logger.debug("Init RuleTransition for {}", dcp.getPresentationName());
 
             final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
             if (configYear2 == null) {
