@@ -618,9 +618,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         final String text;
         if (!shifts.isEmpty()) {
-            text =
-                    shifts.stream().map(s -> s.getNome() + " (" + s.getShiftTypesCodePrettyPrint() + ")")
-                            .collect(Collectors.joining(", "));
+            text = shifts.stream().map(s -> s.getNome()).collect(Collectors.joining(", "));
         } else {
             text = EMPTY_INFO;
         }
