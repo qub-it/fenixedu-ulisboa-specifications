@@ -2,9 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 
-<link href="${pageContext.request.contextPath}/static/registrationObservations/observationStyles.css" rel="stylesheet" />
-
-
 <h3><spring:message code="label.student.observations"/></h3>
 <div>
 	<c:if test="${saved}">
@@ -63,7 +60,9 @@
 			</table>
 			<script>
 			function deleteObservation(el){
-				el.parentElement.submit();
+				if(confirm("<spring:message code="label.student.observations.delete.confirm"/>")){
+					el.parentElement.submit();
+				}
 				return false;
 			}
 			</script>
