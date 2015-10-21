@@ -40,6 +40,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
@@ -273,7 +274,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     model);
             return false;
         }
-        if (!PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER.equals(form.getSocialSecurityNumber())) {
+        String defaultSocialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+        if (!defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
             Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
             if (party != null && party != person) {
                 addErrorMessage(BundleUtil.getString(BUNDLE,
@@ -333,7 +335,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         String socialSecurityNumber = form.getSocialSecurityNumber();
         if (StringUtils.isEmpty(socialSecurityNumber)) {
-            socialSecurityNumber = PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER;
+            socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
         }
         person.setSocialSecurityNumber(socialSecurityNumber);
 
