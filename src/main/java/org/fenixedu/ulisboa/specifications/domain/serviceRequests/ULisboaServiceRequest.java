@@ -33,20 +33,34 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.AcademicProgram;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
+import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
+import pt.ist.fenixframework.dml.DeletionListener;
+
+import com.google.common.base.Strings;
 
 public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
@@ -70,6 +84,20 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         init(registration);
         setServiceRequestType(serviceRequestType);
         setRegistration(registration);
+        setIsValid(true);
+    }
+
+    protected void init(Registration registration) {
+
+        AcademicServiceRequestCreateBean bean = new AcademicServiceRequestCreateBean(registration);
+        bean.setRequestDate(new DateTime());
+
+        bean.setRequestedCycle(registration.getDegreeType().getFirstOrderedCycleType());
+        bean.setUrgentRequest(Boolean.FALSE);
+        bean.setFreeProcessed(Boolean.FALSE);
+        bean.setLanguage(I18N.getLocale());
+
+        super.init(bean, registration.getDegree().getAdministrativeOffice());
     }
 
     @Atomic
@@ -84,8 +112,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     @Override
     protected void disconnect() {
-        // TODO Ver qual o processo mais correcto para apagar/editar estas instâncias.
-        //      Rever fields do ASR que possam fazer sentido utilizar aqui (e.g. AcademicServiceRequestYear)
         for (ServiceRequestProperty property : getServiceRequestPropertiesSet()) {
             property.delete();
         }
@@ -94,8 +120,14 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         super.disconnect();
     }
 
+    @Override
+    protected void checkRulesToDelete() {
+
+        super.checkRulesToDelete();
+    }
+
     /*
-     * REMINDER
+     * TODOJN REMINDER
      * Upon transition: Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<ITreasuryServiceRequest>(this));
      * When cancelling: Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<ITreasuryServiceRequest>(this));
      */
@@ -172,11 +204,32 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     @Override
+    public boolean hasExecutionYear() {
+        return findProperty(Constants.EXECUTION_YEAR).isPresent();
+    }
+
+    @Override
     public String getDescription() {
         return getServiceRequestType().getName().getContent();
     }
 
-    private Optional<ServiceRequestProperty> findProperty(String slotCode) {
+    @Override
+    public boolean isFor(ExecutionYear executionYear) {
+        Optional<ServiceRequestProperty> property = findProperty(Constants.EXECUTION_YEAR);
+        if (property.isPresent()) {
+            property.get().getExecutionYear().equals(executionYear);
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean hasMissingPersonalInfo() {
+        return getPerson() == null || Strings.isNullOrEmpty(getPerson().getName())
+                || (getPerson().getDateOfBirthYearMonthDay() == null) || Strings.isNullOrEmpty(getPerson().getDocumentIdNumber())
+                || (getPerson().getIdDocumentType() == null);
+    }
+
+    public Optional<ServiceRequestProperty> findProperty(String slotCode) {
         return getServiceRequestPropertiesSet().stream()
                 .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
     }
@@ -205,6 +258,91 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                 request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED);
     }
 
+    public static void setupListenerForPropertiesDeletion() {
+        //Registration
+        FenixFramework.getDomainModel().registerDeletionListener(Registration.class, new DeletionListener<Registration>() {
+
+            @Override
+            public void deleting(Registration registration) {
+                for (ULisboaServiceRequest request : registration.getULisboaServiceRequestsSet()) {
+                    request.setRegistration(null);
+                    request.setIsValid(false);
+                }
+            }
+        });
+        //DocumentPurposeTypeInstance
+        FenixFramework.getDomainModel().registerDeletionListener(DocumentPurposeTypeInstance.class,
+                new DeletionListener<DocumentPurposeTypeInstance>() {
+
+                    @Override
+                    public void deleting(DocumentPurposeTypeInstance documentPurposeTypeInstance) {
+                        for (ServiceRequestProperty property : documentPurposeTypeInstance.getServiceRequestPropertiesSet()) {
+                            property.setDocumentPurposeTypeInstance(null);
+                            property.getULisboaServiceRequest().setIsValid(false);
+                        }
+                    }
+                });
+        //Execution Year
+        FenixFramework.getDomainModel().registerDeletionListener(ExecutionYear.class, new DeletionListener<ExecutionYear>() {
+
+            @Override
+            public void deleting(ExecutionYear executionYear) {
+                for (ServiceRequestProperty property : executionYear.getServiceRequestPropertiesSet()) {
+                    property.setExecutionYear(null);
+                    property.getULisboaServiceRequest().setIsValid(false);
+                }
+            }
+        });
+        //Student Curricular Plan
+        FenixFramework.getDomainModel().registerDeletionListener(StudentCurricularPlan.class,
+                new DeletionListener<StudentCurricularPlan>() {
+
+                    @Override
+                    public void deleting(StudentCurricularPlan studentCurricularPlan) {
+                        for (ServiceRequestProperty property : studentCurricularPlan.getServiceRequestPropertiesSet()) {
+                            property.setStudentCurricularPlan(null);
+                            property.getULisboaServiceRequest().setIsValid(false);
+                        }
+                    }
+                });
+        //ExternalEnrolment
+        FenixFramework.getDomainModel().registerDeletionListener(ExternalEnrolment.class,
+                new DeletionListener<ExternalEnrolment>() {
+
+                    @Override
+                    public void deleting(ExternalEnrolment externalEnrolment) {
+                        for (ServiceRequestProperty property : externalEnrolment.getServiceRequestPropertiesSet()) {
+                            property.removeExternalEnrolments(externalEnrolment);
+                            property.getULisboaServiceRequest().setIsValid(false);
+                        }
+                    }
+                });
+        //CurriculumLine
+        FenixFramework.getDomainModel().registerDeletionListener(CurriculumLine.class, new DeletionListener<CurriculumLine>() {
+
+            @Override
+            public void deleting(CurriculumLine curriculumLine) {
+                for (ServiceRequestProperty property : curriculumLine.getServiceRequestPropertiesSet()) {
+                    property.removeCurriculumLines(curriculumLine);
+                    property.getULisboaServiceRequest().setIsValid(false);
+                }
+
+            }
+        });
+    }
+
+    public static void setupListenerForServiceRequestTypeDeletion() {
+        FenixFramework.getDomainModel().registerDeletionListener(ServiceRequestType.class,
+                new DeletionListener<ServiceRequestType>() {
+                    @Override
+                    public void deleting(ServiceRequestType serviceRequestType) {
+                        serviceRequestType.getULisboaServiceRequestValidatorsSet().clear();
+                        serviceRequestType.getServiceRequestSlotsSet().clear();
+                    }
+                });
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
      * ****************
      * <Deprecated API>
@@ -212,45 +350,178 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
      */
     @Deprecated
     @Override
+    public void edit(AcademicServiceRequestBean academicServiceRequestBean) {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.workFlow");
+    }
+
+    @Deprecated
+    @Override
+    protected String getDescription(AcademicServiceRequestType academicServiceRequestType, String specificServiceType) {
+        return getDescription();
+    }
+
+    @Deprecated
+    @Override
+    protected String getDescription(AcademicServiceRequestType academicServiceRequestType) {
+        return getDescription();
+    }
+
+    @Deprecated
+    @Override
     public boolean isPayedUponCreation() {
-        return false;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isPossibleToSendToOtherEntity() {
-        return false;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isManagedWithRectorateSubmissionBatch() {
-        return false;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public EventType getEventType() {
-        return null;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public AcademicServiceRequestType getAcademicServiceRequestType() {
-        return null;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean hasPersonalInfo() {
-        return false;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public AcademicProgram getAcademicProgram() {
-        return null;
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
+
+    @Deprecated
+    @Override
+    protected void checkRulesToChangeState(AcademicServiceRequestSituationType situationType) {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isDownloadPossible() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected void internalChangeState(AcademicServiceRequestBean academicServiceRequestBean) {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected void verifyIsToDeliveredAndIsPayed(AcademicServiceRequestBean academicServiceRequestBean) {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected void verifyIsToProcessAndHasPersonalInfo(AcademicServiceRequestBean academicServiceRequestBean) {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isPiggyBackedOnRegistry() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isCanGenerateRegistryCode() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isRequestForPerson() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isRequestForPhd() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isRequestForRegistration() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected void internalRevertToProcessingState() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public void revertToProcessingState() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isDiploma() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isPastDiploma() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isRegistryDiploma() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isDiplomaSupplement() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isBatchSet() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isRequestedWithCycle() {
+        return hasCycleType();
+    }
+
+    @Deprecated
+    @Override
+    public boolean hasRegistryCode() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
     /*
      * *****************
      * </Deprecated API>
