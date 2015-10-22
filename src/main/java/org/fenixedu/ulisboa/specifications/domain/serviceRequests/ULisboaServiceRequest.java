@@ -46,11 +46,16 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPur
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.signals.DomainObjectEvent;
+import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.util.Constants;
@@ -62,9 +67,10 @@ import pt.ist.fenixframework.dml.DeletionListener;
 
 import com.google.common.base.Strings;
 
-public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
+public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
     /**
+     * TODOJN onde documentar isto
      * AcademicServiceRequest API used
      * get/set RequestDate
      * get/set AcademicServiceRequestYear
@@ -75,28 +81,30 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
      * get/add AcademicServiceRequestSituation
      */
 
+    /**
+     * Constructors
+     */
+
     protected ULisboaServiceRequest() {
         super();
     }
 
     protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration) {
         this();
-        init(registration);
+        initAcademicServiceRequest(registration);
         setServiceRequestType(serviceRequestType);
         setRegistration(registration);
         setIsValid(true);
     }
 
-    protected void init(Registration registration) {
-
+    protected void initAcademicServiceRequest(Registration registration) {
+        //Use the Academic Service Request init, because there is unaccessible methods
         AcademicServiceRequestCreateBean bean = new AcademicServiceRequestCreateBean(registration);
         bean.setRequestDate(new DateTime());
-
         bean.setRequestedCycle(registration.getDegreeType().getFirstOrderedCycleType());
         bean.setUrgentRequest(Boolean.FALSE);
         bean.setFreeProcessed(Boolean.FALSE);
         bean.setLanguage(I18N.getLocale());
-
         super.init(bean, registration.getDegree().getAdministrativeOffice());
     }
 
@@ -109,6 +117,11 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         }
         return request;
     }
+
+    /**
+     * Delete methods
+     * Academic Service Request calls these two methods
+     */
 
     @Override
     protected void disconnect() {
@@ -126,10 +139,10 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         super.checkRulesToDelete();
     }
 
-    /*
-     * TODOJN REMINDER
-     * Upon transition: Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<ITreasuryServiceRequest>(this));
-     * When cancelling: Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<ITreasuryServiceRequest>(this));
+    /**
+     * Implementation of interfaces
+     * QubDocReports Service Request Interface
+     * Treasury Service Request Interface
      */
 
     @Override
@@ -234,6 +247,87 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                 .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
     }
 
+    /**
+     * Change State Methods
+     */
+
+    @Atomic
+    public void transitToProcessState() {
+        if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        transitState(AcademicServiceRequestSituationType.PROCESSING, "");
+        validate();
+    }
+
+    @Atomic
+    public void transitToConcludedState() {
+        if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        transitState(AcademicServiceRequestSituationType.CONCLUDED, "");
+        validate();
+        //TODOJN create validator to check if has generated one time the document
+        if (getServiceRequestType().getNotifyUponConclusion().booleanValue()) {
+            sendMail();
+        }
+    }
+
+    @Atomic
+    public void transitToDeliverState() {
+        if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        transitState(AcademicServiceRequestSituationType.DELIVERED, "");
+        validate();
+    }
+
+    @Atomic
+    public void transitToCancelState(String justification) {
+        if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        transitState(AcademicServiceRequestSituationType.CANCELLED, justification);
+        validate();
+    }
+
+    @Atomic
+    public void transitToRejectState(String justification) {
+        if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.DELIVERED) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        transitState(AcademicServiceRequestSituationType.REJECTED, justification);
+        validate();
+    }
+
+    private void transitState(AcademicServiceRequestSituationType type, String justification) {
+        if (type == AcademicServiceRequestSituationType.CANCELLED || type == AcademicServiceRequestSituationType.REJECTED) {
+            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                    new DomainObjectEvent<ULisboaServiceRequest>(this));
+        } else {
+            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                    new DomainObjectEvent<ULisboaServiceRequest>(this));
+        }
+        AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
+        createAcademicServiceRequestSituations(bean);
+    }
+
+    private void validate() {
+        for (ULisboaServiceRequestValidator uLisboaServiceRequestValidator : getServiceRequestType()
+                .getULisboaServiceRequestValidatorsSet()) {
+            uLisboaServiceRequestValidator.validate(this);
+        }
+    }
+
+    private void sendMail() {
+        // TODOJN Auto-generated method stub
+
+    }
+
+    /**
+     * Static services
+     */
+
     public static Stream<ULisboaServiceRequest> findAll() {
         return Bennu.getInstance().getAcademicServiceRequestsSet().stream()
                 .filter(request -> request instanceof ULisboaServiceRequest).map(ULisboaServiceRequest.class::cast);
@@ -257,6 +351,11 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         return findByRegistration(registration).filter(
                 request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED);
     }
+
+    /**
+     * Delete Listener for Service Request Properties Relations
+     * Delete Listener for Service Request Type
+     */
 
     public static void setupListenerForPropertiesDeletion() {
         //Registration

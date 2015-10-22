@@ -26,6 +26,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType"%>
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration" %>
@@ -47,8 +48,7 @@
 <link rel="stylesheet" href="${datatablesCssUrl}" />
 <spring:url var="datatablesI18NUrl"
     value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json" />
-<link rel="stylesheet" type="text/css"
-    href="${pageContext.request.contextPath}/CSS/dataTables/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/CSS/dataTables/dataTables.bootstrap.min.css" />
 
 <!-- Choose ONLY ONE:  bennuToolkit OR bennuAngularToolkit -->
 <%-- ${portal.angularToolkit()} --%>
@@ -74,6 +74,58 @@ ${portal.toolkit()}
 <script
     src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/omnis.js"></script>
 
+
+<script type="text/javascript">
+      function openModal(url) {
+        $("#uLisboaServiceRequestForm").attr("action", url);
+        $('#uLisboaServiceRequestModal').modal('toggle')
+      }
+      function submit(url) {
+          $("#uLisboaServiceRequestForm").attr("action", url);
+          $("#uLisboaServiceRequestForm").submit();
+      }
+</script>
+
+<div class="modal fade" id="uLisboaServiceRequestModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="uLisboaServiceRequestForm" action="#" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <spring:message code="label.serviceRequests.ulisboarequest.confirmRejectOrCancel" />
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2 control-label">
+                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.justification"/>
+                        </div>
+                        <div class="col-sm-10 control-label">
+                            <input id="justification" name="justification" class="form-control" type="text" value="${ param.justification }"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="deleteButton" class="btn btn-primary" type="submit">
+                        <spring:message code="label.confirm" />
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <%-- TITLE --%>
 <div class="page-header">
@@ -104,8 +156,7 @@ ${portal.toolkit()}
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
         &nbsp; 
-        <a class=""
-            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PROCESS_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
             <spring:message code="label.event.process" />
         </a>
     </c:if>
@@ -113,8 +164,7 @@ ${portal.toolkit()}
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
         &nbsp; 
-        <a class=""
-            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
             <spring:message code="label.event.conclude" />
         </a>
     </c:if>
@@ -122,18 +172,25 @@ ${portal.toolkit()}
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
         &nbsp; 
-        <a class=""
-            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DELIVER_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
             <spring:message code="label.event.deliver" />
         </a>
     </c:if>
     &nbsp;|&nbsp;
     <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
     &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
         <spring:message code="label.print" />
     </a>
+
+    <c:if test="${ serviceRequest.paymentURL != null }">
+        &nbsp;|&nbsp;
+        <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+        &nbsp; 
+            <a class="" href="${ serviceRequest.paymentURL }">
+            <spring:message code="label.payments" />
+        </a>
+    </c:if>
 
     &nbsp;|&nbsp;
     <div class="btn-group">
@@ -144,17 +201,17 @@ ${portal.toolkit()}
         </button>
         <ul class="dropdown-menu">
             <li>
-                <a class="" href="${pageContext.request.contextPath}">
+        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
                 <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.revert" />
                 </a>
             </li>
             <li>
-                <a class="" href="${pageContext.request.contextPath}">
+        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REJECT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
                 <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.reject" />
                 </a>
             </li>
             <li>
-                <a class="" href="${pageContext.request.contextPath}">
+        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CANCEL_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
                 <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
                 </a>
             </li>
