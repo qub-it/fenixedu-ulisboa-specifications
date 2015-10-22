@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.dto;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -131,7 +132,7 @@ public class ServiceRequestTypeBean implements IBean {
     }
 
     public void setValidatorsDataSource(List<ULisboaServiceRequestValidator> validatorsSet) {
-        this.serviceRequestSlotsDataSource = validatorsSet.stream().map(srs -> {
+        this.validatorsDataSource = validatorsSet.stream().map(srs -> {
             TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
             tupleDataSourceBean.setId(srs.getExternalId());
             tupleDataSourceBean.setText(srs.getName().getContent());
@@ -150,7 +151,9 @@ public class ServiceRequestTypeBean implements IBean {
     public ServiceRequestTypeBean() {
         setServiceRequestCategoryDataSource(Arrays.asList(ServiceRequestCategory.values()));
         setServiceRequestSlotsDataSource(ServiceRequestSlot.findAll().collect(Collectors.toList()));
-        setValidators(ULisboaServiceRequestValidator.findAll().collect(Collectors.toList()));
+        setValidatorsDataSource(ULisboaServiceRequestValidator.findAll().collect(Collectors.toList()));
+        validators = new ArrayList<ULisboaServiceRequestValidator>();
+        serviceRequestSlots = new ArrayList<ServiceRequestSlot>();
     }
 
     public ServiceRequestTypeBean(ServiceRequestType serviceRequestType) {

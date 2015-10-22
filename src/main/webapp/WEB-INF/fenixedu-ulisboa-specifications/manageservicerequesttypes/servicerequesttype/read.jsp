@@ -190,7 +190,7 @@ ${portal.toolkit()}
                         <th scope="row" class="col-xs-3"><spring:message
                                 code="label.ServiceRequestType.uLisboaServiceRequestValidators" /></th>
                         <td>
-                            <c:forEach var="slot" items="${ serviceRequestType.uLisboaServiceRequestValidatorsSet }" >
+                            <c:forEach var="slot" items="${ serviceRequestType.ULisboaServiceRequestValidatorsSet }" >
                                 <p><c:out value="${ slot.name.content }"/></p>
                             </c:forEach>
                         </td>
