@@ -26,6 +26,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType"%>
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -99,43 +100,33 @@ ${portal.toolkit()}
         <spring:message code="label.event.back" />
     </a>
 
-
-
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.revert" />
-    </a>
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.process" />
-    </a>
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.conclude" />
-    </a>
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.deliver" />
-    </a>
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.reject" />
-    </a>
+    <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'NEW'}">
+        &nbsp;|&nbsp;
+        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+        &nbsp; 
+        <a class=""
+            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+            <spring:message code="label.event.process" />
+        </a>
+    </c:if>
+    <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'PROCESSING'}">
+        &nbsp;|&nbsp;
+        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+        &nbsp; 
+        <a class=""
+            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+            <spring:message code="label.event.conclude" />
+        </a>
+    </c:if>
+    <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED'}">
+        &nbsp;|&nbsp;
+        <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
+        &nbsp; 
+        <a class=""
+            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+            <spring:message code="label.event.deliver" />
+        </a>
+    </c:if>
     &nbsp;|&nbsp;
     <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
     &nbsp; 
@@ -143,14 +134,32 @@ ${portal.toolkit()}
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
         <spring:message code="label.print" />
     </a>
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.cancel" />
-    </a>
 
+    &nbsp;|&nbsp;
+    <div class="btn-group">
+        <button type="button" class=" btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;
+            <spring:message code="label.event.more" />
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="" href="${pageContext.request.contextPath}">
+                <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.revert" />
+                </a>
+            </li>
+            <li>
+                <a class="" href="${pageContext.request.contextPath}">
+                <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.reject" />
+                </a>
+            </li>
+            <li>
+                <a class="" href="${pageContext.request.contextPath}">
+                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -259,25 +268,34 @@ ${portal.toolkit()}
                         <tr>
                             <th scope="row" class="col-xs-3"><spring:message code="${ property.serviceRequestSlot.label.content }" /></th>
                             <td>
-                                <c:if test="${ property.booleanValue }">
-                                    <spring:message code="label.yes" />
-                                </c:if>
-                                <c:if test="${ property.booleanValue != null && not property.booleanValue }">
-                                    <spring:message code="label.no" />                                
-                                </c:if>
-                                <c:if test="${ property.booleanValue == null }">
-                                    <c:out value='${ property.string } ${ property.integer } 
-                                                ${ property.locale.displayLanguage }
-                                                ${ property.cycleType.description } 
-                                                ${ property.localizedString.content }
-                                                ${ property.dateTime.toLocalDate() } 
-                                                ${ propety.registration } ${ property.executionYear.name } 
-                                                ${ property.documentPurposeTypeInstance.name.content }' />
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${ property.booleanValue != null }">
+                                        <c:if test="${ property.booleanValue }">
+                                            <spring:message code="label.yes" />
+                                        </c:if>
+                                        <c:if test="${ not property.booleanValue }">
+                                            <spring:message code="label.no" />                                
+                                        </c:if>
+                                    </c:when>
+                                    <c:when test="${ not empty property.ICurriculumEntriesSet }">
+                                        <c:forEach var="entry" items="${ property.ICurriculumEntriesSet }">
+                                            <li><c:out value="${ entry.code } - ${ entry.name.content } - ${ entry.executionYear.qualifiedName }"/> </li>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:out value='${ property.string } ${ property.integer } 
+                                                    ${ property.locale.displayLanguage }
+                                                    ${ property.cycleType.description } 
+                                                    ${ property.localizedString.content }
+                                                    ${ property.dateTime.toLocalDate() } 
+                                                    ${ propety.registration } ${ property.executionYear.name } 
+                                                    ${ property.documentPurposeTypeInstance.name.content }
+                                                    ${ property.studentCurricularPlan.name }' />
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                         </tr>                    
                     </c:forEach>
-
                 </tbody>
             </table>
         </form>

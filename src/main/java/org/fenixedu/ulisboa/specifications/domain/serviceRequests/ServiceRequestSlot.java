@@ -1,14 +1,17 @@
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -18,14 +21,18 @@ import org.fenixedu.ulisboa.specifications.util.Constants;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
+import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
-    public ServiceRequestSlot() {
+    protected ServiceRequestSlot() {
         super();
         setBennu(Bennu.getInstance());
     }
@@ -114,80 +121,165 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     }
 
     public static void initStaticSlots() {
-        if (findAll().count() != 0) {
-            return;
+//        if (findAll().count() != 0) {
+//            return;
+//        }
+
+        if (findByCode(Constants.LANGUAGE).count() == 0) {
+            createStaticSlot(Constants.LANGUAGE, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.language"));
+        }
+        if (findByCode(Constants.DOCUMENT_PURPOSE_TYPE).count() == 0) {
+            createStaticSlot(Constants.DOCUMENT_PURPOSE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.documentPurposeType"));
+        }
+        if (findByCode(Constants.OTHER_DOCUMENT_PURPOSE).count() == 0) {
+            createStaticSlot(Constants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
+        }
+        if (findByCode(Constants.IS_DETAILED).count() == 0) {
+            createStaticSlot(Constants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.isDetailed"));
+        }
+        if (findByCode(Constants.IS_URGENT).count() == 0) {
+            createStaticSlot(Constants.IS_URGENT, UIComponentType.DROP_DOWN_BOOLEAN,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.isUrgent"));
+        }
+        if (findByCode(Constants.CYCLE_TYPE).count() == 0) {
+            createStaticSlot(Constants.CYCLE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.cycleType"));
+        }
+        if (findByCode(Constants.NUMBER_OF_UNITS).count() == 0) {
+            createStaticSlot(Constants.NUMBER_OF_UNITS, UIComponentType.NUMBER,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfUnits"));
+        }
+        if (findByCode(Constants.NUMBER_OF_DAYS).count() == 0) {
+            createStaticSlot(Constants.NUMBER_OF_DAYS, UIComponentType.NUMBER,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfDays"));
+        }
+        if (findByCode(Constants.NUMBER_OF_PAGES).count() == 0) {
+            createStaticSlot(Constants.NUMBER_OF_PAGES, UIComponentType.NUMBER,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfPages"));
+        }
+        if (findByCode(Constants.EXECUTION_YEAR).count() == 0) {
+            createStaticSlot(Constants.EXECUTION_YEAR, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.executionYear"));
+        }
+        if (findByCode(Constants.CURRICULAR_PLAN).count() == 0) {
+            createStaticSlot(Constants.CURRICULAR_PLAN, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.curricularPlan"));
+        }
+        if (findByCode(Constants.APPROVED_EXTRA_CURRICULUM).count() == 0) {
+            createStaticSlot(Constants.APPROVED_EXTRA_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
+        }
+        if (findByCode(Constants.APPROVED_STANDALONE_CURRICULUM).count() == 0) {
+            createStaticSlot(Constants.APPROVED_STANDALONE_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil
+                            .getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
+        }
+        if (findByCode(Constants.APPROVED_ENROLMENTS).count() == 0) {
+            createStaticSlot(Constants.APPROVED_ENROLMENTS, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.approvedEnrolments"));
+        }
+        if (findByCode(Constants.CURRICULUM).count() == 0) {
+            createStaticSlot(Constants.CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.curriculum"));
+        }
+        if (findByCode(Constants.ENROLMENTS_BY_YEAR).count() == 0) {
+            createStaticSlot(Constants.ENROLMENTS_BY_YEAR, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsByYear"));
+        }
+    }
+
+    public static <T> T convertValue(String serviceRequestSlotCode, String propertyValue) {
+        ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
+
+        if (propertyValue == null) {
+            return (serviceRequestSlot.getUiComponentType().isMultipleDropDown()) ? (T) new ArrayList<T>() : (T) null;
         }
 
-        createStaticSlot(Constants.LANGUAGE, UIComponentType.DROP_DOWN_ONE_VALUE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.language"));
-        createStaticSlot(Constants.DOCUMENT_PURPOSE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.documentPurposeType"));
-        createStaticSlot(Constants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
-        createStaticSlot(Constants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.isDetailed"));
-        createStaticSlot(Constants.IS_URGENT, UIComponentType.DROP_DOWN_BOOLEAN,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.isUrgent"));
-        createStaticSlot(Constants.CYCLE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.cycleType"));
-        createStaticSlot(Constants.NUMBER_OF_UNITS, UIComponentType.NUMBER,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfUnits"));
-        createStaticSlot(Constants.NUMBER_OF_DAYS, UIComponentType.NUMBER,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfDays"));
-        createStaticSlot(Constants.NUMBER_OF_PAGES, UIComponentType.NUMBER,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.numberOfPages"));
-        createStaticSlot(Constants.CURRICULAR_PLAN, UIComponentType.DROP_DOWN_ONE_VALUE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.curricularPlan"));
-        createStaticSlot(Constants.APPROVED_COURSES, UIComponentType.DROP_DOWN_MULTIPLE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.approvedCourses"));
-        createStaticSlot(Constants.ENROLLED_COURSES, UIComponentType.DROP_DOWN_MULTIPLE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.enrolledCourses"));
-        createStaticSlot(Constants.CREDITS, UIComponentType.NUMBER,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.credits"));
-        createStaticSlot(Constants.EXECUTION_YEAR, UIComponentType.DROP_DOWN_ONE_VALUE,
-                BundleUtil.getLocalizedString(Constants.BUNDLE, "label.ServiceRequestSlot.label.executionYear"));
+        switch (serviceRequestSlot.getUiComponentType()) {
+        case DROP_DOWN_BOOLEAN:
+            return (T) Boolean.valueOf(propertyValue);
+        case NUMBER:
+            return (T) Integer.valueOf(propertyValue);
+        case TEXT:
+            return (T) propertyValue;
+        case TEXT_LOCALIZED_STRING:
+            JsonObject jsonObject = new JsonParser().parse(propertyValue).getAsJsonObject();
+            return (T) LocalizedString.fromJson(jsonObject);
+        case DATE:
+            return (T) new DateTime(propertyValue);
+        case DROP_DOWN_MULTIPLE:
+            if (Constants.DROP_DOWN_MULTIPLE_DOMAIN_OBJECTS.contains(serviceRequestSlotCode)) {
+                final Collection<DomainObject> convertedList = Sets.newHashSet();
+                JsonArray domainObjectJsonArray = new JsonParser().parse(propertyValue).getAsJsonArray();
+                for (final JsonElement element : domainObjectJsonArray) {
+                    String oid = element.getAsJsonObject().get("id").getAsString().trim();
+                    convertedList.add(FenixFramework.getDomainObject(oid));
+                }
+                return (T) convertedList;
+            } else {
+                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            }
+        case DROP_DOWN_ONE_VALUE:
+        default:
+            if (Constants.DROP_DOWN_SINGLE_DOMAIN_OBJECTS.contains(serviceRequestSlotCode)) {
+                return FenixFramework.getDomainObject(propertyValue);
+            }
+            if (serviceRequestSlotCode.equals(Constants.LANGUAGE)) {
+                return (T) Locale.forLanguageTag(propertyValue);
+            }
+            if (serviceRequestSlotCode.equals(Constants.CYCLE_TYPE)) {
+                return (T) CycleType.valueOf(propertyValue);
+            }
+            throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+        }
+
     }
 
     @Atomic
     public static ServiceRequestProperty createProperty(String serviceRequestSlotCode, String propertyValue) {
         ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
         if (propertyValue == null) {
-            return ServiceRequestProperty.createProperty(serviceRequestSlot);
+            return ServiceRequestProperty.create(serviceRequestSlot);
         }
+
+        final Object value = convertValue(serviceRequestSlotCode, propertyValue);
+
         switch (serviceRequestSlot.getUiComponentType()) {
         case DROP_DOWN_BOOLEAN:
-            return ServiceRequestProperty.createBooleanProperty(Boolean.valueOf(propertyValue), serviceRequestSlot);
+            return ServiceRequestProperty.createForBoolean((Boolean) value, serviceRequestSlot);
         case NUMBER:
-            return ServiceRequestProperty.createIntegerProperty(Integer.valueOf(propertyValue), serviceRequestSlot);
+            return ServiceRequestProperty.createForInteger((Integer) value, serviceRequestSlot);
         case TEXT:
-            return ServiceRequestProperty.createStringProperty(propertyValue, serviceRequestSlot);
+            return ServiceRequestProperty.createForString(propertyValue, serviceRequestSlot);
         case TEXT_LOCALIZED_STRING:
-            JsonObject jsonObject = new JsonParser().parse(propertyValue).getAsJsonObject();
-            return ServiceRequestProperty.createLocalizedStringProperty(LocalizedString.fromJson(jsonObject), serviceRequestSlot);
+            return ServiceRequestProperty.createForLocalizedString((LocalizedString) value, serviceRequestSlot);
         case DATE:
-            return ServiceRequestProperty.createDateTimeProperty(new DateTime(propertyValue), serviceRequestSlot);
+            return ServiceRequestProperty.createForDateTime((DateTime) value, serviceRequestSlot);
         case DROP_DOWN_MULTIPLE:
+            if (Constants.ICURRICULUM_ENTRY_OBJECTS.contains(serviceRequestSlotCode)) {
+                return ServiceRequestProperty.createForICurriculumEntry((Collection<ICurriculumEntry>) value, serviceRequestSlot);
+            } else {
+                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            }
+
         case DROP_DOWN_ONE_VALUE:
         default:
             switch (serviceRequestSlotCode) {
             case Constants.LANGUAGE:
-                Locale language = Locale.forLanguageTag(propertyValue);
-                return ServiceRequestProperty.createLocaleProperty(language, serviceRequestSlot);
+                return ServiceRequestProperty.createForLocale((Locale) value, serviceRequestSlot);
             case Constants.DOCUMENT_PURPOSE_TYPE:
-                DocumentPurposeTypeInstance documentPurposeTypeInstance =
-                        (DocumentPurposeTypeInstance) FenixFramework.getDomainObject(propertyValue);
-                return ServiceRequestProperty.createDocumentPurposeTypeInstanceProperty(documentPurposeTypeInstance,
+                return ServiceRequestProperty.createForDocumentPurposeTypeInstance((DocumentPurposeTypeInstance) value,
                         serviceRequestSlot);
             case Constants.CYCLE_TYPE:
-                CycleType cycleType = CycleType.valueOf(propertyValue);
-                return ServiceRequestProperty.createCycleTypeProperty(cycleType, serviceRequestSlot);
+                return ServiceRequestProperty.createForCycleType((CycleType) value, serviceRequestSlot);
             case Constants.EXECUTION_YEAR:
-                ExecutionYear executionYear = (ExecutionYear) FenixFramework.getDomainObject(propertyValue);
-                return ServiceRequestProperty.createExecutionYearProperty(executionYear, serviceRequestSlot);
+                return ServiceRequestProperty.createForExecutionYear((ExecutionYear) value, serviceRequestSlot);
             case Constants.CURRICULAR_PLAN:
-            case Constants.APPROVED_COURSES:
-            case Constants.ENROLLED_COURSES:
-            case Constants.CREDITS:
+                return ServiceRequestProperty.createForCurricularPlan((StudentCurricularPlan) value, serviceRequestSlot);
             default:
                 throw new DomainException("error.ServiceRequestSlot.not.supported.type");
             }

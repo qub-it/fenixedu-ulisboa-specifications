@@ -42,6 +42,8 @@ external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 external class .org.fenixedu.academic.domain.student.Registration;
 external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 external class .org.fenixedu.academic.domain.ExecutionYear;
+external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+external class .org.fenixedu.academic.domain.StudentCurricularPlan;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -720,22 +722,12 @@ relation ULisboaServiceRequestServiceRequestProperty {
 }
 
 //slots
-relation RegistrationServiceRequestProperty {
- public .org.fenixedu.academic.domain.student.Registration playsRole registration {
-     multiplicity 0..1;
- }
-
- public serviceRequests.ServiceRequestProperty playsRole {
-     multiplicity *;
- }
-}
-
 relation DocumentPurposeTypeInstanceServiceRequestProperty {
     public .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance playsRole documentPurposeTypeInstance {
         multiplicity 0..1;
     }
 
-    public serviceRequests.ServiceRequestProperty playsRole {
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
         multiplicity *;
     }
 }
@@ -745,7 +737,50 @@ relation ExecutionYearServiceRequestProperty {
         multiplicity 0..1;
     }
 
-    public serviceRequests.ServiceRequestProperty playsRole {
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
         multiplicity *;
     }
 }
+
+relation StudentCurricularPlanServiceRequestProperty {
+    public .org.fenixedu.academic.domain.StudentCurricularPlan playsRole studentCurricularPlan {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+/*
+ * ***************************************************
+ *    ICurriculum Entries
+ * ***************************************************
+ * 
+ * ICurriculum Entries are stored in two variables, ExternalEnrolment and CurriculumLine, 
+ * in order to create specific deletion listeners.
+ */
+relation ExternalEnrolmentServiceRequestProperty {
+    protected .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment playsRole externalEnrolments {
+        multiplicity *;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation CurriculumLineServiceRequestProperty {
+    protected .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLines {
+        multiplicity *;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+/*
+ * ***************************************************
+ *    End ICurriculum Entries
+ * ***************************************************
+ */

@@ -81,6 +81,8 @@ ${portal.angularToolkit()}
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/webjars/angular-ui-select/0.11.2/select.min.css" />
 <script src="${pageContext.request.contextPath}/webjars/angular-ui-select/0.11.2/select.min.js"></script>
 
+<script src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/angularjs-dropdown-multiselect.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
 
 <%-- TITLE --%>
 <div class="page-header">
@@ -154,7 +156,7 @@ ${portal.angularToolkit()}
     };
 
     angular.module('angularAppULisboaServiceRequest',
-            [ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
+            [ 'ngSanitize', 'ui.select', 'bennuToolkit', 'angularjs-dropdown-multiselect' ]).controller(
             'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
                 $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
@@ -186,6 +188,7 @@ ${portal.angularToolkit()}
                 		element.dataSource= undefined;
                     });
                 }
+                $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
             } ]);
 </script>
 
@@ -238,17 +241,6 @@ ${portal.angularToolkit()}
                     </ui-select>    
                     <ui-select id="{{serviceRequestProperty.code}}"
                         ng-model="serviceRequestProperty.value"
-                        ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_MULTIPLE'"
-                        theme="bootstrap" multiple on-select="postBack($model)"> 
-                        <ui-select-match allow-clear="true">
-                            {{$item.text}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="element.id as element in serviceRequestProperty.dataSource | filter: $select.search">
-                            <span ng-bind-html="element.text | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select>
-                    <ui-select id="{{serviceRequestProperty.code}}"
-                        ng-model="serviceRequestProperty.value"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_BOOLEAN'"
                         theme="bootstrap" > 
                         <ui-select-match allow-clear="true">
@@ -274,6 +266,10 @@ ${portal.angularToolkit()}
                            type="text" bennu-date="serviceRequestProperty.value" name="{{ serviceRequestProperty.code }}" 
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />    
+                    <div id="{{serviceRequestProperty.code}}" class="ui-select-container ui-select-bootstrap dropdown" 
+                        ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_MULTIPLE'"
+                        ng-dropdown-multiselect="" options="serviceRequestProperty.dataSource"
+                        selected-model="serviceRequestProperty.value" extra-settings="multiSelectOptions" />
                 </div>
             </div>
         </div>

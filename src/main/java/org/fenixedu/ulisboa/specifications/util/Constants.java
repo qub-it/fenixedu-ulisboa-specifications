@@ -28,6 +28,9 @@
 
 package org.fenixedu.ulisboa.specifications.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 
 public class Constants {
@@ -43,10 +46,21 @@ public class Constants {
     public static final String NUMBER_OF_UNITS = "numberOfUnits";
     public static final String NUMBER_OF_DAYS = "numberOfDays";
     public static final String NUMBER_OF_PAGES = "numberOfPages";
-    public static final String CURRICULAR_PLAN = "curricularPlan";
-    public static final String APPROVED_COURSES = "approvedCourses";
-    public static final String ENROLLED_COURSES = "enrolledCourses";
-    public static final String CREDITS = "credits";
     public static final String EXECUTION_YEAR = "executionYear";
 
+    public static final String CURRICULAR_PLAN = "curricularPlan";
+    public static final String APPROVED_EXTRA_CURRICULUM = "approvedExtraCurriculum";
+    public static final String APPROVED_STANDALONE_CURRICULUM = "approvedStandaloneCurriculum";
+    public static final String APPROVED_ENROLMENTS = "approvedEnrolments";
+    public static final String CURRICULUM = "curriculum";
+    public static final String ENROLMENTS_BY_YEAR = "enrolmentsByYear";
+
+    public static final List<String> DROP_DOWN_MULTIPLE_DOMAIN_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
+            APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
+
+    public static final List<String> DROP_DOWN_SINGLE_DOMAIN_OBJECTS = Arrays.asList(DOCUMENT_PURPOSE_TYPE, EXECUTION_YEAR,
+            CURRICULAR_PLAN);
+
+    public static final List<String> ICURRICULUM_ENTRY_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
+            APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
 }

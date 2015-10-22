@@ -29,28 +29,34 @@
 package org.fenixedu.ulisboa.specifications.dto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.joda.time.DateTime;
 
 import com.google.common.collect.Sets;
 
 public class ULisboaServiceRequestBean implements IBean {
 
-    //TODOJN maneira mais elegante
     public static final Map<String, DataSourceProvider> DATA_SOURCE_PROVIDERS = new HashMap<String, DataSourceProvider>();
     static {
         initProviderMap();
@@ -98,6 +104,13 @@ public class ULisboaServiceRequestBean implements IBean {
         this.serviceRequestPropertyBeans = serviceRequestPropertyBeans;
     }
 
+    public <T> T getServiceRequestPropertyValue(String code) {
+        ServiceRequestPropertyBean serviceRequestPropertyBean =
+                getServiceRequestPropertyBeans().stream().filter(s -> s.getCode().equals(code)).findFirst().get();
+
+        return (T) ServiceRequestSlot.convertValue(code, serviceRequestPropertyBean.getValue());
+    }
+
     public ULisboaServiceRequestBean() {
         setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
         setServiceRequestTypesDataSource(ServiceRequestType.findActive()
@@ -141,6 +154,15 @@ public class ULisboaServiceRequestBean implements IBean {
         }
     }
 
+    private static List<TupleDataSourceBean> provideForCurriculumEntry(Stream<ICurriculumEntry> collection) {
+        return collection.sorted((x, y) -> x.getName().compareTo(y.getName())).map(x -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(x.getExternalId());
+            tuple.setText(x.getCode() + " - " + x.getName().getContent() + " - " + x.getExecutionYear().getQualifiedName());
+            return tuple;
+        }).collect(Collectors.toList());
+    }
+
     public static void initProviderMap() {
         DATA_SOURCE_PROVIDERS.put(Constants.LANGUAGE, new DataSourceProvider() {
 
@@ -170,6 +192,9 @@ public class ULisboaServiceRequestBean implements IBean {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                if (bean.getRegistration().getDegreeType() == null) {
+                    return Collections.emptyList();
+                }
                 return bean.getRegistration().getDegreeType().getCycleTypes().stream()
                         .sorted(CycleType.COMPARATOR_BY_LESS_WEIGHT).map(x -> {
                             TupleDataSourceBean tuple = new TupleDataSourceBean();
@@ -179,22 +204,119 @@ public class ULisboaServiceRequestBean implements IBean {
                         }).collect(Collectors.toList());
             }
         });
-        //TODOJN
-//      public static final String CURRICULAR_PLAN = "curricularPlan";
-//      public static final String APPROVED_COURSES = "approvedCourses";
-//      public static final String ENROLLED_COURSES = "enrolledCourses";
-//      public static final String CREDITS = "credits";
-//        DATA_SOURCE_PROVIDERS.put(Constants.DOCUMENT_PURPOSE_TYPE, );
+        DATA_SOURCE_PROVIDERS.put(Constants.CURRICULAR_PLAN, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+
+                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(Constants.EXECUTION_YEAR);
+                if (executionYear == null) {
+                    return bean.getRegistration().getStudentCurricularPlansSet().stream()
+                            .sorted((x, y) -> x.getName().compareTo(y.getName())).map(x -> {
+                                TupleDataSourceBean tuple = new TupleDataSourceBean();
+                                tuple.setId(x.getExternalId());
+                                tuple.setText(x.getName());
+                                return tuple;
+                            }).collect(Collectors.toList());
+                }
+
+                final StudentCurricularPlan studentCurricularPlan =
+                        bean.getRegistration().getStudentCurricularPlan(executionYear);
+                final TupleDataSourceBean result = new TupleDataSourceBean();
+                if (studentCurricularPlan != null) {
+                    result.setId(studentCurricularPlan.getExternalId());
+                    result.setText(studentCurricularPlan.getName());
+                }
+
+                return Collections.singletonList(result);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(Constants.APPROVED_EXTRA_CURRICULUM, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                if (bean.getRegistration().getLastStudentCurricularPlan() == null
+                        || bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup() == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection =
+                        bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup().getEnrolmentsSet()
+                                .stream().map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+
+        });
+
+        //TODO: adicionar todos os enrolments de todos os Standalones do aluno?
+        DATA_SOURCE_PROVIDERS.put(Constants.APPROVED_STANDALONE_CURRICULUM, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                if (bean.getRegistration().getLastStudentCurricularPlan() == null
+                        || bean.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup() == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection =
+                        bean.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet()
+                                .stream().map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(Constants.APPROVED_ENROLMENTS, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                if (bean.getRegistration().getLastStudentCurricularPlan() == null) {
+                    return Collections.emptyList();
+                }
+                final Curriculum curriculum =
+                        bean.getRegistration().getLastStudentCurricularPlan().getCurriculum(new DateTime(), null);
+                Stream<ICurriculumEntry> collection =
+                        curriculum.getCurriculumEntries().stream().filter(e -> e instanceof Enrolment);
+                return provideForCurriculumEntry(collection);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(Constants.CURRICULUM, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                if (bean.getRegistration().getLastStudentCurricularPlan() == null) {
+                    return Collections.emptyList();
+                }
+                final Curriculum curriculum =
+                        bean.getRegistration().getLastStudentCurricularPlan().getCurriculum(new DateTime(), null);
+                Stream<ICurriculumEntry> collection = curriculum.getCurriculumEntries().stream();
+                return provideForCurriculumEntry(collection);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(Constants.ENROLMENTS_BY_YEAR, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(Constants.EXECUTION_YEAR);
+                if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection =
+                        bean.getRegistration().getStudentCurricularPlan(executionYear)
+                                .getEnrolmentsByExecutionYear(executionYear).stream()
+                                .filter(e -> !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
+                                .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+        });
         DATA_SOURCE_PROVIDERS.put(Constants.EXECUTION_YEAR, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
-                return ExecutionYear.readOpenExecutionYears().stream().sorted(ExecutionYear.COMPARATOR_BY_YEAR).map(x -> {
-                    TupleDataSourceBean tuple = new TupleDataSourceBean();
-                    tuple.setId(x.getExternalId());
-                    tuple.setText(x.getName());
-                    return tuple;
-                }).collect(Collectors.toList());
+                return ExecutionYear.readOpenExecutionYears().stream()
+                        .filter(e -> e.isAfterOrEquals(bean.getRegistration().getRegistrationYear()))
+                        .sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(x -> {
+                            TupleDataSourceBean tuple = new TupleDataSourceBean();
+                            tuple.setId(x.getExternalId());
+                            tuple.setText(x.getName());
+                            return tuple;
+                        }).collect(Collectors.toList());
             }
         });
     }
