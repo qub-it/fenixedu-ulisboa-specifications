@@ -59,6 +59,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparato
 import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 import org.slf4j.Logger;
@@ -94,6 +95,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         AnyCurricularCourseExceptionsInitializer.init();
         RegistrationRegimeVerifierInitializer.init();
         EnrolmentPredicateInitializer.init();
+        EnrolmentManagerFactoryInitializer.init();
         StudentCurricularPlanLayout.register();
         configureEnrolmentEvaluationComparator();
 
