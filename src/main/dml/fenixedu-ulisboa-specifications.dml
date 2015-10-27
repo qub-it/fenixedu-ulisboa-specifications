@@ -784,3 +784,19 @@ relation CurriculumLineServiceRequestProperty {
  *    End ICurriculum Entries
  * ***************************************************
  */
+
+// ======================= Registration Observations =========================
+class RegistrationObservations{
+	String value;
+}
+
+relation RegistrationObservationRegistration{
+	protected .org.fenixedu.academic.domain.student.Registration playsRole registration {
+        multiplicity 1..1;
+    }
+    
+    RegistrationObservations playsRole registrationObservations{
+    	multiplicity *;
+    }
+}
+// ======================= Registration Observations end =========================

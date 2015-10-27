@@ -52,13 +52,13 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.dto.ShiftToEnrol;
-import org.fenixedu.academic.service.services.enrollment.shift.ReadShiftsToEnroll;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.shift.ReadShiftsToEnroll;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
@@ -133,8 +133,8 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             final ExecutionSemester executionSemester = selectedEnrolmentPeriod.getExecutionPeriod();
 
             try {
-                final List<ShiftToEnrol> shiftsToEnrol =
-                        ReadShiftsToEnroll.runReadShiftsToEnroll(selectedRegistration, executionSemester);
+                final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll
+                        .readWithStudentRestrictionsForShiftsEnrolments(selectedRegistration, executionSemester);
                 shiftsToEnrol.sort((s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
                 model.addAttribute("shiftsToEnrol", shiftsToEnrol);
 //                model.addAttribute("numberOfExecutionCoursesHavingNotEnroledShifts",

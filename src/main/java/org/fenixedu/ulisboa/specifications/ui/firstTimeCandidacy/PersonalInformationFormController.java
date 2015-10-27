@@ -40,6 +40,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
@@ -234,16 +235,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     private boolean validate(PersonalInformationForm form, Model model) {
         Person person = AccessControl.getPerson();
         IDDocumentType idType = form.getIdDocumentType();
-        if (idType == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
-            return false;
-        }
         if (form.getIsForeignStudent()) {
+            if (idType == null) {
+                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
+                return false;
+            }
+
             if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"), model);
                 return false;
             }
-
         }
 
         if (!form.getIsForeignStudent()) {
@@ -273,7 +274,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                     model);
             return false;
         }
-        if (!PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER.equals(form.getSocialSecurityNumber())) {
+        String defaultSocialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+        if (!defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
             Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
             if (party != null && party != person) {
                 addErrorMessage(BundleUtil.getString(BUNDLE,
@@ -333,7 +335,7 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         String socialSecurityNumber = form.getSocialSecurityNumber();
         if (StringUtils.isEmpty(socialSecurityNumber)) {
-            socialSecurityNumber = PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER;
+            socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
         }
         person.setSocialSecurityNumber(socialSecurityNumber);
 
@@ -352,8 +354,8 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         personalData.setProfessionType(form.getProfessionType());
         personUl.setProfessionTimeType(form.getProfessionTimeType());
 
-        person.setIdDocumentType(form.getIdDocumentType());
         if (form.getIsForeignStudent()) {
+            person.setIdDocumentType(form.getIdDocumentType());
             person.setDocumentIdNumber(form.getDocumentIdNumber());
             personUl.setDgesTempIdCode("");
         }

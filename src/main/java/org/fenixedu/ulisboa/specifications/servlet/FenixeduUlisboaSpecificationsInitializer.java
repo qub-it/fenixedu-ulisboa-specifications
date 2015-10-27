@@ -49,6 +49,7 @@ import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
+import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
@@ -61,6 +62,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULi
 import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 import org.slf4j.Logger;
@@ -96,6 +98,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         AnyCurricularCourseExceptionsInitializer.init();
         RegistrationRegimeVerifierInitializer.init();
         EnrolmentPredicateInitializer.init();
+        EnrolmentManagerFactoryInitializer.init();
+        StudentCurricularPlanLayout.register();
         configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
@@ -119,6 +123,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         ServiceRequestSlot.initStaticSlots();
         ULisboaServiceRequestValidator.initValidators();
+
+        RegistrationObservations.setupDeleteListener();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 
