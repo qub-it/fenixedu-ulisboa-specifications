@@ -28,7 +28,7 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
 
                 var template = '<div class="multiselect-parent dropdown-multiselect">';
                 template += '<span class="dropdown-toggle" ng-class="settings.buttonClasses" ng-click="toggleDropdown()">';
-                template += '    <span ng-bind-html="getButtonText()&nbsp;"></span> <i class="caret pull-right"></i>';
+                template += '    <span class="pull-left" ng-bind-html="getButtonText()&nbsp;"></span> <i class="caret pull-right"></i>';
                 template += '</span>';
                 template += '<ul class="ui-select-choices ui-select-choices-content ng-scope dropdown-menu dropdown-menu-form col-sm-12" ng-style="{display: open ? \'block\' : \'none\', height : settings.scrollable ? settings.scrollableHeight : \'auto\' }" style="overflow: scroll" >';
                 template += '<li ng-hide="!settings.showCheckAll || settings.selectionLimit > 0"><a data-ng-click="selectAll()"><span class="glyphicon glyphicon-ok"></span>  {{texts.checkAll}}</a>';
@@ -142,6 +142,10 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
                     return findObj;
                 }
 
+                function isUndefinedOrNull(val) {
+                	return angular.isUndefined(val) || val === null;
+                }
+                
                 function clearObject(object) {
                     for (var prop in object) {
                         delete object[prop];
@@ -251,7 +255,7 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
                     if ($scope.singleSelection) {
                         clearObject($scope.selectedModel);
                     } else {
-                    	if($scope.selectedModel) {
+                    	if(isUndefinedOrNull($scope.selectedModel)) {
                     		$scope.selectedModel = [];
                     	}
                         $scope.selectedModel.splice(0, $scope.selectedModel.length);
@@ -285,7 +289,7 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
                         $scope.selectedModel.splice(_.findIndex($scope.selectedModel, findObj), 1);
                         $scope.externalEvents.onItemDeselect(findObj);
                     } else if (!exists && ($scope.settings.selectionLimit === 0 || $scope.selectedModel.length < $scope.settings.selectionLimit)) {
-                        if($scope.selectedModel) {
+                        if(isUndefinedOrNull($scope.selectedModel)) {
                         	$scope.selectedModel = [];
                         }
                     	$scope.selectedModel.push(finalObj);
