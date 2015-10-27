@@ -28,6 +28,7 @@
 
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -91,8 +92,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration) {
         this();
-        initAcademicServiceRequest(registration);
         setServiceRequestType(serviceRequestType);
+        initAcademicServiceRequest(registration);
         setRegistration(registration);
         setIsValid(true);
     }
@@ -256,7 +257,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
-        transitState(AcademicServiceRequestSituationType.PROCESSING, "");
+        transitState(AcademicServiceRequestSituationType.PROCESSING, Constants.EMPTY_JUSTIFICATION.getContent());
         validate();
     }
 
@@ -265,7 +266,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
-        transitState(AcademicServiceRequestSituationType.CONCLUDED, "");
+        transitState(AcademicServiceRequestSituationType.CONCLUDED, Constants.EMPTY_JUSTIFICATION.getContent());
         validate();
         //TODOJN create validator to check if has generated one time the document
         if (getServiceRequestType().getNotifyUponConclusion().booleanValue()) {
@@ -278,7 +279,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
-        transitState(AcademicServiceRequestSituationType.DELIVERED, "");
+        transitState(AcademicServiceRequestSituationType.DELIVERED, Constants.EMPTY_JUSTIFICATION.getContent());
         validate();
     }
 
@@ -618,6 +619,36 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Deprecated
     @Override
     public boolean hasRegistryCode() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected List<AcademicServiceRequestSituationType> getNewSituationAcceptedSituationsTypes() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected List<AcademicServiceRequestSituationType> getProcessingSituationAcceptedSituationsTypes() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected List<AcademicServiceRequestSituationType> getSentToExternalEntitySituationAcceptedSituationsTypes() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected List<AcademicServiceRequestSituationType> getReceivedFromExternalEntitySituationAcceptedSituationsTypes() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    protected List<AcademicServiceRequestSituationType> getConcludedSituationAcceptedSituationsTypes() {
         throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 

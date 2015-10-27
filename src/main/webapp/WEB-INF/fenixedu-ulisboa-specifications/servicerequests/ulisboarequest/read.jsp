@@ -192,31 +192,43 @@ ${portal.toolkit()}
         </a>
     </c:if>
 
-    &nbsp;|&nbsp;
-    <div class="btn-group">
-        <button type="button" class=" btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;
-            <spring:message code="label.event.more" />
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li>
-        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
-                <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.revert" />
-                </a>
-            </li>
-            <li>
-        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REJECT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
-                <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.reject" />
-                </a>
-            </li>
-            <li>
-        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CANCEL_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
-                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
-                </a>
-            </li>
-        </ul>
-    </div>
+    <c:choose>
+        <c:when test="${ serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
+            &nbsp;|&nbsp;
+            <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
+            &nbsp;
+            <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                <spring:message code="label.event.revert" />
+            </a>
+        </c:when>
+        <c:otherwise>
+            &nbsp;|&nbsp;
+            <div class="btn-group">
+                <button type="button" class=" btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;
+                    <spring:message code="label.event.more" />
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                        <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.revert" />
+                        </a>
+                    </li>
+                    <li>
+                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REJECT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                        <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.reject" />
+                        </a>
+                    </li>
+                    <li>
+                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CANCEL_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                        <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </c:otherwise>
+    </c:choose>
 </div>
 
 <c:if test="${not empty infoMessages}">
