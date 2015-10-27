@@ -173,6 +173,17 @@ ${portal.toolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message
+                                code="label.ServiceRequestType.requestedOnline" /></th>
+                        <td><c:if
+                                test="${serviceRequestType.requestedOnline}">
+                                <spring:message code="label.true" />
+                            </c:if> <c:if
+                                test="${not serviceRequestType.requestedOnline}">
+                                <spring:message code="label.false" />
+                            </c:if></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message
                                 code="label.ServiceRequestType.serviceRequestCategory" /></th>
                         <td><c:out
                                 value='${serviceRequestType.serviceRequestCategory.name}' /></td>

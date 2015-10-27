@@ -21,6 +21,7 @@ public class ServiceRequestTypeBean implements IBean {
     private boolean payable;
     private boolean notifyUponConclusion;
     private boolean printable;
+    private boolean requestedOnline;
     private ServiceRequestCategory serviceRequestCategory;
     private List<TupleDataSourceBean> serviceRequestCategoryDataSource;
     private List<ServiceRequestSlot> serviceRequestSlots;
@@ -75,6 +76,14 @@ public class ServiceRequestTypeBean implements IBean {
 
     public void setPrintable(boolean printable) {
         this.printable = printable;
+    }
+
+    public boolean isRequestedOnline() {
+        return requestedOnline;
+    }
+
+    public void setRequestedOnline(boolean requestedOnline) {
+        this.requestedOnline = requestedOnline;
     }
 
     public ServiceRequestCategory getServiceRequestCategory() {
@@ -164,6 +173,7 @@ public class ServiceRequestTypeBean implements IBean {
         setPayable(serviceRequestType.isPayable());
         setNotifyUponConclusion(serviceRequestType.isToNotifyUponConclusion());
         setPrintable(serviceRequestType.isPrintable());
+        setRequestedOnline(serviceRequestType.isRequestedOnline());
         setServiceRequestCategory(serviceRequestType.getServiceRequestCategory());
         setServiceRequestSlots(serviceRequestType.getServiceRequestSlotsSet().stream().collect(Collectors.toList()));
         setValidators(serviceRequestType.getULisboaServiceRequestValidatorsSet().stream().collect(Collectors.toList()));
