@@ -1,3 +1,9 @@
+
+/**
+ * Taken from AngularJS Dropdown Multiselect
+ * See http://dotansimha.github.io/angularjs-dropdown-multiselect/#/
+ * Code https://github.com/dotansimha/angularjs-dropdown-multiselect
+ */
 'use strict';
 
 var directiveModule = angular.module('angularjs-dropdown-multiselect', []);

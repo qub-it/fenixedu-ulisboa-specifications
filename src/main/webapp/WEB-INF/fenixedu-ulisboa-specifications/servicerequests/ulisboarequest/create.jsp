@@ -189,6 +189,15 @@ ${portal.angularToolkit()}
                     });
                 }
                 $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
+                $scope.translationTexts = {
+                        checkAll: '<spring:message code="label.angularjs.multiselect.checkAll" />',
+                        uncheckAll: '<spring:message code="label.angularjs.multiselect.uncheckAll" />',
+                        selectionCount: '<spring:message code="label.angularjs.multiselect.selectionCount" />',
+                        selectionOf: '/',
+                        searchPlaceholder: '<spring:message code="label.angularjs.multiselect.searchPlaceholder" />',
+                        buttonDefaultText: '<spring:message code="label.angularjs.multiselect.buttonDefaultText" />',
+                        dynamicButtonTextSuffix: '<spring:message code="label.angularjs.multiselect.dynamicButtonTextSuffix" />'                		
+                };
             } ]);
 </script>
 
@@ -269,7 +278,7 @@ ${portal.angularToolkit()}
                     <div id="{{serviceRequestProperty.code}}" class="ui-select-container ui-select-bootstrap dropdown" 
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_MULTIPLE'"
                         ng-dropdown-multiselect="" options="serviceRequestProperty.dataSource"
-                        selected-model="serviceRequestProperty.value" extra-settings="multiSelectOptions" />
+                        selected-model="serviceRequestProperty.value" extra-settings="multiSelectOptions" translation-texts="translationTexts" />
                 </div>
             </div>
         </div>
