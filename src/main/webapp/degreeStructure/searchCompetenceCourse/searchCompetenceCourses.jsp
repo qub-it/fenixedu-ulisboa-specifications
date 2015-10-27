@@ -37,8 +37,31 @@
 	<h2 class="mtop2">
 		<c:out value="${competenceCourse.name}"/>
 		</span> <small><c:out value="${competenceCourse.code}"/></small>
-		<span class="badge"><c:out value="${competenceCourse.curricularStage.localizedName}"/>
+		<span class="badge"><c:out value="${competenceCourse.curricularStage.localizedName}"/></span>
 	</h2>
+	<p>
+		<c:forEach items="${competenceCourse.competenceCourseInformationsSet}" var="competenceCourseInformation">
+			<bean:define id="editId" name="competenceCourseInformation" property="externalId" type="java.lang.String" />
+			<a data-toggle="collapse" href="<c:out value='#area-${competenceCourseInformation.externalId}' />" aria-expanded="false" aria-controls="collapseExample">
+			  <c:out value="${competenceCourseInformation.executionPeriod.qualifiedName}"/> <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+			</a>
+			<div class="collapse" id="area-<%= editId %>">
+			  <div class="well col-sm-3">
+					<fr:edit action="/degreeStructure/searchCompetenceCourse.do?method=editCompetenceCourseInformation" id='<%= editId %>' name="competenceCourseInformation">
+						<fr:schema type="org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation" bundle="APPLICATION_RESOURCES">
+							<fr:slot name="executionPeriod" layout="menu-select" key="label.executionSemester" required="true">
+								<fr:property name="format" value="${qualifiedName}"/>
+								<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ExecutionSemestersProvider"/>
+								<fr:property name="saveOptions" value="true"/>
+							</fr:slot>				
+						</fr:schema>
+						<fr:layout name="flow"><fr:property name="labelExcluded" value="true"/></fr:layout>
+					</fr:edit>
+			  </div>
+			</div>
+			<div class="clearfix"></div>
+		</c:forEach>
+	</p>
 	
 <div class="btn-group" role="group" aria-label="...">
 	<html:link target="_blank" styleClass="btn btn-default" page="/competenceCourses/editCompetenceCourseMainPage.faces?action=ccm&"
