@@ -128,8 +128,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 
-        StudentCurricularPlanLayout.registerStudentCurricularPlanLayout();
-
     }
 
     private void setupListenerForDegreeDelete() {
