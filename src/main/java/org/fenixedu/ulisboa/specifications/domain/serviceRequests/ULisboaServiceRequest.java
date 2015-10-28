@@ -163,63 +163,64 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Locale getLanguage() {
-        ServiceRequestProperty languageProperty = findProperty(Constants.LANGUAGE).orElse(null);
-        return languageProperty != null ? languageProperty.getLocale() : null;
+        return findProperty(Constants.LANGUAGE).getLocale();
     }
 
     @Override
     public boolean hasLanguage() {
-        return findProperty(Constants.LANGUAGE).isPresent();
+        return hasProperty(Constants.LANGUAGE);
     }
 
     @Override
     public boolean isDetailed() {
-        ServiceRequestProperty detailedProperty = findProperty(Constants.IS_DETAILED).orElse(null);
+        ServiceRequestProperty detailedProperty = findProperty(Constants.IS_DETAILED);
         return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
     }
 
     @Override
     public Integer getNumberOfUnits() {
-        ServiceRequestProperty unitsProperty = findProperty(Constants.NUMBER_OF_UNITS).orElse(null);
-        return unitsProperty != null ? unitsProperty.getInteger() : null;
+        return findProperty(Constants.NUMBER_OF_UNITS).getInteger();
     }
 
     @Override
     public boolean hasNumberOfUnits() {
-        return findProperty(Constants.NUMBER_OF_UNITS).isPresent();
+        return hasProperty(Constants.NUMBER_OF_UNITS);
     }
 
     @Override
     public boolean isUrgent() {
-        ServiceRequestProperty urgentProperty = findProperty(Constants.IS_URGENT).orElse(null);
+        ServiceRequestProperty urgentProperty = findProperty(Constants.IS_URGENT);
         return urgentProperty != null && urgentProperty.getBooleanValue() != null ? urgentProperty.getBooleanValue() : false;
     }
 
     @Override
     public Integer getNumberOfPages() {
-        ServiceRequestProperty pagesProperty = findProperty(Constants.NUMBER_OF_PAGES).orElse(null);
-        return pagesProperty != null ? pagesProperty.getInteger() : null;
+        return findProperty(Constants.NUMBER_OF_PAGES).getInteger();
     }
 
     @Override
     public boolean hasNumberOfPages() {
-        return findProperty(Constants.NUMBER_OF_PAGES).isPresent();
+        return hasProperty(Constants.NUMBER_OF_PAGES);
     }
 
     @Override
     public CycleType getCycleType() {
-        ServiceRequestProperty cycleProperty = findProperty(Constants.CYCLE_TYPE).orElse(null);
-        return cycleProperty != null ? cycleProperty.getCycleType() : null;
+        return findProperty(Constants.CYCLE_TYPE).getCycleType();
     }
 
     @Override
     public boolean hasCycleType() {
-        return findProperty(Constants.CYCLE_TYPE).isPresent();
+        return hasProperty(Constants.CYCLE_TYPE);
+    }
+
+    @Override
+    public ExecutionYear getExecutionYear() {
+        return findProperty(Constants.EXECUTION_YEAR).getExecutionYear();
     }
 
     @Override
     public boolean hasExecutionYear() {
-        return findProperty(Constants.EXECUTION_YEAR).isPresent();
+        return hasProperty(Constants.EXECUTION_YEAR);
     }
 
     @Override
@@ -229,9 +230,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public boolean isFor(ExecutionYear executionYear) {
-        Optional<ServiceRequestProperty> property = findProperty(Constants.EXECUTION_YEAR);
-        if (property.isPresent()) {
-            property.get().getExecutionYear().equals(executionYear);
+        if (hasProperty(Constants.EXECUTION_YEAR)) {
+            return findProperty(Constants.EXECUTION_YEAR).getExecutionYear().equals(executionYear);
         }
         return false;
     }
@@ -243,9 +243,19 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 || (getPerson().getIdDocumentType() == null);
     }
 
-    public Optional<ServiceRequestProperty> findProperty(String slotCode) {
+    public ServiceRequestProperty findProperty(String slotCode) {
+        Optional<ServiceRequestProperty> property =
+                getServiceRequestPropertiesSet().stream().filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode))
+                        .findFirst();
+        if (property.isPresent()) {
+            return property.get();
+        }
+        return null;
+    }
+
+    public boolean hasProperty(String slotCode) {
         return getServiceRequestPropertiesSet().stream()
-                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst().isPresent();
     }
 
     /**
