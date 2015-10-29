@@ -272,7 +272,7 @@ ${portal.angularToolkit()}
                 <div class="col-sm-10">
                     <ui-select id="serviceRequestType_serviceRequestSlot"
                         ng-model="$parent.object.serviceRequestSlots"
-                        theme="bootstrap" multiple> 
+                        theme="bootstrap" multiple sortable="true"> 
                         <ui-select-match allow-clear="true">
                             {{$item.text}}
                         </ui-select-match> 

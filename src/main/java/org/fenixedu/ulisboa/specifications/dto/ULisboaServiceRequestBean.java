@@ -50,7 +50,7 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
-import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Sets;
@@ -164,7 +164,7 @@ public class ULisboaServiceRequestBean implements IBean {
     }
 
     public static void initProviderMap() {
-        DATA_SOURCE_PROVIDERS.put(Constants.LANGUAGE, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.LANGUAGE, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -176,7 +176,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 }).collect(Collectors.toList());
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.DOCUMENT_PURPOSE_TYPE, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.DOCUMENT_PURPOSE_TYPE, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -188,7 +188,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 }).collect(Collectors.toList());
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.CYCLE_TYPE, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CYCLE_TYPE, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -204,12 +204,12 @@ public class ULisboaServiceRequestBean implements IBean {
                         }).collect(Collectors.toList());
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.CURRICULAR_PLAN, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CURRICULAR_PLAN, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
 
-                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(Constants.EXECUTION_YEAR);
+                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_YEAR);
                 if (executionYear == null) {
                     return bean.getRegistration().getStudentCurricularPlansSet().stream()
                             .sorted((x, y) -> x.getName().compareTo(y.getName())).map(x -> {
@@ -231,7 +231,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 return Collections.singletonList(result);
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.APPROVED_EXTRA_CURRICULUM, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.APPROVED_EXTRA_CURRICULUM, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -248,7 +248,7 @@ public class ULisboaServiceRequestBean implements IBean {
         });
 
         //TODO: adicionar todos os enrolments de todos os Standalones do aluno?
-        DATA_SOURCE_PROVIDERS.put(Constants.APPROVED_STANDALONE_CURRICULUM, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -262,7 +262,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 return provideForCurriculumEntry(collection);
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.APPROVED_ENROLMENTS, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.APPROVED_ENROLMENTS, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -276,7 +276,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 return provideForCurriculumEntry(collection);
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.CURRICULUM, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CURRICULUM, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
@@ -289,11 +289,11 @@ public class ULisboaServiceRequestBean implements IBean {
                 return provideForCurriculumEntry(collection);
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.ENROLMENTS_BY_YEAR, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ENROLMENTS_BY_YEAR, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
-                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(Constants.EXECUTION_YEAR);
+                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_YEAR);
                 if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
                     return Collections.emptyList();
                 }
@@ -305,7 +305,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 return provideForCurriculumEntry(collection);
             }
         });
-        DATA_SOURCE_PROVIDERS.put(Constants.EXECUTION_YEAR, new DataSourceProvider() {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EXECUTION_YEAR, new DataSourceProvider() {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {

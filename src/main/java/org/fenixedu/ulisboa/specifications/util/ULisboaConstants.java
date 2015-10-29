@@ -35,7 +35,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-public class Constants {
+public class ULisboaConstants {
 
     public static final String BUNDLE = FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE.replace('/', '.');
     public static final LocalizedString EMPTY_JUSTIFICATION = BundleUtil.getLocalizedString(BUNDLE, "label.empty.justification");

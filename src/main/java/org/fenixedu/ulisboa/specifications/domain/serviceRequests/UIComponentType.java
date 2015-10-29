@@ -2,7 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 public enum UIComponentType {
     DROP_DOWN_ONE_VALUE, DROP_DOWN_MULTIPLE, DROP_DOWN_BOOLEAN, TEXT_LOCALIZED_STRING, TEXT, NUMBER, DATE;
@@ -40,7 +40,7 @@ public enum UIComponentType {
     }
 
     public LocalizedString getDescriptionI18N() {
-        return BundleUtil.getLocalizedString(Constants.BUNDLE, getClass().getSimpleName() + "." + name());
+        return BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, getClass().getSimpleName() + "." + name());
     }
 
 }

@@ -10,7 +10,7 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
-import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -52,7 +52,7 @@ public abstract class ULisboaServiceRequestValidator extends ULisboaServiceReque
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getServiceRequestTypesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Constants.BUNDLE,
+            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
                     "error.ULisboaServiceRequestValidator.connected.ServiceRequestTypes"));
         }
     }
@@ -78,7 +78,7 @@ public abstract class ULisboaServiceRequestValidator extends ULisboaServiceReque
             return;
         }
 
-        MockULisboaServiceRequestValidator.create(BundleUtil.getLocalizedString(Constants.BUNDLE,
+        MockULisboaServiceRequestValidator.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                 "label.MockULisboaServiceRequestValidator.name"));
     }
 
