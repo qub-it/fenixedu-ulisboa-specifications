@@ -76,15 +76,77 @@ ${portal.toolkit()}
 
 
 <script type="text/javascript">
-      function openModal(url) {
-        $("#uLisboaServiceRequestForm").attr("action", url);
-        $('#uLisboaServiceRequestModal').modal('toggle')
+      function openModal(url, name) {
+        $("#"+ name + "Form").attr("action", url);
+        $("#"+ name + "Modal").modal('toggle');
+      }
+      function openConcludeModal(url, notify) {
+          $("#uLisboaServiceRequestConcludeForm").attr("action", url);
+    	  if(notify) {
+              $('#uLisboaServiceRequestConcludeModal').modal('toggle');
+          } else {
+        	  $("#uLisboaServiceRequestConcludeForm").submit();
+    	  }
       }
       function submit(url) {
           $("#uLisboaServiceRequestForm").attr("action", url);
           $("#uLisboaServiceRequestForm").submit();
       }
 </script>
+
+<div class="modal fade" id="uLisboaServiceRequestPrintModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="uLisboaServiceRequestPrintForm" action="#" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.title.printingSettings" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-sm-2 control-label">
+                            <spring:message code="label.title.manageDocumentSignature"/>
+                        </div>
+                        <div class="col-sm-10 control-label">
+                            <select id="signature" name="signature" class="form-control">
+                                <c:forEach var="signature" items="${ documentSignatures }">
+                                    <option value="${ signature.externalId }"><c:out value="${ signature.responsibleName} - ${ signature.responsibleFunction.content }" /></option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2 control-label">
+                            <spring:message code="label.documentTemplates.template"/>
+                        </div>
+                        <div class="col-sm-10 control-label">
+                            <select id="template" name="template" class="form-control">
+                                <c:forEach var="template" items="${ templates }">
+                                    <option value="${ template.externalId }"><c:out value="${ template.name.content }" /></option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="deleteButton" class="btn btn-primary" type="submit">
+                        <spring:message code="label.confirm" />
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <div class="modal fade" id="uLisboaServiceRequestModal">
     <div class="modal-dialog">
@@ -100,7 +162,7 @@ ${portal.toolkit()}
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <spring:message code="label.serviceRequests.ulisboarequest.confirmRejectOrCancel" />
+                        <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirmRejectOrCancel" />
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2 control-label">
@@ -116,6 +178,83 @@ ${portal.toolkit()}
                         <spring:message code="label.close" />
                     </button>
                     <button id="deleteButton" class="btn btn-primary" type="submit">
+                        <spring:message code="label.confirm" />
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="uLisboaServiceRequestRevertModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="uLisboaServiceRequestRevertForm" action="#" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirmRevert" />
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2 control-label">
+                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.notifyRevertAction"/>
+                        </div>
+                        <div class="col-sm-10 control-label">
+                            <select id="notifyRevertAction" name="notifyRevertAction" class="form-control">
+                                <option value="false"><spring:message code="label.no" /></option>
+                                <option value="true"><spring:message code="label.yes" /></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="submitButton" class="btn btn-primary" type="submit">
+                        <spring:message code="label.confirm" />
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="uLisboaServiceRequestConcludeModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="uLisboaServiceRequestConcludeForm" action="#" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirmConclude" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="submitButton" class="btn btn-primary" type="submit">
                         <spring:message code="label.confirm" />
                     </button>
                 </div>
@@ -164,7 +303,7 @@ ${portal.toolkit()}
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
         &nbsp; 
-        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+        <a class="" href="#" onclick="openConcludeModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', ${ serviceRequest.serviceRequestType.notifyUponConclusion })">
             <spring:message code="label.event.conclude" />
         </a>
     </c:if>
@@ -178,8 +317,13 @@ ${portal.toolkit()}
     </c:if>
     &nbsp;|&nbsp;
     <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-    &nbsp; 
-        <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
+    &nbsp;
+        <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
+        <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
+        </c:if> 
+        <c:if test="${ not (serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED') }">
+        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
+        </c:if> 
         <spring:message code="label.print" />
     </a>
 
@@ -197,7 +341,7 @@ ${portal.toolkit()}
             &nbsp;|&nbsp;
             <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
             &nbsp;
-            <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+            <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestRevert')">
                 <spring:message code="label.event.revert" />
             </a>
         </c:when>
@@ -211,17 +355,17 @@ ${portal.toolkit()}
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a class="" href="#" onclick="submit('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REVERT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestRevert')">
                         <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.revert" />
                         </a>
                     </li>
                     <li>
-                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REJECT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REJECT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequest')">
                         <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.reject" />
                         </a>
                     </li>
                     <li>
-                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CANCEL_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }')">
+                        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CANCEL_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequest')">
                         <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
                         </a>
                     </li>

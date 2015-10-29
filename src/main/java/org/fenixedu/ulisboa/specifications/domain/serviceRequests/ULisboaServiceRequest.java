@@ -49,6 +49,7 @@ import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituat
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
@@ -56,19 +57,18 @@ import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.report.academicAdministrativeOffice.AdministrativeOfficeDocument;
-import org.fenixedu.academic.util.report.ReportsUtils;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
 import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter.PrintedDocument;
-import org.fenixedu.ulisboa.specifications.util.Constants;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -125,6 +125,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             ServiceRequestProperty property = ServiceRequestSlot.createProperty(propertyBean.getCode(), propertyBean.getValue());
             request.addServiceRequestProperties(property);
         }
+        if (!request.hasExecutionYear()) {
+            ServiceRequestProperty property =
+                    ServiceRequestProperty.createForExecutionYear(ExecutionYear.readCurrentExecutionYear(),
+                            ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
+            request.addServiceRequestProperties(property);
+        }
         return request;
     }
 
@@ -178,9 +184,19 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return lastDoc;
     }
 
+    @Atomic
+    public void setPrintSettings(DocumentSigner signer, AcademicServiceRequestTemplate template) {
+        setDocumentSigner(signer);
+        setAcademicServiceRequestTemplate(template);
+    }
+
     @Override
     public boolean isToPrint() {
         return getServiceRequestType().isPrintable();
+    }
+
+    public boolean isSelfIssued() {
+        return (getActiveSituation().getCreator() == getRegistration().getPerson());
     }
 
     @Override
@@ -195,64 +211,64 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Locale getLanguage() {
-        return hasLanguage() ? findProperty(Constants.LANGUAGE).getLocale() : null;
+        return hasLanguage() ? findProperty(ULisboaConstants.LANGUAGE).getLocale() : null;
     }
 
     @Override
     public boolean hasLanguage() {
-        return hasProperty(Constants.LANGUAGE);
+        return hasProperty(ULisboaConstants.LANGUAGE);
     }
 
     @Override
     public boolean isDetailed() {
-        ServiceRequestProperty detailedProperty = findProperty(Constants.IS_DETAILED);
+        ServiceRequestProperty detailedProperty = findProperty(ULisboaConstants.IS_DETAILED);
         return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
     }
 
     @Override
     public Integer getNumberOfUnits() {
-        return hasNumberOfUnits() ? findProperty(Constants.NUMBER_OF_UNITS).getInteger() : null;
+        return hasNumberOfUnits() ? findProperty(ULisboaConstants.NUMBER_OF_UNITS).getInteger() : null;
     }
 
     @Override
     public boolean hasNumberOfUnits() {
-        return hasProperty(Constants.NUMBER_OF_UNITS);
+        return hasProperty(ULisboaConstants.NUMBER_OF_UNITS);
     }
 
     @Override
     public boolean isUrgent() {
-        ServiceRequestProperty urgentProperty = findProperty(Constants.IS_URGENT);
+        ServiceRequestProperty urgentProperty = findProperty(ULisboaConstants.IS_URGENT);
         return urgentProperty != null && urgentProperty.getBooleanValue() != null ? urgentProperty.getBooleanValue() : false;
     }
 
     @Override
     public Integer getNumberOfPages() {
-        return hasNumberOfPages() ? findProperty(Constants.NUMBER_OF_PAGES).getInteger() : null;
+        return hasNumberOfPages() ? findProperty(ULisboaConstants.NUMBER_OF_PAGES).getInteger() : null;
     }
 
     @Override
     public boolean hasNumberOfPages() {
-        return hasProperty(Constants.NUMBER_OF_PAGES);
+        return hasProperty(ULisboaConstants.NUMBER_OF_PAGES);
     }
 
     @Override
     public CycleType getCycleType() {
-        return hasCycleType() ? findProperty(Constants.CYCLE_TYPE).getCycleType() : null;
+        return hasCycleType() ? findProperty(ULisboaConstants.CYCLE_TYPE).getCycleType() : null;
     }
 
     @Override
     public boolean hasCycleType() {
-        return hasProperty(Constants.CYCLE_TYPE);
+        return hasProperty(ULisboaConstants.CYCLE_TYPE);
     }
 
     @Override
     public ExecutionYear getExecutionYear() {
-        return hasExecutionYear() ? findProperty(Constants.EXECUTION_YEAR).getExecutionYear() : null;
+        return hasExecutionYear() ? findProperty(ULisboaConstants.EXECUTION_YEAR).getExecutionYear() : null;
     }
 
     @Override
     public boolean hasExecutionYear() {
-        return hasProperty(Constants.EXECUTION_YEAR);
+        return hasProperty(ULisboaConstants.EXECUTION_YEAR);
     }
 
     @Override
@@ -262,8 +278,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public boolean isFor(ExecutionYear executionYear) {
-        if (hasProperty(Constants.EXECUTION_YEAR)) {
-            return findProperty(Constants.EXECUTION_YEAR).getExecutionYear().equals(executionYear);
+        if (hasProperty(ULisboaConstants.EXECUTION_YEAR)) {
+            return findProperty(ULisboaConstants.EXECUTION_YEAR).getExecutionYear().equals(executionYear);
         }
         return false;
     }
@@ -305,7 +321,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
-        transitState(AcademicServiceRequestSituationType.PROCESSING, Constants.EMPTY_JUSTIFICATION.getContent());
+        transitState(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
     }
 
@@ -314,7 +330,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
-        transitState(AcademicServiceRequestSituationType.CONCLUDED, Constants.EMPTY_JUSTIFICATION.getContent());
+        transitState(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
         //TODOJN create validator to check if has generated one time the document
         if (getServiceRequestType().getNotifyUponConclusion().booleanValue()) {
@@ -327,7 +343,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
-        transitState(AcademicServiceRequestSituationType.DELIVERED, Constants.EMPTY_JUSTIFICATION.getContent());
+        transitState(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
     }
 
@@ -749,13 +765,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Deprecated
     @Override
     public GeneratedDocument getLastGeneratedDocument() {
-        return super.getLastGeneratedDocument();
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public Set<DocumentRequestGeneratedDocument> getDocumentSet() {
-        return super.getDocumentSet();
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     /*
