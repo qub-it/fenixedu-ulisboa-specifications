@@ -619,6 +619,29 @@ class serviceRequests.ULisboaServiceRequest extends .org.fenixedu.academic.domai
     boolean isValid;
 }
 
+class serviceRequests.ULisboaServiceRequestGeneratedDocument extends .org.fenixedu.bennu.io.domain.GenericFile;
+
+relation ServiceRequestGeneratedDocumentOperator {
+    .org.fenixedu.academic.domain.Person playsRole operator;
+    serviceRequests.ULisboaServiceRequestGeneratedDocument playsRole generatedDocuments {
+        multiplicity *;
+    }
+}
+
+relation ServiceRequestGeneratedDocumentRequester {
+    .org.fenixedu.academic.domain.Person playsRole requester;
+    serviceRequests.ULisboaServiceRequestGeneratedDocument playsRole requestedDocuments {
+        multiplicity *;
+    }
+}
+
+relation ULisboaServiceRequestGeneratedDocuments {
+    serviceRequests.ULisboaServiceRequest playsRole serviceRequest;
+    serviceRequests.ULisboaServiceRequestGeneratedDocument playsRole generatedDocuments {
+        multiplicity *;
+    }
+}
+
 class serviceRequests.validators.ULisboaServiceRequestValidator {
     LocalizedString name;
 }

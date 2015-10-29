@@ -31,6 +31,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +42,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
+import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
@@ -160,6 +162,18 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         } catch (Exception e) {
             throw new DomainException("error.documentRequest.errorGeneratingDocument", e);
         }
+    }
+
+    public ULisboaServiceRequestGeneratedDocument downloadDocument() {
+        DateTime last = null;
+        ULisboaServiceRequestGeneratedDocument lastDoc = null;
+        for (ULisboaServiceRequestGeneratedDocument document : getGeneratedDocumentsSet()) {
+            if (last == null || document.getCreationDate().isAfter(last)) {
+                last = document.getCreationDate();
+                lastDoc = document;
+            }
+        }
+        return lastDoc;
     }
 
     @Override
@@ -728,6 +742,18 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     protected List<AcademicServiceRequestSituationType> getConcludedSituationAcceptedSituationsTypes() {
         throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public GeneratedDocument getLastGeneratedDocument() {
+        return super.getLastGeneratedDocument();
+    }
+
+    @Deprecated
+    @Override
+    public Set<DocumentRequestGeneratedDocument> getDocumentSet() {
+        return super.getDocumentSet();
     }
 
     /*
