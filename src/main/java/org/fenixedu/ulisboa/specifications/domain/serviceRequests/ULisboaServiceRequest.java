@@ -67,6 +67,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULi
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
+import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter.PrintedDocument;
 import org.fenixedu.ulisboa.specifications.util.Constants;
 import org.joda.time.DateTime;
 
@@ -154,11 +155,11 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      * Treasury Service Request Interface
      */
 
-    public byte[] generateDocument() {
+    public PrintedDocument generateDocument() {
         try {
-            byte[] data = DocumentPrinter.print(this).getData();
-            //DocumentRequestGeneratedDocument.store(this, documents.iterator().next().getReportFileName() + ".pdf", data);
-            return data;
+            PrintedDocument document = DocumentPrinter.print(this);
+            ULisboaServiceRequestGeneratedDocument.store(this, document.getFileName(), document.getData());
+            return document;
         } catch (Exception e) {
             throw new DomainException("error.documentRequest.errorGeneratingDocument", e);
         }

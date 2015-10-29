@@ -28,6 +28,10 @@
 
 package org.fenixedu.ulisboa.specifications.service.reports;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -36,6 +40,7 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntriesDataProvider;
@@ -52,6 +57,8 @@ import org.fenixedu.qubdocs.base.providers.UserReportDataProvider;
 import org.fenixedu.qubdocs.domain.DocumentPrinterConfiguration;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
+import org.joda.time.DateTime;
+
 import pt.ist.fenixframework.Atomic;
 
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
@@ -154,7 +161,7 @@ public class DocumentPrinter {
 
         final byte[] report = generator.generateReport();
 
-        return new PrintedDocument(report, "application/PDF", "pdf");
+        return new PrintedDocument(serviceRequest, report, "application/pdf", "pdf");
     }
 
     @Atomic
@@ -169,14 +176,18 @@ public class DocumentPrinter {
 
     public static class PrintedDocument {
 
+        private final ULisboaServiceRequest serviceRequest;
         private final byte[] data;
         private final String contentType;
         private final String fileExtension;
+        private final String fileName;
 
-        public PrintedDocument(byte[] data, String contentType, String fileExtension) {
+        public PrintedDocument(ULisboaServiceRequest serviceRequest, byte[] data, String contentType, String fileExtension) {
+            this.serviceRequest = serviceRequest;
             this.data = data;
             this.contentType = contentType;
             this.fileExtension = fileExtension;
+            this.fileName = generateFileName();
         }
 
         public byte[] getData() {
@@ -189,6 +200,25 @@ public class DocumentPrinter {
 
         public String getFileExtension() {
             return fileExtension;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        private String generateFileName() {
+            final StringBuilder result = new StringBuilder();
+            result.append(serviceRequest.getPerson().getUsername());
+            result.append("-");
+            result.append(new DateTime().toString("YYYYMMMDD", serviceRequest.getLanguage()));
+            result.append("-");
+            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
+                    .replace(":", ""));
+            result.append("-");
+            result.append(serviceRequest.getLanguage().toString());
+
+            return StringNormalizer.normalizePreservingCapitalizedLetters(result.toString()).replaceAll("\\s", "_") + "."
+                    + fileExtension;
         }
 
     }
