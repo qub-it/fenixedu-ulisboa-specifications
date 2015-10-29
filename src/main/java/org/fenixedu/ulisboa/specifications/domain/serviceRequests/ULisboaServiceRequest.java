@@ -31,6 +31,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.AcademicProgram;
@@ -40,6 +41,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
@@ -258,6 +260,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst().isPresent();
     }
 
+    public List<AcademicServiceRequestSituation> getAcademicServiceRequestSituationOrderedList() {
+        return getAcademicServiceRequestSituationsSet().stream()
+                .sorted(AcademicServiceRequestSituation.COMPARATOR_BY_MOST_RECENT_SITUATION_DATE_AND_ID)
+                .collect(Collectors.toList());
+    }
+
     /**
      * Change State Methods
      */
@@ -311,6 +319,16 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         validate();
     }
 
+    @Atomic
+    public void revertState(boolean notifyRevertAction) {
+        if (notifyRevertAction) {
+            sendMail();
+        }
+        AcademicServiceRequestSituation previousSituation = getAcademicServiceRequestSituationOrderedList().get(1);
+        transitState(previousSituation.getAcademicServiceRequestSituationType(), previousSituation.getJustification());
+        validate();
+    }
+
     private void transitState(AcademicServiceRequestSituationType type, String justification) {
         if (type == AcademicServiceRequestSituationType.CANCELLED || type == AcademicServiceRequestSituationType.REJECTED) {
             Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
@@ -321,6 +339,42 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
         createAcademicServiceRequestSituations(bean);
+    }
+
+    @Override
+    public AcademicServiceRequestSituation getSituationByType(AcademicServiceRequestSituationType type) {
+        List<AcademicServiceRequestSituation> situationsSet = getAcademicServiceRequestSituationOrderedList();
+        for (int i = 0; i < situationsSet.size(); i++) {
+            AcademicServiceRequestSituation situation = situationsSet.get(i);
+            if (i != 0
+                    || !isValidTransition(situationsSet.get(i - 1).getAcademicServiceRequestSituationType(),
+                            situation.getAcademicServiceRequestSituationType())) {
+                break;
+            }
+            if (situation.getAcademicServiceRequestSituationType() == type) {
+                return situation;
+            }
+        }
+        return null;
+    }
+
+    private boolean isValidTransition(AcademicServiceRequestSituationType previousType,
+            AcademicServiceRequestSituationType currentType) {
+        //Final states
+        if (currentType == AcademicServiceRequestSituationType.DELIVERED
+                || currentType == AcademicServiceRequestSituationType.CANCELLED
+                || currentType == AcademicServiceRequestSituationType.REJECTED) {
+            return true;
+        }
+        if (previousType == AcademicServiceRequestSituationType.PROCESSING
+                && currentType == AcademicServiceRequestSituationType.CONCLUDED) {
+            return true;
+        }
+        if (previousType == AcademicServiceRequestSituationType.NEW
+                && currentType == AcademicServiceRequestSituationType.PROCESSING) {
+            return true;
+        }
+        return false;
     }
 
     private void validate() {
