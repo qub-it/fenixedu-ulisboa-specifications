@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
@@ -53,6 +54,8 @@ import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.report.academicAdministrativeOffice.AdministrativeOfficeDocument;
+import org.fenixedu.academic.util.report.ReportsUtils;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
@@ -61,6 +64,7 @@ import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
+import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
 import org.fenixedu.ulisboa.specifications.util.Constants;
 import org.joda.time.DateTime;
 
@@ -148,6 +152,16 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      * Treasury Service Request Interface
      */
 
+    public byte[] generateDocument() {
+        try {
+            byte[] data = DocumentPrinter.print(this).getData();
+            //DocumentRequestGeneratedDocument.store(this, documents.iterator().next().getReportFileName() + ".pdf", data);
+            return data;
+        } catch (Exception e) {
+            throw new DomainException("error.documentRequest.errorGeneratingDocument", e);
+        }
+    }
+
     @Override
     public boolean isToPrint() {
         return getServiceRequestType().isPrintable();
@@ -165,7 +179,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Locale getLanguage() {
-        return findProperty(Constants.LANGUAGE).getLocale();
+        return hasLanguage() ? findProperty(Constants.LANGUAGE).getLocale() : null;
     }
 
     @Override
@@ -181,7 +195,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Integer getNumberOfUnits() {
-        return findProperty(Constants.NUMBER_OF_UNITS).getInteger();
+        return hasNumberOfUnits() ? findProperty(Constants.NUMBER_OF_UNITS).getInteger() : null;
     }
 
     @Override
@@ -197,7 +211,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Integer getNumberOfPages() {
-        return findProperty(Constants.NUMBER_OF_PAGES).getInteger();
+        return hasNumberOfPages() ? findProperty(Constants.NUMBER_OF_PAGES).getInteger() : null;
     }
 
     @Override
@@ -207,7 +221,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public CycleType getCycleType() {
-        return findProperty(Constants.CYCLE_TYPE).getCycleType();
+        return hasCycleType() ? findProperty(Constants.CYCLE_TYPE).getCycleType() : null;
     }
 
     @Override
@@ -217,7 +231,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public ExecutionYear getExecutionYear() {
-        return findProperty(Constants.EXECUTION_YEAR).getExecutionYear();
+        return hasExecutionYear() ? findProperty(Constants.EXECUTION_YEAR).getExecutionYear() : null;
     }
 
     @Override

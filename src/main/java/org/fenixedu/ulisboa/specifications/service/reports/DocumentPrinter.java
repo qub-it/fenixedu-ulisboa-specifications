@@ -59,7 +59,7 @@ import com.qubit.terra.docs.core.IDocumentTemplateService;
 
 public class DocumentPrinter {
 
-    public PrintedDocument print(ULisboaServiceRequest serviceRequest) {
+    public static PrintedDocument print(ULisboaServiceRequest serviceRequest) {
 
         if (!serviceRequest.getServiceRequestType().isPrintable()) {
             throw new DomainException("error.service.reports.DocumentPrinter.ULisboaServiceRequest.is.not.printable");
@@ -158,7 +158,7 @@ public class DocumentPrinter {
     }
 
     @Atomic
-    private void resetDocumentSigner(ULisboaServiceRequest documentRequest) {
+    private static void resetDocumentSigner(ULisboaServiceRequest documentRequest) {
         documentRequest.setDocumentSigner(DocumentSigner.findDefaultDocumentSignature());
     }
 
