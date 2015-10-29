@@ -158,7 +158,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     public PrintedDocument generateDocument() {
         try {
             PrintedDocument document = DocumentPrinter.print(this);
-            ULisboaServiceRequestGeneratedDocument.store(this, document.getFileName(), document.getData());
+            ULisboaServiceRequestGeneratedDocument.store(this, document.getContentType(), document.getFileName(),
+                    document.getData());
             return document;
         } catch (Exception e) {
             throw new DomainException("error.documentRequest.errorGeneratingDocument", e);

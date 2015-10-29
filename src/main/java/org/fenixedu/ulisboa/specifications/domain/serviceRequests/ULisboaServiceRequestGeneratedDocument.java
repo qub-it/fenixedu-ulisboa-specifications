@@ -21,12 +21,13 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
             };
 
     protected ULisboaServiceRequestGeneratedDocument(ULisboaServiceRequest serviceRequest, Person requester, Person operator,
-            String filename, byte[] content) {
+            String contentType, String filename, byte[] content) {
         super();
         setServiceRequest(serviceRequest);
         setRequester(requester);
         setOperator(operator);
         init(filename, filename, content);
+        setContentType(contentType);
     }
 
     @Override
@@ -47,8 +48,8 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
     }
 
     @Atomic
-    public static void store(ULisboaServiceRequest serviceRequest, String filename, byte[] content) {
+    public static void store(ULisboaServiceRequest serviceRequest, String contentType, String filename, byte[] content) {
         new ULisboaServiceRequestGeneratedDocument(serviceRequest, serviceRequest.getPerson(), AccessControl.getPerson(),
-                filename, content);
+                contentType, filename, content);
     }
 }
