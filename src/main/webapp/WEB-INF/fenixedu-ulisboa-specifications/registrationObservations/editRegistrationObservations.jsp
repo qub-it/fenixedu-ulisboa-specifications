@@ -44,16 +44,18 @@
 								<td class="acenter">
 									${ observation.asHtml}
 								</td>
-								<td>
-									<a href="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/${observation.externalId}#editform" class="observation-header-element">
-									 	<spring:message code="label.student.observations.edit"></spring:message>
-									 </a>
-									<form style="display: inline-block" method="POST" action="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/${observation.externalId}">
-										<input type="hidden" name="delete" value="delete" />
-										<input type="hidden" name="observations" value="" />
-										<a href="javascript: void(0)" onclick="deleteObservation(this)"><spring:message code="label.student.observations.delete"/></a>
-								 	</form> 
-								</td>
+								<c:if test="${writeAccess}">
+									<td>
+										<a href="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/${observation.externalId}#editform" class="observation-header-element">
+										 	<spring:message code="label.student.observations.edit"></spring:message>
+										 </a>
+										<form style="display: inline-block" method="POST" action="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/${observation.externalId}">
+											<input type="hidden" name="delete" value="delete" />
+											<input type="hidden" name="observations" value="" />
+											<a href="javascript: void(0)" onclick="deleteObservation(this)"><spring:message code="label.student.observations.delete"/></a>
+									 	</form> 
+									</td>
+								</c:if>
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -71,11 +73,13 @@
 	<spring:message code="label.student.observations.empty"></spring:message>
 </c:if>
 
-<div>
-	<a class="btn btn-default" href="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/create#editform">
-		<spring:message code="label.createNew"></spring:message>
-	</a>
-</div>
+<c:if test="${writeAccess}">
+	<div>
+		<a class="btn btn-default" href="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/create#editform">
+			<spring:message code="label.createNew"></spring:message>
+		</a>
+	</div>
+</c:if>
 
 <c:if test="${createMode}">
 	<h2><spring:message code="label.student.observations.new"></spring:message></h2>
