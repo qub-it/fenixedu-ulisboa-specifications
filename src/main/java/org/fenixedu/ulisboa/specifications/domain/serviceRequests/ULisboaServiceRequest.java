@@ -28,6 +28,7 @@
 
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -56,11 +57,14 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.util.email.Message;
+import org.fenixedu.academic.domain.util.email.SystemSender;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
@@ -410,7 +414,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         validate();
         //TODOJN create validator to check if has generated one time the document
         if (getServiceRequestType().getNotifyUponConclusion().booleanValue()) {
-            sendMail();
+            sendConclusionNotification();
         }
     }
 
@@ -444,7 +448,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void revertState(boolean notifyRevertAction) {
         if (notifyRevertAction) {
-            sendMail();
+            sendReversionApology();
         }
         AcademicServiceRequestSituation previousSituation = getAcademicServiceRequestSituationOrderedList().get(1);
         transitState(previousSituation.getAcademicServiceRequestSituationType(), previousSituation.getJustification());
@@ -506,9 +510,41 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
     }
 
-    private void sendMail() {
-        // TODOJN Auto-generated method stub
+    private void sendConclusionNotification() {
+        String emailAddress = getPerson().getDefaultEmailAddressValue();
+        String subject =
+                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.conclusionNotification.subject",
+                        getDescription(), getServiceRequestNumberYear());
+        String salutation =
+                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
+                        .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
+                                .getProfile().getDisplayName());
+        String body =
+                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.conclusionNotification.body",
+                        salutation, getDescription(), getServiceRequestNumberYear());
+        sendEmail(emailAddress, subject, body);
+    }
 
+    private void sendReversionApology() {
+        String emailAddress = getPerson().getDefaultEmailAddressValue();
+        String subject =
+                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.reversionApology.subject",
+                        getDescription(), getServiceRequestNumberYear());
+        String salutation =
+                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
+                        .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
+                                .getProfile().getDisplayName());
+        String body =
+                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.reversionApology.body", salutation,
+                        getDescription(), getServiceRequestNumberYear());
+        sendEmail(emailAddress, subject, body);
+    }
+
+    private void sendEmail(String emailAddress, String subject, String body) {
+        new Message(Bennu.getInstance().getSystemSender(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, subject, body,
+                emailAddress);
     }
 
     /**

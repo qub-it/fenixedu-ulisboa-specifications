@@ -29,7 +29,7 @@
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
-<%@page import="org.fenixedu.ulisboa.specifications.util.Constants"%>
+<%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaConstants"%>
 <%@page import="org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeType"%>
 <%@page import="org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance"%>
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
@@ -172,11 +172,11 @@ ${portal.angularToolkit()}
                 	return $scope.otherDocumentPurposeDependency(elementId);
                 };
                 $scope.otherDocumentPurposeDependency = function (elementId) {
-                	if(elementId != '<%= Constants.OTHER_DOCUMENT_PURPOSE %>') {
+                	if(elementId != '<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>') {
                 		return true;
                 	}
-                	var docPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= Constants.DOCUMENT_PURPOSE_TYPE %>');
-                	var otherDocPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= Constants.OTHER_DOCUMENT_PURPOSE %>');
+                	var docPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.DOCUMENT_PURPOSE_TYPE %>');
+                	var otherDocPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>');
                 	<% String otherName = DocumentPurposeTypeInstance.findUnique(DocumentPurposeType.OTHER).getExternalId(); %>
                 	if(docPurposeIndex != -1 && otherDocPurposeIndex != -1 && $scope.object.serviceRequestPropertyBeans[docPurposeIndex].value == '<%= otherName %>') {
             			return true;
