@@ -46,6 +46,7 @@ public class ULisboaConstants {
     public static final String IS_DETAILED = "isDetailed";
     public static final String IS_URGENT = "isUrgent";
     public static final String CYCLE_TYPE = "cycleType";
+    public static final String PROGRAM_CONCLUSION = "programConclusion";
     public static final String NUMBER_OF_UNITS = "numberOfUnits";
     public static final String NUMBER_OF_DAYS = "numberOfDays";
     public static final String NUMBER_OF_PAGES = "numberOfPages";
@@ -61,8 +62,8 @@ public class ULisboaConstants {
     public static final List<String> DROP_DOWN_MULTIPLE_DOMAIN_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
             APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
 
-    public static final List<String> DROP_DOWN_SINGLE_DOMAIN_OBJECTS = Arrays.asList(DOCUMENT_PURPOSE_TYPE, EXECUTION_YEAR,
-            CURRICULAR_PLAN);
+    public static final List<String> DROP_DOWN_SINGLE_DOMAIN_OBJECTS = Arrays.asList(PROGRAM_CONCLUSION, DOCUMENT_PURPOSE_TYPE,
+            EXECUTION_YEAR, CURRICULAR_PLAN);
 
     public static final List<String> ICURRICULUM_ENTRY_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
             APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);

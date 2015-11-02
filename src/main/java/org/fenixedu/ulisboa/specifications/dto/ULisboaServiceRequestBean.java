@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.Registration;
@@ -202,6 +203,21 @@ public class ULisboaServiceRequestBean implements IBean {
                             tuple.setText(x.getDescription());
                             return tuple;
                         }).collect(Collectors.toList());
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.PROGRAM_CONCLUSION, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                if (ProgramConclusion.conclusionsFor(bean.getRegistration()).count() == 0) {
+                    return Collections.emptyList();
+                }
+                return ProgramConclusion.conclusionsFor(bean.getRegistration()).map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getName().getContent());
+                    return tuple;
+                }).collect(Collectors.toList());
             }
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CURRICULAR_PLAN, new DataSourceProvider() {

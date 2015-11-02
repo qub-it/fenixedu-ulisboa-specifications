@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -51,6 +52,7 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicSer
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
@@ -219,6 +221,23 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return hasProperty(ULisboaConstants.LANGUAGE);
     }
 
+    public DocumentPurposeTypeInstance getDocumentPurposeTypeInstance() {
+        return hasDocumentPurposeTypeInstance() ? findProperty(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)
+                .getDocumentPurposeTypeInstance() : null;
+    }
+
+    public boolean hasDocumentPurposeTypeInstance() {
+        return hasProperty(ULisboaConstants.DOCUMENT_PURPOSE_TYPE);
+    }
+
+    public String getOtherDocumentPurposeTypeDescription() {
+        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).getString() : null;
+    }
+
+    public boolean hasOtherDocumentPurposeTypeDescription() {
+        return hasProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE);
+    }
+
     @Override
     public boolean isDetailed() {
         ServiceRequestProperty detailedProperty = findProperty(ULisboaConstants.IS_DETAILED);
@@ -261,6 +280,14 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return hasProperty(ULisboaConstants.CYCLE_TYPE);
     }
 
+    public ProgramConclusion getProgramConclusion() {
+        return hasProgramConclusion() ? findProperty(ULisboaConstants.PROGRAM_CONCLUSION).getProgramConclusion() : null;
+    }
+
+    public boolean hasProgramConclusion() {
+        return hasProperty(ULisboaConstants.PROGRAM_CONCLUSION);
+    }
+
     @Override
     public ExecutionYear getExecutionYear() {
         return hasExecutionYear() ? findProperty(ULisboaConstants.EXECUTION_YEAR).getExecutionYear() : null;
@@ -269,6 +296,55 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     public boolean hasExecutionYear() {
         return hasProperty(ULisboaConstants.EXECUTION_YEAR);
+    }
+
+    public StudentCurricularPlan getStudentCurricularPlan() {
+        return hasStudentCurricularPlan() ? findProperty(ULisboaConstants.CURRICULAR_PLAN).getStudentCurricularPlan() : null;
+    }
+
+    public boolean hasStudentCurricularPlan() {
+        return hasProperty(ULisboaConstants.CURRICULAR_PLAN);
+    }
+
+    public Set<ICurriculumEntry> getApprovedExtraCurriculum() {
+        return hasApprovedExtraCurriculum() ? findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).getICurriculumEntriesSet() : null;
+    }
+
+    public boolean hasApprovedExtraCurriculum() {
+        return hasProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM);
+    }
+
+    public Set<ICurriculumEntry> getApprovedStandaloneCurriculum() {
+        return hasApprovedStandaloneCurriculum() ? findProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM)
+                .getICurriculumEntriesSet() : null;
+    }
+
+    public boolean hasApprovedStandaloneCurriculum() {
+        return hasProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM);
+    }
+
+    public Set<ICurriculumEntry> getApprovedEnrolments() {
+        return hasApprovedEnrolments() ? findProperty(ULisboaConstants.APPROVED_ENROLMENTS).getICurriculumEntriesSet() : null;
+    }
+
+    public boolean hasApprovedEnrolments() {
+        return hasProperty(ULisboaConstants.APPROVED_ENROLMENTS);
+    }
+
+    public Set<ICurriculumEntry> getCurriculum() {
+        return hasCurriculum() ? findProperty(ULisboaConstants.CURRICULUM).getICurriculumEntriesSet() : null;
+    }
+
+    public boolean hasCurriculum() {
+        return hasProperty(ULisboaConstants.CURRICULUM);
+    }
+
+    public Set<ICurriculumEntry> getEnrolmentsByYear() {
+        return hasEnrolmentsByYear() ? findProperty(ULisboaConstants.ENROLMENTS_BY_YEAR).getICurriculumEntriesSet() : null;
+    }
+
+    public boolean hasEnrolmentsByYear() {
+        return hasProperty(ULisboaConstants.ENROLMENTS_BY_YEAR);
     }
 
     @Override

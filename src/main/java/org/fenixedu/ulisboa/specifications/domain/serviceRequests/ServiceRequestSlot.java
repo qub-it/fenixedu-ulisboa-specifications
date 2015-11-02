@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -78,7 +79,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getServiceRequestPropertiesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
+            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
         }
         if (!getServiceRequestTypesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.ServiceRequestSlot.connected.ServiceRequestTypes"));
@@ -134,8 +136,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.documentPurposeType"));
         }
         if (findByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).count() == 0) {
-            createStaticSlot(ULisboaConstants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
+            createStaticSlot(ULisboaConstants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT, BundleUtil.getLocalizedString(
+                    ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
         }
         if (findByCode(ULisboaConstants.IS_DETAILED).count() == 0) {
             createStaticSlot(ULisboaConstants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
@@ -148,6 +150,10 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         if (findByCode(ULisboaConstants.CYCLE_TYPE).count() == 0) {
             createStaticSlot(ULisboaConstants.CYCLE_TYPE, UIComponentType.DROP_DOWN_ONE_VALUE,
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.cycleType"));
+        }
+        if (findByCode(ULisboaConstants.PROGRAM_CONCLUSION).count() == 0) {
+            createStaticSlot(ULisboaConstants.PROGRAM_CONCLUSION, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.programConclusion"));
         }
         if (findByCode(ULisboaConstants.NUMBER_OF_UNITS).count() == 0) {
             createStaticSlot(ULisboaConstants.NUMBER_OF_UNITS, UIComponentType.NUMBER,
@@ -171,12 +177,13 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         }
         if (findByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).count() == 0) {
             createStaticSlot(ULisboaConstants.APPROVED_EXTRA_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                            "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
         }
         if (findByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM).count() == 0) {
             createStaticSlot(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil
-                            .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                            "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
         }
         if (findByCode(ULisboaConstants.APPROVED_ENROLMENTS).count() == 0) {
             createStaticSlot(ULisboaConstants.APPROVED_ENROLMENTS, UIComponentType.DROP_DOWN_MULTIPLE,
@@ -276,6 +283,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                         serviceRequestSlot);
             case ULisboaConstants.CYCLE_TYPE:
                 return ServiceRequestProperty.createForCycleType((CycleType) value, serviceRequestSlot);
+            case ULisboaConstants.PROGRAM_CONCLUSION:
+                return ServiceRequestProperty.createForProgramConclusion((ProgramConclusion) value, serviceRequestSlot);
             case ULisboaConstants.EXECUTION_YEAR:
                 return ServiceRequestProperty.createForExecutionYear((ExecutionYear) value, serviceRequestSlot);
             case ULisboaConstants.CURRICULAR_PLAN:

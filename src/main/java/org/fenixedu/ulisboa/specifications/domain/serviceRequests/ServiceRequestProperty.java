@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -142,6 +143,13 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
             ServiceRequestSlot serviceRequestSlot) {
         ServiceRequestProperty serviceRequestProperty = new ServiceRequestProperty(serviceRequestSlot);
         serviceRequestProperty.setDocumentPurposeTypeInstance(value);
+        return serviceRequestProperty;
+    }
+
+    @Atomic
+    public static ServiceRequestProperty createForProgramConclusion(ProgramConclusion value, ServiceRequestSlot serviceRequestSlot) {
+        ServiceRequestProperty serviceRequestProperty = new ServiceRequestProperty(serviceRequestSlot);
+        serviceRequestProperty.setProgramConclusion(value);
         return serviceRequestProperty;
     }
 

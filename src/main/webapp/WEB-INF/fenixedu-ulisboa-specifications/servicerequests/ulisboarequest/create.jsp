@@ -26,6 +26,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.util.Constants"%>
@@ -182,7 +183,7 @@ ${portal.angularToolkit()}
                 	}
                 	return false;
                 }
-                $scope.language = '${pageContext.request.locale}'.replace(/_/g,"-");
+                $scope.language = '<%= I18N.getLocale().toString() %>'.replace(/_/g,"-");
                 $scope.submitForm = function (model) {
                 	angular.forEach($scope.object.serviceRequestPropertyBeans, function(index, element) {
                 		element.dataSource= undefined;

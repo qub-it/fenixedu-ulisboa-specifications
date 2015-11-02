@@ -755,6 +755,16 @@ relation DocumentPurposeTypeInstanceServiceRequestProperty {
     }
 }
 
+relation ProgramConclusionServiceRequestProperty {
+    public .org.fenixedu.academic.domain.degreeStructure.ProgramConclusion playsRole programConclusion {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
 relation ExecutionYearServiceRequestProperty {
     public .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
         multiplicity 0..1;
