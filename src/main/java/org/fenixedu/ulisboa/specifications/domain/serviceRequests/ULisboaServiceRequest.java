@@ -513,32 +513,37 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     private void sendConclusionNotification() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
         String subject =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.conclusionNotification.subject",
-                        getDescription(), getServiceRequestNumberYear());
+                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                        "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(),
+                        getServiceRequestNumberYear());
         String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE,
+                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
                         "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
                         .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
                                 .getProfile().getDisplayName());
         String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.conclusionNotification.body",
-                        salutation, getDescription(), getServiceRequestNumberYear());
+                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                        "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
+                        getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
     private void sendReversionApology() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
         String subject =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.reversionApology.subject",
-                        getDescription(), getServiceRequestNumberYear());
+                BundleUtil
+                        .getString(ULisboaConstants.BUNDLE, getLanguage(),
+                                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(),
+                                getServiceRequestNumberYear());
         String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE,
+                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
                         "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
-                                .getProfile().getDisplayName());
+                        .getString(ULisboaConstants.BUNDLE, getLanguage(), "message.ULisboaServiceRequest.salutation.female",
+                                getPerson().getProfile().getDisplayName());
         String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.reversionApology.body", salutation,
-                        getDescription(), getServiceRequestNumberYear());
+                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                        "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
+                        getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 

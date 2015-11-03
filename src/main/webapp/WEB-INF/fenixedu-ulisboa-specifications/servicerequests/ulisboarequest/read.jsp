@@ -205,17 +205,19 @@ ${portal.toolkit()}
                     <div class="form-group row">
                         <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirmRevert" />
                     </div>
-                    <div class="form-group row">
-                        <div class="col-sm-2 control-label">
-                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.notifyRevertAction"/>
-                        </div>
-                        <div class="col-sm-10 control-label">
-                            <select id="notifyRevertAction" name="notifyRevertAction" class="form-control">
-                                <option value="false"><spring:message code="label.no" /></option>
-                                <option value="true"><spring:message code="label.yes" /></option>
-                            </select>
-                        </div>
-                    </div>
+                    <c:if test="${serviceRequest.serviceRequestType.notifyUponConclusion}">
+	                    <div class="form-group row">
+	                        <div class="col-sm-2 control-label">
+	                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.notifyRevertAction"/>
+	                        </div>
+	                        <div class="col-sm-10 control-label">
+	                            <select id="notifyRevertAction" name="notifyRevertAction" class="form-control">
+	                                <option value="false"><spring:message code="label.no" /></option>
+	                                <option value="true"><spring:message code="label.yes" /></option>
+	                            </select>
+	                        </div>
+	                    </div>
+                    </c:if>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -315,17 +317,19 @@ ${portal.toolkit()}
             <spring:message code="label.event.deliver" />
         </a>
     </c:if>
-    &nbsp;|&nbsp;
-    <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-    &nbsp;
+    <c:if test="${serviceRequest.serviceRequestType.printable}">
+	    &nbsp;|&nbsp;
+	    <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+	    &nbsp;
         <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
-        <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
+        	<a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
         </c:if> 
         <c:if test="${ not (serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED') }">
-        <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
+        	<a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
         </c:if> 
         <spring:message code="label.print" />
-    </a>
+	    </a>
+    </c:if>
 
     <c:if test="${ serviceRequest.paymentURL != null }">
         &nbsp;|&nbsp;
