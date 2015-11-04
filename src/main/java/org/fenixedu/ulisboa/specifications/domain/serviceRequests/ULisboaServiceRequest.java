@@ -58,7 +58,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.util.email.Message;
-import org.fenixedu.academic.domain.util.email.SystemSender;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -76,14 +75,19 @@ import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
 import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter.PrintedDocument;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
 
 import com.google.common.base.Strings;
+import com.qubit.terra.docs.util.ReportGenerationException;
 
 public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ULisboaServiceRequest.class);
 
     /**
      * TODOJN onde documentar isto
@@ -173,8 +177,15 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             ULisboaServiceRequestGeneratedDocument.store(this, document.getContentType(), document.getFileName(),
                     document.getData());
             return document;
-        } catch (Exception e) {
-            throw new DomainException("error.documentRequest.errorGeneratingDocument", e);
+        } catch (ReportGenerationException rge) {
+            String composedMessage =
+                    String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
+                            getServiceRequestNumberYear());
+            logger.error(composedMessage, rge.getCause());
+            throw new DomainException("error.documentRequest.errorGeneratingDocument", rge);
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t.getCause());
+            throw new DomainException("error.documentRequest.errorGeneratingDocument", t);
         }
     }
 
