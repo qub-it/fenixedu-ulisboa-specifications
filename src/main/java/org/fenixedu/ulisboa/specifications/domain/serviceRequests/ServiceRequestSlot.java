@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -32,6 +33,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class ServiceRequestSlot extends ServiceRequestSlot_Base {
+
+    public static final Comparator<ServiceRequestSlot> COMPARE_BY_LABEL = new Comparator<ServiceRequestSlot>() {
+        @Override
+        public int compare(ServiceRequestSlot o1, ServiceRequestSlot o2) {
+            return o1.getLabel().getContent().compareTo(o2.getLabel().getContent());
+        }
+    };
 
     protected ServiceRequestSlot() {
         super();
@@ -82,8 +90,9 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
             blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
                     "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
         }
-        if (!getServiceRequestTypesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.ServiceRequestSlot.connected.ServiceRequestTypes"));
+        if (!getServiceRequestSlotEntriesSet().isEmpty()) {
+            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "error.ServiceRequestSlot.connected.ServiceRequestSlotEntries"));
         }
         if (!getChangeable()) {
             blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.ServiceRequestSlot.unchangeableSlot"));

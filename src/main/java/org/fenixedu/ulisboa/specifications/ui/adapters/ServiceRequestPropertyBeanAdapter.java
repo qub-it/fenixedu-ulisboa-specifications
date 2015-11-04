@@ -24,6 +24,7 @@ public class ServiceRequestPropertyBeanAdapter implements JsonSerializer<Service
         object.addProperty("code", src.getCode());
         object.add("uiComponentType", context.serialize(src.getUiComponent()));
         object.add("label", context.serialize(src.getLabel()));
+        object.add("required", context.serialize(src.isRequired()));
         object.add("dataSource", context.serialize(src.getDataSource()));
         if (src.getValue() != null) {
             addValueProperty(src, typeOfSrc, context, object);
@@ -62,6 +63,7 @@ public class ServiceRequestPropertyBeanAdapter implements JsonSerializer<Service
         JsonObject jsonBean = json.getAsJsonObject();
         ServiceRequestPropertyBean bean = new ServiceRequestPropertyBean();
         bean.setCode(jsonBean.get("code").getAsString());
+        bean.setRequired(jsonBean.get("required").getAsBoolean());
         bean.setUiComponentType(context.deserialize(jsonBean.get("uiComponentType"), UIComponentType.class));
         bean.setLabel(context.deserialize(jsonBean.get("label"), LocalizedString.class));
         if (jsonBean.get("value") != null) {

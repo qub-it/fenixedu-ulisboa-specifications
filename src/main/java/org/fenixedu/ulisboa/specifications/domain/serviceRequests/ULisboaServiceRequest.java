@@ -675,7 +675,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     @Override
                     public void deleting(ServiceRequestType serviceRequestType) {
                         serviceRequestType.getULisboaServiceRequestValidatorsSet().clear();
-                        serviceRequestType.getServiceRequestSlotsSet().clear();
+                        serviceRequestType.getServiceRequestSlotEntriesSet().clear();
                     }
                 });
     }

@@ -24,7 +24,6 @@ public class ServiceRequestTypeBean implements IBean {
     private boolean requestedOnline;
     private ServiceRequestCategory serviceRequestCategory;
     private List<TupleDataSourceBean> serviceRequestCategoryDataSource;
-    private List<ServiceRequestSlot> serviceRequestSlots;
     private List<TupleDataSourceBean> serviceRequestSlotsDataSource;
     private List<ULisboaServiceRequestValidator> validators;
     private List<TupleDataSourceBean> validatorsDataSource;
@@ -107,14 +106,6 @@ public class ServiceRequestTypeBean implements IBean {
         }).collect(Collectors.toList());
     }
 
-    public List<ServiceRequestSlot> getServiceRequestSlots() {
-        return serviceRequestSlots;
-    }
-
-    public void setServiceRequestSlots(List<ServiceRequestSlot> serviceRequestSlots) {
-        this.serviceRequestSlots = serviceRequestSlots;
-    }
-
     public List<TupleDataSourceBean> getServiceRequestSlotsDataSource() {
         return serviceRequestSlotsDataSource;
     }
@@ -162,7 +153,6 @@ public class ServiceRequestTypeBean implements IBean {
         setServiceRequestSlotsDataSource(ServiceRequestSlot.findAll().collect(Collectors.toList()));
         setValidatorsDataSource(ULisboaServiceRequestValidator.findAll().collect(Collectors.toList()));
         validators = new ArrayList<ULisboaServiceRequestValidator>();
-        serviceRequestSlots = new ArrayList<ServiceRequestSlot>();
     }
 
     public ServiceRequestTypeBean(ServiceRequestType serviceRequestType) {
@@ -175,7 +165,6 @@ public class ServiceRequestTypeBean implements IBean {
         setPrintable(serviceRequestType.isPrintable());
         setRequestedOnline(serviceRequestType.isRequestedOnline());
         setServiceRequestCategory(serviceRequestType.getServiceRequestCategory());
-        setServiceRequestSlots(serviceRequestType.getServiceRequestSlotsSet().stream().collect(Collectors.toList()));
         setValidators(serviceRequestType.getULisboaServiceRequestValidatorsSet().stream().collect(Collectors.toList()));
         setNumberOfUnitsLabel(serviceRequestType.getNumberOfUnitsLabel());
     }

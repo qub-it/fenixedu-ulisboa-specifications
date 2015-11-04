@@ -51,6 +51,7 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -127,8 +128,8 @@ public class ULisboaServiceRequestBean implements IBean {
         Set<String> oldSlotNames =
                 serviceRequestPropertyBeans.stream().map(ServiceRequestPropertyBean::getCode).collect(Collectors.toSet());
         Set<String> newSlotNames =
-                serviceRequestType.getServiceRequestSlotsSet().stream().map(ServiceRequestSlot::getCode)
-                        .collect(Collectors.toSet());
+                serviceRequestType.getServiceRequestSlotEntriesSet().stream()
+                        .map(entry -> entry.getServiceRequestSlot().getCode()).collect(Collectors.toSet());
         return oldSlotNames.size() == newSlotNames.size() && Sets.difference(oldSlotNames, newSlotNames).isEmpty();
     }
 
@@ -138,9 +139,8 @@ public class ULisboaServiceRequestBean implements IBean {
             serviceRequestPropertyBeans = new ArrayList<ServiceRequestPropertyBean>();
         } else if (!isSameServiceRequestType()) {
             serviceRequestPropertyBeans = new ArrayList<ServiceRequestPropertyBean>();
-            for (ServiceRequestSlot serviceRequestSlot : serviceRequestType.getServiceRequestSlotsSet()) {
-                serviceRequestPropertyBeans.add(new ServiceRequestPropertyBean(serviceRequestSlot));
-            }
+            serviceRequestType.getServiceRequestSlotEntriesSet().stream().sorted(ServiceRequestSlotEntry.COMPARE_BY_ORDER_NUMBER)
+                    .forEachOrdered(entry -> serviceRequestPropertyBeans.add(new ServiceRequestPropertyBean(entry)));
         }
         //update properties
         for (ServiceRequestPropertyBean serviceRequestPropertyBean : serviceRequestPropertyBeans) {
@@ -151,6 +151,9 @@ public class ULisboaServiceRequestBean implements IBean {
                     throw new RuntimeException("error.provider.not.defined");
                 }
                 serviceRequestPropertyBean.setDataSource(dataSourceProvider.provideDataSourceList(this));
+                if (serviceRequestPropertyBean.getDataSource().size() == 1 && serviceRequestPropertyBean.isRequired()) {
+                    serviceRequestPropertyBean.setValue(serviceRequestPropertyBean.getDataSource().get(0).getId());
+                }
             }
         }
     }
