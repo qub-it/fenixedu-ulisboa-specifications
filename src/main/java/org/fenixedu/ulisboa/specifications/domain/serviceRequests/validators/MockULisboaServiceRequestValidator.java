@@ -30,6 +30,18 @@ public class MockULisboaServiceRequestValidator extends MockULisboaServiceReques
         System.out.println("Change situation from "
                 + situations.get(1).getAcademicServiceRequestSituationType().getLocalizedName() + " to "
                 + situations.get(0).getAcademicServiceRequestSituationType().getLocalizedName() + ".");
+        System.out.println("History States :");
+        request.getAcademicServiceRequestSituationsHistory()
+                .stream()
+                .forEach(
+                        situation -> System.out.print(situation.getAcademicServiceRequestSituationType().getLocalizedName()
+                                + " -> "));
+        System.out.println("\nFiltered States : ");
+        request.getFilteredAcademicServiceRequestSituations()
+                .stream()
+                .forEach(
+                        situation -> System.out.print(situation.getAcademicServiceRequestSituationType().getLocalizedName()
+                                + " -> "));
         return true;
     }
 

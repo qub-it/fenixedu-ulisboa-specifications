@@ -28,6 +28,7 @@
 
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -84,6 +85,7 @@ import pt.ist.fenixframework.dml.DeletionListener;
 
 import com.google.common.base.Strings;
 import com.qubit.terra.docs.util.ReportGenerationException;
+import com.google.common.collect.Lists;
 
 public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
@@ -115,6 +117,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         initAcademicServiceRequest(registration);
         setRegistration(registration);
         setIsValid(true);
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<ULisboaServiceRequest>(this));
     }
 
     protected void initAcademicServiceRequest(Registration registration) {
@@ -397,10 +401,27 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst().isPresent();
     }
 
-    public List<AcademicServiceRequestSituation> getAcademicServiceRequestSituationOrderedList() {
+    public List<AcademicServiceRequestSituation> getAcademicServiceRequestSituationsHistory() {
         return getAcademicServiceRequestSituationsSet().stream()
                 .sorted(AcademicServiceRequestSituation.COMPARATOR_BY_MOST_RECENT_SITUATION_DATE_AND_ID)
                 .collect(Collectors.toList());
+    }
+
+    public List<AcademicServiceRequestSituation> getFilteredAcademicServiceRequestSituations() {
+        List<AcademicServiceRequestSituation> filteredSituations = new ArrayList<AcademicServiceRequestSituation>();
+        List<AcademicServiceRequestSituation> allSituations = getAcademicServiceRequestSituationsHistory();
+        int i = 0;
+        for (int j = 0; j < getAcademicServiceRequestSituationsSet().size(); j++) {
+            AcademicServiceRequestSituation situation = allSituations.get(i);
+            AcademicServiceRequestSituation previous = allSituations.get(j);
+            if (isValidTransition(previous.getAcademicServiceRequestSituationType(),
+                    situation.getAcademicServiceRequestSituationType())) {
+                i = j;
+                filteredSituations.add(situation);
+            }
+        }
+        filteredSituations.add(allSituations.get(i));
+        return filteredSituations;
     }
 
     /**
@@ -424,7 +445,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         transitState(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
         //TODOJN create validator to check if has generated one time the document
-        if (getServiceRequestType().getNotifyUponConclusion().booleanValue()) {
+        if (getServiceRequestType().isToNotifyUponConclusion()) {
             sendConclusionNotification();
         }
     }
@@ -449,7 +470,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Atomic
     public void transitToRejectState(String justification) {
-        if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.DELIVERED) {
+        if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
         transitState(AcademicServiceRequestSituationType.REJECTED, justification);
@@ -458,10 +479,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Atomic
     public void revertState(boolean notifyRevertAction) {
+        if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.revert");
+        }
         if (notifyRevertAction) {
             sendReversionApology();
         }
-        AcademicServiceRequestSituation previousSituation = getAcademicServiceRequestSituationOrderedList().get(1);
+        AcademicServiceRequestSituation previousSituation = getFilteredAcademicServiceRequestSituations().get(1);
         transitState(previousSituation.getAcademicServiceRequestSituationType(), previousSituation.getJustification());
         validate();
     }
@@ -480,27 +504,20 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public AcademicServiceRequestSituation getSituationByType(AcademicServiceRequestSituationType type) {
-        List<AcademicServiceRequestSituation> situationsSet = getAcademicServiceRequestSituationOrderedList();
-        for (int i = 0; i < situationsSet.size(); i++) {
-            AcademicServiceRequestSituation situation = situationsSet.get(i);
-            if (i != 0
-                    || !isValidTransition(situationsSet.get(i - 1).getAcademicServiceRequestSituationType(),
-                            situation.getAcademicServiceRequestSituationType())) {
-                break;
-            }
-            if (situation.getAcademicServiceRequestSituationType() == type) {
-                return situation;
-            }
-        }
-        return null;
+        return getFilteredAcademicServiceRequestSituations().stream()
+                .filter(situation -> situation.getAcademicServiceRequestSituationType() == type).findFirst().orElse(null);
     }
 
-    private boolean isValidTransition(AcademicServiceRequestSituationType previousType,
+    public boolean isValidTransition(AcademicServiceRequestSituationType previousType,
             AcademicServiceRequestSituationType currentType) {
+        List<AcademicServiceRequestSituationType> anulledStates =
+                Lists.newArrayList(AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
         //Final states
-        if (currentType == AcademicServiceRequestSituationType.DELIVERED
-                || currentType == AcademicServiceRequestSituationType.CANCELLED
-                || currentType == AcademicServiceRequestSituationType.REJECTED) {
+        if (!anulledStates.contains(previousType) && anulledStates.contains(currentType)) {
+            return true;
+        }
+        if (previousType == AcademicServiceRequestSituationType.CONCLUDED
+                && currentType == AcademicServiceRequestSituationType.DELIVERED) {
             return true;
         }
         if (previousType == AcademicServiceRequestSituationType.PROCESSING

@@ -292,8 +292,7 @@ ${portal.toolkit()}
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
         <spring:message code="label.event.back" />
     </a>
-
-    <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'NEW'}">
+    <c:if test="${ serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType, 'PROCESSING') }">
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
         &nbsp; 
@@ -301,15 +300,15 @@ ${portal.toolkit()}
             <spring:message code="label.event.process" />
         </a>
     </c:if>
-    <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'PROCESSING'}">
+    <c:if test="${ serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType,'CONCLUDED')}">
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
         &nbsp; 
-        <a class="" href="#" onclick="openConcludeModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', ${ serviceRequest.serviceRequestType.notifyUponConclusion })">
+        <a class="" href="#" onclick="openConcludeModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', ${ serviceRequest.serviceRequestType.isToNotifyUponConclusion() })">
             <spring:message code="label.event.conclude" />
         </a>
     </c:if>
-    <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED'}">
+    <c:if test="${ serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType,'DELIVERED') }">
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
         &nbsp; 
@@ -341,7 +340,7 @@ ${portal.toolkit()}
     </c:if>
 
     <c:choose>
-        <c:when test="${ serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
+        <c:when test="${ serviceRequest.academicServiceRequestSituationType == 'DELIVERED' || serviceRequest.academicServiceRequestSituationType == 'CANCELLED' || serviceRequest.academicServiceRequestSituationType == 'REJECTED' }">
             &nbsp;|&nbsp;
             <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
             &nbsp;
@@ -459,11 +458,11 @@ ${portal.toolkit()}
                 <tbody>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.requestDate" /></th>
-                        <td><c:out value='${serviceRequest.requestDate.toString("YYYY-MM-dd")}' /></td>
+                        <td><joda:format value='${serviceRequest.requestDate}' style='S-' /></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.activeSituationDate" /></th>
-                        <td><c:out value='${serviceRequest.activeSituationDate.toString("YYYY-MM-dd")}' /></td>
+                        <td><joda:format value='${serviceRequest.activeSituationDate}' style='S-' /></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.serviceRequestNumberYear" /></th>

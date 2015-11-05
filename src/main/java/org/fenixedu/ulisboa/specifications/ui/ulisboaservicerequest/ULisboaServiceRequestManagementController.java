@@ -197,7 +197,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
-            serviceRequest.transitToProcessState();
+            serviceRequest.transitToRejectState(justification);
             addInfoMessage(
                     BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.rejected.success"), model);
         } catch (DomainException de) {
