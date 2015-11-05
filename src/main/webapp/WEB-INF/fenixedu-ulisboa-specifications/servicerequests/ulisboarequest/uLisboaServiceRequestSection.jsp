@@ -212,13 +212,6 @@ ${portal.angularToolkit()}
         </div>    
     </div>
     
-                 <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser())) {%>
-             " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ academicRequest.externalId } \"><fmt:message key='label.view' bundle='${lang}' /></a>" +
-             ""
-             <%} else {%>
-             ""
-             <%}%>
-    
 <script type="text/javascript">
     $(function(){
         $('a[href*="deliveredAcademicServiceRequest"]').each(function(index) {
