@@ -293,7 +293,7 @@ ${portal.angularToolkit()}
                         </div>
                     </div>
                     <div class="col-sm-5">
-                        <span class="alert alert-warning"
+                        <span class="alert alert-warning btn-xs"
                            ng-show="hiddenForm.field.$error.required">
                             <spring:message code="warning.required.field" />
                         </span>
