@@ -266,7 +266,7 @@ public class ULisboaServiceRequestBean implements IBean {
 
         });
 
-        //TODO: adicionar todos os enrolments de todos os Standalones do aluno?
+        //TODOJN: adicionar todos os enrolments de todos os Standalones do aluno?
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, new DataSourceProvider() {
 
             @Override

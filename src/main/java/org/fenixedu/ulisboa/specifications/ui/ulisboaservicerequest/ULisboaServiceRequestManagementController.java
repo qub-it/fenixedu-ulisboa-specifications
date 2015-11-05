@@ -11,7 +11,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.qubdocs.ui.FenixeduQubdocsReportsController;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
@@ -27,7 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@BennuSpringController(FenixeduQubdocsReportsController.class)
+@SpringFunctionality(app = FenixeduQubdocsReportsController.class, title = "label.title.manageULisboaServiceRequest",
+        accessGroup = "academic(SERVICE_REQUESTS)")
 @RequestMapping(ULisboaServiceRequestManagementController.CONTROLLER_URL)
 public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSpecificationsBaseController {
 

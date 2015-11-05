@@ -84,8 +84,8 @@ import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
 
 import com.google.common.base.Strings;
-import com.qubit.terra.docs.util.ReportGenerationException;
 import com.google.common.collect.Lists;
+import com.qubit.terra.docs.util.ReportGenerationException;
 
 public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
