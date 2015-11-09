@@ -68,6 +68,7 @@ public class ULisboaServiceRequestBean implements IBean {
     private ServiceRequestType serviceRequestType;
     private List<TupleDataSourceBean> serviceRequestTypesDataSource;
     private List<ServiceRequestPropertyBean> serviceRequestPropertyBeans;
+    private boolean requestedOnline;
 
     public Registration getRegistration() {
         return registration;
@@ -113,15 +114,24 @@ public class ULisboaServiceRequestBean implements IBean {
         return (T) ServiceRequestSlot.convertValue(code, serviceRequestPropertyBean.getValue());
     }
 
+    public boolean isRequestedOnline() {
+        return requestedOnline;
+    }
+
+    public void setRequestedOnline(boolean requestedOnline) {
+        this.requestedOnline = requestedOnline;
+    }
+
     public ULisboaServiceRequestBean() {
         setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
         setServiceRequestTypesDataSource(ServiceRequestType.findActive()
                 .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
     }
 
-    public ULisboaServiceRequestBean(Registration registration) {
+    public ULisboaServiceRequestBean(Registration registration, boolean requestedOnline) {
         this();
         setRegistration(registration);
+        setRequestedOnline(requestedOnline);
     }
 
     private boolean isSameServiceRequestType() {

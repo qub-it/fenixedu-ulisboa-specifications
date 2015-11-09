@@ -111,12 +111,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         super();
     }
 
-    protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration) {
+    protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration, boolean requestedOnline) {
         this();
         setServiceRequestType(serviceRequestType);
         initAcademicServiceRequest(registration);
         setRegistration(registration);
         setIsValid(true);
+        setRequestedOnline(requestedOnline);
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
                 new DomainObjectEvent<ULisboaServiceRequest>(this));
     }
@@ -134,7 +135,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Atomic
     public static ULisboaServiceRequest createULisboaServiceRequest(ULisboaServiceRequestBean bean) {
-        ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration());
+        ULisboaServiceRequest request =
+                new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline());
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
             ServiceRequestProperty property = ServiceRequestSlot.createProperty(propertyBean.getCode(), propertyBean.getValue());
             request.addServiceRequestProperties(property);

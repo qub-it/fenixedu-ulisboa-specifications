@@ -77,7 +77,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
         }
         if (getULisboaServiceRequestBean(model) == null) {
-            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration), model);
+            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration, true), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }

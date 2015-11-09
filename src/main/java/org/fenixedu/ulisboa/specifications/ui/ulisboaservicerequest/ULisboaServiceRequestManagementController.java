@@ -50,7 +50,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     @RequestMapping(value = _CREATE_URI + "{oid}", method = RequestMethod.GET)
     public String createAcademicRequest(@PathVariable(value = "oid") Registration registration, Model model) {
         if (getULisboaServiceRequestBean(model) == null) {
-            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration), model);
+            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration, false), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }

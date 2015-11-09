@@ -617,6 +617,7 @@ relation RegistrationSchoolClass {
 
 class serviceRequests.ULisboaServiceRequest extends .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest {
     boolean isValid;
+    boolean requestedOnline;
 }
 
 //======================= = ULisboaServiceRequestGeneratedDocument = =========================

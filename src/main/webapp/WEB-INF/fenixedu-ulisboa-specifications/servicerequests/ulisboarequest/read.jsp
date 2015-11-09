@@ -497,8 +497,26 @@ ${portal.toolkit()}
                         <td><c:out value='${serviceRequest.description}' /></td>
                     </tr>
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.currentState" /></th>
-                        <td><c:out value='${serviceRequest.academicServiceRequestSituationType.localizedName}' /></td>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.isValid" /></th>
+                        <td>
+                            <c:if test="${serviceRequest.isValid}">
+                                <spring:message code="label.yes" />
+                            </c:if>            
+                            <c:if test="${not serviceRequest.isValid}">
+                                <spring:message code="label.no" />
+                            </c:if>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.requestedOnline" /></th>
+                        <td>
+                            <c:if test="${serviceRequest.requestedOnline}">
+                                <spring:message code="label.yes" />
+                            </c:if>            
+                            <c:if test="${not serviceRequest.requestedOnline}">
+                                <spring:message code="label.no" />
+                            </c:if>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.ULisboaServiceRequest.documentType" /></th>
@@ -569,10 +587,12 @@ ${portal.toolkit()}
                                 <td><c:out value='${ serviceRequest.activeSituation.creator.profile.displayName }' /></td>
                             </academic:notAllowed>
                     </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.justification" /></th>
-                        <td><c:out value='${ serviceRequest.activeSituation.justification }' /></td>
-                    </tr>
+                    <c:if test="${ not empty serviceRequest.activeSituation.justification }">
+                        <tr>
+                            <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.justification" /></th>
+                            <td><c:out value='${ serviceRequest.activeSituation.justification }' /></td>
+                        </tr>
+                    </c:if>
                 </tbody>
             </table>
         </form>
