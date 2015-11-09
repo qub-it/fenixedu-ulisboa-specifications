@@ -26,6 +26,10 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.academic.predicate.AccessControl"%>
+<%@page import="org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType"%>
+<%@page import="org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
@@ -38,6 +42,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
+<%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
 
 <spring:url var="datatablesUrl"
     value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
@@ -101,14 +106,26 @@ ${portal.angularToolkit()}
 %>
 
 
-<div class="well well-sm" style="display: inline-block">
-    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.back" />
-    </a>
-    &nbsp; 
-</div>
+<academic:allowed operation="SERVICE_REQUESTS">                      
+    <div class="well well-sm" style="display: inline-block">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        <a class=""
+            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+            <spring:message code="label.event.back" />
+        </a>
+        &nbsp; 
+    </div>
+</academic:allowed>
+<academic:notAllowed operation="SERVICE_REQUESTS">
+    <div class="well well-sm" style="display: inline-block">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        <a class=""
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_REGISTRATION_URL %>${ ulisboaServiceRequestBean.registration.externalId }">
+            <spring:message code="label.event.back" />
+        </a>
+        &nbsp; 
+    </div>
+</academic:notAllowed>
 <c:if test="${not empty infoMessages}">
     <div class="alert alert-info" role="alert">
 
@@ -215,10 +232,20 @@ ${portal.angularToolkit()}
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
     ng-submit="submitForm($model)"
-    action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'>
+    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser())) {%>
+        action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'
+    <%} else {%>
+        action='${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_URL %>${ulisboaServiceRequestBean.registration.externalId}'
+    <%}%>
+    >
 
     <input type="hidden" name="postback"
-        value='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_POSTBACK_URL %>' />
+    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser())) {%>
+        value='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_POSTBACK_URL %>' 
+    <%} else {%>
+        value='${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_POSTBACK_URL %>' 
+    <%}%>
+    />
 
     <input name="bean" type="hidden" value="{{ object }}" />
 

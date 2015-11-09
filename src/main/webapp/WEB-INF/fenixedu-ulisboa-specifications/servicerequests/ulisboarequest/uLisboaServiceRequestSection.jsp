@@ -18,6 +18,8 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.joda.time.LocalDate"%>
+<%@page import="org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
 <%@page import="org.fenixedu.academic.predicate.AccessControl"%>
 <%@page import="org.fenixedu.bennu.core.security.Authenticate"%>
@@ -80,22 +82,43 @@ ${portal.angularToolkit()}
 
     <h3 class="mtop25 mbottom05 separator2"><fmt:message key="academic.services" bundle="${ACADEMIC_OFFICE_RESOURCES}" /></h3>
 
+    <academic:allowed operation="SERVICE_REQUESTS">                        
+        <div class="well well-sm" style="display: inline-block">
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+            &nbsp;
+            <a class=""
+                href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.HISTORY_ACADEMIC_REQUEST_URL %>${registration.externalId}">
+                <fmt:message key="label.academicRequest.viewHistoryLog" bundle="${lang}" />
+            </a>
+            &nbsp;|&nbsp;
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+            &nbsp; 
+            <a class=""
+                href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${registration.externalId}">
+                <fmt:message key="label.academicRequest.createServiceRequest" bundle="${lang}" />
+            </a>
+            &nbsp;       
+        </div>
+    </academic:allowed>
+
+    <academic:notAllowed operation="SERVICE_REQUESTS">
     <div class="well well-sm" style="display: inline-block">
         <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
         &nbsp;
         <a class=""
-            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.HISTORY_ACADEMIC_REQUEST_URL %>${registration.externalId}">
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.HISTORY_SERVICE_REQUEST_URL %>${registration.externalId}">
             <fmt:message key="label.academicRequest.viewHistoryLog" bundle="${lang}" />
         </a>
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
         &nbsp; 
         <a class=""
-            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${registration.externalId}">
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_URL %>${registration.externalId}">
             <fmt:message key="label.academicRequest.createServiceRequest" bundle="${lang}" />
         </a>
-        &nbsp;       
+        &nbsp;
     </div>
+    </academic:notAllowed>        
 
     <div id="content">
         <%

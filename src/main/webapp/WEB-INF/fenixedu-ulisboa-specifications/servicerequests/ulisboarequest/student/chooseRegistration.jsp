@@ -129,7 +129,7 @@ ${portal.toolkit()}
                 "situation" : "<spring:message code='${ situationLabel }' />",
                 "numberEnroled" : "<c:out value='${registration.numberEnroledCurricularCoursesInCurrentYear}'/>",
                 "actions" :
-                  " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_URL %>${registration.externalId}\"><spring:message code='label.view'/></a>" +
+                  " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_REGISTRATION_URL %>${registration.externalId}\"><spring:message code='label.view'/></a>" +
                   "" 
                 },
             </c:forEach>

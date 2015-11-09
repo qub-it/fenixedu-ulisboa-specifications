@@ -13,11 +13,11 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
-import org.fenixedu.qubdocs.ui.FenixeduQubdocsReportsController;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringFunctionality(app = FenixeduQubdocsReportsController.class, title = "label.title.manageULisboaServiceRequest",
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageULisboaServiceRequest",
         accessGroup = "academic(SERVICE_REQUESTS)")
 @RequestMapping(ULisboaServiceRequestManagementController.CONTROLLER_URL)
 public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSpecificationsBaseController {

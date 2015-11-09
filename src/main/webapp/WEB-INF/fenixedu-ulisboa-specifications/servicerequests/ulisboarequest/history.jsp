@@ -26,6 +26,10 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
+<%@page import="org.fenixedu.academic.predicate.AccessControl"%>
+<%@page import="org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType"%>
+<%@page import="org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration" %>
@@ -34,6 +38,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
+<%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
 
 <spring:url var="datatablesUrl"
     value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
@@ -94,11 +99,19 @@ ${portal.toolkit()}
 %>
 <div class="well well-sm" style="display: inline-block">
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.back" />
-    </a>
+    &nbsp;
+    <academic:allowed operation="SERVICE_REQUESTS">                      
+        <a class=""
+            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+            <spring:message code="label.event.back" />
+        </a>
+    </academic:allowed>  
+    <academic:notAllowed operation="SERVICE_REQUESTS">
+        <a class=""
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_REGISTRATION_URL %>${ registration.externalId }">
+            <spring:message code="label.event.back" />
+        </a>    
+    </academic:notAllowed>
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -211,9 +224,14 @@ ${portal.toolkit()}
             "description" : '<c:out value='${request.description}'/>',
             "academicServiceRequestSituationType" : '<c:out value='${request.academicServiceRequestSituationType.localizedName}'/>',
             "actions" :
+            	<% if (AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(AccessControl.getPerson().getUser())) {%>
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}\"><spring:message code='label.print'/></a>" +
-                "" 
+                ""
+                <%  } else {%>
+                " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_SERVICE_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
+                ""
+                <% }%>
         },
         </c:forEach>
     ];

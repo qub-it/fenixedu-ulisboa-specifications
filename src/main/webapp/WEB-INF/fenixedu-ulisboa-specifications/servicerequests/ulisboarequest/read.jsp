@@ -294,8 +294,15 @@ ${portal.toolkit()}
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
     &nbsp; 
     <a class=""
-        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_URL %>${ serviceRequest.registration.externalId }">
-        <spring:message code="label.event.back" />
+        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_REGISTRATION_URL %>${ serviceRequest.registration.externalId }">
+        <spring:message code="label.event.back.registration" />
+    </a>
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+    &nbsp; 
+    <a class=""
+        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.HISTORY_SERVICE_REQUEST_URL %>${ serviceRequest.registration.externalId }">
+        <spring:message code="label.event.back.history" />
     </a>
 </div>
 </academic:notAllowed>
