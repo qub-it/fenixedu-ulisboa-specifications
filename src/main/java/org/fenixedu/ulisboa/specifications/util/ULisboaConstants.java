@@ -67,4 +67,6 @@ public class ULisboaConstants {
 
     public static final List<String> ICURRICULUM_ENTRY_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
             APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
+
+    public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
 }

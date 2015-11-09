@@ -43,6 +43,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULi
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestSlotsBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -183,7 +184,26 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
             @RequestParam(value = "required", required = true) boolean required, @RequestParam(value = "orderNumber",
                     required = true) int orderNumber,
             @RequestParam(value = "serviceRequestSlot", required = true) ServiceRequestSlot serviceRequestSlot, Model model) {
-        addProperty(serviceRequestType, required, orderNumber, serviceRequestSlot);
+        if (!containsSlot(serviceRequestType, serviceRequestSlot)) {
+            addProperty(serviceRequestType, required, orderNumber, serviceRequestSlot);
+        }
+        setServiceRequestSlotsBean(bean, model);
+        return getBeanJson(bean);
+    }
+
+    private static final String ADD_DEFAULT_PROPERTIES_URI = "/add/defaultProperties/";
+    public static final String ADD_DEFAULT_PROPERTIES_URL = CONTROLLER_URL + ADD_DEFAULT_PROPERTIES_URI;
+
+    @RequestMapping(value = ADD_DEFAULT_PROPERTIES_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String addProperties(@PathVariable("oid") ServiceRequestType serviceRequestType, @RequestParam(
+            value = "bean", required = true) ServiceRequestSlotsBean bean, Model model) {
+        for (String slotCode : ULisboaConstants.DEFAULT_PROPERTIES) {
+            ServiceRequestSlot slot = ServiceRequestSlot.getByCode(slotCode);
+            if (!containsSlot(serviceRequestType, slot)) {
+                addProperty(serviceRequestType, false, serviceRequestType.getServiceRequestSlotEntriesSet().size(), slot);
+            }
+        }
         setServiceRequestSlotsBean(bean, model);
         return getBeanJson(bean);
     }
@@ -192,6 +212,13 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     public void addProperty(ServiceRequestType serviceRequestType, boolean required, int orderNumber,
             ServiceRequestSlot serviceRequestSlot) {
         ServiceRequestSlotEntry.create(serviceRequestType, serviceRequestSlot, required, orderNumber);
+    }
+
+    private boolean containsSlot(ServiceRequestType serviceRequestType, ServiceRequestSlot slot) {
+        List<ServiceRequestSlot> slots =
+                serviceRequestType.getServiceRequestSlotEntriesSet().stream().map(ServiceRequestSlotEntry::getServiceRequestSlot)
+                        .collect(Collectors.toList());
+        return slots.contains(slot);
     }
 
     private static final String DELETE_PROPERTY_URI = "/delete/property/";

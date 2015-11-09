@@ -232,6 +232,11 @@ ${portal.angularToolkit()}
                     
                     $scope.serviceRequestSlot = undefined;
                 };
+                $scope.addDefaultSlotEntries = function(model) {
+                    url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.ADD_DEFAULT_PROPERTIES_URL%>${serviceRequestType.externalId}';
+                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
+                    $scope.postBack(null);
+                }
                 $scope.deleteEntry = function(slotEntry, model) {
                 	url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.DELETE_PROPERTY_URL%>${serviceRequestType.externalId}/' + slotEntry.entry;
                     $('form[name="form"]').find('input[name="postback"]').attr('value', url);
@@ -292,11 +297,16 @@ ${portal.angularToolkit()}
                         </ui-select-choices>
                     </ui-select>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-1">
                     <a class="btn btn-default" ng-click="addSlotEntry($model)">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
                     </a>
                 </div>
+                <div class="col-sm-2">
+                    <a class="btn btn-default" ng-click="addDefaultSlotEntries($model)">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add.defaultProperties" />
+                    </a>
+                </div>                
             </div>
         </div>
         <div class="panel panel-body">
