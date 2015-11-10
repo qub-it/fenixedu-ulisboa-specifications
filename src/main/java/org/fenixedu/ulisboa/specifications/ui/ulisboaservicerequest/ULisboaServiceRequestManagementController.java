@@ -1,13 +1,19 @@
 package org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -34,6 +40,11 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/ulisboaservicerequest";
 
+    @RequestMapping
+    public String home(Model model) {
+        return "forward:" + SEARCH_URL;
+    }
+
     private ULisboaServiceRequestBean getULisboaServiceRequestBean(Model model) {
         return (ULisboaServiceRequestBean) model.asMap().get("ulisboaServiceRequestBean");
     }
@@ -42,6 +53,43 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         bean.updateModelLists();
         model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
         model.addAttribute("ulisboaServiceRequestBean", bean);
+    }
+
+    private static final String _SEARCH_URI = "/search/";
+    public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
+
+    @RequestMapping(value = _SEARCH_URI)
+    public String search(@RequestParam(value = "executionYear", required = false) ExecutionYear executionYear, @RequestParam(
+            value = "degreeType", required = false) DegreeType degreeType,
+            @RequestParam(value = "degree", required = false) Degree degree, @RequestParam(value = "serviceRequestType",
+                    required = false) ServiceRequestType serviceRequestType,
+            @RequestParam(value = "state", required = false) AcademicServiceRequestSituationType situationType, @RequestParam(
+                    value = "urgent", required = false) boolean isUrgent, Model model) {
+        model.addAttribute(
+                "executionYearsList",
+                ExecutionYear.readOpenExecutionYears().stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR)
+                        .collect(Collectors.toList()));
+        model.addAttribute("degreeTypesList", DegreeType.all().collect(Collectors.toList()));
+        model.addAttribute("degreesList", Degree.readAllMatching(dT -> degreeType == null || dT == degreeType));
+        model.addAttribute("serviceRequestTypesList", ServiceRequestType.findAll().collect(Collectors.toList()));
+        model.addAttribute("states", ULisboaConstants.USED_SITUATION_TYPES);
+        model.addAttribute("searchServiceRequestsSet",
+                filterSearchServiceRequest(executionYear, degreeType, degree, serviceRequestType, situationType, isUrgent));
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/search";
+    }
+
+    private List<ULisboaServiceRequest> filterSearchServiceRequest(ExecutionYear executionYear, DegreeType degreeType,
+            Degree degree, ServiceRequestType serviceRequestType, AcademicServiceRequestSituationType situationType,
+            boolean isUrgent) {
+        return ULisboaServiceRequest
+                .findAll()
+                .filter(req -> executionYear == null || (req.hasExecutionYear() && req.getExecutionYear().equals(executionYear)))
+                .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
+                .filter(req -> degree == null || req.getRegistration().getDegree().equals(degree))
+                .filter(req -> serviceRequestType == null || req.getServiceRequestType().equals(serviceRequestType))
+                .filter(req -> situationType == null
+                        || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
+                .filter(req -> req.isUrgent() == isUrgent).collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
@@ -118,7 +166,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String PROCESS_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PROCESS_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _PROCESS_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String process(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
+    public String process(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "redirect",
+            required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
@@ -130,6 +179,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
+        if (redirectToReferrer) {
+            return redirectToReferrer(model, redirectAttributes);
+        }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
     }
 
@@ -137,7 +189,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String CONCLUDE_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _CONCLUDE_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _CONCLUDE_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String conclude(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
+    public String conclude(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "redirect",
+            required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
@@ -149,6 +202,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
+        if (redirectToReferrer) {
+            return redirectToReferrer(model, redirectAttributes);
+        }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
     }
 
@@ -156,7 +212,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String DELIVER_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _DELIVER_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _DELIVER_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String deliver(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
+    public String deliver(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "redirect",
+            required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
@@ -167,6 +224,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                     model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
+        }
+        if (redirectToReferrer) {
+            return redirectToReferrer(model, redirectAttributes);
         }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
     }

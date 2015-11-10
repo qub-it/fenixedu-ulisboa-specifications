@@ -31,6 +31,7 @@ package org.fenixedu.ulisboa.specifications.util;
 import java.util.Arrays;
 import java.util.List;
 
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -69,4 +70,9 @@ public class ULisboaConstants {
             APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
 
     public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
+
+    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES = Arrays.asList(
+            AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
+            AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
+            AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
 }

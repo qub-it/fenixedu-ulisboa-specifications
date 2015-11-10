@@ -399,8 +399,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public boolean hasProperty(String slotCode) {
-        return getServiceRequestPropertiesSet().stream()
-                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst().isPresent();
+        Optional<ServiceRequestProperty> optProperty =
+                getServiceRequestPropertiesSet().stream()
+                        .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+        return optProperty.isPresent() && optProperty.get().getValue() != null;
     }
 
     public List<AcademicServiceRequestSituation> getAcademicServiceRequestSituationsHistory() {
@@ -435,6 +437,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
         }
+        if (!getIsValid()) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
+        }
         transitState(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
     }
@@ -443,6 +448,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     public void transitToConcludedState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        if (!getIsValid()) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         transitState(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
@@ -456,6 +464,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     public void transitToDeliverState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+        }
+        if (!getIsValid()) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         transitState(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         validate();
@@ -918,6 +929,18 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Deprecated
     @Override
     public Set<DocumentRequestGeneratedDocument> getDocumentSet() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public Boolean getUrgentRequest() {
+        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+    }
+
+    @Deprecated
+    @Override
+    public boolean isUrgentRequest() {
         throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 

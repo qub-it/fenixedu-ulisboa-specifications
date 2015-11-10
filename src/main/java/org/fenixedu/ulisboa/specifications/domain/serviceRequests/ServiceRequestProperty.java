@@ -18,6 +18,7 @@ import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -176,4 +177,45 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         }
         return serviceRequestProperty;
     }
+
+    public Object getValue() {
+        switch (getServiceRequestSlot().getUiComponentType()) {
+        case DROP_DOWN_BOOLEAN:
+            return getBooleanValue();
+        case NUMBER:
+            return getInteger();
+        case TEXT:
+            return getString();
+        case TEXT_LOCALIZED_STRING:
+            return getLocalizedString();
+        case DATE:
+            return getDateTime();
+        case DROP_DOWN_MULTIPLE:
+            if (ULisboaConstants.ICURRICULUM_ENTRY_OBJECTS.contains(getServiceRequestSlot().getCode())) {
+                return getICurriculumEntriesSet();
+            } else {
+                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            }
+
+        case DROP_DOWN_ONE_VALUE:
+        default:
+            switch (getServiceRequestSlot().getCode()) {
+            case ULisboaConstants.LANGUAGE:
+                return getLocale();
+            case ULisboaConstants.DOCUMENT_PURPOSE_TYPE:
+                return getDocumentPurposeTypeInstance();
+            case ULisboaConstants.CYCLE_TYPE:
+                return getCycleType();
+            case ULisboaConstants.PROGRAM_CONCLUSION:
+                return getProgramConclusion();
+            case ULisboaConstants.EXECUTION_YEAR:
+                return getExecutionYear();
+            case ULisboaConstants.CURRICULAR_PLAN:
+                return getStudentCurricularPlan();
+            default:
+                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            }
+        }
+    }
+
 }
