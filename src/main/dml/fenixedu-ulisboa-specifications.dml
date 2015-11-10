@@ -816,6 +816,43 @@ relation StudentCurricularPlanServiceRequestProperty {
     }
 }
 
+// ====================== = Service Request Restriction = ========================
+
+class serviceRequests.ServiceRequestRestriction {
+}
+
+relation ServiceRequestTypeServiceRequestRestriction {
+	.org.fenixedu.academic.domain.serviceRequests.ServiceRequestType playsRole serviceRequestType;
+	
+	serviceRequests.ServiceRequestRestriction playsRole serviceRequestRestrictions {
+		multiplicity *;
+	}	
+}
+
+relation ServiceRequestRestrictionDegreeType {
+	.org.fenixedu.academic.domain.degree.DegreeType playsRole degreeType;
+
+    serviceRequests.ServiceRequestRestriction playsRole serviceRequestRestrictions {
+        multiplicity *;
+    }
+}
+
+relation ServiceRequestRestrictionDegree {
+	.org.fenixedu.academic.domain.Degree playsRole degree;
+
+    serviceRequests.ServiceRequestRestriction playsRole serviceRequestRestrictions {
+        multiplicity *;
+    }
+}
+
+relation ServiceRequestRestrictionProgramConclusion {
+	.org.fenixedu.academic.domain.degreeStructure.ProgramConclusion playsRole programConclusion;
+
+    serviceRequests.ServiceRequestRestriction playsRole serviceRequestRestrictions {
+        multiplicity *;
+    }
+}
+
 /*
  * ***************************************************
  *    ICurriculum Entries

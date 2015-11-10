@@ -6,7 +6,9 @@
  *  - Copyright Â© 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright Â© 2015 Universidade de Lisboa (after any Go-Live phase)
  *
- * Contributors: xpto@qub-it.com
+ * Contributors: anil.mamede@qub-it.com
+ *               diogo.simoes@qub-it.com
+ *               joao.amaral@qub-it.com
  *
  * 
  * This file is part of FenixEdu Academic.
@@ -28,22 +30,29 @@ package org.fenixedu.ulisboa.specifications.ui.servicerequesttype;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.ui.spring.controller.AcademicAdministrationSpringApplication;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestRestriction;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
+import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeRestrictionsBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestSlotsBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,6 +89,11 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         bean.updateModelLists();
         model.addAttribute("serviceRequestSlotsBeanJson", getBeanJson(bean));
         model.addAttribute("serviceRequestSlotsBean", bean);
+    }
+
+    private void setServiceRequestRestrictionBean(ServiceRequestTypeRestrictionsBean bean, Model model) {
+        model.addAttribute("serviceRequestRestrictionBeanJson", getBeanJson(bean));
+        model.addAttribute("serviceRequestRestrictionBean", bean);
     }
 
     private static final String SEARCH_URI = "/search/";
@@ -171,6 +185,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     @RequestMapping(value = READ_URI + "{serviceRequestTypeId}", method = RequestMethod.GET)
     public String read(@PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType, final Model model) {
         setServiceRequestSlotsBean(new ServiceRequestSlotsBean(serviceRequestType), model);
+        setServiceRequestRestrictionBean(new ServiceRequestTypeRestrictionsBean(serviceRequestType), model);
         model.addAttribute("serviceRequestType", serviceRequestType);
         return "fenixedu-ulisboa-specifications/manageservicerequesttypes/servicerequesttype/read";
     }
@@ -356,6 +371,79 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
                 serviceRequestType.addULisboaServiceRequestValidators(newValidator);
             }
         }
+    }
 
+    private static final String CREATE_RESTRICTION_URI = "/createrestriction/";
+    public static final String CREATE_RESTRICTION_URL = CONTROLLER_URL + CREATE_RESTRICTION_URI;
+
+    @RequestMapping(value = CREATE_RESTRICTION_URI + "{serviceRequestTypeId}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String createRestriction(
+            @PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType, @RequestParam(value = "bean",
+                    required = true) ServiceRequestTypeRestrictionsBean bean, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            addServiceRequestRestriction(serviceRequestType, bean);
+        } catch (DomainException de) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, de.getKey()), model);
+        }
+        model.addAttribute("serviceRequestType", serviceRequestType);
+        ServiceRequestTypeRestrictionsBean cleanBean = new ServiceRequestTypeRestrictionsBean(serviceRequestType);
+        setServiceRequestRestrictionBean(cleanBean, model);
+        return getBeanJson(cleanBean);
+    }
+
+    private static final String CREATE_RESTRICTION_POSTBACK_URI = "/createrestrictionpostback/";
+    public static final String CREATE_RESTRICTION_POSTBACK_URL = CONTROLLER_URL + CREATE_RESTRICTION_POSTBACK_URI;
+
+    @RequestMapping(value = CREATE_RESTRICTION_POSTBACK_URI + "{serviceRequestTypeId}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> createRestrictionPostback(
+            @PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType, @RequestParam(value = "bean",
+                    required = true) ServiceRequestTypeRestrictionsBean bean, Model model) {
+
+        DegreeType degreeType = bean.getDegreeType();
+        if (degreeType != null) {
+            bean.setDegreeDataSource(new ArrayList<Degree>(degreeType.getDegreeSet()));
+        }
+        model.addAttribute("serviceRequestType", serviceRequestType);
+        setServiceRequestRestrictionBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    private static final String DELETE_RESTRICTION_URI = "/deleterestriction/";
+    public static final String DELETE_RESTRICTION_URL = CONTROLLER_URL + DELETE_RESTRICTION_URI;
+
+    @RequestMapping(value = DELETE_RESTRICTION_URI + "{serviceRequestRestrictionId}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String deleteRestriction(
+            @PathVariable("serviceRequestRestrictionId") final ServiceRequestRestriction serviceRequestRestriction,
+            @RequestParam(value = "bean", required = true) ServiceRequestTypeRestrictionsBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
+
+        final ServiceRequestType serviceRequestType = serviceRequestRestriction.getServiceRequestType();
+        try {
+            removeServiceRequestRestriction(serviceRequestRestriction);
+        } catch (DomainException de) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, de.getKey()), model);
+        }
+        model.addAttribute("serviceRequestType", serviceRequestType);
+        ServiceRequestTypeRestrictionsBean cleanBean = new ServiceRequestTypeRestrictionsBean(serviceRequestType);
+        setServiceRequestRestrictionBean(cleanBean, model);
+        return getBeanJson(cleanBean);
+    }
+
+    @Atomic
+    public void addServiceRequestRestriction(ServiceRequestType serviceRequestType, ServiceRequestTypeRestrictionsBean bean) {
+        ServiceRequestRestriction restriction = new ServiceRequestRestriction();
+        restriction.setDegreeType(bean.getDegreeType());
+        restriction.setDegree(bean.getDegree());
+        restriction.setProgramConclusion(bean.getProgramConclusion());
+        serviceRequestType.addServiceRequestRestrictions(restriction);
+    }
+
+    @Atomic
+    public void removeServiceRequestRestriction(ServiceRequestRestriction serviceRequestRestriction) {
+        serviceRequestRestriction.setServiceRequestType(null);
+        serviceRequestRestriction.delete();
     }
 }

@@ -410,9 +410,147 @@ ${portal.angularToolkit()}
 </form>
 
 
+<form name="createRestrictionForm" ng-app="angularAppServiceRequestRestriction" id="createRestrictionForm"
+      ng-controller="ServiceRequestRestrictionController" method="post" class="form-horizontal" 
+      action='#'>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <spring:message code="label.ServiceRequestType.serviceRequestRestrictions" />
+            </h3>
+        </div>
+        <input type="hidden" name="postback" value='${pageContext.request.contextPath}<%= ServiceRequestTypeController.CREATE_RESTRICTION_POSTBACK_URL %>${serviceRequestType.externalId}' />
+        <input name="bean" type="hidden" value="{{ object }}" />
+        
+        <div class="panel panel-body">
+	        <div class="form-group row">
+	        	<div class="col-sm-1"></div>
+				<div class="col-sm-1 control-label"><spring:message code="label.ServiceRequestType.ServiceRequestRestriction.degreeType"/></div>
+				<div class="col-sm-6">
+					<ui-select id="serviceRequestRestriction_degreeType" class="" name="degreetype" ng-model="$parent.object.degreeType" on-select="onDegreeTypeChange($item, $model)" theme="bootstrap" ng-disabled="disabled" >
+									<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
+									<ui-select-choices repeat="degreeType.id as degreeType in object.degreeTypeDataSource | filter: $select.search">
+	 										<span ng-bind-html="degreeType.text | highlight: $select.search"></span>
+									</ui-select-choices>
+							</ui-select>				
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-1 control-label"><spring:message code="label.ServiceRequestType.ServiceRequestRestriction.degree"/></div>
+				<div class="col-sm-6">
+					<ui-select id="serviceRequestRestriction_degree" class="" name="degree" ng-model="$parent.object.degree" theme="bootstrap" ng-disabled="disabled" >
+									<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
+									<ui-select-choices repeat="degree.id as degree in object.degreeDataSource | filter: $select.search">
+	 										<span ng-bind-html="degree.text | highlight: $select.search"></span>
+									</ui-select-choices>
+							</ui-select>				
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-1 control-label"><spring:message code="label.ServiceRequestType.ServiceRequestRestriction.programConclusion"/></div>
+				<div class="col-sm-6">
+					<ui-select id="serviceRequestRestriction_programConclusion" class="" name="programConclusion" ng-model="$parent.object.programConclusion" theme="bootstrap" ng-disabled="disabled" >
+									<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
+									<ui-select-choices repeat="programConclusion.id as programConclusion in object.programConclusionDataSource | filter: $select.search">
+	 										<span ng-bind-html="programConclusion.text | highlight: $select.search"></span>
+									</ui-select-choices>
+							</ui-select>				
+				</div>
+			</div>
+            <div class="form-group row">
+            	<div class="col-sm-7"></div>
+                <div class="col-sm-1">
+                    <a class="btn btn-default" ng-disabled="isFormFilled()" ng-click="addRestriction($model)">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-body">
+              <table id="serviceRequestRestrcitionsTable"
+                class="table responsive table-bordered table-hover" width="100%">
+                <thead>
+                    <tr>
+                        <th><spring:message code="label.ServiceRequestType.ServiceRequestRestriction.degreeType" /></th>
+                        <th><spring:message code="label.ServiceRequestType.ServiceRequestRestriction.degree" /></th>
+                        <th><spring:message code="label.ServiceRequestType.ServiceRequestRestriction.programConclusion" /></th>
+                        <!-- operation column -->
+                        <th style="width: 20%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="restrictionItem in object.restrictions">
+                        <td>{{ restrictionItem.degreeType }}</td>
+                        <td>{{ restrictionItem.degree }}</td>
+                        <td>{{ restrictionItem.programConclusion }}</td>
+                        <td>
+                            <a class="btn btn-danger" ng-click="deleteRestriction(restrictionItem.restriction, $model)">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 
+                                &nbsp;
+                                <spring:message code="label.event.delete" />
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>    
+</form>
+
 
 
 <script>
-	$(document).ready(function() {
-	});
+angular.module('angularAppServiceRequestRestriction',
+        [ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
+        'ServiceRequestRestrictionController', [ '$scope', function($scope) {
+
+            $scope.booleanvalues= [
+              {name: '<spring:message code="label.no"/>', value: false},
+              {name: '<spring:message code="label.yes"/>', value: true}
+            ];
+            
+            $scope.object = angular.fromJson('${serviceRequestRestrictionBeanJson}');
+        	$scope.postBack = createAngularPostbackFunction($scope); 
+
+        	$scope.onDegreeTypeChange = function(degreeType, model) {
+        		var url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.CREATE_RESTRICTION_POSTBACK_URL %>${serviceRequestType.externalId}';
+            	$('form[name="createRestrictionForm"]').find('input[name="postback"]').attr('value', url);
+                $scope.object.degree = undefined;
+                $scope.form = $scope.createRestrictionForm;
+                $scope.postBack(model);
+            };
+            
+            $scope.isFormFilled = function () {
+            	return !$scope.object.degreeType && !$scope.object.degree && !$scope.object.programConclusion;
+            };
+            
+            $scope.addRestriction = function (model) {
+            	var url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.CREATE_RESTRICTION_URL %>${serviceRequestType.externalId}';
+            	$('form[name="createRestrictionForm"]').find('input[name="postback"]').attr('value', url);
+            	$scope.form = $scope.createRestrictionForm;
+                $scope.postBack(null);
+            };
+            
+            $scope.resetRestrictionForm = function () {
+            	$scope.object.degree = undefined;
+            	$scope.object.degreeType = undefined;
+            	$scope.object.programConclusion = undefined;
+            	$scope.object.degreeDataSource = [];
+            };
+            
+            $scope.deleteRestriction = function(restriction, model) {
+            	var url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.DELETE_RESTRICTION_URL %>' + restriction;
+            	$('form[name="createRestrictionForm"]').find('input[name="postback"]').attr('value', url);
+            	$scope.form = $scope.createRestrictionForm;
+                $scope.postBack(null);
+            };
+        } ]);
+angular.bootstrap($('#createRestrictionForm')[0],['angularAppServiceRequestRestriction']);
+
+$(document).ready(function() {
+});
 </script>
+
