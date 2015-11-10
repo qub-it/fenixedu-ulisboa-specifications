@@ -1,45 +1,27 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.servicerequestslot.ServiceRequestSlotController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
-<spring:url var="datatablesUrl"
-    value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
-<spring:url var="datatablesBootstrapJsUrl"
-    value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js"/>
+<spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
 <script type="text/javascript" src="${datatablesUrl}"></script>
 <script type="text/javascript" src="${datatablesBootstrapJsUrl}"></script>
-<spring:url var="datatablesCssUrl"
-    value="/CSS/dataTables/dataTables.bootstrap.min.css" />
-<link rel="stylesheet" href="${datatablesCssUrl}" />
-<spring:url var="datatablesI18NUrl"
-    value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json" />
+<spring:url var="datatablesCssUrl" value="/CSS/dataTables/dataTables.bootstrap.min.css"/>
 
-<link rel="stylesheet" type="text/css"
-    href="${pageContext.request.contextPath}/CSS/dataTables/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="${datatablesCssUrl}"/>
+<spring:url var="datatablesI18NUrl" value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json"/>
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/CSS/dataTables/dataTables.bootstrap.min.css"/>
 
-<link
-    href="${pageContext.request.contextPath}/static/ulisboaspecifications/css/dataTables.responsive.css"
-    rel="stylesheet" />
-<script
-    src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/dataTables.responsive.js"></script>
-<link
-    href="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/css/dataTables.tableTools.css"
-    rel="stylesheet" />
-<script
-    src="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/js/dataTables.tableTools.js"></script>
-<link
-    href="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/css/select2.min.css"
-    rel="stylesheet" />
-<script
-    src="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/js/select2.min.js"></script>
-<script type="text/javascript"
-    src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js"></script>
-<script
-    src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/omnis.js"></script>
-
-<!-- Choose ONLY ONE:  bennuToolkit OR bennuAngularToolkit -->
-<%--${portal.angularToolkit()} --%>
 ${portal.toolkit()}
+
+<link href="${pageContext.request.contextPath}/static/ulisboaspecifications/css/dataTables.responsive.css" rel="stylesheet"/>
+<script src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/dataTables.responsive.js"></script>
+<link href="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/css/dataTables.tableTools.css" rel="stylesheet"/>
+<script src="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/js/dataTables.tableTools.js"></script>
+<link href="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/css/select2.min.css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/js/select2.min.js"></script>                        
+<script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js" ></script>
+<script src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/omnis.js"></script>
 
 <%-- TITLE --%>
 <div class="page-header">
@@ -123,9 +105,9 @@ ${portal.toolkit()}
                 </div>
 
                 <div class="col-sm-10">
-                    <input id="serviceRequestSlot_label" class="form-control" type="text" name="label" bennu-localized-string value='${not empty param.label ? param.label : serviceRequestSlot.label } ' />
+                    <input id="serviceRequestSlot_label" class="form-control" type="text" name="label" bennu-localized-string value='${not empty param.label ? param.label : "{}" } ' />
                 </div>
-            </div>            
+            </div>         
         </div>
         <div class="panel-footer">
             <input type="submit" class="btn btn-default" role="button"
@@ -154,5 +136,5 @@ $(document).ready(function() {
     );
     
     $("#serviceRequestSlot_uicomponenttype").select2().select2('val','${param.uiComponentType }');
-	});
+    });
 </script>

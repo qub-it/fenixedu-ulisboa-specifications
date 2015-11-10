@@ -186,8 +186,7 @@ ${portal.angularToolkit()}
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message
                                 code="label.ServiceRequestType.serviceRequestCategory" /></th>
-                        <td><c:out
-                                value='${serviceRequestType.serviceRequestCategory.name}' /></td>
+                        <td><spring:message code="${ serviceRequestType.serviceRequestCategory.qualifiedName }" /></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message
@@ -367,8 +366,6 @@ ${portal.angularToolkit()}
                             &nbsp;&nbsp;
                             <a class="btn btn-danger" ng-click="deleteEntry(slotEntry, $model)">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 
-                                &nbsp;
-                                <spring:message code="label.event.delete" />
                             </a>
                         </td>
                     </tr>

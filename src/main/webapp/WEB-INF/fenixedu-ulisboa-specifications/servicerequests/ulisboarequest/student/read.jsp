@@ -90,14 +90,16 @@ ${portal.toolkit()}
     </strong>
 </p>
 
-<div class="well well-sm" style="display: inline-block">
-    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-    &nbsp; 
-    <a class=""
-        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CHOOSE_REGISTRATION_URL %>">
-        <spring:message code="label.event.back" />
-    </a>
-</div>
+<c:if test="${ registration.student.registrationsSet.size() != 1 }">
+    <div class="well well-sm" style="display: inline-block">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        &nbsp; 
+        <a class=""
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CHOOSE_REGISTRATION_URL %>">
+            <spring:message code="label.event.back" />
+        </a>
+    </div>
+</c:if>
 
 <c:if test="${not empty infoMessages}">
     <div class="alert alert-info" role="alert">

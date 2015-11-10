@@ -174,8 +174,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         try {
             serviceRequest.transitToProcessState();
             addInfoMessage(
-                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.processed.success"),
-                    model);
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.processed.success"), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -197,8 +196,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         try {
             serviceRequest.transitToConcludedState();
             addInfoMessage(
-                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.concluded.success"),
-                    model);
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.concluded.success"), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -220,8 +218,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         try {
             serviceRequest.transitToDeliverState();
             addInfoMessage(
-                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.delivered.success"),
-                    model);
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.delivered.success"), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -241,8 +238,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             serviceRequest.transitToCancelState(justification);
-            addInfoMessage(
-                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.canceled.success"), model);
+            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.canceled.success"),
+                    model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -259,8 +256,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             serviceRequest.transitToRejectState(justification);
-            addInfoMessage(
-                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.rejected.success"), model);
+            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.rejected.success"),
+                    model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -318,8 +315,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             serviceRequest.revertState(notifyRevertAction);
-            addInfoMessage(
-                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.serviceRequests.ulisboarequest.reverted.success"), model);
+            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.reverted.success",
+                    serviceRequest.getAcademicServiceRequestSituationType().getLocalizedName()), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }

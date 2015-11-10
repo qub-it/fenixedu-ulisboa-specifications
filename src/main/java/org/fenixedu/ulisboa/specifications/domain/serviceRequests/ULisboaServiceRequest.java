@@ -435,7 +435,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToProcessState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+                    getAcademicServiceRequestSituationType().getLocalizedName(),
+                    AcademicServiceRequestSituationType.NEW.getLocalizedName());
         }
         if (!getIsValid()) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
@@ -447,7 +449,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToConcludedState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+                    getAcademicServiceRequestSituationType().getLocalizedName(),
+                    AcademicServiceRequestSituationType.PROCESSING.getLocalizedName());
         }
         if (!getIsValid()) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
@@ -463,7 +467,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToDeliverState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+                    getAcademicServiceRequestSituationType().getLocalizedName(),
+                    AcademicServiceRequestSituationType.CONCLUDED.getLocalizedName());
         }
         if (!getIsValid()) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
@@ -475,7 +481,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToCancelState(String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+                    getAcademicServiceRequestSituationType().getLocalizedName(),
+                    AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
         transitState(AcademicServiceRequestSituationType.CANCELLED, justification);
         validate();
@@ -484,7 +492,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToRejectState(String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState");
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+                    getAcademicServiceRequestSituationType().getLocalizedName(),
+                    AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
         transitState(AcademicServiceRequestSituationType.REJECTED, justification);
         validate();

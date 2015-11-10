@@ -313,7 +313,7 @@ ${portal.toolkit()}
     &nbsp; 
     <a class=""
         href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-        <spring:message code="label.event.back" />
+        <spring:message code="label.event.back.registration" />
     </a>
     <c:if test="${ serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType, 'PROCESSING') }">
         &nbsp;|&nbsp;
@@ -563,7 +563,7 @@ ${portal.toolkit()}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">
-            <spring:message code="request.situation" />
+            <spring:message code="label.serviceRequests.AcademicServiceRequestSituation.details" />
         </h3>
     </div>
     <div class="panel-body">
