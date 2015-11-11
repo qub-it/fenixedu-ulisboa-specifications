@@ -50,6 +50,7 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestRestriction;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -124,14 +125,15 @@ public class ULisboaServiceRequestBean implements IBean {
 
     public ULisboaServiceRequestBean() {
         setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
-        setServiceRequestTypesDataSource(ServiceRequestType.findActive()
-                .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
     }
 
     public ULisboaServiceRequestBean(Registration registration, boolean requestedOnline) {
         this();
         setRegistration(registration);
         setRequestedOnline(requestedOnline);
+        setServiceRequestTypesDataSource(ServiceRequestType.findActive()
+                .filter(ServiceRequestRestriction.restrictionFilter(registration))
+                .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
     }
 
     private boolean isSameServiceRequestType() {
@@ -194,12 +196,13 @@ public class ULisboaServiceRequestBean implements IBean {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
-                return DocumentPurposeTypeInstance.findActives().map(x -> {
-                    TupleDataSourceBean tuple = new TupleDataSourceBean();
-                    tuple.setId(x.getExternalId());
-                    tuple.setText(x.getName().getContent());
-                    return tuple;
-                }).collect(Collectors.toList());
+                return DocumentPurposeTypeInstance.findActivesFor(bean.getServiceRequestType())
+                        .sorted(DocumentPurposeTypeInstance.COMPARE_BY_LEGACY).map(x -> {
+                            TupleDataSourceBean tuple = new TupleDataSourceBean();
+                            tuple.setId(x.getExternalId());
+                            tuple.setText(x.getName().getContent());
+                            return tuple;
+                        }).collect(Collectors.toList());
             }
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CYCLE_TYPE, new DataSourceProvider() {
