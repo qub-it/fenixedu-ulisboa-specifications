@@ -1,5 +1,11 @@
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
+import java.util.function.Predicate;
+
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
+import org.fenixedu.academic.domain.student.Registration;
+
 public class ServiceRequestRestriction extends ServiceRequestRestriction_Base {
 
     public ServiceRequestRestriction() {
@@ -13,35 +19,33 @@ public class ServiceRequestRestriction extends ServiceRequestRestriction_Base {
         deleteDomainObject();
     }
 
-    /*
-     * TODO:
-     *       Apagar o getDescription
-     *       Implementar motor de validaçao das restrições.
-     *       Modificar a logica dos provider de ServiceRequestTypes para respeitar as restriçoes
-     */
+    public static Predicate<ServiceRequestType> restrictionFilter(Registration registration) {
+        Predicate<ServiceRequestType> predicate = new Predicate<ServiceRequestType>() {
+            @Override
+            public boolean test(ServiceRequestType srt) {
+                for (ServiceRequestRestriction srr : srt.getServiceRequestRestrictionsSet()) {
+                    if (!srr.validate(registration)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
 
-    public String getDescription() {
-        StringBuilder descBuilder = new StringBuilder();
-        descBuilder.append("[");
-        if (getDegreeType() != null) {
-            descBuilder.append(getDegreeType().getCode());
-        } else {
-            descBuilder.append("_");
-        }
-        descBuilder.append("|");
-        if (getDegree() != null) {
-            descBuilder.append(getDegree().getCode());
-        } else {
-            descBuilder.append("_");
-        }
-        descBuilder.append("|");
-        if (getProgramConclusion() != null) {
-            descBuilder.append(getProgramConclusion().getCode());
-        } else {
-            descBuilder.append("_");
-        }
-        descBuilder.append("]");
-        return descBuilder.toString();
+        };
+        return predicate;
     }
 
+    private boolean validate(Registration registration) {
+        if (getDegreeType() != null && getDegreeType() != registration.getDegreeType()) {
+            return false;
+        }
+        if (getDegree() != null && getDegree() != registration.getDegree()) {
+            return false;
+        }
+        if (getProgramConclusion() != null
+                && ProgramConclusion.conclusionsFor(registration).noneMatch(pc -> pc == getProgramConclusion())) {
+            return false;
+        }
+        return true;
+    }
 }
