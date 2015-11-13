@@ -42,13 +42,16 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
+import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestYear;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
@@ -111,18 +114,21 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         super();
     }
 
-    protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration, boolean requestedOnline) {
+    protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration, boolean requestedOnline,
+            boolean cloning) {
         this();
         setServiceRequestType(serviceRequestType);
-        initAcademicServiceRequest(registration);
+        initAcademicServiceRequest(registration, cloning);
         setRegistration(registration);
         setIsValid(true);
         setRequestedOnline(requestedOnline);
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<ULisboaServiceRequest>(this));
+        if (!cloning) {
+            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                    new DomainObjectEvent<ULisboaServiceRequest>(this));
+        }
     }
 
-    protected void initAcademicServiceRequest(Registration registration) {
+    protected void initAcademicServiceRequest(Registration registration, boolean cloning) {
         //Use the Academic Service Request init, because there is unaccessible methods
         AcademicServiceRequestCreateBean bean = new AcademicServiceRequestCreateBean(registration);
         bean.setRequestDate(new DateTime());
@@ -130,13 +136,15 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         bean.setUrgentRequest(Boolean.FALSE);
         bean.setFreeProcessed(Boolean.FALSE);
         bean.setLanguage(I18N.getLocale());
-        super.init(bean, registration.getDegree().getAdministrativeOffice());
+        if (!cloning) {
+            super.init(bean, registration.getDegree().getAdministrativeOffice());
+        }
     }
 
     @Atomic
     public static ULisboaServiceRequest createULisboaServiceRequest(ULisboaServiceRequestBean bean) {
         ULisboaServiceRequest request =
-                new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline());
+                new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(), false);
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
             ServiceRequestProperty property = ServiceRequestSlot.createProperty(propertyBean.getCode(), propertyBean.getValue());
             request.addServiceRequestProperties(property);
@@ -148,6 +156,30 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             request.addServiceRequestProperties(property);
         }
         return request;
+    }
+
+    @Atomic
+    public static ULisboaServiceRequest cloneULisboaServiceRequest(ULisboaServiceRequestBean bean, AcademicServiceRequest original) {
+        ULisboaServiceRequest clone =
+                new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(), true);
+        clone.setRootDomainObject(original.getRootDomainObject());
+        clone.setAdministrativeOffice(original.getAdministrativeOffice());
+        clone.setAcademicServiceRequestYear(original.getAcademicServiceRequestYear());
+        clone.setServiceRequestNumber(original.getServiceRequestNumber());
+        clone.setRequestDate(original.getRequestDate());
+        clone.addServiceRequestProperties(ServiceRequestProperty.createForExecutionYear(original.getExecutionYear(),
+                ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR)));
+        clone.setVersioningCreationDate(original.getVersioningCreationDate());
+        clone.setVersioningCreator(original.getVersioningCreator());
+        original.getEvent().setAcademicServiceRequest(clone);
+        for (AcademicServiceRequestSituation situation : original.getAcademicServiceRequestSituationsSet()) {
+            situation.setAcademicServiceRequest(clone);
+        }
+        for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
+            ServiceRequestProperty property = ServiceRequestSlot.createProperty(propertyBean.getCode(), propertyBean.getValue());
+            clone.addServiceRequestProperties(property);
+        }
+        return clone;
     }
 
     /**

@@ -48,8 +48,9 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
     }
 
     @Atomic
-    public static void store(ULisboaServiceRequest serviceRequest, String contentType, String filename, byte[] content) {
-        new ULisboaServiceRequestGeneratedDocument(serviceRequest, serviceRequest.getPerson(), AccessControl.getPerson(),
+    public static ULisboaServiceRequestGeneratedDocument store(ULisboaServiceRequest serviceRequest, String contentType,
+            String filename, byte[] content) {
+        return new ULisboaServiceRequestGeneratedDocument(serviceRequest, serviceRequest.getPerson(), AccessControl.getPerson(),
                 contentType, filename, content);
     }
 }
