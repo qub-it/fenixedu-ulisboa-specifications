@@ -33,6 +33,11 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
 
     /*
      * TODO:
+     *       = DTO Migrador =
+     *       + Criar Engine do CSV
+     *       + Criar DTO (fields)
+     *       - Criar DTO (execute)
+     *       
      *       = Levantar Pedidos criados = 
      *       + Listar <Classname,ServiceRequestType> por instalação para identificar todas as configuraçoes existentes de ServiceRequest
      *       - Para cada configuração perceber quais as propriedades válidas (que precisam de se copiadas).
@@ -40,6 +45,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
      *       = Relações&Slots =
      *       + Manter identificador, versioningCreator, creationDate
      *       + Associar: AdministrativeOffice, Bennu, AcademicServiceRequestYear, ServiceRequestType, Lista de estados(AcademicServiceRequestSituations), Lista de GeneratedDocuments
+     *       - Refazer setters de ASR para ser ~final e protected.
      *       
      *       = Integração AcademicTreasury=
      *       + Criar os pedidos académicos sem gerar dívida (signaless)
@@ -48,6 +54,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
      *       
      *       = Properties=
      *       ? Determinar melhor forma de criar as props
+     *       - No caso das propriedades: Discriminado, #Unidades, #Paginas, Urgente, Locale, CycleType; criar propriedade se este valor nao for null.
      *       
      *       = Remocao =
      *       - Apagar DocumentRequestGeneratedDocuments
