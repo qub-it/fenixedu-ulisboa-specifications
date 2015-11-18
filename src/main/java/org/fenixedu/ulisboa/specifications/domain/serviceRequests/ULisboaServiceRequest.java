@@ -92,7 +92,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     private static final Logger logger = LoggerFactory.getLogger(ULisboaServiceRequest.class);
 
-    /**
+    /*
      * TODOJN onde documentar isto
      * AcademicServiceRequest API used
      * get/set RequestDate
@@ -104,7 +104,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      * get/add AcademicServiceRequestSituation
      */
 
-    /**
+    /*
      * Constructors
      */
 
@@ -160,13 +160,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             AcademicServiceRequest original) {
         ULisboaServiceRequest clone =
                 new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(), true);
-        clone.setRootDomainObject(original.getRootDomainObject());
-        clone.setAdministrativeOffice(original.getAdministrativeOffice());
-        clone.setAcademicServiceRequestYear(original.getAcademicServiceRequestYear());
-        clone.setServiceRequestNumber(original.getServiceRequestNumber());
-        clone.setRequestDate(original.getRequestDate());
-        clone.addServiceRequestProperties(ServiceRequestProperty.createForExecutionYear(original.getExecutionYear(),
-                ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR)));
+        clone.cloneAttributes(original);
         clone.setVersioningCreationDate(original.getVersioningCreationDate());
         clone.setVersioningCreator(original.getVersioningCreator());
         original.getEvent().setAcademicServiceRequest(clone);
@@ -180,7 +174,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return clone;
     }
 
-    /**
+    /*
      * Delete methods
      * Academic Service Request calls these two methods
      */
@@ -201,7 +195,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         super.checkRulesToDelete();
     }
 
-    /**
+    /*
      * Implementation of interfaces
      * QubDocReports Service Request Interface
      * Treasury Service Request Interface

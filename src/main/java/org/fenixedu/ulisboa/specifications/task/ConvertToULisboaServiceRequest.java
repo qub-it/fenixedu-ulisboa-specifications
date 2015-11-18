@@ -11,11 +11,16 @@ import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituat
 import org.fenixedu.academic.domain.serviceRequests.RegistrationAcademicServiceRequest;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.CertificateRequest;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.CertificateRequest_Base;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DeclarationRequest;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DeclarationRequest_Base;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.DegreeFinalizationCertificateRequest;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.DiplomaRequest;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.DiplomaSupplementRequest;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequest;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.EnrolmentCertificateRequest;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.EnrolmentDeclarationRequest;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.RegistryDiplomaRequest;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.SchoolRegistrationCertificateRequest;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.SchoolRegistrationDeclarationRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -36,16 +41,16 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
      *       = DTO Migrador =
      *       + Criar Engine do CSV
      *       + Criar DTO (fields)
-     *       - Criar DTO (execute)
+     *       + Criar DTO (execute)
      *       
      *       = Levantar Pedidos criados = 
      *       + Listar <Classname,ServiceRequestType> por instalação para identificar todas as configuraçoes existentes de ServiceRequest
-     *       - Para cada configuração perceber quais as propriedades válidas (que precisam de se copiadas).
+     *       + Para cada configuração perceber quais as propriedades válidas (que precisam de se copiadas).
      *       
      *       = Relações&Slots =
      *       + Manter identificador, versioningCreator, creationDate
      *       + Associar: AdministrativeOffice, Bennu, AcademicServiceRequestYear, ServiceRequestType, Lista de estados(AcademicServiceRequestSituations), Lista de GeneratedDocuments
-     *       - Refazer setters de ASR para ser ~final e protected.
+     *       + Implementar cloner de propriedades no ASR
      *       
      *       = Integração AcademicTreasury=
      *       + Criar os pedidos académicos sem gerar dívida (signaless)
@@ -53,12 +58,12 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
      *       + No AcademicTreasuryEvent, fazer setAcademicServiceRequest(clone)
      *       
      *       = Properties=
-     *       ? Determinar melhor forma de criar as props
-     *       - No caso das propriedades: Discriminado, #Unidades, #Paginas, Urgente, Locale, CycleType; criar propriedade se este valor nao for null.
+     *       + Determinar melhor forma de criar as props
+     *       + No caso das propriedades: Discriminado, #Unidades, #Paginas, Urgente, Locale, CycleType; criar propriedade se este valor nao for null.
      *       
      *       = Remocao =
-     *       - Apagar DocumentRequestGeneratedDocuments
-     *       - Apagar AcademicServiceRequest
+     *       + Apagar DocumentRequestGeneratedDocuments
+     *       + Apagar AcademicServiceRequest
      *       
      */
 
@@ -72,81 +77,136 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             ULisboaServiceRequestBean bean =
                     new ULisboaServiceRequestBean(((RegistrationAcademicServiceRequest) asr).getRegistration(), false);
             bean.setServiceRequestType(srt);
-            bean.setServiceRequestPropertyBeans(createProperties(bean, asr));
+            //bean.setServiceRequestPropertyBeans(createProperties(bean, asr));
 
             ULisboaServiceRequest clone = ULisboaServiceRequest.cloneULisboaServiceRequest(bean, asr);
+            createProperties(clone, asr);
             cloneGeneratedDocuments(asr, clone);
+            deleteOldie(asr);
         }
     }
 
-    private <T extends AcademicServiceRequest> List<ServiceRequestPropertyBean> createProperties(ULisboaServiceRequestBean bean,
-            T serviceRequest) {
-        List<ServiceRequestPropertyBean> properties = new ArrayList<ServiceRequestPropertyBean>();
-        ServiceRequestType srt = serviceRequest.getServiceRequestType();
-        for (ServiceRequestSlotEntry entry : srt.getServiceRequestSlotEntriesSet()) {
-            String code = entry.getServiceRequestSlot().getCode();
-            ServiceRequestPropertyBean property = null;
-            switch (code) {
-            case ULisboaConstants.LANGUAGE:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                property.setValue(serviceRequest.getLanguage().toString().replace("_", "-"));
-                break;
-            case ULisboaConstants.DOCUMENT_PURPOSE_TYPE:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                if (serviceRequest instanceof DeclarationRequest) {
-                    property.setValue(((DeclarationRequest) serviceRequest).getDocumentPurposeTypeInstance().getExternalId());
-                } else {
-                    property.setValue(((CertificateRequest) serviceRequest).getDocumentPurposeTypeInstance().getExternalId());
-                }
-                break;
-            case ULisboaConstants.OTHER_DOCUMENT_PURPOSE:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                if (serviceRequest instanceof DeclarationRequest) {
-                    property.setValue(((DeclarationRequest) serviceRequest).getOtherDocumentPurposeTypeDescription());
-                } else {
-                    property.setValue(((CertificateRequest) serviceRequest).getOtherDocumentPurposeTypeDescription());
-                }
-                break;
-            case ULisboaConstants.IS_DETAILED:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                if (serviceRequest instanceof CertificateRequest) {
-                    property.setValue(((CertificateRequest) serviceRequest).getDetailed().toString());
-                }
-                break;
-            /* This PROPERTY is always added despite being or not a slot (see clone method) */
-//            case ULisboaConstants.EXECUTION_YEAR:
-//                property = new ServiceRequestPropertyBean(entry);
-//                property.setCode(code);
-//                property.setValue(serviceRequest.getExecutionYear().getExternalId());
-//                break;
-            case ULisboaConstants.IS_URGENT:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                if (serviceRequest instanceof CertificateRequest) {
-                    property.setValue(((CertificateRequest) serviceRequest).getUrgentRequest().toString());
-                }
-                break;
-            case ULisboaConstants.CYCLE_TYPE:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                property.setValue(serviceRequest.getRequestedCycle().toString());
-                break;
-            case ULisboaConstants.NUMBER_OF_UNITS:
-                property = new ServiceRequestPropertyBean(entry);
-                property.setCode(code);
-                property.setValue(serviceRequest.getNumberOfUnits().toString());
-            default:
-                break;
-            }
-            if (property != null) {
-                properties.add(property);
+    private void createProperties(ULisboaServiceRequest clone, AcademicServiceRequest original) {
+
+        // ExecutionYear
+        if (original.getExecutionYear() != null) {
+            clone.addServiceRequestProperties(ServiceRequestProperty.createForExecutionYear(original.getExecutionYear(),
+                    ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR)));
+        }
+        // isDetailed
+        clone.addServiceRequestProperties(ServiceRequestProperty.createForBoolean(original.getDetailed(),
+                ServiceRequestSlot.getByCode(ULisboaConstants.IS_DETAILED)));
+
+        // isUrgent
+        clone.addServiceRequestProperties(ServiceRequestProperty.createForBoolean(original.getDetailed(),
+                ServiceRequestSlot.getByCode(ULisboaConstants.IS_DETAILED)));
+
+        // Language
+        if (original.getLanguage() != null) {
+            clone.addServiceRequestProperties(ServiceRequestProperty.createForLocale(original.getLanguage(),
+                    ServiceRequestSlot.getByCode(ULisboaConstants.LANGUAGE)));
+        }
+
+        // #Units
+        if (original.getNumberOfUnits() != null) {
+            clone.addServiceRequestProperties(ServiceRequestProperty.createForInteger(original.getNumberOfUnits(),
+                    ServiceRequestSlot.getByCode(ULisboaConstants.NUMBER_OF_UNITS)));
+        }
+
+        // #Pages
+        if (original.getNumberOfPages() != null) {
+            clone.addServiceRequestProperties(ServiceRequestProperty.createForInteger(original.getNumberOfPages(),
+                    ServiceRequestSlot.getByCode(ULisboaConstants.NUMBER_OF_PAGES)));
+        }
+
+        // CycleType
+        if (original.getRequestedCycle() != null) {
+            clone.addServiceRequestProperties(ServiceRequestProperty.createForCycleType(original.getRequestedCycle(),
+                    ServiceRequestSlot.getByCode(ULisboaConstants.CYCLE_TYPE)));
+        }
+
+        // DocumentPurposeTypeInstance
+        if (original instanceof CertificateRequest) {
+            CertificateRequest certificate = (CertificateRequest) original;
+            if (certificate.getDocumentPurposeTypeInstance() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
+                        certificate.getDocumentPurposeTypeInstance(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
-        return properties;
+        if (original instanceof DeclarationRequest) {
+            DeclarationRequest declaration = (DeclarationRequest) original;
+            if (declaration.getDocumentPurposeType() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
+                        declaration.getDocumentPurposeTypeInstance(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+            }
+        }
+
+        // OtherDocumentPurposeTypeInstance
+        if (original instanceof CertificateRequest) {
+            CertificateRequest certificate = (CertificateRequest) original;
+            if (certificate.getOtherDocumentPurposeTypeDescription() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
+                        certificate.getOtherDocumentPurposeTypeDescription(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+            }
+        }
+        if (original instanceof DeclarationRequest) {
+            DeclarationRequest declaration = (DeclarationRequest) original;
+            if (declaration.getDocumentPurposeType() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
+                        declaration.getOtherDocumentPurposeTypeDescription(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+            }
+        }
+
+        // Curriculum
+        if (original instanceof CertificateRequest) {
+            CertificateRequest certificate = (CertificateRequest) original;
+            if (certificate.getApprovedCurriculumEntries() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForICurriculumEntry(
+                        certificate.getApprovedCurriculumEntries(), ServiceRequestSlot.getByCode(ULisboaConstants.CURRICULUM)));
+            }
+        }
+        if (original instanceof DeclarationRequest) {
+            DeclarationRequest declaration = (DeclarationRequest) original;
+            if (declaration.getApprovedCurriculumEntries() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForICurriculumEntry(
+                        declaration.getApprovedCurriculumEntries(), ServiceRequestSlot.getByCode(ULisboaConstants.CURRICULUM)));
+            }
+        }
+
+        // ProgramConclusion
+        if (original instanceof RegistryDiplomaRequest) {
+            RegistryDiplomaRequest certificate = (RegistryDiplomaRequest) original;
+            if (certificate.getProgramConclusion() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForProgramConclusion(
+                        certificate.getProgramConclusion(), ServiceRequestSlot.getByCode(ULisboaConstants.PROGRAM_CONCLUSION)));
+            }
+        }
+        if (original instanceof DiplomaRequest) {
+            DiplomaRequest certificate = (DiplomaRequest) original;
+            if (certificate.getProgramConclusion() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForProgramConclusion(
+                        certificate.getProgramConclusion(), ServiceRequestSlot.getByCode(ULisboaConstants.PROGRAM_CONCLUSION)));
+            }
+        }
+        if (original instanceof DiplomaSupplementRequest) {
+            DiplomaSupplementRequest certificate = (DiplomaSupplementRequest) original;
+            if (certificate.getProgramConclusion() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForProgramConclusion(
+                        certificate.getProgramConclusion(), ServiceRequestSlot.getByCode(ULisboaConstants.PROGRAM_CONCLUSION)));
+            }
+        }
+        if (original instanceof DegreeFinalizationCertificateRequest) {
+            DegreeFinalizationCertificateRequest certificate = (DegreeFinalizationCertificateRequest) original;
+            if (certificate.getProgramConclusion() != null) {
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForProgramConclusion(
+                        certificate.getProgramConclusion(), ServiceRequestSlot.getByCode(ULisboaConstants.PROGRAM_CONCLUSION)));
+            }
+        }
+
     }
 
     private void cloneGeneratedDocuments(AcademicServiceRequest asr, ULisboaServiceRequest ulsr) {
@@ -157,5 +217,12 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             uldoc.setVersioningCreationDate(doc.getVersioningCreationDate());
             uldoc.setVersioningCreator(doc.getVersioningCreator());
         }
+    }
+
+    private void deleteOldie(AcademicServiceRequest asr) {
+        for (DocumentRequestGeneratedDocument doc : asr.getDocumentSet()) {
+            doc.delete();
+        }
+        asr.delete();
     }
 }
