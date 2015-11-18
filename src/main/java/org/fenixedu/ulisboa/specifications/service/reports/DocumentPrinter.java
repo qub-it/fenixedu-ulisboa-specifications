@@ -55,10 +55,10 @@ import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplat
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.joda.time.DateTime;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
 import com.qubit.terra.docs.core.IDocumentTemplateService;
+
+import pt.ist.fenixframework.Atomic;
 
 public class DocumentPrinter {
 
@@ -82,9 +82,8 @@ public class DocumentPrinter {
 
         AcademicServiceRequestTemplate academicServiceRequestTemplate = serviceRequest.getAcademicServiceRequestTemplate();
         if (academicServiceRequestTemplate == null) {
-            academicServiceRequestTemplate =
-                    AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
-                            serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
+            academicServiceRequestTemplate = AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
+                    serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
         final FenixEduDocumentGenerator generator =
@@ -98,8 +97,8 @@ public class DocumentPrinter {
         generator.registerDataProvider(new RegistrationDataProvider(registration));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
-        generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
-                executionYear));
+        generator.registerDataProvider(
+                new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
         generator.registerDataProvider(new EnrolmentsDataProvider(registration, executionYear, serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new DocumentSignerDataProvider(serviceRequest));
@@ -208,8 +207,8 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("YYYYMMMDD", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
-                    .replace(":", ""));
+            result.append(
+                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 
