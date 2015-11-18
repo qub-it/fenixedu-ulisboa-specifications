@@ -164,14 +164,14 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         // Curriculum
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
-            if (certificate.getApprovedCurriculumEntries() != null) {
+            if (certificate.getApprovedCurriculumEntries() != null && !certificate.getApprovedCurriculumEntries().isEmpty()) {
                 clone.addServiceRequestProperties(ServiceRequestProperty.createForICurriculumEntry(
                         certificate.getApprovedCurriculumEntries(), ServiceRequestSlot.getByCode(ULisboaConstants.CURRICULUM)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
-            if (declaration.getApprovedCurriculumEntries() != null) {
+            if (declaration.getApprovedCurriculumEntries() != null && !declaration.getApprovedCurriculumEntries().isEmpty()) {
                 clone.addServiceRequestProperties(ServiceRequestProperty.createForICurriculumEntry(
                         declaration.getApprovedCurriculumEntries(), ServiceRequestSlot.getByCode(ULisboaConstants.CURRICULUM)));
             }
