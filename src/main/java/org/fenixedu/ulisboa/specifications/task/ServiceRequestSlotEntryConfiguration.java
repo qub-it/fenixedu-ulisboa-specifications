@@ -15,9 +15,10 @@ public class ServiceRequestSlotEntryConfiguration implements Serializable {
     private int order;
 
     public ServiceRequestSlotEntryConfiguration(String slot, boolean required, int order) {
+        //In CSV file, order number starts in 1 and not in 0
         this.slot = slot;
         this.required = required;
-        this.order = order;
+        this.order = order - 1;
     }
 
     public String getSlot() {

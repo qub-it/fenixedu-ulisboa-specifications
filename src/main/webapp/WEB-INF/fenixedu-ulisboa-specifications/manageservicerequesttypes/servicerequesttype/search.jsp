@@ -138,11 +138,10 @@ ${portal.toolkit()}
 <!-- /.modal -->
 
 
-
 <c:choose>
     <c:when test="${not empty searchservicerequesttypeResultsDataSet}">
         <table id="searchservicerequesttypeTable"
-            class="table responsive table-bordered table-hover">
+            class="table responsive table-bordered table-hover" style="width:100%">
             <thead>
                 <tr>
                     <%--!!!  Field names here --%>

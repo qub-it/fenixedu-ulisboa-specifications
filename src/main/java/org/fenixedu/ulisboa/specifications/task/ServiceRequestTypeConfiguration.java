@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 
 public class ServiceRequestTypeConfiguration implements Serializable {
 
@@ -120,7 +121,9 @@ public class ServiceRequestTypeConfiguration implements Serializable {
         } else {
             serviceRequestType = ServiceRequestType.create(srtCode, srtName, active, emolument, notify, print, online, category);
         }
-        serviceRequestType.getServiceRequestSlotEntriesSet().clear();
+        for (ServiceRequestSlotEntry serviceRequestSlotEntry : serviceRequestType.getServiceRequestSlotEntriesSet()) {
+            serviceRequestSlotEntry.delete();
+        }
         for (ServiceRequestSlotEntryConfiguration serviceRequestSlotEntryConfiguration : slotConfigurations) {
             serviceRequestSlotEntryConfiguration.execute(serviceRequestType);
         }
