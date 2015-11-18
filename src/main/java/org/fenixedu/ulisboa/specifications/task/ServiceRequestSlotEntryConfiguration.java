@@ -2,6 +2,10 @@ package org.fenixedu.ulisboa.specifications.task;
 
 import java.io.Serializable;
 
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
+
 public class ServiceRequestSlotEntryConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -38,6 +42,10 @@ public class ServiceRequestSlotEntryConfiguration implements Serializable {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public void execute(ServiceRequestType serviceRequestType) {
+        ServiceRequestSlotEntry.create(serviceRequestType, ServiceRequestSlot.getByCode(slot), required, order);
     }
 
 }

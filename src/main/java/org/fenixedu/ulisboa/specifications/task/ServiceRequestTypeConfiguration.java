@@ -1,9 +1,12 @@
 package org.fenixedu.ulisboa.specifications.task;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ServiceRequestTypeConfiguration implements Serializable {
@@ -19,6 +22,10 @@ public class ServiceRequestTypeConfiguration implements Serializable {
     private boolean online;
     private ServiceRequestCategory category;
     private List<ServiceRequestSlotEntryConfiguration> slotConfigurations;
+
+    public ServiceRequestTypeConfiguration() {
+        slotConfigurations = new ArrayList<ServiceRequestSlotEntryConfiguration>();
+    }
 
     public String getServiceRequestTypeCode() {
         return srtCode;
@@ -105,10 +112,18 @@ public class ServiceRequestTypeConfiguration implements Serializable {
     }
 
     public void execute() {
-        // 1. Find the ServieRequestType by code. If it doesnt exist, create one.
-        // 2. Configure each field with the values read
-        // 3. Clear all slots
-        // 4. Iterate all slot configurations and create new slots.
+        Optional<ServiceRequestType> optSRT = ServiceRequestType.findUniqueByCode(srtCode);
+        ServiceRequestType serviceRequestType;
+        if (optSRT.isPresent()) {
+            serviceRequestType = optSRT.get();
+            serviceRequestType.edit(srtCode, srtName, active, emolument, notify, print, online, category, new LocalizedString());
+        } else {
+            serviceRequestType = ServiceRequestType.create(srtCode, srtName, active, emolument, notify, print, online, category);
+        }
+        serviceRequestType.getServiceRequestSlotEntriesSet().clear();
+        for (ServiceRequestSlotEntryConfiguration serviceRequestSlotEntryConfiguration : slotConfigurations) {
+            serviceRequestSlotEntryConfiguration.execute(serviceRequestType);
+        }
     }
 
 }
