@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accounting.EventType;
-import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
@@ -51,7 +50,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
-import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestYear;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
@@ -82,13 +80,13 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.FenixFramework;
-import pt.ist.fenixframework.dml.DeletionListener;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.qubit.terra.docs.util.ReportGenerationException;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
+import pt.ist.fenixframework.dml.DeletionListener;
 
 public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
@@ -150,16 +148,16 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             request.addServiceRequestProperties(property);
         }
         if (!request.hasExecutionYear()) {
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.createForExecutionYear(ExecutionYear.readCurrentExecutionYear(),
-                            ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
+            ServiceRequestProperty property = ServiceRequestProperty.createForExecutionYear(
+                    ExecutionYear.readCurrentExecutionYear(), ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
             request.addServiceRequestProperties(property);
         }
         return request;
     }
 
     @Atomic
-    public static ULisboaServiceRequest cloneULisboaServiceRequest(ULisboaServiceRequestBean bean, AcademicServiceRequest original) {
+    public static ULisboaServiceRequest cloneULisboaServiceRequest(ULisboaServiceRequestBean bean,
+            AcademicServiceRequest original) {
         ULisboaServiceRequest clone =
                 new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(), true);
         clone.setRootDomainObject(original.getRootDomainObject());
@@ -216,9 +214,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     document.getData());
             return document;
         } catch (ReportGenerationException rge) {
-            String composedMessage =
-                    String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
-                            getServiceRequestNumberYear());
+            String composedMessage = String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
+                    getServiceRequestNumberYear());
             logger.error(composedMessage, rge.getCause());
             throw new DomainException("error.documentRequest.errorGeneratingDocument", rge);
         } catch (Throwable t) {
@@ -251,7 +248,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public boolean isSelfIssued() {
-        return (getActiveSituation().getCreator() == getRegistration().getPerson());
+        return getActiveSituation().getCreator() == getRegistration().getPerson();
     }
 
     @Override
@@ -284,7 +281,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public String getOtherDocumentPurposeTypeDescription() {
-        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).getString() : null;
+        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)
+                .getString() : null;
     }
 
     public boolean hasOtherDocumentPurposeTypeDescription() {
@@ -294,7 +292,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     public boolean isDetailed() {
         ServiceRequestProperty detailedProperty = findProperty(ULisboaConstants.IS_DETAILED);
-        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
+        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty
+                .getBooleanValue() : false;
     }
 
     @Override
@@ -321,6 +320,16 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     public boolean hasNumberOfPages() {
         return hasProperty(ULisboaConstants.NUMBER_OF_PAGES);
+    }
+
+    @Override
+    public Integer getNumberOfDays() {
+        return hasNumberOfPages() ? findProperty(ULisboaConstants.NUMBER_OF_DAYS).getInteger() : null;
+    }
+
+    @Override
+    public boolean hasNumberOfDays() {
+        return hasProperty(ULisboaConstants.NUMBER_OF_DAYS);
     }
 
     @Override
@@ -359,35 +368,44 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return hasProperty(ULisboaConstants.CURRICULAR_PLAN);
     }
 
+    @Override
     public Set<ICurriculumEntry> getApprovedExtraCurriculum() {
-        return hasApprovedExtraCurriculum() ? findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).getICurriculumEntriesSet() : null;
+        return hasApprovedExtraCurriculum() ? findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM)
+                .getICurriculumEntriesSet() : null;
     }
 
+    @Override
     public boolean hasApprovedExtraCurriculum() {
         return hasProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM);
     }
 
+    @Override
     public Set<ICurriculumEntry> getApprovedStandaloneCurriculum() {
         return hasApprovedStandaloneCurriculum() ? findProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM)
                 .getICurriculumEntriesSet() : null;
     }
 
+    @Override
     public boolean hasApprovedStandaloneCurriculum() {
         return hasProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM);
     }
 
+    @Override
     public Set<ICurriculumEntry> getApprovedEnrolments() {
         return hasApprovedEnrolments() ? findProperty(ULisboaConstants.APPROVED_ENROLMENTS).getICurriculumEntriesSet() : null;
     }
 
+    @Override
     public boolean hasApprovedEnrolments() {
         return hasProperty(ULisboaConstants.APPROVED_ENROLMENTS);
     }
 
+    @Override
     public Set<ICurriculumEntry> getCurriculum() {
         return hasCurriculum() ? findProperty(ULisboaConstants.CURRICULUM).getICurriculumEntriesSet() : null;
     }
 
+    @Override
     public boolean hasCurriculum() {
         return hasProperty(ULisboaConstants.CURRICULUM);
     }
@@ -416,14 +434,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     protected boolean hasMissingPersonalInfo() {
         return getPerson() == null || Strings.isNullOrEmpty(getPerson().getName())
-                || (getPerson().getDateOfBirthYearMonthDay() == null) || Strings.isNullOrEmpty(getPerson().getDocumentIdNumber())
-                || (getPerson().getIdDocumentType() == null);
+                || getPerson().getDateOfBirthYearMonthDay() == null || Strings.isNullOrEmpty(getPerson().getDocumentIdNumber())
+                || getPerson().getIdDocumentType() == null;
     }
 
     public ServiceRequestProperty findProperty(String slotCode) {
-        Optional<ServiceRequestProperty> property =
-                getServiceRequestPropertiesSet().stream().filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode))
-                        .findFirst();
+        Optional<ServiceRequestProperty> property = getServiceRequestPropertiesSet().stream()
+                .filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         if (property.isPresent()) {
             return property.get();
         }
@@ -431,9 +448,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public boolean hasProperty(String slotCode) {
-        Optional<ServiceRequestProperty> optProperty =
-                getServiceRequestPropertiesSet().stream()
-                        .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+        Optional<ServiceRequestProperty> optProperty = getServiceRequestPropertiesSet().stream()
+                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         return optProperty.isPresent() && optProperty.get().getValue() != null;
     }
 
@@ -595,38 +611,29 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     private void sendConclusionNotification() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(),
-                        getServiceRequestNumberYear());
-        String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
-                                .getProfile().getDisplayName());
-        String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
-                        getServiceRequestNumberYear());
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(), getServiceRequestNumberYear());
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.salutation.male",
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
+                getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
     private void sendReversionApology() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject =
-                BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, getLanguage(),
-                                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(),
-                                getServiceRequestNumberYear());
-        String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, getLanguage(), "message.ULisboaServiceRequest.salutation.female",
-                                getPerson().getProfile().getDisplayName());
-        String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
-                        getServiceRequestNumberYear());
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(), getServiceRequestNumberYear());
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.salutation.male",
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
+                getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
@@ -649,8 +656,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(Registration registration) {
-        return findByRegistration(registration).filter(
-                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
+        return findByRegistration(registration)
+                .filter(request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
     }
 
     public static Stream<ULisboaServiceRequest> findProcessingAcademicServiceRequests(Registration registration) {
