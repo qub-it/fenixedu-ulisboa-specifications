@@ -98,7 +98,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                 ServiceRequestSlot.getByCode(ULisboaConstants.IS_DETAILED)));
 
         // isUrgent
-        clone.addServiceRequestProperties(ServiceRequestProperty.createForBoolean(original.getDetailed(),
+        clone.addServiceRequestProperties(ServiceRequestProperty.createForBoolean(original.getUrgentRequest(),
                 ServiceRequestSlot.getByCode(ULisboaConstants.IS_DETAILED)));
 
         // Language
