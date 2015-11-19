@@ -44,6 +44,11 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
             return new PersonUlisboaSpecifications(person);
         }
     }
+    
+    public void delete() {
+        setPerson(null);
+        deleteDomainObject();
+    }
 
     @ConsistencyPredicate
     private boolean checkHasPerson() {
