@@ -5,6 +5,7 @@ import java.util.Comparator;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 
@@ -52,5 +53,17 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
             String filename, byte[] content) {
         return new ULisboaServiceRequestGeneratedDocument(serviceRequest, serviceRequest.getPerson(), AccessControl.getPerson(),
                 contentType, filename, content);
+    }
+
+    @Atomic
+    public static ULisboaServiceRequestGeneratedDocument cloneAcademicServiceRequestDocument(DocumentRequestGeneratedDocument doc,
+            ULisboaServiceRequest ulsr) {
+        ULisboaServiceRequestGeneratedDocument uldoc =
+                ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), doc.getContent());
+        uldoc.setOperator(doc.getOperator());
+        uldoc.setVersioningCreationDate(doc.getVersioningCreationDate());
+        uldoc.setCreationDate(doc.getCreationDate());
+        uldoc.setVersioningCreator(doc.getVersioningCreator());
+        return uldoc;
     }
 }

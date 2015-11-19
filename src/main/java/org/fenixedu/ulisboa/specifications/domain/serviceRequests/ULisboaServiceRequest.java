@@ -163,7 +163,17 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         clone.cloneAttributes(original);
         clone.setVersioningCreationDate(original.getVersioningCreationDate());
         clone.setVersioningCreator(original.getVersioningCreator());
-        original.getEvent().setAcademicServiceRequest(clone);
+        if (original.getAcademicTreasuryEvent() != null) {
+            original.getAcademicTreasuryEvent().setAcademicServiceRequest(clone);
+        }
+        if (original.getDocumentSigner() != null) {
+            clone.setDocumentSigner(original.getDocumentSigner());
+            original.setDocumentSigner(null);
+        }
+        if (original.getAcademicServiceRequestTemplate() != null) {
+            clone.setAcademicServiceRequestTemplate(original.getAcademicServiceRequestTemplate());
+            original.setAcademicServiceRequestTemplate(null);
+        }
         for (AcademicServiceRequestSituation situation : original.getAcademicServiceRequestSituationsSet()) {
             situation.setAcademicServiceRequest(clone);
         }
