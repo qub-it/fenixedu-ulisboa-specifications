@@ -3,7 +3,6 @@ package org.fenixedu.ulisboa.specifications.task;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 import org.fenixedu.academic.domain.serviceRequests.RegistrationAcademicServiceRequest;
@@ -67,8 +66,10 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        List<AcademicServiceRequest> academicServiceRequests = Bennu.getInstance().getAcademicServiceRequestsSet().stream()
-                .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
+        List<AcademicServiceRequest> academicServiceRequests =
+                Bennu.getInstance().getAcademicServiceRequestsSet().stream()
+                        .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID)
+                        .collect(Collectors.toList());
         for (AcademicServiceRequest asr : academicServiceRequests) {
             if (asr instanceof ULisboaServiceRequest) {
                 continue;
@@ -77,7 +78,6 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             ULisboaServiceRequestBean bean =
                     new ULisboaServiceRequestBean(((RegistrationAcademicServiceRequest) asr).getRegistration(), false);
             bean.setServiceRequestType(srt);
-            //bean.setServiceRequestPropertyBeans(createProperties(bean, asr));
 
             ULisboaServiceRequest clone = ULisboaServiceRequest.cloneULisboaServiceRequest(bean, asr);
             createProperties(clone, asr);
@@ -129,17 +129,17 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
             if (certificate.getDocumentPurposeTypeInstance() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForDocumentPurposeTypeInstance(certificate.getDocumentPurposeTypeInstance(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
+                        certificate.getDocumentPurposeTypeInstance(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
             if (declaration.getDocumentPurposeTypeInstance() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForDocumentPurposeTypeInstance(declaration.getDocumentPurposeTypeInstance(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
+                        declaration.getDocumentPurposeTypeInstance(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
 
@@ -147,17 +147,17 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
             if (certificate.getOtherDocumentPurposeTypeDescription() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForString(certificate.getOtherDocumentPurposeTypeDescription(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
+                        certificate.getOtherDocumentPurposeTypeDescription(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
             if (declaration.getOtherDocumentPurposeTypeDescription() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForString(declaration.getOtherDocumentPurposeTypeDescription(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
+                        declaration.getOtherDocumentPurposeTypeDescription(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
             }
         }
 
