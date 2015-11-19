@@ -357,8 +357,8 @@ ${portal.toolkit()}
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
         &nbsp; 
-            <a class="" href="${ serviceRequest.paymentURL }">
-            <spring:message code="label.payments" />
+            <a class="" href="${pageContext.request.contextPath}${serviceRequest.paymentURL }">
+            <spring:message code="label.event.payments" />
         </a>
     </c:if>
 
