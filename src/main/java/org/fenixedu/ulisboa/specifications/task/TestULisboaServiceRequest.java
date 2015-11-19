@@ -52,14 +52,14 @@ public class TestULisboaServiceRequest extends CustomTask {
     public void runTask() throws Exception {
         // TODO Auto-generated method stub
         printDebtAccounts();
-//        printULisboaServiceRequests();
-        printAcademicServiceRequests();
+        printULisboaServiceRequests();
+//        printAcademicServiceRequests();
     }
 
-//    private final static String OUTPUT_DEBT_FILE_NAME = "/home/jnpa/Documents/new/debtAccounts.dat";
-//    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/jnpa/Documents/new/serviceRequests.dat";
-    private final static String OUTPUT_DEBT_FILE_NAME = "/home/jnpa/Documents/old/debtAccounts.dat";
-    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/jnpa/Documents/old/serviceRequests.dat";
+    private final static String OUTPUT_DEBT_FILE_NAME = "/home/jnpa/Documents/new/debtAccounts.dat";
+    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/jnpa/Documents/new/serviceRequests.dat";
+//    private final static String OUTPUT_DEBT_FILE_NAME = "/home/jnpa/Documents/old/debtAccounts.dat";
+//    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/jnpa/Documents/old/serviceRequests.dat";
 
     private final static Charset ENCODING = StandardCharsets.UTF_8;
 
@@ -200,6 +200,9 @@ public class TestULisboaServiceRequest extends CustomTask {
                 sb.append(academicServiceRequest.getServiceRequestType().getExternalId());
             }
 
+            sb.append(academicServiceRequest.getVersioningCreator());
+            sb.append(academicServiceRequest.getVersioningCreationDate());
+
             serviceRequestLines.add(sb.toString());
 
         }
@@ -273,6 +276,9 @@ public class TestULisboaServiceRequest extends CustomTask {
             if (uLisboaServiceRequest.getServiceRequestType() != null) {
                 sb.append(uLisboaServiceRequest.getServiceRequestType().getExternalId());
             }
+
+            sb.append(uLisboaServiceRequest.getVersioningCreator());
+            sb.append(uLisboaServiceRequest.getVersioningCreationDate());
 
             serviceRequestLines.add(sb.toString());
         }

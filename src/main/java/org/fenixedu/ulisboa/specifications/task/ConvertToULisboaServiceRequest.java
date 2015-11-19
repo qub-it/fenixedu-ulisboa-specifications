@@ -124,6 +124,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             cloneGeneratedDocuments(asr, clone);
             deleteOldie(asr);
         }
+//        throw new RuntimeException("lol");
     }
 
     private void createProperties(ULisboaServiceRequest clone, AcademicServiceRequest original) {

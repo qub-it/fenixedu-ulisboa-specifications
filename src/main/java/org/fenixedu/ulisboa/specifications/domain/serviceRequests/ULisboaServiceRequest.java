@@ -1009,6 +1009,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         //throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
+    @Deprecated
+    @Override
+    public Boolean getDetailed() {
+        return isDetailed();
+    }
+    
     /*
      * *****************
      * </Deprecated API>
