@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -146,7 +148,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
 
         // isUrgent
         clone.addServiceRequestProperties(ServiceRequestProperty.createForBoolean(original.getUrgentRequest(),
-                ServiceRequestSlot.getByCode(ULisboaConstants.IS_DETAILED)));
+                ServiceRequestSlot.getByCode(ULisboaConstants.IS_URGENT)));
 
         // Language
         if (original.getLanguage() != null) {
@@ -257,7 +259,9 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
     }
 
     private void cloneGeneratedDocuments(AcademicServiceRequest asr, ULisboaServiceRequest ulsr) {
-        for (DocumentRequestGeneratedDocument doc : asr.getDocumentSet()) {
+        Set<DocumentRequestGeneratedDocument> docs = new TreeSet<DocumentRequestGeneratedDocument>(COMPARATOR_BY_OID);
+        docs.addAll(asr.getDocumentSet());
+        for (DocumentRequestGeneratedDocument doc : docs) {
             ULisboaServiceRequestGeneratedDocument clone =
                     ULisboaServiceRequestGeneratedDocument.cloneAcademicServiceRequestDocument(doc, ulsr);
             versioningData.put(clone.getExternalId(),
