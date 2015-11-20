@@ -26,7 +26,6 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
-import org.fenixedu.ulisboa.specifications.task.InspectExistingServiceRequests.Pair;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -76,31 +75,22 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
     };
 
     private Map<String, Pair<String, DateTime>> versioningData = new HashMap<String, Pair<String, DateTime>>();
+    private boolean cloningSuccess = false;
+
+    void success() {
+        cloningSuccess = true;
+    }
 
     @Override
     public void runTask() throws Exception {
-        /*
-         * 1. A Lógica de criação e remoção vai para uma Thread particular
-         * 2. Depois actualiza-se o versioning no contexto da custom task
-         * 3. Apagar codigo de copia dos valores do versioning.
-         */
 
-        final CloningThread t = new CloningThread(this);
-        t.start();
-        t.join();
+        final CloningThread ct = new CloningThread(this);
+        ct.start();
+        ct.join();
 
-        for (Entry<String, Pair<String, DateTime>> entry : versioningData.entrySet()) {
-            DomainObject object = FenixFramework.getDomainObject(entry.getKey());
-            if (object instanceof ULisboaServiceRequest) {
-                ULisboaServiceRequest ulsr = (ULisboaServiceRequest) object;
-                ulsr.setVersioningCreator(entry.getValue().getLeft());
-                ulsr.setVersioningCreationDate(entry.getValue().getRight());
-            } else if (object instanceof ULisboaServiceRequestGeneratedDocument) {
-                ULisboaServiceRequestGeneratedDocument ulsrgd = (ULisboaServiceRequestGeneratedDocument) object;
-                ulsrgd.setVersioningCreator(entry.getValue().getLeft());
-                ulsrgd.setVersioningCreationDate(entry.getValue().getRight());
-            }
-        }
+        final VersioningThread vt = new VersioningThread(this);
+        vt.start();
+        vt.join();
     }
 
     public void runCloning() {
@@ -124,7 +114,23 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             cloneGeneratedDocuments(asr, clone);
             deleteOldie(asr);
         }
-//        throw new RuntimeException("lol");
+    }
+
+    public void runVersioning() {
+        if (cloningSuccess) {
+            for (Entry<String, Pair<String, DateTime>> entry : versioningData.entrySet()) {
+                DomainObject object = FenixFramework.getDomainObject(entry.getKey());
+                if (object instanceof ULisboaServiceRequest) {
+                    ULisboaServiceRequest ulsr = (ULisboaServiceRequest) object;
+                    ulsr.setVersioningCreator(entry.getValue().getLeft());
+                    ulsr.setVersioningCreationDate(entry.getValue().getRight());
+                } else if (object instanceof ULisboaServiceRequestGeneratedDocument) {
+                    ULisboaServiceRequestGeneratedDocument ulsrgd = (ULisboaServiceRequestGeneratedDocument) object;
+                    ulsrgd.setVersioningCreator(entry.getValue().getLeft());
+                    ulsrgd.setVersioningCreationDate(entry.getValue().getRight());
+                }
+            }
+        }
     }
 
     private void createProperties(ULisboaServiceRequest clone, AcademicServiceRequest original) {
@@ -354,6 +360,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                     @Override
                     public Object call() throws Exception {
                         task.runCloning();
+                        task.success();
                         return null;
                     }
 
@@ -371,7 +378,50 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
 
                     @Override
                     public TxMode mode() {
-                        return TxMode.SPECULATIVE_READ;
+                        return TxMode.WRITE;
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static class VersioningThread extends Thread {
+
+        ConvertToULisboaServiceRequest task;
+
+        public VersioningThread(ConvertToULisboaServiceRequest task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            try {
+                FenixFramework.getTransactionManager().withTransaction(new Callable() {
+
+                    @Override
+                    public Object call() throws Exception {
+                        task.runVersioning();
+                        return null;
+                    }
+
+                }, new Atomic() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean flattenNested() {
+                        return false;
+                    }
+
+                    @Override
+                    public TxMode mode() {
+                        return TxMode.WRITE;
                     }
                 });
             } catch (Exception e) {
