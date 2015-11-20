@@ -115,7 +115,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                     new Pair<String, DateTime>(asr.getVersioningCreator(), asr.getVersioningCreationDate()));
             versioningMySQLData.add("update ACADEMIC_SERVICE_REQUEST set VERSIONING_CREATOR = '" + asr.getVersioningCreator()
                     + "', VERSIONING_CREATION_DATE = '" + asr.getVersioningCreationDate() + "' where OID = '"
-                    + clone.getExternalId() + "'");
+                    + clone.getExternalId() + "';\n");
             createProperties(clone, asr);
             cloneGeneratedDocuments(asr, clone);
             deleteOldie(asr);
@@ -140,7 +140,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
     }
 
     public void generateMysqlData() throws IOException {
-        StringBuilder sqlData = new StringBuilder("# MySQL script to migrate ULisboaServiceRequest versioning data");
+        StringBuilder sqlData = new StringBuilder("# MySQL script to migrate ULisboaServiceRequest versioning data\n");
         versioningMySQLData.stream().forEach(s -> sqlData.append(s));
         File file = new File("/usr/share/tomcat/" + "ULisboaServiceRequestVersioningMigration.sql");
         FileOutputStream fos = new FileOutputStream(file);
@@ -281,7 +281,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                     new Pair<String, DateTime>(doc.getVersioningCreator(), doc.getVersioningCreationDate()));
             versioningMySQLData.add("update GENERIC_FILE set VERSIONING_CREATOR = '" + asr.getVersioningCreator()
                     + "', VERSIONING_CREATION_DATE = '" + asr.getVersioningCreationDate() + "' where OID = '"
-                    + clone.getExternalId() + "'");
+                    + clone.getExternalId() + "';\n");
         }
     }
 
