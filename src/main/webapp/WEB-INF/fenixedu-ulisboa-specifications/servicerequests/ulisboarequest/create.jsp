@@ -172,7 +172,9 @@ ${portal.angularToolkit()}
         }
     	return -1;
     };
-   
+    angular.isUndefinedOrNull = function(val) {
+        return angular.isUndefined(val) || val === null
+    };
     angular.module('angularAppULisboaServiceRequest',
             [ 'ngSanitize', 'ui.select', 'bennuToolkit', 'angularjs-dropdown-multiselect' ]).controller(
             'ULisboaServiceRequestController', [ '$scope', function($scope) {
@@ -191,7 +193,7 @@ ${portal.angularToolkit()}
                 $scope.hideRequiredFieldsWithOneValue = function(elementId) {
                     var elementIndex = $scope.object.serviceRequestPropertyBeans.containsId(elementId);
                     var element = $scope.object.serviceRequestPropertyBeans[elementIndex];
-                    return element.dataSource.length != 1 || !element.required; 
+                    return angular.isUndefinedOrNull(element.dataSource) || element.dataSource.length != 1 || !element.required; 
                 };
                 $scope.otherDocumentPurposeDependency = function (elementId) {
                 	if(elementId != '<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>') {
@@ -206,11 +208,6 @@ ${portal.angularToolkit()}
                 	return false;
                 };
                 $scope.language = '<%= I18N.getLocale().toString() %>'.replace(/_/g,"-");
-                $scope.submitForm = function (model) {
-                	angular.forEach($scope.object.serviceRequestPropertyBeans, function(index, element) {
-                		element.dataSource= undefined;
-                    });
-                }
                 $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
                 $scope.translationTexts = {
                         checkAll: '<spring:message code="label.angularjs.multiselect.checkAll" />',
@@ -221,17 +218,22 @@ ${portal.angularToolkit()}
                         buttonDefaultText: '<spring:message code="label.angularjs.multiselect.buttonDefaultText" />',
                         dynamicButtonTextSuffix: '<spring:message code="label.angularjs.multiselect.dynamicButtonTextSuffix" />'                		
                 };
-                $scope.errorInRequired = function(id) {
-                	tmp = 'form.' + id;
-                	$(tmp);
-                };
+                $scope.submitFormIfValid = function (event) {
+                    if($scope['form'].$invalid) {
+                	   return;
+                    }
+                    angular.forEach($scope.object.serviceRequestPropertyBeans, function(index, element) {
+                        element.dataSource= undefined;
+                    });
+                    $('form').submit();
+                }
             } ]);
 </script>
 
 <form name='form' method="post" class="form-horizontal"
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
-    ng-submit="submitForm($model)"
+    ng-submit="form.$valid"
     <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser())) {%>
         action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'
     <%} else {%>
@@ -269,67 +271,65 @@ ${portal.angularToolkit()}
                 </div>
             </div>
 
-            <div class="form-group row" ng-repeat="serviceRequestProperty in object.serviceRequestPropertyBeans" ng-show="showElement(serviceRequestProperty.code)">
-                <ng-form name="hiddenForm">
-                    <div class="col-sm-2 control-label">
-                        {{ serviceRequestProperty.label[language] }}
+            <div class="form-group row" ng-form="hiddenForm_{{$index}}" ng-repeat="serviceRequestProperty in object.serviceRequestPropertyBeans" ng-show="showElement(serviceRequestProperty.code)">
+                <div class="col-sm-2 control-label">
+                    {{ serviceRequestProperty.label[language] }}
+                </div>
+                <div class="col-sm-5">
+                    <ui-select id="{{ serviceRequestProperty.code}}" name="field"
+                        ng-model="serviceRequestProperty.value"
+                        ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
+                        theme="bootstrap" on-select="postBack($model)" ng-required="serviceRequestProperty.required"> 
+                        <ui-select-match allow-clear="true">
+                            {{$select.selected.text}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="element.id as element in serviceRequestProperty.dataSource | filter: $select.search">
+                            <span ng-bind-html="element.text | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>    
+                    <ui-select id="{{serviceRequestProperty.code}}" name="field"
+                        ng-model="serviceRequestProperty.value"
+                        ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_BOOLEAN'"
+                        theme="bootstrap" ng-required="serviceRequestProperty.required"> 
+                        <ui-select-match allow-clear="true">
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select> 
+                    <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT'"
+                           type="text" ng-model="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required" 
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
+                    />
+                    <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'NUMBER'"
+                           type="number" ng-model="serviceRequestProperty.value" name="field"  ng-required="serviceRequestProperty.required"
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
+                    />
+                    <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
+                           type="text" ng-localized-string="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required"
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
+                    />
+                    <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'DATE'"
+                           type="text" bennu-date="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required"
+                           value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
+                    />    
+                    <div id="{{serviceRequestProperty.code}}" name="field" class="ui-select-container ui-select-bootstrap dropdown" 
+                        ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_MULTIPLE'"
+                        ng-dropdown-multiselect="" options="serviceRequestProperty.dataSource"
+                        selected-model="serviceRequestProperty.value" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
                     </div>
-                    <div class="col-sm-5">
-                        <ui-select id="{{ serviceRequestProperty.code}}" name="field"
-                            ng-model="serviceRequestProperty.value"
-                            ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
-                            theme="bootstrap" on-select="postBack($model)" ng-required="serviceRequestProperty.required"> 
-                            <ui-select-match allow-clear="true">
-                                {{$select.selected.text}}
-                            </ui-select-match> 
-                            <ui-select-choices repeat="element.id as element in serviceRequestProperty.dataSource | filter: $select.search">
-                                <span ng-bind-html="element.text | highlight: $select.search"></span>
-                            </ui-select-choices>
-                        </ui-select>    
-                        <ui-select id="{{serviceRequestProperty.code}}" name="field"
-                            ng-model="serviceRequestProperty.value"
-                            ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_BOOLEAN'"
-                            theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                            <ui-select-match allow-clear="true">
-                                {{$select.selected.name}}
-                            </ui-select-match> 
-                            <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                                <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                            </ui-select-choices>
-                        </ui-select> 
-                        <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT'"
-                               type="text" ng-model="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required" 
-                               value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
-                        />
-                        <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'NUMBER'"
-                               type="number" ng-model="serviceRequestProperty.value" name="field"  ng-required="serviceRequestProperty.required"
-                               value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
-                        />
-                        <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
-                               type="text" ng-localized-string="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required"
-                               value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
-                        />
-                        <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'DATE'"
-                               type="text" bennu-date="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required"
-                               value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
-                        />    
-                        <div id="{{serviceRequestProperty.code}}" name="field" class="ui-select-container ui-select-bootstrap dropdown" 
-                            ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_MULTIPLE'"
-                            ng-dropdown-multiselect="" options="serviceRequestProperty.dataSource"
-                            selected-model="serviceRequestProperty.value" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
-                        </div>
-                    </div>
-                    <div class="col-sm-5">
-                        <span class="alert alert-warning btn-xs"
-                           ng-show="hiddenForm.field.$error.required">
-                            <spring:message code="warning.required.field" />
-                        </span>
-                    </div>
-                </ng-form>
+                </div>
+                <div class="col-sm-5">
+                    <span class="alert alert-warning btn-xs"
+                       ng-show="hiddenForm_{{$index}}.field.$error.required">
+                        <spring:message code="warning.required.field" />
+                    </span>
+                </div>
             </div>
         </div>
         <div class="panel-footer">
-            <input type="submit" class="btn btn-default" role="button"
+            <input type="button" ng-click="submitFormIfValid($event)" class="btn btn-primary" role="button"
                 value="<spring:message code="label.submit" />" />
         </div>
     </div>
