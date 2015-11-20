@@ -96,10 +96,8 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
     }
 
     public void runCloning() {
-        List<AcademicServiceRequest> academicServiceRequests =
-                Bennu.getInstance().getAcademicServiceRequestsSet().stream()
-                        .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID)
-                        .collect(Collectors.toList());
+        List<AcademicServiceRequest> academicServiceRequests = Bennu.getInstance().getAcademicServiceRequestsSet().stream()
+                .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
         for (AcademicServiceRequest asr : academicServiceRequests) {
             if (asr instanceof ULisboaServiceRequest) {
                 continue;
@@ -178,17 +176,17 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
             if (certificate.getDocumentPurposeTypeInstance() != null) {
-                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
-                        certificate.getDocumentPurposeTypeInstance(),
-                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+                clone.addServiceRequestProperties(
+                        ServiceRequestProperty.createForDocumentPurposeTypeInstance(certificate.getDocumentPurposeTypeInstance(),
+                                ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
             if (declaration.getDocumentPurposeTypeInstance() != null) {
-                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
-                        declaration.getDocumentPurposeTypeInstance(),
-                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+                clone.addServiceRequestProperties(
+                        ServiceRequestProperty.createForDocumentPurposeTypeInstance(declaration.getDocumentPurposeTypeInstance(),
+                                ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
 
@@ -196,17 +194,17 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
             if (certificate.getOtherDocumentPurposeTypeDescription() != null) {
-                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
-                        certificate.getOtherDocumentPurposeTypeDescription(),
-                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+                clone.addServiceRequestProperties(
+                        ServiceRequestProperty.createForString(certificate.getOtherDocumentPurposeTypeDescription(),
+                                ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
             if (declaration.getOtherDocumentPurposeTypeDescription() != null) {
-                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
-                        declaration.getOtherDocumentPurposeTypeDescription(),
-                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+                clone.addServiceRequestProperties(
+                        ServiceRequestProperty.createForString(declaration.getOtherDocumentPurposeTypeDescription(),
+                                ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
             }
         }
 

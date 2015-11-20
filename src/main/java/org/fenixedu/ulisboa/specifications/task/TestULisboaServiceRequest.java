@@ -111,14 +111,18 @@ public class TestULisboaServiceRequest extends CustomTask {
                 if (request.getDocumentPurposeTypeInstance() != null) {
                     sb.append(request.getDocumentPurposeTypeInstance().getExternalId());
                 }
-                sb.append(request.getOtherDocumentPurposeTypeDescription());
+                if (request.getOtherDocumentPurposeTypeDescription() != null) {
+                    sb.append(request.getOtherDocumentPurposeTypeDescription());
+                }
             }
             if (academicServiceRequest instanceof CertificateRequest) {
                 CertificateRequest request = (CertificateRequest) academicServiceRequest;
                 if (request.getDocumentPurposeTypeInstance() != null) {
                     sb.append(request.getDocumentPurposeTypeInstance().getExternalId());
                 }
-                sb.append(request.getOtherDocumentPurposeTypeDescription());
+                if (request.getOtherDocumentPurposeTypeDescription() != null) {
+                    sb.append(request.getOtherDocumentPurposeTypeDescription());
+                }
             }
             sb.append(academicServiceRequest.getDetailed());
 
@@ -224,7 +228,9 @@ public class TestULisboaServiceRequest extends CustomTask {
             if (uLisboaServiceRequest.getDocumentPurposeTypeInstance() != null) {
                 sb.append(uLisboaServiceRequest.getDocumentPurposeTypeInstance().getExternalId());
             }
-            sb.append(uLisboaServiceRequest.getOtherDocumentPurposeTypeDescription());
+            if (uLisboaServiceRequest.getOtherDocumentPurposeTypeDescription() != null) {
+                sb.append(uLisboaServiceRequest.getOtherDocumentPurposeTypeDescription());
+            }
 
             sb.append(uLisboaServiceRequest.isDetailed());
 
@@ -232,7 +238,7 @@ public class TestULisboaServiceRequest extends CustomTask {
                 sb.append(uLisboaServiceRequest.getExecutionYear().getExternalId());
             }
 
-            sb.append(uLisboaServiceRequest.isDetailed());
+            sb.append(uLisboaServiceRequest.isUrgent());
 
             sb.append(uLisboaServiceRequest.getNumberOfUnits());
 
