@@ -58,8 +58,14 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
     @Atomic
     public static ULisboaServiceRequestGeneratedDocument cloneAcademicServiceRequestDocument(
             DocumentRequestGeneratedDocument doc, ULisboaServiceRequest ulsr) {
+        /* Ignore the contents */
+        byte[] emptiness = new byte[Math.toIntExact(doc.getSize())];
         ULisboaServiceRequestGeneratedDocument uldoc =
-                ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), doc.getContent());
+                ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), emptiness);
+
+        /* The real deal */
+//        ULisboaServiceRequestGeneratedDocument uldoc =
+//                ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), doc.getContent());
         uldoc.setOperator(doc.getOperator());
         uldoc.setCreationDate(doc.getCreationDate());
         /* No point in setting the versioning data because they will be rewritten when this tx finishes --> Do this on a separate Thread/Tx */

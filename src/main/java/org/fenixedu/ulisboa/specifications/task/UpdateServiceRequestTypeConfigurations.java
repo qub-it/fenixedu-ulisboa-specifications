@@ -19,7 +19,8 @@ public class UpdateServiceRequestTypeConfigurations extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        File data = new File("/home/jnpa/Downloads/MapaSRT.ods - FF.tsv");
+
+        File data = new File("/home/diogo/Documents/MapaSRT.csv");
         Scanner reader = new Scanner(data);
         //populate headers;
         headers = reader.nextLine().split("\t");
