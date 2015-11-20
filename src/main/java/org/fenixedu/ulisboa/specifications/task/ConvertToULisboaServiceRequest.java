@@ -1,6 +1,12 @@
 package org.fenixedu.ulisboa.specifications.task;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +83,7 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
     };
 
     private Map<String, Pair<String, DateTime>> versioningData = new HashMap<String, Pair<String, DateTime>>();
+    private List<String> versioningMySQLData = new ArrayList<String>();
     private boolean cloningSuccess = false;
 
     void success() {
@@ -85,19 +92,15 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-
-        final CloningThread ct = new CloningThread(this);
-        ct.start();
-        ct.join();
-
-        final VersioningThread vt = new VersioningThread(this);
-        vt.start();
-        vt.join();
+        runCloning();
+        generateMysqlData();
     }
 
     public void runCloning() {
-        List<AcademicServiceRequest> academicServiceRequests = Bennu.getInstance().getAcademicServiceRequestsSet().stream()
-                .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
+        List<AcademicServiceRequest> academicServiceRequests =
+                Bennu.getInstance().getAcademicServiceRequestsSet().stream()
+                        .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID)
+                        .collect(Collectors.toList());
         for (AcademicServiceRequest asr : academicServiceRequests) {
             if (asr instanceof ULisboaServiceRequest) {
                 continue;
@@ -110,6 +113,9 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             ULisboaServiceRequest clone = ULisboaServiceRequest.cloneULisboaServiceRequest(bean, asr);
             versioningData.put(clone.getExternalId(),
                     new Pair<String, DateTime>(asr.getVersioningCreator(), asr.getVersioningCreationDate()));
+            versioningMySQLData.add("update ACADEMIC_SERVICE_REQUEST set VERSIONING_CREATOR = '" + asr.getVersioningCreator()
+                    + "', VERSIONING_CREATION_DATE = '" + asr.getVersioningCreationDate() + "' where OID = '"
+                    + clone.getExternalId() + "'");
             createProperties(clone, asr);
             cloneGeneratedDocuments(asr, clone);
             deleteOldie(asr);
@@ -131,6 +137,15 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                 }
             }
         }
+    }
+
+    public void generateMysqlData() throws IOException {
+        StringBuilder sqlData = new StringBuilder("# MySQL script to migrate ULisboaServiceRequest versioning data");
+        versioningMySQLData.stream().forEach(s -> sqlData.append(s));
+        File file = new File("/usr/share/tomcat/" + "ULisboaServiceRequestVersioningMigration.sql");
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(sqlData.toString().getBytes());
+        fos.close();
     }
 
     private void createProperties(ULisboaServiceRequest clone, AcademicServiceRequest original) {
@@ -176,17 +191,17 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
             if (certificate.getDocumentPurposeTypeInstance() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForDocumentPurposeTypeInstance(certificate.getDocumentPurposeTypeInstance(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
+                        certificate.getDocumentPurposeTypeInstance(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
             if (declaration.getDocumentPurposeTypeInstance() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForDocumentPurposeTypeInstance(declaration.getDocumentPurposeTypeInstance(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForDocumentPurposeTypeInstance(
+                        declaration.getDocumentPurposeTypeInstance(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)));
             }
         }
 
@@ -194,17 +209,17 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         if (original instanceof CertificateRequest) {
             CertificateRequest certificate = (CertificateRequest) original;
             if (certificate.getOtherDocumentPurposeTypeDescription() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForString(certificate.getOtherDocumentPurposeTypeDescription(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
+                        certificate.getOtherDocumentPurposeTypeDescription(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
             }
         }
         if (original instanceof DeclarationRequest) {
             DeclarationRequest declaration = (DeclarationRequest) original;
             if (declaration.getOtherDocumentPurposeTypeDescription() != null) {
-                clone.addServiceRequestProperties(
-                        ServiceRequestProperty.createForString(declaration.getOtherDocumentPurposeTypeDescription(),
-                                ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
+                clone.addServiceRequestProperties(ServiceRequestProperty.createForString(
+                        declaration.getOtherDocumentPurposeTypeDescription(),
+                        ServiceRequestSlot.getByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)));
             }
         }
 
@@ -264,6 +279,9 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                     ULisboaServiceRequestGeneratedDocument.cloneAcademicServiceRequestDocument(doc, ulsr);
             versioningData.put(clone.getExternalId(),
                     new Pair<String, DateTime>(doc.getVersioningCreator(), doc.getVersioningCreationDate()));
+            versioningMySQLData.add("update GENERIC_FILE set VERSIONING_CREATOR = '" + asr.getVersioningCreator()
+                    + "', VERSIONING_CREATION_DATE = '" + asr.getVersioningCreationDate() + "' where OID = '"
+                    + clone.getExternalId() + "'");
         }
     }
 
