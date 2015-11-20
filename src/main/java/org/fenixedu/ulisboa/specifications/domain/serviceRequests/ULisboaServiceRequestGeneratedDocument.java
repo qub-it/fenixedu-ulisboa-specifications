@@ -56,14 +56,15 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
     }
 
     @Atomic
-    public static ULisboaServiceRequestGeneratedDocument cloneAcademicServiceRequestDocument(DocumentRequestGeneratedDocument doc,
-            ULisboaServiceRequest ulsr) {
+    public static ULisboaServiceRequestGeneratedDocument cloneAcademicServiceRequestDocument(
+            DocumentRequestGeneratedDocument doc, ULisboaServiceRequest ulsr) {
         ULisboaServiceRequestGeneratedDocument uldoc =
                 ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), doc.getContent());
         uldoc.setOperator(doc.getOperator());
-        uldoc.setVersioningCreationDate(doc.getVersioningCreationDate());
         uldoc.setCreationDate(doc.getCreationDate());
-        uldoc.setVersioningCreator(doc.getVersioningCreator());
+        /* No point in setting the versioning data because they will be rewritten when this tx finishes --> Do this on a separate Thread/Tx */
+        //uldoc.setVersioningCreationDate(doc.getVersioningCreationDate());
+        //uldoc.setVersioningCreator(doc.getVersioningCreator());
         return uldoc;
     }
 }

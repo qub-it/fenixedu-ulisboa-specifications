@@ -161,8 +161,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         ULisboaServiceRequest clone =
                 new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(), true);
         clone.cloneAttributes(original);
-        clone.setVersioningCreationDate(original.getVersioningCreationDate());
-        clone.setVersioningCreator(original.getVersioningCreator());
+        /* No point in setting the versioning data because they will be rewritten when this tx finishes --> Do this on a separate Thread/Tx */
+        //clone.setVersioningCreationDate(original.getVersioningCreationDate());
+        //clone.setVersioningCreator(original.getVersioningCreator());
         if (original.getAcademicTreasuryEvent() != null) {
             original.getAcademicTreasuryEvent().setAcademicServiceRequest(clone);
         }

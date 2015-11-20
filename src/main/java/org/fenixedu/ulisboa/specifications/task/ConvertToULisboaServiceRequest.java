@@ -1,8 +1,14 @@
 package org.fenixedu.ulisboa.specifications.task;
 
+import java.lang.annotation.Annotation;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 import org.fenixedu.academic.domain.serviceRequests.RegistrationAcademicServiceRequest;
@@ -20,8 +26,13 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
+import org.fenixedu.ulisboa.specifications.task.InspectExistingServiceRequests.Pair;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
+import org.joda.time.DateTime;
 
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.DomainObject;
+import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.core.AbstractDomainObject;
 
 public class ConvertToULisboaServiceRequest extends CustomTask {
@@ -64,8 +75,35 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         }
     };
 
+    private Map<String, Pair<String, DateTime>> versioningData = new HashMap<String, Pair<String, DateTime>>();
+
     @Override
     public void runTask() throws Exception {
+        /*
+         * 1. A Lógica de criação e remoção vai para uma Thread particular
+         * 2. Depois actualiza-se o versioning no contexto da custom task
+         * 3. Apagar codigo de copia dos valores do versioning.
+         */
+
+        final CloningThread t = new CloningThread(this);
+        t.start();
+        t.join();
+
+        for (Entry<String, Pair<String, DateTime>> entry : versioningData.entrySet()) {
+            DomainObject object = FenixFramework.getDomainObject(entry.getKey());
+            if (object instanceof ULisboaServiceRequest) {
+                ULisboaServiceRequest ulsr = (ULisboaServiceRequest) object;
+                ulsr.setVersioningCreator(entry.getValue().getLeft());
+                ulsr.setVersioningCreationDate(entry.getValue().getRight());
+            } else if (object instanceof ULisboaServiceRequestGeneratedDocument) {
+                ULisboaServiceRequestGeneratedDocument ulsrgd = (ULisboaServiceRequestGeneratedDocument) object;
+                ulsrgd.setVersioningCreator(entry.getValue().getLeft());
+                ulsrgd.setVersioningCreationDate(entry.getValue().getRight());
+            }
+        }
+    }
+
+    public void runCloning() {
         List<AcademicServiceRequest> academicServiceRequests =
                 Bennu.getInstance().getAcademicServiceRequestsSet().stream()
                         .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID)
@@ -80,6 +118,8 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
             bean.setServiceRequestType(srt);
 
             ULisboaServiceRequest clone = ULisboaServiceRequest.cloneULisboaServiceRequest(bean, asr);
+            versioningData.put(clone.getExternalId(),
+                    new Pair<String, DateTime>(asr.getVersioningCreator(), asr.getVersioningCreationDate()));
             createProperties(clone, asr);
             cloneGeneratedDocuments(asr, clone);
             deleteOldie(asr);
@@ -211,7 +251,10 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
 
     private void cloneGeneratedDocuments(AcademicServiceRequest asr, ULisboaServiceRequest ulsr) {
         for (DocumentRequestGeneratedDocument doc : asr.getDocumentSet()) {
-            ULisboaServiceRequestGeneratedDocument.cloneAcademicServiceRequestDocument(doc, ulsr);
+            ULisboaServiceRequestGeneratedDocument clone =
+                    ULisboaServiceRequestGeneratedDocument.cloneAcademicServiceRequestDocument(doc, ulsr);
+            versioningData.put(clone.getExternalId(),
+                    new Pair<String, DateTime>(doc.getVersioningCreator(), doc.getVersioningCreationDate()));
         }
     }
 
@@ -245,5 +288,95 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
         }
         asr.setServiceRequestType(null);
         asr.delete();
+    }
+
+    class Pair<L, R> {
+        private L l;
+        private R r;
+
+        public Pair(L l, R r) {
+            this.l = l;
+            this.r = r;
+        }
+
+        public L getLeft() {
+            return l;
+        }
+
+        public R getRight() {
+            return r;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Pair) {
+                if (getLeft() == null && getRight() == null) {
+                    return ((Pair<?, ?>) obj).getLeft() == null && ((Pair<?, ?>) obj).getRight() == null;
+                } else if (getLeft() == null) {
+                    return getRight().equals(((Pair<?, ?>) obj).getRight());
+                } else if (getRight() == null) {
+                    return getLeft().equals(((Pair<?, ?>) obj).getLeft());
+                } else {
+                    return getLeft().equals(((Pair<?, ?>) obj).getLeft()) && getRight().equals(((Pair<?, ?>) obj).getRight());
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            if (getLeft() == null && getRight() == null) {
+                return 1;
+            } else if (getLeft() == null) {
+                return getRight().hashCode();
+            } else if (getRight() == null) {
+                return getLeft().hashCode();
+            } else {
+                return getLeft().hashCode() ^ getRight().hashCode();
+            }
+        }
+    }
+
+    private static class CloningThread extends Thread {
+
+        ConvertToULisboaServiceRequest task;
+
+        public CloningThread(ConvertToULisboaServiceRequest task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            try {
+                FenixFramework.getTransactionManager().withTransaction(new Callable() {
+
+                    @Override
+                    public Object call() throws Exception {
+                        task.runCloning();
+                        return null;
+                    }
+
+                }, new Atomic() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean flattenNested() {
+                        return false;
+                    }
+
+                    @Override
+                    public TxMode mode() {
+                        return TxMode.SPECULATIVE_READ;
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
