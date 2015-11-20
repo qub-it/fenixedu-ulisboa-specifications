@@ -52,14 +52,14 @@ public class TestULisboaServiceRequest extends CustomTask {
     public void runTask() throws Exception {
         // TODO Auto-generated method stub
         printDebtAccounts();
-        printULisboaServiceRequests();
-//        printAcademicServiceRequests();
+//        printULisboaServiceRequests();
+        printAcademicServiceRequests();
     }
 
-    private final static String OUTPUT_DEBT_FILE_NAME = "/home/diogo/tmp/rul/new/debtAccounts.dat";
-    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/diogo/tmp/rul/new/serviceRequests.dat";
-//    private final static String OUTPUT_DEBT_FILE_NAME = "/home/diogo/tmp/rul/old/debtAccounts.dat";
-//    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/diogo/tmp/rul/old/serviceRequests.dat";
+//    private final static String OUTPUT_DEBT_FILE_NAME = "/home/jnpa/tmp/fl/new/debtAccounts.dat";
+//    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/jnpa/tmp/fl/new/serviceRequests.dat";
+    private final static String OUTPUT_DEBT_FILE_NAME = "/home/jnpa/tmp/fl/old/debtAccounts.dat";
+    private final static String OUTPUT_SERVICE_REQUEST_FILE_NAME = "/home/jnpa/tmp/fl/old/serviceRequests.dat";
 
     private final static Charset ENCODING = StandardCharsets.UTF_8;
 
@@ -94,10 +94,8 @@ public class TestULisboaServiceRequest extends CustomTask {
 
     private void printAcademicServiceRequests() throws IOException {
         List<String> serviceRequestLines = new ArrayList<String>();
-        List<AcademicServiceRequest> academicServiceRequests =
-                Bennu.getInstance().getAcademicServiceRequestsSet().stream()
-                        .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID)
-                        .collect(Collectors.toList());
+        List<AcademicServiceRequest> academicServiceRequests = Bennu.getInstance().getAcademicServiceRequestsSet().stream()
+                .filter(req -> !(req instanceof ULisboaServiceRequest)).sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
         for (AcademicServiceRequest academicServiceRequest : academicServiceRequests) {
             if (academicServiceRequest instanceof ULisboaServiceRequest) {
                 continue;
@@ -145,9 +143,8 @@ public class TestULisboaServiceRequest extends CustomTask {
             if (academicServiceRequest instanceof DeclarationRequest) {
                 DeclarationRequest request = (DeclarationRequest) academicServiceRequest;
                 if (request.getApprovedCurriculumEntries() != null && !request.getApprovedCurriculumEntries().isEmpty()) {
-                    List<ICurriculumEntry> entries =
-                            request.getApprovedCurriculumEntries().stream().sorted(COMPARATOR_ICE_BY_OID)
-                                    .collect(Collectors.toList());
+                    List<ICurriculumEntry> entries = request.getApprovedCurriculumEntries().stream().sorted(COMPARATOR_ICE_BY_OID)
+                            .collect(Collectors.toList());
                     for (ICurriculumEntry curriculumEntry : entries) {
                         sb.append(curriculumEntry.getExternalId());
                     }
@@ -156,9 +153,8 @@ public class TestULisboaServiceRequest extends CustomTask {
             if (academicServiceRequest instanceof CertificateRequest) {
                 CertificateRequest request = (CertificateRequest) academicServiceRequest;
                 if (request.getApprovedCurriculumEntries() != null && !request.getApprovedCurriculumEntries().isEmpty()) {
-                    List<ICurriculumEntry> entries =
-                            request.getApprovedCurriculumEntries().stream().sorted(COMPARATOR_ICE_BY_OID)
-                                    .collect(Collectors.toList());
+                    List<ICurriculumEntry> entries = request.getApprovedCurriculumEntries().stream().sorted(COMPARATOR_ICE_BY_OID)
+                            .collect(Collectors.toList());
                     for (ICurriculumEntry curriculumEntry : entries) {
                         sb.append(curriculumEntry.getExternalId());
                     }
@@ -186,13 +182,11 @@ public class TestULisboaServiceRequest extends CustomTask {
                     academicServiceRequest.getDocumentSet().stream().sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
             for (DocumentRequestGeneratedDocument generatedDocument : docs) {
                 sb.append(generatedDocument.getFilename());
-                sb.append(generatedDocument.getVersioningCreator());
                 sb.append(generatedDocument.getSize());
                 sb.append(generatedDocument.getCreationDate());
             }
-            List<AcademicServiceRequestSituation> situations =
-                    academicServiceRequest.getAcademicServiceRequestSituationsSet().stream().sorted(COMPARATOR_BY_OID)
-                            .collect(Collectors.toList());
+            List<AcademicServiceRequestSituation> situations = academicServiceRequest.getAcademicServiceRequestSituationsSet()
+                    .stream().sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
             for (AcademicServiceRequestSituation situation : situations) {
                 sb.append(situation.getExternalId());
                 sb.append(situation.getAcademicServiceRequestSituationType().getLocalizedName());
@@ -209,9 +203,6 @@ public class TestULisboaServiceRequest extends CustomTask {
                 sb.append(academicServiceRequest.getServiceRequestType().getExternalId());
             }
 
-            sb.append(academicServiceRequest.getVersioningCreator());
-            sb.append(academicServiceRequest.getVersioningCreationDate());
-
             serviceRequestLines.add(sb.toString());
 
         }
@@ -220,10 +211,9 @@ public class TestULisboaServiceRequest extends CustomTask {
 
     private void printULisboaServiceRequests() throws IOException {
         List<String> serviceRequestLines = new ArrayList<String>();
-        List<ULisboaServiceRequest> uLisboaServiceRequests =
-                Bennu.getInstance().getAcademicServiceRequestsSet().stream().filter(req -> req instanceof ULisboaServiceRequest)
-                        .map(ULisboaServiceRequest.class::cast)
-                        .sorted((sr1, sr2) -> sr1.getExternalId().compareTo(sr2.getExternalId())).collect(Collectors.toList());
+        List<ULisboaServiceRequest> uLisboaServiceRequests = Bennu.getInstance().getAcademicServiceRequestsSet().stream()
+                .filter(req -> req instanceof ULisboaServiceRequest).map(ULisboaServiceRequest.class::cast)
+                .sorted((sr1, sr2) -> sr1.getExternalId().compareTo(sr2.getExternalId())).collect(Collectors.toList());
         for (ULisboaServiceRequest uLisboaServiceRequest : uLisboaServiceRequests) {
             StringBuilder sb = new StringBuilder();
 
@@ -255,10 +245,8 @@ public class TestULisboaServiceRequest extends CustomTask {
             }
 
             if (uLisboaServiceRequest.hasCurriculum()) {
-                List<ICurriculumEntry> entries =
-                        uLisboaServiceRequest.getCurriculum().stream()
-                                .sorted((e1, e2) -> e1.getExternalId().compareTo(e2.getExternalId()))
-                                .collect(Collectors.toList());
+                List<ICurriculumEntry> entries = uLisboaServiceRequest.getCurriculum().stream()
+                        .sorted((e1, e2) -> e1.getExternalId().compareTo(e2.getExternalId())).collect(Collectors.toList());
                 for (ICurriculumEntry curriculumEntry : entries) {
                     sb.append(curriculumEntry.getExternalId());
                 }
@@ -267,18 +255,15 @@ public class TestULisboaServiceRequest extends CustomTask {
                 sb.append(uLisboaServiceRequest.getProgramConclusion().getExternalId());
             }
 
-            List<ULisboaServiceRequestGeneratedDocument> docs =
-                    uLisboaServiceRequest.getGeneratedDocumentsSet().stream().sorted(COMPARATOR_BY_OID)
-                            .collect(Collectors.toList());
+            List<ULisboaServiceRequestGeneratedDocument> docs = uLisboaServiceRequest.getGeneratedDocumentsSet().stream()
+                    .sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
             for (ULisboaServiceRequestGeneratedDocument generatedDocument : docs) {
                 sb.append(generatedDocument.getFilename());
-                sb.append(generatedDocument.getVersioningCreator());
                 sb.append(generatedDocument.getSize());
                 sb.append(generatedDocument.getCreationDate());
             }
-            List<AcademicServiceRequestSituation> situations =
-                    uLisboaServiceRequest.getAcademicServiceRequestSituationsSet().stream().sorted(COMPARATOR_BY_OID)
-                            .collect(Collectors.toList());
+            List<AcademicServiceRequestSituation> situations = uLisboaServiceRequest.getAcademicServiceRequestSituationsSet()
+                    .stream().sorted(COMPARATOR_BY_OID).collect(Collectors.toList());
             for (AcademicServiceRequestSituation situation : situations) {
                 sb.append(situation.getExternalId());
                 sb.append(situation.getAcademicServiceRequestSituationType().getLocalizedName());
@@ -292,9 +277,6 @@ public class TestULisboaServiceRequest extends CustomTask {
             if (uLisboaServiceRequest.getServiceRequestType() != null) {
                 sb.append(uLisboaServiceRequest.getServiceRequestType().getExternalId());
             }
-
-            sb.append(uLisboaServiceRequest.getVersioningCreator());
-            sb.append(uLisboaServiceRequest.getVersioningCreationDate());
 
             serviceRequestLines.add(sb.toString());
         }
