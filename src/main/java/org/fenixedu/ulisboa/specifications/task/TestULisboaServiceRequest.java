@@ -226,7 +226,7 @@ public class TestULisboaServiceRequest extends CustomTask {
             }
             sb.append(uLisboaServiceRequest.getOtherDocumentPurposeTypeDescription());
 
-            sb.append(uLisboaServiceRequest.getDetailed());
+            sb.append(uLisboaServiceRequest.isDetailed());
 
             if (uLisboaServiceRequest.getExecutionYear() != null) {
                 sb.append(uLisboaServiceRequest.getExecutionYear().getExternalId());
