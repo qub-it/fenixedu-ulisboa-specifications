@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
-        title = "label.title.student.manageULisboaServiceRequest", accessGroup = "logged")
+        title = "label.title.student.manageULisboaServiceRequest", accessGroup = "activeStudents")
 @RequestMapping(ULisboaServiceRequestController.CONTROLLER_URL)
 public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -83,8 +83,9 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     }
 
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration, @RequestParam(value = "bean",
-            required = true) ULisboaServiceRequestBean bean, Model model, RedirectAttributes redirectAttributes) {
+    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration,
+            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
         if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
             addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);

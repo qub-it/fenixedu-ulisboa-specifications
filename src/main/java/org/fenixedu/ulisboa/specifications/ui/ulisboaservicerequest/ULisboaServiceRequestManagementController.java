@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageULisboaServiceRequest",
-        accessGroup = "academic(SERVICE_REQUESTS)")
+        accessGroup = "academic(SERVICE_REQUESTS)| #managers")
 @RequestMapping(ULisboaServiceRequestManagementController.CONTROLLER_URL)
 public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSpecificationsBaseController {
 
