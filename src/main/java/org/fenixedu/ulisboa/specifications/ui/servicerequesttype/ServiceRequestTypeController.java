@@ -403,7 +403,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
 
         DegreeType degreeType = bean.getDegreeType();
         if (degreeType != null) {
-            bean.setDegreeDataSource(new ArrayList<Degree>(degreeType.getDegreeSet()));
+            bean.setDegreeDataSource(degreeType.getDegreeSet().stream()
+                    .sorted((d1, d2) -> d1.getPresentationNameI18N().compareTo(d2.getPresentationNameI18N()))
+                    .collect(Collectors.toList()));
         }
         model.addAttribute("serviceRequestType", serviceRequestType);
         setServiceRequestRestrictionBean(bean, model);

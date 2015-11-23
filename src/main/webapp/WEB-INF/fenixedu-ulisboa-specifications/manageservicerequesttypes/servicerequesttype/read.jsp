@@ -296,16 +296,15 @@ ${portal.angularToolkit()}
                         </ui-select-choices>
                     </ui-select>
                 </div>
-                <div class="col-sm-1">
-                    <a class="btn btn-default" ng-click="addSlotEntry($model)">
+                <div class="col-sm-5">
+                	<button type="button" class="btn btn-default" ng-click="addSlotEntry($model)">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
-                    </a>
-                </div>
-                <div class="col-sm-2">
-                    <a class="btn btn-default" ng-click="addDefaultSlotEntries($model)">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add.defaultProperties" />
-                    </a>
-                </div>                
+                    </button>
+                    &nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-default" ng-click="addDefaultSlotEntries($model)">
+                		<span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add.defaultProperties" />
+                	</button>
+                </div>               
             </div>
         </div>
         <div class="panel panel-body">
@@ -461,11 +460,11 @@ ${portal.angularToolkit()}
 				</div>
 			</div>
             <div class="form-group row">
-            	<div class="col-sm-7"></div>
+            	<div class="col-sm-2"></div>
                 <div class="col-sm-1">
-                    <a class="btn btn-default" ng-disabled="isFormFilled()" ng-click="addRestriction($model)">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
-                    </a>
+	                <button type="button" class="btn btn-default" ng-disabled="isFormFilled()" ng-click="addRestriction($model)">
+	                	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
+	                </button>
                 </div>
             </div>
         </div>
@@ -497,7 +496,41 @@ ${portal.angularToolkit()}
                 </tbody>
             </table>
         </div>
-    </div>    
+    </div>
+    
+    <div class="modal fade" id="deleteRestrictionModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <spring:message
+                            code="label.serviceRequestType.serviceRequestRestriction.confirmDelete" />
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="deleteButton" class="btn btn-danger" type="button" ng-click="submitDeleteRestriction()">
+                        <spring:message code="label.delete" />
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+      
 </form>
 
 
@@ -544,9 +577,16 @@ angular.module('angularAppServiceRequestRestriction',
             $scope.deleteRestriction = function(restriction, model) {
             	var url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.DELETE_RESTRICTION_URL %>' + restriction;
             	$('form[name="createRestrictionForm"]').find('input[name="postback"]').attr('value', url);
+            	$('#deleteRestrictionModal').modal('toggle');
+            	
+            };
+            
+            $scope.submitDeleteRestriction = function () {
+            	$('#deleteRestrictionModal').modal('toggle');
             	$scope.form = $scope.createRestrictionForm;
                 $scope.postBack(null);
             };
+            
         } ]);
 angular.bootstrap($('#createRestrictionForm')[0],['angularAppServiceRequestRestriction']);
 

@@ -13,6 +13,8 @@ import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestRestriction;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 public class ServiceRequestTypeRestrictionsBean implements IBean {
 
     private DegreeType degreeType;
@@ -95,9 +97,11 @@ public class ServiceRequestTypeRestrictionsBean implements IBean {
     }
 
     public ServiceRequestTypeRestrictionsBean() {
-        this.setDegreeTypeDataSource(new ArrayList<DegreeType>(Bennu.getInstance().getDegreeTypeSet()));
+        this.setDegreeTypeDataSource(Bennu.getInstance().getDegreeTypeSet().stream()
+                .sorted((dt1, dt2) -> dt1.getName().compareTo(dt2.getName())).collect(Collectors.toList()));
         this.setDegreeDataSource(new ArrayList<Degree>());
-        this.setProgramConclusionDataSource(new ArrayList<ProgramConclusion>(Bennu.getInstance().getProgramConclusionSet()));
+        this.setProgramConclusionDataSource(Bennu.getInstance().getProgramConclusionSet().stream()
+                .sorted((pc1, pc2) -> pc1.getName().compareTo(pc2.getName())).collect(Collectors.toList()));
     }
 
     public ServiceRequestTypeRestrictionsBean(ServiceRequestType serviceRequestType) {
