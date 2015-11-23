@@ -47,6 +47,7 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
     
     public void delete() {
         setPerson(null);
+        setHouseholdSalarySpan(null);
         deleteDomainObject();
     }
 
