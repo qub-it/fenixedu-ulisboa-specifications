@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,22 @@ import org.joda.time.DateTime;
 import pt.ist.fenixframework.Atomic;
 
 public class ServiceRequestProperty extends ServiceRequestProperty_Base {
+
+    public static final Comparator<ServiceRequestProperty> COMPARATE_BY_ENTRY_NUMBER = new Comparator<ServiceRequestProperty>() {
+
+        @Override
+        public int compare(ServiceRequestProperty o1, ServiceRequestProperty o2) {
+            ServiceRequestSlotEntry entry1 = ServiceRequestSlotEntry.findByServiceRequestProperty(o1);
+            ServiceRequestSlotEntry entry2 = ServiceRequestSlotEntry.findByServiceRequestProperty(o2);
+            if (entry1 == null) {
+                return 1;
+            }
+            if (entry2 == null) {
+                return -1;
+            }
+            return Integer.compare(entry1.getOrderNumber(), entry2.getOrderNumber());
+        }
+    };
 
     protected ServiceRequestProperty() {
         super();
@@ -148,7 +165,8 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     }
 
     @Atomic
-    public static ServiceRequestProperty createForProgramConclusion(ProgramConclusion value, ServiceRequestSlot serviceRequestSlot) {
+    public static ServiceRequestProperty createForProgramConclusion(ProgramConclusion value,
+            ServiceRequestSlot serviceRequestSlot) {
         ServiceRequestProperty serviceRequestProperty = new ServiceRequestProperty(serviceRequestSlot);
         serviceRequestProperty.setProgramConclusion(value);
         return serviceRequestProperty;

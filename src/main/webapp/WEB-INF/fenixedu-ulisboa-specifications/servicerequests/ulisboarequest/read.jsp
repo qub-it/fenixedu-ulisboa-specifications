@@ -165,7 +165,8 @@ ${portal.toolkit()}
                     </div>
                     <div class="modal-body">
                         <div class="form-group row">
-                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirmRejectOrCancel" />
+                            <c:set var="action"><spring:message code="label.serviceRequests.UlisboaServiceRequest.confirm.reject"/>/<spring:message code="label.serviceRequests.UlisboaServiceRequest.confirm.cancel"/></c:set>
+                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirm" arguments="${ action }" />                        
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-2 control-label">
@@ -206,7 +207,8 @@ ${portal.toolkit()}
                     </div>
                     <div class="modal-body">
                         <div class="form-group row">
-                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirmRevert" />
+                            <c:set var="action"><spring:message code="label.serviceRequests.UlisboaServiceRequest.confirm.revert"/></c:set>
+                            <spring:message code="label.serviceRequests.UlisboaServiceRequest.confirm" arguments="${ action }" />                        
                         </div>
                         <c:if test="${serviceRequest.serviceRequestType.notifyUponConclusion}">
     	                    <div class="form-group row">
@@ -220,6 +222,9 @@ ${portal.toolkit()}
     	                            </select>
     	                        </div>
     	                    </div>
+                        </c:if>
+                        <c:if test="${ not serviceRequest.serviceRequestType.notifyUponConclusion }">
+                            <input type="hidden" name="notifyRevertAction" value="false" />
                         </c:if>
                     </div>
                     <div class="modal-footer">
@@ -279,11 +284,6 @@ ${portal.toolkit()}
         </small>
     </h1>
 </div>
-<p>
-    <strong>
-        <c:out value="${registration.student.name} (${registration.student.number }) - ${registration.student.person.idDocumentType.localizedName} (${registration.student.person.documentIdNumber})" />
-    </strong>
-</p>
 <% 
   Registration registration = (Registration) request.getAttribute("registration"); 
   String url = "/academicAdministration/student.do?method=visualizeRegistration&registrationID="+ registration.getExternalId();
@@ -444,8 +444,16 @@ ${portal.toolkit()}
             <table class="table">
                 <tbody>
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.startDate" /></th>
-                        <td><joda:format value='${registration.startDate}' style='S-' /></td>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.name" /></th>
+                        <td><c:out value='${registration.student.name}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><c:out value="${registration.student.person.idDocumentType.localizedName }"/></th>
+                        <td><c:out value='${registration.student.person.documentIdNumber}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.number" /></th>
+                        <td><c:out value='${registration.student.number}' /></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.Registration.number" /></th>
@@ -460,10 +468,6 @@ ${portal.toolkit()}
                         <c:set var="situationLabel" value="${ registration.activeStateType.description }" />
                         <td><spring:message code="${ situationLabel }" /></td>
                     </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.numberEnroledCurricularCoursesInCurrentYear" /></th>
-                        <td><c:out value='${registration.numberEnroledCurricularCoursesInCurrentYear}' /></td>
-                    </tr>
                 </tbody>
             </table>
         </form>
@@ -473,7 +477,7 @@ ${portal.toolkit()}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">
-            <spring:message code="label.details" />
+            <spring:message code="label.serviceRequests.ULisboaServiceRequest.details" />
         </h3>
     </div>
     <div class="panel-body">
@@ -481,21 +485,55 @@ ${portal.toolkit()}
             <table class="table">
                 <tbody>
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.requestDate" /></th>
-                        <td><joda:format value='${serviceRequest.requestDate}' style='S-' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.activeSituationDate" /></th>
-                        <td><joda:format value='${serviceRequest.activeSituationDate}' style='S-' /></td>
-                    </tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.ULisboaServiceRequest.documentType" /></th>
+                        <td><c:out value='${serviceRequest.serviceRequestType.name.content}' /></td>
+                    </tr>                
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.serviceRequestNumberYear" /></th>
                         <td><c:out value='${serviceRequest.serviceRequestNumberYear}' /></td>
+                    </tr>                
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.ULisboaServiceRequest.requestDate" /></th>
+                        <td><joda:format value='${serviceRequest.requestDate}' style='S-' /></td>
                     </tr>
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.description" /></th>
-                        <td><c:out value='${serviceRequest.description}' /></td>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.ULisboaServiceRequest.activeSituationDate" /></th>
+                        <td><joda:format value='${serviceRequest.activeSituationDate}' style='S-' /></td>
                     </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.state" /></th>
+                        <td><span class="label label-primary"><c:out value='${ serviceRequest.activeSituation.academicServiceRequestSituationType.localizedName }' /></span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.date" /></th>
+                        <td><joda:format value='${ serviceRequest.activeSituation.creationDate }' style='S-' /></td>
+                    </tr>    
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.responsible" /></th>
+                            <academic:allowed operation="SERVICE_REQUESTS">                        
+                                <td><c:out value='${ serviceRequest.activeSituation.creator.name }' /></td>
+                            </academic:allowed>
+                            <academic:notAllowed operation="SERVICE_REQUESTS">
+                                <td><c:out value='${ serviceRequest.activeSituation.creator.profile.displayName }' /></td>
+                            </academic:notAllowed>
+                    </tr>
+                    <c:if test="${ not empty serviceRequest.activeSituation.justification }">
+                        <tr>
+                            <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.justification" /></th>
+                            <td><c:out value='${ serviceRequest.activeSituation.justification }' /></td>
+                        </tr>
+                    </c:if>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.requestedOnline" /></th>
+                        <td>
+                            <c:if test="${serviceRequest.requestedOnline}">
+                                <spring:message code="label.yes" />
+                            </c:if>            
+                            <c:if test="${not serviceRequest.requestedOnline}">
+                                <spring:message code="label.no" />
+                            </c:if>
+                        </td>
+                    </tr>                
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.isValid" /></th>
                         <td>
@@ -507,22 +545,7 @@ ${portal.toolkit()}
                             </c:if>
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.requestedOnline" /></th>
-                        <td>
-                            <c:if test="${serviceRequest.requestedOnline}">
-                                <spring:message code="label.yes" />
-                            </c:if>            
-                            <c:if test="${not serviceRequest.requestedOnline}">
-                                <spring:message code="label.no" />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.ULisboaServiceRequest.documentType" /></th>
-                        <td><c:out value='${serviceRequest.serviceRequestType.name.content}' /></td>
-                    </tr>
-                    <c:forEach var="property" items="${ serviceRequest.serviceRequestPropertiesSet }">
+                    <c:forEach var="property" items="${ serviceRequest.sortedServiceRequestProperties }">
                         <tr>
                             <th scope="row" class="col-xs-3"><spring:message code="${ property.serviceRequestSlot.label.content }" /></th>
                             <td>
@@ -553,51 +576,14 @@ ${portal.toolkit()}
                                 </c:choose>
                             </td>
                         </tr>                    
-                    </c:forEach>
+                    </c:forEach>                
                 </tbody>
             </table>
         </form>
     </div>
 </div>
 
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <spring:message code="label.serviceRequests.AcademicServiceRequestSituation.details" />
-        </h3>
-    </div>
-    <div class="panel-body">
-        <form method="post" class="form-horizontal">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.state" /></th>
-                        <td><c:out value='${ serviceRequest.activeSituation.academicServiceRequestSituationType.localizedName }' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.date" /></th>
-                        <td><joda:format value='${ serviceRequest.activeSituation.creationDate }' style='S-' /></td>
-                    </tr>    
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.responsible" /></th>
-                            <academic:allowed operation="SERVICE_REQUESTS">                        
-                                <td><c:out value='${ serviceRequest.activeSituation.creator.name }' /></td>
-                            </academic:allowed>
-                            <academic:notAllowed operation="SERVICE_REQUESTS">
-                                <td><c:out value='${ serviceRequest.activeSituation.creator.profile.displayName }' /></td>
-                            </academic:notAllowed>
-                    </tr>
-                    <c:if test="${ not empty serviceRequest.activeSituation.justification }">
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.justification" /></th>
-                            <td><c:out value='${ serviceRequest.activeSituation.justification }' /></td>
-                        </tr>
-                    </c:if>
-                </tbody>
-            </table>
-        </form>
-    </div>
-</div>
+
 
 <script>
     $(document).ready(function() {

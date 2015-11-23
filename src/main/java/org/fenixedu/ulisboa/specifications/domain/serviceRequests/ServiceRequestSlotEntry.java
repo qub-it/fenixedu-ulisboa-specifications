@@ -43,7 +43,7 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     @Override
     public Boolean getRequired() {
-        return (super.getRequired() == null) ? false : super.getRequired().booleanValue();
+        return super.getRequired() == null ? false : super.getRequired().booleanValue();
     }
 
     @Atomic
@@ -69,6 +69,12 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     public static Stream<ServiceRequestSlotEntry> findAll() {
         return Bennu.getInstance().getServiceRequestSlotEntriesSet().stream();
+    }
+
+    public static ServiceRequestSlotEntry findByServiceRequestProperty(ServiceRequestProperty property) {
+        return property.getServiceRequestSlot().getServiceRequestSlotEntriesSet().stream().filter(
+                entry -> entry.getServiceRequestType().equals(property.getULisboaServiceRequest().getServiceRequestType()))
+                .findFirst().orElse(null);
     }
 
     @Atomic

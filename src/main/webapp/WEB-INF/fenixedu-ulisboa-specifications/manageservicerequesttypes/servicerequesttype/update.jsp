@@ -281,17 +281,7 @@ ${portal.angularToolkit()}
                         </ui-select-choices>
                     </ui-select>
                 </div>                
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.ServiceRequestType.numberOfUnitsLabel" />
-                </div>
-                <div class="col-sm-10">
-                    <input id="serviceRequestType_numberOfUnitsLabel"
-                        class="form-control" type="text" 
-                        ng-localized-string="object.numberOfUnitsLabel" />
-                </div>
-            </div>            
+            </div>         
         </div>
         <div class="panel-footer">
             <input type="submit" class="btn btn-default" role="button"

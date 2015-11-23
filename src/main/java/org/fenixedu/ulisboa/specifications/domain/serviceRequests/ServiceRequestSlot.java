@@ -22,15 +22,15 @@ import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
-import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.DomainObject;
-import pt.ist.fenixframework.FenixFramework;
-
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.DomainObject;
+import pt.ist.fenixframework.FenixFramework;
 
 public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
@@ -87,8 +87,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getServiceRequestPropertiesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
-                    "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
+            blockers.add(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
         }
         if (!getServiceRequestSlotEntriesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
@@ -145,8 +145,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.documentPurposeType"));
         }
         if (findByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).count() == 0) {
-            createStaticSlot(ULisboaConstants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT, BundleUtil.getLocalizedString(
-                    ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
+            createStaticSlot(ULisboaConstants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
         }
         if (findByCode(ULisboaConstants.IS_DETAILED).count() == 0) {
             createStaticSlot(ULisboaConstants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
@@ -185,14 +185,12 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.curricularPlan"));
         }
         if (findByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).count() == 0) {
-            createStaticSlot(ULisboaConstants.APPROVED_EXTRA_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
+            createStaticSlot(ULisboaConstants.APPROVED_EXTRA_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
         }
         if (findByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM).count() == 0) {
-            createStaticSlot(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
+            createStaticSlot(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
         }
         if (findByCode(ULisboaConstants.APPROVED_ENROLMENTS).count() == 0) {
             createStaticSlot(ULisboaConstants.APPROVED_ENROLMENTS, UIComponentType.DROP_DOWN_MULTIPLE,
@@ -212,7 +210,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
 
         if (propertyValue == null) {
-            return (serviceRequestSlot.getUiComponentType().isMultipleDropDown()) ? (T) new ArrayList<T>() : (T) null;
+            return serviceRequestSlot.getUiComponentType().isMultipleDropDown() ? (T) new ArrayList<T>() : (T) null;
         }
 
         switch (serviceRequestSlot.getUiComponentType()) {

@@ -460,11 +460,12 @@ ${portal.angularToolkit()}
 				</div>
 			</div>
             <div class="form-group row">
-            	<div class="col-sm-2"></div>
+            	<div class="col-sm-7"></div>
                 <div class="col-sm-1">
-	                <button type="button" class="btn btn-default" ng-disabled="isFormFilled()" ng-click="addRestriction($model)">
-	                	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
-	                </button>
+                    <button type="button" ng-disabled="isFormFilled()" ng-click="addRestriction($model)"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" /></button>
+                    <a class="btn btn-default" ng-disabled="isFormFilled()" ng-click="addRestriction($model)">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
+                    </a>
                 </div>
             </div>
         </div>

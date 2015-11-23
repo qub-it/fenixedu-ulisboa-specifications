@@ -329,8 +329,9 @@ ${portal.angularToolkit()}
             </div>
         </div>
         <div class="panel-footer">
-            <input type="button" ng-click="submitFormIfValid($event)" class="btn btn-primary" role="button"
-                value="<spring:message code="label.submit" />" />
+            <button ng-disabled="angular.isUndefinedOrNull(object.serviceRequestType) || object.serviceRequestType === '' || form.$invalid" ng-click="submitFormIfValid($event)" class="btn btn-primary" type="button" role="button">
+                <spring:message code="label.submit" />
+            </button>
         </div>
     </div>
 </form>
