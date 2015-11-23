@@ -11,14 +11,15 @@ import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AnyCurricularCourseExceptionsExecutorLogic;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.google.common.collect.Sets;
+
+import pt.ist.fenixframework.Atomic;
 
 abstract public class AnyCurricularCourseExceptionsInitializer {
 
@@ -32,12 +33,16 @@ abstract public class AnyCurricularCourseExceptionsInitializer {
 
         if (ULisboaConfiguration.getConfiguration().getAnyCurricularCourseExceptionsInitialize()) {
 
-            final String acronym = Bennu.getInstance().getInstitutionUnit().getAcronym().toUpperCase();
+            Unit institutionUnit = Bennu.getInstance().getInstitutionUnit();
+            if (institutionUnit == null) {
+                //Bennu was not bootstrapped yet
+                return;
+            }
+            final String acronym = institutionUnit.getAcronym().toUpperCase();
             logger.info("Init for " + acronym);
 
-            final URL inputFileUrl =
-                    AnyCurricularCourseExceptionsInitializer.class.getClassLoader().getResource(
-                            "bootstrap/AnyCurricularCourseExceptionsInitializer/" + acronym + ".csv");
+            final URL inputFileUrl = AnyCurricularCourseExceptionsInitializer.class.getClassLoader()
+                    .getResource("bootstrap/AnyCurricularCourseExceptionsInitializer/" + acronym + ".csv");
             if (inputFileUrl == null) {
                 logger.info("Init not found for " + acronym);
                 return;
