@@ -102,11 +102,18 @@ public class ConvertToULisboaServiceRequest extends CustomTask {
                 continue;
             }
             ServiceRequestType srt = asr.getServiceRequestType();
+            if (srt == null && asr instanceof DiplomaSupplementRequest) {
+                srt = ServiceRequestType.findUniqueByCode("DIPLOMA_SUPPLEMENT").get();
+            }
             ULisboaServiceRequestBean bean =
                     new ULisboaServiceRequestBean(((RegistrationAcademicServiceRequest) asr).getRegistration(), false);
             bean.setServiceRequestType(srt);
 
             ULisboaServiceRequest clone = ULisboaServiceRequest.cloneULisboaServiceRequest(bean, asr);
+            if (srt == null) {
+                taskLog("Clone criado com SRT null: " + clone.getExternalId());
+            }
+
             versioningData.put(clone.getExternalId(),
                     new Pair<String, DateTime>(asr.getVersioningCreator(), asr.getVersioningCreationDate()));
             versioningMySQLData.add("update ACADEMIC_SERVICE_REQUEST set VERSIONING_CREATOR = '" + asr.getVersioningCreator()
