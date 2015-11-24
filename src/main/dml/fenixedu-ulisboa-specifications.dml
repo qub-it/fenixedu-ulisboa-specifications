@@ -165,6 +165,7 @@ class PersonUlisboaSpecifications {
     String firstOptionDegreeDesignation;
     boolean authorizeSharingDataWithCGD;
     String dgesTempIdCode;
+    String oldInformation;
 }
 
 relation PersonUlPerson {
