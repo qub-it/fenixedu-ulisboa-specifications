@@ -18,7 +18,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -67,7 +66,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
     @Atomic
     public void delete() {
-        TreasuryDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setULisboaServiceRequest(null);
         setDocumentPurposeTypeInstance(null);

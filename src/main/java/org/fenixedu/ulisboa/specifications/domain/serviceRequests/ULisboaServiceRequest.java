@@ -430,7 +430,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public String getDescription() {
-        return getServiceRequestType().getName().getContent();
+        return getServiceRequestType() == null ? "Without Service Request Type" : getServiceRequestType().getName().getContent();
     }
 
     @Override

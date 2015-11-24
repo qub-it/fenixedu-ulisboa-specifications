@@ -30,11 +30,9 @@ package org.fenixedu.ulisboa.specifications.ui.servicerequesttype;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
@@ -46,9 +44,9 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
-import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeRestrictionsBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestSlotsBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeBean;
+import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeRestrictionsBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.springframework.http.HttpStatus;
@@ -135,9 +133,17 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         return read(serviceRequestType, model);
     }
 
-    //TODOJN o delete não protege nada
     @Atomic
     public void deleteServiceRequestType(ServiceRequestType serviceRequestType) {
+        for (ULisboaServiceRequestValidator validator : serviceRequestType.getULisboaServiceRequestValidatorsSet()) {
+            validator.removeServiceRequestTypes(serviceRequestType);
+        }
+        for (ServiceRequestRestriction restriction : serviceRequestType.getServiceRequestRestrictionsSet()) {
+            restriction.delete();
+        }
+        for (ServiceRequestSlotEntry entry : serviceRequestType.getServiceRequestSlotEntriesSet()) {
+            entry.delete();
+        }
         serviceRequestType.delete();
     }
 
@@ -169,10 +175,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
 
     @Atomic
     public ServiceRequestType createServiceRequestType(final ServiceRequestTypeBean bean) {
-        final ServiceRequestType serviceRequestType =
-                ServiceRequestType.create(bean.getCode(), bean.getName(), bean.isActive(), bean.isPayable(),
-                        bean.isNotifyUponConclusion(), bean.isPrintable(), bean.isRequestedOnline(),
-                        bean.getServiceRequestCategory());
+        final ServiceRequestType serviceRequestType = ServiceRequestType.create(bean.getCode(), bean.getName(), bean.isActive(),
+                bean.isPayable(), bean.isNotifyUponConclusion(), bean.isPrintable(), bean.isRequestedOnline(),
+                bean.getServiceRequestCategory());
         for (ULisboaServiceRequestValidator validator : bean.getValidators()) {
             serviceRequestType.addULisboaServiceRequestValidators(validator);
         }
@@ -194,10 +199,10 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     public static final String ADD_PROPERTY_URL = CONTROLLER_URL + ADD_PROPERTY_URI;
 
     @RequestMapping(value = ADD_PROPERTY_URI + "{oid}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public @ResponseBody String addProperty(@PathVariable("oid") ServiceRequestType serviceRequestType, @RequestParam(
-            value = "bean", required = true) ServiceRequestSlotsBean bean,
-            @RequestParam(value = "required", required = true) boolean required, @RequestParam(value = "orderNumber",
-                    required = true) int orderNumber,
+    public @ResponseBody String addProperty(@PathVariable("oid") ServiceRequestType serviceRequestType,
+            @RequestParam(value = "bean", required = true) ServiceRequestSlotsBean bean,
+            @RequestParam(value = "required", required = true) boolean required,
+            @RequestParam(value = "orderNumber", required = true) int orderNumber,
             @RequestParam(value = "serviceRequestSlot", required = true) ServiceRequestSlot serviceRequestSlot, Model model) {
         if (!containsSlot(serviceRequestType, serviceRequestSlot)) {
             addProperty(serviceRequestType, required, orderNumber, serviceRequestSlot);
@@ -211,8 +216,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
 
     @RequestMapping(value = ADD_DEFAULT_PROPERTIES_URI + "{oid}", method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public @ResponseBody String addProperties(@PathVariable("oid") ServiceRequestType serviceRequestType, @RequestParam(
-            value = "bean", required = true) ServiceRequestSlotsBean bean, Model model) {
+    public @ResponseBody String addProperties(@PathVariable("oid") ServiceRequestType serviceRequestType,
+            @RequestParam(value = "bean", required = true) ServiceRequestSlotsBean bean, Model model) {
         for (String slotCode : ULisboaConstants.DEFAULT_PROPERTIES) {
             ServiceRequestSlot slot = ServiceRequestSlot.getByCode(slotCode);
             if (!containsSlot(serviceRequestType, slot)) {
@@ -230,9 +235,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     }
 
     private boolean containsSlot(ServiceRequestType serviceRequestType, ServiceRequestSlot slot) {
-        List<ServiceRequestSlot> slots =
-                serviceRequestType.getServiceRequestSlotEntriesSet().stream().map(ServiceRequestSlotEntry::getServiceRequestSlot)
-                        .collect(Collectors.toList());
+        List<ServiceRequestSlot> slots = serviceRequestType.getServiceRequestSlotEntriesSet().stream()
+                .map(ServiceRequestSlotEntry::getServiceRequestSlot).collect(Collectors.toList());
         return slots.contains(slot);
     }
 
@@ -267,8 +271,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
             produces = "application/json;charset=UTF-8")
     public @ResponseBody String updateProperty(@PathVariable("serviceRequestTypeId") ServiceRequestType serviceRequestType,
             @PathVariable("oid") ServiceRequestSlotEntry entry,
-            @RequestParam(value = "bean", required = true) ServiceRequestSlotsBean bean, @RequestParam(value = "required",
-                    required = true) boolean required, Model model) {
+            @RequestParam(value = "bean", required = true) ServiceRequestSlotsBean bean,
+            @RequestParam(value = "required", required = true) boolean required, Model model) {
         updateProperty(entry, required);
         model.addAttribute("serviceRequestType", serviceRequestType);
         setServiceRequestSlotsBean(bean, model);
@@ -342,8 +346,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     }
 
     @RequestMapping(value = UPDATE_URI + "{serviceRequestTypeId}", method = RequestMethod.POST)
-    public String update(@PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType, @RequestParam(
-            value = "bean", required = true) ServiceRequestTypeBean bean, Model model, RedirectAttributes redirectAttributes) {
+    public String update(@PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType,
+            @RequestParam(value = "bean", required = true) ServiceRequestTypeBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
         model.addAttribute("serviceRequestType", serviceRequestType);
         setServiceRequestTypeBean(bean, model);
         try {
@@ -379,8 +384,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     @RequestMapping(value = CREATE_RESTRICTION_URI + "{serviceRequestTypeId}", method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
     public @ResponseBody String createRestriction(
-            @PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType, @RequestParam(value = "bean",
-                    required = true) ServiceRequestTypeRestrictionsBean bean, Model model, RedirectAttributes redirectAttributes) {
+            @PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType,
+            @RequestParam(value = "bean", required = true) ServiceRequestTypeRestrictionsBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
         try {
             addServiceRequestRestriction(serviceRequestType, bean);
         } catch (DomainException de) {
@@ -398,8 +404,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     @RequestMapping(value = CREATE_RESTRICTION_POSTBACK_URI + "{serviceRequestTypeId}", method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
     public @ResponseBody ResponseEntity<String> createRestrictionPostback(
-            @PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType, @RequestParam(value = "bean",
-                    required = true) ServiceRequestTypeRestrictionsBean bean, Model model) {
+            @PathVariable("serviceRequestTypeId") final ServiceRequestType serviceRequestType,
+            @RequestParam(value = "bean", required = true) ServiceRequestTypeRestrictionsBean bean, Model model) {
 
         DegreeType degreeType = bean.getDegreeType();
         if (degreeType != null) {

@@ -17,7 +17,6 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
@@ -101,7 +100,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
     @Atomic
     public void delete() {
-        TreasuryDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setBennu(null);
         deleteDomainObject();

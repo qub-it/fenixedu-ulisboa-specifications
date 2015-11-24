@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -59,7 +58,7 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     @Atomic
     public void delete() {
-        TreasuryDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setBennu(null);
         setServiceRequestSlot(null);

@@ -16,6 +16,7 @@ public class ServiceRequestRestriction extends ServiceRequestRestriction_Base {
         setDegreeType(null);
         setDegree(null);
         setProgramConclusion(null);
+        setServiceRequestType(null);
         deleteDomainObject();
     }
 

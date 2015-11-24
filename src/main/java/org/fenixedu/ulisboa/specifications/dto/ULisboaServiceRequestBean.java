@@ -53,10 +53,13 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestRestriction;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class ULisboaServiceRequestBean implements IBean {
 
@@ -164,7 +167,20 @@ public class ULisboaServiceRequestBean implements IBean {
                 }
                 serviceRequestPropertyBean.setDataSource(dataSourceProvider.provideDataSourceList(this));
                 if (serviceRequestPropertyBean.getDataSource().size() == 1 && serviceRequestPropertyBean.isRequired()) {
-                    serviceRequestPropertyBean.setValue(serviceRequestPropertyBean.getDataSource().get(0).getId());
+                    //Only one option, populate the component
+                    //DropDown One Value
+                    if (serviceRequestPropertyBean.getUiComponent() == UIComponentType.DROP_DOWN_ONE_VALUE
+                            || serviceRequestPropertyBean.getUiComponent() == UIComponentType.DROP_DOWN_BOOLEAN) {
+                        serviceRequestPropertyBean.setValue(serviceRequestPropertyBean.getDataSource().get(0).getId());
+                    }
+                    //DropDown Multiple Values
+                    if (serviceRequestPropertyBean.getUiComponent() == UIComponentType.DROP_DOWN_MULTIPLE) {
+                        JsonObject object = new JsonObject();
+                        object.addProperty("id", serviceRequestPropertyBean.getDataSource().get(0).getId());
+                        JsonArray array = new JsonArray();
+                        array.add(object);
+                        serviceRequestPropertyBean.setValue(array.toString());
+                    }
                 }
             }
         }
