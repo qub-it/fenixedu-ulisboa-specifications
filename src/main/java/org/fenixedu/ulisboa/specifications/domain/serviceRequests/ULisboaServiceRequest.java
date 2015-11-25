@@ -347,7 +347,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Integer getNumberOfDays() {
-        return hasNumberOfPages() ? findProperty(ULisboaConstants.NUMBER_OF_DAYS).getInteger() : null;
+        return hasNumberOfDays() ? findProperty(ULisboaConstants.NUMBER_OF_DAYS).getInteger() : null;
     }
 
     @Override
