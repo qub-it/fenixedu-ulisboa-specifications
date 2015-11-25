@@ -271,7 +271,7 @@ ${portal.angularToolkit()}
                 </div>
             </div>
 
-            <div class="form-group row" ng-form="hiddenForm_{{$index}}" ng-repeat="serviceRequestProperty in object.serviceRequestPropertyBeans" ng-show="showElement(serviceRequestProperty.code)">
+            <div class="form-group row" ng-repeat="serviceRequestProperty in object.serviceRequestPropertyBeans" ng-show="showElement(serviceRequestProperty.code)">
                 <div class="col-sm-2 control-label">
                     {{ serviceRequestProperty.label[language] }}
                 </div>
@@ -307,7 +307,7 @@ ${portal.angularToolkit()}
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
-                           type="text" ng-localized-string="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required"
+                           type="text" ng-localized-string="serviceRequestProperty.value" name="field" ng-required-any ng-required="serviceRequestProperty.required"
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'DATE'"
@@ -322,7 +322,7 @@ ${portal.angularToolkit()}
                 </div>
                 <div class="col-sm-5">
                     <span class="alert alert-warning btn-xs"
-                       ng-show="hiddenForm_{{$index}}.field.$error.required">
+                       ng-show="serviceRequestProperty.required">
                         <spring:message code="warning.required.field" />
                     </span>
                 </div>

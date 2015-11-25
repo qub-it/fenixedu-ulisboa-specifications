@@ -21,6 +21,8 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Strings;
+
 import pt.ist.fenixframework.Atomic;
 
 public class ServiceRequestProperty extends ServiceRequestProperty_Base {
@@ -233,6 +235,23 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
                 throw new DomainException("error.ServiceRequestSlot.not.supported.type");
             }
         }
+    }
+
+    public boolean isNullOrEmpty() {
+        if (getValue() == null) {
+            return true;
+        }
+        Object value = getValue();
+        if (getServiceRequestSlot().getUiComponentType() == UIComponentType.TEXT) {
+            return Strings.isNullOrEmpty((String) value);
+        }
+        if (getServiceRequestSlot().getUiComponentType() == UIComponentType.TEXT_LOCALIZED_STRING) {
+            return ((LocalizedString) value).isEmpty();
+        }
+        if (getServiceRequestSlot().getUiComponentType() == UIComponentType.DROP_DOWN_MULTIPLE) {
+            return ((Collection) value).isEmpty();
+        }
+        return false;
     }
 
 }

@@ -21,6 +21,7 @@ import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -210,6 +211,9 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
         if (propertyValue == null) {
             return serviceRequestSlot.getUiComponentType().isMultipleDropDown() ? (T) new ArrayList<T>() : (T) null;
+        }
+        if (serviceRequestSlot.getUiComponentType() != UIComponentType.TEXT && Strings.isNullOrEmpty(propertyValue)) {
+            return null;
         }
 
         switch (serviceRequestSlot.getUiComponentType()) {

@@ -126,6 +126,19 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
     }
 
+    private void checkRules() {
+        for (ServiceRequestProperty property : getServiceRequestPropertiesSet()) {
+            ServiceRequestSlotEntry entry = ServiceRequestSlotEntry.findByServiceRequestProperty(property);
+            if (entry == null) {
+                continue;
+            }
+            if (entry.getRequired() && property.isNullOrEmpty()) {
+                throw new DomainException("error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
+                        entry.getServiceRequestSlot().getLabel().getContent());
+            }
+        }
+    }
+
     protected void initAcademicServiceRequest(Registration registration, boolean cloning) {
         //Use the Academic Service Request init, because there is unaccessible methods
         AcademicServiceRequestCreateBean bean = new AcademicServiceRequestCreateBean(registration);
@@ -152,6 +165,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     ExecutionYear.readCurrentExecutionYear(), ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
             request.addServiceRequestProperties(property);
         }
+        request.checkRules();
         return request;
     }
 
@@ -202,7 +216,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     protected void checkRulesToDelete() {
-
         super.checkRulesToDelete();
     }
 
@@ -430,7 +443,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public String getDescription() {
-        return getServiceRequestType() == null ? "Without Service Request Type" : getServiceRequestType().getName().getContent();
+        return getServiceRequestType().getName().getContent();
     }
 
     @Override

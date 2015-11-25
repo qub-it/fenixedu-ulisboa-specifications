@@ -20,6 +20,7 @@ public class ServiceRequestPropertyBean implements IBean {
     private List<TupleDataSourceBean> dataSource;
     private String value;
     private boolean required;
+    private boolean showMessage;
 
     public String getCode() {
         return code;
@@ -69,14 +70,23 @@ public class ServiceRequestPropertyBean implements IBean {
         this.required = required;
     }
 
-    public ServiceRequestPropertyBean() {
+    public boolean isShowMessage() {
+        return showMessage;
+    }
 
+    public void setShowMessage(boolean showMessage) {
+        this.showMessage = showMessage;
+    }
+
+    public ServiceRequestPropertyBean() {
+        setShowMessage(false);
     }
 
     public ServiceRequestPropertyBean(ServiceRequestSlotEntry serviceRequestSlotEntry) {
+        this();
         ServiceRequestSlot serviceRequestSlot = serviceRequestSlotEntry.getServiceRequestSlot();
-        setRequired(serviceRequestSlotEntry.getRequired());
         setCode(serviceRequestSlot.getCode());
+        setRequired(serviceRequestSlotEntry.getRequired());
         setUiComponentType(serviceRequestSlot.getUiComponentType());
         setLabel(serviceRequestSlot.getLabel());
     }

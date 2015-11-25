@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -87,13 +88,17 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
             RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
-            addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
-            return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
+        try {
+            if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
+                addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
+                return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
+            }
+            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
+            return redirect(READ_SERVICE_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
+        } catch (DomainException de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
         }
-        ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
-
-        return redirect(READ_SERVICE_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
+        return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
     }
 
     private static final String _CREATE_SERVICE_REQUEST_POSTBACK_URI = "/create/serviceRequest/postBack";

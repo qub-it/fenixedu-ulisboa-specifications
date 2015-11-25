@@ -106,9 +106,13 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
 
-        ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
-
-        return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
+        try {
+            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
+            return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
+        } catch (DomainException de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+        }
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
 
     private static final String _CREATE_POSTBACK_URI = "/createpostback/";
