@@ -71,19 +71,15 @@ public class DocumentPrinter {
         final ExecutionYear executionYear = serviceRequest.getExecutionYear();
         final Registration registration = serviceRequest.getRegistration();
         final CycleType requestedCycle = serviceRequest.getCycleType();
-        /*
-         * TODO: Rever propriedades em falta: ProgramConclusion
-         */
-        //final ProgramConclusion programConclusion = serviceRequest.hasProperty(Constants.PROGRAM_CONCLUSION) ? serviceRequest.findProperty(Constants.PROGRAM_CONCLUSION).getProgramConclusion() : null;
-        final ProgramConclusion programConclusion = null;
-
+        final ProgramConclusion programConclusion = serviceRequest.getProgramConclusion();
         final DegreeType degreeType = serviceRequest.getRegistration().getDegreeType();
         final Degree degree = serviceRequest.getRegistration().getDegree();
 
         AcademicServiceRequestTemplate academicServiceRequestTemplate = serviceRequest.getAcademicServiceRequestTemplate();
         if (academicServiceRequestTemplate == null) {
-            academicServiceRequestTemplate = AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
-                    serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
+            academicServiceRequestTemplate =
+                    AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
+                            serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
         final FenixEduDocumentGenerator generator =
@@ -97,8 +93,8 @@ public class DocumentPrinter {
         generator.registerDataProvider(new RegistrationDataProvider(registration));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
-        generator.registerDataProvider(
-                new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
+        generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
+                executionYear));
         generator.registerDataProvider(new EnrolmentsDataProvider(registration, executionYear, serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new DocumentSignerDataProvider(serviceRequest));
@@ -207,8 +203,8 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("YYYYMMMDD", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(
-                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
+            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
+                    .replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 
