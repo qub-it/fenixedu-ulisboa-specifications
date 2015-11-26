@@ -39,8 +39,9 @@ import org.fenixedu.commons.i18n.LocalizedString;
 public class ULisboaConstants {
 
     public static final String BUNDLE = FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE.replace('/', '.');
+    /*Empty justification used in AcademicServiceRequestSituation*/
     public static final LocalizedString EMPTY_JUSTIFICATION = BundleUtil.getLocalizedString(BUNDLE, "label.empty.justification");
-
+    /*Codes used to identify static slots (ServiceRequestSlot)*/
     public static final String LANGUAGE = "language";
     public static final String DOCUMENT_PURPOSE_TYPE = "documentPurposeType";
     public static final String OTHER_DOCUMENT_PURPOSE = "otherDocumentPurpose";
@@ -52,27 +53,35 @@ public class ULisboaConstants {
     public static final String NUMBER_OF_DAYS = "numberOfDays";
     public static final String NUMBER_OF_PAGES = "numberOfPages";
     public static final String EXECUTION_YEAR = "executionYear";
-
     public static final String CURRICULAR_PLAN = "curricularPlan";
     public static final String APPROVED_EXTRA_CURRICULUM = "approvedExtraCurriculum";
     public static final String APPROVED_STANDALONE_CURRICULUM = "approvedStandaloneCurriculum";
     public static final String APPROVED_ENROLMENTS = "approvedEnrolments";
     public static final String CURRICULUM = "curriculum";
     public static final String ENROLMENTS_BY_YEAR = "enrolmentsByYear";
-
+    /*Slots that use DropDown Multiple as UI Component */
     public static final List<String> DROP_DOWN_MULTIPLE_DOMAIN_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
             APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
-
-    public static final List<String> DROP_DOWN_SINGLE_DOMAIN_OBJECTS = Arrays.asList(PROGRAM_CONCLUSION, DOCUMENT_PURPOSE_TYPE,
-            EXECUTION_YEAR, CURRICULAR_PLAN);
-
+    /*Slots that use DropDown Simple as UI Component */
+    public static final List<String> DROP_DOWN_SINGLE_DOMAIN_OBJECTS =
+            Arrays.asList(PROGRAM_CONCLUSION, DOCUMENT_PURPOSE_TYPE, EXECUTION_YEAR, CURRICULAR_PLAN);
+    /*Slots which is values are stored as ICurriculumEntry */
     public static final List<String> ICURRICULUM_ENTRY_OBJECTS = Arrays.asList(APPROVED_EXTRA_CURRICULUM,
             APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM, ENROLMENTS_BY_YEAR);
-
+    /*Slots used as default */
     public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
-
-    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES = Arrays.asList(
-            AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
-            AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
-            AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
+    /*Subset of AcademicServiceRequestSituationType. This are the valid states for the ULisboa Service Request */
+    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES =
+            Arrays.asList(AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
+                    AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
+                    AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
+    /*Label for each ULisboa Service Request Processor */
+    public static final String STATE_LOGGER_PROCESSOR = "label.StateLoggerProcessor.name";
+    public static final String FILL_ENROLMENTS_BY_YEAR_PROPERTY_PROCESSOR =
+            "label.FillRequestPropertyProcessor.EnrolmentsByYear.name";
+    public static final String FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR =
+            "label.FillRequestPropertyProcessor.StandAloneCurriculum.name";
+    public static final String FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR =
+            "label.FillRequestPropertyProcessor.ApprovedEnrolments.name";
+    public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
 }

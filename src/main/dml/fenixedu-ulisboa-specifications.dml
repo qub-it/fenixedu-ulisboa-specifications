@@ -645,30 +645,46 @@ relation ULisboaServiceRequestGeneratedDocuments {
 }
 
 //======================= = ULisboaServiceRequestValidator = =========================
-class serviceRequests.validators.ULisboaServiceRequestValidator {
+class serviceRequests.processors.ULisboaServiceRequestProcessor {
     LocalizedString name;
 }
 
-class serviceRequests.validators.MockULisboaServiceRequestValidator extends serviceRequests.validators.ULisboaServiceRequestValidator {
+class serviceRequests.processors.StateLoggerProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
     
 }
 
-relation ULisboaServiceRequestValidatorBennu {
+class serviceRequests.processors.FillStandAlonePropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.FillEnrolmentsByYearPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.FillApprovedEnrolmentsPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.AutomaticOnlineRequestProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+relation ULisboaServiceRequestProcessorBennu {
     protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
         multiplicity 1..1;
     }
 
-    public serviceRequests.validators.ULisboaServiceRequestValidator playsRole uLisboaServiceRequestValidators {
+    public serviceRequests.processors.ULisboaServiceRequestProcessor playsRole uLisboaServiceRequestProcessors {
         multiplicity *;
     }
 }
 
-relation ULisboaServiceRequestValidatorServiceRequestType {
+relation ULisboaServiceRequestProcessorServiceRequestType {
     public .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType playsRole serviceRequestTypes {
         multiplicity *;
     }
 
-    public serviceRequests.validators.ULisboaServiceRequestValidator playsRole uLisboaServiceRequestValidators {
+    public serviceRequests.processors.ULisboaServiceRequestProcessor playsRole uLisboaServiceRequestProcessors {
         multiplicity *;
     }
 }

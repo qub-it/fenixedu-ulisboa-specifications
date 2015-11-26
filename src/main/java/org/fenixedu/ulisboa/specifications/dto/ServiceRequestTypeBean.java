@@ -11,7 +11,7 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 
 public class ServiceRequestTypeBean implements IBean {
 
@@ -25,8 +25,8 @@ public class ServiceRequestTypeBean implements IBean {
     private ServiceRequestCategory serviceRequestCategory;
     private List<TupleDataSourceBean> serviceRequestCategoryDataSource;
     private List<TupleDataSourceBean> serviceRequestSlotsDataSource;
-    private List<ULisboaServiceRequestValidator> validators;
-    private List<TupleDataSourceBean> validatorsDataSource;
+    private List<ULisboaServiceRequestProcessor> processors;
+    private List<TupleDataSourceBean> processorsDataSource;
     private LocalizedString numberOfUnitsLabel;
 
     public String getCode() {
@@ -119,20 +119,20 @@ public class ServiceRequestTypeBean implements IBean {
         }).collect(Collectors.toList());
     }
 
-    public List<ULisboaServiceRequestValidator> getValidators() {
-        return validators;
+    public List<ULisboaServiceRequestProcessor> getProcessors() {
+        return processors;
     }
 
-    public void setValidators(List<ULisboaServiceRequestValidator> validators) {
-        this.validators = validators;
+    public void setProcessors(List<ULisboaServiceRequestProcessor> validators) {
+        this.processors = validators;
     }
 
-    public List<TupleDataSourceBean> getValidatorsDataSource() {
-        return validatorsDataSource;
+    public List<TupleDataSourceBean> getProcessorsDataSource() {
+        return processorsDataSource;
     }
 
-    public void setValidatorsDataSource(List<ULisboaServiceRequestValidator> validatorsSet) {
-        this.validatorsDataSource = validatorsSet.stream().map(srs -> {
+    public void setProcessorsDataSource(List<ULisboaServiceRequestProcessor> processorsSet) {
+        this.processorsDataSource = processorsSet.stream().map(srs -> {
             TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
             tupleDataSourceBean.setId(srs.getExternalId());
             tupleDataSourceBean.setText(srs.getName().getContent());
@@ -151,8 +151,8 @@ public class ServiceRequestTypeBean implements IBean {
     public ServiceRequestTypeBean() {
         setServiceRequestCategoryDataSource(Arrays.asList(ServiceRequestCategory.values()));
         setServiceRequestSlotsDataSource(ServiceRequestSlot.findAll().collect(Collectors.toList()));
-        setValidatorsDataSource(ULisboaServiceRequestValidator.findAll().collect(Collectors.toList()));
-        validators = new ArrayList<ULisboaServiceRequestValidator>();
+        setProcessorsDataSource(ULisboaServiceRequestProcessor.findAll().collect(Collectors.toList()));
+        processors = new ArrayList<ULisboaServiceRequestProcessor>();
     }
 
     public ServiceRequestTypeBean(ServiceRequestType serviceRequestType) {
@@ -165,7 +165,7 @@ public class ServiceRequestTypeBean implements IBean {
         setPrintable(serviceRequestType.isPrintable());
         setRequestedOnline(serviceRequestType.isRequestedOnline());
         setServiceRequestCategory(serviceRequestType.getServiceRequestCategory());
-        setValidators(serviceRequestType.getULisboaServiceRequestValidatorsSet().stream().collect(Collectors.toList()));
+        setProcessors(serviceRequestType.getULisboaServiceRequestProcessorsSet().stream().collect(Collectors.toList()));
         setNumberOfUnitsLabel(serviceRequestType.getNumberOfUnitsLabel());
     }
 }

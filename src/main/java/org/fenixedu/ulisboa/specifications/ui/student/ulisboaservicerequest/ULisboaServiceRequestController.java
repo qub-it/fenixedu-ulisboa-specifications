@@ -1,7 +1,10 @@
 package org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -10,6 +13,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -131,6 +135,26 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
         model.addAttribute("uLisboaServiceRequestList",
                 ULisboaServiceRequest.findByRegistration(registration).collect(Collectors.toList()));
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/history";
+    }
+
+    private static final String _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI = "/download/";
+    public static final String DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI;
+
+    @RequestMapping(value = _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
+    public void download(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
+            HttpServletResponse response) {
+        model.addAttribute("registration", serviceRequest.getRegistration());
+        model.addAttribute("serviceRequest", serviceRequest);
+        try {
+            ULisboaServiceRequestGeneratedDocument document = serviceRequest.downloadDocument();
+            response.setContentType(document.getContentType());
+            response.setHeader("Content-disposition", "attachment; filename=" + document.getFilename());
+            response.getOutputStream().write(document.getContent());
+        } catch (DomainException de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

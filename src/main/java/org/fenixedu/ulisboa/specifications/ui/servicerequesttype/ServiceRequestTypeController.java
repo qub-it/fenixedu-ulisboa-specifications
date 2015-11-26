@@ -43,7 +43,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestRestriction;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestSlotsBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestTypeRestrictionsBean;
@@ -135,8 +135,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
 
     @Atomic
     public void deleteServiceRequestType(ServiceRequestType serviceRequestType) {
-        for (ULisboaServiceRequestValidator validator : serviceRequestType.getULisboaServiceRequestValidatorsSet()) {
-            validator.removeServiceRequestTypes(serviceRequestType);
+        for (ULisboaServiceRequestProcessor processor : serviceRequestType.getULisboaServiceRequestProcessorsSet()) {
+            processor.removeServiceRequestTypes(serviceRequestType);
         }
         for (ServiceRequestRestriction restriction : serviceRequestType.getServiceRequestRestrictionsSet()) {
             restriction.delete();
@@ -178,8 +178,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         final ServiceRequestType serviceRequestType = ServiceRequestType.create(bean.getCode(), bean.getName(), bean.isActive(),
                 bean.isPayable(), bean.isNotifyUponConclusion(), bean.isPrintable(), bean.isRequestedOnline(),
                 bean.getServiceRequestCategory());
-        for (ULisboaServiceRequestValidator validator : bean.getValidators()) {
-            serviceRequestType.addULisboaServiceRequestValidators(validator);
+        for (ULisboaServiceRequestProcessor processor : bean.getProcessors()) {
+            serviceRequestType.addULisboaServiceRequestProcessors(processor);
         }
         return serviceRequestType;
     }
@@ -366,14 +366,14 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         serviceRequestType.edit(bean.getCode(), bean.getName(), bean.isActive(), bean.isPayable(), bean.isNotifyUponConclusion(),
                 bean.isPrintable(), bean.isRequestedOnline(), bean.getServiceRequestCategory(), bean.getNumberOfUnitsLabel());
         //Update the ULisboa Service Request Validators
-        for (ULisboaServiceRequestValidator validator : serviceRequestType.getULisboaServiceRequestValidatorsSet()) {
-            if (!bean.getValidators().contains(validator)) {
-                serviceRequestType.removeULisboaServiceRequestValidators(validator);
+        for (ULisboaServiceRequestProcessor processor : serviceRequestType.getULisboaServiceRequestProcessorsSet()) {
+            if (!bean.getProcessors().contains(processor)) {
+                serviceRequestType.removeULisboaServiceRequestProcessors(processor);
             }
         }
-        for (ULisboaServiceRequestValidator newValidator : bean.getValidators()) {
-            if (!serviceRequestType.getULisboaServiceRequestValidatorsSet().contains(newValidator)) {
-                serviceRequestType.addULisboaServiceRequestValidators(newValidator);
+        for (ULisboaServiceRequestProcessor newProcessor : bean.getProcessors()) {
+            if (!serviceRequestType.getULisboaServiceRequestProcessorsSet().contains(newProcessor)) {
+                serviceRequestType.addULisboaServiceRequestProcessors(newProcessor);
             }
         }
     }

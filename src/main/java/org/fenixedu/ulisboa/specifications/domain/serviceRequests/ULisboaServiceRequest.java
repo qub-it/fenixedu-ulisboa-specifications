@@ -70,7 +70,7 @@ import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.validators.ULisboaServiceRequestValidator;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
@@ -165,6 +165,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     ExecutionYear.readCurrentExecutionYear(), ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
             request.addServiceRequestProperties(property);
         }
+        request.processRequest();
         request.checkRules();
         return request;
     }
@@ -514,7 +515,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         transitState(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
-        validate();
     }
 
     @Atomic
@@ -527,9 +527,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (!getIsValid()) {
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
+        if (getServiceRequestType().getPrintable() && getGeneratedDocumentsSet().isEmpty()) {
+            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.must.generate.document");
+        }
         transitState(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
-        validate();
-        //TODOJN create validator to check if has generated one time the document
         if (getServiceRequestType().isToNotifyUponConclusion()) {
             sendConclusionNotification();
         }
@@ -546,7 +547,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         transitState(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
-        validate();
     }
 
     @Atomic
@@ -557,7 +557,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
         transitState(AcademicServiceRequestSituationType.CANCELLED, justification);
-        validate();
     }
 
     @Atomic
@@ -568,7 +567,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
         transitState(AcademicServiceRequestSituationType.REJECTED, justification);
-        validate();
     }
 
     @Atomic
@@ -581,7 +579,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
         AcademicServiceRequestSituation previousSituation = getFilteredAcademicServiceRequestSituations().get(1);
         transitState(previousSituation.getAcademicServiceRequestSituationType(), previousSituation.getJustification());
-        validate();
     }
 
     private void transitState(AcademicServiceRequestSituationType type, String justification) {
@@ -594,6 +591,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
         createAcademicServiceRequestSituations(bean);
+        processRequest();
     }
 
     @Override
@@ -625,10 +623,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return false;
     }
 
-    private void validate() {
-        for (ULisboaServiceRequestValidator uLisboaServiceRequestValidator : getServiceRequestType()
-                .getULisboaServiceRequestValidatorsSet()) {
-            uLisboaServiceRequestValidator.validate(this);
+    private void processRequest() {
+        for (ULisboaServiceRequestProcessor uLisboaServiceRequestValidator : getServiceRequestType()
+                .getULisboaServiceRequestProcessorsSet()) {
+            uLisboaServiceRequestValidator.process(this);
         }
     }
 
@@ -776,7 +774,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 new DeletionListener<ServiceRequestType>() {
                     @Override
                     public void deleting(ServiceRequestType serviceRequestType) {
-                        serviceRequestType.getULisboaServiceRequestValidatorsSet().clear();
+                        serviceRequestType.getULisboaServiceRequestProcessorsSet().clear();
                         serviceRequestType.getServiceRequestSlotEntriesSet().clear();
                     }
                 });

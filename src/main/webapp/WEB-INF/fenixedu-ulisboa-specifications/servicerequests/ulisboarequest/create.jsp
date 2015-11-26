@@ -176,58 +176,59 @@ ${portal.angularToolkit()}
         return angular.isUndefined(val) || val === null
     };
     angular.module('angularAppULisboaServiceRequest',
-            [ 'ngSanitize', 'ui.select', 'bennuToolkit', 'angularjs-dropdown-multiselect' ]).controller(
-            'ULisboaServiceRequestController', [ '$scope', function($scope) {
+            [ 'ngSanitize', 'ui.select', 'bennuToolkit', 'angularjs-dropdown-multiselect' ])
+           .controller(
+           'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
-                $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
-                $scope.postBack = createAngularPostbackFunction($scope);
-                $scope.booleanvalues= [
-                  {name: '<spring:message code="label.no"/>', value: false},
-                  {name: '<spring:message code="label.yes"/>', value: true}
-                ];
-                
-                //Dependencies for ngShow
-                $scope.showElement = function (elementId) {
-                	return $scope.otherDocumentPurposeDependency(elementId) && $scope.hideRequiredFieldsWithOneValue(elementId);
-                };
-                $scope.hideRequiredFieldsWithOneValue = function(elementId) {
-                    var elementIndex = $scope.object.serviceRequestPropertyBeans.containsId(elementId);
-                    var element = $scope.object.serviceRequestPropertyBeans[elementIndex];
-                    return angular.isUndefinedOrNull(element.dataSource) || element.dataSource.length != 1 || !element.required; 
-                };
-                $scope.otherDocumentPurposeDependency = function (elementId) {
-                	if(elementId != '<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>') {
-                		return true;
-                	}
-                	var docPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.DOCUMENT_PURPOSE_TYPE %>');
-                	var otherDocPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>');
-                	<% String otherName = DocumentPurposeTypeInstance.findUnique(DocumentPurposeType.OTHER).getExternalId(); %>
-                	if(docPurposeIndex != -1 && otherDocPurposeIndex != -1 && $scope.object.serviceRequestPropertyBeans[docPurposeIndex].value == '<%= otherName %>') {
-            			return true;
-                	}
-                	return false;
-                };
-                $scope.language = '<%= I18N.getLocale().toString() %>'.replace(/_/g,"-");
-                $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
-                $scope.translationTexts = {
-                        checkAll: '<spring:message code="label.angularjs.multiselect.checkAll" />',
-                        uncheckAll: '<spring:message code="label.angularjs.multiselect.uncheckAll" />',
-                        selectionCount: '<spring:message code="label.angularjs.multiselect.selectionCount" />',
-                        selectionOf: '/',
-                        searchPlaceholder: '<spring:message code="label.angularjs.multiselect.searchPlaceholder" />',
-                        buttonDefaultText: '<spring:message code="label.angularjs.multiselect.buttonDefaultText" />',
-                        dynamicButtonTextSuffix: '<spring:message code="label.angularjs.multiselect.dynamicButtonTextSuffix" />'                		
-                };
-                $scope.submitFormIfValid = function (event) {
-                    if($scope['form'].$invalid) {
-                	   return;
-                    }
-                    angular.forEach($scope.object.serviceRequestPropertyBeans, function(index, element) {
-                        element.dataSource= undefined;
-                    });
-                    $('form').submit();
-                }
-            } ]);
+               $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
+               $scope.postBack = createAngularPostbackFunction($scope);
+               $scope.booleanvalues= [
+                 {name: '<spring:message code="label.no"/>', value: false},
+                 {name: '<spring:message code="label.yes"/>', value: true}
+               ];
+               
+               //Dependencies for ngShow
+               $scope.showElement = function (elementId) {
+               	return $scope.otherDocumentPurposeDependency(elementId) && $scope.hideRequiredFieldsWithOneValue(elementId);
+               };
+               $scope.hideRequiredFieldsWithOneValue = function(elementId) {
+                   var elementIndex = $scope.object.serviceRequestPropertyBeans.containsId(elementId);
+                   var element = $scope.object.serviceRequestPropertyBeans[elementIndex];
+                   return angular.isUndefinedOrNull(element.dataSource) || element.dataSource.length != 1 || !element.required; 
+               };
+               $scope.otherDocumentPurposeDependency = function (elementId) {
+               	if(elementId != '<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>') {
+               		return true;
+               	}
+               	var docPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.DOCUMENT_PURPOSE_TYPE %>');
+               	var otherDocPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>');
+               	<% String otherName = DocumentPurposeTypeInstance.findUnique(DocumentPurposeType.OTHER).getExternalId(); %>
+               	if(docPurposeIndex != -1 && otherDocPurposeIndex != -1 && $scope.object.serviceRequestPropertyBeans[docPurposeIndex].value == '<%= otherName %>') {
+           			return true;
+               	}
+               	return false;
+               };
+               $scope.language = '<%= I18N.getLocale().toString() %>'.replace(/_/g,"-");
+               $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
+               $scope.translationTexts = {
+                       checkAll: '<spring:message code="label.angularjs.multiselect.checkAll" />',
+                       uncheckAll: '<spring:message code="label.angularjs.multiselect.uncheckAll" />',
+                       selectionCount: '<spring:message code="label.angularjs.multiselect.selectionCount" />',
+                       selectionOf: '/',
+                       searchPlaceholder: '<spring:message code="label.angularjs.multiselect.searchPlaceholder" />',
+                       buttonDefaultText: '<spring:message code="label.angularjs.multiselect.buttonDefaultText" />',
+                       dynamicButtonTextSuffix: '<spring:message code="label.angularjs.multiselect.dynamicButtonTextSuffix" />'                		
+               };
+               $scope.submitFormIfValid = function (event) {
+                   if($scope['form'].$invalid) {
+               	   return;
+                   }
+                   angular.forEach($scope.object.serviceRequestPropertyBeans, function(index, element) {
+                       element.dataSource= undefined;
+                   });
+                   $('form').submit();
+               }
+           } ]);
 </script>
 
 <form name='form' method="post" class="form-horizontal"
@@ -257,7 +258,7 @@ ${portal.angularToolkit()}
                 <div class="col-sm-2 control-label">
                     <spring:message code="label.ULisboaServiceRequest.documentType" />
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-7">
                     <ui-select id="uLisboaServiceRequest_documentType" on-select="postBack($model)"
                         ng-model="$parent.object.serviceRequestType"
                         theme="bootstrap"> <ui-select-match allow-clear="true">
@@ -275,11 +276,11 @@ ${portal.angularToolkit()}
                 <div class="col-sm-2 control-label">
                     {{ serviceRequestProperty.label[language] }}
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-7">
                     <ui-select id="{{ serviceRequestProperty.code}}" name="field"
                         ng-model="serviceRequestProperty.value"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
-                        theme="bootstrap" on-select="postBack($model)" ng-required="serviceRequestProperty.required"> 
+                        theme="bootstrap" ng-required="serviceRequestProperty.required"> 
                         <ui-select-match allow-clear="true">
                             {{$select.selected.text}}
                         </ui-select-match> 
@@ -307,7 +308,7 @@ ${portal.angularToolkit()}
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
-                           type="text" ng-localized-string="serviceRequestProperty.value" name="field" ng-required-any ng-required="serviceRequestProperty.required"
+                           type="text" ng-localized-string="serviceRequestProperty.value" name="field" ng-required="serviceRequestProperty.required"
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'DATE'"
@@ -320,7 +321,7 @@ ${portal.angularToolkit()}
                         selected-model="serviceRequestProperty.value" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
                     </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-3">
                     <span class="alert alert-warning btn-xs"
                        ng-show="serviceRequestProperty.required">
                         <spring:message code="warning.required.field" />

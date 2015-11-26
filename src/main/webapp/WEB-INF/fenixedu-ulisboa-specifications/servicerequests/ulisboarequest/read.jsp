@@ -79,6 +79,9 @@ ${portal.toolkit()}
 
 <academic:allowed operation="SERVICE_REQUESTS">
     <script type="text/javascript">
+          function openConfirmationModal() {
+              $("#uLisboaServiceRequestInvalidModal").modal('toggle');              
+          }
           function openModal(url, name) {
             $("#"+ name + "Form").attr("action", url);
             $("#"+ name + "Modal").modal('toggle');
@@ -97,6 +100,42 @@ ${portal.toolkit()}
           }
     </script>
     
+    
+    <div class="modal fade" id="uLisboaServiceRequestInvalidModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.title.printingSettings" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <spring:message code="label.ULisboaServiceRequest.is.invalid.warning"/>
+                        <ul>
+                            <li> <spring:message code="label.ULisboaServiceRequest.invalid.instruction.one"/> </li>
+                            <li> <spring:message code="label.ULisboaServiceRequest.invalid.instruction.two"/> </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="deleteButton" class="btn btn-primary" type="button" role="button" 
+                            onclick="openConfirmationModal();openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
+                        <spring:message code="label.ULisboaServiceRequest.invalid.print" />
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
     <div class="modal fade" id="uLisboaServiceRequestPrintModal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -304,6 +343,15 @@ ${portal.toolkit()}
         href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.HISTORY_SERVICE_REQUEST_URL %>${ serviceRequest.registration.externalId }">
         <spring:message code="label.event.back.history" />
     </a>
+    <c:if test="${ serviceRequest.serviceRequestType.printable && serviceRequest.isDelivered() && serviceRequest.isValid && serviceRequest.serviceRequestType.requestedOnline && not serviceRequest.serviceRequestType.payable }">
+        &nbsp;|&nbsp;
+        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+        &nbsp; 
+        <a class=""
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
+            <spring:message code="label.print" />
+        </a>
+    </c:if>
 </div>
 </academic:notAllowed>
 
@@ -339,16 +387,21 @@ ${portal.toolkit()}
             <spring:message code="label.event.deliver" />
         </a>
     </c:if>
-    <c:if test="${serviceRequest.serviceRequestType.printable}">
+    <c:if test="${serviceRequest.serviceRequestType.printable && !serviceRequest.isRejected() && !serviceRequest.isCancelled()}">
 	    &nbsp;|&nbsp;
 	    <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
 	    &nbsp;
-        <c:if test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
-        	<a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
-        </c:if> 
-        <c:if test="${ not (serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED') }">
-        	<a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
-        </c:if> 
+        <c:choose>
+            <c:when test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
+                <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
+            </c:when>
+            <c:when test="${ not serviceRequest.isValid }">
+                <a class="" href="#" onclick="openConfirmationModal()">
+            </c:when>
+            <c:otherwise>
+                <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
+            </c:otherwise>
+        </c:choose>
         <spring:message code="label.print" />
 	    </a>
     </c:if>
@@ -440,37 +493,39 @@ ${portal.toolkit()}
         </h3>
     </div>
     <div class="panel-body">
-        <form method="post" class="form-horizontal">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.name" /></th>
-                        <td><c:out value='${registration.student.name}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><c:out value="${registration.student.person.idDocumentType.localizedName }"/></th>
-                        <td><c:out value='${registration.student.person.documentIdNumber}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.number" /></th>
-                        <td><c:out value='${registration.student.number}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.number" /></th>
-                        <td><c:out value='${registration.number}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.degree" /></th>
-                        <td><c:out value='${registration.degreeNameWithDescription}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.currentState" /></th>
-                        <c:set var="situationLabel" value="${ registration.activeStateType.description }" />
-                        <td><spring:message code="${ situationLabel }" /></td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.name" /></th>
+                    <td><c:out value='${registration.student.name}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.documentType" /></th>
+                    <td><c:out value='${registration.student.person.idDocumentType.localizedName }' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.documentNumber" /></th>
+                    <td><c:out value='${registration.student.person.documentIdNumber}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.number" /></th>
+                    <td><c:out value='${registration.student.number}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.number" /></th>
+                    <td><c:out value='${registration.number}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.degree" /></th>
+                    <td><c:out value='${registration.degreeNameWithDescription}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.currentState" /></th>
+                    <c:set var="situationLabel" value="${ registration.activeStateType.description }" />
+                    <td><spring:message code="${ situationLabel }" /></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -534,17 +589,6 @@ ${portal.toolkit()}
                             </c:if>
                         </td>
                     </tr>                
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.academicRequest.isValid" /></th>
-                        <td>
-                            <c:if test="${serviceRequest.isValid}">
-                                <spring:message code="label.yes" />
-                            </c:if>            
-                            <c:if test="${not serviceRequest.isValid}">
-                                <spring:message code="label.no" />
-                            </c:if>
-                        </td>
-                    </tr>
                     <c:forEach var="property" items="${ serviceRequest.sortedServiceRequestProperties }">
                         <tr>
                             <th scope="row" class="col-xs-3"><spring:message code="${ property.serviceRequestSlot.label.content }" /></th>
