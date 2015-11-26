@@ -147,6 +147,14 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 DocumentSigner.findAll().filter(ds -> ds.getAdministrativeOffice() == serviceRequest.getAdministrativeOffice())
                         .sorted(DocumentSigner.DEFAULT_COMPARATOR).collect(Collectors.toList()));
         addDocumentTemplatesToModel(serviceRequest, model);
+        if (!serviceRequest.getIsValid() && (serviceRequest.isNewRequest() || serviceRequest.isProcessing())) {
+            addWarningMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.is.invalid.warning"),
+                    model);
+            addWarningMessage(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.invalid.instruction.one"), model);
+            addWarningMessage(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.invalid.instruction.two"), model);
+        }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
     }
 
