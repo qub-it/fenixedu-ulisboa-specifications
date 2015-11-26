@@ -170,7 +170,7 @@ ${portal.angularToolkit()}
                 <!-- Not concluded Requests -->
                 <p></p>
                 <c:choose>
-                    <c:when test="${not empty registration.processingAcademicServiceRequests}">
+                    <c:when test="${not empty processingAcademicServiceRequests}">
                         <table id="processingAcademicServiceRequestsTable"
                             class="table responsive table-bordered table-hover" width="100%">
                             <thead>
@@ -203,7 +203,7 @@ ${portal.angularToolkit()}
                 <!-- Not delivered Requests -->
                 <p></p>
                 <c:choose>
-                    <c:when test="${not empty registration.toDeliverAcademicServiceRequests}">
+                    <c:when test="${not empty toDeliverAcademicServiceRequests}">
                         <table id="toDeliverAcademicServiceRequestsTable"
                             class="table responsive table-bordered table-hover" width="100%">
                             <thead>
