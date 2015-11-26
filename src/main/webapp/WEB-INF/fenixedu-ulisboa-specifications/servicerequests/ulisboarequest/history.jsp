@@ -88,11 +88,6 @@ ${portal.toolkit()}
         </small>
     </h1>
 </div>
-<p>
-    <strong>
-        <c:out value="${registration.student.name} (${registration.student.number }) - ${registration.student.person.idDocumentType.localizedName} (${registration.student.person.documentIdNumber})" />
-    </strong>
-</p>
 <% 
   Registration registration = (Registration) request.getAttribute("registration"); 
   String url = "/academicAdministration/student.do?method=visualizeRegistration&registrationID="+ registration.getExternalId();
@@ -152,33 +147,39 @@ ${portal.toolkit()}
         </h3>
     </div>
     <div class="panel-body">
-        <form method="post" class="form-horizontal">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.startDate" /></th>
-                        <td><joda:format value='${registration.startDate}' style='S-' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.number" /></th>
-                        <td><c:out value='${registration.number}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.degree" /></th>
-                        <td><c:out value='${registration.degreeNameWithDescription}' /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.currentState" /></th>
-                        <c:set var="situationLabel" value="${ registration.activeStateType.description }" />
-                        <td><spring:message code="${ situationLabel }" /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.numberEnroledCurricularCoursesInCurrentYear" /></th>
-                        <td><c:out value='${registration.numberEnroledCurricularCoursesInCurrentYear}' /></td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.name" /></th>
+                    <td><c:out value='${registration.student.name}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.documentType" /></th>
+                    <td><c:out value='${registration.student.person.idDocumentType.localizedName }' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.documentNumber" /></th>
+                    <td><c:out value='${registration.student.person.documentIdNumber}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.number" /></th>
+                    <td><c:out value='${registration.student.number}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.number" /></th>
+                    <td><c:out value='${registration.number}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.degree" /></th>
+                    <td><c:out value='${registration.degreeNameWithDescription}' /></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.Registration.currentState" /></th>
+                    <c:set var="situationLabel" value="${ registration.activeStateType.description }" />
+                    <td><spring:message code="${ situationLabel }" /></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
