@@ -9,6 +9,7 @@ import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 
 public class ServiceRequestTypeConfiguration implements Serializable {
 
@@ -22,6 +23,7 @@ public class ServiceRequestTypeConfiguration implements Serializable {
     private boolean print;
     private boolean online;
     private ServiceRequestCategory category;
+    private List<String> processorNames;
     private List<ServiceRequestSlotEntryConfiguration> slotConfigurations;
 
     public ServiceRequestTypeConfiguration() {
@@ -100,6 +102,14 @@ public class ServiceRequestTypeConfiguration implements Serializable {
         this.category = category;
     }
 
+    public List<String> getProcessors() {
+        return processorNames;
+    }
+
+    public void setProcessors(List<String> processors) {
+        this.processorNames = processors;
+    }
+
     public List<ServiceRequestSlotEntryConfiguration> getSlotConfigurations() {
         return slotConfigurations;
     }
@@ -120,6 +130,12 @@ public class ServiceRequestTypeConfiguration implements Serializable {
             serviceRequestType.edit(srtCode, srtName, active, emolument, notify, print, online, category, new LocalizedString());
         } else {
             serviceRequestType = ServiceRequestType.create(srtCode, srtName, active, emolument, notify, print, online, category);
+        }
+        for (ULisboaServiceRequestProcessor processor : serviceRequestType.getULisboaServiceRequestProcessorsSet()) {
+            serviceRequestType.removeULisboaServiceRequestProcessors(processor);
+        }
+        for (String processorName : getProcessors()) {
+            serviceRequestType.addULisboaServiceRequestProcessors(ULisboaServiceRequestProcessor.getByName(processorName));
         }
         for (ServiceRequestSlotEntry serviceRequestSlotEntry : serviceRequestType.getServiceRequestSlotEntriesSet()) {
             serviceRequestSlotEntry.delete();

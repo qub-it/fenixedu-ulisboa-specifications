@@ -70,7 +70,7 @@ public class ExportServiceRequestTypeConfiguration extends CustomTask {
             row.append(srt.isPrintable() ? "Y\t" : "N\t");
             row.append(srt.isRequestedOnline() ? "Y\t" : "N\t");
             row.append(srt.getServiceRequestCategory().getName() + "\t");
-            row.append("0\t");
+            row.append(getProcessors(srt));
             row.append(getSlotConfig(srt, ULisboaConstants.LANGUAGE));
             row.append(getSlotConfig(srt, ULisboaConstants.DOCUMENT_PURPOSE_TYPE));
             row.append(getSlotConfig(srt, ULisboaConstants.OTHER_DOCUMENT_PURPOSE));
@@ -106,5 +106,16 @@ public class ExportServiceRequestTypeConfiguration extends CustomTask {
         } else {
             return "0\t";
         }
+    }
+
+    private String getProcessors(ServiceRequestType srt) {
+        StringBuilder processors = new StringBuilder();
+        srt.getULisboaServiceRequestProcessorsSet().stream()
+                .forEach(srp -> processors.append(srp.getName().getContent() + " || "));
+        if (processors.length() > 0) {
+            processors.delete(processors.length() - 4, processors.length());
+        }
+        processors.append("\t");
+        return processors.toString();
     }
 }

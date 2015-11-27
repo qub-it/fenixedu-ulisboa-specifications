@@ -73,10 +73,14 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
         return findAll().filter(request -> LocalizedStringUtil.isEqualToAnyLocaleIgnoreCase(request.getName(), name));
     }
 
+    public static ULisboaServiceRequestProcessor getByName(final String name) {
+        return findByName(name).findFirst().get();
+    }
+
     public static void initValidators() {
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR)).count() == 0) {
-            StateLoggerProcessor
-                    .create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR));
+            StateLoggerProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                    ULisboaConstants.STATE_LOGGER_PROCESSOR));
         }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_ENROLMENTS_BY_YEAR_PROPERTY_PROCESSOR))
                 .count() == 0) {
@@ -85,20 +89,20 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
         }
         if (findByName(
                 BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR))
-                        .count() == 0) {
+                .count() == 0) {
             FillStandAlonePropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR));
         }
         if (findByName(
                 BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR))
-                        .count() == 0) {
+                .count() == 0) {
             FillApprovedEnrolmentsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR));
         }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR))
                 .count() == 0) {
-            AutomaticOnlineRequestProcessor.create(
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR));
+            AutomaticOnlineRequestProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                    ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR));
         }
     }
 

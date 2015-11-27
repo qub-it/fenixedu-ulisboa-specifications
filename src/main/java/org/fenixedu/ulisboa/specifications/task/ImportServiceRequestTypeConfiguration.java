@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.taglibs.string.GetPrechompTag;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonParser;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class ImportServiceRequestTypeConfiguration extends CustomTask {
 
@@ -35,7 +39,8 @@ public class ImportServiceRequestTypeConfiguration extends CustomTask {
             conf.setPrint(getField(srt[5]));
             conf.setOnline(getField(srt[6]));
             conf.setCategory(getCategory(srt[7]));
-            for (int i = 8; i < srt.length; i++) {
+            conf.setProcessors(getProcessors(srt[8]));
+            for (int i = 9; i < srt.length; i++) {
                 ServiceRequestSlotEntryConfiguration slot = createSlot(i, srt[i]);
                 if (slot != null) {
                     conf.addSlotConfiguration(slot);
@@ -101,6 +106,14 @@ public class ImportServiceRequestTypeConfiguration extends CustomTask {
         } else {
             return null;
         }
+    }
+
+    private List<String> getProcessors(String srtVal) {
+        if (Strings.isNullOrEmpty(srtVal)) {
+            return new ArrayList<String>();
+        }
+        String[] processors = srtVal.split(" \\|\\| ");
+        return Arrays.asList(processors);
     }
 
 }
