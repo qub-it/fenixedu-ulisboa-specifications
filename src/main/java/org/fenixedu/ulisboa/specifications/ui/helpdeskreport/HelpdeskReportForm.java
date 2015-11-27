@@ -2,14 +2,13 @@ package org.fenixedu.ulisboa.specifications.ui.helpdeskreport;
 
 import java.io.Serializable;
 
-import org.apache.commons.validator.EmailValidator;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 
-import pt.ist.fenixframework.FenixFramework;
-
 import com.google.common.base.Strings;
+
+import pt.ist.fenixframework.FenixFramework;
 
 public class HelpdeskReportForm implements Serializable {
 
@@ -25,6 +24,7 @@ public class HelpdeskReportForm implements Serializable {
     private String fileName;
     private String mimeType;
     private String email;
+    private String priority;
 
     public String getSubject() {
         return subject;
@@ -104,6 +104,14 @@ public class HelpdeskReportForm implements Serializable {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public String getEmail() {
