@@ -1,0 +1,62 @@
+Code	Name	Active	Emolument	Notify	Print	Online	Category	Processors	language	documentPurposeType	otherDocumentPurpose	isDetailed	isUrgent	cycleType	programConclusion	numberOfUnits	numberOfDays	numberOfPages	executionYear	curricularPlan	approvedExtraCurriculum	approvedStandaloneCurriculum	approvedEnrolments	curriculum	enrolmentsByYear
+ENROLMENT_DECLARATION	"{""pt-PT"":""Declaração de Inscrição"",""en-GB"":""Enrolment Declaration""}"	Y	N	N	Y	Y	DECLARATIONS	Adicionar UCs do Ano Lectivo ao Pedido || Processador Automático dos Pedidos Online	Y/Y/1	Y/N/2	Y/N/3	Y/Y/4	0	0	0	0	0	0	0	0	0	0	0	0	0
+SCHOOL_REGISTRATION_DECLARATION	"{""pt-PT"":""Declaração de Matrícula"",""en-GB"":""Registration Declaration""}"	Y	N	N	Y	Y	DECLARATIONS	Processador Automático dos Pedidos Online	Y/Y/1	Y/N/2	Y/N/3	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+DIPLOMA_REQUEST	"{""pt-PT"":""Carta de Curso"",""en-GB"":""Carta de Curso""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	0	0	Y/Y/2	0	0	0	0	0	0	0	0	0	0
+DEGREE_FINALIZATION_CERTIFICATE	"{""pt-PT"":""Certidão de Conclusão"",""en-GB"":""Conclusion Certificate""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	Y/Y/3	Y/Y/4	0	Y/Y/2	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_FREQUENCIA_EXAME	"{""pt-PT"":""Certidão de Frequência"",""en-GB"":""Attendance Certificate""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+ENROLMENT_CERTIFICATE	"{""pt-PT"":""Certidão de Inscrição"",""en-GB"":""Enrolment Certificate""}"	Y	Y	Y	Y	Y	CERTIFICATES	Adicionar UCs do Ano Lectivo ao Pedido	Y/Y/2	Y/N/3	Y/N/4	Y/Y/5	Y/Y/6	0	0	0	0	0	Y/Y/1	0	0	0	0	0	0
+SCHOOL_REGISTRATION_CERTIFICATE	"{""pt-PT"":""Certidão de Matrícula"",""en-GB"":""Registration Certificate""}"	Y	Y	Y	Y	Y	CERTIFICATES		Y/Y/2	Y/N/3	Y/N/4	0	Y/Y/5	0	0	0	0	0	Y/Y/1	0	0	0	0	0	0
+REGISTRY_DIPLOMA_REQUEST	"{""pt-PT"":""Certidão de Registo"",""en-GB"":""Registry Certificate""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	0	0	Y/Y/2	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_REGISTO_2_VIA	"{""pt-PT"":""Certidão de Registo – 2ª Via"",""en-GB"":""Registry Certificate – 2nd Copy""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	0	0	Y/Y/2	0	0	0	0	0	0	0	0	0	0
+PROGRAM_CERTIFICATE	"{""pt-PT"":""Certificado de cargas horárias e conteúdos programáticos"",""en-GB"":""Program & course load certificate""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	Y/Y/3	0	Y/Y/2	0	0	0	0	0	0	0	0	Y/Y/4	0
+CERTIFICADO_NARRATIVA_TEOR	"{""pt-PT"":""Certificado de narrativa ou de teor"",""en-GB"":""Certificado de narrativa ou de teor""}"	Y	Y	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+ADMISSAO_PROVAS_ACADEMICAS_DOUTORAMENTO	"{""pt-PT"":""Admissão a Provas Académicas - Doutoramento"",""en-GB"":""Admissão a Provas Académicas - Doutoramento""}"	Y	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	Y/Y/1	0	0	0	0	0	0
+PEDIDO_CREDITACAO_COMPETENCIAS_ACADEMICAS	"{""pt-PT"":""Pedido de creditação de Competências Académicas"",""en-GB"":""Pedido de creditação de Competências Académicas""}"	Y	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	Y/Y/2	0	0	Y/Y/1	0	0	0	0	0	0
+CARTA_CURSO_2_VIA	"{""pt-PT"":""Carta de Curso - 2º Via""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CARTA_TITULO_2_VIA	"{""pt-PT"":""Carta de Título - 2º Via""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CARTA_TITULO_AGREGACAO	"{""pt-PT"":""Carta de Título - Agregação""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CARTA_TITULO_HABILITACAO_COORDENACAO_CIENTIFICA	"{""pt-PT"":""Carta de Título - Habilitação para Coordenação Científica""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+APPROVEMENT_MOBILITY_CERTIFICATE	"{""pt-PT"":""Certidão de Aproveitamento"",""en-GB"":""Approvement Certificate""}"	Y	Y	N	N	N	CERTIFICATES	Adicionar UCs Aprovadas ao Pedido	Y/Y/1	0	0	0	Y/Y/3	0	Y/Y/2	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_CONDUTA_ACADEMICA	"{""pt-PT"":""Certidão de Conduta Académica""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_EQUIVALENCIA_GRAU	"{""pt-PT"":""Certidão de Equivalência""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_PROVAS_APTIDAO_PEDAGOGICA	"{""pt-PT"":""Certidão de Provas de Aptidão Pedagógica e Capacidade Ciêntifica""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_RECONHECIMENTO_GRAU	"{""pt-PT"":""Certidão de Reconhecimento""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_CONCLUSAO_CURSO_DOUTORAMENTO	"{""pt-PT"":""Certidão de conclusão do curso de Doutoramento""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_CONCLUSAO_CURSO_ESPECIALIZACAO	"{""pt-PT"":""Certidão de conclusão do curso de Especialização""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_CONCLUSAO_CURSO_MESTRADO	"{""pt-PT"":""Certidão de conclusão do curso de Mestrado""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CERTIDAO_OBTENCAO_TITULO_AGREGADO	"{""pt-PT"":""Certidão de título de agregado e das capacidades ciêntificas""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PHOTOCOPY	"{""pt-PT"":""Certidão por Fotocópia""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+DIPLOMA_CURSO_DOUTORAMENTO	"{""pt-PT"":""Diploma — Curso de doutoramento (componente curricular) ""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+DIPLOMA_CURSO_ESPECIALIZACAO	"{""pt-PT"":""Diploma — Curso de especialização""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+DIPLOMA_CURSO_MESTRADO	"{""pt-PT"":""Diploma — Curso de mestrado (componente curricular)""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PROCESSO_EQUIVALENCIA_GRAU	"{""pt-PT"":""Processos de Equivalência de Grau""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PROCESSO_RECONHECIMENTO_GRAU	"{""pt-PT"":""Processos de Reconhecimento de Grau""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+DIPLOMA_SUPPLEMENT	"{""pt-PT"":""Suplemento ao Diploma"",""en-GB"":""Diploma Supplement""}"	Y	N	N	N	N	CERTIFICATES		Y/Y/1	0	0	0	0	0	Y/Y/2	0	0	0	0	0	0	0	0	0	0
+SUPLEMENTO_DIPLOMA_2_VIA	"{""pt-PT"":""Suplemento ao Diploma - 2º Via""}"	N	Y	N	N	N	CERTIFICATES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+ADMISSAO_PROVAS_ACADEMICAS_AGREGACAO	"{""pt-PT"":""Admissão a Provas Académicas — Agregação""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+ADMISSAO_PROVAS_ACADEMICAS_DOUTORAMENTO_ART_33_DL_74_2006	"{""pt-PT"":""Admissão a Provas Académicas — Doutoramento art. 33.º do DL n.º 74/2006""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+ADMISSAO_PROVAS_ACADEMICAS_HABILITACAO_COORDENACAO_CIENTIFICA	"{""pt-PT"":""Admissão a Provas Académicas — Habilitação para o Exercício de Atividades de Coordenação Científica""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+ADMISSAO_PROVAS_ACADEMICAS_MESTRADO	"{""pt-PT"":""Admissão a Provas Académicas — Mestrado ""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+AVERBAMENTO	"{""pt-PT"":""Averbamento""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_DOUTORAMENTO	"{""pt-PT"":""Candidatura: Doutoramento""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_MESTRADO	"{""pt-PT"":""Candidatura: Mestrado""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_MUDANCA_CURSO	"{""pt-PT"":""Candidatura: Mudança de Curso""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_MUDANCA_CURSO_ALUNOS_ULISBOA	"{""pt-PT"":""Candidatura: Mudança de Curso (Alunos ULisboa)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_OUTRO	"{""pt-PT"":""Candidatura: Outro concurso especial de acesso""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_OUTRO_ALUNOS_ULISBOA	"{""pt-PT"":""Candidatura: Outro concurso especial de acesso (Alunos ULisboa)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_REINGRESSO	"{""pt-PT"":""Candidatura: Reingresso""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_REINGRESSO_ALUNOS_ULISBOA	"{""pt-PT"":""Candidatura: Reingresso (Alunos da ULisboa)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_TRANSFERENCIA	"{""pt-PT"":""Candidatura: Transferência""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_TRANSFERENCIA_ALUNOS_ULISBOA	"{""pt-PT"":""Candidatura: Transferência (Alunos ULisboa)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CANDIDATURA_UNIDADES_CURRICULARES_ISOLADAS	"{""pt-PT"":""Candidatura: Unidades Curriculares Isoladas""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+FOTOCOPIA	"{""pt-PT"":""Fotocópia""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PEDIDO_REGISTO_GRAUS_DL_341_2007	"{""pt-PT"":""Pedido de Registo de Graus - DL n.º 341/2007, de 12 outubro""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PEDIDO_CREDITACAO_COMPETENCIAS_PROFISSIONAIS	"{""pt-PT"":""Pedido de creditação de Competências Profissionais""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PEDIDO_PERMUTA	"{""pt-PT"":""Pedido de permuta""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PORTES_CORREIO_INTERNACIONAL	"{""pt-PT"":""Portes de Correio (Internacional)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PORTES_CORREIO_NACIONAL	"{""pt-PT"":""Portes de Correio (Nacional)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PROVAS_AVALIACAO_CAPACIDADE_M23_ADMISSAO	"{""pt-PT"":""Provas de capacidade para frequência em Maiores de 23 anos — Admissão a provas""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PROVAS_AVALIACAO_CAPACIDADE_M23_RECLAMACAO	"{""pt-PT"":""Provas de capacidade para frequência em Maiores de 23 anos — Reclamação da classificação das provas""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+PRATICA_ATOS_FORA_PRAZO	"{""pt-PT"":""Prática de Atos Fora do Prazo""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+REVISAO_PROVAS_CAUCAO	"{""pt-PT"":""Revisão de provas — caução""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+VALIDACAO_PROCESSOS_ACESSO_M23_OUTRAS_INSTITUICOES	"{""pt-PT"":""Validação de processos de acesso de Maiores de 23 anos (outras Instituições)""}"	N	Y	N	N	N	SERVICES		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0

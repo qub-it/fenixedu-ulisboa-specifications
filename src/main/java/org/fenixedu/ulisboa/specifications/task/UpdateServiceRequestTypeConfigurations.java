@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Scanner;
 
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -20,7 +21,7 @@ public class UpdateServiceRequestTypeConfigurations extends CustomTask {
     @Override
     public void runTask() throws Exception {
 
-        File data = new File("/home/diogo/Documents/MapaSRT.csv");
+        File data = new File("/home/jnpa/Downloads/MapaSRT - " + Bennu.getInstance().getInstitutionUnit().getAcronym() + ".tsv");
         Scanner reader = new Scanner(data);
         //populate headers;
         headers = reader.nextLine().split("\t");

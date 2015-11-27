@@ -1,15 +1,14 @@
 package org.fenixedu.ulisboa.specifications.task;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import org.apache.taglibs.string.GetPrechompTag;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonParser;
@@ -24,7 +23,8 @@ public class ImportServiceRequestTypeConfiguration extends CustomTask {
     @Override
     public void runTask() throws Exception {
 
-        File data = new File("/home/diogo/Documents/MapaSRT-FMV.csv");
+        InputStream data = Bennu.class.getResourceAsStream(
+                "/SRTConfiguration/MapaSRT-" + Bennu.getInstance().getInstitutionUnit().getAcronym() + ".csv");
         Scanner reader = new Scanner(data);
         //populate headers;
         headers = reader.nextLine().split("\t");

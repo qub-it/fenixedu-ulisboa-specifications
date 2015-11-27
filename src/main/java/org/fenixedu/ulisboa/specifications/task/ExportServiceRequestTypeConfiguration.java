@@ -18,7 +18,7 @@ public class ExportServiceRequestTypeConfiguration extends CustomTask {
     @Override
     public void runTask() throws Exception {
         final File csv =
-                new File("/home/diogo/Documents/MapaSRT-" + Bennu.getInstance().getInstitutionUnit().getAcronym() + ".csv");
+                new File("/tmp/SRTConfiguration/MapaSRT-" + Bennu.getInstance().getInstitutionUnit().getAcronym() + ".csv");
         final FileOutputStream fos = new FileOutputStream(csv);
         writeHeaders();
         writeServiceRequestTypes();
@@ -98,11 +98,10 @@ public class ExportServiceRequestTypeConfiguration extends CustomTask {
     }
 
     private String getSlotConfig(ServiceRequestType srt, String slotCode) {
-        Optional<ServiceRequestSlotEntry> slot =
-                srt.getServiceRequestSlotEntriesSet().stream()
-                        .filter(srse -> srse.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+        Optional<ServiceRequestSlotEntry> slot = srt.getServiceRequestSlotEntriesSet().stream()
+                .filter(srse -> srse.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         if (slot.isPresent()) {
-            return "Y/" + (slot.get().getRequired() ? "Y/" : "N/") + (slot.get().getOrderNumber()) + "\t";
+            return "Y/" + (slot.get().getRequired() ? "Y/" : "N/") + (slot.get().getOrderNumber() + 1) + "\t";
         } else {
             return "0\t";
         }
