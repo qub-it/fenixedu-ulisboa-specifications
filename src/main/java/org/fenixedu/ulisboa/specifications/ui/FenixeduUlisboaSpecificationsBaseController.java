@@ -7,9 +7,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.bennu.spring.FenixEDUBaseController;
+import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
+import org.fenixedu.ulisboa.specifications.ui.adapters.ServiceRequestPropertyBeanAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import com.google.gson.GsonBuilder;
 
 public class FenixeduUlisboaSpecificationsBaseController extends FenixEDUBaseController {
 
@@ -35,6 +39,12 @@ public class FenixeduUlisboaSpecificationsBaseController extends FenixEDUBaseCon
 
     }
 
+    @Override
+    protected void registerTypeAdapters(GsonBuilder builder) {
+        super.registerTypeAdapters(builder);
+        builder.registerTypeAdapter(ServiceRequestPropertyBean.class, new ServiceRequestPropertyBeanAdapter());
+    }
+
     protected void writeFile(final HttpServletResponse response, final String filename, final String contentType,
             final byte[] content) throws IOException {
 
@@ -48,5 +58,4 @@ public class FenixeduUlisboaSpecificationsBaseController extends FenixEDUBaseCon
             response.flushBuffer();
         }
     }
-
 }
