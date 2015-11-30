@@ -162,7 +162,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("RegistrationHistoryReport.enrolmentsWithoutShifts", booleanString(report.hasEnrolmentsWithoutShifts()));
                 addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
                         booleanString(report.hasAnyInactiveRegistrationStateForYear()));
-                addData("RegistrationHistoryReport.lastRegistrationState", report.getLastRegistrationState().getDescription());
+                addData("RegistrationHistoryReport.lastRegistrationState",
+                        report.getLastRegistrationState() != null ? report.getLastRegistrationState().getDescription() : null);
                 addData("RegistrationHistoryReport.dismissals", booleanString(report.hasDismissals()));
                 addData("RegistrationHistoryReport.enroledInImprovement", booleanString(report.hasImprovementEvaluations()));
                 addData("RegistrationHistoryReport.annulledEnrolments", booleanString(report.hasAnnulledEnrolments()));
@@ -198,40 +199,39 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     final RegistrationConclusionBean bean = report.getConclusionReportFor(programConclusion);
 
                     final String concluded = bean == null ? null : booleanString(bean.isConcluded());
-                    addCell(labelFor(bean, "concluded"), concluded);
+                    addCell(labelFor(programConclusion, "concluded"), concluded);
 
                     final String conclusionProcessed = bean == null ? null : booleanString(bean.isConclusionProcessed());
-                    addCell(labelFor(bean, "conclusionProcessed"), conclusionProcessed);
+                    addCell(labelFor(programConclusion, "conclusionProcessed"), conclusionProcessed);
 
                     final String rawGrade = bean == null || bean.getRawGrade() == null ? null : bean.getRawGrade().getValue();
-                    addCell(labelFor(bean, "rawGrade"), rawGrade);
+                    addCell(labelFor(programConclusion, "rawGrade"), rawGrade);
 
                     final String finalGrade =
                             bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
-                    addCell(labelFor(bean, "finalGrade"), finalGrade);
+                    addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
 
                     final String descriptiveGrade =
                             bean == null || bean.getDescriptiveGrade() == null ? null : bean.getDescriptiveGradeExtendedValue()
                                     + " (" + bean.getDescriptiveGrade().getValue() + ")";
-                    addCell(labelFor(bean, "descriptiveGrade"), descriptiveGrade);
+                    addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
 
                     final YearMonthDay conclusionDate =
                             bean == null || bean.getConclusionDate() == null ? null : bean.getConclusionDate();
-                    addCell(labelFor(bean, "conclusionDate"), conclusionDate);
+                    addCell(labelFor(programConclusion, "conclusionDate"), conclusionDate);
 
                     final String conclusionYear =
                             bean == null || bean.getConclusionYear() == null ? null : bean.getConclusionYear().getQualifiedName();
-                    addCell(labelFor(bean, "conclusionYear"), conclusionYear);
+                    addCell(labelFor(programConclusion, "conclusionYear"), conclusionYear);
 
                     final String ectsCredits = bean == null ? null : String.valueOf(bean.getEctsCredits());
-                    addCell(labelFor(bean, "ectsCredits"), ectsCredits);
+                    addCell(labelFor(programConclusion, "ectsCredits"), ectsCredits);
 
                 }
 
             }
 
-            private String labelFor(RegistrationConclusionBean bean, String field) {
-                final ProgramConclusion programConclusion = bean.getProgramConclusion();
+            private String labelFor(ProgramConclusion programConclusion, String field) {
                 final String programConclusionPrefix =
                         programConclusion.getName().getContent() + " - " + programConclusion.getDescription().getContent() + ": ";
 
