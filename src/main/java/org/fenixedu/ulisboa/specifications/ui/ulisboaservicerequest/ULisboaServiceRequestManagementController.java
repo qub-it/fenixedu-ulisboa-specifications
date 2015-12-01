@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
@@ -59,14 +60,16 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     @RequestMapping(value = _SEARCH_URI)
-    public String search(@RequestParam(value = "executionYear", required = false) ExecutionYear executionYear,
-            @RequestParam(value = "degreeType", required = false) DegreeType degreeType,
-            @RequestParam(value = "degree", required = false) Degree degree,
-            @RequestParam(value = "serviceRequestType", required = false) ServiceRequestType serviceRequestType,
-            @RequestParam(value = "state", required = false) AcademicServiceRequestSituationType situationType,
-            @RequestParam(value = "urgent", required = false) boolean isUrgent, Model model) {
-        model.addAttribute("executionYearsList", ExecutionYear.readOpenExecutionYears().stream()
-                .sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).collect(Collectors.toList()));
+    public String search(@RequestParam(value = "executionYear", required = false) ExecutionYear executionYear, @RequestParam(
+            value = "degreeType", required = false) DegreeType degreeType,
+            @RequestParam(value = "degree", required = false) Degree degree, @RequestParam(value = "serviceRequestType",
+                    required = false) ServiceRequestType serviceRequestType,
+            @RequestParam(value = "state", required = false) AcademicServiceRequestSituationType situationType, @RequestParam(
+                    value = "urgent", required = false) boolean isUrgent, Model model) {
+        model.addAttribute(
+                "executionYearsList",
+                ExecutionYear.readOpenExecutionYears().stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR)
+                        .collect(Collectors.toList()));
         model.addAttribute("degreeTypesList", DegreeType.all().collect(Collectors.toList()));
         model.addAttribute("degreesList", Degree.readAllMatching(dT -> degreeType == null || dT == degreeType));
         model.addAttribute("serviceRequestTypesList", ServiceRequestType.findAll().collect(Collectors.toList()));
@@ -79,7 +82,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     private List<ULisboaServiceRequest> filterSearchServiceRequest(ExecutionYear executionYear, DegreeType degreeType,
             Degree degree, ServiceRequestType serviceRequestType, AcademicServiceRequestSituationType situationType,
             boolean isUrgent) {
-        return ULisboaServiceRequest.findAll()
+        return ULisboaServiceRequest
+                .findAll()
                 .filter(req -> executionYear == null || req.hasExecutionYear() && req.getExecutionYear().equals(executionYear))
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
                 .filter(req -> degree == null || req.getRegistration().getDegree().equals(degree))
@@ -101,16 +105,15 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     }
 
     @RequestMapping(value = _CREATE_URI + "{oid}", method = RequestMethod.POST)
-    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration,
-            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration, @RequestParam(value = "bean",
+            required = true) ULisboaServiceRequestBean bean, Model model, RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
 
         try {
             ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
             return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
-        } catch (DomainException de) {
-            addErrorMessage(de.getLocalizedMessage(), model);
+        } catch (DomainException | ULisboaSpecificationsDomainException e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
@@ -161,9 +164,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     private void addDocumentTemplatesToModel(ULisboaServiceRequest serviceRequest, Model model) {
         Locale language = serviceRequest.getLanguage();
 
-        AcademicServiceRequestTemplate standardTemplate = AcademicServiceRequestTemplate.findTemplateFor(language,
-                serviceRequest.getServiceRequestType(), serviceRequest.getRegistration().getDegree().getDegreeType(), null,
-                serviceRequest.getRegistration().getDegree());
+        AcademicServiceRequestTemplate standardTemplate =
+                AcademicServiceRequestTemplate.findTemplateFor(language, serviceRequest.getServiceRequestType(), serviceRequest
+                        .getRegistration().getDegree().getDegreeType(), null, serviceRequest.getRegistration().getDegree());
         Set<AcademicServiceRequestTemplate> templates =
                 AcademicServiceRequestTemplate.readCustomTemplatesFor(language, serviceRequest.getServiceRequestType());
         if (standardTemplate != null) {
@@ -176,15 +179,15 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String PROCESS_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PROCESS_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _PROCESS_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String process(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "redirect", required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
+    public String process(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "redirect",
+            required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             serviceRequest.transitToProcessState();
-            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.processed.success"),
-                    model);
+            addInfoMessage(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.processed.success"), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -198,15 +201,15 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String CONCLUDE_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _CONCLUDE_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _CONCLUDE_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String conclude(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "redirect", required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
+    public String conclude(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "redirect",
+            required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             serviceRequest.transitToConcludedState();
-            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.concluded.success"),
-                    model);
+            addInfoMessage(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.concluded.success"), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -220,15 +223,15 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String DELIVER_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _DELIVER_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _DELIVER_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String deliver(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "redirect", required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
+    public String deliver(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "redirect",
+            required = false, defaultValue = "false") boolean redirectToReferrer, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             serviceRequest.transitToDeliverState();
-            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.delivered.success"),
-                    model);
+            addInfoMessage(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.delivered.success"), model);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
@@ -242,9 +245,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String CANCEL_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _CANCEL_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _CANCEL_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String cancel(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "justification", required = true) String justification, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String cancel(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(
+            value = "justification", required = true) String justification, Model model, RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
@@ -261,9 +263,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String REJECT_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _REJECT_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _REJECT_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String reject(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "justification", required = true) String justification, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String reject(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(
+            value = "justification", required = true) String justification, Model model, RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
@@ -280,8 +281,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String PRINT_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PRINT_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _PRINT_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String print(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "template", required = true) AcademicServiceRequestTemplate template,
+    public String print(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(value = "template",
+            required = true) AcademicServiceRequestTemplate template,
             @RequestParam(value = "signature", required = true) DocumentSigner signer, Model model,
             RedirectAttributes redirectAttributes, HttpServletResponse response) {
         model.addAttribute("registration", serviceRequest.getRegistration());
@@ -320,8 +321,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String REVERT_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _REVERT_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _REVERT_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String revert(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
-            @RequestParam(value = "notifyRevertAction", required = true) boolean notifyRevertAction, Model model,
+    public String revert(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, @RequestParam(
+            value = "notifyRevertAction", required = true) boolean notifyRevertAction, Model model,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
