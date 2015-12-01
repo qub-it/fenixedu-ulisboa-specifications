@@ -354,7 +354,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 Stream<ICurriculumEntry> collection =
                         bean.getRegistration().getStudentCurricularPlan(executionYear)
                                 .getEnrolmentsByExecutionYear(executionYear).stream()
-                                .filter(e -> !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
+                                .filter(e -> !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup() && !e.isAnnulled())
                                 .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
