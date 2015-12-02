@@ -133,6 +133,7 @@ ${portal.angularToolkit()}
 								$scope.object = angular
 										.fromJson('${anyCurricularCourseExceptionsConfigurationBeanJson}');
 								
+								
 								$scope.postBack = createAngularPostbackFunction($scope);
 								
 								$scope.submit = function(){
@@ -166,15 +167,14 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-6">
-					<ui-select
-						id="anyCurricularCourseExceptionsConfiguration_competenceCourses"
-						name="competencecourses"
-						ng-model="$parent.object.competenceCourse" theme="bootstrap">
-					<ui-select-match>{{$select.selected.text}}</ui-select-match> <ui-select-choices
-						repeat="competenceCourses.id as competenceCourses in object.competenceCoursesDataSource | filter: $select.search">
-					<span
-						ng-bind-html="competenceCourses.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
+										
+					<select id="anyCurricularCourseExceptionsConfiguration_competenceCourses" name="competencecourses" class="form-control" ng-model="object.competenceCourse" >
+						<option></option>
+						<c:forEach var="each" items="${anyCurricularCourseExceptionsConfigurationBean.competenceCoursesDataSource}">
+							<option value="${each.id}">${each.text}</option>
+						</c:forEach>
+					</select>
+		
 				</div>
 				<div class="col-sm-2">
 					<button class="btn glyphicon glyphicon-plus-sign" type="button" ng-click="submit()">

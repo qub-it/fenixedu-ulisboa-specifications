@@ -53,16 +53,17 @@ public class AnyCurricularCourseExceptionsConfigurationBean implements IBean {
     }
 
     public AnyCurricularCourseExceptionsConfigurationBean() {
-        this.competenceCoursesDataSource = Bennu.getInstance().getCompetenceCoursesSet().stream().map(x ->
-        {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+        this.competenceCoursesDataSource = Bennu.getInstance().getCompetenceCoursesSet().stream()
+                .sorted((x, y) -> x.getName().compareTo(y.getName())).map(x ->
+                {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
 
-            tuple.setId(x.getExternalId());
-            tuple.setText(x.getCode() + " - " + x.getName());
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getCode() + " - " + (x.getName().replace("'", " ").replace("\"", " ")));
 
-            return tuple;
+                    return tuple;
 
-        }).collect(Collectors.toList());
+                }).collect(Collectors.toList());
 
     }
 
