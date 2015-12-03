@@ -106,7 +106,7 @@ public class RegistrationHistoryReportService {
         final Set<ProgramConclusion> result = Sets.newHashSet();
 
         final Set<DegreeType> degreeTypesToProcess =
-                this.degreeTypes.isEmpty() ? degreeTypes.stream().collect(Collectors.toSet()) : this.degreeTypes;
+                this.degreeTypes.isEmpty() ? DegreeType.all().collect(Collectors.toSet()) : this.degreeTypes;
         for (final DegreeType degreeType : degreeTypesToProcess) {
             for (final Degree degree : degreeType.getDegreeSet()) {
                 for (final DegreeCurricularPlan degreeCurricularPlan : degree.getDegreeCurricularPlansSet()) {
@@ -136,8 +136,9 @@ public class RegistrationHistoryReportService {
         final Predicate<Registration> ingressionTypeFilter =
                 r -> this.ingressionTypes.isEmpty() || this.ingressionTypes.contains(r.getIngressionType());
 
-        final Predicate<Registration> registrationStateFilter = r -> this.registrationStateTypes.isEmpty()
-                || this.registrationStateTypes.contains(r.getLastRegistrationState(executionYear));
+        final Predicate<Registration> registrationStateFilter =
+                r -> this.registrationStateTypes.isEmpty() || (r.getLastRegistrationState(executionYear) != null
+                        && this.registrationStateTypes.contains(r.getLastRegistrationState(executionYear).getStateType()));
 
         final Predicate<Registration> statuteTypeFilter = r -> this.statuteTypes.isEmpty()
                 || r.getStudent().getStudentStatutesSet().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()))
@@ -175,6 +176,8 @@ public class RegistrationHistoryReportService {
                     .flatMap(e -> e.getEnrolmentEvaluationsSet().stream().map(ev -> ev.getRegistration()))
                     .collect(Collectors.toSet()));
         }
+
+        result.addAll(executionYear.getStudentsSet());
 
         result.addAll(executionYear.getRegistrationDataByExecutionYearSet().stream()
                 .filter(r -> !r.getRegistration().getEnrolments(executionYear).isEmpty()).map(r -> r.getRegistration())

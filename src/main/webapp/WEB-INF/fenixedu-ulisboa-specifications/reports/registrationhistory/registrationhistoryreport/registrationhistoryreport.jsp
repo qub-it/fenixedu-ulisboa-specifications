@@ -6,7 +6,7 @@
 <%@ taglib prefix="datatables"
 	uri="http://github.com/dandelion/datatables"%>
 <%@taglib prefix="joda" uri="http://www.joda.org/joda/time/tags"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <spring:url var="datatablesUrl"
 	value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
@@ -105,15 +105,34 @@ ${portal.angularToolkit()}
 </c:if>
 
 
+
+
+<style>
+	.glyphicon.spinning {
+	    animation: spin 1s infinite linear;
+	    -webkit-animation: spin2 1s infinite linear;
+	}
+	
+	@keyframes spin {
+	    from { transform: scale(1) rotate(0deg); }
+	    to { transform: scale(1) rotate(360deg); }
+	}
+	
+	@-webkit-keyframes spin2 {
+	    from { -webkit-transform: rotate(0deg); }
+	    to { -webkit-transform: rotate(360deg); }
+	}	
+</style>
+
 <script type="text/javascript">
 
 
 	angular.module('registrationHistoryReportApp',
 			[ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
-			'RegistrationHistoryReportController', [ '$scope',
+			'RegistrationHistoryReportController', [ '$scope','$timeout', '$http',
 
-			function($scope) {
-
+			function($scope,$timeout,$http) {
+				
 				$scope.booleanvalues = [ {
 					name : '<spring:message code="label.no"/>',
 					value : false
@@ -145,17 +164,72 @@ ${portal.angularToolkit()}
 					}
 				}
 				
-				$scope.exportResult = function(){
-					if ($scope.object.executionYears.length != 0){
-						$('#searchParamsForm').attr('action', '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportresult')
-						$('#searchParamsForm').submit();
-					}
+				$scope.exportResult = function() {
+					
+					$scope.exportAborted = false;
+					
+					$.ajax({
+						type : "POST",
+						url : '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportresult',
+						data : "bean=" + encodeURIComponent(JSON.stringify($scope.object)),
+						cache : false,
+						success : function(data, textStatus, jqXHR) {
+							$('#exportInProgress').modal({
+							    backdrop: 'static',
+							    keyboard: false
+							});
+							
+							$scope.exportResultPooling(data);
+							
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert('<spring:message code="label.unexpected.error.occured" />');
+						},
+					});
+				}
+				
+				$scope.exportResultPooling = function(reportId) {
+
+					$.ajax({
+						url : '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/' + reportId,
+						type : "GET",
+						cache : false,
+						success : function(data, textStatus, jqXHR) {
+							if (data == 'true'){								
+								$scope.hideProgressDialog();
+								$scope.downloadResult(reportId);
+							} else {
+								if (!$scope.exportAborted) {
+									$timeout(function() { 
+										$scope.exportResultPooling(reportId); 
+										}, 3000);
+								}
+							}
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+									alert('<spring:message code="label.unexpected.error.occured" />');
+									$scope.hideProgressDialog();
+								},
+						});
+				}
+				
+				
+				
+				
+				$scope.hideProgressDialog = function() {
+					$scope.exportAborted = true;
+					$('#exportInProgress').modal('hide');
+				}
+				
+				$scope.downloadResult = function(reportId) {
+					window.location.href = '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadresultfile/' + reportId;
 				}
 
-			}
-
-			]);
+		}]);
+	
 </script>
+
+
 
 
 <form method="post" class="form-horizontal" id="searchParamsForm"
@@ -167,10 +241,11 @@ ${portal.angularToolkit()}
 		value='${pageContext.request.contextPath}<%=RegistrationHistoryReportController.POSTBACK_URL%>' />
 	<div class="panel panel-primary">
 		<div class="panel-body">
-		
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.executionYears" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.executionYears" />
 				</div>
 
 				<div class="col-sm-6">
@@ -183,10 +258,11 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="degreeTypesSelect" name="degreeTypes"
@@ -199,10 +275,11 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.degrees" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.degrees" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="degreesSelect" name="degrees"
@@ -214,10 +291,11 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.regimeTypes" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.regimeTypes" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="regimeTypesSelect" name="regimeTypes"
@@ -232,7 +310,8 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.registrationProtocols" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.registrationProtocols" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="registrationProtocolsSelect"
@@ -246,10 +325,11 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.ingressionTypes" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.ingressionTypes" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="ingressionTypesSelect" name="ingressionTypes"
@@ -265,7 +345,8 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.registrationStateTypes" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.registrationStateTypes" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="registrationStateTypesSelect"
@@ -282,7 +363,8 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.statuteTypes" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.statuteTypes" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="statuteTypesSelect" name="statuteTypes"
@@ -295,98 +377,155 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
 				</div>
-				
+
 				<div class="col-sm-6">
-					<select id="firstTimeOnlySelect" name="firstTimeOnly" class="form-control" ng-model="object.firstTimeOnly" ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+					<select id="firstTimeOnlySelect" name="firstTimeOnly"
+						class="form-control" ng-model="object.firstTimeOnly"
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
 						<option></option>
 					</select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RegistrationHistoryReportParametersBean.dismissalsOnly" />
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.dismissalsOnly" />
 				</div>
-				
+
 				<div class="col-sm-6">
-					<select id="dismissalsOnlySelect" name="dismissalsOnly" class="form-control" ng-model="object.dismissalsOnly" ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+					<select id="dismissalsOnlySelect" name="dismissalsOnly"
+						class="form-control" ng-model="object.dismissalsOnly"
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
 						<option></option>
 					</select>
 				</div>
 			</div>
-			
+
 			<div class="form-group row">
-			<div class="col-sm-2 control-label">
-				<spring:message code="label.RegistrationHistoryReportParametersBean.improvementEnrolmentsOnly" />
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.improvementEnrolmentsOnly" />
+				</div>
+
+				<div class="col-sm-6">
+					<select id="improvementEnrolmentsOnlySelect"
+						name="improvementEnrolmentsOnly" class="form-control"
+						ng-model="object.improvementEnrolmentsOnly"
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+						<option></option>
+					</select>
+				</div>
 			</div>
-			
-			<div class="col-sm-6">
-				<select id="improvementEnrolmentsOnlySelect" name="improvementEnrolmentsOnly" class="form-control" ng-model="object.improvementEnrolmentsOnly" ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
-					<option></option>
-				</select>
-			</div>
-		</div>
 
 		</div>
-		
+
 		<div class="panel-footer">
 			<button type="button" class="btn btn-primary" ng-click="search()">
-				<spring:message code="label.event.reports.registrationHistory.search" />
+				<spring:message
+					code="label.event.reports.registrationHistory.search" />
 			</button>
-			<button type="button" class="btn btn-primary" ng-click="exportResult()">
-				<spring:message code="label.event.reports.registrationHistory.exportResult" />
+			<button type="button" class="btn btn-primary"
+				ng-click="exportResult()">
+				<spring:message
+					code="label.event.reports.registrationHistory.exportResult" />
 			</button>
 		</div>
 	</div>
+
+
+	<div class="modal fade" id="exportInProgress">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="POST" action="target">
+					<div class="modal-header">
+						<h4 class="modal-title">
+							<spring:message
+								code="label.event.reports.registrationHistory.exportResult" />
+						</h4>
+					</div>
+					<div class="modal-body">
+						<p>
+							<spring:message
+								code="label.event.reports.registrationHistory.exportResult.in.progress" />
+							<span class="glyphicon glyphicon-refresh spinning"></span>
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default"
+							ng-click="hideProgressDialog()">
+							<spring:message code="label.cancel" />
+						</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+
 </form>
 
 
 <c:if test="${fn:length(results) > 500}">
 	<div class="alert alert-warning" role="alert">
-	
-	     <p>
-	         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-	         <spring:message code="label.limitexceeded.use.export" arguments="500;${fn:length(results)}" argumentSeparator=";"
-	             htmlEscape="false" />
-	     </p>
-	
-	 </div>
- </c:if>
+
+		<p>
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+			<spring:message code="label.limitexceeded.use.export"
+				arguments="500;${fn:length(results)}" argumentSeparator=";"
+				htmlEscape="false" />
+		</p>
+
+	</div>
+</c:if>
 
 
 <table id="resultsTable" class="table table-bordered table-hover">
 	<thead>
 		<tr>
-			<th><spring:message code="label.RegistrationHistoryReport.executionYear" /></th>
+			<th><spring:message
+					code="label.RegistrationHistoryReport.executionYear" /></th>
 			<th><spring:message code="label.Student.number" /></th>
 			<th><spring:message code="label.Registration.number" /></th>
+			<th><spring:message code="label.Person.name" /></th>
 			<th><spring:message code="label.Degree.code" /></th>
 			<th><spring:message code="label.Degree.name" /></th>
 			<th><spring:message code="label.Registration.ingressionType" /></th>
-			<th><spring:message code="label.Registration.registrationProtocol" /></th>
-			<th><spring:message code="label.RegistrationHistoryReport.lastRegistrationState" /></th>
-			<th><spring:message code="label.RegistrationHistoryReport.curricularYear" /></th>
+			<th><spring:message
+					code="label.Registration.registrationProtocol" /></th>
+			<th><spring:message
+					code="label.RegistrationHistoryReport.lastRegistrationState" /></th>
+			<th><spring:message
+					code="label.RegistrationHistoryReport.curricularYear" /></th>
 		</tr>
 	</thead>
 	<tbody>
 		<c:forEach var="result" items="${results}" varStatus="loop">
 			<c:if test="${loop.index < 500}">
-			<tr>
-				<td><c:out value="${result.executionYear.qualifiedName}"></c:out></td>
-				<td><c:out value="${result.registration.student.number}"></c:out></td>
-				<td><c:out value="${result.registration.number}"></c:out></td>
-				<td><c:out value="${result.registration.degree.code}"></c:out></td>
-				<td><c:out value="${result.registration.degree.presentationName}"></c:out></td>
-				<td><c:out value="${result.registration.ingressionType.description.content}"></c:out></td>
-				<td><c:out value="${result.registration.registrationProtocol.description.content}"></c:out></td>
-				<td><c:out value="${result.lastRegistrationState.description}"></c:out></td>
-				<td><c:out value="${result.curricularYear}"></c:out></td>
-			</tr>
+				<tr>
+					<td><c:out value="${result.executionYear.qualifiedName}"></c:out></td>
+					<td><c:out value="${result.registration.student.number}"></c:out></td>
+					<td><c:out value="${result.registration.number}"></c:out></td>
+					<td><c:out
+							value="${result.registration.student.person.firstAndLastName}"></c:out></td>
+					<td><c:out value="${result.registration.degree.code}"></c:out></td>
+					<td><c:out
+							value="${result.registration.degree.presentationName}"></c:out></td>
+					<td><c:out
+							value="${result.registration.ingressionType.description.content}"></c:out></td>
+					<td><c:out
+							value="${result.registration.registrationProtocol.description.content}"></c:out></td>
+					<td><c:out value="${result.lastRegistrationState.description}"></c:out></td>
+					<td><c:out value="${result.curricularYear}"></c:out></td>
+				</tr>
 			</c:if>
 		</c:forEach>
 	</tbody>

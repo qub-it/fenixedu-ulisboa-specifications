@@ -258,4 +258,8 @@ public class RegistrationHistoryReport {
         return getRegistration().getRegimeType(executionYear);
     }
 
+    public boolean isFirstTime() {
+        return getRegistration().getRegistrationYear() == executionYear;
+    }
+
 }
