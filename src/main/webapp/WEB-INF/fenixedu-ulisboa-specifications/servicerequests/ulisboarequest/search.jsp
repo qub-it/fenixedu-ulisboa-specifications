@@ -12,7 +12,7 @@
 <script type="text/javascript" src="${datatablesUrl}"></script>
 <script type="text/javascript" src="${datatablesBootstrapJsUrl}"></script>
 <spring:url var="datatablesCssUrl"
-    value="/CSS/dataTables/dataTables.bootstrap.min.css" />
+    value="/CSS/zs/dataTables.bootstrap.min.css" />
 <link rel="stylesheet" href="${datatablesCssUrl}" />
 <spring:url var="datatablesI18NUrl"
     value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json" />
@@ -151,7 +151,18 @@ function submit(url) {
                         name="executionYear">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
+                        <c:forEach var="executionYear" items="${executionYearsList}">
+                        	<c:if test="${executionYear.externalId != param.executionYear}">
+                        		<option value="${executionYear.externalId}">${executionYear.qualifiedName}</option>
+                        	</c:if>
+                        	<c:if test="${executionYear.externalId == param.executionYear}">                    	
+	                        	<option value="${executionYear.externalId}" selected>${executionYear.qualifiedName}</option>
+                        	</c:if>
+                        </c:forEach>
                     </select>
+                    <script type="text/javascript">
+		                $("#academicRequest_executionYear").select2();
+                    </script>
                 </div>
             </div>
             <div class="form-group row">
@@ -166,7 +177,18 @@ function submit(url) {
                         name="degreeType">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
+                    	<c:forEach var="degreeType" items="${degreeTypesList}">
+                        	<c:if test="${degreeType.externalId != param.degreeType}">
+                        		<option value="${degreeType.externalId}">${degreeType.name.content}</option>
+                        	</c:if>
+                        	<c:if test="${degreeType.externalId == param.degreeType}">                    	
+	                        	<option value="${degreeType.externalId}" selected>${degreeType.name.content}</option>
+                        	</c:if>
+                        </c:forEach>
                     </select>
+                    <script type="text/javascript">
+		                $("#academicRequest_degreeType").select2();
+                    </script>
                 </div>
             </div>
             <div class="form-group row">
@@ -181,7 +203,18 @@ function submit(url) {
                         name="degree">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
+                    	<c:forEach var="degree" items="${degreesList}">
+                        	<c:if test="${degree.externalId != param.degree}">
+                        		<option value="${degree.externalId}">${degree.nameI18N.content}</option>
+                        	</c:if>
+                        	<c:if test="${degree.externalId == param.degree}">                    	
+	                        	<option value="${degree.externalId}" selected>${degree.nameI18N.content}</option>
+                        	</c:if>
+                        </c:forEach>
                     </select>
+                    <script type="text/javascript">
+		                $("#academicRequest_degree").select2();
+                    </script>
                 </div>
             </div>
             <div class="form-group row">
@@ -196,7 +229,18 @@ function submit(url) {
                         name="serviceRequestType">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
+                    	<c:forEach var="serviceRequestType" items="${serviceRequestTypesList}">
+                        	<c:if test="${serviceRequestType.externalId != param.serviceRequestType}">
+                        		<option value="${serviceRequestType.externalId}">${serviceRequestType.name.content}</option>
+                        	</c:if>
+                        	<c:if test="${serviceRequestType.externalId == param.serviceRequestType}">                    	
+	                        	<option value="${serviceRequestType.externalId}" selected>${serviceRequestType.name.content}</option>
+                        	</c:if>
+                        </c:forEach>
                     </select>
+                    <script type="text/javascript">
+		                $("#academicRequest_serviceRequestType").select2();
+                    </script>
                 </div>
             </div>
             <div class="form-group row">
@@ -236,30 +280,73 @@ function submit(url) {
         </div>
     </form>
 </div>
+<!-- 
+TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
+<c:if test="${fn:length(searchServiceRequestsSet) > 500}">
+	<div class="alert alert-warning" role="alert">
+		<p>
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+			<spring:message code="label.limitexceeded" arguments="500;${fn:length(searchServiceRequestsSet)}" argumentSeparator=";" htmlEscape="false" />
+		</p>
+	</div>
+</c:if>
 
 <c:choose>
     <c:when test="${not empty searchServiceRequestsSet}">
-        <table id="searchServiceRequestsTable"
-            class="table responsive table-bordered table-hover"
-            width="100%">
-            <thead>
-                <tr>
-                    <%--!!!  Field names here --%>
-                    <th><spring:message code="label.academicRequest.serviceRequestNumberYear" /></th>
-                    <th><spring:message code="label.academicRequest.requestDate" /></th>
-                    <th><spring:message code="label.academicRequest.description" /></th>
-                    <th><spring:message code="label.academicRequest.student.number" /></th>
-                    <th><spring:message code="label.academicRequest.student.name" /></th>
-                    <th><spring:message code="label.academicRequest.degree" /></th>
-                    <%-- Operations Column --%>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-
-            </tbody>
-        </table>
-    </c:when>
+		<table id="searchServiceRequestsTable" class="table responsive table-bordered table-hover">
+			<thead>
+				<tr>
+					<th><spring:message code="label.academicRequest.serviceRequestNumberYear" /></th>
+		            <th><spring:message code="label.academicRequest.requestDate" /></th>
+		            <th><spring:message code="label.academicRequest.description" /></th>
+		            <th><spring:message code="label.academicRequest.student.number" /></th>
+		            <th><spring:message code="label.academicRequest.student.name" /></th>
+		            <th><spring:message code="label.academicRequest.degree" /></th>
+		            <th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach var="serviceRequest" items="${searchServiceRequestsSet}" varStatus="loop">
+					<c:if test="${loop.index < 500}">
+					<tr>
+						<c:set var="requestDate" value="${serviceRequest.requestDate.toString('yyyy-MM-dd')}" />
+					   	<c:set var="url" value="/academicAdministration/student.do?method=visualizeRegistration&registrationID=${serviceRequest.registration.externalId}" scope="request"/>
+					   	<c:choose>
+							<c:when test="${serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType, 'PROCESSING')}">
+							    <c:set var="controllerURL" value="<%= ULisboaServiceRequestManagementController.PROCESS_ACADEMIC_REQUEST_URL %>" />
+							    <c:set var="nextStepAction" value="submit('${pageContext.request.contextPath}${controllerURL}${serviceRequest.externalId }')" />
+							    <c:set var="nextStepLabel" value="label.event.process" />
+							</c:when>
+							<c:when test="${serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType,'CONCLUDED')}">
+							    <c:set var="controllerURL" value="<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>" />
+							    <c:set var="nextStepAction" value="openConcludeModal('${pageContext.request.contextPath}${controllerURL}${serviceRequest.externalId }', ${serviceRequest.serviceRequestType.isToNotifyUponConclusion() })" />
+							    <c:set var="nextStepLabel" value="label.event.conclude" />
+							</c:when>
+					        <c:when test="${serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType,'DELIVERED')}}">
+					            <c:set var="controllerURL" value="<%= ULisboaServiceRequestManagementController.DELIVER_ACADEMIC_REQUEST_URL %>" />
+					            <c:set var="nextStepAction" value="submit('${pageContext.request.contextPath}${controllerURL}${serviceRequest.externalId }')" />
+					            <c:set var="nextStepLabel" value="label.event.deliver" />
+				         	</c:when>
+					   	</c:choose>
+						<td><c:out value='${serviceRequest.serviceRequestNumberYear}'/></td>
+						<td><c:out value='${requestDate}'/></td>
+						<td><c:out value='${serviceRequest.description }' /></td>
+						<td><c:out value='${serviceRequest.registration.student.number }' /></td>
+						<td><c:out value='${serviceRequest.registration.student.name }' /></td>
+						<td><c:out value='${serviceRequest.registration.degree.name }' /></td>
+						<td>
+							<a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${serviceRequest.externalId}"><spring:message code='label.view.request'/></a>
+							<a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), (String) request.getAttribute("url"), session) %>"><spring:message code='label.view.registration'/></a>
+							<c:if test="${not empty nextStepAction}">
+		                        <a class="btn btn-default btn-xs" href="#" onclick="${nextStepAction}"><spring:message code='${nextStepLabel}'/></a>
+		                    </c:if>
+						</td>
+					</tr>
+					</c:if>
+				</c:forEach>
+			</tbody>
+		</table>
+	</c:when>
     <c:otherwise>
         <div class="alert alert-warning" role="alert">
             <p>
@@ -272,106 +359,9 @@ function submit(url) {
 </c:choose>
 
 <script>
-	var searchServiceRequestsDataSet = [
-			<c:forEach items="${searchServiceRequestsSet}" var="searchResult">
-			   <c:set var="requestDate" value="${searchResult.requestDate.toString('yyyy-MM-dd')}" />
-			   <c:set var="url" value="/academicAdministration/student.do?method=visualizeRegistration&registrationID=${ searchResult.registration.externalId}" scope="request"/>
-			   <c:choose>
-			       <c:when test="${searchResult.isValidTransition(searchResult.academicServiceRequestSituationType, 'PROCESSING')}">
-			           <c:set var="controllerURL" value="<%= ULisboaServiceRequestManagementController.PROCESS_ACADEMIC_REQUEST_URL %>" />
-			           <c:set var="nextStepAction" value="submit('${pageContext.request.contextPath}${controllerURL}${ searchResult.externalId }')" />
-                       <c:set var="nextStepLabel" value="label.event.process" />
-			       </c:when>
-			       <c:when test="${searchResult.isValidTransition(searchResult.academicServiceRequestSituationType,'CONCLUDED')}">
-                       <c:set var="controllerURL" value="<%= ULisboaServiceRequestManagementController.CONCLUDE_ACADEMIC_REQUEST_URL %>" />
-			           <c:set var="nextStepAction" value="openConcludeModal('${pageContext.request.contextPath}${controllerURL}${ searchResult.externalId }', ${ searchResult.serviceRequestType.isToNotifyUponConclusion() })" />
-                       <c:set var="nextStepLabel" value="label.event.conclude" />
-			       </c:when>
-                   <c:when test="${searchResult.isValidTransition(searchResult.academicServiceRequestSituationType,'DELIVERED')}}">
-                       <c:set var="controllerURL" value="<%= ULisboaServiceRequestManagementController.DELIVER_ACADEMIC_REQUEST_URL %>" />
-                       <c:set var="nextStepAction" value="submit('${pageContext.request.contextPath}${controllerURL}${ searchResult.externalId }')" />
-                       <c:set var="nextStepLabel" value="label.event.deliver" />
-                   </c:when>
-			   </c:choose>
-				{
-				"serviceRequestNumberYear" : "<c:out value='${searchResult.serviceRequestNumberYear}'/>",
-                "requestDate" : "<c:out value='${requestDate}'/>",
-                "description" : "<c:out value='${ searchResult.description }' />",
-                "studentNumber" : "<c:out value='${ searchResult.registration.student.number }' />",
-                "studentName" : "<c:out value='${ searchResult.registration.student.name }' />",
-                "degree" : "<c:out value='${ searchResult.registration.degree.name }' />",
-                "actions" : 
-                    " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${searchResult.externalId}\"><spring:message code='label.view.request'/></a>" +
-                    " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), (String) request.getAttribute("url"), session) %>\"><spring:message code='label.view.registration'/></a>" +
-                    <c:if test="${not empty nextStepAction}">
-                        "<a  class=\"btn btn-default btn-xs\" href=\"#\" onclick=\"${nextStepAction}\"><spring:message code='${nextStepLabel}'/></a>" + 
-                    </c:if>
-                    "" 
-                },				
-            </c:forEach>
-    ];
 	
 	$(document).ready(function() {
-	  <%-- Begin of select academicRequest_executionYear --%>
-	    execution_options = [
-	       <c:forEach items="${executionYearsList}" var="element"> 
-	       {
-	    	    text :"<c:out value='${element.name}'/>", 
-	            id : "<c:out value='${element.externalId}'/>"
-	       },
-	       </c:forEach>
-	    ];
-	    $("#academicRequest_executionYear").select2({
-	    	   data : execution_options,
-	    });
-	    <%-- If it's not from parameter change param.productGroup to whatever you need (it's the externalId already) --%>
-        $("#academicRequest_executionYear").select2().select2('val', '<c:out value='${param.executionYear}'/>');
-      <%-- END of select academicRequest_executionYear --%>
-      <%-- Begin of select academicRequest_executionYear --%>
-      degreeType_options = [
-         <c:forEach items="${degreeTypesList}" var="element"> 
-         {
-              text :"<c:out value='${element.name.content}'/>", 
-              id : "<c:out value='${element.externalId}'/>"
-         },
-         </c:forEach>
-      ];
-      $("#academicRequest_degreeType").select2({
-             data : degreeType_options,
-      });
-      <%-- If it's not from parameter change param.productGroup to whatever you need (it's the externalId already) --%>
-      $("#academicRequest_degreeType").select2().select2('val', '<c:out value='${param.degreeType}'/>');
-     <%-- END of select academicRequest_executionYear --%> 		
-     <%-- Begin of select academicRequest_executionYear --%>
-     degree_options = [
-        <c:forEach items="${degreesList}" var="element"> 
-        {
-             text :"<c:out value='${element.nameI18N.content}'/>", 
-             id : "<c:out value='${element.externalId}'/>"
-        },
-        </c:forEach>
-     ];
-     $("#academicRequest_degree").select2({
-            data : degree_options,
-     });
-     <%-- If it's not from parameter change param.productGroup to whatever you need (it's the externalId already) --%>
-     $("#academicRequest_degree").select2().select2('val', '<c:out value='${param.degree}'/>');
-     <%-- END of select academicRequest_executionYear --%>        
-     <%-- Begin of select academicRequest_executionYear --%>
-     serviceRequestType_options = [
-        <c:forEach items="${serviceRequestTypesList}" var="element"> 
-        {
-             text :"<c:out value='${element.name.content}'/>", 
-             id : "<c:out value='${element.externalId}'/>"
-        },
-        </c:forEach>
-     ];
-     $("#academicRequest_serviceRequestType").select2({
-            data : serviceRequestType_options,
-     });
-     <%-- If it's not from parameter change param.productGroup to whatever you need (it's the externalId already) --%>
-     $("#academicRequest_serviceRequestType").select2().select2('val', '<c:out value='${param.serviceRequestType}'/>');
-     <%-- END of select academicRequest_executionYear --%>        
+     
      <%-- Begin of select academicRequest_executionYear --%>
      state_options = [
         <c:forEach items="${states}" var="element"> 
@@ -391,35 +381,11 @@ function submit(url) {
      
 
 
-		var table = $('#searchServiceRequestsTable').DataTable({language : {
-			url : "${datatablesI18NUrl}",			
-		},
-        "columns": [
-                    { data: 'serviceRequestNumberYear' },
-                    { data: 'requestDate' },
-                    { data: 'description' },
-                    { data: 'studentNumber' },
-                    { data: 'studentName' },
-                    { data: 'degree' },
-                    { data: 'actions',className:"all" }
-			
-		],
-		"columnDefs": [
-			       		//54
-			       		//128
-			       		               { "width": "128px", "targets": 6 } 
-			       		             ],
-		"data" : searchServiceRequestsDataSet,
-		//Documentation: https://datatables.net/reference/option/dom
-"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
-//"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
-//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
-//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
-        "tableTools": {
-            "sSwfPath": "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
-        }
-		});
-		table.columns.adjust().draw();
+
+ 	createDataTables('searchServiceRequestsTable', true /*filterable*/,
+ 		false /*show tools*/, true /*paging*/,
+ 		"${pageContext.request.contextPath}", "${datatablesI18NUrl}");
+
 		
 		  $('#searchServiceRequestsTable tbody').on( 'click', 'tr', function () {
 		        $(this).toggleClass('selected');

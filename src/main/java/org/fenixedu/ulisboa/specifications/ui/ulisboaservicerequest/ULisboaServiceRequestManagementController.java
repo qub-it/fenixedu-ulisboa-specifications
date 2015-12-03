@@ -1,6 +1,9 @@
 package org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -66,13 +69,28 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                     required = false) ServiceRequestType serviceRequestType,
             @RequestParam(value = "state", required = false) AcademicServiceRequestSituationType situationType, @RequestParam(
                     value = "urgent", required = false) boolean isUrgent, Model model) {
-        model.addAttribute(
-                "executionYearsList",
-                ExecutionYear.readOpenExecutionYears().stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR)
-                        .collect(Collectors.toList()));
-        model.addAttribute("degreeTypesList", DegreeType.all().collect(Collectors.toList()));
-        model.addAttribute("degreesList", Degree.readAllMatching(dT -> degreeType == null || dT == degreeType));
-        model.addAttribute("serviceRequestTypesList", ServiceRequestType.findAll().collect(Collectors.toList()));
+
+        List<ExecutionYear> years = new ArrayList<ExecutionYear>(ExecutionYear.readNotClosedExecutionYears());
+        Collections.sort(years, ExecutionYear.REVERSE_COMPARATOR_BY_YEAR);
+        model.addAttribute("executionYearsList", years);
+
+        List<DegreeType> degreeTypes = new ArrayList<DegreeType>(DegreeType.all().collect(Collectors.toList()));
+        Collections.sort(degreeTypes, new Comparator<DegreeType>() {
+            @Override
+            public int compare(DegreeType o1, DegreeType o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        model.addAttribute("degreeTypesList", degreeTypes);
+
+        List<Degree> degrees = Degree.readAllMatching(dT -> degreeType == null || dT == degreeType);
+        Collections.sort(degrees, Degree.COMPARATOR_BY_NAME_AND_ID);
+        model.addAttribute("degreesList", degrees);
+
+        List<ServiceRequestType> serviceRequestTypes = ServiceRequestType.findAll().collect(Collectors.toList());
+        Collections.sort(serviceRequestTypes, ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME);
+        model.addAttribute("serviceRequestTypesList", serviceRequestTypes);
+
         model.addAttribute("states", ULisboaConstants.USED_SITUATION_TYPES);
         model.addAttribute("searchServiceRequestsSet",
                 filterSearchServiceRequest(executionYear, degreeType, degree, serviceRequestType, situationType, isUrgent));
