@@ -163,6 +163,8 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         schoolClassJson.addProperty("id", registration.getStudent().getExternalId());
         schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
         schoolClassJson.addProperty("degree", registration.getLastDegreeCurricularPlan().getPresentationName());
+        schoolClassJson.addProperty("phone", registration.getPerson().getDefaultPhoneNumber());
+        schoolClassJson.addProperty("mobilePhone", registration.getPerson().getDefaultMobilePhoneNumber());
         result.add(schoolClassJson);
     }
 
