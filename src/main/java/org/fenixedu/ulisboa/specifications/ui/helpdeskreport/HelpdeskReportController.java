@@ -198,7 +198,9 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
 
         generateLabel(builder, "Type").append('[').append(bean.getType().toUpperCase()).append("]\n");
 
-        generateLabel(builder, "Priority").append('[').append(bean.getPriority().toUpperCase()).append("]\n");
+        if (bean.getPriority() != null) {
+            generateLabel(builder, "Priority").append('[').append(bean.getPriority().toUpperCase()).append("]\n");
+        }
 
         // Extra Info
         generateLabel(builder, "When").append('[').append(DateTime.now()).append("]\n");
