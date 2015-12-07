@@ -179,35 +179,40 @@ public class CurricularPeriodConfigurationInitializer {
                     continue;
                 }
                 CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
-                CreditsInCurricularPeriod.createForYearInterval(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1, 5);
+                CreditsInCurricularPeriod.createForYearInterval(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
 
                 final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
                 if (configYear2 == null) {
                     continue;
                 }
                 CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84));
-                CreditsInCurricularPeriod.createForYearInterval(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2, 5);
+                CreditsInCurricularPeriod.createForYearInterval(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
 
                 final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
                 if (configYear3 == null) {
                     continue;
                 }
                 CreditsInEnrolmentPeriod.create(configYear3, BigDecimal.valueOf(84));
-                CreditsInCurricularPeriod.createForYearInterval(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3, 5);
+                CreditsInCurricularPeriod.createForYearInterval(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
 
                 final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
                 if (configYear4 == null) {
                     continue;
                 }
                 CreditsInEnrolmentPeriod.create(configYear4, BigDecimal.valueOf(84));
-                CreditsInCurricularPeriod.createForYearInterval(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 4, 5);
+                CreditsInCurricularPeriod.createForYearInterval(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 4,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
 
                 final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
                 if (configYear5 == null) {
                     continue;
                 }
                 CreditsInEnrolmentPeriod.create(configYear5, BigDecimal.valueOf(84));
-                CreditsInCurricularPeriod.createForYear(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 5);
+                CreditsInCurricularPeriod.createForYear(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
             }
         }
     }
