@@ -33,7 +33,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.commons.StringNormalizer;
@@ -52,6 +51,7 @@ import org.fenixedu.qubdocs.base.providers.PersonReportDataProvider;
 import org.fenixedu.qubdocs.base.providers.UserReportDataProvider;
 import org.fenixedu.qubdocs.domain.DocumentPrinterConfiguration;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.joda.time.DateTime;
 
@@ -65,7 +65,8 @@ public class DocumentPrinter {
     public static PrintedDocument print(ULisboaServiceRequest serviceRequest) {
 
         if (!serviceRequest.getServiceRequestType().isPrintable()) {
-            throw new DomainException("error.service.reports.DocumentPrinter.ULisboaServiceRequest.is.not.printable");
+            throw new ULisboaSpecificationsDomainException(
+                    "error.service.reports.DocumentPrinter.ULisboaServiceRequest.is.not.printable");
         }
 
         final ExecutionYear executionYear = serviceRequest.getExecutionYear();
@@ -77,9 +78,8 @@ public class DocumentPrinter {
 
         AcademicServiceRequestTemplate academicServiceRequestTemplate = serviceRequest.getAcademicServiceRequestTemplate();
         if (academicServiceRequestTemplate == null) {
-            academicServiceRequestTemplate =
-                    AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
-                            serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
+            academicServiceRequestTemplate = AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
+                    serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
         final FenixEduDocumentGenerator generator =
@@ -93,8 +93,8 @@ public class DocumentPrinter {
         generator.registerDataProvider(new RegistrationDataProvider(registration));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
-        generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
-                executionYear));
+        generator.registerDataProvider(
+                new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
         generator.registerDataProvider(new EnrolmentsDataProvider(registration, executionYear, serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new DocumentSignerDataProvider(serviceRequest));
@@ -203,8 +203,8 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("YYYYMMMDD", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
-                    .replace(":", ""));
+            result.append(
+                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 

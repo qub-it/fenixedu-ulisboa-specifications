@@ -6,12 +6,12 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
@@ -99,7 +99,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             }
             ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
             return redirect(READ_SERVICE_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
-        } catch (DomainException de) {
+        } catch (ULisboaSpecificationsDomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
@@ -150,7 +150,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             response.setContentType(document.getContentType());
             response.setHeader("Content-disposition", "attachment; filename=" + document.getFilename());
             response.getOutputStream().write(document.getContent());
-        } catch (DomainException de) {
+        } catch (ULisboaSpecificationsDomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.ui.spring.controller.AcademicAdministrationSpringApplication;
-import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -66,8 +66,8 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
     public static final String SEARCH_URL = CONTROLLER_URL + SEARCH_URI;
 
     @RequestMapping(value = SEARCH_URI)
-    public String search(@RequestParam(value = "code", required = false) String code, @RequestParam(value = "uicomponenttype",
-            required = false) UIComponentType uiComponentType,
+    public String search(@RequestParam(value = "code", required = false) String code,
+            @RequestParam(value = "uicomponenttype", required = false) UIComponentType uiComponentType,
             @RequestParam(value = "label", required = false) LocalizedString label, Model model) {
         List<ServiceRequestSlot> searchserviceRequestSlotResultsDataSet =
                 filterSearchServiceRequestSlot(code, uiComponentType, label);
@@ -78,20 +78,14 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
 
     private List<ServiceRequestSlot> filterSearchServiceRequestSlot(String code, UIComponentType uiComponentType,
             LocalizedString label) {
-        return ServiceRequestSlot
-                .findAll()
+        return ServiceRequestSlot.findAll()
                 .filter(serviceRequestSlot -> code == null || code.length() == 0
                         || serviceRequestSlot.getCode().toLowerCase().contains(code.toLowerCase()))
                 .filter(serviceRequestSlot -> uiComponentType == null
                         || serviceRequestSlot.getUiComponentType() == uiComponentType)
-                .filter(serviceRequestSlot -> label == null
-                        || label.isEmpty()
-                        || label.getLocales()
-                                .stream()
-                                .allMatch(
-                                        locale -> serviceRequestSlot.getLabel().getContent(locale) != null
-                                                && serviceRequestSlot.getLabel().getContent(locale).toLowerCase()
-                                                        .contains(label.getContent(locale).toLowerCase())))
+                .filter(serviceRequestSlot -> label == null || label.isEmpty() || label.getLocales().stream()
+                        .allMatch(locale -> serviceRequestSlot.getLabel().getContent(locale) != null && serviceRequestSlot
+                                .getLabel().getContent(locale).toLowerCase().contains(label.getContent(locale).toLowerCase())))
                 .collect(Collectors.toList());
     }
 
@@ -109,14 +103,14 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
     public static final String DELETE_URL = CONTROLLER_URL + DELETE_URI;
 
     @RequestMapping(value = DELETE_URI + "{oid}", method = RequestMethod.POST)
-    public String processSearchToDeleteAction(@PathVariable("oid") final ServiceRequestSlot serviceRequestSlot,
-            final Model model, final RedirectAttributes redirectAttributes) {
+    public String processSearchToDeleteAction(@PathVariable("oid") final ServiceRequestSlot serviceRequestSlot, final Model model,
+            final RedirectAttributes redirectAttributes) {
         try {
             serviceRequestSlot.delete();
 
             addInfoMessage(BundleUtil.getString(BUNDLE, "message.ServiceRequestSlot.removed.with.success"), model);
             return redirect(SEARCH_URL, model, redirectAttributes);
-        } catch (DomainException ex) {
+        } catch (ULisboaSpecificationsDomainException ex) {
             addErrorMessage(BundleUtil.getString(BUNDLE, ex.getKey()), model);
         }
         return read(serviceRequestSlot, model);
@@ -142,15 +136,15 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
     }
 
     @RequestMapping(value = CREATE_URI, method = RequestMethod.POST)
-    public String create(@RequestParam(value = "code", required = true) String code, @RequestParam(value = "uicomponenttype",
-            required = true) UIComponentType uiComponentType,
+    public String create(@RequestParam(value = "code", required = true) String code,
+            @RequestParam(value = "uicomponenttype", required = true) UIComponentType uiComponentType,
             @RequestParam(value = "label", required = false) LocalizedString label, Model model,
             RedirectAttributes redirectAttributes) {
         try {
             final ServiceRequestSlot serviceRequestSlot = createServiceRequestSlot(code, uiComponentType, label);
 
             return redirect(READ_URL + serviceRequestSlot.getExternalId(), model, redirectAttributes);
-        } catch (DomainException de) {
+        } catch (ULisboaSpecificationsDomainException de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, de.getKey()), model);
         }
 
@@ -183,15 +177,16 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
     }
 
     @RequestMapping(value = UPDATE_URI + "{oid}", method = RequestMethod.POST)
-    public String update(@PathVariable("oid") final ServiceRequestSlot serviceRequestSlot, @RequestParam(value = "code",
-            required = true) String code,
-            @RequestParam(value = "uicomponenttype", required = true) UIComponentType uiComponentType, @RequestParam(
-                    value = "label", required = false) LocalizedString label, Model model, RedirectAttributes redirectAttributes) {
+    public String update(@PathVariable("oid") final ServiceRequestSlot serviceRequestSlot,
+            @RequestParam(value = "code", required = true) String code,
+            @RequestParam(value = "uicomponenttype", required = true) UIComponentType uiComponentType,
+            @RequestParam(value = "label", required = false) LocalizedString label, Model model,
+            RedirectAttributes redirectAttributes) {
         model.addAttribute("serviceRequestSlot", serviceRequestSlot);
         try {
             updateServiceRequestSlot(serviceRequestSlot, code, uiComponentType, label);
             return redirect(READ_URL + serviceRequestSlot.getExternalId(), model, redirectAttributes);
-        } catch (DomainException de) {
+        } catch (ULisboaSpecificationsDomainException de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, de.getKey()), model);
         }
         return update(serviceRequestSlot, model);
