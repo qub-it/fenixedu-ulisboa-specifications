@@ -503,9 +503,7 @@ ${portal.angularToolkit()}
 					code="label.Registration.registrationProtocol" /></th>
 			<th><spring:message
 					code="label.RegistrationHistoryReport.lastRegistrationState" /></th>
-			<th><spring:message
-					code="label.RegistrationHistoryReport.curricularYear" /></th>
-		</tr>
+	</tr>
 	</thead>
 	<tbody>
 		<c:forEach var="result" items="${results}" varStatus="loop">
@@ -524,7 +522,6 @@ ${portal.angularToolkit()}
 					<td><c:out
 							value="${result.registration.registrationProtocol.description.content}"></c:out></td>
 					<td><c:out value="${result.lastRegistrationState.description}"></c:out></td>
-					<td><c:out value="${result.curricularYear}"></c:out></td>
 				</tr>
 			</c:if>
 		</c:forEach>

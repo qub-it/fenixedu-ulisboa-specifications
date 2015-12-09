@@ -42,6 +42,8 @@ public class RegistrationHistoryReportService {
 
     private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
+    private boolean detailed = true;
+
     public RegistrationHistoryReportService() {
 
     }
@@ -88,6 +90,14 @@ public class RegistrationHistoryReportService {
 
     public void filterImprovementEnrolmentsOnly(Boolean improvementsEnrolmentsOnly) {
         this.improvementEnrolmentsOnly = improvementsEnrolmentsOnly;
+    }
+
+    public boolean isDetailed() {
+        return detailed;
+    }
+
+    public void setDetailed(boolean detailed) {
+        this.detailed = detailed;
     }
 
     public Collection<RegistrationHistoryReport> generateReport() {
@@ -189,11 +199,13 @@ public class RegistrationHistoryReportService {
     private RegistrationHistoryReport buildRegistrationHistoryReport(Registration registration, ExecutionYear executionYear) {
         final RegistrationHistoryReport result = new RegistrationHistoryReport(registration, executionYear);
 
-        addConclusion(result);
-        addCurriculum(result);
-        final Collection<Enrolment> enrolmentsByYear = result.getRegistration().getEnrolments(result.getExecutionYear());
-        addEnrolmentsAndCreditsCount(result, enrolmentsByYear);
-        addExecutionYearAverages(result, enrolmentsByYear);
+        if (detailed) {
+            addConclusion(result);
+            addCurriculum(result);
+            final Collection<Enrolment> enrolmentsByYear = result.getRegistration().getEnrolments(result.getExecutionYear());
+            addEnrolmentsAndCreditsCount(result, enrolmentsByYear);
+            addExecutionYearAverages(result, enrolmentsByYear);
+        }
 
         return result;
     }
@@ -276,9 +288,7 @@ public class RegistrationHistoryReportService {
     private void addConclusion(final RegistrationHistoryReport result) {
         for (final ProgramConclusion programConclusion : this.programConclusions) {
 
-            final DegreeCurricularPlan degreeCurricularPlan = result.getStudentCurricularPlan().getDegreeCurricularPlan();
-
-            if (ProgramConclusion.conclusionsFor(degreeCurricularPlan).collect(Collectors.toSet()).isEmpty()
+            if (ProgramConclusion.conclusionsFor(result.getDegreeCurricularPlan()).collect(Collectors.toSet()).isEmpty()
                     || !programConclusion.groupFor(result.getStudentCurricularPlan()).isPresent()) {
                 result.addEmptyConclusion(programConclusion);
             } else {

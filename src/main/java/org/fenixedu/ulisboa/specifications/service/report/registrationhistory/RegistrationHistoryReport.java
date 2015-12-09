@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -24,6 +25,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Maps;
@@ -58,6 +60,14 @@ public class RegistrationHistoryReport {
     public RegistrationHistoryReport(final Registration registration, final ExecutionYear executionYear) {
         this.executionYear = executionYear;
         this.registration = registration;
+
+        if (getStudentCurricularPlan() == null) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
+                    registration.getStudent().getNumber().toString(), registration.getDegree().getCode(),
+                    getExecutionYear().getQualifiedName());
+        }
+
     }
 
     public ExecutionYear getExecutionYear() {
@@ -69,7 +79,12 @@ public class RegistrationHistoryReport {
     }
 
     public StudentCurricularPlan getStudentCurricularPlan() {
-        return registration.getStudentCurricularPlan(executionYear);
+        return registration.getStudentCurricularPlansSet().size() == 1 ? registration
+                .getLastStudentCurricularPlan() : registration.getStudentCurricularPlan(executionYear);
+    }
+
+    public DegreeCurricularPlan getDegreeCurricularPlan() {
+        return getStudentCurricularPlan().getDegreeCurricularPlan();
     }
 
     public boolean isReingression() {
