@@ -237,10 +237,11 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             String composedMessage = String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
                     getServiceRequestNumberYear());
             logger.error(composedMessage, rge.getCause());
-            throw new RuntimeException("error.documentRequest.errorGeneratingDocument", rge);
+            throw new ULisboaSpecificationsDomainException(rge, "error.documentRequest.errorGeneratingDocument",
+                    rge.getMessage());
         } catch (Throwable t) {
             logger.error(t.getMessage(), t.getCause());
-            throw new RuntimeException("error.documentRequest.errorGeneratingDocument", t);
+            throw new ULisboaSpecificationsDomainException(t, "error.documentRequest.errorGeneratingDocument", t.getMessage());
         }
     }
 
