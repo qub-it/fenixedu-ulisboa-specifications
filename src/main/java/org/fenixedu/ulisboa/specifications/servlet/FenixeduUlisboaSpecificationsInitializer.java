@@ -25,6 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -45,6 +46,7 @@ import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
+import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
@@ -187,9 +189,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic =
-                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
-                        .typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
+                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);
@@ -244,7 +245,10 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     private void setupCustomExceptionHandler(ServletContextEvent event) {
-        ExceptionHandlerFilter.setExceptionHandler(new FenixEduUlisboaExceptionHandler(new PortalExceptionHandler(event
-                .getServletContext())));
+        ServletContext servletContext = event.getServletContext();
+        PortalExceptionHandler exceptionHandler =
+                CoreConfiguration.getConfiguration().developmentMode() == Boolean.TRUE ? new PortalDevModeExceptionHandler(
+                        servletContext) : new PortalExceptionHandler(servletContext);
+        ExceptionHandlerFilter.setExceptionHandler(new FenixEduUlisboaExceptionHandler(exceptionHandler));
     }
 }
