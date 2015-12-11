@@ -34,7 +34,7 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -95,6 +95,7 @@ ${portal.toolkit()}
 					<div class="form-control-static"><c:out value='${not empty param.username ? param.username : personalInformationForm.username }' /></div>
 				</div>
 			</div>
+			<c:if test="${not partial}">
 			<div class="form-group row">
 				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.gender" />
@@ -159,18 +160,20 @@ ${portal.toolkit()}
 				</div>
 			</c:if>
 			
-			<div class="form-group row">
-				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.documentIdEmissionLocation" />
-				</label>
-
-				<div class="col-sm-10">
-					<input id="personalInformationForm_documentIdEmissionLocation"
-						class="form-control" type="text" name="documentIdEmissionLocation"
-						value='<c:out value='${not empty param.documentidemissionlocation ? param.documentidemissionlocation : personalInformationForm.documentIdEmissionLocation }'/>' />
+			
+				<div class="form-group row">
+					<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
+						<spring:message
+							code="label.PersonalInformationForm.documentIdEmissionLocation" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input id="personalInformationForm_documentIdEmissionLocation"
+							class="form-control" type="text" name="documentIdEmissionLocation"
+							value='<c:out value='${not empty param.documentidemissionlocation ? param.documentidemissionlocation : personalInformationForm.documentIdEmissionLocation }'/>' />
+					</div>
 				</div>
-			</div>
+			
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdEmissionDate" class="col-sm-2 control-label">
 					<spring:message
@@ -226,6 +229,7 @@ ${portal.toolkit()}
 							pattern="(\d{9})"/>
 					</div>
 				</div>
+			</c:if>
 			</c:if>
 			<div class="form-group row">
 				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
@@ -415,10 +419,10 @@ $(document).ready(function() {
 		function updateGrantProviderAjax(){
 			val = $("#personalInformationForm_grantOwnerType").val();
 			if(val == "OTHER_INSTITUTION_GRANT_OWNER" || val == "ORIGIN_COUNTRY_GRANT_OWNER"){
-				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnitFreeOption/";
+				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/externalUnitFreeOption/";
 			}
 			else{
-				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnit/";
+				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/externalUnit/";
 			}
 				$("#personalInformationForm_grantOwnerProvider").select2({ajax : ajaxForGrantOwnerProvider});
 		}
@@ -445,7 +449,7 @@ $(document).ready(function() {
 		$("#personalInformationForm_firstOptionInstitution").select2(
 				{
 				  ajax: {
-					    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/academicUnit/",
+					    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/academicUnit/",
 				    dataType: 'json',
 				    delay: 250,
 				    data: function (params) {
@@ -493,7 +497,7 @@ $(document).ready(function() {
 			    cache: true
 			  };
 		updateDegreeDesignationsUrl = function(){
-			ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/degreeDesignation/" + $("#personalInformationForm_firstOptionInstitution").val(); 
+			ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/degreeDesignation/" + $("#personalInformationForm_firstOptionInstitution").val(); 
 			$("#personalInformationForm_firstOptionDegreeDesignation").select2({ajax: ajaxDataForDegreesDesignations});
 		}
 		updateDegreeDesignationsUrl();

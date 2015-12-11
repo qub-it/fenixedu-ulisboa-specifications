@@ -34,7 +34,7 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
 </div>
 
 	<c:if test="${not empty infoMessages}">
@@ -307,7 +307,7 @@ function configureOriginInformationFieldsEditableState(){
    
 	//setup units provider
 	ajaxData = {
-		url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",	    
+		url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/raidesUnit/",	    
 	    dataType: 'json',
 	    delay: 250,
 	    data: function (params) {
@@ -377,11 +377,11 @@ function configureOriginInformationFieldsEditableState(){
 		if(isHigherEducation(val) && currentSelectedCountry() == defaultCountry){
 			$("#originInformationForm_raidesDegreeDesignation_row").show();
 			$("#originInformationForm_degreeDesignation_row").hide();
-			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/raidesUnit/",
+			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/raidesUnit/",
 			$("#originInformationForm_institution").select2({ajax: ajaxData});
 		}
 		else{
-			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/externalUnit/",
+			ajaxData.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/externalUnitFreeOption/",
 			$("#originInformationForm_institution").select2({ajax: ajaxData});
 			$("#originInformationForm_raidesDegreeDesignation_row").hide();
 			$("#originInformationForm_degreeDesignation_row").show();
@@ -430,7 +430,7 @@ function configureOriginInformationFieldsEditableState(){
 		  };
 	
 	updateDegreeDesignationsUrl = function(){
-		ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/degreeDesignation/" + $("#originInformationForm_institution").val(); 
+		ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/degreeDesignation/" + $("#originInformationForm_institution").val(); 
 		$("#originInformationForm_raidesDegreeDesignation").select2({ajax: ajaxDataForDegreesDesignations});
 	}
 	updateDegreeDesignationsUrl();
@@ -468,7 +468,7 @@ function configureOriginInformationFieldsEditableState(){
 	             	    
   	 populateSubDistricts = function(){
   		 oid = $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree")[0].value; 
-  		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/district/" + oid, 
+  		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/district/" + oid, 
   				success: function(result){
   					 //$("#originInformationForm_districtSubdivisionOfBirth").select2("destroy");
   					 $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").children().remove();
