@@ -79,8 +79,9 @@ public class DocumentPrinter {
 
         AcademicServiceRequestTemplate academicServiceRequestTemplate = serviceRequest.getAcademicServiceRequestTemplate();
         if (academicServiceRequestTemplate == null) {
-            academicServiceRequestTemplate = AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
-                    serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
+            academicServiceRequestTemplate =
+                    AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
+                            serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
         final FenixEduDocumentGenerator generator =
@@ -94,9 +95,12 @@ public class DocumentPrinter {
         generator.registerDataProvider(new RegistrationDataProvider(registration));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
-        generator.registerDataProvider(
-                new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
-        generator.registerDataProvider(new EnrolmentsDataProvider(registration, executionYear, serviceRequest.getLanguage()));
+        generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
+                executionYear));
+        if (serviceRequest.hasEnrolmentsByYear()) {
+            generator.registerDataProvider(new EnrolmentsDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
+                    executionYear, serviceRequest.getLanguage()));
+        }
 
         generator.registerDataProvider(new DocumentSignerDataProvider(serviceRequest));
 
@@ -108,13 +112,6 @@ public class DocumentPrinter {
         generator.registerDataProvider(new UserReportDataProvider());
 
         generator.registerDataProvider(new CurriculumInformationDataProvider(registration, executionYear));
-
-        if (serviceRequest.hasEnrolmentsByYear()) {
-            CurriculumEntryRemarksDataProvider enrolmentsByYearRemarks =
-                    new CurriculumEntryRemarksDataProvider(registration, "enrolmentsByYearRemarks");
-            generator.registerDataProvider(new EnrolmentsByYearDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
-                    enrolmentsByYearRemarks));
-        }
 
         /*
          * TODO: Falta saber o que fazer com providers especificos para determinados tipos de documentos.
@@ -211,8 +208,8 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("YYYYMMMDD", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(
-                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
+            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
+                    .replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 
