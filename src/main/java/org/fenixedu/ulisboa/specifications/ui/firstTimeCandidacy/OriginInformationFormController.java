@@ -32,6 +32,7 @@ import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguratio
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -79,7 +80,7 @@ import com.google.common.base.Strings;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
-public class OriginInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
+public class OriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String GRADE_FORMAT = "\\d{2}";
 
@@ -87,7 +88,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform";
 
-    private static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
+    public static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
     public static final String FILLORIGININFORMATION_URL = CONTROLLER_URL + _FILLORIGININFORMATION_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
@@ -95,10 +96,16 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         return redirect(ContactsFormController.FILLCONTACTS_URL, model, redirectAttributes);
     }
 
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
+    }
+
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
     public String fillorigininformation(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         model.addAttribute("schoolLevelValues", SchoolLevelType.values());
@@ -113,10 +120,8 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         if (!model.containsAttribute("originInformationForm")) {
             OriginInformationForm form = new OriginInformationForm();
 
-            PrecedentDegreeInformation precedentDegreeInformation =
-                    FirstTimeCandidacyController.getCandidacy().getPrecedentDegreeInformation();
-            PersonalIngressionData personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
+            PrecedentDegreeInformation precedentDegreeInformation = getPrecedentDegreeInformation();
+            PersonalIngressionData personalData = getPersonalIngressionData();
 
             form.setSchoolLevel(precedentDegreeInformation.getSchoolLevel());
             if (form.getSchoolLevel() == SchoolLevelType.OTHER) {
@@ -172,8 +177,9 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         if (!validate(form, model)) {
             return fillorigininformation(model, redirectAttributes);
@@ -182,13 +188,17 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         try {
             writeData(form);
             model.addAttribute("originInformationForm", form);
-            return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
+            return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             de.printStackTrace();
             return fillorigininformation(model, redirectAttributes);
         }
+    }
+
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
     }
 
     private boolean validate(OriginInformationForm form, Model model) {
@@ -267,10 +277,8 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     @Atomic
     protected void writeData(OriginInformationForm form) {
-        PrecedentDegreeInformation precedentDegreeInformation =
-                FirstTimeCandidacyController.getCandidacy().getPrecedentDegreeInformation();
-        PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
+        PrecedentDegreeInformation precedentDegreeInformation = getPrecedentDegreeInformation();
+        PersonalIngressionData personalData = getPersonalIngressionData();
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());
         precedentDegreeInformation.setDegreeDesignation(form.getDegreeDesignation());
@@ -336,51 +344,6 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             return versionedAcronym;
         }
         return resolvedAcronym;
-    }
-
-    @RequestMapping(value = "/raidesUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") String namePart, Model model) {
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
-    }
-
-    //Adds a false unit with OID=Name to enable the user adding new units
-    @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        List<UnitBean> collect =
-                UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
-        collect.add(0, new UnitBean(namePart, namePart));
-        return collect;
-    }
-
-    @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") String unitOid,
-            @RequestParam("namePart") String namePart, Model model) {
-        Unit unit = null;
-        try {
-            unit = FenixFramework.getDomainObject(unitOid);
-        } catch (Exception e) {
-            //Not a unit, so it is a custom value, ignore
-        }
-
-        Collection<DegreeDesignation> possibleDesignations;
-        if (unit == null) {
-            possibleDesignations = Bennu.getInstance().getDegreeDesignationsSet();
-        } else {
-            possibleDesignations = unit.getDegreeDesignationSet();
-        }
-
-        Predicate<DegreeDesignation> matchesName =
-                dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
-        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
-                dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
-        return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
-                .collect(Collectors.toList());
-    }
-
-    private static String getFullDescription(DegreeDesignation designation) {
-        return designation.getDegreeClassification().getDescription1() + " - " + designation.getDescription();
     }
 
     public static class OriginInformationForm {
