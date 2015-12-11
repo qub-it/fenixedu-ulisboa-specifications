@@ -652,6 +652,10 @@ class serviceRequests.processors.ULisboaServiceRequestProcessor {
     LocalizedString name;
 }
 
+class serviceRequests.processors.ProgramConclusionProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+    
+}
+
 class serviceRequests.processors.StateLoggerProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
     
 }

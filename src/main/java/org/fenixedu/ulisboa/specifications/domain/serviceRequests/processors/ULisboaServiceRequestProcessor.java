@@ -104,6 +104,11 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
             AutomaticOnlineRequestProcessor.create(
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR));
         }
+        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.PROGRAM_CONCLUSION_PROCESSOR))
+                .count() == 0) {
+            ProgramConclusionProcessor.create(
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.PROGRAM_CONCLUSION_PROCESSOR));
+        }
     }
 
     public abstract void process(ULisboaServiceRequest request);

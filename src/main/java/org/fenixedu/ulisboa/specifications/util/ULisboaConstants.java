@@ -84,4 +84,5 @@ public class ULisboaConstants {
     public static final String FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR =
             "label.FillRequestPropertyProcessor.ApprovedEnrolments.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
+    public static final String PROGRAM_CONCLUSION_PROCESSOR = "label.ProgramConclusionProcessor.name";
 }
