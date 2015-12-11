@@ -67,7 +67,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             @RequestParam(value = "degree", required = false) Degree degree,
             @RequestParam(value = "serviceRequestType", required = false) ServiceRequestType serviceRequestType,
             @RequestParam(value = "state", required = false) AcademicServiceRequestSituationType situationType,
-            @RequestParam(value = "urgent", required = false) boolean isUrgent, Model model) {
+            @RequestParam(value = "urgent", required = false) boolean isUrgent,
+            @RequestParam(value = "requestNumber", required = false) String requestNumber, Model model) {
 
         List<ExecutionYear> years = new ArrayList<ExecutionYear>(ExecutionYear.readNotClosedExecutionYears());
         Collections.sort(years, ExecutionYear.REVERSE_COMPARATOR_BY_YEAR);
@@ -91,14 +92,14 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("serviceRequestTypesList", serviceRequestTypes);
 
         model.addAttribute("states", ULisboaConstants.USED_SITUATION_TYPES);
-        model.addAttribute("searchServiceRequestsSet",
-                filterSearchServiceRequest(executionYear, degreeType, degree, serviceRequestType, situationType, isUrgent));
+        model.addAttribute("searchServiceRequestsSet", filterSearchServiceRequest(executionYear, degreeType, degree,
+                serviceRequestType, situationType, isUrgent, requestNumber));
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/search";
     }
 
     private List<ULisboaServiceRequest> filterSearchServiceRequest(ExecutionYear executionYear, DegreeType degreeType,
             Degree degree, ServiceRequestType serviceRequestType, AcademicServiceRequestSituationType situationType,
-            boolean isUrgent) {
+            boolean isUrgent, String requestNumber) {
         return ULisboaServiceRequest.findAll()
                 .filter(req -> executionYear == null || req.hasExecutionYear() && req.getExecutionYear().equals(executionYear))
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
@@ -106,7 +107,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .filter(req -> serviceRequestType == null || req.getServiceRequestType().equals(serviceRequestType))
                 .filter(req -> situationType == null
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
-                .filter(req -> req.isUrgent() == isUrgent).collect(Collectors.toList());
+                .filter(req -> req.isUrgent() == isUrgent)
+                .filter(req -> req.getServiceRequestNumberYear().contains(requestNumber)).collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
@@ -191,6 +193,32 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         }
         model.addAttribute("templates", templates);
     }
+
+//    private static final String _UPDATE_URI = "/update/";
+//    public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
+//
+//    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
+//    public String updateAcademicRequest(@PathVariable(value = "oid") ULisboaServiceRequest request, Model model) {
+//        if (getULisboaServiceRequestBean(model) == null) {
+////            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(request), model);
+//        }
+//        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
+//    }
+//
+//    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
+//    public String updateAcademicRequest(@PathVariable(value = "oid") ULisboaServiceRequest request,
+//            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
+//            RedirectAttributes redirectAttributes) {
+//        setULisboaServiceRequestBean(bean, model);
+//
+//        try {
+//            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
+//            return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
+//        } catch (ULisboaSpecificationsDomainException e) {
+//            addErrorMessage(e.getLocalizedMessage(), model);
+//        }
+//        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
+//    }
 
     private static final String _PROCESS_ACADEMIC_REQUEST_URI = "/process/";
     public static final String PROCESS_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PROCESS_ACADEMIC_REQUEST_URI;

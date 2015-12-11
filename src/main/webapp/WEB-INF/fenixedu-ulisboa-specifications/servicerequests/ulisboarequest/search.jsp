@@ -273,6 +273,15 @@ function submit(url) {
                     </select>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.academicRequest.requestNumber" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="serviceRequestSlot_requestNumber" class="form-control" type="text" name="requestNumber" value='<c:out value='${param.requestNumber}'/>' />                    
+                </div>
+            </div>            
         </div>
         <div class="panel-footer">
             <input type="submit" class="btn btn-default" role="button"
