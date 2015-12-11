@@ -43,6 +43,7 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntryR
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DegreeCurricularPlanInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentSignerDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsByYearDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.LocalizedDatesProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.RegistrationDataProvider;
@@ -107,6 +108,13 @@ public class DocumentPrinter {
         generator.registerDataProvider(new UserReportDataProvider());
 
         generator.registerDataProvider(new CurriculumInformationDataProvider(registration, executionYear));
+
+        if (serviceRequest.hasEnrolmentsByYear()) {
+            CurriculumEntryRemarksDataProvider enrolmentsByYearRemarks =
+                    new CurriculumEntryRemarksDataProvider(registration, "enrolmentsByYearRemarks");
+            generator.registerDataProvider(new EnrolmentsByYearDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
+                    enrolmentsByYearRemarks));
+        }
 
         /*
          * TODO: Falta saber o que fazer com providers especificos para determinados tipos de documentos.
