@@ -41,22 +41,29 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         if (candidacy != null) {
             return candidacy.getPrecedentDegreeInformation();
         } else {
-            return getPrecedentDegreeInformationFromRegistration(getMostCurrentRegistration());
+            return getPrecedentDegreeInformationFromRegistration(getMostCurrentRegistration(),
+                    ExecutionYear.readCurrentExecutionYear());
         }
     }
 
     @Atomic
     private PersonalIngressionData getPersonalDataFromRegistration() {
         Registration registration = getMostCurrentRegistration();
-        PrecedentDegreeInformation precedentDegreeInformation = getPrecedentDegreeInformationFromRegistration(registration);
+        ExecutionYear firstExecutionYear =
+                registration.getRegistrationDataByExecutionYearSet().stream().map(x -> x.getExecutionYear())
+                        .sorted(ExecutionYear.COMPARATOR_BY_YEAR).findFirst().orElse(ExecutionYear.readCurrentExecutionYear());
+
+        PrecedentDegreeInformation precedentDegreeInformation =
+                getPrecedentDegreeInformationFromRegistration(registration, firstExecutionYear);
         PersonalIngressionData personalIngressionData = precedentDegreeInformation.getPersonalIngressionData();
         if (personalIngressionData == null) {
-            ExecutionYear firstExecutionYear =
-                    registration.getRegistrationDataByExecutionYearSet().stream().map(x -> x.getExecutionYear())
-                            .sorted(ExecutionYear.COMPARATOR_BY_YEAR).findFirst()
-                            .orElse(ExecutionYear.readCurrentExecutionYear());
-            personalIngressionData = new PersonalIngressionData(firstExecutionYear, precedentDegreeInformation);
-            personalIngressionData.setStudent(registration.getStudent());
+            personalIngressionData = registration.getStudent().getPersonalIngressionDataByExecutionYear(firstExecutionYear);
+            if (personalIngressionData != null) {
+                precedentDegreeInformation.setPersonalIngressionData(personalIngressionData);
+            } else {
+                personalIngressionData = new PersonalIngressionData(firstExecutionYear, precedentDegreeInformation);
+                personalIngressionData.setStudent(registration.getStudent());
+            }
         }
         return personalIngressionData;
     }
@@ -66,8 +73,9 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return registration;
     }
 
-    private PrecedentDegreeInformation getPrecedentDegreeInformationFromRegistration(Registration registration) {
-        PrecedentDegreeInformation precedentDegreeInformation = registration.getPrecedentDegreeInformation();
+    private PrecedentDegreeInformation getPrecedentDegreeInformationFromRegistration(Registration registration,
+            ExecutionYear executionYear) {
+        PrecedentDegreeInformation precedentDegreeInformation = registration.getPrecedentDegreeInformation(executionYear);
         if (precedentDegreeInformation == null) {
             precedentDegreeInformation = new PrecedentDegreeInformation();
             registration.setPrecedentDegreeInformation(precedentDegreeInformation);
