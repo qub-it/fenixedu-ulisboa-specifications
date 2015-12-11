@@ -30,6 +30,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +40,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.DisabilityType;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,11 +51,11 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(DisabilitiesFormController.CONTROLLER_URL)
-public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBaseController {
+public class DisabilitiesFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform";
 
-    private static final String _FILLDISABILITIES_URI = "/filldisabilities";
+    public static final String _FILLDISABILITIES_URI = "/filldisabilities";
     public static final String FILLDISABILITIES_URL = CONTROLLER_URL + _FILLDISABILITIES_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
@@ -65,9 +65,11 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
     public String filldisabilities(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
+
         List<DisabilityType> allDisabilities = DisabilityType.readAll().collect(Collectors.toList());
         Collections.sort(allDisabilities);
         model.addAttribute("disabilityTypeValues", allDisabilities);
@@ -95,8 +97,9 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.POST)
     public String filldisabilities(DisabilitiesForm form, Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         if (!validate(form, model)) {
             return filldisabilities(model, redirectAttributes);
@@ -105,7 +108,7 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
         try {
             writeData(form);
             model.addAttribute("disabilitiesForm", form);
-            return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
+            return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
@@ -113,6 +116,10 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
             de.printStackTrace();
             return filldisabilities(model, redirectAttributes);
         }
+    }
+
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
     }
 
     private boolean validate(DisabilitiesForm form, Model model) {
@@ -185,5 +192,10 @@ public class DisabilitiesFormController extends FenixeduUlisboaSpecificationsBas
         public void setNeedsDisabilitySupport(Boolean needsDisabilitySupport) {
             this.needsDisabilitySupport = needsDisabilitySupport;
         }
+    }
+
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
     }
 }

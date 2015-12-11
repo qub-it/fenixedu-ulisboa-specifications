@@ -31,6 +31,7 @@ import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguratio
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,6 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -55,11 +55,11 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(MotivationsExpectationsFormController.CONTROLLER_URL)
-public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecificationsBaseController {
+public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/motivationsexpectationsform";
 
-    private static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
+    public static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
     public static final String FILLMOTIVATIONSEXPECTATIONS_URL = CONTROLLER_URL + _FILLMOTIVATIONSEXPECTATIONS_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
@@ -67,10 +67,16 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
     }
 
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
+    }
+
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
     public String fillmotivationsexpectations(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         List<UniversityDiscoveryMeansAnswer> allDiscoveryMeans =
                 UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList());
@@ -109,8 +115,9 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.POST)
     public String fillmotivationsexpectations(MotivationsExpectationsForm form, Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         form.populateFormValues(request);
         if (!validate(form, model)) {
@@ -121,7 +128,7 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         try {
             writeData(form);
             model.addAttribute("motivationsexpectationsform", form);
-            return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
+            return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
@@ -129,6 +136,10 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
             de.printStackTrace();
             return fillmotivationsexpectations(model, redirectAttributes);
         }
+    }
+
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
     }
 
     private boolean validate(MotivationsExpectationsForm form, Model model) {
