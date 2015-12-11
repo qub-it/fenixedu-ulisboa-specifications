@@ -335,6 +335,10 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
+            if (serviceRequest.getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.serviceRequests.UlisboaServiceRequest.cannot.generate.document");
+            }
             serviceRequest.setPrintSettings(signer, template);
             serviceRequest.generateDocument();
             download(serviceRequest, model, response);

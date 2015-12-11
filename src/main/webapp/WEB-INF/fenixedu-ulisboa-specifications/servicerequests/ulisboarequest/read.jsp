@@ -387,7 +387,7 @@ ${portal.toolkit()}
             <spring:message code="label.event.deliver" />
         </a>
     </c:if>
-    <c:if test="${serviceRequest.serviceRequestType.printable && !serviceRequest.isRejected() && !serviceRequest.isCancelled()}">
+    <c:if test="${serviceRequest.serviceRequestType.printable && !serviceRequest.isRejected() && !serviceRequest.isCancelled() && !serviceRequest.isNewRequest()}">
 	    &nbsp;|&nbsp;
 	    <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
 	    &nbsp;
@@ -448,6 +448,11 @@ ${portal.toolkit()}
                         <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
                         </a>
                     </li>
+<!--                     <li> -->
+<%--                         <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.UPDATE_URL %>${ serviceRequest.externalId }"> --%>
+<%--                             <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.update" /> --%>
+<!--                         </a> -->
+<!--                     </li>                     -->
                 </ul>
             </div>
         </c:otherwise>
@@ -629,8 +634,10 @@ ${portal.toolkit()}
 
 
 
-<script>
+<script type="text/javascript">
     $(document).ready(function() {
 
     });
+    
+
 </script>
