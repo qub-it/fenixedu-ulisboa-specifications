@@ -30,7 +30,7 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest()) {
+        if (request.isNewRequest() && !request.hasApprovedStandaloneCurriculum()) {
             List<ICurriculumEntry> enrolments =
                     request.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet()
                             .stream().map(ICurriculumEntry.class::cast).collect(Collectors.toList());

@@ -11,13 +11,13 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -58,23 +58,23 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
     private void checkRules() {
         if (StringUtils.isEmpty(getCode())) {
-            throw new DomainException("error.ServiceRequestSlot.code.required");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.code.required");
         }
         if (findByCode(getCode()).count() > 1) {
-            throw new DomainException("error.ServiceRequestSlot.code.duplicated");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.code.duplicated");
         }
         if (getUiComponentType() == null) {
-            throw new DomainException("error.ServiceRequestSlot.uiComponentType.required");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.uiComponentType.required");
         }
         if (LocalizedStringUtil.isTrimmedEmpty(getLabel())) {
-            throw new DomainException("error.ServiceRequestSlot.label.required");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.label.required");
         }
     }
 
     @Atomic
     public void edit(final String code, final UIComponentType uiComponentType, final LocalizedString label) {
         if (!getChangeable()) {
-            throw new DomainException("error.ServiceRequestSlot.unchangeableSlot");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.unchangeableSlot");
         }
 
         setCode(code);
@@ -101,7 +101,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
     @Atomic
     public void delete() {
-        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        ULisboaSpecificationsDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setBennu(null);
         deleteDomainObject();
@@ -238,7 +238,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                 }
                 return (T) convertedList;
             } else {
-                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
             }
         case DROP_DOWN_ONE_VALUE:
         default:
@@ -251,7 +251,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
             if (serviceRequestSlotCode.equals(ULisboaConstants.CYCLE_TYPE)) {
                 return (T) CycleType.valueOf(propertyValue);
             }
-            throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
         }
 
     }
@@ -280,7 +280,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
             if (ULisboaConstants.ICURRICULUM_ENTRY_OBJECTS.contains(serviceRequestSlotCode)) {
                 return ServiceRequestProperty.createForICurriculumEntry((Collection<ICurriculumEntry>) value, serviceRequestSlot);
             } else {
-                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
             }
 
         case DROP_DOWN_ONE_VALUE:
@@ -300,7 +300,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
             case ULisboaConstants.CURRICULAR_PLAN:
                 return ServiceRequestProperty.createForCurricularPlan((StudentCurricularPlan) value, serviceRequestSlot);
             default:
-                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
             }
         }
     }

@@ -3,9 +3,15 @@ package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.registration
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.ui.spring.StrutsFunctionalityController;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.treasury.domain.accesscontrol.TreasuryAccessControl;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,8 +46,19 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
         returnLink = contextPath.equals("/") ? returnLink : contextPath + returnLink;
 
         model.addAttribute("returnURL", returnLink);
-
+        boolean writeAccessControll = getWriteAccessControl(registration);
+        model.addAttribute("writeAccess", writeAccessControll);
         return "fenixedu-ulisboa-specifications/registrationObservations/editRegistrationObservations";
+    }
+
+    private boolean getWriteAccessControl(Registration registration) {
+        User user = AccessControl.getPerson().getUser();
+        boolean academicAuthorization =
+                AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS, registration.getDegree()).isMember(user);
+        boolean treasuryAuthorization = TreasuryAccessControl.getInstance().getBackOfficeMembers().contains(user);
+
+        boolean writeAccessControll = academicAuthorization || treasuryAuthorization;
+        return writeAccessControll;
     }
 
     @RequestMapping(value = "/{registration}/observations/{registrationObservations}", method = RequestMethod.GET)
@@ -64,6 +81,9 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
             @RequestParam(value = "delete", required = false) String delete,
             @RequestParam(value = "create", required = false) String create, @RequestParam("observations") String observations,
             Model model, HttpServletRequest request) {
+        if (!getWriteAccessControl(registrationObservations.getRegistration())) {
+            throw new RuntimeException("Unauthorized");
+        }
         Registration registration = registrationObservations.getRegistration();
         if (!StringUtils.isEmpty(delete)) {
             model.addAttribute("deleted", true);
@@ -80,7 +100,9 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
     @RequestMapping(value = "/{registration}/observations", method = RequestMethod.POST)
     public String create(@PathVariable("registration") Registration registration,
             @RequestParam("observations") String observations, Model model, HttpServletRequest request) {
-
+        if (!getWriteAccessControl(registration)) {
+            throw new RuntimeException("Unauthorized");
+        }
         RegistrationObservations registrationObservations = new RegistrationObservations(registration);
         registrationObservations.setValue(observations);
         model.addAttribute("saved", true);

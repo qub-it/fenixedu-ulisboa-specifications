@@ -3,12 +3,11 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
@@ -33,11 +32,12 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
 
     private void checkRules() {
         if (LocalizedStringUtil.isTrimmedEmpty(getName())) {
-            throw new DomainException("error.ULisboaServiceRequestValidator.name.required");
+            throw new ULisboaSpecificationsDomainException("error.ULisboaServiceRequestValidator.name.required");
         }
         getName().getLocales().stream().forEach(l -> {
             if (findByName(getName().getContent(l)).count() > 1) {
-                throw new TreasuryDomainException("error.ULisboaServiceRequestValidator.name.duplicated", l.toString());
+                throw new ULisboaSpecificationsDomainException("error.ULisboaServiceRequestValidator.name.duplicated",
+                        l.toString());
             };
         });
     }
@@ -59,7 +59,7 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
 
     @Atomic
     public void delete() {
-        TreasuryDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        ULisboaSpecificationsDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setBennu(null);
         deleteDomainObject();
@@ -79,8 +79,8 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
 
     public static void initValidators() {
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR)).count() == 0) {
-            StateLoggerProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                    ULisboaConstants.STATE_LOGGER_PROCESSOR));
+            StateLoggerProcessor
+                    .create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR));
         }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_ENROLMENTS_BY_YEAR_PROPERTY_PROCESSOR))
                 .count() == 0) {
@@ -89,20 +89,25 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
         }
         if (findByName(
                 BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR))
-                .count() == 0) {
+                        .count() == 0) {
             FillStandAlonePropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR));
         }
         if (findByName(
                 BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR))
-                .count() == 0) {
+                        .count() == 0) {
             FillApprovedEnrolmentsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR));
         }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR))
                 .count() == 0) {
-            AutomaticOnlineRequestProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                    ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR));
+            AutomaticOnlineRequestProcessor.create(
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR));
+        }
+        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.PROGRAM_CONCLUSION_PROCESSOR))
+                .count() == 0) {
+            ProgramConclusionProcessor.create(
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.PROGRAM_CONCLUSION_PROCESSOR));
         }
     }
 

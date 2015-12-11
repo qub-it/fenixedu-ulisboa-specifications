@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -36,7 +36,7 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     private void checkRules() {
         if (getServiceRequestSlot() == null) {
-            throw new DomainException("error.ServiceRequestSlotEntry.slot.required");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlotEntry.slot.required");
         }
     }
 
@@ -58,7 +58,7 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     @Atomic
     public void delete() {
-        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        ULisboaSpecificationsDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setBennu(null);
         setServiceRequestSlot(null);

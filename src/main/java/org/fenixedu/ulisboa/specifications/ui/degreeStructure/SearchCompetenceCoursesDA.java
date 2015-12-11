@@ -13,6 +13,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.ui.struts.action.BolonhaManager.BolonhaManagerApplication.CompetenceCourseManagementApp;
@@ -56,6 +57,15 @@ public class SearchCompetenceCoursesDA extends FenixDispatchAction {
 
         final SearchCompetenceCourseBean searchBean = new SearchCompetenceCourseBean();
         searchBean.setCompetenceCourse(competenceCourse);
+        request.setAttribute("searchBean", searchBean);
+        return mapping.findForward("searchCompetenceCourse");
+    }
+
+    public ActionForward editCompetenceCourseInformation(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+        final CompetenceCourseInformation competenceCourseInformation = getRenderedObject();
+        final SearchCompetenceCourseBean searchBean = new SearchCompetenceCourseBean();
+        searchBean.setCompetenceCourse(competenceCourseInformation.getCompetenceCourse());
         request.setAttribute("searchBean", searchBean);
         return mapping.findForward("searchCompetenceCourse");
     }

@@ -26,15 +26,20 @@ public class StateLoggerProcessor extends StateLoggerProcessor_Base {
         List<AcademicServiceRequestSituation> situations = request.getAcademicServiceRequestSituationsSet().stream()
                 .sorted(AcademicServiceRequestSituation.COMPARATOR_BY_MOST_RECENT_SITUATION_DATE_AND_ID)
                 .collect(Collectors.toList());
-        System.out
-                .println("Change situation from " + situations.get(1).getAcademicServiceRequestSituationType().getLocalizedName()
-                        + " to " + situations.get(0).getAcademicServiceRequestSituationType().getLocalizedName() + ".");
+        String previousSituation =
+                situations.size() == 1 ? "------" : situations.get(1).getAcademicServiceRequestSituationType().getLocalizedName();
+        String currentSituation = situations.get(0).getAcademicServiceRequestSituationType().getLocalizedName();
+        System.out.println("Change situation from " + previousSituation + " to " + currentSituation + ".");
         System.out.println("History States :");
-        request.getAcademicServiceRequestSituationsHistory().stream().forEach(
-                situation -> System.out.print(situation.getAcademicServiceRequestSituationType().getLocalizedName() + " -> "));
+        request.getAcademicServiceRequestSituationsHistory().stream()
+                .sorted(AcademicServiceRequestSituation.COMPARATOR_BY_MOST_RECENT_SITUATION_DATE_AND_ID)
+                .forEach(situation -> System.out
+                        .print(situation.getAcademicServiceRequestSituationType().getLocalizedName() + " -> "));
         System.out.println("\nFiltered States : ");
-        request.getFilteredAcademicServiceRequestSituations().stream().forEach(
-                situation -> System.out.print(situation.getAcademicServiceRequestSituationType().getLocalizedName() + " -> "));
+        request.getFilteredAcademicServiceRequestSituations().stream()
+                .sorted(AcademicServiceRequestSituation.COMPARATOR_BY_MOST_RECENT_SITUATION_DATE_AND_ID)
+                .forEach(situation -> System.out
+                        .print(situation.getAcademicServiceRequestSituationType().getLocalizedName() + " -> "));
     }
 
     @Atomic

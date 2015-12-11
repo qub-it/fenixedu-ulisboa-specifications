@@ -28,6 +28,8 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 import org.fenixedu.academic.domain.Person;
 
+import com.google.common.base.Strings;
+
 import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
 
 public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Base {
@@ -44,9 +46,24 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
             return new PersonUlisboaSpecifications(person);
         }
     }
+    
+    public void delete() {
+        setPerson(null);
+        
+        
+        setDisabilityType(null);
+        setDislocatedResidenceType(null);
+        setFirstOptionInstitution(null);
+        setHouseholdSalarySpan(null);
+        setProfessionTimeType(null);
+        setSecondNationality(null);
+        
+        deleteDomainObject();
+    }
 
     @ConsistencyPredicate
     private boolean checkHasPerson() {
         return getPerson() != null;
     }
+    
 }

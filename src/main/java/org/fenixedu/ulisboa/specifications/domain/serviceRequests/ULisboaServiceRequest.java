@@ -46,7 +46,6 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.documents.GeneratedDocument;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
@@ -70,6 +69,7 @@ import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
@@ -133,8 +133,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 continue;
             }
             if (entry.getRequired() && property.isNullOrEmpty()) {
-                throw new DomainException("error.serviceRequests.ULisboaServiceRequest.required.property.is.empty", entry
-                        .getServiceRequestSlot().getLabel().getContent());
+                throw new ULisboaSpecificationsDomainException(
+                        "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
+                        entry.getServiceRequestSlot().getLabel().getContent());
             }
         }
     }
@@ -161,9 +162,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             request.addServiceRequestProperties(property);
         }
         if (!request.hasExecutionYear()) {
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.createForExecutionYear(ExecutionYear.readCurrentExecutionYear(),
-                            ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
+            ServiceRequestProperty property = ServiceRequestProperty.createForExecutionYear(
+                    ExecutionYear.readCurrentExecutionYear(), ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR));
             request.addServiceRequestProperties(property);
         }
         request.processRequest();
@@ -172,7 +172,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public static ULisboaServiceRequest cloneULisboaServiceRequest(ULisboaServiceRequestBean bean, AcademicServiceRequest original) {
+    public static ULisboaServiceRequest cloneULisboaServiceRequest(ULisboaServiceRequestBean bean,
+            AcademicServiceRequest original) {
         ULisboaServiceRequest clone =
                 new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(), true);
         clone.cloneAttributes(original);
@@ -233,14 +234,14 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     document.getData());
             return document;
         } catch (ReportGenerationException rge) {
-            String composedMessage =
-                    String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
-                            getServiceRequestNumberYear());
+            String composedMessage = String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
+                    getServiceRequestNumberYear());
             logger.error(composedMessage, rge.getCause());
-            throw new DomainException("error.documentRequest.errorGeneratingDocument", rge);
+            throw new ULisboaSpecificationsDomainException(rge, "error.documentRequest.errorGeneratingDocument",
+                    rge.getMessage());
         } catch (Throwable t) {
             logger.error(t.getMessage(), t.getCause());
-            throw new DomainException("error.documentRequest.errorGeneratingDocument", t);
+            throw new ULisboaSpecificationsDomainException(t, "error.documentRequest.errorGeneratingDocument", t.getMessage());
         }
     }
 
@@ -306,7 +307,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public String getOtherDocumentPurposeTypeDescription() {
-        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).getString() : null;
+        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)
+                .getString() : null;
     }
 
     public boolean hasOtherDocumentPurposeTypeDescription() {
@@ -316,7 +318,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     public boolean isDetailed() {
         ServiceRequestProperty detailedProperty = findProperty(ULisboaConstants.IS_DETAILED);
-        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
+        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty
+                .getBooleanValue() : false;
     }
 
     @Override
@@ -393,7 +396,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getApprovedExtraCurriculum() {
-        return hasApprovedExtraCurriculum() ? findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).getICurriculumEntriesSet() : null;
+        return hasApprovedExtraCurriculum() ? findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM)
+                .getICurriculumEntriesSet() : null;
     }
 
     @Override
@@ -461,9 +465,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public ServiceRequestProperty findProperty(String slotCode) {
-        Optional<ServiceRequestProperty> property =
-                getServiceRequestPropertiesSet().stream().filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode))
-                        .findFirst();
+        Optional<ServiceRequestProperty> property = getServiceRequestPropertiesSet().stream()
+                .filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         if (property.isPresent()) {
             return property.get();
         }
@@ -471,9 +474,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public boolean hasProperty(String slotCode) {
-        Optional<ServiceRequestProperty> optProperty =
-                getServiceRequestPropertiesSet().stream()
-                        .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+        Optional<ServiceRequestProperty> optProperty = getServiceRequestPropertiesSet().stream()
+                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         return optProperty.isPresent() && optProperty.get().getValue() != null;
     }
 
@@ -507,12 +509,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToProcessState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.NEW.getLocalizedName());
         }
         if (!getIsValid()) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         transitState(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
@@ -520,15 +522,15 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToConcludedState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.PROCESSING.getLocalizedName());
         }
         if (!getIsValid()) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         if (getServiceRequestType().getPrintable() && getGeneratedDocumentsSet().isEmpty()) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.must.generate.document");
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.must.generate.document");
         }
         transitState(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         if (getServiceRequestType().isToNotifyUponConclusion()) {
@@ -539,12 +541,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToDeliverState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.CONCLUDED.getLocalizedName());
         }
         if (!getIsValid()) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
         transitState(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
@@ -552,7 +554,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToCancelState(String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
@@ -562,7 +564,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void transitToRejectState(String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
@@ -572,7 +574,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Atomic
     public void revertState(boolean notifyRevertAction) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW) {
-            throw new DomainException("error.serviceRequests.ULisboaServiceRequest.invalid.revert");
+            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.revert");
         }
         if (notifyRevertAction) {
             sendReversionApology();
@@ -632,38 +634,29 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     private void sendConclusionNotification() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(),
-                        getServiceRequestNumberYear());
-        String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
-                                .getProfile().getDisplayName());
-        String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
-                        getServiceRequestNumberYear());
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(), getServiceRequestNumberYear());
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.salutation.male",
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
+                getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
     private void sendReversionApology() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject =
-                BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, getLanguage(),
-                                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(),
-                                getServiceRequestNumberYear());
-        String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, getLanguage(), "message.ULisboaServiceRequest.salutation.female",
-                                getPerson().getProfile().getDisplayName());
-        String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
-                        getServiceRequestNumberYear());
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(), getServiceRequestNumberYear());
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.salutation.male",
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
+                getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
@@ -686,8 +679,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(Registration registration) {
-        return findByRegistration(registration).filter(
-                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
+        return findByRegistration(registration)
+                .filter(request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
     }
 
     public static Stream<ULisboaServiceRequest> findProcessingAcademicServiceRequests(Registration registration) {
@@ -798,7 +791,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Deprecated
     @Override
     public void edit(AcademicServiceRequestBean academicServiceRequestBean) {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.workFlow");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.workFlow");
     }
 
     @Deprecated
@@ -816,145 +809,145 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Deprecated
     @Override
     public boolean isPayedUponCreation() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isPossibleToSendToOtherEntity() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isManagedWithRectorateSubmissionBatch() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public EventType getEventType() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public AcademicServiceRequestType getAcademicServiceRequestType() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean hasPersonalInfo() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public AcademicProgram getAcademicProgram() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected void checkRulesToChangeState(AcademicServiceRequestSituationType situationType) {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isDownloadPossible() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected void internalChangeState(AcademicServiceRequestBean academicServiceRequestBean) {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected void verifyIsToDeliveredAndIsPayed(AcademicServiceRequestBean academicServiceRequestBean) {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected void verifyIsToProcessAndHasPersonalInfo(AcademicServiceRequestBean academicServiceRequestBean) {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isPiggyBackedOnRegistry() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isCanGenerateRegistryCode() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isRequestForPerson() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isRequestForPhd() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isRequestForRegistration() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected void internalRevertToProcessingState() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public void revertToProcessingState() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isDiploma() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isPastDiploma() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isRegistryDiploma() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isDiplomaSupplement() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public boolean isBatchSet() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
@@ -966,49 +959,49 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Deprecated
     @Override
     public boolean hasRegistryCode() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected List<AcademicServiceRequestSituationType> getNewSituationAcceptedSituationsTypes() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected List<AcademicServiceRequestSituationType> getProcessingSituationAcceptedSituationsTypes() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected List<AcademicServiceRequestSituationType> getSentToExternalEntitySituationAcceptedSituationsTypes() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected List<AcademicServiceRequestSituationType> getReceivedFromExternalEntitySituationAcceptedSituationsTypes() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     protected List<AcademicServiceRequestSituationType> getConcludedSituationAcceptedSituationsTypes() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public GeneratedDocument getLastGeneratedDocument() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
     public Set<DocumentRequestGeneratedDocument> getDocumentSet() {
-        throw new DomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
+        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated

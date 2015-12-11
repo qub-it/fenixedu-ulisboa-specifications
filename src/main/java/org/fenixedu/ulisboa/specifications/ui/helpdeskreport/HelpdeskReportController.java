@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -39,7 +40,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +54,8 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 @Controller
 @RequestMapping(HelpdeskReportController.CONTROLLER_URL)
 public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseController {
+
+    public static final Collection<HelpdeskHandler> helpdeskHandlers = new ArrayList<>();
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/helpdeskreport";
 
@@ -88,8 +90,18 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
                     carbonCopies.stream().reduce("", (a, b) -> a + " " + b).trim(),
                     blindCarnonCopies.stream().reduce("", (a, b) -> a + " " + b).trim(), mailSubject, mailBody);
         } else {
-            sendEmail(EmailValidator.getInstance().isValid(submitterEmail) ? submitterEmail : PortalConfiguration.getInstance()
-                    .getSupportEmailAddress(), recipients, carbonCopies, blindCarnonCopies, mailSubject, mailBody, jsonReportForm);
+            sendEmail(
+                    EmailValidator.getInstance().isValid(submitterEmail) ? submitterEmail : PortalConfiguration.getInstance()
+                            .getSupportEmailAddress(),
+                    recipients, carbonCopies, blindCarnonCopies, mailSubject, mailBody, jsonReportForm);
+        }
+        for (HelpdeskHandler handler : helpdeskHandlers) {
+            try {
+                handler.process(jsonReportForm);
+            } catch (Throwable e) {
+                //Avoid exceptions to affect other handlers or the request result
+                logger.error("Handler " + handler.getClass().getName() + " threw an error: " + e.getClass().getName());
+            }
         }
     }
 
@@ -186,6 +198,10 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
 
         generateLabel(builder, "Type").append('[').append(bean.getType().toUpperCase()).append("]\n");
 
+        if (bean.getPriority() != null) {
+            generateLabel(builder, "Priority").append('[').append(bean.getPriority().toUpperCase()).append("]\n");
+        }
+
         // Extra Info
         generateLabel(builder, "When").append('[').append(DateTime.now()).append("]\n");
         generateLabel(builder, "Host").append('[').append(hostname).append("]\n");
@@ -229,8 +245,8 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
 
             if (!Strings.isNullOrEmpty(bean.getAttachment())) {
                 BodyPart messageBodyPart = new MimeBodyPart();
-                messageBodyPart.setDataHandler(new DataHandler(new ByteArrayDataSource(Base64.getDecoder().decode(
-                        bean.getAttachment()), bean.getMimeType())));
+                messageBodyPart.setDataHandler(new DataHandler(
+                        new ByteArrayDataSource(Base64.getDecoder().decode(bean.getAttachment()), bean.getMimeType())));
                 messageBodyPart.setFileName(bean.getFileName());
                 multipart.addBodyPart(messageBodyPart);
             }
@@ -243,4 +259,12 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
         }
     }
 
+    public static void registerHelpdeskHandler(HelpdeskHandler handler) {
+        helpdeskHandlers.add(handler);
+    }
+
+    //Enables other communication channels to send helpdesk submissions (e.g IRC)
+    public static interface HelpdeskHandler {
+        public void process(HelpdeskReportForm form);
+    }
 }

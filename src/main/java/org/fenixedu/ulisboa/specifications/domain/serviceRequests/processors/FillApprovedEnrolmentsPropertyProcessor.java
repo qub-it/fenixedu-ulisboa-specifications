@@ -32,7 +32,7 @@ public class FillApprovedEnrolmentsPropertyProcessor extends FillApprovedEnrolme
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest()) {
+        if (request.isNewRequest() && !request.hasApprovedEnrolments()) {
             List<ICurriculumEntry> enrolments =
                     request.getRegistration().getLastStudentCurricularPlan().getCurriculum(new DateTime(), null)
                             .getCurriculumEntries().stream().filter(e -> e instanceof Enrolment).collect(Collectors.toList());

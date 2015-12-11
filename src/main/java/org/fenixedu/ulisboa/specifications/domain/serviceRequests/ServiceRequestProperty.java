@@ -11,13 +11,13 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -57,7 +57,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     private void checkRules() {
 
         if (getServiceRequestSlot() == null) {
-            throw new DomainException("error.ServiceRequestProperty.serviceRequestSlot.required");
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.serviceRequestSlot.required");
         }
     }
 
@@ -68,7 +68,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
     @Atomic
     public void delete() {
-        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        ULisboaSpecificationsDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setULisboaServiceRequest(null);
         setDocumentPurposeTypeInstance(null);
@@ -191,7 +191,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
             } else if (entry instanceof ExternalEnrolment) {
                 serviceRequestProperty.addExternalEnrolments((ExternalEnrolment) entry);
             } else {
-                throw new DomainException("error.ServiceRequestProperty.curriculumEntry.not.supported");
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.curriculumEntry.not.supported");
             }
         }
         return serviceRequestProperty;
@@ -213,7 +213,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
             if (ULisboaConstants.ICURRICULUM_ENTRY_OBJECTS.contains(getServiceRequestSlot().getCode())) {
                 return getICurriculumEntriesSet();
             } else {
-                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
             }
 
         case DROP_DOWN_ONE_VALUE:
@@ -232,7 +232,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
             case ULisboaConstants.CURRICULAR_PLAN:
                 return getStudentCurricularPlan();
             default:
-                throw new DomainException("error.ServiceRequestSlot.not.supported.type");
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
             }
         }
     }

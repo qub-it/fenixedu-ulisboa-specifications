@@ -44,6 +44,8 @@ external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.Do
 external class .org.fenixedu.academic.domain.ExecutionYear;
 external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 external class .org.fenixedu.academic.domain.StudentCurricularPlan;
+external class .org.fenixedu.bennu.core.domain.User;
+external class .org.fenixedu.bennu.io.domain.GenericFile;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -175,6 +177,7 @@ class PersonUlisboaSpecifications {
     String firstOptionDegreeDesignation;
     boolean authorizeSharingDataWithCGD;
     String dgesTempIdCode;
+    String oldInformation;
 }
 
 relation PersonUlPerson {
@@ -649,6 +652,10 @@ class serviceRequests.processors.ULisboaServiceRequestProcessor {
     LocalizedString name;
 }
 
+class serviceRequests.processors.ProgramConclusionProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+    
+}
+
 class serviceRequests.processors.StateLoggerProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
     
 }
@@ -920,3 +927,37 @@ relation RegistrationObservationRegistration{
     }
 }
 // ======================= Registration Observations end =========================
+
+
+/*
+* Temporary Files
+*/
+class file.ULisboaSpecificationsTemporaryFile extends .org.fenixedu.bennu.io.domain.GenericFile {
+        
+}
+
+relation ULisboaSpecificationsTemporaryFileRoot {
+   
+    ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
+    	multiplicity 1..1;
+    }
+    
+    file.ULisboaSpecificationsTemporaryFile playsRole temporaryFiles {
+        multiplicity *;
+    }
+}
+
+relation ULisboaSpecificationsTemporaryFileUser {
+
+	.org.fenixedu.bennu.core.domain.User playsRole uLisboaTemporaryFileOwner {
+		multiplicity 1..1;
+	}
+
+	file.ULisboaSpecificationsTemporaryFile playsRole uLisboaTemporaryFiles {
+        multiplicity *;
+    }
+}
+
+
+
+

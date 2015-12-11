@@ -32,7 +32,7 @@ public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearP
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest()) {
+        if (request.isNewRequest() && !request.hasEnrolmentsByYear()) {
             ExecutionYear executionYear =
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
             List<ICurriculumEntry> enrolments =
@@ -45,9 +45,8 @@ public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearP
                         executionYear.getYear());
             }
 
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.createForICurriculumEntry(enrolments,
-                            ServiceRequestSlot.getByCode(ULisboaConstants.ENROLMENTS_BY_YEAR));
+            ServiceRequestProperty property = ServiceRequestProperty.createForICurriculumEntry(enrolments,
+                    ServiceRequestSlot.getByCode(ULisboaConstants.ENROLMENTS_BY_YEAR));
             request.addServiceRequestProperties(property);
         }
 
