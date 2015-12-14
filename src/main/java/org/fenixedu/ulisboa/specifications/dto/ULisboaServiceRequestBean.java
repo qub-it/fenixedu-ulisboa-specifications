@@ -353,7 +353,37 @@ public class ULisboaServiceRequestBean implements IBean {
                 }
                 Stream<ICurriculumEntry> collection =
                         bean.getRegistration().getStudentCurricularPlan(executionYear)
-                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(e -> !e.isAnnulled())
+                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isNormalEnrolment)
+                                .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_YEAR);
+                if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection =
+                        bean.getRegistration().getStudentCurricularPlan(executionYear)
+                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
+                                .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR, new DataSourceProvider() {
+
+            @Override
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                final ExecutionYear executionYear = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_YEAR);
+                if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection =
+                        bean.getRegistration().getStudentCurricularPlan(executionYear)
+                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isExtraCurricular)
                                 .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }

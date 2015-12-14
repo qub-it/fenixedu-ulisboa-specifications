@@ -37,7 +37,8 @@ public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearP
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
             List<ICurriculumEntry> enrolments =
                     request.getRegistration().getStudentCurricularPlan(executionYear).getEnrolmentsByExecutionYear(executionYear)
-                            .stream().filter(e -> !e.isAnnulled()).map(ICurriculumEntry.class::cast).collect(Collectors.toList());
+                            .stream().filter(ULisboaConstants.isNormalEnrolment).map(ICurriculumEntry.class::cast)
+                            .collect(Collectors.toList());
 
             if (!validate(enrolments)) {
                 throw new ULisboaSpecificationsDomainException("error.serviceRequest.hasNoEnrolments.forExecutionYear",
