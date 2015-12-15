@@ -43,7 +43,6 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntryR
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DegreeCurricularPlanInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentSignerDataProvider;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsByYearDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.LocalizedDatesProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.RegistrationDataProvider;
@@ -97,8 +96,10 @@ public class DocumentPrinter {
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
         generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
                 executionYear));
-        if (serviceRequest.hasEnrolmentsByYear()) {
+        if (serviceRequest.hasEnrolmentsByYear() || serviceRequest.hasStandaloneEnrolmentsByYear()
+                || serviceRequest.hasExtracurricularEnrolmentsByYear()) {
             generator.registerDataProvider(new EnrolmentsDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
+                    serviceRequest.getStandaloneEnrolmentsByYear(), serviceRequest.getExtracurricularEnrolmentsByYear(),
                     executionYear, serviceRequest.getLanguage()));
         }
 
