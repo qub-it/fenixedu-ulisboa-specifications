@@ -108,7 +108,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .filter(req -> situationType == null
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
                 .filter(req -> req.isUrgent() == isUrgent)
-                .filter(req -> req.getServiceRequestNumberYear().contains(requestNumber)).collect(Collectors.toList());
+                .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
+                .collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
