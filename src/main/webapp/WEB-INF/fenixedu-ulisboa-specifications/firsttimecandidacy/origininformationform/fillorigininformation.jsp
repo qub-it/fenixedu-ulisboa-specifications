@@ -37,39 +37,63 @@ ${portal.toolkit()}
 	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
 </div>
 
-	<c:if test="${not empty infoMessages}">
-				<div class="alert alert-info" role="alert">
-					
-					<c:forEach items="${infoMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
-			<c:if test="${not empty warningMessages}">
-				<div class="alert alert-warning" role="alert">
-					
-					<c:forEach items="${warningMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
-			<c:if test="${not empty errorMessages}">
-				<div class="alert alert-danger" role="alert">
-					
-					<c:forEach items="${errorMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
+<c:if test="${not empty infoMessages}">
+	<div class="alert alert-info" role="alert">
+
+		<c:forEach items="${infoMessages}" var="message">
+			<p>
+				<span class="glyphicon glyphicon glyphicon-ok-sign"
+					aria-hidden="true">&nbsp;</span> ${message}
+			</p>
+		</c:forEach>
+
+	</div>
+</c:if>
+<c:if test="${not empty warningMessages}">
+	<div class="alert alert-warning" role="alert">
+
+		<c:forEach items="${warningMessages}" var="message">
+			<p>
+				<span class="glyphicon glyphicon-exclamation-sign"
+					aria-hidden="true">&nbsp;</span> ${message}
+			</p>
+		</c:forEach>
+
+	</div>
+</c:if>
+<c:if test="${not empty errorMessages}">
+	<div class="alert alert-danger" role="alert">
+
+		<c:forEach items="${errorMessages}" var="message">
+			<p>
+				<span class="glyphicon glyphicon-exclamation-sign"
+					aria-hidden="true">&nbsp;</span> ${message}
+			</p>
+		</c:forEach>
+
+	</div>
+</c:if>
+
+<p><strong>Deverás preencher a habilitação <em>completa</em> quando ingressaste neste curso:</strong></p>
+<p><em>TODO: ALTERAR TEXTO</em></p>
+
+<table class="table">
+	<tbody>
+		<tr>
+			<th scope="row" class="col-xs-3"><spring:message
+					code="label.OriginInformationForm.registration.name" /></th>
+			<td>${registration.degree.presentationNameI18N.content}</td>
+		</tr>
+
+		<tr>
+			<th scope="row" class="col-xs-3"><spring:message
+					code="label.OriginInformationForm.registration.startDate" /></th>
+			<td><joda:format value="${registration.startDate}" style="YYYY" /></td>
+		</tr>
+
+
+	</tbody>
+</table>
 
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
@@ -135,9 +159,6 @@ ${portal.toolkit()}
 									value='${field.localizedName}' /></option>
 						</c:forEach>
 					</select>
-					<script>
-						$("#originInformationForm_schoolLevel").val('<c:out value='${not empty param.schoollevel ? param.schoollevel : originInformationForm.schoolLevel }'/>');
-					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -181,8 +202,7 @@ ${portal.toolkit()}
 			<div class="form-group row"
 				id="originInformationForm_raidesDegreeDesignation_row">
 				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.OriginInformationForm.raidesDegreeDesignation" />
+					<spring:message code="label.OriginInformationForm.raidesDegreeDesignation" />
 				</div>
 
 				<div class="col-sm-10">
@@ -411,7 +431,8 @@ function configureOriginInformationFieldsEditableState(){
 		    data: function (params) {
 		      return {
 		        namePart: params.term, // search term
-		        page: params.page
+		        page: params.page,
+		        schoolLevelType: $("#originInformationForm_schoolLevel option:selected").val()
 		      };
 		    },
 		    processResults: function (data, page) {
@@ -505,4 +526,8 @@ function configureOriginInformationFieldsEditableState(){
 	             	    $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    	</c:if>
+   	
+   	
+	$("#originInformationForm_schoolLevel").select2().val('<c:out value='${not empty param.schoollevel ? param.schoollevel : originInformationForm.schoolLevel }'/>');
+   	
 </script>
