@@ -5,6 +5,7 @@ import java.util.List;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType;
@@ -89,6 +90,15 @@ public class ServiceRequestPropertyBean implements IBean {
         setRequired(serviceRequestSlotEntry.getRequired());
         setUiComponentType(serviceRequestSlot.getUiComponentType());
         setLabel(serviceRequestSlot.getLabel());
+    }
+
+    public ServiceRequestPropertyBean(ServiceRequestProperty property) {
+        this();
+        ServiceRequestSlot slot = property.getServiceRequestSlot();
+        setCode(slot.getCode());
+        setUiComponentType(slot.getUiComponentType());
+        setLabel(slot.getLabel());
+        setRequired(true);
     }
 
     public boolean isValueStoredAsString() {

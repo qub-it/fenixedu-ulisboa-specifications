@@ -50,10 +50,12 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestRestriction;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -74,6 +76,7 @@ public class ULisboaServiceRequestBean implements IBean {
     private List<TupleDataSourceBean> serviceRequestTypesDataSource;
     private List<ServiceRequestPropertyBean> serviceRequestPropertyBeans;
     private boolean requestedOnline;
+    private DateTime requestDate;
 
     public Registration getRegistration() {
         return registration;
@@ -131,6 +134,14 @@ public class ULisboaServiceRequestBean implements IBean {
         this.requestedOnline = requestedOnline;
     }
 
+    public DateTime getRequestDate() {
+        return requestDate;
+    }
+
+    public void setRequestDate(DateTime requestDate) {
+        this.requestDate = requestDate;
+    }
+
     public ULisboaServiceRequestBean() {
         setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
     }
@@ -139,18 +150,35 @@ public class ULisboaServiceRequestBean implements IBean {
         this();
         setRegistration(registration);
         setRequestedOnline(requestedOnline);
-        setServiceRequestTypesDataSource(ServiceRequestType.findActive()
-                .filter(ServiceRequestRestriction.restrictionFilter(registration))
-                .filter(srt -> !requestedOnline || srt.isRequestedOnline())
-                .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
+        setServiceRequestTypesDataSource(
+                ServiceRequestType.findActive().filter(ServiceRequestRestriction.restrictionFilter(registration))
+                        .filter(srt -> !requestedOnline || srt.isRequestedOnline())
+                        .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
+    }
+
+    public void updateServiceRequest(ULisboaServiceRequest request) {
+        setRegistration(request.getRegistration());
+        setRequestedOnline(request.getRequestedOnline());
+        setRequestDate(request.getRequestDate());
+        setServiceRequestType(request.getServiceRequestType());
+        setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
+        for (ServiceRequestProperty property : request.getSortedServiceRequestProperties()) {
+            ServiceRequestPropertyBean propertyBean = new ServiceRequestPropertyBean(property);
+            if (propertyBean.getUiComponent().needDataSource()) {
+                DataSourceProvider dataSourceProvider =
+                        ULisboaServiceRequestBean.DATA_SOURCE_PROVIDERS.get(propertyBean.getCode());
+                propertyBean.setDataSource(dataSourceProvider.provideDataSourceList(this));
+            }
+            propertyBean.setValue(property.getValueAsString());
+            serviceRequestPropertyBeans.add(propertyBean);
+        }
     }
 
     private boolean isSameServiceRequestType() {
         Set<String> oldSlotNames =
                 serviceRequestPropertyBeans.stream().map(ServiceRequestPropertyBean::getCode).collect(Collectors.toSet());
-        Set<String> newSlotNames =
-                serviceRequestType.getServiceRequestSlotEntriesSet().stream()
-                        .map(entry -> entry.getServiceRequestSlot().getCode()).collect(Collectors.toSet());
+        Set<String> newSlotNames = serviceRequestType.getServiceRequestSlotEntriesSet().stream()
+                .map(entry -> entry.getServiceRequestSlot().getCode()).collect(Collectors.toSet());
         return oldSlotNames.size() == newSlotNames.size() && Sets.difference(oldSlotNames, newSlotNames).isEmpty();
     }
 
@@ -220,11 +248,11 @@ public class ULisboaServiceRequestBean implements IBean {
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 return DocumentPurposeTypeInstance.findActivesFor(bean.getServiceRequestType())
                         .sorted(DocumentPurposeTypeInstance.COMPARE_BY_LEGACY).map(x -> {
-                            TupleDataSourceBean tuple = new TupleDataSourceBean();
-                            tuple.setId(x.getExternalId());
-                            tuple.setText(x.getName().getContent());
-                            return tuple;
-                        }).collect(Collectors.toList());
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getName().getContent());
+                    return tuple;
+                }).collect(Collectors.toList());
             }
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CYCLE_TYPE, new DataSourceProvider() {
@@ -234,13 +262,13 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (bean.getRegistration().getDegreeType() == null) {
                     return Collections.emptyList();
                 }
-                return bean.getRegistration().getDegreeType().getCycleTypes().stream()
-                        .sorted(CycleType.COMPARATOR_BY_LESS_WEIGHT).map(x -> {
-                            TupleDataSourceBean tuple = new TupleDataSourceBean();
-                            tuple.setId(x.toString());
-                            tuple.setText(x.getDescription());
-                            return tuple;
-                        }).collect(Collectors.toList());
+                return bean.getRegistration().getDegreeType().getCycleTypes().stream().sorted(CycleType.COMPARATOR_BY_LESS_WEIGHT)
+                        .map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.toString());
+                    tuple.setText(x.getDescription());
+                    return tuple;
+                }).collect(Collectors.toList());
             }
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.PROGRAM_CONCLUSION, new DataSourceProvider() {
@@ -267,11 +295,11 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (executionYear == null) {
                     return bean.getRegistration().getStudentCurricularPlansSet().stream()
                             .sorted((x, y) -> x.getName().compareTo(y.getName())).map(x -> {
-                                TupleDataSourceBean tuple = new TupleDataSourceBean();
-                                tuple.setId(x.getExternalId());
-                                tuple.setText(x.getName());
-                                return tuple;
-                            }).collect(Collectors.toList());
+                        TupleDataSourceBean tuple = new TupleDataSourceBean();
+                        tuple.setId(x.getExternalId());
+                        tuple.setText(x.getName());
+                        return tuple;
+                    }).collect(Collectors.toList());
                 }
 
                 final StudentCurricularPlan studentCurricularPlan =
@@ -293,9 +321,8 @@ public class ULisboaServiceRequestBean implements IBean {
                         || bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup() == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection =
-                        bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup().getEnrolmentsSet()
-                                .stream().map(ICurriculumEntry.class::cast);
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getLastStudentCurricularPlan()
+                        .getExtraCurriculumGroup().getEnrolmentsSet().stream().map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
 
@@ -310,9 +337,8 @@ public class ULisboaServiceRequestBean implements IBean {
                         || bean.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup() == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection =
-                        bean.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet()
-                                .stream().map(ICurriculumEntry.class::cast);
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getLastStudentCurricularPlan()
+                        .getStandaloneCurriculumGroup().getEnrolmentsSet().stream().map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
         });
@@ -395,11 +421,11 @@ public class ULisboaServiceRequestBean implements IBean {
                 return ExecutionYear.readNotClosedExecutionYears().stream()
                         .filter(e -> e.isAfterOrEquals(bean.getRegistration().getRegistrationYear()))
                         .sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(x -> {
-                            TupleDataSourceBean tuple = new TupleDataSourceBean();
-                            tuple.setId(x.getExternalId());
-                            tuple.setText(x.getName());
-                            return tuple;
-                        }).collect(Collectors.toList());
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getName());
+                    return tuple;
+                }).collect(Collectors.toList());
             }
         });
     }

@@ -197,6 +197,46 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return serviceRequestProperty;
     }
 
+    public String getValueAsString() {
+        switch (getServiceRequestSlot().getUiComponentType()) {
+        case DROP_DOWN_BOOLEAN:
+            return getBooleanValue().toString();
+        case NUMBER:
+            return getInteger().toString();
+        case TEXT:
+            return getString();
+        case TEXT_LOCALIZED_STRING:
+            return getLocalizedString().toString();
+        case DATE:
+            return getDateTime().toString();
+        case DROP_DOWN_MULTIPLE:
+            if (ULisboaConstants.ICURRICULUM_ENTRY_OBJECTS.contains(getServiceRequestSlot().getCode())) {
+                return getICurriculumEntriesSet().toString();
+            } else {
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
+            }
+
+        case DROP_DOWN_ONE_VALUE:
+        default:
+            switch (getServiceRequestSlot().getCode()) {
+            case ULisboaConstants.LANGUAGE:
+                return getLocale().toString();
+            case ULisboaConstants.DOCUMENT_PURPOSE_TYPE:
+                return getDocumentPurposeTypeInstance().getExternalId();
+            case ULisboaConstants.CYCLE_TYPE:
+                return getCycleType().toString();
+            case ULisboaConstants.PROGRAM_CONCLUSION:
+                return getProgramConclusion().getExternalId();
+            case ULisboaConstants.EXECUTION_YEAR:
+                return getExecutionYear().getExternalId();
+            case ULisboaConstants.CURRICULAR_PLAN:
+                return getStudentCurricularPlan().getExternalId();
+            default:
+                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
+            }
+        }
+    }
+
     public Object getValue() {
         switch (getServiceRequestSlot().getUiComponentType()) {
         case DROP_DOWN_BOOLEAN:
