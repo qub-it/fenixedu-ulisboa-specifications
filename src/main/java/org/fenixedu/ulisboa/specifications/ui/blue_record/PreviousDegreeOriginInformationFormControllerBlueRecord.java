@@ -30,20 +30,20 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 import java.util.Optional;
 
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.OriginInformationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PreviousDegreeOriginInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
-@RequestMapping(OriginInformationFormControllerBlueRecord.CONTROLLER_URL)
-public class OriginInformationFormControllerBlueRecord extends OriginInformationFormController {
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/origininformationform";
+@RequestMapping(PreviousDegreeOriginInformationFormControllerBlueRecord.CONTROLLER_URL)
+public class PreviousDegreeOriginInformationFormControllerBlueRecord extends PreviousDegreeOriginInformationFormController {
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/previousdegreeorigininformationform";
 
     @Override
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PreviousDegreeOriginInformationFormControllerBlueRecord.CONTROLLER_URL
-                + PreviousDegreeOriginInformationFormControllerBlueRecord._FILLPREVIOUSDEGREEINFORMATION_URI, model, redirectAttributes);
+        return redirect(DisabilitiesFormControllerBlueRecord.CONTROLLER_URL
+                + DisabilitiesFormControllerBlueRecord._FILLDISABILITIES_URI, model, redirectAttributes);
     }
 
     @Override

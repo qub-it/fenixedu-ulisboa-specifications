@@ -30,12 +30,9 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
@@ -46,21 +43,17 @@ import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutio
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController.DegreeDesignationBean;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
@@ -68,15 +61,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
-
-import com.google.common.base.Strings;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
@@ -102,26 +94,62 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
-    public String fillorigininformation(Model model, RedirectAttributes redirectAttributes) {
+    public String fillorigininformation(final Model model, final RedirectAttributes redirectAttributes) {
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
+
+        if (findCompletePrecedentDegreeInformationsToFill().isEmpty()) {
+            return nextScreen(model, redirectAttributes);
+        }
+
+        return redirect(
+                getControllerURL() + _FILLORIGININFORMATION_URI + "/"
+                        + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
+                model, redirectAttributes);
+    }
+
+    @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
+    public String fillorigininformation(@PathVariable("registrationId") final Registration registration, final Model model,
+            final RedirectAttributes redirectAttributes) {
+
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
+        model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
-        fillFormIfRequired(model);
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillOriginInformation.info"), model);
+
+        fillFormIfRequired(registration, model);
+
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
     }
 
-    private void fillFormIfRequired(Model model) {
+    private Object schoolLevelTypeValues() {
+        final List<SchoolLevelType> result = Lists.newArrayList();
+        
+        result.add(SchoolLevelType.BACHELOR_DEGREE);
+        result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.DEGREE);
+        result.add(SchoolLevelType.DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.DOCTORATE_DEGREE);
+        result.add(SchoolLevelType.DOCTORATE_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.MASTER_DEGREE);
+        result.add(SchoolLevelType.MASTER_DEGREE_INTEGRATED);
+        result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.OTHER);
+        result.add(SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT);
+        result.add(SchoolLevelType.MEDIUM_EDUCATION);
+        result.add(SchoolLevelType.TECHNICAL_SPECIALIZATION);
+        
+        return result;
+    }
+
+    private void fillFormIfRequired(final Registration registration, Model model) {
         if (!model.containsAttribute("originInformationForm")) {
             OriginInformationForm form = new OriginInformationForm();
 
-            PrecedentDegreeInformation precedentDegreeInformation = getPrecedentDegreeInformation();
-            PersonalIngressionData personalData = getPersonalIngressionData();
+            final PrecedentDegreeInformation precedentDegreeInformation =
+                    registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
             form.setSchoolLevel(precedentDegreeInformation.getSchoolLevel());
             if (form.getSchoolLevel() == SchoolLevelType.OTHER) {
@@ -159,8 +187,9 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
             form.setDistrictWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrict());
             form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
 
-            form.setHighSchoolType(personalData.getHighSchoolType());
+            form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
 
+            model.addAttribute("registration", registration);
             model.addAttribute("originInformationForm", form);
         } else {
             OriginInformationForm form = (OriginInformationForm) model.asMap().get("originInformationForm");
@@ -175,20 +204,30 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
         }
     }
 
-    @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.POST)
-    public String fillorigininformation(OriginInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
+    public String fillorigininformation(OriginInformationForm form,
+            @PathVariable("registrationId") final Registration registration, Model model, RedirectAttributes redirectAttributes) {
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
-        if (!validate(form, model)) {
+
+        if (!validate(registration, form, model)) {
             return fillorigininformation(model, redirectAttributes);
         }
 
         try {
-            writeData(form);
-            model.addAttribute("originInformationForm", form);
-            return nextScreen(model, redirectAttributes);
+            writeData(registration, form);
+
+            if (findCompletePrecedentDegreeInformationsToFill().isEmpty()) {
+                return nextScreen(model, redirectAttributes);
+            }
+
+            return redirect(
+                    getControllerURL() + _FILLORIGININFORMATION_URI + "/"
+                            + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
+                    model, redirectAttributes);
+            
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
@@ -198,10 +237,11 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     }
 
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
+        return redirect(PreviousDegreeOriginInformationFormController.FILLPREVIOUSDEGREEINFORMATION_URL, model, redirectAttributes);
     }
 
-    private boolean validate(OriginInformationForm form, Model model) {
+    private boolean validate(final Registration registration, OriginInformationForm form, Model model) {
+
         if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
             return false;
@@ -216,8 +256,8 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
             }
         }
 
-        if (form.getSchoolLevel() == null || form.getSchoolLevel() == SchoolLevelType.OTHER
-                && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
+        if (form.getSchoolLevel() == null
+                || form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
             return false;
@@ -276,9 +316,10 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     }
 
     @Atomic
-    protected void writeData(OriginInformationForm form) {
-        PrecedentDegreeInformation precedentDegreeInformation = getPrecedentDegreeInformation();
-        PersonalIngressionData personalData = getPersonalIngressionData();
+    protected void writeData(final Registration registration, final OriginInformationForm form) {
+        final PrecedentDegreeInformation precedentDegreeInformation =
+                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        final PersonalIngressionData personalData = getPersonalIngressionData();
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());
         precedentDegreeInformation.setDegreeDesignation(form.getDegreeDesignation());
@@ -295,11 +336,10 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
                 Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                 Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                 Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                institutionObject =
-                        Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
-                                resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
-                                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
-                                null, null);
+                institutionObject = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
+                        resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
+                        AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null, null,
+                        null);
             }
         }
         precedentDegreeInformation.setInstitution((Unit) institutionObject);
