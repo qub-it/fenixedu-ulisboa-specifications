@@ -91,7 +91,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+        model.addAttribute("districts_options",
+                FiliationFormController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
 
         List<ResidenceType> allResidenceTypes = ResidenceType.readAll().collect(Collectors.toList());
         Collections.sort(allResidenceTypes);
@@ -348,7 +349,8 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         Function<DistrictSubdivision, DistrictSubdivisionBean> createSubdivisionBean =
                 ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName());
         List<DistrictSubdivisionBean> subdivisions =
-                district.getDistrictSubdivisionsSet().stream().map(createSubdivisionBean).collect(Collectors.toList());
+                FiliationFormController.getSubdivisionsWithParishes(district).map(createSubdivisionBean)
+                        .collect(Collectors.toList());
         subdivisions.add(new DistrictSubdivisionBean("", ""));
         return subdivisions;
     }
