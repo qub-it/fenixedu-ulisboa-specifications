@@ -63,12 +63,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
@@ -104,10 +104,9 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
             return nextScreen(model, redirectAttributes);
         }
 
-        return redirect(
-                getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                        + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
-                model, redirectAttributes);
+        return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
+                + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(), model,
+                redirectAttributes);
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
@@ -126,7 +125,7 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
 
     private Object schoolLevelTypeValues() {
         final List<SchoolLevelType> result = Lists.newArrayList();
-        
+
         result.add(SchoolLevelType.BACHELOR_DEGREE);
         result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.DEGREE);
@@ -140,7 +139,7 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
         result.add(SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT);
         result.add(SchoolLevelType.MEDIUM_EDUCATION);
         result.add(SchoolLevelType.TECHNICAL_SPECIALIZATION);
-        
+
         return result;
     }
 
@@ -223,11 +222,10 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
                 return nextScreen(model, redirectAttributes);
             }
 
-            return redirect(
-                    getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                            + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
-                    model, redirectAttributes);
-            
+            return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
+                    + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(), model,
+                    redirectAttributes);
+
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
@@ -237,7 +235,8 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     }
 
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PreviousDegreeOriginInformationFormController.FILLPREVIOUSDEGREEINFORMATION_URL, model, redirectAttributes);
+        return redirect(PreviousDegreeOriginInformationFormController.FILLPREVIOUSDEGREEINFORMATION_URL, model,
+                redirectAttributes);
     }
 
     private boolean validate(final Registration registration, OriginInformationForm form, Model model) {
@@ -256,8 +255,8 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
             }
         }
 
-        if (form.getSchoolLevel() == null
-                || form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
+        if (form.getSchoolLevel() == null || form.getSchoolLevel() == SchoolLevelType.OTHER
+                && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
             return false;
@@ -336,10 +335,11 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
                 Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                 Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                 Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                institutionObject = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
-                        resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
-                        AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null, null,
-                        null);
+                institutionObject =
+                        Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
+                                resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
+                                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
+                                null, null);
             }
         }
         precedentDegreeInformation.setInstitution((Unit) institutionObject);
