@@ -14,8 +14,8 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import pt.ist.fenixframework.Atomic;
 
-public class FillExtracurricularEnrolmentsByYearPropertyProcessor extends
-        FillExtracurricularEnrolmentsByYearPropertyProcessor_Base {
+public class FillExtracurricularEnrolmentsByYearPropertyProcessor
+        extends FillExtracurricularEnrolmentsByYearPropertyProcessor_Base {
 
     protected FillExtracurricularEnrolmentsByYearPropertyProcessor() {
         super();
@@ -33,25 +33,20 @@ public class FillExtracurricularEnrolmentsByYearPropertyProcessor extends
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest() && !request.hasEnrolmentsByYear()) {
+        if (!request.hasExtracurricularEnrolmentsByYear()) {
             ExecutionYear executionYear =
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
-            List<ICurriculumEntry> enrolments =
-                    request.getRegistration().getStudentCurricularPlan(executionYear).getEnrolmentsByExecutionYear(executionYear)
-                            .stream().filter(ULisboaConstants.isExtraCurricular).map(ICurriculumEntry.class::cast)
-                            .collect(Collectors.toList());
-
+            List<ICurriculumEntry> enrolments = request.getRegistration().getStudentCurricularPlan(executionYear)
+                    .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isExtraCurricular)
+                    .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (!validate(enrolments)) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.serviceRequest.hasNoExtracurricularEnrolments.forExecutionYear", executionYear.getYear());
             }
-
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.createForICurriculumEntry(enrolments,
-                            ServiceRequestSlot.getByCode(ULisboaConstants.ENROLMENTS_BY_YEAR));
+            ServiceRequestProperty property = ServiceRequestProperty
+                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR), enrolments);
             request.addServiceRequestProperties(property);
         }
-
     }
 
     private boolean validate(List<ICurriculumEntry> enrolments) {

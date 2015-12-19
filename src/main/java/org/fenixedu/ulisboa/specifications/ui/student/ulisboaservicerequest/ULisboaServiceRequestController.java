@@ -97,7 +97,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
                 addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
                 return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
             }
-            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
+            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
             return redirect(READ_SERVICE_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
         } catch (ULisboaSpecificationsDomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);

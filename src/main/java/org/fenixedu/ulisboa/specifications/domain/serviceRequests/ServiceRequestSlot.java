@@ -1,36 +1,18 @@
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.degreeStructure.CycleType;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
-import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
-import org.joda.time.DateTime;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.DomainObject;
-import pt.ist.fenixframework.FenixFramework;
 
 public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
@@ -87,8 +69,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getServiceRequestPropertiesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
-                    "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
+            blockers.add(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "error.ServiceRequestSlot.connected.ServiceRequestProperties"));
         }
         if (!getServiceRequestSlotEntriesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
@@ -145,8 +127,8 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.documentPurposeType"));
         }
         if (findByCode(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).count() == 0) {
-            createStaticSlot(ULisboaConstants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT, BundleUtil.getLocalizedString(
-                    ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
+            createStaticSlot(ULisboaConstants.OTHER_DOCUMENT_PURPOSE, UIComponentType.TEXT, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.otherDocumentPurposeType"));
         }
         if (findByCode(ULisboaConstants.IS_DETAILED).count() == 0) {
             createStaticSlot(ULisboaConstants.IS_DETAILED, UIComponentType.DROP_DOWN_BOOLEAN,
@@ -185,14 +167,12 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.curricularPlan"));
         }
         if (findByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).count() == 0) {
-            createStaticSlot(ULisboaConstants.APPROVED_EXTRA_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
+            createStaticSlot(ULisboaConstants.APPROVED_EXTRA_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.approvedExtraCurriculum"));
         }
         if (findByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM).count() == 0) {
-            createStaticSlot(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
+            createStaticSlot(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.approvedStandaloneCurriculum"));
         }
         if (findByCode(ULisboaConstants.APPROVED_ENROLMENTS).count() == 0) {
             createStaticSlot(ULisboaConstants.APPROVED_ENROLMENTS, UIComponentType.DROP_DOWN_MULTIPLE,
@@ -207,113 +187,13 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsByYear"));
         }
         if (findByCode(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR).count() == 0) {
-            createStaticSlot(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR, UIComponentType.DROP_DOWN_MULTIPLE,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            "label.ServiceRequestSlot.label.standaloneEnrolmentsByYear"));
+            createStaticSlot(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.standaloneEnrolmentsByYear"));
         }
         if (findByCode(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR).count() == 0) {
             createStaticSlot(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR, UIComponentType.DROP_DOWN_MULTIPLE,
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                             "label.ServiceRequestSlot.label.extracurricularEnrolmentsByYear"));
-        }
-    }
-
-    public static <T> T convertValue(String serviceRequestSlotCode, String propertyValue) {
-        ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
-
-        if (propertyValue == null) {
-            return serviceRequestSlot.getUiComponentType().isMultipleDropDown() ? (T) new ArrayList<T>() : (T) null;
-        }
-        if (serviceRequestSlot.getUiComponentType() != UIComponentType.TEXT && Strings.isNullOrEmpty(propertyValue)) {
-            return null;
-        }
-
-        switch (serviceRequestSlot.getUiComponentType()) {
-        case DROP_DOWN_BOOLEAN:
-            return (T) Boolean.valueOf(propertyValue);
-        case NUMBER:
-            return (T) Integer.valueOf(propertyValue);
-        case TEXT:
-            return (T) propertyValue;
-        case TEXT_LOCALIZED_STRING:
-            JsonObject jsonObject = new JsonParser().parse(propertyValue).getAsJsonObject();
-            return (T) LocalizedString.fromJson(jsonObject);
-        case DATE:
-            return (T) new DateTime(propertyValue);
-        case DROP_DOWN_MULTIPLE:
-            if (ULisboaConstants.DROP_DOWN_MULTIPLE_DOMAIN_OBJECTS.contains(serviceRequestSlotCode)) {
-                final Collection<DomainObject> convertedList = Sets.newHashSet();
-                JsonArray domainObjectJsonArray = new JsonParser().parse(propertyValue).getAsJsonArray();
-                for (final JsonElement element : domainObjectJsonArray) {
-                    String oid = element.getAsJsonObject().get("id").getAsString().trim();
-                    convertedList.add(FenixFramework.getDomainObject(oid));
-                }
-                return (T) convertedList;
-            } else {
-                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
-            }
-        case DROP_DOWN_ONE_VALUE:
-        default:
-            if (ULisboaConstants.DROP_DOWN_SINGLE_DOMAIN_OBJECTS.contains(serviceRequestSlotCode)) {
-                return FenixFramework.getDomainObject(propertyValue);
-            }
-            if (serviceRequestSlotCode.equals(ULisboaConstants.LANGUAGE)) {
-                return (T) Locale.forLanguageTag(propertyValue);
-            }
-            if (serviceRequestSlotCode.equals(ULisboaConstants.CYCLE_TYPE)) {
-                return (T) CycleType.valueOf(propertyValue);
-            }
-            throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
-        }
-
-    }
-
-    @Atomic
-    public static ServiceRequestProperty createProperty(String serviceRequestSlotCode, String propertyValue) {
-        ServiceRequestSlot serviceRequestSlot = ServiceRequestSlot.getByCode(serviceRequestSlotCode);
-        if (propertyValue == null) {
-            return ServiceRequestProperty.create(serviceRequestSlot);
-        }
-
-        final Object value = convertValue(serviceRequestSlotCode, propertyValue);
-
-        switch (serviceRequestSlot.getUiComponentType()) {
-        case DROP_DOWN_BOOLEAN:
-            return ServiceRequestProperty.createForBoolean((Boolean) value, serviceRequestSlot);
-        case NUMBER:
-            return ServiceRequestProperty.createForInteger((Integer) value, serviceRequestSlot);
-        case TEXT:
-            return ServiceRequestProperty.createForString(propertyValue, serviceRequestSlot);
-        case TEXT_LOCALIZED_STRING:
-            return ServiceRequestProperty.createForLocalizedString((LocalizedString) value, serviceRequestSlot);
-        case DATE:
-            return ServiceRequestProperty.createForDateTime((DateTime) value, serviceRequestSlot);
-        case DROP_DOWN_MULTIPLE:
-            if (ULisboaConstants.ICURRICULUM_ENTRY_OBJECTS.contains(serviceRequestSlotCode)) {
-                return ServiceRequestProperty.createForICurriculumEntry((Collection<ICurriculumEntry>) value, serviceRequestSlot);
-            } else {
-                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
-            }
-
-        case DROP_DOWN_ONE_VALUE:
-        default:
-            switch (serviceRequestSlotCode) {
-            case ULisboaConstants.LANGUAGE:
-                return ServiceRequestProperty.createForLocale((Locale) value, serviceRequestSlot);
-            case ULisboaConstants.DOCUMENT_PURPOSE_TYPE:
-                return ServiceRequestProperty.createForDocumentPurposeTypeInstance((DocumentPurposeTypeInstance) value,
-                        serviceRequestSlot);
-            case ULisboaConstants.CYCLE_TYPE:
-                return ServiceRequestProperty.createForCycleType((CycleType) value, serviceRequestSlot);
-            case ULisboaConstants.PROGRAM_CONCLUSION:
-                return ServiceRequestProperty.createForProgramConclusion((ProgramConclusion) value, serviceRequestSlot);
-            case ULisboaConstants.EXECUTION_YEAR:
-                return ServiceRequestProperty.createForExecutionYear((ExecutionYear) value, serviceRequestSlot);
-            case ULisboaConstants.CURRICULAR_PLAN:
-                return ServiceRequestProperty.createForCurricularPlan((StudentCurricularPlan) value, serviceRequestSlot);
-            default:
-                throw new ULisboaSpecificationsDomainException("error.ServiceRequestSlot.not.supported.type");
-            }
         }
     }
 }

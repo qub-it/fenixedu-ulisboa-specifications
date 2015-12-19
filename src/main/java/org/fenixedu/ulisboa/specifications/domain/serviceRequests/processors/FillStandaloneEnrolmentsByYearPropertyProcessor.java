@@ -32,22 +32,18 @@ public class FillStandaloneEnrolmentsByYearPropertyProcessor extends FillStandal
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest() && !request.hasEnrolmentsByYear()) {
+        if (!request.hasStandaloneEnrolmentsByYear()) {
             ExecutionYear executionYear =
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
-            List<ICurriculumEntry> enrolments =
-                    request.getRegistration().getStudentCurricularPlan(executionYear).getEnrolmentsByExecutionYear(executionYear)
-                            .stream().filter(ULisboaConstants.isStandalone).map(ICurriculumEntry.class::cast)
-                            .collect(Collectors.toList());
-
+            List<ICurriculumEntry> enrolments = request.getRegistration().getStudentCurricularPlan(executionYear)
+                    .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
+                    .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (!validate(enrolments)) {
                 throw new ULisboaSpecificationsDomainException("error.serviceRequest.hasNoStandaloneEnrolments.forExecutionYear",
                         executionYear.getYear());
             }
-
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.createForICurriculumEntry(enrolments,
-                            ServiceRequestSlot.getByCode(ULisboaConstants.ENROLMENTS_BY_YEAR));
+            ServiceRequestProperty property = ServiceRequestProperty
+                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR), enrolments);
             request.addServiceRequestProperties(property);
         }
 

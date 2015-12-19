@@ -100,33 +100,15 @@ ${portal.angularToolkit()}
 </div>
 <%-- NAVIGATION --%>
 
-<% 
-  ULisboaServiceRequestBean bean = (ULisboaServiceRequestBean) request.getAttribute("ulisboaServiceRequestBean");
-  Registration registration = bean.getRegistration();
-  String url = "/academicAdministration/student.do?method=visualizeRegistration&registrationID="+ registration.getExternalId();
-%>
+<div class="well well-sm" style="display: inline-block">
+    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+    <a class=""
+        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
+        <spring:message code="label.event.back" />
+    </a>
+    &nbsp; 
+</div>
 
-
-<academic:allowed operation="SERVICE_REQUESTS">                      
-    <div class="well well-sm" style="display: inline-block">
-        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-        <a class=""
-            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
-            <spring:message code="label.event.back" />
-        </a>
-        &nbsp; 
-    </div>
-</academic:allowed>
-<academic:notAllowed operation="SERVICE_REQUESTS">
-    <div class="well well-sm" style="display: inline-block">
-        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-        <a class=""
-            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_REGISTRATION_URL %>${ ulisboaServiceRequestBean.registration.externalId }">
-            <spring:message code="label.event.back" />
-        </a>
-        &nbsp; 
-    </div>
-</academic:notAllowed>
 <c:if test="${not empty infoMessages}">
     <div class="alert alert-info" role="alert">
 
@@ -182,10 +164,18 @@ ${portal.angularToolkit()}
            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
                $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
-               $scope.postBack = createAngularPostbackFunction($scope);
-               $scope.onServiceRequestTypeChange = function(model) {
-        	       $scope.transformDataToSubmit();
-        	       $scope.postBack(model);
+               $scope.initObjectDropDownOneValue = function () {
+        	       angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {
+                       if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE%>') {
+                           if(element.code == '<%= ULisboaConstants.LANGUAGE %>') {
+                               element.value = element.localeValue;
+                           } else if(element.code == '<%= ULisboaConstants.CYCLE_TYPE %>') {
+                               element.value = element.cycleTypeValue;
+                           } else {
+                               element.value = element.domainObjectValue;
+                           }
+                       }
+        	       });
                }
                $scope.booleanvalues= [
                  {name: '<spring:message code="label.no"/>', value: false},
@@ -285,25 +275,23 @@ ${portal.angularToolkit()}
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
     ng-submit="form.$valid"
-    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser())) {%>
-        action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'
-    <%} else {%>
-        action='${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_URL %>${ulisboaServiceRequestBean.registration.externalId}'
-    <%}%>
+    ng-init="initObjectDropDownOneValue()"
+        action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.UPDATE_URL %>${serviceRequest.externalId}'
     >
-
-    <input type="hidden" name="postback"
-    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser())) {%>
-        value='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_POSTBACK_URL %>' 
-    <%} else {%>
-        value='${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_POSTBACK_URL %>' 
-    <%}%>
-    />
 
     <input name="bean" type="hidden" value="{{ object }}" />
 
-   <div class="panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-body">
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.ULisboaServiceRequest.documentType" />
+                </div>
+                <div class="col-sm-7">
+                    <c:out value="${ serviceRequest.serviceRequestType.name.content }" />
+                </div>
+                
+            </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
                     <spring:message code="label.ULisboaServiceRequest.requestDate" />
@@ -311,22 +299,6 @@ ${portal.angularToolkit()}
                 <div class="col-sm-7">
                     <input id="requestDate" class="form-control" type="text" bennu-date="object.requestDate" 
                         name="field" ng-required="true" />  
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.ULisboaServiceRequest.documentType" />
-                </div>
-                <div class="col-sm-7">
-                    <ui-select id="uLisboaServiceRequest_documentType" on-select="onServiceRequestTypeChange($model)"
-                        ng-model="$parent.object.serviceRequestType"
-                        theme="bootstrap"> <ui-select-match allow-clear="true">
-                    {{$select.selected.text}}
-                    </ui-select-match> <ui-select-choices
-                        repeat="serviceRequestType.id as serviceRequestType in object.serviceRequestTypesDataSource| filter: $select.search">
-                    <span
-                        ng-bind-html="serviceRequestType.text | highlight: $select.search"></span>
-                    </ui-select-choices> </ui-select>
                 </div>
             </div>
 

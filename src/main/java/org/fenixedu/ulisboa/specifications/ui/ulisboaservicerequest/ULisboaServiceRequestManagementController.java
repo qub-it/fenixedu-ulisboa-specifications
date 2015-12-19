@@ -130,7 +130,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         setULisboaServiceRequestBean(bean, model);
 
         try {
-            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
+            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
             return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
         } catch (ULisboaSpecificationsDomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
@@ -195,31 +195,35 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("templates", templates);
     }
 
-//    private static final String _UPDATE_URI = "/update/";
-//    public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
-//
-//    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
-//    public String updateAcademicRequest(@PathVariable(value = "oid") ULisboaServiceRequest request, Model model) {
-//        if (getULisboaServiceRequestBean(model) == null) {
-////            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(request), model);
-//        }
-//        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
-//    }
-//
-//    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
-//    public String updateAcademicRequest(@PathVariable(value = "oid") ULisboaServiceRequest request,
-//            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
-//            RedirectAttributes redirectAttributes) {
-//        setULisboaServiceRequestBean(bean, model);
-//
-//        try {
-//            ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.createULisboaServiceRequest(bean);
-//            return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
-//        } catch (ULisboaSpecificationsDomainException e) {
-//            addErrorMessage(e.getLocalizedMessage(), model);
-//        }
-//        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
-//    }
+    private static final String _UPDATE_URI = "/update/";
+    public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
+
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
+    public String updateAcademicRequest(@PathVariable(value = "oid") ULisboaServiceRequest request, Model model) {
+        if (getULisboaServiceRequestBean(model) == null) {
+            ULisboaServiceRequestBean bean = new ULisboaServiceRequestBean(request);
+            model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
+            model.addAttribute("ulisboaServiceRequestBean", bean);
+        }
+        model.addAttribute("serviceRequest", request);
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/update";
+    }
+
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
+    public String updateAcademicRequest(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
+            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
+        model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
+        model.addAttribute("ulisboaServiceRequestBean", bean);
+
+        try {
+            serviceRequest.update(bean);
+            return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
+        } catch (ULisboaSpecificationsDomainException e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+        }
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/update";
+    }
 
     private static final String _PROCESS_ACADEMIC_REQUEST_URI = "/process/";
     public static final String PROCESS_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PROCESS_ACADEMIC_REQUEST_URI;

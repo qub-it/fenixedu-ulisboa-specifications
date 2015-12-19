@@ -32,12 +32,12 @@ public class FillApprovedEnrolmentsPropertyProcessor extends FillApprovedEnrolme
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest() && !request.hasApprovedEnrolments()) {
+        if (!request.hasApprovedEnrolments()) {
             List<ICurriculumEntry> enrolments =
                     request.getRegistration().getLastStudentCurricularPlan().getCurriculum(new DateTime(), null)
                             .getCurriculumEntries().stream().filter(e -> e instanceof Enrolment).collect(Collectors.toList());
-            ServiceRequestProperty property = ServiceRequestProperty.createForICurriculumEntry(enrolments,
-                    ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_ENROLMENTS));
+            ServiceRequestProperty property =
+                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_ENROLMENTS), enrolments);
             request.addServiceRequestProperties(property);
         }
     }
