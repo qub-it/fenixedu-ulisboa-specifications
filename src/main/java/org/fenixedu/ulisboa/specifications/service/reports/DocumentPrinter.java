@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSig
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.ApprovedCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntryRemarksDataProvider;
@@ -107,7 +108,10 @@ public class DocumentPrinter {
 
         generator.registerDataProvider(new ConclusionInformationDataProvider(registration, programConclusion));
 
-        generator.registerDataProvider(new CurriculumEntriesDataProvider(registration, requestedCycle,
+        generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration, serviceRequest
+                .getApprovedEnrolments(), serviceRequest.getLanguage()));
+
+        generator.registerDataProvider(new CurriculumEntriesDataProvider(registration, programConclusion,
                 new CurriculumEntryRemarksDataProvider(registration), serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new UserReportDataProvider());
