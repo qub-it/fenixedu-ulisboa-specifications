@@ -668,7 +668,19 @@ class serviceRequests.processors.FillEnrolmentsByYearPropertyProcessor extends s
 
 }
 
+class serviceRequests.processors.FillStandaloneEnrolmentsByYearPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.FillExtracurricularEnrolmentsByYearPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
 class serviceRequests.processors.FillApprovedEnrolmentsPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.FillAllPlansApprovementsPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
 
 }
 

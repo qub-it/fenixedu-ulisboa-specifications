@@ -439,6 +439,11 @@ ${portal.toolkit()}
                         </a>
                     </li>
                     <li>
+                        <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.UPDATE_URL %>${ serviceRequest.externalId }">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.update" />
+                        </a>
+                    </li>  
+                    <li>
                         <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.REJECT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequest')">
                         <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.reject" />
                         </a>
@@ -447,12 +452,7 @@ ${portal.toolkit()}
                         <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CANCEL_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequest')">
                         <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.cancel" />
                         </a>
-                    </li>
-<!--                     <li> -->
-<%--                         <a class="" href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.UPDATE_URL %>${ serviceRequest.externalId }"> --%>
-<%--                             <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>&nbsp;<spring:message code="label.event.update" /> --%>
-<!--                         </a> -->
-<!--                     </li>                     -->
+                    </li>                  
                 </ul>
             </div>
         </c:otherwise>
@@ -612,15 +612,18 @@ ${portal.toolkit()}
                                             <li><c:out value="${ entry.code } - ${ entry.name.content } - ${ entry.executionYear.qualifiedName }"/> </li>
                                         </c:forEach>
                                     </c:when>
+                                    <c:when test="${ property.dateTime != null }">
+                                        <joda:format value='${property.dateTime}' style='S-' />
+                                    </c:when>
                                     <c:otherwise>
                                         <c:out value='${ property.string } ${ property.integer } 
                                                     ${ property.locale.displayLanguage }
                                                     ${ property.cycleType.description } 
                                                     ${ property.localizedString.content }
-                                                    ${ property.dateTime.toLocalDate() } 
                                                     ${ propety.registration } ${ property.executionYear.name } 
                                                     ${ property.documentPurposeTypeInstance.name.content }
-                                                    ${ property.studentCurricularPlan.name }' />
+                                                    ${ property.studentCurricularPlan.name }
+                                                    ${ property.programConclusion.name.content}' />
                                     </c:otherwise>
                                 </c:choose>
                             </td>

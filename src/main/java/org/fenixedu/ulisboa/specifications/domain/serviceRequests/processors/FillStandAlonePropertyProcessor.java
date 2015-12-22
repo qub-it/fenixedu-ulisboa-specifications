@@ -25,17 +25,16 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
 
     @Atomic
     public static ULisboaServiceRequestProcessor create(LocalizedString name) {
-        return new FillEnrolmentsByYearPropertyProcessor(name);
+        return new FillStandAlonePropertyProcessor(name);
     }
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (request.isNewRequest() && !request.hasApprovedStandaloneCurriculum()) {
-            List<ICurriculumEntry> enrolments =
-                    request.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet()
-                            .stream().map(ICurriculumEntry.class::cast).collect(Collectors.toList());
-            ServiceRequestProperty property = ServiceRequestProperty.createForICurriculumEntry(enrolments,
-                    ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM));
+        if (!request.hasApprovedStandaloneCurriculum()) {
+            List<ICurriculumEntry> enrolments = ULisboaConstants.getLastPlanStandaloneApprovements(request.getRegistration());
+            ServiceRequestProperty property =
+                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM),
+                            enrolments);
             request.addServiceRequestProperties(property);
         }
     }

@@ -14,38 +14,39 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import pt.ist.fenixframework.Atomic;
 
-public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearPropertyProcessor_Base {
+public class FillStandaloneEnrolmentsByYearPropertyProcessor extends FillStandaloneEnrolmentsByYearPropertyProcessor_Base {
 
-    protected FillEnrolmentsByYearPropertyProcessor() {
+    protected FillStandaloneEnrolmentsByYearPropertyProcessor() {
         super();
     }
 
-    protected FillEnrolmentsByYearPropertyProcessor(final LocalizedString name) {
+    protected FillStandaloneEnrolmentsByYearPropertyProcessor(final LocalizedString name) {
         this();
         super.init(name);
     }
 
     @Atomic
     public static ULisboaServiceRequestProcessor create(LocalizedString name) {
-        return new FillEnrolmentsByYearPropertyProcessor(name);
+        return new FillStandaloneEnrolmentsByYearPropertyProcessor(name);
     }
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (!request.hasEnrolmentsByYear()) {
+        if (!request.hasStandaloneEnrolmentsByYear()) {
             ExecutionYear executionYear =
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
             List<ICurriculumEntry> enrolments = request.getRegistration().getStudentCurricularPlan(executionYear)
-                    .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isNormalEnrolment)
+                    .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
                     .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (!validate(enrolments)) {
-                throw new ULisboaSpecificationsDomainException("error.serviceRequest.hasNoEnrolments.forExecutionYear",
+                throw new ULisboaSpecificationsDomainException("error.serviceRequest.hasNoStandaloneEnrolments.forExecutionYear",
                         executionYear.getYear());
             }
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.ENROLMENTS_BY_YEAR), enrolments);
+            ServiceRequestProperty property = ServiceRequestProperty
+                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR), enrolments);
             request.addServiceRequestProperties(property);
         }
+
     }
 
     private boolean validate(List<ICurriculumEntry> enrolments) {
