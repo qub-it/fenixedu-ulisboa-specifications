@@ -28,6 +28,13 @@
 
 package org.fenixedu.ulisboa.specifications.service.reports;
 
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -57,13 +64,21 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.joda.time.DateTime;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
+import org.odftoolkit.odfdom.doc.table.OdfTable;
+import org.odftoolkit.odfdom.dom.element.text.TextTextInputElement;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
 import com.qubit.terra.docs.core.IDocumentTemplateService;
 
+import fr.opensagres.xdocreport.core.io.internal.ByteArrayOutputStream;
 import pt.ist.fenixframework.Atomic;
 
 public class DocumentPrinter {
+
+    public static final String PREFIX = "qub-";
 
     public static PrintedDocument print(ULisboaServiceRequest serviceRequest) {
 
@@ -81,14 +96,14 @@ public class DocumentPrinter {
 
         AcademicServiceRequestTemplate academicServiceRequestTemplate = serviceRequest.getAcademicServiceRequestTemplate();
         if (academicServiceRequestTemplate == null) {
-            academicServiceRequestTemplate =
-                    AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
-                            serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
+            academicServiceRequestTemplate = AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
+                    serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
         final ServiceRequestOutputType outputType = serviceRequest.getServiceRequestType().getServiceRequestOutputType();
-        final FenixEduDocumentGenerator generator =
-                FenixEduDocumentGenerator.create(academicServiceRequestTemplate, outputType.getCode());
+        final byte[] template = processQubInclude(academicServiceRequestTemplate);
+
+        final FenixEduDocumentGenerator generator = FenixEduDocumentGenerator.create(template, FenixEduDocumentGenerator.PDF);
 
         if (serviceRequest.getDocumentSigner() == null) {
             resetDocumentSigner(serviceRequest);
@@ -98,8 +113,8 @@ public class DocumentPrinter {
         generator.registerDataProvider(new RegistrationDataProvider(registration, serviceRequest.getLanguage()));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
-        generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
-                executionYear));
+        generator.registerDataProvider(
+                new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
         if (serviceRequest.hasEnrolmentsByYear() || serviceRequest.hasStandaloneEnrolmentsByYear()
                 || serviceRequest.hasExtracurricularEnrolmentsByYear()) {
             generator.registerDataProvider(new EnrolmentsDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
@@ -111,14 +126,14 @@ public class DocumentPrinter {
 
         generator.registerDataProvider(new ConclusionInformationDataProvider(registration, programConclusion));
 
-        generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration, serviceRequest
-                .getApprovedEnrolments(), serviceRequest.getLanguage()));
+        generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration,
+                serviceRequest.getApprovedEnrolments(), serviceRequest.getLanguage()));
 
-        generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration, serviceRequest
-                .getApprovedStandaloneCurriculum(), serviceRequest.getLanguage()));
+        generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration,
+                serviceRequest.getApprovedStandaloneCurriculum(), serviceRequest.getLanguage()));
 
-        generator.registerDataProvider(new ExtraCurriculumEntriesDataProvider(registration, serviceRequest
-                .getApprovedExtraCurriculum(), serviceRequest.getLanguage()));
+        generator.registerDataProvider(new ExtraCurriculumEntriesDataProvider(registration,
+                serviceRequest.getApprovedExtraCurriculum(), serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new ConcludedCurriculumEntriesDataProvider(registration, serviceRequest.getCurriculum(),
                 serviceRequest.getLanguage()));
@@ -166,6 +181,58 @@ public class DocumentPrinter {
         final byte[] report = generator.generateReport();
 
         return new PrintedDocument(serviceRequest, report, outputType.getCode(), outputType.getExtension());
+    }
+
+    private static byte[] processQubInclude(AcademicServiceRequestTemplate academicServiceRequestTemplate) {
+        try {
+            Pattern pattern = Pattern.compile("qubInclude\\(\"(.+)\"\\)");
+            OdfTextDocument document = OdfTextDocument.loadDocument(
+                    new ByteArrayInputStream(academicServiceRequestTemplate.getDocumentTemplateFile().getContent()));
+            OdfTable dataTable = document.getTableByName("BlocoDeDados");
+            if (dataTable == null || dataTable.getRowCount() != 1 || dataTable.getColumnCount() != 1) {
+                System.out.println("Error");
+            }
+            NodeList cellNodesList = dataTable.getCellByPosition(0, 0).getOdfElement().getChildNodes();
+            findIncludes(cellNodesList, pattern, academicServiceRequestTemplate.getLanguage());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            document.save(out);
+            document.save("/home/jnpa/Documents/tentativa.odt");
+            document.close();
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new ULisboaSpecificationsDomainException(e, "error.DocumentPrinter.processing.includes", e.getMessage());
+        }
+    }
+
+    private static void findIncludes(NodeList nodesList, Pattern pattern, Locale locale) {
+        for (int i = 0; i < nodesList.getLength(); i++) {
+            Node child = nodesList.item(i);
+            if (child instanceof TextTextInputElement) {
+                processIncludes(child, pattern, locale);
+            } else {
+                findIncludes(child.getChildNodes(), pattern, locale);
+            }
+        }
+    }
+
+    private static void processIncludes(Node node, Pattern pattern, Locale locale) {
+        Matcher matcher = pattern.matcher(node.getTextContent());
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            String[] includes = matcher.group(1).split(" ");
+            for (String include : includes) {
+                List<AcademicServiceRequestTemplate> lst = AcademicServiceRequestTemplate.findAll().filter(template -> template
+                        .getName().getContent(Locale.forLanguageTag("pt-PT")).equalsIgnoreCase(PREFIX + include))
+                        .collect(Collectors.toList());
+                if (lst.size() != 1) {
+                    throw new ULisboaSpecificationsDomainException("error.DocumentPrinter.finding.include", include,
+                            "" + lst.size());
+                };
+                String content = new String(lst.get(0).getDocumentTemplateFile().getContent());
+                sb.append(content);
+            }
+        }
+        node.setTextContent(matcher.replaceAll("") + sb.toString());
     }
 
     @Atomic
@@ -216,8 +283,8 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("yyyMMMdd", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
-                    .replace(":", ""));
+            result.append(
+                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 
