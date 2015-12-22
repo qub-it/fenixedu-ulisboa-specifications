@@ -115,6 +115,12 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
             FillApprovedEnrolmentsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR));
         }
+        if (findByName(
+                BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_ALL_PLANS_APPROVEMENTS_PROPERTY_PROCESSOR))
+                .count() == 0) {
+            FillAllPlansApprovementsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                    ULisboaConstants.FILL_ALL_PLANS_APPROVEMENTS_PROPERTY_PROCESSOR));
+        }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR))
                 .count() == 0) {
             AutomaticOnlineRequestProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,

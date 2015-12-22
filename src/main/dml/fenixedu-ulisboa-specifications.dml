@@ -680,6 +680,10 @@ class serviceRequests.processors.FillApprovedEnrolmentsPropertyProcessor extends
 
 }
 
+class serviceRequests.processors.FillAllPlansApprovementsPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
 class serviceRequests.processors.AutomaticOnlineRequestProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
 
 }

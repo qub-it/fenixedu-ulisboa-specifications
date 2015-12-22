@@ -28,15 +28,21 @@
 
 package org.fenixedu.ulisboa.specifications.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.DateTime;
 
 public class ULisboaConstants {
 
@@ -93,6 +99,8 @@ public class ULisboaConstants {
             "label.FillRequestPropertyProcessor.StandAloneCurriculum.name";
     public static final String FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR =
             "label.FillRequestPropertyProcessor.ApprovedEnrolments.name";
+    public static final String FILL_ALL_PLANS_APPROVEMENTS_PROPERTY_PROCESSOR =
+            "label.FillRequestPropertyProcessor.AllPlansApprovements.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
     public static final String PROGRAM_CONCLUSION_PROCESSOR = "label.ProgramConclusionProcessor.name";
 
@@ -104,4 +112,37 @@ public class ULisboaConstants {
                     && (e.getCurriculumGroup().isInternalCreditsSourceGroup() || !e.getCurriculumGroup()
                             .isNoCourseGroupCurriculumGroup())
                     && (e.getParentCycleCurriculumGroup() == null || !e.getParentCycleCurriculumGroup().isExternal()));
+
+    public static final List<ICurriculumEntry> getLastPlanApprovements(Registration registration) {
+        return registration.getLastStudentCurricularPlan().getCurriculum(new DateTime(), null).getCurriculumEntries().stream()
+                .collect(Collectors.toList());
+    }
+
+    public static final List<ICurriculumEntry> getAllPlansApprovements(Registration registration) {
+        Curriculum mergedCurricula =
+                registration.getStudentCurricularPlansSet().stream().map(scp -> scp.getCurriculum(new DateTime(), null))
+                        .reduce((c1, c2) -> {
+                            c1.add(c2);
+                            return c1;
+                        }).orElse(null);
+        return mergedCurricula == null ? new ArrayList<ICurriculumEntry>() : mergedCurricula.getCurriculumEntries().stream()
+                .collect(Collectors.toList());
+    }
+
+    public static final List<ICurriculumEntry> getLastPlanStandaloneApprovements(Registration registration) {
+        return registration.getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet().stream()
+                .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
+    }
+
+    public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(Registration registration) {
+        Curriculum mergedCurricula =
+                registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getCurriculumLines().stream()
+                        .map(cl -> cl.getCurriculum(new DateTime(), null)).reduce((c1, c2) -> {
+                            c1.add(c2);
+                            return c1;
+                        }).orElse(null);
+        return mergedCurricula == null ? new ArrayList<ICurriculumEntry>() : mergedCurricula.getCurriculumEntries().stream()
+                .collect(Collectors.toList());
+    }
+
 }
