@@ -30,6 +30,7 @@ package org.fenixedu.ulisboa.specifications.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
@@ -85,4 +86,7 @@ public class ULisboaConstants {
             "label.FillRequestPropertyProcessor.ApprovedEnrolments.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
     public static final String PROGRAM_CONCLUSION_PROCESSOR = "label.ProgramConclusionProcessor.name";
+    
+    
+    public static final Locale DEFAULT_LOCALE = new Locale("PT");
 }
