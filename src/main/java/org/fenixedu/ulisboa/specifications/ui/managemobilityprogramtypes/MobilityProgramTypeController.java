@@ -41,8 +41,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageMobilityProgramTypes",
-        accessGroup = "logged")
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
+        title = "label.title.manageMobilityProgramTypes", accessGroup = "logged")
 @RequestMapping(MobilityProgramTypeController.CONTROLLER_URL)
 public class MobilityProgramTypeController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -122,7 +122,7 @@ public class MobilityProgramTypeController extends FenixeduUlisboaSpecifications
 
             mobilityProgramType.edit(bean.getCode(), new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, bean.getName()),
                     bean.isActive());
-            
+
             return redirect(READ_URL + "/" + mobilityProgramType.getExternalId(), model, redirectAttributes);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
