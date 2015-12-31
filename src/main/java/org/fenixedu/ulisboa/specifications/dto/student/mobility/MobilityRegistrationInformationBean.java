@@ -26,6 +26,10 @@ public class MobilityRegistrationInformationBean implements Serializable {
     protected boolean incoming;
     protected SchoolPeriodDuration programDuration;
 
+    public MobilityRegistrationInformationBean() {
+        this.incoming = true;
+    }
+    
     public SchoolPeriodDuration getProgramDuration() {
         return programDuration;
     }
