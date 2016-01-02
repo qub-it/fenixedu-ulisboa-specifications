@@ -86,8 +86,8 @@ ${portal.angularToolkit()}
 
 <script type="text/javascript">
 	function processDelete(externalId) {
-		$("#mobilityRegistrationInformationId").attr("id", externalId);
-		$('#deleteModal').modal('toggle')
+		$("#mobilityRegistrationInformationId").attr("value", externalId);
+		$('#deleteModal').modal('toggle');
 	}
 </script>
 
@@ -96,9 +96,10 @@ ${portal.angularToolkit()}
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<form id="deleteForm"
-				action="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.SEARCH_TO_DELETE_ACTION_URL %>/${registration.externalId}"
+				action="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.SEARCH_TO_DELETE_ACTION_URL %>${registration.externalId}"
 				method="POST">
-				<input id="mobilityRegistrationInformationId" type="hidden" name="id" value="" />
+				<input id="mobilityRegistrationInformationId" type="hidden" name="mobilityRegistrationInformationId" value="" />
+				
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -129,19 +130,14 @@ ${portal.angularToolkit()}
 <!-- /.modal -->
 
 
+<h4><spring:message code="label.manageMobilityRegistrationInformation.incoming" /></h4>
 
 <c:choose>
-	<c:when test="${not empty searchmobilityregistrationinformationResultsDataSet}">
-		<table id="searchmobilityregistrationinformationTable" class="table responsive table-bordered table-hover">
+	<c:when test="${not empty searchmobilityregistrationinformationResultsDataSetForOutgoing}">
+		<table id="searchmobilityregistrationinformationTableForOutgoing" class="table responsive table-bordered table-hover">
 			<thead>
 				<tr>
 					<%--!!!  Field names here --%>
-					<th>
-						<spring:message code="label.MobilityRegistrationInformation.incoming" />
-					</th>
-					<th>
-						<spring:message code="label.MobilityRegistrationInformation.programDuration" />
-					</th>
 					<th>
 						<spring:message code="label.MobilityRegistrationInformation.begin" />
 					</th>
@@ -162,36 +158,84 @@ ${portal.angularToolkit()}
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach var="information" items="searchmobilityregistrationinformationResultsDataSet">
+				<c:forEach var="information" items="${searchmobilityregistrationinformationResultsDataSetForOutgoing}">
 					<tr>
 						<td>
-							<c:if test="${searchResult.incoming}">
-								<spring:message code="label.true" />
-							</c:if>
-							<c:if test="${not searchResult.incoming}">
-								<spring:message code="label.false" />
-							</c:if>
+							<c:out value='${information.begin.qualifiedName}' />
 						</td>
 						<td>
-							<c:out value='${searchResult.programDuration}' />
+							<c:out value='${information.end.qualifiedName}' />
 						</td>
 						<td>
-							<c:out value='${searchResult.begin.qualifiedName}' />
+							<c:out value='${information.mobilityProgramType.name.content}' />
 						</td>
 						<td>
-							<c:out value='${searchResult.end.qualifiedName}' />
+							<c:out value='${information.mobilityActivityType.name.content}' />
 						</td>
 						<td>
-							<c:out value='${searchResult.mobilityProgramType.name}' />
+							<c:out value='${information.foreignInstitutionUnit.nameI18n.content}' />
 						</td>
 						<td>
-							<c:out value='${searchResult.mobilityActivityType.name}' />
+							<a class="btn btn-xs btn-danger" href="#" onclick="javascript:processDelete('${information.externalId}')">
+								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+								&nbsp;
+								<spring:message code='label.delete' />
+							</a>
+						</td>
+					</tr>
+				</c:forEach>
+
+			</tbody>
+		</table>
+	</c:when>
+	<c:otherwise>
+		<div class="alert alert-warning" role="alert">
+
+			<p>
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+				<spring:message code="label.noResultsFound" />
+			</p>
+
+		</div>
+
+	</c:otherwise>	
+</c:choose>
+
+<h4><spring:message code="label.manageMobilityRegistrationInformation.outgoing" /></h4>
+
+<c:choose>
+	<c:when test="${not empty searchmobilityregistrationinformationResultsDataSet}">
+		<table id="searchmobilityregistrationinformationTable" class="table responsive table-bordered table-hover">
+			<thead>
+				<tr>
+					<%--!!!  Field names here --%>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.programDuration" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.mobilityActivityType" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.foreignInstitutionUnit" />
+					</th>
+					<%-- Operations Column --%>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach var="information" items="${searchmobilityregistrationinformationResultsDataSet}">
+					<tr>
+						<td>
+							<spring:message code="label.SchoolPeriodDuration.${information.programDuration}" />
 						</td>
 						<td>
-							<c:out value='${searchResult.foreignInstitutionUnit.nameI18n.content}' />
+							<c:out value='${information.mobilityActivityType.name.content}' />
 						</td>
 						<td>
-							<a class="btn btn-xs btn-danger" href="#" onclick="javascript:processDelete('${searchResult.externalId}')">
+							<c:out value='${information.foreignInstitutionUnit.nameI18n.content}' />
+						</td>
+						<td>
+							<a class="btn btn-xs btn-danger" href="#" onclick="javascript:processDelete('${information.externalId}')">
 								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								&nbsp;
 								<spring:message code='label.delete' />
@@ -228,17 +272,11 @@ ${portal.angularToolkit()}
 											language : {
 												url : "${datatablesI18NUrl}",
 											},
-											"columns" : [ {
-												data : 'incoming'
-											}, {
+											"columns" : [ 
+											{
 												data : 'programduration'
-											}, {
-												data : 'begin'
-											}, {
-												data : 'end'
-											}, {
-												data : 'mobilityprogramtype'
-											}, {
+											}, 
+											{
 												data : 'mobilityactivitytype'
 											}, {
 												data : 'foreigninstitutionunit'
@@ -272,5 +310,62 @@ ${portal.angularToolkit()}
 								});
 
 					});
-</script>
+
+	
+	
+	
+$(document)
+	.ready(
+			function() {
+
+				var table = $(
+						'#searchmobilityregistrationinformationTableForOutgoing')
+						.DataTable(
+								{
+									language : {
+										url : "${datatablesI18NUrl}",
+									},
+									"columns" : [ 
+									{
+										data : 'begin'
+									}, {
+										data : 'end'
+									}, {
+										data : 'mobilityprogramtype'
+									}, {
+										data : 'mobilityactivitytype'
+									}, {
+										data : 'foreigninstitutionunit'
+									}, {
+										data : 'actions'
+									}
+
+									],
+									//CHANGE_ME adjust the actions column width if needed
+									"columnDefs" : [
+									//74
+									{
+										"width" : "74px",
+										"targets" : 7
+									} ],
+									"data" : searchmobilityregistrationinformationDataSet,
+									//Documentation: https://datatables.net/reference/option/dom
+									"dom" : '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
+									//"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
+									//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
+									//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
+									"tableTools" : {
+										"sSwfPath" : "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
+									}
+								});
+				table.columns.adjust().draw();
+
+				$('#searchmobilityregistrationinformationTableForOutgoing tbody')
+						.on('click', 'tr', function() {
+							$(this).toggleClass('selected');
+						});
+
+			});
+	
+	</script>
 

@@ -92,10 +92,10 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 	
 	$scope.booleanvalues = [ {
 		name : '<spring:message code="label.MobilityRegistrationInformation.incoming.value"/>',
-		value : false
+		value : true
 	}, {
 		name : '<spring:message code="label.MobilityRegistrationInformation.outgoing.value"/>',
-		value : true
+		value : false
 	} ];
  	
  	
@@ -112,49 +112,49 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.incoming" />
 				</div>
 
-				<div class="col-sm-2">
+				<div class="col-sm-8">
 					<select id="mobilityRegistrationInformation_incoming" name="incoming" class="form-control" ng-model="object.incoming"
 						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
 					</select>
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.incoming === true">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.programDuration" />
 				</div>
 
-				<div class="col-sm-4">
-					<ui-select id="mobilityRegistrationInformation_programDuration" class="form-control" name="programduration"
+				<div class="col-sm-8">
+					<ui-select id="mobilityRegistrationInformation_programDuration" class="" name="programduration"
 						ng-model="$parent.object.programDuration" theme="bootstrap" ng-disabled="disabled"> <ui-select-match>{{$select.selected.text}}</ui-select-match>
 					<ui-select-choices repeat="programDuration.id as programDuration in object.programDurationDataSource | filter: $select.search">
 					<span ng-bind-html="programDuration.text | highlight: $select.search"></span> </ui-select-choices> </ui-select>
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.incoming === false">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.begin" />
 				</div>
 
-				<div class="col-sm-4">
+				<div class="col-sm-8">
 					<%-- Relation to side 1 drop down rendered in input --%>
-					<ui-select id="mobilityRegistrationInformation_begin" class="form-control" name="begin" ng-model="$parent.object.begin" theme="bootstrap"
+					<ui-select id="mobilityRegistrationInformation_begin" class="" name="begin" ng-model="$parent.object.begin" theme="bootstrap"
 						ng-disabled="disabled"> <ui-select-match>{{$select.selected.text}}</ui-select-match> <ui-select-choices
 						repeat="begin.id as begin in object.beginDataSource | filter: $select.search"> <span
 						ng-bind-html="begin.text | highlight: $select.search"></span> </ui-select-choices> </ui-select>
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.incoming === false">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.end" />
 				</div>
 
-				<div class="col-sm-4">
+				<div class="col-sm-8">
 					<%-- Relation to side 1 drop down rendered in input --%>
-					<ui-select id="mobilityRegistrationInformation_end" class="form-control" name="end" ng-model="$parent.object.end" theme="bootstrap"
+					<ui-select id="mobilityRegistrationInformation_end" class="" name="end" ng-model="$parent.object.end" theme="bootstrap"
 						ng-disabled="disabled"> 
 						<ui-select-match>{{$select.selected.text}}</ui-select-match> 
 						<ui-select-choices
@@ -165,13 +165,13 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.incoming === false">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.mobilityProgramType" />
 				</div>
 
-				<div class="col-sm-4">
+				<div class="col-sm-8">
 					<%-- Relation to side 1 drop down rendered in input --%>
-					<ui-select id="mobilityRegistrationInformation_mobilityProgramType" class="form-control" name="mobilityprogramtype"
+					<ui-select id="mobilityRegistrationInformation_mobilityProgramType" class="" name="mobilityprogramtype"
 						ng-model="$parent.object.mobilityProgramType" theme="bootstrap" ng-disabled="disabled">
 						<ui-select-match>{{$select.selected.text}}</ui-select-match>
 						<ui-select-choices repeat="mobilityProgramType.id as mobilityProgramType in object.mobilityProgramTypeDataSource | filter: $select.search">
@@ -181,13 +181,13 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.mobilityActivityType" />
 				</div>
 
-				<div class="col-sm-4">
+				<div class="col-sm-8">
 					<%-- Relation to side 1 drop down rendered in input --%>
-					<ui-select id="mobilityRegistrationInformation_mobilityActivityType" class="form-control" name="mobilityactivitytype"
+					<ui-select id="mobilityRegistrationInformation_mobilityActivityType" class="" name="mobilityactivitytype"
 						ng-model="$parent.object.mobilityActivityType" theme="bootstrap" ng-disabled="disabled">
 						<ui-select-match>{{$select.selected.text}}</ui-select-match>
 						<ui-select-choices repeat="mobilityActivityType.id as mobilityActivityType in object.mobilityActivityTypeDataSource | filter: $select.search">
@@ -197,13 +197,13 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.foreignInstitutionUnit" />
 				</div>
 
-				<div class="col-sm-4">
+				<div class="col-sm-8">
 					<%-- Relation to side 1 drop down rendered in input --%>
-					<ui-select id="mobilityRegistrationInformation_foreignInstitutionUnit" class="form-control" name="foreigninstitutionunit"
+					<ui-select id="mobilityRegistrationInformation_foreignInstitutionUnit" class="" name="foreigninstitutionunit"
 						ng-model="$parent.object.foreignInstitutionUnit" theme="bootstrap" ng-disabled="disabled">
 						<ui-select-match>{{$select.selected.text}}</ui-select-match>
 						<ui-select-choices

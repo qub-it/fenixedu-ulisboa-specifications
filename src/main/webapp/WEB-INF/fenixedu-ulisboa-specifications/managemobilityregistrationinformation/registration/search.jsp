@@ -42,7 +42,8 @@ ${portal.angularToolkit()}
 
 		<c:forEach items="${infoMessages}" var="message">
 			<p>
-				<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span> ${message}
+				<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span>
+				${message}
 			</p>
 		</c:forEach>
 
@@ -53,7 +54,8 @@ ${portal.angularToolkit()}
 
 		<c:forEach items="${warningMessages}" var="message">
 			<p>
-				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span> ${message}
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+				${message}
 			</p>
 		</c:forEach>
 
@@ -64,7 +66,8 @@ ${portal.angularToolkit()}
 
 		<c:forEach items="${errorMessages}" var="message">
 			<p>
-				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span> ${message}
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+				${message}
 			</p>
 		</c:forEach>
 
@@ -78,12 +81,20 @@ ${portal.angularToolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.Registration.number" />
+					<spring:message code="label.MobilityRegistrationInformation.studentNumber" />
 				</div>
 
 				<div class="col-sm-10">
-					<input id="registration_number" class="form-control" type="text" name="number"
-						value='<c:out value='${not empty param.number ? param.number : registration.number }'/>' />
+					<input id="registration_number" class="form-control" type="text" name="number" value='<c:out value='${param.number}'/>' />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.MobilityRegistrationInformation.studentName" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="registration_name" class="form-control" type="text" name="name" value='<c:out value='${param.name}'/>' />
 				</div>
 			</div>
 		</div>
@@ -100,9 +111,15 @@ ${portal.angularToolkit()}
 			<thead>
 				<tr>
 					<%--!!!  Field names here --%>
-					<th><spring:message code="label.Registration.number" /></th>
-					<th><spring:message code="label.Registration.name" /></th>
-					<th><spring:message code="label.Registration.degree" /></th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.studentNumber" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.studentName" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.degreeName" />
+					</th>
 					<%-- Operations Column --%>
 					<th></th>
 				</tr>
@@ -120,13 +137,14 @@ ${portal.angularToolkit()}
 							<c:out value="${registration.degree.presentationNameI18N.content}" />
 						</td>
 						<td>
-							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_TO_VIEW_ACTION_URL %>/${registration.externalId}">
-								<spring:message code='label.view'/>
+							<a class="btn btn-default btn-xs"
+								href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_TO_VIEW_ACTION_URL %>/${registration.externalId}">
+								<spring:message code='label.view' />
 							</a>
 						</td>
 					</tr>
 				</c:forEach>
-				
+
 			</tbody>
 		</table>
 	</c:when>
@@ -144,39 +162,39 @@ ${portal.angularToolkit()}
 </c:choose>
 
 <script>
-	
-	$(document).ready(function() {
+	$(document)
+			.ready(
+					function() {
 
-		var table = $('#searchregistrationTable').DataTable({language : {
-			url : "${datatablesI18NUrl}",			
-		},
-		"columns": [
-			{ data: 'number' },
-			{ data: 'name' },
-			{ data: 'degree' },
-			{ data: 'actions' }
-			
-		],
-		//CHANGE_ME adjust the actions column width if needed
-		"columnDefs": [
-		//74
-		               { "width": "74px", "targets": 3 } 
-		             ],
-		//Documentation: https://datatables.net/reference/option/dom
-//"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
-"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
-//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
-//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
-        "tableTools": {
-            "sSwfPath": "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"        	
-        }
-		});
-		table.columns.adjust().draw();
-		
-		  $('#searchregistrationTable tbody').on( 'click', 'tr', function () {
-		        $(this).toggleClass('selected');
-		    } );
-		  
-	}); 
+						var table = $('#searchregistrationTable')
+								.DataTable(
+										{
+											language : {
+												url : "${datatablesI18NUrl}",
+											},
+											//CHANGE_ME adjust the actions column width if needed
+											"columnDefs" : [
+											//74
+											{
+												"width" : "74px",
+												"targets" : 3
+											} ],
+											//Documentation: https://datatables.net/reference/option/dom
+											//"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
+											"dom" : 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
+											//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
+											//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
+											"tableTools" : {
+												"sSwfPath" : "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
+											}
+										});
+						table.columns.adjust().draw();
+
+						$('#searchregistrationTable tbody').on('click', 'tr',
+								function() {
+									$(this).toggleClass('selected');
+								});
+
+					});
 </script>
 
