@@ -26,12 +26,12 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.managemobilityregistrationinformation;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.service.services.person.PersonSearcher;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -42,6 +42,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @Component("org.fenixedu.ulisboa.specifications.ui.manageMobilityRegistrationInformation")
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
@@ -61,13 +65,36 @@ public class RegistrationController extends FenixeduUlisboaSpecificationsBaseCon
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     @RequestMapping(value = _SEARCH_URI)
-    public String search(@RequestParam(value = "number", required = false) Integer number, Model model) {
-        List<Registration> searchregistrationResultsDataSet = Bennu.getInstance().getRegistrationsSet().stream()
-                .filter(registration -> number != null && number.equals(registration.getNumber())).collect(Collectors.toList());
+    public String search(@RequestParam(value = "number", required = false) final Integer number,
+            @RequestParam(value = "name", required = false) final String name, final Model model) {
+
+        List<Registration> searchregistrationResultsDataSet = searchRegistrations(number, name);
 
         //add the results dataSet to the model
         model.addAttribute("searchregistrationResultsDataSet", searchregistrationResultsDataSet);
         return "fenixedu-ulisboa-specifications/managemobilityregistrationinformation/registration/search";
+    }
+
+    private List<Registration> searchRegistrations(Integer number, String name) {
+        final Set<Registration> result = Sets.newHashSet();
+
+        if (number != null) {
+            result.addAll(Bennu.getInstance().getRegistrationsSet().stream()
+                    .filter(registration -> number != null && number.equals(registration.getNumber()))
+                    .collect(Collectors.toSet()));
+
+            result.addAll(Bennu.getInstance().getStudentsSet().stream()
+                    .filter(student -> number != null && number.equals(student.getNumber()))
+                    .<Registration> flatMap(student -> student.getRegistrationsSet().stream()).collect(Collectors.toSet()));
+        }
+
+        if (!Strings.isNullOrEmpty(name)) {
+            final PersonSearcher personSearcher = new PersonSearcher().name(name);
+            result.addAll(personSearcher.search().filter(p -> p.getStudent() != null)
+                    .<Registration> flatMap(p -> p.getStudent().getRegistrationsSet().stream()).collect(Collectors.toSet()));
+        }
+
+        return Lists.newArrayList(result);
     }
 
     private static final String _SEARCH_TO_VIEW_ACTION_URI = "/search/view";
