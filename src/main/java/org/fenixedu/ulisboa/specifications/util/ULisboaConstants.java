@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.Locale;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
@@ -102,6 +103,7 @@ public class ULisboaConstants {
     public static final String FILL_ALL_PLANS_APPROVEMENTS_PROPERTY_PROCESSOR =
             "label.FillRequestPropertyProcessor.AllPlansApprovements.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
+
     public static final String VALIDATE_PROGRAM_CONCLUSION_PROCESSOR = "label.ValidateProgramConclusionProcessor.name";
 
     /* Predicates and filtering criteria */
@@ -143,4 +145,9 @@ public class ULisboaConstants {
                 .collect(Collectors.toList());
     }
 
+
+    public static final String PROGRAM_CONCLUSION_PROCESSOR = "label.ProgramConclusionProcessor.name";
+    
+    
+    public static final Locale DEFAULT_LOCALE = new Locale("PT");
 }
