@@ -1,8 +1,8 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
@@ -11,10 +11,9 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblMobilidadeInte
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
+import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 
 import com.google.common.base.Strings;
-
-import net.fortuna.ical4j.model.parameter.Language;
 
 public class MobilidadeInternacionalService extends RaidesService {
 
@@ -31,7 +30,7 @@ public class MobilidadeInternacionalService extends RaidesService {
         bean.setRegistration(registration);
         preencheInformacaoMatricula(report, bean, institutionUnit, executionYear, registration);
 
-        final Qualification previousQualification = registration.getStudentCandidacy().getPreviousQualification();
+        final PrecedentDegreeInformation previousQualification = registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
         bean.setAnoCurricular(anoCurricular(registration, executionYear));
         bean.setPrimeiraVez(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
@@ -43,12 +42,12 @@ public class MobilidadeInternacionalService extends RaidesService {
                     registration.getRegistrationProtocol()));
 
             if (Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidade())) {
-                bean.setOutroPrograma(registration.getRegistrationProtocol().getName().getContent(Language.getDefaultLanguage()));
+                bean.setOutroPrograma(registration.getRegistrationProtocol().getDescription().getContent());
             }
         }
 
-        if (registration.getRegistrationProtocol() != null && registration.getRegistrationProtocol().isMobility()) {
-            MobilityRegistrationInformation mobilityInformation = registration.getIncomingMobility();
+        if (registration.getRegistrationProtocol() != null && registration.getRegistrationProtocol().isMobilityAgreement()) {
+            MobilityRegistrationInformation mobilityInformation = MobilityRegistrationInformation.findIncomingInformation(registration);
             if (mobilityInformation != null) {
                 if (mobilityInformation.getMobilityActivityType() != null) {
                     bean.setTipoProgMobilidade(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY).translate(
@@ -63,15 +62,15 @@ public class MobilidadeInternacionalService extends RaidesService {
             }
         }
 
-        if (previousQualification.getSchoolLevel() != null) {
+        if (previousQualification.getPrecedentSchoolLevel() != null) {
             bean.setNivelCursoOrigem(LegalMapping.find(report, LegalMappingType.MOBILITY_SCHOOL_LEVEL).translate(
-                    previousQualification.getSchoolLevel()));
+                    previousQualification.getPrecedentSchoolLevel()));
             if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())) {
-                bean.setOutroNivelCurOrigem(previousQualification.getOtherSchoolLevel());
+                bean.setOutroNivelCurOrigem(previousQualification.getOtherPrecedentSchoolLevel());
             }
             if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())
                     && Strings.isNullOrEmpty(bean.getOutroNivelCurOrigem())) {
-                bean.setOutroNivelCurOrigem(previousQualification.getSchoolLevel().getLocalizedName());
+                bean.setOutroNivelCurOrigem(previousQualification.getPrecedentSchoolLevel().getLocalizedName());
             }
         }
 
@@ -103,7 +102,7 @@ public class MobilidadeInternacionalService extends RaidesService {
         if (!registration.getDegree().isEmpty()) {
             return isFirstTimeOnDegree(registration, executionYear);
         }
-        if (registration.getRootRegistration() != registration) {
+        if (Raides.getRootRegistration(registration) != registration) {
             return false;
         }
 

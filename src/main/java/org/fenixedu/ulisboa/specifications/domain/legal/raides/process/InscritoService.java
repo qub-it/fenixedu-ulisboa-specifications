@@ -6,10 +6,11 @@ import java.util.Collections;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
@@ -21,7 +22,6 @@ import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
 
 public class InscritoService extends RaidesService {
 
@@ -39,7 +39,8 @@ public class InscritoService extends RaidesService {
         preencheInformacaoMatricula(report, bean, institutionUnit, executionYear, registration);
 
         bean.setAnoCurricular(anoCurricular(registration, executionYear));
-        bean.setPrimeiraVez(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
+        bean.setPrimeiraVez(
+                LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
 
         bean.setRegimeFrequencia(regimeFrequencia(registration, executionYear));
 
@@ -48,29 +49,31 @@ public class InscritoService extends RaidesService {
         } else {
             bean.setEctsInscricao(enrolledEcts(executionYear, registration));
         }
-        
+
         bean.setEctsAcumulados(registration.getStudentCurricularPlan(executionYear).getRoot().getCurriculum(executionYear)
                 .getSumEctsCredits().setScale(1));
 
-        bean.setTempoParcial(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isInPartialRegime(executionYear, registration)));
+        bean.setTempoParcial(
+                LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isInPartialRegime(executionYear, registration)));
         bean.setBolseiro(bolseiro(registration, executionYear));
 
         if (isFirstCycle(executionYear, registration) && isFirstTimeOnDegree(registration, executionYear)) {
-            bean.setFormaIngresso(LegalMapping.find(report, LegalMappingType.REGISTRATION_INGRESSION_TYPE).translate(
-                    registration.getStudentCandidacy().getRegistrationIngression()));
+            bean.setFormaIngresso(LegalMapping.find(report, LegalMappingType.REGISTRATION_INGRESSION_TYPE)
+                    .translate(registration.getStudentCandidacy().getIngressionType()));
 
             if (isDegreeChangeOrTransfer(raidesRequestParameter, registration)) {
-                final Qualification precedentQualification = registration.getStudentCandidacy().getPreviousQualification();
-                if (precedentQualification != null && precedentQualification.getInstitution() != null
-                        && !Strings.isNullOrEmpty(precedentQualification.getInstitution().getCode())) {
-                    bean.setEstabInscricaoAnt(precedentQualification.getInstitution().getCode());
-                } else if (precedentQualification != null && precedentQualification.getInstitution() != null) {
+                final PrecedentDegreeInformation precedentQualification =
+                        registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                if (precedentQualification != null && precedentQualification.getPrecedentInstitution() != null
+                        && !Strings.isNullOrEmpty(precedentQualification.getPrecedentInstitution().getCode())) {
+                    bean.setEstabInscricaoAnt(precedentQualification.getPrecedentInstitution().getCode());
+                } else if (precedentQualification != null && precedentQualification.getPrecedentInstitution() != null) {
                     bean.setEstabInscricaoAnt(Raides.Cursos.OUTRO);
-                    bean.setOutroEstabInscAnt(registration.getLatestPrecedentDegreeInformation().getPrecedentInstitution()
-                            .getNameI18n().getContent());
+                    bean.setOutroEstabInscAnt(precedentQualification.getPrecedentInstitution().getNameI18n().getContent());
                 }
 
-                bean.setNumInscCursosAnt(precedentQualification.getNumberOfEnrollements());
+                // TODO
+//                bean.setNumInscCursosAnt(precedentQualification.getNumberOfEnrollements());
 
             } else if (isGeneralAccessRegime(raidesRequestParameter, registration)) {
                 if (registration.getStudentCandidacy().getEntryGrade() != null) {
@@ -92,15 +95,15 @@ public class InscritoService extends RaidesService {
             }
 
             if (enrolmentsExecutionYears.size() >= 1) {
-                bean.setAnoUltimaInscricao(Collections.max(enrolmentsExecutionYears, ExecutionYear.COMPARATOR_BY_YEAR)
-                        .getQualifiedName());
+                bean.setAnoUltimaInscricao(
+                        Collections.max(enrolmentsExecutionYears, ExecutionYear.COMPARATOR_BY_YEAR).getQualifiedName());
             }
 
             bean.setNumInscNesteCurso(numberOfYearsEnrolled(executionYear, registration));
         }
 
-        bean.setEstudanteTrabalhador(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(
-                isWorkingStudent(registration, executionYear)));
+        bean.setEstudanteTrabalhador(
+                LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isWorkingStudent(registration, executionYear)));
 
         preencheInformacaoPessoal(executionYear, registration, bean);
         preencheGrauPrecedentCompleto(bean, institutionUnit, executionYear, registration);
@@ -126,8 +129,7 @@ public class InscritoService extends RaidesService {
         }
 
         if (Strings.isNullOrEmpty(bean.getNotaIngresso()) || Strings.isNullOrEmpty(bean.getOpcaoIngresso())) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.general.access.regime.incomplete",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
@@ -137,7 +139,8 @@ public class InscritoService extends RaidesService {
     }
 
     protected void validaInformacaoMudancaCursoTransferencia(final RaidesRequestParameter raidesRequestParameter,
-            final TblInscrito bean, final Unit institutionUnit, final ExecutionYear executionYear, final Registration registration) {
+            final TblInscrito bean, final Unit institutionUnit, final ExecutionYear executionYear,
+            final Registration registration) {
         if (!isFirstCycle(executionYear, registration) || !isFirstTimeOnDegree(registration, executionYear)) {
             return;
         }
@@ -147,16 +150,14 @@ public class InscritoService extends RaidesService {
         }
 
         if (Strings.isNullOrEmpty(bean.getEstabInscricaoAnt())) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.degree.change.or.transfer.requires.information",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
             bean.markAsInvalid();
         } else if (Raides.Estabelecimentos.OUTRO.equals(bean.getEstabInscricaoAnt())
                 && Strings.isNullOrEmpty(bean.getOutroEstabInscAnt())) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.degree.change.or.transfer.requires.information",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
@@ -164,8 +165,7 @@ public class InscritoService extends RaidesService {
         }
 
         if (bean.getNumInscCursosAnt() == null) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.degree.change.or.transfer.requires.information",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
@@ -178,27 +178,20 @@ public class InscritoService extends RaidesService {
     }
 
     protected String bolseiro(final Registration registration, final ExecutionYear executionYear) {
-        final ScholarshipStudentInformation scholarshipStudentInformation =
-                registration.getScholarshipStudentInformationByExecutionYear(executionYear);
-
-        if (scholarshipStudentInformation == null || scholarshipStudentInformation.getScholarshipType() == null) {
-            return LegalMapping.find(report, LegalMappingType.SCHOLARSHIP_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
+        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
+        if (pid == null) {
+            return null;
         }
 
-        final ScholarshipType scholarshipType = scholarshipStudentInformation.getScholarshipType();
-        if ((scholarshipType == Raides.Bolseiro.SERVICO_ACCAO_SOCIAL())
-                && (scholarshipStudentInformation.getScholarshipSituation() == Raides.Bolseiro.PEDIDA())) {
-            return LegalMapping.find(report, LegalMappingType.SCHOLARSHIP_TYPE).translate(Raides.Bolseiro.CANDIDATO_BOLSEIRO_ACCAO_SOCIAL);
-        }
-
-        return LegalMapping.find(report, LegalMappingType.SCHOLARSHIP_TYPE).translate(Raides.Bolseiro.KEY(scholarshipType));
+        return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE)
+                .translate(Raides.Bolseiro.KEY(pid.getGrantOwnerType()));
     }
 
     protected boolean isWorkingStudent(final Registration registration, final ExecutionYear executionYear) {
         boolean result = false;
 
         for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
-            result |= registration.getStudent().isWorkingStudent(executionSemester);
+            result |= registration.getStudent().hasWorkingStudentStatuteInPeriod(executionSemester);
         }
 
         return result;
@@ -209,19 +202,18 @@ public class InscritoService extends RaidesService {
     }
 
     private boolean isGeneralAccessRegime(final RaidesRequestParameter raidesRequestParameter, final Registration registration) {
-        return Raides.isGeneralAccessRegime(raidesRequestParameter, registration.getStudentCandidacy()
-                .getRegistrationIngression());
+        return Raides.isGeneralAccessRegime(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType());
     }
 
     protected boolean isDegreeChangeOrTransfer(final RaidesRequestParameter raidesRequestParameter,
             final Registration registration) {
-        return Raides.isDegreeChange(raidesRequestParameter, registration.getStudentCandidacy().getRegistrationIngression())
-                || Raides
-                        .isDegreeTransfer(raidesRequestParameter, registration.getStudentCandidacy().getRegistrationIngression());
+        return Raides.isDegreeChange(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType())
+                || Raides.isDegreeTransfer(raidesRequestParameter,
+                        registration.getStudentCandidacy().getIngressionType());
     }
 
     protected Integer numberOfYearsEnrolled(final ExecutionYear executionYear, final Registration registration) {
-        return registration.getEnrolmentYearsIncludingPrecedentRegistrations(executionYear.getPreviousExecutionYear()).size();
+        return Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration, executionYear.getPreviousExecutionYear()).size();
     }
 
     protected boolean deliveredDissertation(final ExecutionYear executionYear, final Registration registration) {

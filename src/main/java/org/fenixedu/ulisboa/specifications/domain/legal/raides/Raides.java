@@ -9,8 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.District;
@@ -19,31 +20,35 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.PersonalInformationBean;
-import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.csv.XlsxExporter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.DiplomadoService;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.IdentificacaoService;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.InscritoService;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.MobilidadeInternacionalService;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlToBaseFileWriter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
+import org.fenixedu.ulisboa.specifications.domain.legal.services.reportLog.transform.xls.XlsExporterLog;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -199,9 +204,9 @@ public class Raides {
     public void process(final RaidesInstance raidesInstance, final LegalReportRequest reportRequest) {
         final RaidesRequestParameter raidesRequestParameter = reportRequest.getParametersAs(RaidesRequestParameter.class);
 
-        processEnrolled(reportRequest.getReport(), raidesRequestParameter);
-        processGraduated(reportRequest.getReport(), raidesRequestParameter);
-        processMobilidadeInternacional(reportRequest.getReport(), raidesRequestParameter);
+        processEnrolled(reportRequest.getLegalReport(), raidesRequestParameter);
+        processGraduated(reportRequest.getLegalReport(), raidesRequestParameter);
+        processMobilidadeInternacional(reportRequest.getLegalReport(), raidesRequestParameter);
         
         // Excel
         XlsxExporter.write(reportRequest, this);
@@ -210,7 +215,7 @@ public class Raides {
         XmlToBaseFileWriter.write(reportRequest, raidesRequestParameter, this);
 
         // Log
-        XlsExporterLog.write(reportRequest, ReportContext.getReport());
+        XlsExporterLog.write(reportRequest, LegalReportContext.getReport());
         
         reportRequest.markAsProcessed();
     }
@@ -250,7 +255,6 @@ public class Raides {
                     } catch (final DomainException e) {
 
                     } catch (final Throwable e) {
-                        Log.info("Catch error for student number " + registration.getStudent().getNumber());
                         e.printStackTrace();
                     }
                 }
@@ -298,7 +302,6 @@ public class Raides {
 
                         addGraduated(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final Throwable e) {
-                        Log.info("Catch error for student number " + registration.getStudent().getNumber());
                         e.printStackTrace();
                     }
                 }
@@ -354,13 +357,14 @@ public class Raides {
             return interval.contains(dateTimeAtStartOfDay);
         }
 
-        if (hadScholarPartApprovement(registration, academicPeriod)
-                && registration.getLastApprovedEnrolmentEvaluationDate() != null) {
-            final DateTime dateTimeAtStartOfDay =
-                    registration.getLastApprovedEnrolmentEvaluationDate().toLocalDate().toDateTimeAtStartOfDay();
-
-            return interval.contains(dateTimeAtStartOfDay);
-        }
+        // TODO
+//        if (hadScholarPartApprovement(registration, academicPeriod)
+//                && registration.getLastApprovedEnrolmentEvaluationDate() != null) {
+//            final DateTime dateTimeAtStartOfDay =
+//                    registration.getLastApprovedEnrolmentEvaluationDate().toLocalDate().toDateTimeAtStartOfDay();
+//
+//            return interval.contains(dateTimeAtStartOfDay);
+//        }
 
         return false;
     }
@@ -411,11 +415,9 @@ public class Raides {
                         addEnrolledStudent(report, raidesRequestParameter, academicPeriod, registration);
 
                     } catch (final DomainException e) {
-                        ReportContext.addError("", e.getMessage(), e.getArgs());
-                        Log.info("Catch error for student number " + registration.getStudent().getNumber());
+                        LegalReportContext.addError("", e.getMessage(), e.getArgs());
                         e.printStackTrace();
                     } catch (final Throwable e) {
-                        Log.info("Catch error for student number " + registration.getStudent().getNumber());
                         e.printStackTrace();
                     }
                 }
@@ -455,7 +457,7 @@ public class Raides {
 
     protected boolean hadEnrolmentsInPeriod(final Interval interval, final ExecutionYear executionYear,
             final Registration registration) {
-        final Collection<CurriculumLine> allCurriculumLines = registration.getAllCurriculumLines();
+        final Collection<CurriculumLine> allCurriculumLines = Raides.getAllCurriculumLines(registration);
         for (final CurriculumLine curriculumLine : allCurriculumLines) {
             if (curriculumLine.getExecutionYear() != executionYear) {
                 continue;
@@ -485,7 +487,7 @@ public class Raides {
             }
         }
 
-        final LocalDate enrolmentDate = registration.getEnrolmentDate(executionYear);
+        final LocalDate enrolmentDate = getEnrolmentDate(registration, executionYear);
         return enrolmentDate != null && interval.contains(enrolmentDate.toDateTimeAtStartOfDay());
     }
 
@@ -532,13 +534,13 @@ public class Raides {
             return false;
         }
 
-        if (registration.getDegree().getCycleTypes().size() == 1) {
-            final CycleCurriculumGroup cycleCurriculumGroup =
-                    registration.getLastStudentCurricularPlan().getCycle(
-                            registration.getDegree().getCycleTypes().iterator().next());
-            return cycleCurriculumGroup.isScholarPartConcluded()
-                    && registration.getLastApprovementExecutionYear() == executionYear;
-        }
+//        if (registration.getDegree().getCycleTypes().size() == 1) {
+//            final CycleCurriculumGroup cycleCurriculumGroup =
+//                    registration.getLastStudentCurricularPlan().getCycle(
+//                            registration.getDegree().getCycleTypes().iterator().next());
+//            return cycleCurriculumGroup.isScholarPartConcluded()
+//                    && registration.getLastApprovementExecutionYear() == executionYear;
+//        }
 
         return false;
     }
@@ -688,7 +690,7 @@ public class Raides {
         });
 
         for (final Registration registration : registrations) {
-            result.add(new PersonalInformationBean(registration.getStudentCandidacy()));
+            result.add(new PersonalInformationBean(registration.getStudentCandidacy().getPrecedentDegreeInformation()));
         }
 
         return result;
@@ -762,7 +764,7 @@ public class Raides {
                     District.readByName(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence());
 
             final DistrictSubdivision districtSubdivision =
-                    DistrictSubdivision.findByName(district, registration.getPerson().getDefaultPhysicalAddress()
+                    findDistrictSubdivisionByName(district, registration.getPerson().getDefaultPhysicalAddress()
                             .getDistrictSubdivisionOfResidence());
 
             return districtSubdivision;
@@ -776,7 +778,7 @@ public class Raides {
     }
 
     public static boolean isDoctoralDegree(final Registration registration) {
-        return registration.getDegreeType() == DegreeType.BOLONHA_PHD;
+        return registration.getDegreeType().isThirdCycle();
     }
     
     public static PersonalIngressionData personalIngressionData(Registration registration, ExecutionYear executionYear) {
@@ -915,5 +917,124 @@ public class Raides {
     public static boolean isPreviousDegreePrecedentDegreeInformationFieldsFilled(final Registration registration) {
         return verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(registration).isEmpty();
     }
+    
+    public static Set<Degree> getPrecedentDegreesUntilRoot(final Degree degree) {
+        final Set<Degree> result = Sets.newHashSet();
+        result.addAll(degree.getPrecedentDegreesSet());
 
+        for (final Degree it : degree.getPrecedentDegreesSet()) {
+            result.addAll(getPrecedentDegreesUntilRoot(it));
+        }
+
+        return result;
+    }
+    
+    public static Collection<Registration> getPrecedentDegreeRegistrations(final Registration registration) {
+
+        final Set<Degree> precedentDegreesUntilRoot = getPrecedentDegreesUntilRoot(registration.getDegree());
+        final Set<Registration> result = Sets.newHashSet();
+        for (final Registration it : registration.getStudent().getRegistrationsSet()) {
+
+            if (registration == it) {
+                continue;
+            }
+
+            if (it.isCanceled() || it.isConcluded() || it.hasConcluded()) {
+                continue;
+            }
+
+            if (precedentDegreesUntilRoot.contains(it.getDegree())) {
+                result.add(it);
+            }
+        }
+
+        return result;
+    }
+
+    public static Collection<CurriculumLine> getAllCurriculumLines(final Registration registration) {
+        Set<CurriculumLine> curriculumLines = new HashSet<CurriculumLine>();
+        Collection<StudentCurricularPlan> studentCurricularPlans = registration.getStudentCurricularPlansSet();
+        for (StudentCurricularPlan studentCurricularPlan : studentCurricularPlans) {
+            curriculumLines.addAll(studentCurricularPlan.getAllCurriculumLines());
+        }
+
+        return curriculumLines;
+    }
+
+    public static Collection<ExecutionYear> getEnrolmentYearsIncludingPrecedentRegistrations(final Registration registration) {
+        return getEnrolmentYearsIncludingPrecedentRegistrations(registration, null);
+    }
+
+    /**
+     * 
+     * @param untilExecutionYear is inclusive. null does not apply any filtering
+     * 
+     * @return
+     */
+    public static Collection<ExecutionYear> getEnrolmentYearsIncludingPrecedentRegistrations(final Registration registration, final ExecutionYear untilExecutionYear) {
+
+        final Set<Registration> registrations = Sets.newHashSet();
+        registrations.add(registration);
+        registrations.addAll(getPrecedentDegreeRegistrations(registration));
+
+        final Set<ExecutionYear> result = Sets.newHashSet();
+        for (final Registration it : registrations) {
+            result.addAll(it.getEnrolmentsExecutionYears());
+        }
+
+        if (untilExecutionYear == null) {
+            return result;
+        }
+        
+        return result.stream().filter(e -> e.isBeforeOrEquals(untilExecutionYear)).collect(Collectors.toSet());
+    }
+ 
+    /**
+     * Returns the root registration.
+     * 
+     * @return This registration if does not have precedent or the oldest precendent registration
+     */
+    public static Registration getRootRegistration(final Registration registration) {
+        final SortedSet<Registration> registrations = Sets.newTreeSet(Registration.COMPARATOR_BY_START_DATE);
+        registrations.add(registration);
+        registrations.addAll(getPrecedentDegreeRegistrations(registration));
+
+        return registrations.first();
+    }
+
+    public static LocalDate getEnrolmentDate(final Registration registration, final ExecutionYear executionYear) {
+        if (getRegistrationDataByExecutionYear(registration, executionYear) == null) {
+            return null;
+        }
+
+        return getRegistrationDataByExecutionYear(registration, executionYear).getEnrolmentDate();
+    }
+
+    public static RegistrationDataByExecutionYear getRegistrationDataByExecutionYear(final Registration registration, final ExecutionYear year) {
+        for (RegistrationDataByExecutionYear registrationData : registration.getRegistrationDataByExecutionYearSet()) {
+            if (registrationData.getExecutionYear().equals(year)) {
+                return registrationData;
+            }
+        }
+        return null;
+    }
+    
+    public static DistrictSubdivision findDistrictSubdivisionByName(final District district, final String name) {
+        DistrictSubdivision result = null;
+        if (district != null && !Strings.isNullOrEmpty(name)) {
+            for (final DistrictSubdivision iter : Bennu.getInstance().getDistrictSubdivisionsSet()) {
+                if (iter.getDistrict().equals(district) && name.toLowerCase().equals(iter.getName().toLowerCase())) {
+                    if (result != null) {
+                        throw new ULisboaSpecificationsDomainException("error.DistrictSubdivision.found.duplicate", district.getCode(), name,
+                                result.toString(), iter.toString());
+                    }
+                    result = iter;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    
 }

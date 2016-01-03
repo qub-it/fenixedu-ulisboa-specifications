@@ -14,6 +14,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblDiplomado;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
+import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 
 import com.google.common.base.Strings;
 
@@ -40,52 +41,56 @@ public class DiplomadoService extends RaidesService {
         if (registrationConclusionBean.isConcluded()) {
             bean.setAnoLectivo(registrationConclusionBean.getConclusionYear().getQualifiedName());
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
-            bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(
-                    Raides.isMasterDegreeOrDoctoralDegree(registration)));
-            bean.setNumInscConclusao(String.valueOf(registration.getEnrolmentYearsIncludingPrecedentRegistrations().size()));
+            bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN)
+                    .translate(Raides.isMasterDegreeOrDoctoralDegree(registration)));
+            bean.setNumInscConclusao(
+                    String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
 
             if (Raides.isDoctoralDegree(registration)) {
-                bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE).translate(thesisFinalGrade(registration)));
-                
+                bean.setClassificacaoFinal(
+                        LegalMapping.find(report, LegalMappingType.GRADE).translate(thesisFinalGrade(registration)));
+
             } else {
-                bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE).translate(
-                        registrationConclusionBean.getFinalAverage() != null ? String.valueOf(registrationConclusionBean
-                                .getFinalAverage()) : null));
+                bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
+                        .translate(registrationConclusionBean.getCalculatedFinalGrade() != null ? registrationConclusionBean
+                                .getCalculatedFinalGrade().getValue() : null));
             }
-            
+
             bean.setDataDiploma(registrationConclusionBean.getConclusionDate().toLocalDate());
 
-            if (Raides.isMasterDegreeOrDoctoralDegree(registration)) {
-                bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE).translate(
-                        ((AverageCurriculum) registration.getCurriculum()).getScholarPartRoundedAverage().toString()));
-            }
+            // TODO
+//            if (Raides.isMasterDegreeOrDoctoralDegree(registration)) {
+//                bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
+//                        .translate(((AverageCurriculum) registration.getCurriculum()).getScholarPartRoundedAverage().toString()));
+//            }
+            
         } else if (Raides.isMasterDegreeOrDoctoralDegree(registration)
                 && Raides.hadScholarPartApprovement(registration, registration.getLastApprovementExecutionYear())) {
             bean.setAnoLectivo(registration.getLastApprovementExecutionYear().getQualifiedName());
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
-            bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(
-                    registration.isMasterDegreeOrBolonhaMasterDegree()));
-            bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE).translate(
-                    ((AverageCurriculum) registration.getCurriculum()).getScholarPartRoundedAverage().toString()));
+            bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN)
+                    .translate(registration.isMasterDegreeOrBolonhaMasterDegree()));
+            // TODO
+//            bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
+//                    .translate(((AverageCurriculum) registration.getCurriculum()).getScholarPartRoundedAverage().toString()));
         }
 
-        bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(
-                MobilityRegistrationInformation.hasBeenInMobility(registration, executionYear)));
+        bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN)
+                .translate(MobilityRegistrationInformation.hasBeenInMobility(registration, executionYear)));
 
         if (hasBeenInMobility(registration, executionYear)) {
             final MobilityRegistrationInformation mobilityRegistrationInformation =
                     MobilityRegistrationInformation.readAll(registration).iterator().next();
             bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
 
-            bean.setTipoMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY).translate(
-                    mobilityRegistrationInformation.getMobilityActivityType()));
-            bean.setProgMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM).translate(
-                    mobilityRegistrationInformation.getMobilityProgramType()));
+            bean.setTipoMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY)
+                    .translate(mobilityRegistrationInformation.getMobilityActivityType()));
+            bean.setProgMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM)
+                    .translate(mobilityRegistrationInformation.getMobilityProgramType()));
 
             if (Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidadeCredito())
                     || Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidadeCredito())) {
-                bean.setOutroProgMobCredito(mobilityRegistrationInformation.getMobilityProgramType().getName()
-                        .getContent(Language.getDefaultLanguage()));
+                bean.setOutroProgMobCredito(mobilityRegistrationInformation.getMobilityProgramType().getName().getContent());
             }
 
             if (mobilityRegistrationInformation.hasCountry()) {
@@ -102,14 +107,15 @@ public class DiplomadoService extends RaidesService {
     }
 
     private String thesisFinalGrade(final Registration registration) {
-        final Collection<Enrolment> dissertationEnrolments = registration.getLastStudentCurricularPlan().getDissertationEnrolments();
-        
+        final Collection<Enrolment> dissertationEnrolments =
+                registration.getLastStudentCurricularPlan().getDissertationEnrolments();
+
         for (final Enrolment enrolment : dissertationEnrolments) {
-            if(enrolment.isApproved()) {
+            if (enrolment.isApproved()) {
                 return enrolment.getGradeValue();
             }
         }
-        
+
         return null;
     }
 
@@ -124,46 +130,43 @@ public class DiplomadoService extends RaidesService {
         }
 
         if (Strings.isNullOrEmpty(bean.getTipoMobilidadeCredito())) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.graduated.mobility.credit.type.missing",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
         }
 
         if (Strings.isNullOrEmpty(bean.getProgMobilidadeCredito())) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.graduated.mobility.program.type.missing",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
         }
 
-        if ((Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidadeCredito()) || Raides.ProgramaMobilidade.OUTRO_TRES
-                .equals(bean.getProgMobilidadeCredito())) && Strings.isNullOrEmpty(bean.getOutroProgMobCredito())) {
-            LegalReportContext.addError(
-                    "",
+        if ((Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidadeCredito())
+                || Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidadeCredito()))
+                && Strings.isNullOrEmpty(bean.getOutroProgMobCredito())) {
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.graduated.mobility.other.program.type.missing",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
         }
 
         if (Strings.isNullOrEmpty(bean.getPaisMobilidadeCredito())) {
-            LegalReportContext.addError(
-                    "",
+            LegalReportContext.addError("",
                     i18n("error.Raides.validation.graduated.mobility.country.missing",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
         }
     }
 
-    protected void validaClassificacao(final ExecutionYear executionYear, final Registration registration, final TblDiplomado bean) {
+    protected void validaClassificacao(final ExecutionYear executionYear, final Registration registration,
+            final TblDiplomado bean) {
         final RegistrationConclusionBean registrationConclusionBean = new RegistrationConclusionBean(registration);
 
         if (registrationConclusionBean.isConcluded() && Raides.isMasterDegreeOrDoctoralDegree(registration)) {
             if (Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
-                LegalReportContext.addError(
-                        "",
+                LegalReportContext.addError("",
                         i18n("error.Raides.validation.masterOrDoctoral.scholarpart.classification.empty.or.zero",
                                 String.valueOf(registration.getStudent().getNumber()),
                                 registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));

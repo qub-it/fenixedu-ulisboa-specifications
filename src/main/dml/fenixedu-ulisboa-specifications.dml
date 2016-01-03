@@ -1342,4 +1342,16 @@ class legal.settings.LegalSettings {
 			multiplicity *;
 		}
 	}
-		
+
+/* Precedent Degrees */
+
+relation DegreePrecedentDegree {
+	.org.fenixedu.academic.domain.Degree playsRole precedentDegrees {
+		multiplicity *;
+	}
+	
+	.org.fenixedu.academic.domain.Degree playsRole subsequentDegrees {
+		multiplicity *;
+	}
+}
+

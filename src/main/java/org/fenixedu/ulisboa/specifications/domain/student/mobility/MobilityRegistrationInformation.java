@@ -234,6 +234,10 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     public static boolean hasBeenInMobility(final Registration registration, final ExecutionYear executionYear) {
         return findMobilityRegistrationInformation(registration, executionYear) != null;
     }
+    
+    public static MobilityRegistrationInformation findIncomingInformation(final Registration registration) {
+        return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> m.isIncoming()).findAny().orElse(null);
+    }
 
     public boolean isIncomingStudent() {
         return getIncoming();
