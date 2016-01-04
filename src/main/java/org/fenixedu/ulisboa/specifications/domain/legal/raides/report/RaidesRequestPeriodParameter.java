@@ -5,11 +5,12 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.bennu.IBean;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
-public class RaidesRequestPeriodParameter implements Serializable {
+public class RaidesRequestPeriodParameter implements Serializable, IBean {
 
     public static final Comparator<RaidesRequestPeriodParameter> COMPARATOR_BY_BEGIN_DATE = new Comparator<RaidesRequestPeriodParameter>() {
 
@@ -35,12 +36,18 @@ public class RaidesRequestPeriodParameter implements Serializable {
     private Integer minEnrolmentYears;
     private Integer maxEnrolmentYears;
 
+    /**
+     * Used to display academicPeriod name with angular
+     */
+    private String academicPeriodQualifiedName;
+
     public RaidesRequestPeriodParameter(final ExecutionYear academicPeriod, final LocalDate begin, final LocalDate end,
             final boolean enrolledInAcademicPeriod, final RaidesPeriodInputType periodInputType,
             final boolean enrolmentEctsConstraint, final BigDecimal minEnrolmentEcts, final BigDecimal maxEnrolmentEcts,
             final boolean enrolmentYearsConstraint, final Integer minEnrolmentYears, final Integer maxEnrolmentYears) {
 
         setAcademicPeriod(academicPeriod);
+        setAcademicPeriodQualifiedName(academicPeriod.getQualifiedName());
         setBegin(begin);
         setEnd(end);
         setEnrolledInAcademicPeriod(enrolledInAcademicPeriod);
@@ -59,10 +66,10 @@ public class RaidesRequestPeriodParameter implements Serializable {
     }
 
     private void checkRules() {
-        if(getAcademicPeriod() != null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.academicPeriod.required"); }
-        if(getBegin() != null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.begin.required"); }
-        if(getEnd() != null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.end.required"); }
-        if(getPeriodInputType() != null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.periodInputType.required"); }
+        if(getAcademicPeriod() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.academicPeriod.required"); }
+        if(getBegin() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.begin.required"); }
+        if(getEnd() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.end.required"); }
+        if(getPeriodInputType() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.periodInputType.required"); }
     }
     
     public Interval getInterval() {
@@ -80,6 +87,14 @@ public class RaidesRequestPeriodParameter implements Serializable {
 
     public void setAcademicPeriod(ExecutionYear academicPeriod) {
         this.academicPeriod = academicPeriod;
+    }
+    
+    public String getAcademicPeriodQualifiedName() {
+        return academicPeriodQualifiedName;
+    }
+    
+    public void setAcademicPeriodQualifiedName(String academicPeriodQualifiedName) {
+        this.academicPeriodQualifiedName = academicPeriodQualifiedName;
     }
 
     public LocalDate getBegin() {

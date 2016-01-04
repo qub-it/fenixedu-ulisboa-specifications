@@ -28,6 +28,7 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
+import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
@@ -66,7 +67,6 @@ import pt.ist.fenixframework.FenixFramework;
 
 public class Raides {
 
-    
     public static class AnoCurricular {
         public static final String ESTAGIO_FINAL_CODE = "ESTAGIO_FINAL_CODE";
         public static final String TRABALHO_PROJECTO_CODE = "TRABALHO_PROJECTO_CODE";
@@ -88,14 +88,13 @@ public class Raides {
         public static final String ETD_CODE = "ETD_CODE";
 
         public static Set<String> VALUES() {
-            Set<String> degreeCodes =
-                    Sets.newHashSet(Lists.transform(Lists.newArrayList(Bennu.getInstance().getDegreesSet()),
-                            new Function<Degree, String>() {
-                                @Override
-                                public String apply(final Degree degree) {
-                                    return degree.getExternalId();
-                                }
-                            }));
+            Set<String> degreeCodes = Sets.newHashSet(
+                    Lists.transform(Lists.newArrayList(Bennu.getInstance().getDegreesSet()), new Function<Degree, String>() {
+                        @Override
+                        public String apply(final Degree degree) {
+                            return degree.getExternalId();
+                        }
+                    }));
 
             degreeCodes.add(ETD_CODE);
 
@@ -207,7 +206,7 @@ public class Raides {
         processEnrolled(reportRequest.getLegalReport(), raidesRequestParameter);
         processGraduated(reportRequest.getLegalReport(), raidesRequestParameter);
         processMobilidadeInternacional(reportRequest.getLegalReport(), raidesRequestParameter);
-        
+
         // Excel
         XlsxExporter.write(reportRequest, this);
 
@@ -216,14 +215,13 @@ public class Raides {
 
         // Log
         XlsExporterLog.write(reportRequest, LegalReportContext.getReport());
-        
+
         reportRequest.markAsProcessed();
     }
 
     protected void processMobilidadeInternacional(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
 
-        for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter
-                .getPeriodsForInternationalMobility()) {
+        for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForInternationalMobility()) {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
             for (final Degree degree : Bennu.getInstance().getDegreesSet()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
@@ -375,7 +373,7 @@ public class Raides {
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
 
                 for (final Registration registration : degree.getRegistrationsSet()) {
-                    
+
                     try {
                         if (!isAgreementPartOfEnrolledReport(raidesRequestParameter, registration)) {
                             continue;
@@ -386,7 +384,8 @@ public class Raides {
                             continue;
                         }
 
-                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(), registration)) {
+                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(),
+                                registration)) {
                             continue;
                         }
 
@@ -513,9 +512,10 @@ public class Raides {
         registrationList.add(registration);
     }
 
-    protected TblIdentificacao addStudent(final LegalReport report, final Unit institution, final Student student, final Registration registration,
-            final ExecutionYear executionYear) {
-        final TblIdentificacao aluno = (new IdentificacaoService(report)).create(institution, student, registration, executionYear);
+    protected TblIdentificacao addStudent(final LegalReport report, final Unit institution, final Student student,
+            final Registration registration, final ExecutionYear executionYear) {
+        final TblIdentificacao aluno =
+                (new IdentificacaoService(report)).create(institution, student, registration, executionYear);
         alunos.put(student, aluno);
 
         return aluno;
@@ -605,7 +605,8 @@ public class Raides {
         return Lists.newArrayList(alunos.values());
     }
 
-    public Collection<TblInscrito> inscricoesForStudent(final Student student, final RaidesRequestParameter raidesRequestParameter) {
+    public Collection<TblInscrito> inscricoesForStudent(final Student student,
+            final RaidesRequestParameter raidesRequestParameter) {
         if (!raidesRequestParameter.isFilterEntriesWithErrors()) {
             return inscritos.get(student);
         }
@@ -625,7 +626,8 @@ public class Raides {
         return inscritos.values();
     }
 
-    public Collection<TblDiplomado> diplomadosForStudent(final Student student, final RaidesRequestParameter raidesRequestParameter) {
+    public Collection<TblDiplomado> diplomadosForStudent(final Student student,
+            final RaidesRequestParameter raidesRequestParameter) {
         if (!raidesRequestParameter.isFilterEntriesWithErrors()) {
             return diplomados.get(student);
         }
@@ -672,9 +674,9 @@ public class Raides {
     }
 
     public static void fillRaidesRequestDefaultData(final RaidesRequestParameter raidesRequestParameter) {
-        if (Raides.requestDefaultData != null) {
-            Raides.requestDefaultData.fill(raidesRequestParameter);
-        }
+        requestDefaultData = new RaidesReportRequestDefaultData();
+        
+        Raides.requestDefaultData.fill(raidesRequestParameter);
     }
 
     //Returning the bean which contains information relating to both the precedent and the completed qualifications
@@ -758,14 +760,13 @@ public class Raides {
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence().isDefaultCountry()
                 && !Strings.isNullOrEmpty(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence())
-                && !Strings.isNullOrEmpty(registration.getPerson().getDefaultPhysicalAddress()
-                        .getDistrictSubdivisionOfResidence())) {
+                && !Strings.isNullOrEmpty(
+                        registration.getPerson().getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence())) {
             final District district =
                     District.readByName(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence());
 
-            final DistrictSubdivision districtSubdivision =
-                    findDistrictSubdivisionByName(district, registration.getPerson().getDefaultPhysicalAddress()
-                            .getDistrictSubdivisionOfResidence());
+            final DistrictSubdivision districtSubdivision = findDistrictSubdivisionByName(district,
+                    registration.getPerson().getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence());
 
             return districtSubdivision;
         }
@@ -780,7 +781,7 @@ public class Raides {
     public static boolean isDoctoralDegree(final Registration registration) {
         return registration.getDegreeType().isThirdCycle();
     }
-    
+
     public static PersonalIngressionData personalIngressionData(Registration registration, ExecutionYear executionYear) {
         PersonalIngressionData personalIngressionDataByExecutionYear =
                 registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
@@ -789,10 +790,9 @@ public class Raides {
             return personalIngressionDataByExecutionYear;
         }
 
-        for(ExecutionYear ex = executionYear; ex.getPreviousExecutionYear() != null; ex = ex.getPreviousExecutionYear()) {
-            if(registration.getStudent().getPersonalIngressionDataByExecutionYear(ex) != null) {
-                LegalReportContext.addWarn(
-                        "",
+        for (ExecutionYear ex = executionYear; ex.getPreviousExecutionYear() != null; ex = ex.getPreviousExecutionYear()) {
+            if (registration.getStudent().getPersonalIngressionDataByExecutionYear(ex) != null) {
+                LegalReportContext.addWarn("",
                         i18n("warn.Raides.validation.using.personal.ingression.data.from.previous.year",
                                 String.valueOf(registration.getStudent().getNumber()),
                                 registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
@@ -800,21 +800,21 @@ public class Raides {
                 return registration.getStudent().getPersonalIngressionDataByExecutionYear(ex);
             }
         }
-        
+
         return null;
     }
 
     private static String i18n(String key, String... arguments) {
         return ULisboaSpecificationsUtil.bundle(key, arguments);
-    }    
-    
+    }
+
     // @formatter:off
     /* *******************
      * ADDED ON BLUE RECORD
      * *******************
      */
     // @formatter:on
-    
+
     /**
      * Check if the previous completed qualification fields are filled
      */
@@ -822,102 +822,102 @@ public class Raides {
         final PrecedentDegreeInformation pid = registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
         final Set<String> result = new HashSet<String>();
-        
-        if(Strings.isNullOrEmpty(pid.getConclusionGrade())) {
+
+        if (Strings.isNullOrEmpty(pid.getConclusionGrade())) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.conclusion.grade.required");
         }
-        
-        if(pid.getConclusionYear() == null) {
-            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.conclusion.year.required");            
+
+        if (pid.getConclusionYear() == null) {
+            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.conclusion.year.required");
         }
-        
-        if(pid.getSchoolLevel() == null) {
+
+        if (pid.getSchoolLevel() == null) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.school.level.required");
         }
-        
-        if(pid.getSchoolLevel() == SchoolLevelType.OTHER && Strings.isNullOrEmpty(pid.getOtherSchoolLevel())) {
-            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.school.level.required");            
+
+        if (pid.getSchoolLevel() == SchoolLevelType.OTHER && Strings.isNullOrEmpty(pid.getOtherSchoolLevel())) {
+            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.school.level.required");
         }
-        
-        if(pid.getCountry() == null) {
+
+        if (pid.getCountry() == null) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.country.required");
         }
-        
-        if(pid.getInstitution() == null) {
-            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.institution.required");            
+
+        if (pid.getInstitution() == null) {
+            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.institution.required");
         }
-        
+
         return result;
     }
-    
+
     public static boolean isCompletePrecedentDegreeInformationFieldsFilled(final Registration registration) {
         return verifyCompletePrecedentDegreeInformationFieldsFilled(registration).isEmpty();
     }
-    
+
     // TODO: Use mappings to infer is previous degree information is required
     public static boolean isPreviousDegreePrecedentDegreeInformationRequired(final Registration registration) {
         // For now use degree transfer
         return registration.getIngressionType().isExternalDegreeChange();
     }
-    
+
     /**
      * In case of degree transfer, degree change and mobility check if previous degree or origin
      * information is filled
      */
-    
+
     public static Set<String> verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(final Registration registration) {
         final Set<String> result = new HashSet<String>();
 
-        if(isPreviousDegreePrecedentDegreeInformationRequired(registration)) {
+        if (isPreviousDegreePrecedentDegreeInformationRequired(registration)) {
             return result;
         }
-        
+
         final PrecedentDegreeInformation pid = registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
-        
-        if(Strings.isNullOrEmpty(pid.getPrecedentDegreeDesignation())) {
-            result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentDegreeDesignation.required");
+        if (Strings.isNullOrEmpty(pid.getPrecedentDegreeDesignation())) {
+            result.add(
+                    "error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentDegreeDesignation.required");
         }
-        
-        if(pid.getPrecedentSchoolLevel() == null) {
+
+        if (pid.getPrecedentSchoolLevel() == null) {
             result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentSchoolLevel.required");
         }
-        
-        if(pid.getPrecedentInstitution() == null) {
+
+        if (pid.getPrecedentInstitution() == null) {
             result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentInstitution.required");
         }
-        
-        if(pid.getPrecedentCountry() == null) {
+
+        if (pid.getPrecedentCountry() == null) {
             result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentCountry.required");
         }
-        
+
         return result;
     }
 
     public static List<Registration> findActiveRegistrationsWithEnrolments(final Student student) {
         final List<Registration> result = Lists.newArrayList();
-        
+
         for (final Registration registration : student.getRegistrationsSet()) {
-            if(!registration.isActive()) {
+            if (!registration.isActive()) {
                 continue;
             }
-            
-            if(registration.getEnrolments(ExecutionYear.readCurrentExecutionYear()).isEmpty()) {
+
+            if (registration.getEnrolments(ExecutionYear.readCurrentExecutionYear()).isEmpty()) {
                 continue;
             }
-            
+
             result.add(registration);
         }
-        
+
         Collections.sort(result, Registration.COMPARATOR_BY_START_DATE);
-        
+
         return result;
     }
-    
+
     public static boolean isPreviousDegreePrecedentDegreeInformationFieldsFilled(final Registration registration) {
         return verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(registration).isEmpty();
     }
-    
+
     public static Set<Degree> getPrecedentDegreesUntilRoot(final Degree degree) {
         final Set<Degree> result = Sets.newHashSet();
         result.addAll(degree.getPrecedentDegreesSet());
@@ -928,7 +928,7 @@ public class Raides {
 
         return result;
     }
-    
+
     public static Collection<Registration> getPrecedentDegreeRegistrations(final Registration registration) {
 
         final Set<Degree> precedentDegreesUntilRoot = getPrecedentDegreesUntilRoot(registration.getDegree());
@@ -971,7 +971,8 @@ public class Raides {
      * 
      * @return
      */
-    public static Collection<ExecutionYear> getEnrolmentYearsIncludingPrecedentRegistrations(final Registration registration, final ExecutionYear untilExecutionYear) {
+    public static Collection<ExecutionYear> getEnrolmentYearsIncludingPrecedentRegistrations(final Registration registration,
+            final ExecutionYear untilExecutionYear) {
 
         final Set<Registration> registrations = Sets.newHashSet();
         registrations.add(registration);
@@ -985,10 +986,10 @@ public class Raides {
         if (untilExecutionYear == null) {
             return result;
         }
-        
+
         return result.stream().filter(e -> e.isBeforeOrEquals(untilExecutionYear)).collect(Collectors.toSet());
     }
- 
+
     /**
      * Returns the root registration.
      * 
@@ -1010,7 +1011,8 @@ public class Raides {
         return getRegistrationDataByExecutionYear(registration, executionYear).getEnrolmentDate();
     }
 
-    public static RegistrationDataByExecutionYear getRegistrationDataByExecutionYear(final Registration registration, final ExecutionYear year) {
+    public static RegistrationDataByExecutionYear getRegistrationDataByExecutionYear(final Registration registration,
+            final ExecutionYear year) {
         for (RegistrationDataByExecutionYear registrationData : registration.getRegistrationDataByExecutionYearSet()) {
             if (registrationData.getExecutionYear().equals(year)) {
                 return registrationData;
@@ -1018,15 +1020,15 @@ public class Raides {
         }
         return null;
     }
-    
+
     public static DistrictSubdivision findDistrictSubdivisionByName(final District district, final String name) {
         DistrictSubdivision result = null;
         if (district != null && !Strings.isNullOrEmpty(name)) {
             for (final DistrictSubdivision iter : Bennu.getInstance().getDistrictSubdivisionsSet()) {
                 if (iter.getDistrict().equals(district) && name.toLowerCase().equals(iter.getName().toLowerCase())) {
                     if (result != null) {
-                        throw new ULisboaSpecificationsDomainException("error.DistrictSubdivision.found.duplicate", district.getCode(), name,
-                                result.toString(), iter.toString());
+                        throw new ULisboaSpecificationsDomainException("error.DistrictSubdivision.found.duplicate",
+                                district.getCode(), name, result.toString(), iter.toString());
                     }
                     result = iter;
                 }
@@ -1036,5 +1038,8 @@ public class Raides {
         return result;
     }
 
-    
+    public static RegistrationProtocol findRegistrationProtocolByCode(final String code) {
+        return Bennu.getInstance().getRegistrationProtocolsSet().stream().filter(r -> r.getCode().equals(code)).findAny().get();
+    }
+
 }
