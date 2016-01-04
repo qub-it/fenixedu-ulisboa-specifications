@@ -41,11 +41,11 @@ public class LegalReportRequest extends LegalReportRequest_Base {
     }
 
     private void checkRules() {
-        if(getRequestor() != null) { throw new ULisboaSpecificationsDomainException("error.ReportRequest.requestor.required"); }
+        if(getRequestor() == null) { throw new ULisboaSpecificationsDomainException("error.ReportRequest.requestor.required"); }
         
-        if(getWhenRequested() != null) { throw new ULisboaSpecificationsDomainException("error.ReportRequest.whenRequested.required"); }
+        if(getWhenRequested() == null) { throw new ULisboaSpecificationsDomainException("error.ReportRequest.whenRequested.required"); }
         
-        if(getLegalReport() != null) { throw new ULisboaSpecificationsDomainException("error.ReportRequest.report.required"); }
+        if(getLegalReport() == null) { throw new ULisboaSpecificationsDomainException("error.ReportRequest.report.required"); }
     }
 
     public boolean isPending() {
