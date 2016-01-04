@@ -20,7 +20,7 @@ import pt.ist.fenixframework.Atomic;
 
 public class RaidesInstance extends RaidesInstance_Base {
     
-    private RaidesInstance() {
+    public RaidesInstance() {
         super();
     }
 

@@ -3,19 +3,24 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides.report;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
+import org.fenixedu.bennu.IBean;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequestParameters;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Lists;
 
-public class RaidesRequestParameter extends LegalReportRequestParameters implements Serializable {
+public class RaidesRequestParameter extends LegalReportRequestParameters implements Serializable, IBean {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +43,16 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
 
     private List<Degree> degrees = Lists.newArrayList();
 
+    private List<TupleDataSourceBean> registrationProtocolsDataSource;
+    private List<TupleDataSourceBean> ingressionTypesDataSource;
+
+    
+    /**
+     * Used to display data with Angular
+     */
+    
+    private String institutionName;
+    
     public RaidesRequestParameter(final String institutionCode, final String moment, final String interlocutorName,
             final String interlocutorEmail, final String interlocutorPhone, final boolean filterEntriesWithErrors) {
         setInstitutionCode(institutionCode);
@@ -46,12 +61,40 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
         setInstitutionCode(institutionCode);
         setInterlocutorPhone(interlocutorPhone);
         setFilterEntriesWithErrors(filterEntriesWithErrors);
+
+        loadDataSources();
     }
 
     /**
      * Empty constructor to create in interface
      */
     public RaidesRequestParameter() {
+        loadDataSources();
+    }
+
+    private void loadDataSources() {
+        loadRegistrationProtocolsDataSource();
+        loadIngressionTypesDataSource();
+    }
+
+    private void loadIngressionTypesDataSource() {
+        this.ingressionTypesDataSource = Lists.newArrayList();
+        
+        this.ingressionTypesDataSource.add(ULisboaConstants.SELECT_OPTION);
+        
+        this.ingressionTypesDataSource.addAll(Bennu.getInstance().getIngressionTypesSet().stream().map(r -> new TupleDataSourceBean(r.getExternalId(), r.getLocalizedName()))
+                        .collect(Collectors.toList()));
+        
+    }
+
+    private void loadRegistrationProtocolsDataSource() {
+        this.registrationProtocolsDataSource = Lists.newArrayList();
+
+        this.registrationProtocolsDataSource.add(ULisboaConstants.SELECT_OPTION);
+        this.registrationProtocolsDataSource.addAll(
+                Bennu.getInstance().getRegistrationProtocolsSet().stream().sorted(RegistrationProtocol.AGREEMENT_COMPARATOR)
+                        .map(r -> new TupleDataSourceBean(r.getExternalId(), r.getDescription().getContent()))
+                        .collect(Collectors.toList()));
     }
 
     public void checkRules() {
@@ -59,7 +102,9 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
             throw new ULisboaSpecificationsDomainException("error.RaidesReportRequest.degrees.required");
         }
 
-        if(getInstitution() != null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportRequest.unit.required"); }
+        if (getInstitution() != null) {
+            throw new ULisboaSpecificationsDomainException("error.RaidesReportRequest.unit.required");
+        }
     }
 
     public RaidesRequestPeriodParameter addPeriod(final RaidesPeriodInputType periodType, final ExecutionYear academicPeriod,
@@ -67,10 +112,9 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
             final boolean enrolmentEctsConstraint, final BigDecimal minEnrolmentEcts, final BigDecimal maxEnrolmentEcts,
             final boolean enrolmentYearsConstraint, final Integer minEnrolmentYears, final Integer maxEnrolmentYears) {
 
-        RaidesRequestPeriodParameter periodParameter =
-                new RaidesRequestPeriodParameter(academicPeriod, begin, end, enrolledInAcademicPeriod, periodType,
-                        enrolmentEctsConstraint, minEnrolmentEcts, maxEnrolmentEcts, enrolmentYearsConstraint, minEnrolmentYears,
-                        maxEnrolmentYears);
+        RaidesRequestPeriodParameter periodParameter = new RaidesRequestPeriodParameter(academicPeriod, begin, end,
+                enrolledInAcademicPeriod, periodType, enrolmentEctsConstraint, minEnrolmentEcts, maxEnrolmentEcts,
+                enrolmentYearsConstraint, minEnrolmentYears, maxEnrolmentYears);
 
         periods.add(periodParameter);
 
@@ -135,6 +179,7 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
 
     public void setInstitution(Unit institution) {
         this.institution = institution;
+        this.institutionName = institution != null ? institution.getNameI18n().getContent() : "";
     }
 
     public String getInstitutionCode() {
@@ -224,7 +269,7 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
     public void setIngressionsForGeneralAccessRegime(List<IngressionType> ingressionsForGeneralAccessRegime) {
         this.ingressionsForGeneralAccessRegime = ingressionsForGeneralAccessRegime;
     }
-    
+
     public List<Degree> getDegrees() {
         return degrees;
     }

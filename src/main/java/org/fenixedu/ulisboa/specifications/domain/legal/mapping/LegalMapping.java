@@ -157,7 +157,7 @@ public abstract class LegalMapping extends LegalMapping_Base {
             throw new ULisboaSpecificationsDomainException("error.Mapping.type.required");
         }
         
-        if(getLegalReport() != null) { throw new ULisboaSpecificationsDomainException("error.Mapping.report.required"); }
+        if(getLegalReport() == null) { throw new ULisboaSpecificationsDomainException("error.Mapping.report.required"); }
         
         find(getLegalReport(), getType());
     }
