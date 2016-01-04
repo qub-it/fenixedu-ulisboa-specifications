@@ -29,7 +29,7 @@ public class CleanULisboaServiceRequestProcessor extends CustomTask {
                     taskLog("Migrated processor for '" + serviceRequestType.getName().getContent() + "': " + processorName
                             + " --> " + replacementName);
                 } else {
-                    taskLog("Detacched processor for '" + serviceRequestType.getName().getContent() + "'.");
+                    taskLog("Detached processor for '" + serviceRequestType.getName().getContent() + "'.");
                 }
             }
             processor.delete();
