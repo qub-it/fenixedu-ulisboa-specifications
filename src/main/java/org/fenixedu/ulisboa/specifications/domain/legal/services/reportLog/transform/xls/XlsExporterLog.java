@@ -54,7 +54,7 @@ public class XlsExporterLog {
             spreadsheetBuilder.build(WorkbookExportFormat.EXCEL, outputStream);
             final byte[] content = outputStream.toByteArray();
             
-            final String fileName = "Logs_" + reportRequest.getLegalReport().getName() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm") + "." + 
+            final String fileName = "Logs_" + reportRequest.getLegalReport().getName().getContent() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm") + "." + 
                     LegalReportResultFileType.XLS.toString().toLowerCase();
             
             return new LegalReportResultFile(reportRequest, LegalReportResultFileType.XLS, fileName, content);

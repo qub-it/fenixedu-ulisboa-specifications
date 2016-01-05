@@ -132,10 +132,6 @@ public class Raides {
             return ULisboaSpecificationsUtil.bundleI18N("label.GrantOwnerType." + key);
         }
 
-        public static String KEY(final GrantOwnerType grantOwnerType) {
-            return grantOwnerType.name();
-        }
-
     }
 
     public static class Cursos {

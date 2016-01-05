@@ -95,6 +95,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
  	$scope.object=${beanJson};
  	$scope.postBack = createAngularPostbackFunction($scope);
  	
+ 	$scope.cleanPeriods = function(periodType) {
+		var i = $scope.object.periods.length;
+		while(i--) {
+			if($scope.object.periods[i].periodInputType === periodType) {
+				$scope.object.periods.splice(i, 1);					
+			}
+		}
+ 	}
+ 	
 }]);
 </script>
 

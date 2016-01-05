@@ -46,7 +46,7 @@
 				<spring:message code="label.RaidesRequests.addPeriod" />
 			</a>
 			&nbsp;
-			<a class="bnt btn-default btn-xs" href="#" onclick="cleanPeriods(<%= request.getParameter("periodType") %>)">
+			<a class="bnt btn-default btn-xs" href="#" ng-click="cleanPeriods('<%= request.getParameter("periodType") %>')">
 				<spring:message code="label.RaidesRequests.cleanPeriods" />
 			</a>
 		</div>
