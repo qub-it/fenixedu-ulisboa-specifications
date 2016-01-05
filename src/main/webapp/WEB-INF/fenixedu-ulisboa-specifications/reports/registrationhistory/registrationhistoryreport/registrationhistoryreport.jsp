@@ -7,6 +7,7 @@
 	uri="http://github.com/dandelion/datatables"%>
 <%@taglib prefix="joda" uri="http://www.joda.org/joda/time/tags"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 
 <spring:url var="datatablesUrl"
 	value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
@@ -503,6 +504,7 @@ ${portal.angularToolkit()}
 					code="label.Registration.registrationProtocol" /></th>
 			<th><spring:message
 					code="label.RegistrationHistoryReport.lastRegistrationState" /></th>
+			<th> </th>
 	</tr>
 	</thead>
 	<tbody>
@@ -522,6 +524,11 @@ ${portal.angularToolkit()}
 					<td><c:out
 							value="${result.registration.registrationProtocol.description.content}"></c:out></td>
 					<td><c:out value="${result.lastRegistrationState.description}"></c:out></td>
+					<td>
+						<a  class="btn btn-default btn-xs" href="${fr:checksumLink(pageContext.request,'/academicAdministration/student.do?method=visualizeRegistration&registrationID='.concat(result.registration.externalId))}">
+							<spring:message code='label.view'/>
+						</a>
+					</td>
 				</tr>
 			</c:if>
 		</c:forEach>

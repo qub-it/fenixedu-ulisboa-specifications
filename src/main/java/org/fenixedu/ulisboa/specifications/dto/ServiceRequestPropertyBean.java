@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.dto;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +20,8 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
+
+import com.google.common.base.Strings;
 
 import pt.ist.fenixframework.DomainObject;
 
@@ -178,6 +181,23 @@ public class ServiceRequestPropertyBean implements IBean {
             throw new ULisboaSpecificationsDomainException(e, "error.serviceRequests.ServiceRequestProperty.read.slot", getCode(),
                     getUiComponent().toString(), propertyName);
         }
+    }
+
+    public boolean isNullOrEmpty() {
+        if (getValue() == null) {
+            return true;
+        }
+        Object value = getValue();
+        if (getUiComponent() == UIComponentType.TEXT) {
+            return Strings.isNullOrEmpty((String) value);
+        }
+        if (getUiComponent() == UIComponentType.TEXT_LOCALIZED_STRING) {
+            return ((LocalizedString) value).isEmpty();
+        }
+        if (getUiComponent() == UIComponentType.DROP_DOWN_MULTIPLE) {
+            return ((Collection) value).isEmpty();
+        }
+        return false;
     }
 
     public ServiceRequestPropertyBean() {

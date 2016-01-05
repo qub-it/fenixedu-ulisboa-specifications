@@ -216,9 +216,11 @@ ${portal.angularToolkit()}
                    var docPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.DOCUMENT_PURPOSE_TYPE %>');
                    var otherDocPurposeIndex = $scope.object.serviceRequestPropertyBeans.containsId('<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>');
                    <% String otherName = DocumentPurposeTypeInstance.findUnique(DocumentPurposeType.OTHER).getExternalId(); %>
-                   if(docPurposeIndex != -1 && otherDocPurposeIndex != -1 && $scope.object.serviceRequestPropertyBeans[docPurposeIndex].domainObjectValue == '<%= otherName %>') {
+                   if(docPurposeIndex != -1 && otherDocPurposeIndex != -1 && $scope.object.serviceRequestPropertyBeans[docPurposeIndex].value == '<%= otherName %>') {
+                       $scope.object.serviceRequestPropertyBeans[otherDocPurposeIndex].required = true;
             	       return true;
                    }
+                   $scope.object.serviceRequestPropertyBeans[otherDocPurposeIndex].required = false;
                    return false;
                };
                $scope.language = '<%= I18N.getLocale().toString() %>'.replace(/_/g,"-");

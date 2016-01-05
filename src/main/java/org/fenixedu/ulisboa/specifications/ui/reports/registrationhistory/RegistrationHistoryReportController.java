@@ -17,6 +17,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -295,6 +296,38 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
             private void addSecondaryData(RegistrationHistoryReport registrationHistoryReport) {
 
+                addPrecedentDegreeInformation(registrationHistoryReport.getRegistration());
+                addPersonalData(registrationHistoryReport);
+
+            }
+
+            private void addPrecedentDegreeInformation(Registration registration) {
+                final PrecedentDegreeInformation information = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+
+                if (information != null) {
+                    addData("PrecedentDegreeInformation.institutionUnit", information.getInstitutionName());
+                    addData("PrecedentDegreeInformation.schoolLevel",
+                            information.getSchoolLevel() != null ? information.getSchoolLevel().getLocalizedName() : "");
+                    addData("PrecedentDegreeInformation.degreeDesignation", information.getDegreeDesignation());
+                    addData("PrecedentDegreeInformation.precedentInstitution",
+                            information.getPrecedentInstitution() != null ? information.getPrecedentInstitution().getName() : "");
+                    addData("PrecedentDegreeInformation.precedentSchoolLevel",
+                            information.getPrecedentSchoolLevel() != null ? information.getPrecedentSchoolLevel()
+                                    .getLocalizedName() : "");
+                    addData("PrecedentDegreeInformation.precedentDegreeDesignation", information.getPrecedentDegreeDesignation());
+                } else {
+                    addData("PrecedentDegreeInformation.institutionUnit", "");
+                    addData("PrecedentDegreeInformation.schoolLevel", "");
+                    addData("PrecedentDegreeInformation.degreeDesignation", "");
+                    addData("PrecedentDegreeInformation.precedentInstitution", "");
+                    addData("PrecedentDegreeInformation.precedentSchoolLevel", "");
+                    addData("PrecedentDegreeInformation.precedentDegreeDesignation", "");
+                }
+
+            }
+
+            protected void addPersonalData(RegistrationHistoryReport registrationHistoryReport) {
+
                 final Person person = registrationHistoryReport.getRegistration().getPerson();
 
                 addData("Person.idDocumentType", person.getIdDocumentType().getLocalizedName());
@@ -314,7 +347,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 .getStudentPersonalDataAuthorizationChoice().getDescription() : "");
 
                 addContactsData(person);
-
             }
 
             protected void addContactsData(Person person) {

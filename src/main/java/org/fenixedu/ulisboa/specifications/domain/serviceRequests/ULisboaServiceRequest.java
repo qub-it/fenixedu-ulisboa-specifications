@@ -178,6 +178,11 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(),
                 bean.isRequestedOnline(), bean.getRequestDate());
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
+            if (propertyBean.isRequired() && propertyBean.isNullOrEmpty()) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
+                        propertyBean.getLabel().getContent());
+            }
             ServiceRequestProperty property = ServiceRequestProperty.create(propertyBean);
             request.addServiceRequestProperties(property);
         }

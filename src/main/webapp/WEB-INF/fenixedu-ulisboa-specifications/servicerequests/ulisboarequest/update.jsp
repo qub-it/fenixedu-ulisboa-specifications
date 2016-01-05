@@ -164,7 +164,7 @@ ${portal.angularToolkit()}
            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
                $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
-               $scope.initObjectDropDownOneValue = function () {
+               $scope.initObject = function () {
         	       angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {
                        if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE%>') {
                            if(element.code == '<%= ULisboaConstants.LANGUAGE %>') {
@@ -174,6 +174,11 @@ ${portal.angularToolkit()}
                            } else {
                                element.value = element.domainObjectValue;
                            }
+                       }
+                       if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_MULTIPLE %>') {
+                	       angular.forEach(element.domainObjectListValue, function(el, i) {
+                               element.domainObjectListValue[i] = { id : el };
+                           })
                        }
         	       });
                }
@@ -275,7 +280,7 @@ ${portal.angularToolkit()}
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
     ng-submit="form.$valid"
-    ng-init="initObjectDropDownOneValue()"
+    ng-init="initObject()"
         action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.UPDATE_URL %>${serviceRequest.externalId}'
     >
 

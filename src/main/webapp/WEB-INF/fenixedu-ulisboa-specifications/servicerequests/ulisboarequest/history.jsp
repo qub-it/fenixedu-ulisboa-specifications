@@ -88,6 +88,7 @@ ${portal.toolkit()}
         </small>
     </h1>
 </div>
+
 <% 
   Registration registration = (Registration) request.getAttribute("registration"); 
   String url = "/academicAdministration/student.do?method=visualizeRegistration&registrationID="+ registration.getExternalId();
@@ -227,21 +228,18 @@ ${portal.toolkit()}
             "actions" :
             	<% if (AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(AccessControl.getPerson().getUser())) {%>
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
-                <c:if test="${request.serviceRequestType.printable}">
-                    <c:if test="${ request.academicServiceRequestSituationType == 'CONCLUDED' || request.academicServiceRequestSituationType == 'DELIVERED' }">
-                        " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.print'/></a>" +
-                    </c:if>
-                    <c:if test="${ not (serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || request.academicServiceRequestSituationType == 'DELIVERED') }">
-                        " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }\"><spring:message code='label.print'/></a>" +
-                    </c:if>
-                </c:if>
-                <c:if test="${not request.serviceRequestType.printable}">
-                    " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.print'/></a>" +
-                </c:if>
+                <c:choose>
+                    <c:when test="${request.serviceRequestType.printable && (request.academicServiceRequestSituationType == 'CONCLUDED' || request.academicServiceRequestSituationType == 'DELIVERED')}">
+                        " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.reprint'/></a>" +
+                    </c:when>
+                    <c:otherwise>
+                        " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.reprint'/></a>" +
+                    </c:otherwise>
+                </c:choose>
                 ""
                 <%  } else {%>
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_SERVICE_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
-                " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.print'/></a>" +
+                " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.reprint'/></a>" +
                 ""
                 <% }%>
         },
