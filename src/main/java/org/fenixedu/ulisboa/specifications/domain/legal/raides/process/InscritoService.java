@@ -182,6 +182,10 @@ public class InscritoService extends RaidesService {
         if (pid == null) {
             return null;
         }
+        
+        if(pid.getGrantOwnerType() == null) {
+            return null;
+        }
 
         return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(pid.getGrantOwnerType());
     }

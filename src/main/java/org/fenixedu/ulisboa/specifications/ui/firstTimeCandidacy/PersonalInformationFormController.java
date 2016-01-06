@@ -33,6 +33,7 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.Fis
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -69,6 +70,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
@@ -116,10 +119,10 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
         maritalStatusValues.remove(MaritalStatus.UNKNOWN);
         model.addAttribute("maritalStatusValues", maritalStatusValues);
-        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
-        model.addAttribute("professionTypeValues", ProfessionType.values());
-        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
-        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
+        
+        final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
+        Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
+        model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
 
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         if (candidacy != null) {
@@ -162,7 +165,6 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
 
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
         form.setMaritalStatus(person.getMaritalStatus());
-        form.setProfession(person.getProfession());
 
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
@@ -170,8 +172,6 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
                 form.setDocumentIdNumber(person.getDocumentIdNumber());
                 form.setIdDocumentType(person.getIdDocumentType());
             }
-
-            form.setProfessionTimeType(personUl.getProfessionTimeType());
 
             Unit institution = personUl.getFirstOptionInstitution();
             if (institution != null) {
@@ -194,20 +194,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         if (form.getMaritalStatus() == null) {
             form.setMaritalStatus(MaritalStatus.SINGLE);
         }
-        form.setProfessionType(personalData.getProfessionType());
-        if (form.getProfessionType() == null) {
-            form.setProfessionType(ProfessionType.OTHER);
-        }
-        form.setGrantOwnerType(personalData.getGrantOwnerType());
-        if (form.getGrantOwnerType() == null) {
-            form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
-        }
-        Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
-        form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
-        form.setProfessionalCondition(personalData.getProfessionalCondition());
-        if (form.getProfessionalCondition() == null) {
-            form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
-        }
+        form.setCountryHighSchool(person.getCountryHighSchool());
 
         return form;
     }
@@ -291,28 +278,10 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
                 }
             }
         }
-        if (form.isStudentWorking()) {
-            if (StringUtils.isEmpty(form.getProfession())) {
-                addErrorMessage(
-                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.profession.required"),
-                        model);
-                return false;
-            }
-            if (form.getProfessionTimeType() == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"), model);
-                return false;
-            }
-        }
-
-        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
-        if (grantOwnerType.equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
-                || grantOwnerType.equals(GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
-            if (StringUtils.isEmpty(form.getGrantOwnerProvider())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
-                return false;
-            }
+        if(form.getCountryHighSchool() == null) {
+            addErrorMessage(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"), model);
+            return false;            
         }
 
         return true;
@@ -357,10 +326,6 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
             }
         }
 
-        personalData.setProfessionalCondition(form.getProfessionalCondition());
-        person.setProfession(form.getProfession());
-        personalData.setProfessionType(form.getProfessionType());
-        personUl.setProfessionTimeType(form.getProfessionTimeType());
         if (!isPartialUpdate()) {
             if (form.getIsForeignStudent()) {
                 person.setIdDocumentType(form.getIdDocumentType());
@@ -368,20 +333,8 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
                 personUl.setDgesTempIdCode("");
             }
         }
-
-        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
-        personalData.setGrantOwnerType(grantOwnerType);
-        if (grantOwnerType != null && !grantOwnerType.equals(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP)) {
-            Unit grantOwnerProvider = FenixFramework.getDomainObject(form.getGrantOwnerProvider());
-            if (grantOwnerProvider == null
-                    && (grantOwnerType == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER || grantOwnerType == GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
-                //We accept new institutions for these 2 cases
-                grantOwnerProvider = Unit.createNewNoOfficialExternalInstitution(form.getGrantOwnerProvider());
-            }
-            personalData.setGrantOwnerProvider(grantOwnerProvider);
-        } else {
-            personalData.setGrantOwnerProvider(null);
-        }
+        
+        person.setCountryHighSchool(form.getCountryHighSchool());
     }
 
     public boolean isPartialUpdate() {
@@ -431,6 +384,8 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         private String documentIdNumber;
 
         private IDDocumentType idDocumentType;
+
+        private Country countryHighSchool;
 
         public String getName() {
             return AccessControl.getPerson().getName();
@@ -492,30 +447,6 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
             this.socialSecurityNumber = socialSecurityNumber;
         }
 
-        public ProfessionType getProfessionType() {
-            return professionType;
-        }
-
-        public void setProfessionType(ProfessionType professionType) {
-            this.professionType = professionType;
-        }
-
-        public ProfessionalSituationConditionType getProfessionalCondition() {
-            return professionalCondition;
-        }
-
-        public void setProfessionalCondition(ProfessionalSituationConditionType professionalCondition) {
-            this.professionalCondition = professionalCondition;
-        }
-
-        public String getProfession() {
-            return profession;
-        }
-
-        public void setProfession(String profession) {
-            this.profession = profession;
-        }
-
         public MaritalStatus getMaritalStatus() {
             return maritalStatus;
         }
@@ -524,78 +455,16 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
             this.maritalStatus = maritalStatus;
         }
 
-        public GrantOwnerType getGrantOwnerType() {
-            return grantOwnerType;
-        }
-
-        public void setGrantOwnerType(GrantOwnerType grantOwnerType) {
-            this.grantOwnerType = grantOwnerType;
-        }
-
-        public String getGrantOwnerProvider() {
-            return grantOwnerProvider;
-        }
-
-        public void setGrantOwnerProvider(String grantOwnerProvider) {
-            this.grantOwnerProvider = grantOwnerProvider;
-        }
-
         public static long getSerialversionuid() {
             return serialVersionUID;
         }
 
-        public ProfessionTimeType getProfessionTimeType() {
-            return professionTimeType;
+        public Country getCountryHighSchool() {
+            return countryHighSchool;
         }
-
-        public void setProfessionTimeType(ProfessionTimeType professionTimeType) {
-            this.professionTimeType = professionTimeType;
-        }
-
-        public boolean isStudentWorking() {
-            if (isWorkingCondition()) {
-                return true;
-            }
-            if (!StringUtils.isEmpty(getProfession())) {
-                return true;
-            }
-            if (getProfessionTimeType() != null) {
-                return true;
-            }
-            if (isWorkingProfessionType()) {
-                return true;
-            }
-            return false;
-        }
-
-        private boolean isWorkingCondition() {
-            switch (getProfessionalCondition()) {
-            case WORKS_FOR_OTHERS:
-                return true;
-            case EMPLOYEER:
-                return true;
-            case INDEPENDENT_WORKER:
-                return true;
-            case WORKS_FOR_FAMILY_WITHOUT_PAYMENT:
-                return true;
-            case HOUSEWIFE:
-                return true;
-            case MILITARY_SERVICE:
-                return true;
-            default:
-                return false;
-            }
-        }
-
-        private boolean isWorkingProfessionType() {
-            switch (getProfessionType()) {
-            case UNKNOWN:
-                return false;
-            case OTHER:
-                return false;
-            default:
-                return true;
-            }
+        
+        public void setCountryHighSchool(Country countryHighSchool) {
+            this.countryHighSchool = countryHighSchool;
         }
 
         public Unit getFirstOptionInstitution() {
@@ -612,15 +481,6 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
 
         public void setFirstOptionDegreeDesignation(DegreeDesignation firstOptionDegreeDesignation) {
             this.firstOptionDegreeDesignation = firstOptionDegreeDesignation;
-        }
-
-        public String getGrantOwnerProviderName() {
-            Unit unit = FenixFramework.getDomainObject(getGrantOwnerProvider());
-            if (unit == null) {
-                return getGrantOwnerProvider();
-            } else {
-                return unit.getName();
-            }
         }
 
         public boolean getIsForeignStudent() {
