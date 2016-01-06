@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController.HouseholdInformationForm;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -61,4 +62,18 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     protected String getControllerURL() {
         return CONTROLLER_URL;
     }
+
+    @Override
+    public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
+        // First check if is filled
+        /*
+        if (validateHouseholdInformationForm(createHouseholdInformationForm()).isEmpty()) {
+            return "forward:" + OriginInformationFormControllerBlueRecord.CONTROLLER_URL
+                    + OriginInformationFormControllerBlueRecord._FILLORIGININFORMATION_URI;
+        }
+        */
+
+        return super.fillhouseholdinformation(model, redirectAttributes);
+    }
+
 }
