@@ -19,12 +19,14 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseC
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.LocalDate;
+import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
@@ -88,9 +90,8 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     }
 
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration,
-            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration, @RequestParam(value = "bean",
+            required = true) ULisboaServiceRequestBean bean, Model model, RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
         try {
             if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
@@ -141,6 +142,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
     public void download(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
             HttpServletResponse response) {
         model.addAttribute("registration", serviceRequest.getRegistration());
