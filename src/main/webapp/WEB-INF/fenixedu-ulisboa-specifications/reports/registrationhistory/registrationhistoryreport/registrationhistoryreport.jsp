@@ -142,7 +142,7 @@ ${portal.angularToolkit()}
 					value : true
 				} ];
 
-				$scope.object = angular.fromJson('${beanJson}');
+				$scope.object = ${beanJson};
 				$scope.form = {};
 				$scope.form.object = $scope.object;
 
