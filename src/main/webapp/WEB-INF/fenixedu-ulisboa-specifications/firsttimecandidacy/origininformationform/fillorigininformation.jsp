@@ -74,24 +74,19 @@ ${portal.toolkit()}
 	</div>
 </c:if>
 
-<p><strong>Deverás preencher a habilitação <em>completa</em> quando ingressaste neste curso:</strong></p>
-<p><em>TODO: ALTERAR TEXTO</em></p>
-
 <table class="table">
 	<tbody>
-		<tr>
-			<th scope="row" class="col-xs-3"><spring:message
+		<tr class="row">
+			<th scope="row" class="col-xs-1"><spring:message
 					code="label.OriginInformationForm.registration.name" /></th>
 			<td>${registration.degree.presentationNameI18N.content}</td>
 		</tr>
 
-		<tr>
-			<th scope="row" class="col-xs-3"><spring:message
+		<tr class="row">
+			<th scope="row" class="col-xs-2"><spring:message
 					code="label.OriginInformationForm.registration.startDate" /></th>
-			<td><joda:format value="${registration.startDate}" style="YYYY" /></td>
+			<td><c:out value="${registration.startDate.year}" /></td>
 		</tr>
-
-
 	</tbody>
 </table>
 
@@ -107,10 +102,16 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<select
 						id="originInformationForm_countryWhereFinishedPreviousCompleteDegree"
-						class="form-control"
-						name="countryWhereFinishedPreviousCompleteDegree">
+						class="form-control" name="countryWhereFinishedPreviousCompleteDegree">
+						<c:forEach var="c" items="${countries}">
+							<option value="${c.externalId}"><c:out value="${c.localizedName.content}" /></option>
+						</c:forEach>
 					</select>
-
+					<script>
+						$(document).ready(function() {
+					   	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}' />');
+						});
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -125,8 +126,18 @@ ${portal.toolkit()}
 						class="form-control"
 						name="districtWhereFinishedPreviousCompleteDegree">
 						<option value=""></option>
+						<c:forEach var="d" items="${districts_options}">
+							<option value="${d.externalId}">${d.name}</option>
+						</c:forEach>
 					</select>
-
+					<script>
+						$(document).ready(function() {
+			             	 $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtWhereFinishedPreviousCompleteDegree.externalId}'/>');
+			             	 $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2().on("select2:select", function(e) {
+			                   populateSubDistricts(e);
+			                 });
+						});
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -155,10 +166,14 @@ ${portal.toolkit()}
 						name="schoolLevel">
 						<option value=""></option>
 						<c:forEach items="${schoolLevelValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field.localizedName}' /></option>
+							<option value='<c:out value='${field}'/>'><c:out value='${field.localizedName}' /></option>
 						</c:forEach>
 					</select>
+					<script>
+						$(document).ready(function() {
+							$("#originInformationForm_schoolLevel").select2().select2('val', '<c:out value='${originInformationForm.schoolLevel}' />');
+						});
+					</script>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -169,7 +184,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="originInformationForm_otherSchoolLevel"
 						class="form-control" type="text" name="otherSchoolLevel"
-						value='<c:out value='${not empty param.otherschoollevel ? param.otherschoollevel : originInformationForm.otherSchoolLevel }'/>' />
+						value='<c:out value='${originInformationForm.otherSchoolLevel }'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -180,9 +195,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<select id="originInformationForm_institution" class="form-control" name="institutionOid">
 						<option value=""></option>
-						<c:if test="${originInformationForm.institutionOid != null}">
-							<option value="${originInformationForm.institutionOid}" selected><c:out value='${originInformationForm.institutionName}'/></option>
-						</c:if>
+						<option value="${originInformationForm.institutionOid}" selected><c:out value='${originInformationForm.institutionName}'/></option>
 					</select>
 				</div>
 			</div>
@@ -196,7 +209,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="originInformationForm_degreeDesignation"
 						class="form-control" type="text" name="degreeDesignation"
-						value='<c:out value='${not empty param.degreedesignation ? param.degreedesignation : originInformationForm.degreeDesignation }'/>' />
+						value='<c:out value='${originInformationForm.degreeDesignation}'/>' />
 				</div>
 			</div>
 			<div class="form-group row"
@@ -219,7 +232,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="originInformationForm_conclusionGrade"
 						class="form-control" type="text" name="conclusionGrade" required pattern="\d{2}" title="<spring:message code="label.OriginInformationForm.conclusionGrade.required"/>"
-						value='<c:out value='${not empty param.conclusiongrade ? param.conclusiongrade : originInformationForm.conclusionGrade }'/>' />
+						value='<c:out value='${originInformationForm.conclusionGrade}'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -230,7 +243,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="originInformationForm_conclusionYear"
 						class="form-control" type="text" name="conclusionYear" required pattern="\d{4}" title="<spring:message code="label.OriginInformationForm.conclusionYear.required"/>"
-						value='<c:out value='${not empty param.conclusionyear ? param.conclusionyear : originInformationForm.conclusionYear }'/>' />
+						value='<c:out value='${originInformationForm.conclusionYear}'/>' />
 				</div>
 			</div>
 			<div class="form-group row"
@@ -248,7 +261,7 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-						$("#originInformationForm_highSchoolType").val('<c:out value='${not empty param.highschooltype ? param.highschooltype : originInformationForm.highSchoolType }'/>');
+						$("#originInformationForm_highSchoolType").select2().select2('val', '<c:out value='${originInformationForm.highSchoolType }'/>');
 					</script>
 				</div>
 			</div>
@@ -277,21 +290,6 @@ ${portal.toolkit()}
 		return a.text.localeCompare(b.text);
 	};
 $(document).ready(function() {
-	//setup country options	             		
-	country_options = [
-	             			<c:forEach items="${countries}" var="element"> 
-	             				{
-	             					text : "<c:out value='${element.name}'/>",  
-	             					id : "<c:out value='${element.externalId}'/>"
-	             				},
-	             			</c:forEach>
-	             		].sort(sortFunction);
-   		$("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2(
-   			{
-   				data : country_options,
-   			}	  
-   	    );
-   	    $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.countryWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    	 $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").select2().on("change", function(){
    		configureOriginInformationFieldsEditableState();
@@ -304,6 +302,7 @@ $(document).ready(function() {
    		updateDegreeDesignationsUrl();
    		configureOriginInformationFieldsEditableState();
 	});
+	
 function currentSelectedCountry(){
 	return $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree").val();
 }
@@ -363,13 +362,17 @@ function configureOriginInformationFieldsEditableState(){
 		}
 	}
 	
-	$("#originInformationForm_institution").select2({
-		ajax: ajaxData,
-		sorter: function(data) {
-	        return data.sort(sortFunction);
-	    }
+	$(document).ready(function() {
+	
+		$("#originInformationForm_institution").select2({
+			ajax: ajaxData,
+			sorter: function(data) {
+		        return data.sort(sortFunction);
+		    }
+		});
+		$("#originInformationForm_institution").select2('val', '<c:out value='${originInformationForm.institutionOid}'/>');
+		
 	});
-	$("#originInformationForm_institution").select2('val', '<c:out value='${originInformationForm.institutionOid}'/>');
 	
 	$("#originInformationForm_highSchoolType_row").hide();
 	
@@ -463,30 +466,7 @@ function configureOriginInformationFieldsEditableState(){
 		updateHighSchoolType();
 	});
 	
-	
-	
-	
-	//setup districts
-	district_options = [
-           			<c:forEach items="${districts_options}" var="element"> 
-           				{
-           					text : "<c:out value='${element.name}'/>",  
-           					id : "<c:out value='${element.externalId}'/>"
-           				},
-           			</c:forEach>
-           		].sort(sortFunction);
-
-           	   $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2(
-	             			{
-	             				data : district_options,
-	             			}	  
-	             	    );
-	             	    
-	             	    $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtWhereFinishedPreviousCompleteDegree.externalId}'/>');
-	             	 $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree").select2().on("select2:select", function(e) {
-	                   populateSubDistricts(e);
-	                 })
-	             	    
+		             	    
   	 populateSubDistricts = function(){
   		 oid = $("#originInformationForm_districtWhereFinishedPreviousCompleteDegree")[0].value; 
   		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/district/" + oid, 
@@ -526,8 +506,5 @@ function configureOriginInformationFieldsEditableState(){
 	             	    $("#originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree").select2().select2('val', '<c:out value='${originInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree.externalId}'/>');
 
    	</c:if>
-   	
-   	
-	$("#originInformationForm_schoolLevel").select2().val('<c:out value='${not empty param.schoollevel ? param.schoollevel : originInformationForm.schoolLevel }'/>');
    	
 </script>

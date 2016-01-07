@@ -74,9 +74,6 @@ ${portal.toolkit()}
 	</div>
 </c:if>
 
-<p><strong>Indica a instituição e o curso que estavas matriculado no ano lectivo passado:</strong></p>
-<p><em>TODO: ALTERAR TEXTO</em></p>
-
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
 		<div class="panel-body">
@@ -87,12 +84,23 @@ ${portal.toolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<select
-						id="previousDegreeInformationForm_precedentCountry"
-						class="form-control"
-						name="precedentCountry">
+					<select id="previousDegreeInformationForm_precedentCountry" class="form-control" name="precedentCountry">
+						<c:forEach var="c" items="${countries}">
+							<option value="${c.externalId}">${c.localizedName.content}</option>
+						</c:forEach>
 					</select>
-
+					<script>
+						$(document).ready(function() {
+				   	   	    $("#previousDegreeInformationForm_precedentCountry").select2()
+				   	   	    	.select2('val', '<c:out value='${previousDegreeInformationForm.precedentCountry.externalId}'/>');
+				   	   	    
+					   	   	 $("#previousDegreeInformationForm_precedentCountry").select2().on("change", function() {
+					   	   		configureOriginInformationFieldsEditableState();
+					   	   		//enforce change event in school level to recalculate units provider endpoint
+					   	   		$("#previousDegreeInformationForm_precedentSchoolLevel").trigger("change");
+					   		 });
+						});
+					</script>
 				</div>
 			</div>
 
@@ -105,13 +113,13 @@ ${portal.toolkit()}
 					<select id="previousDegreeInformationForm_precedentSchoolLevel" class="form-control"
 						name="precedentSchoolLevel">
 						<option value=""></option>
-						<c:forEach items="${schoolLevelValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field.localizedName}' /></option>
+						<c:forEach items="${schoolLevelValues}" var="s">
+							<option value='<c:out value='${s}'/>'><c:out value='${s.localizedName}' /></option>
 						</c:forEach>
 					</select>
 					<script>
-						$("#previousDegreeInformationForm_precedentSchoolLevel").select2().val('<c:out value='${not empty param.precedentschoollevel ? param.precedentschoollevel : previousDegreeInformationForm.precedentSchoolLevel }'/>');
+						$("#previousDegreeInformationForm_precedentSchoolLevel").select2()
+							.select2('val', '<c:out value='${previousDegreeInformationForm.precedentSchoolLevel}'/>');
 					</script>
 				</div>
 			</div>
@@ -124,7 +132,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="previousDegreeInformationForm_otherPrecedentSchoolLevel"
 						class="form-control" type="text" name="otherPrecedentSchoolLevel"
-						value='<c:out value='${not empty param.otherprecedentschoollevel ? param.otherprecedentschoollevel : previousDegreeInformationForm.otherPrecedentSchoolLevel }'/>' />
+						value='<c:out value='${previousDegreeInformationForm.otherPrecedentSchoolLevel}'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -135,9 +143,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<select id="previousDegreeInformationForm_precedentInstitution" class="form-control" name="precedentInstitutionOid">
 						<option value=""></option>
-						<c:if test="${previousDegreeInformationForm.precedentInstitutionOid != null}">
-							<option value="${previousDegreeInformationForm.precedentInstitutionOid}" selected><c:out value='${previousDegreeInformationForm.precedentInstitutionName}'/></option>
-						</c:if>
+						<option value="${previousDegreeInformationForm.precedentInstitutionOid}" selected><c:out value='${previousDegreeInformationForm.precedentInstitutionName}'/></option>
 					</select>
 				</div>
 			</div>
@@ -151,7 +157,7 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="previousDegreeInformationForm_precedentDegreeDesignation"
 						class="form-control" type="text" name="precedentDegreeDesignation"
-						value='<c:out value='${not empty param.precedentdegreedesignation ? param.precedentdegreedesignation : previousDegreeInformationForm.precedentDegreeDesignation }'/>' />
+						value='<c:out value='${previousDegreeInformationForm.precedentDegreeDesignation }'/>' />
 				</div>
 			</div>
 			<div class="form-group row"
@@ -165,6 +171,17 @@ ${portal.toolkit()}
 					<select id="previousDegreeInformationForm_raidesPrecedentDegreeDesignation" class="form-control" name="raidesPrecedentDegreeDesignation">
 						<option value="${previousDegreeInformationForm.raidesPrecedentDegreeDesignation.externalId}" selected><c:out value='${previousDegreeInformationForm.raidesPrecedentDegreeDesignation.description}'/></option>
 					</select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="previousDegreeInformationForm_numberOfEnrolmentsInPreviousDegrees"
+						class="form-control" type="text" name="numberOfEnrolmentsInPreviousDegrees" required pattern="\d+" title="<spring:message code="error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"/>"
+						value='<c:out value='${previousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees}'/>' />
 				</div>
 			</div>
 			
@@ -193,27 +210,7 @@ ${portal.toolkit()}
 		return a.text.localeCompare(b.text);
 	};
 $(document).ready(function() {
-	//setup country options	             		
-	country_options = [
-	             			<c:forEach items="${countries}" var="element"> 
-	             				{
-	             					text : "<c:out value='${element.name}'/>",  
-	             					id : "<c:out value='${element.externalId}'/>"
-	             				},
-	             			</c:forEach>
-	             		].sort(sortFunction);
-   		$("#previousDegreeInformationForm_precedentCountry").select2(
-   			{
-   				data : country_options,
-   			}	  
-   	    );
-   	    $("#previousDegreeInformationForm_precedentCountry").select2().select2('val', '<c:out value='${previousDegreeInformationForm.precedentCountry.externalId}'/>');
 
-   	 $("#previousDegreeInformationForm_precedentCountry").select2().on("change", function(){
-   		configureOriginInformationFieldsEditableState();
-   		//enforce change event in school level to recalculate units provider endpoint
-   		$("#previousDegreeInformationForm_precedentSchoolLevel").trigger("change");
-	   });
    	    
    		$("#previousDegreeInformationForm_precedentSchoolLevel").trigger("change");
    		

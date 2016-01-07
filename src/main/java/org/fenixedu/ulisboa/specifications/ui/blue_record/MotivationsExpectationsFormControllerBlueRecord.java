@@ -34,6 +34,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFor
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.MotivationsExpectationsFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
@@ -53,6 +54,18 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
                 model, redirectAttributes);
     }
 
+    private static final String _INVOKE_BACK_URI = "/invokeback";
+    public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
+
+    @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
+    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return back(model, redirectAttributes);
+        }
+        
+        return redirect(CONTROLLER_URL, model, redirectAttributes);
+    }
+
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
@@ -62,4 +75,16 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     public Optional<String> accessControlRedirect(Model model, RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
+    
+    @Override
+    protected boolean isFormIsFilled(Model model) {
+        final MotivationsExpectationsForm form = createMotivationsExpectationsForm();
+        
+        if(!form.isFirstYearRegistration()) {
+            return true;
+        }
+        
+        return form.isAnswered();
+    }
+    
 }

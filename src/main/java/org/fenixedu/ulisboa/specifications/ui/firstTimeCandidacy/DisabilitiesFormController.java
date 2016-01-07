@@ -34,20 +34,23 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.DisabilityType;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.PreviousDegreeOriginInformationFormControllerBlueRecord;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import pt.ist.fenixframework.Atomic;
 import edu.emory.mathcs.backport.java.util.Collections;
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(DisabilitiesFormController.CONTROLLER_URL)
@@ -60,11 +63,15 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(OriginInformationFormController.FILLORIGININFORMATION_URL, model, redirectAttributes);
+        return redirect(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
     public String filldisabilities(Model model, RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+        
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -81,18 +88,40 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
 
     private void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("disabilitiesForm")) {
-            DisabilitiesForm form = new DisabilitiesForm();
-            PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
-            if (personUlisboa != null) {
-                form.setHasDisabilities(personUlisboa.getHasDisabilities());
-                if (personUlisboa.getDisabilityType() != null) {
-                    form.setDisabilityType(personUlisboa.getDisabilityType());
-                }
-                form.setOtherDisabilityType(personUlisboa.getOtherDisabilityType());
-                form.setNeedsDisabilitySupport(personUlisboa.getNeedsDisabilitySupport());
-            }
+            DisabilitiesForm form = createDisabilitiesForm();
             model.addAttribute("disabilitiesForm", form);
         }
+    }
+
+    protected DisabilitiesForm createDisabilitiesForm() {
+        DisabilitiesForm form = new DisabilitiesForm();
+        PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
+        if (personUlisboa != null) {
+            form.setHasDisabilities(personUlisboa.getHasDisabilities());
+            if (personUlisboa.getDisabilityType() != null) {
+                form.setDisabilityType(personUlisboa.getDisabilityType());
+            }
+            form.setOtherDisabilityType(personUlisboa.getOtherDisabilityType());
+            form.setNeedsDisabilitySupport(personUlisboa.getNeedsDisabilitySupport());
+            
+        }
+        
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : AccessControl.getPerson().getStudent().getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
+        form.setAnswered(personUlisboa != null ? personUlisboa.getDisabilitiesFormAnswered() : false);
+        
+        return form;
     }
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.POST)
@@ -122,7 +151,7 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
         return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
     }
 
-    private boolean validate(DisabilitiesForm form, Model model) {
+    protected boolean validate(DisabilitiesForm form, Model model) {
         if (form.getHasDisabilities()) {
             if ((form.getDisabilityType() == null) || form.getDisabilityType().isOther()
                     && StringUtils.isEmpty(form.getOtherDisabilityType())) {
@@ -142,6 +171,7 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
     @Atomic
     protected void writeData(DisabilitiesForm form) {
         PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+        
         personUlisboa.setHasDisabilities(form.getHasDisabilities());
         if (form.getHasDisabilities()) {
             personUlisboa.setDisabilityType(form.getDisabilityType());
@@ -150,6 +180,13 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
         } else {
             personUlisboa.setDisabilityType(null);
         }
+        
+        personUlisboa.setDisabilitiesFormAnswered(true);
+    }
+    
+    @Override
+    protected boolean isFormIsFilled(Model model) {
+        return false;
     }
 
     public static class DisabilitiesForm {
@@ -160,6 +197,10 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
         private String otherDisabilityType;
 
         private Boolean needsDisabilitySupport = null;
+        
+        private boolean firstYearRegistration;
+        
+        private boolean answered;
 
         public boolean getHasDisabilities() {
             return hasDisabilities;
@@ -191,6 +232,22 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
 
         public void setNeedsDisabilitySupport(Boolean needsDisabilitySupport) {
             this.needsDisabilitySupport = needsDisabilitySupport;
+        }
+        
+        public boolean isFirstYearRegistration() {
+            return firstYearRegistration;
+        }
+        
+        public void setFirstYearRegistration(boolean firstYearRegistration) {
+            this.firstYearRegistration = firstYearRegistration;
+        }
+        
+        public boolean isAnswered() {
+            return answered;
+        }
+        
+        public void setAnswered(boolean answered) {
+            this.answered = answered;
         }
     }
 

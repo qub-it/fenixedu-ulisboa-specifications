@@ -183,6 +183,8 @@ class PersonUlisboaSpecifications {
     boolean authorizeSharingDataWithCGD;
     String dgesTempIdCode;
     String oldInformation;
+    boolean disabilitiesFormAnswered;
+    boolean motivationsExpectationsFormAnswered;
 }
 
 relation PersonUlPerson {
@@ -1293,14 +1295,25 @@ class legal.mapping.LegalMappingEntry {
  */
 
 class legal.raides.RaidesInstance extends legal.report.LegalReport {
+	String passwordToZip;
 }
 
-	relation RaidesInstanceMobilityIngression {
+	relation RaidesInstanceMobilityAgreement {
 		legal.raides.RaidesInstance playsRole {
 			multiplicity *;
 		}
 		
-		.org.fenixedu.academic.domain.candidacy.IngressionType playsRole mobilityIngressions {
+		.org.fenixedu.academic.domain.student.RegistrationProtocol playsRole mobilityAgreements {
+			multiplicity *;
+		}
+	}
+	
+	relation RaidesInstanceEnrolledAgreement {
+		legal.raides.RaidesInstance playsRole {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.student.RegistrationProtocol playsRole enrolledAgreements {
 			multiplicity *;
 		}
 	}
@@ -1322,7 +1335,17 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 	
 		.org.fenixedu.academic.domain.candidacy.IngressionType playsRole degreeChangeIngressions {
 			multiplicity *;
-		}	
+		}
+	}
+	
+	relation RaidesInstanceGeneralAccessRegimeIngression {
+		legal.raides.RaidesInstance playsRole {
+			multiplicity *;
+		}
+	
+		.org.fenixedu.academic.domain.candidacy.IngressionType playsRole generalAccessRegimeIngressions {
+			multiplicity *;
+		}
 	}
 	
 /** TODO: replace with RaidesRequestParameter **/

@@ -74,6 +74,10 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
     public String fillmotivationsexpectations(Model model, RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+        
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -96,21 +100,29 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
     private void fillFormIfRequired(Model model) {
         MotivationsExpectationsForm form;
         if (!model.containsAttribute("motivationsexpectationsform")) {
-            form = new MotivationsExpectationsForm();
-            PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
-            if (personUlisboa != null) {
-                form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());
-                form.getUniversityChoiceMotivationAnswers().addAll(personUlisboa.getUniversityChoiceMotivationAnswersSet());
-
-                form.setOtherUniversityChoiceMotivation(personUlisboa.getOtherUniversityChoiceMotivation());
-                form.setOtherUniversityDiscoveryMeans(personUlisboa.getOtherUniversityDiscoveryMeans());
-            }
+            form = createMotivationsExpectationsForm();
 
             model.addAttribute("motivationsexpectationsform", form);
         } else {
             form = (MotivationsExpectationsForm) model.asMap().get("motivationsexpectationsform");
         }
         form.populateRequestCheckboxes(request);
+    }
+
+    protected MotivationsExpectationsForm createMotivationsExpectationsForm() {
+        MotivationsExpectationsForm form = new MotivationsExpectationsForm();
+        PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
+        if (personUlisboa != null) {
+            form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());
+            form.getUniversityChoiceMotivationAnswers().addAll(personUlisboa.getUniversityChoiceMotivationAnswersSet());
+
+            form.setOtherUniversityChoiceMotivation(personUlisboa.getOtherUniversityChoiceMotivation());
+            form.setOtherUniversityDiscoveryMeans(personUlisboa.getOtherUniversityDiscoveryMeans());
+        }
+        
+        form.setAnswered(personUlisboa != null ? personUlisboa.getMotivationsExpectationsFormAnswered() : false);
+        
+        return form;
     }
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.POST)
@@ -187,6 +199,12 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
 
         personUlisboa.setOtherUniversityChoiceMotivation(form.getOtherUniversityChoiceMotivation());
         personUlisboa.setOtherUniversityDiscoveryMeans(form.getOtherUniversityDiscoveryMeans());
+        personUlisboa.setMotivationsExpectationsFormAnswered(true);
+    }
+    
+    @Override
+    protected boolean isFormIsFilled(Model model) {
+        return false;
     }
 
     public static class MotivationsExpectationsForm {
@@ -197,6 +215,10 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
         private List<UniversityChoiceMotivationAnswer> universityChoiceMotivationAnswers = new ArrayList<>();
 
         private String otherUniversityChoiceMotivation;
+        
+        private boolean firstYearRegistration;
+        
+        private boolean answered;
 
         public List<UniversityDiscoveryMeansAnswer> getUniversityDiscoveryMeansAnswers() {
             return universityDiscoveryMeansAnswers;
@@ -257,5 +279,23 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
                 request.setAttribute("universityChoiceMotivation_" + answer.getExternalId(), checked);
             }
         }
+        
+        
+        public boolean isFirstYearRegistration() {
+            return firstYearRegistration;
+        }
+        
+        public void setFirstYearRegistration(boolean firstYearRegistration) {
+            this.firstYearRegistration = firstYearRegistration;
+        }
+        
+        public boolean isAnswered() {
+            return answered;
+        }
+        
+        public void setAnswered(boolean answered) {
+            this.answered = answered;
+        }
+        
     }
 }

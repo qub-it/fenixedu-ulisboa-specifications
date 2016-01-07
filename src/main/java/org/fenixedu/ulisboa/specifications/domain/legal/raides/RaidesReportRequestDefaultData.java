@@ -30,7 +30,7 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
         // Enrolment periods
 
         raidesRequestParameter.addPeriod(RaidesPeriodInputType.ENROLLED, ExecutionYear.readExecutionYearByName("2015/2016"),
-                DATETIME_FORMATTER.parseDateTime("01/09/2015").toLocalDate(), DATETIME_FORMATTER.parseDateTime("31/12/2015")
+                DATETIME_FORMATTER.parseDateTime("01/08/2015").toLocalDate(), DATETIME_FORMATTER.parseDateTime("31/12/2015")
                         .toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO, false, 0, 0);
 
         // Graduation periods
@@ -40,26 +40,26 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
 
         // International Mobility
         raidesRequestParameter.addPeriod(RaidesPeriodInputType.INTERNATIONAL_MOBILITY,
-                ExecutionYear.readExecutionYearByName("2015/2016"), DATETIME_FORMATTER.parseDateTime("01/09/2015").toLocalDate(),
+                ExecutionYear.readExecutionYearByName("2015/2016"), DATETIME_FORMATTER.parseDateTime("01/08/2015").toLocalDate(),
                 DATETIME_FORMATTER.parseDateTime("31/12/2015").toLocalDate(), true, true, new BigDecimal("15"), null, true, 0, 1);
 
         // Degrees
         raidesRequestParameter.getDegrees().addAll(Degree.readBolonhaDegrees());
 
         // AgreementsForEnrolled
-        raidesRequestParameter.getAgreementsForEnrolled().add(Raides.findRegistrationProtocolByCode("NORMAL"));
+        raidesRequestParameter.getAgreementsForEnrolled().addAll(RaidesInstance.getInstance().getEnrolledAgreementsSet());
 
         // AgreementsForMobility
-        raidesRequestParameter.getAgreementsForMobility().add(Raides.findRegistrationProtocolByCode("ERASMUS"));
+        raidesRequestParameter.getAgreementsForMobility().addAll(RaidesInstance.getInstance().getMobilityAgreementsSet());
 
         // IngressionsForDegreeChange
-        raidesRequestParameter.getIngressionsForDegreeChange().add(IngressionType.findIngressionTypeByCode("3").get());
+        raidesRequestParameter.getIngressionsForDegreeChange().addAll(RaidesInstance.getInstance().getDegreeChangeIngressionsSet());
 
         // IngressionsForDegreeTransfer
-        raidesRequestParameter.getIngressionsForDegreeTransfer().add(IngressionType.findIngressionTypeByCode("2").get());
+        raidesRequestParameter.getIngressionsForDegreeTransfer().addAll(RaidesInstance.getInstance().getDegreeTransferIngressionsSet());
 
         // IngressionsForGeneralAccessRegime
-        raidesRequestParameter.getIngressionsForGeneralAccessRegime().add(IngressionType.findIngressionTypeByCode("1").get());
+        raidesRequestParameter.getIngressionsForGeneralAccessRegime().addAll(RaidesInstance.getInstance().getGeneralAccessRegimeIngressionsSet());
 
         raidesRequestParameter.setInstitution(Bennu.getInstance().getInstitutionUnit());
         raidesRequestParameter.setInstitutionCode(Bennu.getInstance().getInstitutionUnit().getCode());

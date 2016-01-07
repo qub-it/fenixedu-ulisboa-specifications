@@ -29,10 +29,12 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
@@ -57,6 +59,18 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
         return redirect(BlueRecordEntryPoint.CONTROLLER_URL, model, redirectAttributes);
     }
 
+    private static final String _INVOKE_BACK_URI = "/invokeback";
+    public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
+    
+    @RequestMapping(value=_INVOKE_BACK_URI, method=RequestMethod.GET)
+    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return back(model, redirectAttributes);
+        }
+        
+        return redirect(PersonalInformationFormControllerBlueRecord.CONTROLLER_URL, model, redirectAttributes);
+    }
+    
     @Override
     public boolean isPartialUpdate() {
         return true;
@@ -66,4 +80,16 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     protected String getControllerURL() {
         return CONTROLLER_URL;
     }
+    
+    @Override
+    protected boolean isFormIsFilled(final Model model) {
+        final PersonalInformationForm personalInformationForm = fillFormIfRequired(model);
+        
+        if(!personalInformationForm.isFirstYearRegistration()) {
+            return true;
+        }
+        
+        return validateForm(personalInformationForm, AccessControl.getPerson()).isEmpty();
+    }
+    
 }

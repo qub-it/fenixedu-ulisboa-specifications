@@ -79,6 +79,10 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
 
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
     public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+        
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -145,6 +149,7 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
             return accessControlRedirect.get();
         }
         if (!validate(form, model)) {
+            model.addAttribute("householdInformationForm", form);
             return fillhouseholdinformation(model, redirectAttributes);
         }
 
@@ -250,6 +255,11 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
         }
         
         personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
+    }
+    
+    @Override
+    protected boolean isFormIsFilled(final Model model) {
+        return false;
     }
 
     public static class HouseholdInformationForm {
