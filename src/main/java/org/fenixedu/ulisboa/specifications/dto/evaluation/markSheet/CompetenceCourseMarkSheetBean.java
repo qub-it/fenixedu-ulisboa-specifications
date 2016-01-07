@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -47,7 +48,6 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.joda.time.LocalDate;
 
@@ -187,22 +187,28 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public void updateCertifierDataSource() {
 
-        final Set<Person> competenceCourseTeachers = Sets.newHashSet();
-        competenceCourseTeachers.addAll(getFilteredExecutionCourses(getExecutionCourse())
-                .flatMap(e -> e.getProfessorshipsSet().stream()).map(p -> p.getPerson()).collect(Collectors.toSet()));
+        // inspect professorships
+        final Stream<Professorship> professorships =
+                getFilteredExecutionCourses(getExecutionCourse()).flatMap(e -> e.getProfessorshipsSet().stream());
+        final Set<Person> teachers = professorships.map(p -> p.getPerson()).collect(Collectors.toSet());
+        final Set<Person> responsibles =
+                professorships.filter(p -> p.isResponsibleFor()).map(p -> p.getPerson()).collect(Collectors.toSet());
 
-        Set<Person> available = Sets.newHashSet();
+        // set available options
+        final Set<Person> available;
         if (isByTeacher()) {
-            available = competenceCourseTeachers;
+            available = teachers;
         } else {
-            available.addAll(Bennu.getInstance().getTeachersSet().stream().map(t -> t.getPerson()).collect(Collectors.toSet()));
+            available = Bennu.getInstance().getTeachersSet().stream().map(t -> t.getPerson()).collect(Collectors.toSet());
         }
 
+        // build data source
         this.certifierDataSource = available.stream().sorted(Person.COMPARATOR_BY_NAME).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
-            tuple.setText((!isByTeacher() && competenceCourseTeachers.contains(x) ? "* " : "") + x.getFirstAndLastName() + " ("
-                    + x.getUsername() + ")");
+
+            final String prefix = isByTeacher() ? "" : responsibles.contains(x) ? "+* " : teachers.contains(x) ? "* " : "";
+            tuple.setText(prefix + x.getFirstAndLastName() + " (" + x.getUsername() + ")");
 
             return tuple;
 
@@ -298,7 +304,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         this.markSheetStateDataSource = value.stream()
                 .map(x -> new TupleDataSourceBean(x.name(), x.getDescriptionI18N().getContent())).collect(Collectors.toList());
     }
-    
+
     public GradeScale getGradeScale() {
         return gradeScale;
     }
