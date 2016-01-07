@@ -584,6 +584,19 @@ public class Raides {
         return raidesRequestParameter.getIngressionsForDegreeTransfer().contains(registrationIngression);
     }
 
+    public static boolean isDegreeChange(final RaidesInstance raidesInstance, final IngressionType registrationIngression) {
+        return raidesInstance.getDegreeChangeIngressionsSet().contains(registrationIngression);
+    }
+
+    public static boolean isDegreeTransfer(final RaidesInstance raidesInstance, final IngressionType registrationIngression) {
+        return raidesInstance.getDegreeTransferIngressionsSet().contains(registrationIngression);
+    }
+
+    public static boolean isDegreeChangeOrTransfer(final RaidesInstance raidesInstance,
+            final IngressionType registrationIngression) {
+        return isDegreeChange(raidesInstance, registrationIngression) || isDegreeTransfer(raidesInstance, registrationIngression);
+    }
+
     public static boolean isGeneralAccessRegime(final RaidesRequestParameter raidesRequestParameter,
             final IngressionType registrationIngression) {
         return raidesRequestParameter.getIngressionsForGeneralAccessRegime().contains(registrationIngression);
@@ -671,7 +684,7 @@ public class Raides {
 
     public static void fillRaidesRequestDefaultData(final RaidesRequestParameter raidesRequestParameter) {
         requestDefaultData = new RaidesReportRequestDefaultData();
-        
+
         Raides.requestDefaultData.fill(raidesRequestParameter);
     }
 
@@ -815,32 +828,36 @@ public class Raides {
      * Check if the previous completed qualification fields are filled
      */
     public static Set<String> verifyCompletePrecedentDegreeInformationFieldsFilled(final Registration registration) {
-        final PrecedentDegreeInformation pid = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
         final Set<String> result = new HashSet<String>();
 
-        if (Strings.isNullOrEmpty(pid.getConclusionGrade())) {
+        if (Strings.isNullOrEmpty(pdi.getConclusionGrade())) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.conclusion.grade.required");
         }
 
-        if (pid.getConclusionYear() == null) {
+        if (pdi.getConclusionYear() == null) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.conclusion.year.required");
         }
 
-        if (pid.getSchoolLevel() == null) {
+        if (pdi.getSchoolLevel() == null) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.school.level.required");
         }
 
-        if (pid.getSchoolLevel() == SchoolLevelType.OTHER && Strings.isNullOrEmpty(pid.getOtherSchoolLevel())) {
+        if (pdi.getSchoolLevel() == SchoolLevelType.OTHER && Strings.isNullOrEmpty(pdi.getOtherSchoolLevel())) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.school.level.required");
         }
 
-        if (pid.getCountry() == null) {
+        if (pdi.getCountry() == null) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.country.required");
         }
 
-        if (pid.getInstitution() == null) {
+        if (pdi.getInstitution() == null) {
             result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.institution.required");
+        }
+
+        if (Strings.isNullOrEmpty(pdi.getDegreeDesignation())) {
+            result.add("error.Raides.verifyCompletePrecedentDegreeInformationFieldsFilled.degreeDesignation.required");
         }
 
         return result;
@@ -850,10 +867,15 @@ public class Raides {
         return verifyCompletePrecedentDegreeInformationFieldsFilled(registration).isEmpty();
     }
 
-    // TODO: Use mappings to infer is previous degree information is required
-    public static boolean isPreviousDegreePrecedentDegreeInformationRequired(final Registration registration) {
+    public static boolean isCompletePrecedentDegreeInformationFieldsToBeFilledByStudent(final Registration registration) {
+        final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        return pdi.getInstitution() == null || Strings.isNullOrEmpty(pdi.getDegreeDesignation());
+    }
+
+    private static boolean isPreviousDegreePrecedentDegreeInformationRequired(final RaidesInstance raidesInstance,
+            final Registration registration) {
         // For now use degree transfer
-        return registration.getIngressionType().isExternalDegreeChange();
+        return isDegreeChangeOrTransfer(raidesInstance, registration.getIngressionType());
     }
 
     /**
@@ -861,29 +883,30 @@ public class Raides {
      * information is filled
      */
 
-    public static Set<String> verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(final Registration registration) {
+    public static Set<String> verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(final RaidesInstance raidesInstance,
+            final Registration registration) {
         final Set<String> result = new HashSet<String>();
 
-        if (isPreviousDegreePrecedentDegreeInformationRequired(registration)) {
+        if (isPreviousDegreePrecedentDegreeInformationRequired(raidesInstance, registration)) {
             return result;
         }
 
-        final PrecedentDegreeInformation pid = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
-        if (Strings.isNullOrEmpty(pid.getPrecedentDegreeDesignation())) {
+        if (Strings.isNullOrEmpty(pdi.getPrecedentDegreeDesignation())) {
             result.add(
                     "error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentDegreeDesignation.required");
         }
 
-        if (pid.getPrecedentSchoolLevel() == null) {
+        if (pdi.getPrecedentSchoolLevel() == null) {
             result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentSchoolLevel.required");
         }
 
-        if (pid.getPrecedentInstitution() == null) {
+        if (pdi.getPrecedentInstitution() == null) {
             result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentInstitution.required");
         }
 
-        if (pid.getPrecedentCountry() == null) {
+        if (pdi.getPrecedentCountry() == null) {
             result.add("error.Raides.verifyPreviousDegreePrecedentDegreeInformationFieldsFilled.precedentCountry.required");
         }
 
@@ -910,8 +933,17 @@ public class Raides {
         return result;
     }
 
-    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsFilled(final Registration registration) {
-        return verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(registration).isEmpty();
+    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsFilled(final RaidesInstance raidesInstance, final Registration registration) {
+        return verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(raidesInstance, registration).isEmpty();
+    }
+
+    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsToBeFilledByStudent(final RaidesInstance raidesInstance, final Registration registration) {
+        final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        if (!isPreviousDegreePrecedentDegreeInformationRequired(raidesInstance, registration)) {
+            return false;
+        }
+        
+        return (Strings.isNullOrEmpty(pdi.getPrecedentDegreeDesignation())) || pdi.getPrecedentInstitution() == null;
     }
 
     public static Set<Degree> getPrecedentDegreesUntilRoot(final Degree degree) {

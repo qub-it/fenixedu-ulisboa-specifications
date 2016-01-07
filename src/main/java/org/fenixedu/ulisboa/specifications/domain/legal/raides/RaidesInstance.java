@@ -2,9 +2,10 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides;
 
 import java.util.Set;
 
+import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
-import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.ILegalMappingType;
@@ -19,7 +20,7 @@ import com.google.common.collect.Sets;
 import pt.ist.fenixframework.Atomic;
 
 public class RaidesInstance extends RaidesInstance_Base {
-    
+
     public RaidesInstance() {
         super();
     }
@@ -90,19 +91,43 @@ public class RaidesInstance extends RaidesInstance_Base {
         setSynchronous(synchronous);
         setHasMappings(hasMappings);
     }
-    
+
+    @Atomic
+    public void edit(final LocalizedString name, final PersistentGroup group, final Boolean synchronous,
+            final Boolean hasMappings, final String passwordToZip, final Set<RegistrationProtocol> enrolledAgreements,
+            final Set<RegistrationProtocol> mobilityAgreements, final Set<IngressionType> degreeTransferIngressions,
+            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions) {
+        edit(name, group, synchronous, hasMappings);
+
+        setPasswordToZip(passwordToZip);
+        getEnrolledAgreementsSet().clear();
+        getEnrolledAgreementsSet().addAll(enrolledAgreements);
+
+        getMobilityAgreementsSet().clear();
+        getMobilityAgreementsSet().addAll(mobilityAgreements);
+
+        getDegreeTransferIngressionsSet().clear();
+        getDegreeTransferIngressionsSet().addAll(degreeTransferIngressions);
+
+        getDegreeChangeIngressionsSet().clear();
+        getDegreeChangeIngressionsSet().addAll(degreeChangeIngressions);
+
+        getGeneralAccessRegimeIngressionsSet().clear();
+        getGeneralAccessRegimeIngressionsSet().addAll(generalAccessRegimeIngressions);
+    }
+
     @Override
     @Atomic
     public void delete() {
-        if(this.getLegalMappingsSet().size() > 0) {
+        if (this.getLegalMappingsSet().size() > 0) {
             throw new ULisboaSpecificationsDomainException("error.report.delete.not.empty.mappings");
-        } 
-        if(this.getLegalRequestsSet().size() > 0) {
+        }
+        if (this.getLegalRequestsSet().size() > 0) {
             throw new ULisboaSpecificationsDomainException("error.report.delete.not.empty.requests");
-        } 
+        }
         super.setGroup(null);
         super.setBennu(null);
         super.deleteDomainObject();
     }
-    
+
 }

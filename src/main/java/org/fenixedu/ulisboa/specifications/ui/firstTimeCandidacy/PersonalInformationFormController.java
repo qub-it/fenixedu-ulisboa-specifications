@@ -36,12 +36,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -54,6 +55,7 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -72,9 +74,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
@@ -88,7 +90,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform";
 
-    private static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
+    protected static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
     public static final String FILLPERSONALINFORMATION_URL = CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;
 
     @RequestMapping
@@ -107,7 +109,11 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
-    public String fillpersonalinformation(Model model, RedirectAttributes redirectAttributes) {
+    public String fillpersonalinformation(final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+        
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -141,7 +147,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }
 
-    private PersonalInformationForm fillFormIfRequired(Model model) {
+    public PersonalInformationForm fillFormIfRequired(Model model) {
         Person person = AccessControl.getPerson();
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
@@ -195,7 +201,20 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
             form.setMaritalStatus(MaritalStatus.SINGLE);
         }
         form.setCountryHighSchool(person.getCountryHighSchool());
-
+        
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : person.getStudent().getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
         return form;
     }
 
@@ -226,65 +245,68 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
-        Person person = AccessControl.getPerson();
+        
+        final Set<String> result = validateForm(form, AccessControl.getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+        
+        return result.isEmpty();
+    }
+
+    public Set<String> validateForm(PersonalInformationForm form, final Person person) {
+        final Set<String> result = Sets.newHashSet();
         if (!isPartialUpdate()) {
             IDDocumentType idType = form.getIdDocumentType();
             if (form.getIsForeignStudent()) {
                 if (idType == null) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
-                    return false;
+                    result.add(BundleUtil.getString(BUNDLE, "error.documentIdType.required"));
                 }
 
                 if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"), model);
-                    return false;
+                    result.add(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"));
                 }
             }
 
             if (!form.getIsForeignStudent()) {
                 if (StringUtils.isEmpty(form.getSocialSecurityNumber())
                         || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
-                    return false;
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
                 }
             } else {
                 if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
                         && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
-                    return false;
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
                 }
             }
 
             if (form.getDocumentIdExpirationDate() == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.expirationDate.required"), model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.required"));
             }
 
             if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !isValidcontrib(form.getSocialSecurityNumber())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"), model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
             }
             String defaultSocialSecurityNumber =
                     FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
             if (!defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
                 Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
                 if (party != null && party != person) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"), model);
-                    return false;
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"));
                 }
             }
         }
+        
         if(form.getCountryHighSchool() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"), model);
-            return false;            
+            result.add(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
         }
-
-        return true;
+        return result;
     }
 
     private boolean testsMode() {
@@ -340,6 +362,11 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
     public boolean isPartialUpdate() {
         return false;
     }
+    
+    @Override
+    protected boolean isFormIsFilled(final Model model) {
+        return false;
+    }
 
     public static class DegreeDesignationBean {
         private final String degreeDesignationText;
@@ -386,6 +413,8 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         private IDDocumentType idDocumentType;
 
         private Country countryHighSchool;
+        
+        private boolean firstYearRegistration;
 
         public String getName() {
             return AccessControl.getPerson().getName();
@@ -486,6 +515,14 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         public boolean getIsForeignStudent() {
             Country nationality = AccessControl.getPerson().getCountry();
             return nationality == null || !nationality.isDefaultCountry();
+        }
+        
+        public boolean isFirstYearRegistration() {
+            return firstYearRegistration;
+        }
+        
+        public void setFirstYearRegistration(boolean firstYearRegistration) {
+            this.firstYearRegistration = firstYearRegistration;
         }
     }
 }

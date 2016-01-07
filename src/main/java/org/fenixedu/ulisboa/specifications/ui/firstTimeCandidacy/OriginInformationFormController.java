@@ -52,8 +52,10 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
@@ -100,7 +102,7 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
             return accessControlRedirect.get();
         }
 
-        if (findCompletePrecedentDegreeInformationsToFill().isEmpty()) {
+        if (isFormIsFilled(model)) {
             return nextScreen(model, redirectAttributes);
         }
 
@@ -112,13 +114,18 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
     public String fillorigininformation(@PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
-
+        if(registration.getPerson() != AccessControl.getPerson()) {
+            throw new RuntimeException("invalid request");
+        }
+        
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
 
         fillFormIfRequired(registration, model);
+        
+        addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillOriginInformation.info"), model);
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
     }
@@ -144,6 +151,8 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     }
 
     private void fillFormIfRequired(final Registration registration, Model model) {
+        model.addAttribute("registration", registration);
+        
         if (!model.containsAttribute("originInformationForm")) {
             OriginInformationForm form = new OriginInformationForm();
 
@@ -188,7 +197,6 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
 
             form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
 
-            model.addAttribute("registration", registration);
             model.addAttribute("originInformationForm", form);
         } else {
             OriginInformationForm form = (OriginInformationForm) model.asMap().get("originInformationForm");
@@ -206,13 +214,17 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm form,
             @PathVariable("registrationId") final Registration registration, Model model, RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != AccessControl.getPerson()) {
+            throw new RuntimeException("invalid request");
+        }
+        
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
 
         if (!validate(registration, form, model)) {
-            return fillorigininformation(model, redirectAttributes);
+            return fillorigininformation(registration, model, redirectAttributes);
         }
 
         try {
@@ -384,6 +396,11 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
             return versionedAcronym;
         }
         return resolvedAcronym;
+    }
+    
+    @Override
+    protected boolean isFormIsFilled(Model model) {
+        return false;
     }
 
     public static class OriginInformationForm {

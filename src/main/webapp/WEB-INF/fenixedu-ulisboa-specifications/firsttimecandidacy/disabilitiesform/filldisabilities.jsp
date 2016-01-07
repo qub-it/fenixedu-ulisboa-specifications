@@ -87,7 +87,9 @@ ${portal.toolkit()}
 						<option value="true"><spring:message code="label.yes" /></option>
 					</select>
 					<script>
-						$("#disabilitiesForm_hasDisabilities").val('<c:out value='${not empty param.hasdisabilities ? param.hasdisabilities : disabilitiesForm.hasDisabilities }'/>');
+						$(document).ready(function() {
+							$("#disabilitiesForm_hasDisabilities").select2().select2('val', '<c:out value='${disabilitiesForm.hasDisabilities }'/>');
+						});
 					</script>
 				</div>
 			</div>
@@ -104,7 +106,9 @@ ${portal.toolkit()}
 						</c:forEach>
 					</select>
 					<script>
-						$("#disabilitiesForm_disabilityType").val('<c:out value='${not empty param.disabilitytype ? param.disabilitytype : disabilitiesForm.disabilityType.externalId }'/>');
+						$(document).ready(function() {
+							$("#disabilitiesForm_disabilityType").select2().select2('val', '<c:out value='${disabilitiesForm.disabilityType.externalId }'/>');
+						});
 					</script>
 				</div>
 			</div>
@@ -115,7 +119,7 @@ ${portal.toolkit()}
 
 				<div class="col-sm-10">
 					<input id="disabilitiesForm_otherDisabilityType" class="form-control" type="text" name="otherDisabilityType"
-						value='<c:out value='${not empty param.otherdisabilitytype ? param.otherdisabilitytype : disabilitiesForm.otherDisabilityType }'/>' />
+						value='<c:out value='${disabilitiesForm.otherDisabilityType}'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -131,7 +135,7 @@ ${portal.toolkit()}
 						<option value="true"><spring:message code="label.yes" /></option>
 					</select>
 					<script>
-						$("#disabilitiesForm_needsDisabilitySupport").val('<c:out value='${not empty param.needsdisabilitysupport ? param.needsdisabilitysupport : disabilitiesForm.needsDisabilitySupport }'/>');
+						$("#disabilitiesForm_needsDisabilitySupport").select2().select2('val', '<c:out value='${disabilitiesForm.needsDisabilitySupport }'/>');
 					</script>
 				</div>
 			</div>

@@ -54,6 +54,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
@@ -101,11 +102,12 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
             return accessControlRedirect.get();
         }
 
-        if(findPreviousDegreePrecedentDegreeInformationsToFill().isEmpty()) {
+        if (isFormIsFilled(model)) {
             return nextScreen(model, redirectAttributes);
         }
-        
-        return redirect(getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
+
+        return redirect(
+                getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
                         + findPreviousDegreePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
                 model, redirectAttributes);
     }
@@ -122,12 +124,14 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
 
         fillFormIfRequired(registration, model);
 
+        addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillPreviousDegreeInformation.info"), model);
+
         return jspPage("fillpreviousdegreeinformation");
     }
 
     private List<SchoolLevelType> schoolLevelTypeValues() {
         final List<SchoolLevelType> result = Lists.newArrayList();
-        
+
         result.add(SchoolLevelType.BACHELOR_DEGREE);
         result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.DEGREE);
@@ -138,11 +142,13 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
         result.add(SchoolLevelType.MASTER_DEGREE_INTEGRATED);
         result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.OTHER);
-        
+
         return result;
     }
 
     private void fillFormIfRequired(final Registration registration, Model model) {
+        model.addAttribute("registration", registration);
+
         if (!model.containsAttribute("previousDegreeInformationForm")) {
             PreviousDegreeInformationForm form = new PreviousDegreeInformationForm();
 
@@ -164,11 +170,14 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
             if ((form.getPrecedentSchoolLevel() != null) && form.getPrecedentSchoolLevel().isHigherEducation()) {
                 DegreeDesignation precedentDegreeDesignation;
                 if (institution != null) {
-                    Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(precedentDegreeDesignationName);
-                    precedentDegreeDesignation = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
+                    Predicate<DegreeDesignation> matchesName =
+                            dd -> dd.getDescription().equalsIgnoreCase(precedentDegreeDesignationName);
+                    precedentDegreeDesignation =
+                            institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
                     form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
                 } else {
-                    precedentDegreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(precedentDegreeDesignationName, form.getPrecedentSchoolLevel());
+                    precedentDegreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(precedentDegreeDesignationName,
+                            form.getPrecedentSchoolLevel());
                     form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
                 }
             } else {
@@ -180,7 +189,10 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
                 form.setPrecedentCountry(Country.readDefault());
             }
 
-            model.addAttribute("registration", registration);
+            form.setNumberOfEnrolmentsInPreviousDegrees(
+                    precedentDegreeInformation.getNumberOfEnrolmentsInPreviousDegrees() != null ? precedentDegreeInformation
+                            .getNumberOfEnrolmentsInPreviousDegrees() : 0);
+
             model.addAttribute("previousDegreeInformationForm", form);
         } else {
             PreviousDegreeInformationForm form =
@@ -206,7 +218,7 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
         }
 
         if (!validate(registration, form, model)) {
-            return fillpreviousdegreeinformation(model, redirectAttributes);
+            return fillpreviousdegreeinformation(registration, model, redirectAttributes);
         }
 
         try {
@@ -236,20 +248,26 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
     private boolean validate(final Registration registration, PreviousDegreeInformationForm form, Model model) {
 
         if (form.getPrecedentCountry() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.requiredCountry"), model);
             return false;
         }
 
-        if (form.getPrecedentSchoolLevel() == null
-                || form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherPrecedentSchoolLevel())) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
+        if (form.getPrecedentSchoolLevel() == null) {
+            addErrorMessage(
+                    ULisboaSpecificationsUtil.bundle("error.PreviousDegreeOriginInformationForm.precedentSchoolLevel.required"),
+                    model);
+            return false;
+        }
+
+        if (form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherPrecedentSchoolLevel())) {
+            addErrorMessage(
+                    BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.otherPrecedentSchoolLevel.required"),
+                    model);
             return false;
         }
 
         if (StringUtils.isEmpty(StringUtils.trim(form.getPrecedentInstitutionOid()))) {
-            addErrorMessage(
-                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"),
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.institution.must.be.filled"),
                     model);
             return false;
         }
@@ -264,6 +282,10 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;
             }
+        }
+        
+        if(form.getNumberOfEnrolmentsInPreviousDegrees() == 0) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"), model);            
         }
 
         return true;
@@ -297,6 +319,7 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
         precedentDegreeInformation.setPrecedentInstitution((Unit) institutionObject);
 
         precedentDegreeInformation.setPrecedentCountry(form.getPrecedentCountry());
+        precedentDegreeInformation.setNumberOfEnrolmentsInPreviousDegrees(form.getNumberOfEnrolmentsInPreviousDegrees());
 
     }
 
@@ -328,6 +351,11 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
         return resolvedAcronym;
     }
 
+    @Override
+    protected boolean isFormIsFilled(Model model) {
+        return false;
+    }
+
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page;
     }
@@ -349,6 +377,8 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
         private DegreeDesignation raidesPrecedentDegreeDesignation;
 
         private Country precedentCountry;
+
+        private int numberOfEnrolmentsInPreviousDegrees;
 
         public SchoolLevelType getPrecedentSchoolLevel() {
             return precedentSchoolLevel;
@@ -411,5 +441,13 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
             return precedentDegreeDesignation;
         }
 
+        public int getNumberOfEnrolmentsInPreviousDegrees() {
+            return numberOfEnrolmentsInPreviousDegrees;
+        }
+
+        public void setNumberOfEnrolmentsInPreviousDegrees(int numberOfEnrolmentsInPreviousDegrees) {
+            this.numberOfEnrolmentsInPreviousDegrees = numberOfEnrolmentsInPreviousDegrees;
+        }
     }
+
 }

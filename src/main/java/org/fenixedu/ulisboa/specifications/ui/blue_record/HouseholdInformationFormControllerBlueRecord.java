@@ -34,6 +34,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInform
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController.HouseholdInformationForm;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
@@ -55,25 +56,29 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
 
     @Override
     public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PersonalInformationFormControllerBlueRecord.CONTROLLER_URL, model, redirectAttributes);
+        return redirect(PersonalInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
     }
-
+    
+    private static final String _INVOKE_BACK_URI = "/invokeback";
+    public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
+    
+    @RequestMapping(value=_INVOKE_BACK_URI, method=RequestMethod.GET)
+    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return back(model, redirectAttributes);
+        }
+        
+        return redirect(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL
+                + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI, model, redirectAttributes);
+    }
+    
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
     }
-
+    
     @Override
-    public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
-        // First check if is filled
-        /*
-        if (validateHouseholdInformationForm(createHouseholdInformationForm()).isEmpty()) {
-            return "forward:" + OriginInformationFormControllerBlueRecord.CONTROLLER_URL
-                    + OriginInformationFormControllerBlueRecord._FILLORIGININFORMATION_URI;
-        }
-        */
-
-        return super.fillhouseholdinformation(model, redirectAttributes);
+    protected boolean isFormIsFilled(Model model) {
+        return validateHouseholdInformationForm(createHouseholdInformationForm()).isEmpty();
     }
-
 }

@@ -10,6 +10,7 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -77,7 +78,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         Registration registration = AccessControl.getPerson().getStudent().getActiveRegistrations().get(0);
         return registration;
     }
-    
+
     private PrecedentDegreeInformation getPrecedentDegreeInformationFromRegistration(Registration registration,
             ExecutionYear executionYear) {
         PrecedentDegreeInformation precedentDegreeInformation = registration.getPrecedentDegreeInformation(executionYear);
@@ -90,32 +91,38 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     }
 
     protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill() {
-        final List<Registration> activeRegistrationsWithEnrolments = Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent());
-        
+        final List<Registration> activeRegistrationsWithEnrolments =
+                Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent());
+
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
         for (final Registration registration : activeRegistrationsWithEnrolments) {
-            if(!Raides.isCompletePrecedentDegreeInformationFieldsFilled(registration)) {
+            if (Raides.isCompletePrecedentDegreeInformationFieldsToBeFilledByStudent(registration)) {
                 result.add(registration.getStudentCandidacy().getPrecedentDegreeInformation());
             }
         }
-        
+
         return result;
     }
-    
+
     protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill() {
-        final List<Registration> activeRegistrationsWithEnrolments = Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent());
-        
+        final List<Registration> activeRegistrationsWithEnrolments =
+                Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent());
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
-        
-        for(final Registration registration : activeRegistrationsWithEnrolments) {
-            if(!Raides.isPreviousDegreePrecedentDegreeInformationFieldsFilled(registration)) {
+
+        for (final Registration registration : activeRegistrationsWithEnrolments) {
+            if (!Raides.isDegreeChangeOrTransfer(RaidesInstance.getInstance(), registration.getIngressionType())) {
+                continue;
+            }
+
+            if (Raides.isPreviousDegreePrecedentDegreeInformationFieldsToBeFilledByStudent(RaidesInstance.getInstance(),
+                    registration)) {
                 result.add(registration.getStudentCandidacy().getPrecedentDegreeInformation());
             }
         }
-        
+
         return result;
     }
-    
+
     @Override
     protected void addModelProperties(Model model) {
         super.addModelProperties(model);
@@ -123,4 +130,6 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     }
 
     protected abstract String getControllerURL();
+
+    protected abstract boolean isFormIsFilled(final Model model);
 }

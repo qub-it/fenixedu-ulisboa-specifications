@@ -33,6 +33,7 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PreviousDegreeOriginInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
@@ -42,23 +43,40 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
 
     @Override
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(DisabilitiesFormControllerBlueRecord.CONTROLLER_URL
-                + DisabilitiesFormControllerBlueRecord._FILLDISABILITIES_URI, model, redirectAttributes);
+        return redirect(
+                DisabilitiesFormControllerBlueRecord.CONTROLLER_URL + DisabilitiesFormControllerBlueRecord._FILLDISABILITIES_URI,
+                model, redirectAttributes);
     }
 
     @Override
-    public Optional<String> accessControlRedirect(Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final Model model, final RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
 
     @Override
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL
-                + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI, model, redirectAttributes);
+    public String back(final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(OriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
+    }
+
+    private static final String _INVOKE_BACK_URI = "/invokeback";
+    public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
+
+    @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
+    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
+        if (isFormIsFilled(model)) {
+            return back(model, redirectAttributes);
+        }
+
+        return redirect(PreviousDegreeOriginInformationFormControllerBlueRecord.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
+    }
+    
+    @Override
+    protected boolean isFormIsFilled(final Model model) {
+        return findPreviousDegreePrecedentDegreeInformationsToFill().isEmpty();
     }
 }
