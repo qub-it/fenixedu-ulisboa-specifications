@@ -141,4 +141,35 @@ public class MarkSheetSettingsController extends FenixeduUlisboaSpecificationsBa
 
     }
 
+    private static final String _UPDATE_URI = "/update/";
+    public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
+
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
+    public String update(@PathVariable("oid") MarkSheetSettings markSheetSettings, Model model) {
+        setMarkSheetSettings(markSheetSettings, model);
+        return jspPage("update");
+
+    }
+
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
+    public String update(@PathVariable("oid") MarkSheetSettings markSheetSettings,
+            @RequestParam(value = "allowTeacherToChooseCertifier") boolean allowTeacherToChooseCertifier,
+            @RequestParam(value = "requiresExactlyOneShift") boolean requiresExactlyOneShift, Model model,
+            RedirectAttributes redirectAttributes) {
+
+        setMarkSheetSettings(markSheetSettings, model);
+
+        try {
+            markSheetSettings.edit(allowTeacherToChooseCertifier, requiresExactlyOneShift);
+
+            return redirect(READ_URL + "/" + markSheetSettings.getExternalId(), model, redirectAttributes);
+
+        } catch (Exception de) {
+
+            addErrorMessage(de.getLocalizedMessage(), model);
+
+            return update(markSheetSettings, model);
+        }
+    }
+
 }

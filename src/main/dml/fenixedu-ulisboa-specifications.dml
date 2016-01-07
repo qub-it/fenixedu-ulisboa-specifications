@@ -547,7 +547,8 @@ class evaluation.season.EvaluationSeasonPeriod {
 
 
 class evaluation.config.MarkSheetSettings {
-
+	boolean allowTeacherToChooseCertifier;
+	boolean requiresExactlyOneShift;
 }
 
 relation MarkSheetSettingsRoot {

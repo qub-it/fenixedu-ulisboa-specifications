@@ -54,20 +54,17 @@ ${portal.angularToolkit()}
 <div class="page-header">
 	<h1>
 		<spring:message
-			code="label.evaluation.config.manageMarkSheetSettings.readMarkSheetSettings" />
+			code="label.evaluation.config.manageMarkSheetSettings.update" />
 		<small></small>
 	</h1>
 </div>
+
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
-	<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>&nbsp;<a
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a
 		class=""
-		href="${pageContext.request.contextPath}<%=MarkSheetSettingsController.UPDATE_URL%>${markSheetSettings.externalId}"><spring:message
-			code="label.event.evaluation.config.manageMarkSheetSettings.update" /></a> &nbsp; | &nbsp;
-	<span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>&nbsp;<a
-		class=""
-		href="${pageContext.request.contextPath}<%=MarkSheetSettingsController.READ_URL%>${markSheetSettings.externalId}/updatetemplatefile"><spring:message
-			code="label.event.evaluation.config.manageMarkSheetSettings.updateTemplateFile" /></a>
+		href="${pageContext.request.contextPath}<%=MarkSheetSettingsController.READ_URL%>${markSheetSettings.externalId}"><spring:message
+			code="label.event.back" /></a>
 </div>
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
@@ -106,52 +103,38 @@ ${portal.angularToolkit()}
 	</div>
 </c:if>
 
-<div class="panel panel-primary">
-	<div class="panel-heading">
-		<h3 class="panel-title">
-			<spring:message code="label.details" />
-		</h3>
-	</div>
-	<div class="panel-body">
-		<form method="post" class="form-horizontal">
-			<spring:message code="label.yes" var="yesLabel" />
-			<spring:message code="label.no" var="noLabel" />
-			<table class="table">
-				<tbody>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
-								code="label.MarkSheetSettings.templateFile" /></th>
-						<td>
-							<c:choose>
-								<c:when test="${empty markSheetSettings.templateFile}">
-									-
-								</c:when>
-								<c:otherwise>
-									<a href="${pageContext.request.contextPath}<%=MarkSheetSettingsController.DOWNLOADTEMPLATEFILE_URL%>${markSheetSettings.externalId}">
-										<c:out value='${markSheetSettings.templateFile.filename}' />
-									</a>
-								</c:otherwise>
-							</c:choose>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
-								code="label.MarkSheetSettings.allowTeacherToChooseCertifier" /></th>
-						<td>
-							<c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? yesLabel : noLabel }"></c:out>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
-								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
-						<td>
-							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</form>
-	</div>
-</div>
 
+<form name='form' method="post" class="form-horizontal"
+	action='${pageContext.request.contextPath}<%=MarkSheetSettingsController.UPDATE_URL%>${markSheetSettings.externalId}'
+	enctype="multipart/form-data">
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-3 control-label">
+					<spring:message code="label.MarkSheetSettings.allowTeacherToChooseCertifier" />
+				</div>
+
+				<div class="col-sm-6">
+					<input type="radio" name="allowTeacherToChooseCertifier" value="true" <c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp; 
+					<input type="radio" name="allowTeacherToChooseCertifier" value="false" <c:out value="${!markSheetSettings.allowTeacherToChooseCertifier ? 'checked' : ''}" /> /> <spring:message code="label.no" />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-3 control-label">
+					<spring:message code="label.MarkSheetSettings.requiresExactlyOneShift" />
+				</div>
+
+				<div class="col-sm-6">
+					<input type="radio" name="requiresExactlyOneShift" value="true" <c:out value="${markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp;
+					<input type="radio" name="requiresExactlyOneShift" value="false" <c:out value="${!markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.no" />
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<input type="submit" class="btn btn-default" role="button"
+				value="<spring:message code="label.submit" />" />
+		</div>
+	</div>
+</form>
 
