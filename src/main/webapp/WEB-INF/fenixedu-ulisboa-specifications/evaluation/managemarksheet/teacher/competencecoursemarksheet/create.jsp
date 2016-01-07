@@ -145,7 +145,12 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-6">
-					<c:out value="${competenceCourseMarkSheetBean.competenceCourse.code}" /> - <c:out value="${competenceCourseMarkSheetBean.competenceCourse.name}" />
+					<ui-select	id="competenceCourseSelect" name="competenceCourse" ng-model="$parent.object.competenceCourse" theme="bootstrap" on-select="onExecutionCourseChange($model)" on-remove="onExecutionCourseChange($model)">
+						<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+						<ui-select-choices	repeat="competenceCourse.id as competenceCourse in object.competenceCourseDataSource | filter: $select.search">
+							<span ng-bind-html="competenceCourse.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -174,20 +179,6 @@ ${portal.angularToolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.CompetenceCourseMarkSheet.certifier" />
-				</div>
-
-				<div class="col-sm-6">
-					<ui-select	id="certifierSelect" name="certifier" ng-model="$parent.object.certifier" theme="bootstrap" on-select="onBeanChange($model)" on-remove="onBeanChange($model)">
-						<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
-						<ui-select-choices	repeat="certifier.id as certifier in object.certifierDataSource | filter: $select.search">
-							<span ng-bind-html="certifier.text | highlight: $select.search"></span>
-						</ui-select-choices> 
-					</ui-select>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
 					<spring:message code="label.CompetenceCourseMarkSheet.shifts" />
 				</div>
 
@@ -196,6 +187,20 @@ ${portal.angularToolkit()}
 						<ui-select-match>{{$item.text}}</ui-select-match> 
 						<ui-select-choices	repeat="shift.id as shift in object.shiftsDataSource | filter: $select.search">
 							<span ng-bind-html="shift.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.CompetenceCourseMarkSheet.certifier" />
+				</div>
+
+				<div class="col-sm-6">
+					<ui-select	id="certifierSelect" name="certifier" ng-model="$parent.object.certifier" theme="bootstrap" on-select="onBeanChange($model)" on-remove="onBeanChange($model)">
+						<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+						<ui-select-choices	repeat="certifier.id as certifier in object.certifierDataSource | filter: $select.search">
+							<span ng-bind-html="certifier.text | highlight: $select.search"></span>
 						</ui-select-choices> 
 					</ui-select>
 				</div>
