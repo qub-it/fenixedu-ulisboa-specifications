@@ -29,7 +29,7 @@ public class FillCurriculumPropertyProcessor extends FillCurriculumPropertyProce
 
     @Override
     public void process(ULisboaServiceRequest request) {
-        if (!request.hasApprovedEnrolments()) {
+        if (!request.hasCurriculum()) {
             List<ICurriculumEntry> curriculum =
                     ULisboaConstants.getConclusionCurriculum(request.getRegistration(), request.getProgramConclusion());
             ServiceRequestProperty property =
