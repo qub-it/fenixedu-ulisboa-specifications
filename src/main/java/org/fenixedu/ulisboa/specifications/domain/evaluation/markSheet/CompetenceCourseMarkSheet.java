@@ -52,6 +52,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -179,7 +180,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e -> {
+        getEnrolmentEvaluationSet().forEach(e ->
+        {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
@@ -684,6 +686,11 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public boolean isInState(CompetenceCourseMarkSheetStateEnum markSheetState) {
         return getStateChange().getState() == markSheetState;
+    }
+
+    public boolean isCertifierExecutionCourseResponsible() {
+        final Professorship professorship = getExecutionCourse().getProfessorship(getCertifier());
+        return professorship != null && professorship.isResponsibleFor();
     }
 
 }

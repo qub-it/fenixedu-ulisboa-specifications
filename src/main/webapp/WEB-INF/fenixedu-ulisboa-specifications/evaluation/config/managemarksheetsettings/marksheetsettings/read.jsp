@@ -120,6 +120,20 @@ ${portal.angularToolkit()}
 				<tbody>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message
+								code="label.MarkSheetSettings.allowTeacherToChooseCertifier" /></th>
+						<td>
+							<c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? yesLabel : noLabel }"></c:out>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3"><spring:message
+								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
+						<td>
+							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3"><spring:message
 								code="label.MarkSheetSettings.templateFile" /></th>
 						<td>
 							<c:choose>
@@ -132,20 +146,6 @@ ${portal.angularToolkit()}
 									</a>
 								</c:otherwise>
 							</c:choose>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
-								code="label.MarkSheetSettings.allowTeacherToChooseCertifier" /></th>
-						<td>
-							<c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? yesLabel : noLabel }"></c:out>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
-								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
-						<td>
-							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
 						</td>
 					</tr>
 				</tbody>

@@ -249,7 +249,17 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.certifier" /></th>
-						<td><c:out value='${competenceCourseMarkSheet.certifier.name}' /></td>
+						<td>
+							<c:out value='${competenceCourseMarkSheet.certifier.name}' />
+							<c:choose>
+								<c:when test="${!competenceCourseMarkSheet.certifierExecutionCourseResponsible}">
+									<span class="label label-danger"><spring:message code="label.evaluation.manageMarkSheet.notResponsible" /> </span>
+								</c:when>
+								<c:otherwise>
+									<span class="label label-success"><spring:message code="label.evaluation.manageMarkSheet.responsible" /> </span>
+								</c:otherwise>
+							</c:choose>
+						</td>
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.printed" /></th>
