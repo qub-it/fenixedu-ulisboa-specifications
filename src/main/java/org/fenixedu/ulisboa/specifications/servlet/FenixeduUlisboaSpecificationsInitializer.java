@@ -58,6 +58,8 @@ import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
@@ -91,6 +93,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Override
     public void contextInitialized(ServletContextEvent event) {
         ULisboaSpecificationsRoot.init();
+        MarkSheetSettings.init();
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
@@ -101,6 +104,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         RegistrationRegimeVerifierInitializer.init();
         EnrolmentPredicateInitializer.init();
         EnrolmentManagerFactoryInitializer.init();
+        EvaluationSeasonServices.initialize();
         StudentCurricularPlanLayout.register();
         configureEnrolmentEvaluationComparator();
 
