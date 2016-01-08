@@ -270,6 +270,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public void setExecutionCourseDataSource(final Set<ExecutionCourse> value) {
 
+        if (value.size() == 1) {
+            setExecutionCourse(value.iterator().next());
+        }
+
         this.executionCourseDataSource = value.stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
