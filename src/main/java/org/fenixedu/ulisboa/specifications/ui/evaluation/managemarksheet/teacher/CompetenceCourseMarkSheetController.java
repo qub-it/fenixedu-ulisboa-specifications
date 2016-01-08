@@ -48,6 +48,7 @@ import org.fenixedu.bennu.portal.model.Functionality;
 import org.fenixedu.bennu.portal.servlet.BennuPortalDispatcher;
 import org.fenixedu.bennu.portal.servlet.PortalLayoutInjector;
 import org.fenixedu.bennu.struts.portal.RenderersAnnotationProcessor;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
@@ -315,6 +316,10 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
                     bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
                     bean.getCertifier(), bean.getShifts(), true);
+            
+            if (MarkSheetSettings.getInstance().getRequiresExactlyOneShift() && bean.getShifts().size() != 1) {
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
+            }
 
             model.addAttribute("competenceCourseMarkSheet", markSheet);
             return redirect(UPDATEEVALUATIONS_URL + executionCourse.getExternalId() + "/"

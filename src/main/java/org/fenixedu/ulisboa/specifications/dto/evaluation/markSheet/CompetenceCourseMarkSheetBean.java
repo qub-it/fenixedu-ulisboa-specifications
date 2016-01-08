@@ -44,6 +44,8 @@ import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -207,7 +209,13 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         // set available options
         final Set<Person> available;
         if (isByTeacher()) {
-            available = teachers;
+
+            if (MarkSheetSettings.getInstance().getAllowTeacherToChooseCertifier()) {
+                available = teachers;
+            } else {
+                available = Sets.newHashSet(Authenticate.getUser().getPerson());
+            }
+
         } else {
             available = Bennu.getInstance().getTeachersSet().stream().map(t -> t.getPerson()).collect(Collectors.toSet());
         }
