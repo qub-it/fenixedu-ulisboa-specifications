@@ -34,13 +34,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
-import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -58,9 +59,7 @@ import com.google.common.collect.Sets;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
-@BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping(HouseholdInformationFormController.CONTROLLER_URL)
-public class HouseholdInformationFormController extends FirstTimeCandidacyAbstractController {
+public abstract class HouseholdInformationFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform";
 
@@ -101,15 +100,32 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
 
     protected void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("householdInformationForm")) {
-            HouseholdInformationForm form = createHouseholdInformationForm();
+            HouseholdInformationForm form = createHouseholdInformationForm(getStudent(model), model);
 
             model.addAttribute("householdInformationForm", form);
         }
     }
-
-    protected HouseholdInformationForm createHouseholdInformationForm() {
+    
+    protected HouseholdInformationForm createEmptyHouseholdInformationForm(final Student student, final Model model) {
         final HouseholdInformationForm form = new HouseholdInformationForm();
-        PersonalIngressionData personalData = getPersonalIngressionData();
+        
+        PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
+        if (personUl != null) {
+            form.setProfessionTimeType(personUl.getProfessionTimeType());
+            form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
+        }
+
+        return form;
+    }
+
+    protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final Model model) {
+        return createHouseholdInformationForm(student, ExecutionYear.readCurrentExecutionYear(), true, model);
+    }
+    
+    protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final ExecutionYear executionYear, final boolean create, final Model model) {
+        final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, create);
+
+        final HouseholdInformationForm form = new HouseholdInformationForm();
         form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());
         form.setFatherProfessionType(personalData.getFatherProfessionType());
         form.setFatherSchoolLevel(personalData.getFatherSchoolLevel());
@@ -132,9 +148,9 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
             form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
         }
         
-        form.setProfession(personalData.getStudent().getPerson().getProfession());
+        form.setProfession(student.getPerson().getProfession());
         
-        PersonUlisboaSpecifications personUl = AccessControl.getPerson().getPersonUlisboaSpecifications();
+        PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
         if (personUl != null) {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
@@ -142,36 +158,11 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
         return form;
     }
 
-    @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
-    public String fillhouseholdinformation(HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
-        if (accessControlRedirect.isPresent()) {
-            return accessControlRedirect.get();
-        }
-        if (!validate(form, model)) {
-            model.addAttribute("householdInformationForm", form);
-            return fillhouseholdinformation(model, redirectAttributes);
-        }
-
-        try {
-            writeData(form);
-            model.addAttribute("householdInformationForm", form);
-            return nextScreen(model, redirectAttributes);
-        } catch (Exception de) {
-
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
-                    + de.getLocalizedMessage(), model);
-            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
-            de.printStackTrace();
-            return fillhouseholdinformation(model, redirectAttributes);
-        }
-    }
-
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
         return redirect(ResidenceInformationFormController.FILLRESIDENCEINFORMATION_URL, model, redirectAttributes);
     }
 
-    private boolean validate(HouseholdInformationForm form, Model model) {
+    protected boolean validate(HouseholdInformationForm form, Model model) {
         final Set<String> messages = validateHouseholdInformationForm(form);
         
         for (final String message : messages) {
@@ -225,9 +216,9 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
     }
 
     @Atomic
-    private void writeData(HouseholdInformationForm form) {
-        PersonalIngressionData personalData = getPersonalIngressionData();
-        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+    protected void writeData(final Student student, final ExecutionYear executionYear, final HouseholdInformationForm form, final Model model) {
+        PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, true);
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
 
         personalData.setFatherProfessionalCondition(form.getFatherProfessionalCondition());
         personalData.setFatherProfessionType(form.getFatherProfessionType());
@@ -263,7 +254,9 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
     }
 
     public static class HouseholdInformationForm {
-
+        
+        private ExecutionYear executionYear;
+        
         private SchoolLevelType motherSchoolLevel;
 
         private ProfessionType motherProfessionType;
@@ -447,6 +440,14 @@ public class HouseholdInformationFormController extends FirstTimeCandidacyAbstra
             } else {
                 return unit.getName();
             }
+        }
+        
+        public ExecutionYear getExecutionYear() {
+            return executionYear;
+        }
+        
+        public void setExecutionYear(ExecutionYear executionYear) {
+            this.executionYear = executionYear;
         }
     }
 }

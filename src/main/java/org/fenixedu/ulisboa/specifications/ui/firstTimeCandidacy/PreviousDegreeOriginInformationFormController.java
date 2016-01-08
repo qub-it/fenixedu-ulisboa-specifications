@@ -36,26 +36,20 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
-import org.fenixedu.academic.domain.District;
-import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.SchoolLevelType;
-import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
-import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
-import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -73,7 +67,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PreviousDegreeOriginInformationFormController.CONTROLLER_URL)
-public class PreviousDegreeOriginInformationFormController extends FirstTimeCandidacyAbstractController {
+public abstract class PreviousDegreeOriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String GRADE_FORMAT = "\\d{2}";
 
@@ -108,7 +102,7 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
 
         return redirect(
                 getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                        + findPreviousDegreePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
+                        + findPreviousDegreePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(),
                 model, redirectAttributes);
     }
 
@@ -224,18 +218,18 @@ public class PreviousDegreeOriginInformationFormController extends FirstTimeCand
         try {
             writeData(registration, form);
 
-            if (findCompletePrecedentDegreeInformationsToFill().isEmpty()) {
+            if (findCompletePrecedentDegreeInformationsToFill(model).isEmpty()) {
                 return nextScreen(model, redirectAttributes);
             }
 
             return redirect(
                     getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                            + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(),
+                            + findCompletePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(),
                     model, redirectAttributes);
 
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
-            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
             return fillpreviousdegreeinformation(model, redirectAttributes);
         }

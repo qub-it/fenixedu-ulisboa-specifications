@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
 <%@page import="org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory"%>
 
 <%@ page isELIgnored="true"%>
@@ -6,6 +8,7 @@
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
 <html:xhtml/>
 
@@ -20,4 +23,12 @@
 		</html:link>
 	</span>
 <% } %>
+
+	<span class="dblock pbottom03">	
+		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
+		<html:link href="<%= request.getContextPath() + HouseholdInformationManagementController.SEARCH_URL + "/" + registration.getStudent().getExternalId() %>" >
+			<%= ULisboaSpecificationsUtil.bundle("label.title.householdinformationmanagement") %>
+		</html:link>
+	</span>
+
 </academic:allowed>

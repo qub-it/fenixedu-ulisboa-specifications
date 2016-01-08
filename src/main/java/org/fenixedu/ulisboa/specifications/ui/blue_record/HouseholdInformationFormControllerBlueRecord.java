@@ -29,9 +29,14 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController.HouseholdInformationForm;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,27 +63,57 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     public String back(Model model, RedirectAttributes redirectAttributes) {
         return redirect(PersonalInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
     }
-    
+
     private static final String _INVOKE_BACK_URI = "/invokeback";
     public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
-    
-    @RequestMapping(value=_INVOKE_BACK_URI, method=RequestMethod.GET)
+
+    @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
     public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
+        if (isFormIsFilled(model)) {
             return back(model, redirectAttributes);
         }
-        
+
         return redirect(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL
                 + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI, model, redirectAttributes);
     }
-    
+
+    @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
+    public String fillhouseholdinformation(HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+        if (!validate(form, model)) {
+            model.addAttribute("householdInformationForm", form);
+            return fillhouseholdinformation(model, redirectAttributes);
+        }
+
+        try {
+            writeData(getStudent(model), ExecutionYear.readCurrentExecutionYear(), form, model);
+            model.addAttribute("householdInformationForm", form);
+            return nextScreen(model, redirectAttributes);
+        } catch (Exception de) {
+
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
+                    + de.getLocalizedMessage(), model);
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
+            de.printStackTrace();
+            return fillhouseholdinformation(model, redirectAttributes);
+        }
+    }
+
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
     }
-    
+
     @Override
     protected boolean isFormIsFilled(Model model) {
-        return validateHouseholdInformationForm(createHouseholdInformationForm()).isEmpty();
+        return validateHouseholdInformationForm(createHouseholdInformationForm(getStudent(model), model)).isEmpty();
+    }
+
+    @Override
+    protected Student getStudent(final Model model) {
+        return AccessControl.getPerson().getStudent();
     }
 }

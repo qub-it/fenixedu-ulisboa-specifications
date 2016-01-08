@@ -29,6 +29,8 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PreviousDegreeOriginInformationFormController;
 import org.springframework.ui.Model;
@@ -77,6 +79,11 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
     
     @Override
     protected boolean isFormIsFilled(final Model model) {
-        return findPreviousDegreePrecedentDegreeInformationsToFill().isEmpty();
+        return findPreviousDegreePrecedentDegreeInformationsToFill(model).isEmpty();
+    }
+    
+    @Override
+    protected Student getStudent(final Model model) {
+        return AccessControl.getPerson().getStudent();
     }
 }

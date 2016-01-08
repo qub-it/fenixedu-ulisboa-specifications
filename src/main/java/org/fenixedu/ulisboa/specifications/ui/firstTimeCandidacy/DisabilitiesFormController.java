@@ -54,7 +54,7 @@ import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(DisabilitiesFormController.CONTROLLER_URL)
-public class DisabilitiesFormController extends FirstTimeCandidacyAbstractController {
+public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform";
 
@@ -86,16 +86,16 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform/filldisabilities";
     }
 
-    private void fillFormIfRequired(Model model) {
+    private void fillFormIfRequired(final Model model) {
         if (!model.containsAttribute("disabilitiesForm")) {
-            DisabilitiesForm form = createDisabilitiesForm();
+            DisabilitiesForm form = createDisabilitiesForm(model);
             model.addAttribute("disabilitiesForm", form);
         }
     }
 
-    protected DisabilitiesForm createDisabilitiesForm() {
+    protected DisabilitiesForm createDisabilitiesForm(final Model model) {
         DisabilitiesForm form = new DisabilitiesForm();
-        PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
+        PersonUlisboaSpecifications personUlisboa = getStudent(model).getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
             form.setHasDisabilities(personUlisboa.getHasDisabilities());
             if (personUlisboa.getDisabilityType() != null) {
@@ -107,7 +107,7 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
         }
         
         form.setFirstYearRegistration(false);
-        for (final Registration registration : AccessControl.getPerson().getStudent().getRegistrationsSet()) {
+        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
             if(!registration.isActive()) {
                 continue;
             }
@@ -135,7 +135,7 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
         }
 
         try {
-            writeData(form);
+            writeData(form, model);
             model.addAttribute("disabilitiesForm", form);
             return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
@@ -169,8 +169,8 @@ public class DisabilitiesFormController extends FirstTimeCandidacyAbstractContro
     }
 
     @Atomic
-    protected void writeData(DisabilitiesForm form) {
-        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+    protected void writeData(DisabilitiesForm form, final Model model) {
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(getStudent(model).getPerson());
         
         personUlisboa.setHasDisabilities(form.getHasDisabilities());
         if (form.getHasDisabilities()) {

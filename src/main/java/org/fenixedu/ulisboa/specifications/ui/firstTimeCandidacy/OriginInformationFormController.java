@@ -74,7 +74,7 @@ import com.google.common.collect.Lists;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(OriginInformationFormController.CONTROLLER_URL)
-public class OriginInformationFormController extends FirstTimeCandidacyAbstractController {
+public abstract class OriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String GRADE_FORMAT = "\\d{2}";
 
@@ -107,7 +107,7 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
         }
 
         return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(), model,
+                + findCompletePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(), model,
                 redirectAttributes);
     }
 
@@ -230,12 +230,12 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
         try {
             writeData(registration, form);
 
-            if (findCompletePrecedentDegreeInformationsToFill().isEmpty()) {
+            if (findCompletePrecedentDegreeInformationsToFill(model).isEmpty()) {
                 return nextScreen(model, redirectAttributes);
             }
 
             return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                    + findCompletePrecedentDegreeInformationsToFill().get(0).getRegistration().getExternalId(), model,
+                    + findCompletePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(), model,
                     redirectAttributes);
 
         } catch (Exception de) {
@@ -330,7 +330,7 @@ public class OriginInformationFormController extends FirstTimeCandidacyAbstractC
     protected void writeData(final Registration registration, final OriginInformationForm form) {
         final PrecedentDegreeInformation precedentDegreeInformation =
                 registration.getStudentCandidacy().getPrecedentDegreeInformation();
-        final PersonalIngressionData personalData = getPersonalIngressionData();
+        final PersonalIngressionData personalData = precedentDegreeInformation.getPersonalIngressionData();
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());
         precedentDegreeInformation.setDegreeDesignation(form.getDegreeDesignation());

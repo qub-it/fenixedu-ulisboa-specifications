@@ -80,7 +80,7 @@ import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
-public class PersonalInformationFormController extends FirstTimeCandidacyAbstractController {
+public abstract class PersonalInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String IDENTITY_CARD_CONTROL_DIGIT_FORMAT = "[0-9]";
 
@@ -148,7 +148,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
     }
 
     public PersonalInformationForm fillFormIfRequired(Model model) {
-        Person person = AccessControl.getPerson();
+        Person person = getStudent(model).getPerson();
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
             if (!form.getIsForeignStudent()) {
@@ -194,7 +194,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
             form.setIdDocumentType(person.getIdDocumentType());
         }
 
-        PersonalIngressionData personalData = getPersonalIngressionData();
+        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(model);
 
         form.setMaritalStatus(personalData.getMaritalStatus());
         if (form.getMaritalStatus() == null) {
@@ -215,6 +215,10 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
             form.setFirstYearRegistration(true);
         }
         
+        form.setName(getStudent(model).getPerson().getName());
+        form.setUsername(getStudent(model).getPerson().getUser().getUsername());
+        form.setGender(getStudent(model).getPerson().getGender());
+        
         return form;
     }
 
@@ -229,7 +233,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         }
 
         try {
-            writeData(form);
+            writeData(form, model);
             model.addAttribute("personalInformationForm", form);
             return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
@@ -246,7 +250,7 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
 
     private boolean validate(PersonalInformationForm form, Model model) {
         
-        final Set<String> result = validateForm(form, AccessControl.getPerson());
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
 
         for (final String message : result) {
             addErrorMessage(message, model);
@@ -316,10 +320,10 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
     }
 
     @Atomic
-    private void writeData(PersonalInformationForm form) {
+    private void writeData(PersonalInformationForm form, final Model model) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        PersonalIngressionData personalData = getPersonalIngressionData();
+        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(model);
         if (!isPartialUpdate()) {
             person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
             LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
@@ -416,16 +420,33 @@ public class PersonalInformationFormController extends FirstTimeCandidacyAbstrac
         
         private boolean firstYearRegistration;
 
+        /* Read only */
+        private String name;
+        private String username;
+        private Gender gender;
+        
         public String getName() {
-            return AccessControl.getPerson().getName();
+            return name;
+        }
+        
+        public void setName(String name) {
+            this.name = name;
         }
 
         public String getUsername() {
-            return AccessControl.getPerson().getUsername();
+            return username;
+        }
+        
+        public void setUsername(String username) {
+            this.username = username;
         }
 
         public Gender getGender() {
-            return AccessControl.getPerson().getGender();
+            return gender;
+        }
+        
+        public void setGender(Gender gender) {
+            this.gender = gender;
         }
 
         public String getDocumentIdNumber() {
