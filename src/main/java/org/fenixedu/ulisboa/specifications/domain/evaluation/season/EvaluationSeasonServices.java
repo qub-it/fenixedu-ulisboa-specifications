@@ -339,9 +339,9 @@ abstract public class EvaluationSeasonServices {
             return;
         }
 
-        final EvaluationSeason previousSeason = getPreviousSeason(input);
-        final Integer temp = getSeasonOrder(previousSeason);
-        setSeasonOrder(previousSeason, getSeasonOrder(input));
+        final EvaluationSeason neighbour = getPreviousSeason(input);
+        final Integer temp = getSeasonOrder(neighbour);
+        setSeasonOrder(neighbour, getSeasonOrder(input));
         setSeasonOrder(input, temp);
     }
 
@@ -351,9 +351,9 @@ abstract public class EvaluationSeasonServices {
             return;
         }
 
-        final EvaluationSeason previousSeason = getPreviousSeason(input);
-        final Integer temp = getSeasonOrder(previousSeason);
-        setSeasonOrder(previousSeason, getSeasonOrder(input));
+        final EvaluationSeason neighbour = getNextSeason(input);
+        final Integer temp = getSeasonOrder(neighbour);
+        setSeasonOrder(neighbour, getSeasonOrder(input));
         setSeasonOrder(input, temp);
     }
 
