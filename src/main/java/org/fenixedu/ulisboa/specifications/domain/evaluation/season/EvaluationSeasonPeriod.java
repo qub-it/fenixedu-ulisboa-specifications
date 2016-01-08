@@ -92,7 +92,8 @@ public class EvaluationSeasonPeriod extends EvaluationSeasonPeriod_Base implemen
         checkConsistencyExecutionDegrees();
         checkConsistencySeason();
         checkConsistencyExecutionYear();
-        checkDuplicates();
+        // TODO legidio, rethink this
+        // checkDuplicates();
     }
 
     private void checkConsistencyExecutionDegrees() {
