@@ -26,9 +26,11 @@ public class MarkSheetSettings extends MarkSheetSettings_Base {
     }
 
     @Atomic
-    public void edit(final boolean allowTeacherToChooseCertifier, final boolean requiresExactlyOneShift) {
+    public void edit(final boolean allowTeacherToChooseCertifier, final boolean requiresExactlyOneShift,
+            final boolean limitCertifierToResponsibleTeacher) {
         super.setAllowTeacherToChooseCertifier(allowTeacherToChooseCertifier);
         super.setRequiresExactlyOneShift(requiresExactlyOneShift);
+        super.setLimitCertifierToResponsibleTeacher(limitCertifierToResponsibleTeacher);
     }
 
     @Atomic

@@ -178,6 +178,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     public void validate() {
+        cleanupGrade();
         validateGrade();
     }
 
@@ -201,8 +202,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     @Atomic
-    public void updateEnrolmentEvaluation() {
-        cleanupGrade();
+    void updateEnrolmentEvaluation() {
 
         final EnrolmentEvaluation evaluation = findEnrolmentEvaluation();
         if (evaluation == null) {

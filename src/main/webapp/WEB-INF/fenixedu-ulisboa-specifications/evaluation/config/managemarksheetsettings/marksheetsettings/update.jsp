@@ -130,6 +130,16 @@ ${portal.angularToolkit()}
 					<input type="radio" name="requiresExactlyOneShift" value="false" <c:out value="${!markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.no" />
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-sm-3 control-label">
+					<spring:message code="label.MarkSheetSettings.limitCertifierToResponsibleTeacher" />
+				</div>
+				
+				<div class="col-sm-6">
+						<input type="radio" name="limitCertifierToResponsibleTeacher" value="true" <c:out value="${markSheetSettings.limitCertifierToResponsibleTeacher ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp;
+						<input type="radio" name="limitCertifierToResponsibleTeacher" value="false" <c:out value="${!markSheetSettings.limitCertifierToResponsibleTeacher ? 'checked' : ''}" /> /> <spring:message code="label.no" />
+				</div>
+			</div>
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"

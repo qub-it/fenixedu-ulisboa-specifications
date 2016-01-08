@@ -28,6 +28,7 @@
 package org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -112,7 +113,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void setEvaluationSeasonDataSource(final Set<EvaluationSeason> value) {
-        this.evaluationSeasonDataSource = value.stream().sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).map(x -> {
+        this.evaluationSeasonDataSource = value.stream().sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).map(x ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(EvaluationSeasonServices.getDescriptionI18N(x).getContent());
@@ -141,7 +143,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void setExecutionSemesterDataSource(final Set<ExecutionSemester> value) {
-        this.executionSemesterDataSource = value.stream().sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
+        this.executionSemesterDataSource = value.stream().sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getQualifiedName());
@@ -175,7 +178,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             value = Sets.newHashSet();
         }
 
-        this.competenceCourseDataSource = value.stream().sorted(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME).map(x -> {
+        this.competenceCourseDataSource = value.stream().sorted(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME).map(x ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getCode() + " - " + (x.getName().replace("'", " ").replace("\"", " ")));
@@ -216,12 +220,22 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 available = Sets.newHashSet(Authenticate.getUser().getPerson());
             }
 
+            if (MarkSheetSettings.getInstance().getLimitCertifierToResponsibleTeacher()) {
+
+                for (final Iterator<Person> iterator = available.iterator(); iterator.hasNext();) {
+                    if (!responsibles.contains(iterator.next())) {
+                        iterator.remove();
+                    }
+                }
+            }
+
         } else {
             available = Bennu.getInstance().getTeachersSet().stream().map(t -> t.getPerson()).collect(Collectors.toSet());
         }
 
         // build data source
-        this.certifierDataSource = available.stream().sorted(Person.COMPARATOR_BY_NAME).map(x -> {
+        this.certifierDataSource = available.stream().sorted(Person.COMPARATOR_BY_NAME).map(x ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
 
@@ -246,7 +260,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void setShiftsDataSource(final Set<Shift> value) {
-        this.shiftsDataSource = value.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x -> {
+        this.shiftsDataSource = value.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getNome());
@@ -413,7 +428,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             getCompetenceCourseMarkSheet().getExecutionCourseEnrolmentsNotInAnyMarkSheet()
                     .forEach(e -> result.add(new MarkBean(getCompetenceCourseMarkSheet(), e)));
 
-            getCompetenceCourseMarkSheet().getEnrolmentEvaluationSet().forEach(e -> {
+            getCompetenceCourseMarkSheet().getEnrolmentEvaluationSet().forEach(e ->
+            {
 
                 final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), e.getEnrolment());
                 markBean.setGradeValue(e.getGradeValue());
@@ -428,7 +444,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         return result;
     }
 
-    public void validateEvaluations() {
+    private void validateEvaluations() {
 
         for (final MarkBean markBean : getEvaluations()) {
             markBean.setErrorMessage(null);
@@ -450,4 +466,5 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     }
 
+    
 }

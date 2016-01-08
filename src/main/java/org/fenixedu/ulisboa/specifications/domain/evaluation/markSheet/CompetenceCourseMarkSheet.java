@@ -130,6 +130,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.gradeScale.required");
         }
 
+        for (final EnrolmentEvaluation enrolmentEvaluation : getEnrolmentEvaluationSet()) {
+            if (enrolmentEvaluation.getGradeScale() != getGradeScale()) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.CompetenceCourseMarkSheet.marksheet.already.contains.evaluations.with.another.grade.scale");
+            }
+        }
+
         if (getEnrolmentEvaluationSet().isEmpty() && getExecutionCourseEnrolmentsNotInAnyMarkSheet().isEmpty()) {
             throw new ULisboaSpecificationsDomainException(
                     "error.CompetenceCourseMarkSheet.no.enrolments.found.for.grade.submission");
@@ -190,7 +197,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e -> {
+        getEnrolmentEvaluationSet().forEach(e ->
+        {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
