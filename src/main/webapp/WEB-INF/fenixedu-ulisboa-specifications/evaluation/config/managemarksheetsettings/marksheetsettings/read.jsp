@@ -120,6 +120,13 @@ ${portal.angularToolkit()}
 				<tbody>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message
+								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
+						<td>
+							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3"><spring:message
 								code="label.MarkSheetSettings.allowTeacherToChooseCertifier" /></th>
 						<td>
 							<c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? yesLabel : noLabel }"></c:out>
@@ -127,9 +134,9 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message
-								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
+								code="label.MarkSheetSettings.limitCertifierToResponsibleTeacher" /></th>
 						<td>
-							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
+							<c:out value="${markSheetSettings.limitCertifierToResponsibleTeacher ? yesLabel : noLabel }"></c:out>
 						</td>
 					</tr>
 					<tr>

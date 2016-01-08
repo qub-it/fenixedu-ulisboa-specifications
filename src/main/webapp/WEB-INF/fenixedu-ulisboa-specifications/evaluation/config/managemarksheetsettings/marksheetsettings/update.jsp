@@ -112,22 +112,22 @@ ${portal.angularToolkit()}
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-3 control-label">
-					<spring:message code="label.MarkSheetSettings.allowTeacherToChooseCertifier" />
-				</div>
-
-				<div class="col-sm-6">
-					<input type="radio" name="allowTeacherToChooseCertifier" value="true" <c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp; 
-					<input type="radio" name="allowTeacherToChooseCertifier" value="false" <c:out value="${!markSheetSettings.allowTeacherToChooseCertifier ? 'checked' : ''}" /> /> <spring:message code="label.no" />
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-3 control-label">
 					<spring:message code="label.MarkSheetSettings.requiresExactlyOneShift" />
 				</div>
 
 				<div class="col-sm-6">
 					<input type="radio" name="requiresExactlyOneShift" value="true" <c:out value="${markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp;
 					<input type="radio" name="requiresExactlyOneShift" value="false" <c:out value="${!markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.no" />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-3 control-label">
+					<spring:message code="label.MarkSheetSettings.allowTeacherToChooseCertifier" />
+				</div>
+
+				<div class="col-sm-6">
+					<input type="radio" name="allowTeacherToChooseCertifier" value="true" <c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp; 
+					<input type="radio" name="allowTeacherToChooseCertifier" value="false" <c:out value="${!markSheetSettings.allowTeacherToChooseCertifier ? 'checked' : ''}" /> /> <spring:message code="label.no" />
 				</div>
 			</div>
 			<div class="form-group row">

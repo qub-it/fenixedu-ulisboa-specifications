@@ -129,7 +129,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     private String cleanupNumber(String toCleanup) {
         final Double parsedValue = Double.valueOf(toCleanup);
-        return parsedValue % 1 == 0 ? String.valueOf(parsedValue.intValue()) : toCleanup;
+        return parsedValue % 1 == 0 ? String.valueOf(parsedValue.intValue()) : parsedValue.toString();
     }
 
     public String getDegreeName() {
