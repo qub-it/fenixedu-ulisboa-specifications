@@ -85,7 +85,7 @@ ${portal.angularToolkit()}
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			<spring:message code="label.CompetenceCourseMarkSheet.executionSemester" />
+			<spring:message code="label.details" />
 		</h3>
 	</div>
 	
@@ -94,6 +94,7 @@ ${portal.angularToolkit()}
 			<table class="table">
 				<tbody>
 					<tr>
+						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.executionSemester" /></th>
 						<td><c:out value="${executionCourse.executionPeriod.qualifiedName}"/></td>
 					</tr>
 				</tbody>
