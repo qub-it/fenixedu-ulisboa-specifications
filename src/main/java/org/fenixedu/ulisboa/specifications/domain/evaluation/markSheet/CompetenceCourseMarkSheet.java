@@ -173,7 +173,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         for (final EvaluationSeasonPeriod iter : periods) {
 
-            if (iter.isContainingDate(new LocalDate())) {
+            if (!iter.isContainingDate(new LocalDate())) {
                 throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
                         EvaluationSeasonPeriod.getIntervalsDescription(periods));
             }
