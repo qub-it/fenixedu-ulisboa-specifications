@@ -141,25 +141,35 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     private void checkIfEvaluationDateIsInExamsPeriod() {
         final Set<EvaluationSeasonPeriod> periods = getExamsPeriods();
-        for (final EvaluationSeasonPeriod iter : periods) {
-            if (iter.isContainingDate(getEvaluationDate())) {
-                continue;
-            }
 
+        if (periods.isEmpty()) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
                     getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
+        }
+
+        for (final EvaluationSeasonPeriod iter : periods) {
+
+            if (!iter.isContainingDate(getEvaluationDate())) {
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
+                        getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            }
         }
     }
 
     protected void checkIfIsGradeSubmissionAvailable() {
         final Set<EvaluationSeasonPeriod> periods = getGradeSubmissionPeriods();
-        for (final EvaluationSeasonPeriod iter : periods) {
-            if (iter.isContainingDate(new LocalDate())) {
-                continue;
-            }
 
+        if (periods.isEmpty()) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
                     EvaluationSeasonPeriod.getIntervalsDescription(periods));
+        }
+
+        for (final EvaluationSeasonPeriod iter : periods) {
+
+            if (iter.isContainingDate(new LocalDate())) {
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
+                        EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            }
         }
     }
 
@@ -180,8 +190,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e ->
-        {
+        getEnrolmentEvaluationSet().forEach(e -> {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });

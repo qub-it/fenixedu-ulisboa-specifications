@@ -337,7 +337,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         this.gradeScale = gradeScale;
     }
 
-    public void setGradeScaleDataSource(final Set<GradeScale> value) {
+    public void setGradeScaleDataSource(final List<GradeScale> value) {
         this.gradeScaleDataSource =
                 value.stream().map(x -> new TupleDataSourceBean(x.name(), x.getDescription())).collect(Collectors.toList());
     }
@@ -388,7 +388,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         setMarkSheetStateDataSource(Sets.newHashSet(CompetenceCourseMarkSheetStateEnum.values()));
 
-        setGradeScaleDataSource(Sets.newHashSet(GradeScale.values()));
+        setGradeScaleDataSource(Lists.newArrayList(GradeScale.TYPE20, GradeScale.TYPEQUALITATIVE, GradeScale.TYPEAPT));
     }
 
     private Stream<ExecutionCourse> getFilteredExecutionCourses(final ExecutionCourse toFilter) {
