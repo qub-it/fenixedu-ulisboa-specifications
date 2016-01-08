@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -55,7 +56,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(MotivationsExpectationsFormController.CONTROLLER_URL)
-public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbstractController {
+public abstract class MotivationsExpectationsFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/motivationsexpectationsform";
 
@@ -100,7 +101,7 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
     private void fillFormIfRequired(Model model) {
         MotivationsExpectationsForm form;
         if (!model.containsAttribute("motivationsexpectationsform")) {
-            form = createMotivationsExpectationsForm();
+            form = createMotivationsExpectationsForm(model);
 
             model.addAttribute("motivationsexpectationsform", form);
         } else {
@@ -109,15 +110,28 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
         form.populateRequestCheckboxes(request);
     }
 
-    protected MotivationsExpectationsForm createMotivationsExpectationsForm() {
+    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final Model model) {
         MotivationsExpectationsForm form = new MotivationsExpectationsForm();
-        PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
+        PersonUlisboaSpecifications personUlisboa = getStudent(model).getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
             form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());
             form.getUniversityChoiceMotivationAnswers().addAll(personUlisboa.getUniversityChoiceMotivationAnswersSet());
 
             form.setOtherUniversityChoiceMotivation(personUlisboa.getOtherUniversityChoiceMotivation());
             form.setOtherUniversityDiscoveryMeans(personUlisboa.getOtherUniversityDiscoveryMeans());
+        }
+        
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
         }
         
         form.setAnswered(personUlisboa != null ? personUlisboa.getMotivationsExpectationsFormAnswered() : false);
@@ -138,13 +152,13 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
         }
 
         try {
-            writeData(form);
+            writeData(form, model);
             model.addAttribute("motivationsexpectationsform", form);
             return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
             return fillmotivationsexpectations(model, redirectAttributes);
         }
@@ -185,8 +199,8 @@ public class MotivationsExpectationsFormController extends FirstTimeCandidacyAbs
     }
 
     @Atomic
-    protected void writeData(MotivationsExpectationsForm form) {
-        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+    protected void writeData(MotivationsExpectationsForm form, final Model model) {
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(getStudent(model).getPerson());
         personUlisboa.getUniversityChoiceMotivationAnswersSet().clear();
         personUlisboa.getUniversityDiscoveryMeansAnswersSet().clear();
 

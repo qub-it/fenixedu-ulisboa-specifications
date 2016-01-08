@@ -1,7 +1,7 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
-
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js"/>
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
 <script type="text/javascript" src="${datatablesUrl}"></script>
@@ -23,16 +23,21 @@ ${portal.toolkit()}
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js" ></script>
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/omnis.js"></script>
 
+
+
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.HouseholdInformationManagement.create" />
+	<h1><spring:message code="label.HouseholdInformationManagement.update" />
 		<small></small>
 	</h1>
 </div>
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
+	<a class="" href="${pageContext.request.contextPath}<%= HouseholdInformationManagementController.READ_URL %>/${student.externalId}/${executionYear.externalId}">
+		<spring:message code="label.back"/>
+	</a>	
 </div>
 
 	<c:if test="${not empty infoMessages}">
@@ -69,12 +74,53 @@ ${portal.toolkit()}
 				</div>	
 			</c:if>
 
+
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<spring:message code="label.details" />
+		</h3>
+	</div>
+	<div class="panel-body">
+		<form method="post" class="form-horizontal">
+			<table class="table">
+				<tbody>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.studentNumber" />
+						</th>
+						<td>
+							<c:out value='${student.number}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.studentName" />
+						</th>
+						<td>
+							<c:out value='${student.person.name}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.executionYear" />
+						</th>
+						<td>
+							<c:out value='${executionYear.qualifiedName}' />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
 		<div class="panel-body">
 		
-			<jsp:include page="../householdinformationmanagement/householdinformationform_include.jsp" />
-
+			<jsp:include page="householdinformationform_include.jsp" />
+			
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"
@@ -93,5 +139,3 @@ ${portal.toolkit()}
 		display: inline;
 	}
 </style>
-
-

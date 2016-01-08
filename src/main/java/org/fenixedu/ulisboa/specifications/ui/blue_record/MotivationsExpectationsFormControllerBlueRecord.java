@@ -29,6 +29,8 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.MotivationsExpectationsFormController;
@@ -78,7 +80,7 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     
     @Override
     protected boolean isFormIsFilled(Model model) {
-        final MotivationsExpectationsForm form = createMotivationsExpectationsForm();
+        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(model);
         
         if(!form.isFirstYearRegistration()) {
             return true;
@@ -87,4 +89,8 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
         return form.isAnswered();
     }
     
+    @Override
+    protected Student getStudent(final Model model) {
+        return AccessControl.getPerson().getStudent();
+    }
 }

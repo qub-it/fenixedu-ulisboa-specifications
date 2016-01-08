@@ -2,13 +2,15 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -16,8 +18,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import pt.ist.fenixframework.Atomic;
 
 public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisboaSpecificationsBaseController {
@@ -29,70 +31,61 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return Optional.empty();
     }
 
-    protected PersonalIngressionData getPersonalIngressionData() {
-        PersonalIngressionData personalData;
-        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
-        if (candidacy != null) {
-            personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
-        } else {
-            personalData = getPersonalDataFromRegistration();
-        }
-        return personalData;
-    }
-
-    private PrecedentDegreeInformation _getPrecedentDegreeInformation() {
-        final StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
-        if (candidacy != null) {
-            return candidacy.getPrecedentDegreeInformation();
-        } else {
-            return null;
-//            return getPrecedentDegreeInformationFromRegistration(getMostCurrentRegistration(),
-//                    ExecutionYear.readCurrentExecutionYear());
-        }
-    }
-
     @Atomic
-    private PersonalIngressionData getPersonalDataFromRegistration() {
-        Registration registration = _getMostCurrentRegistration();
-        ExecutionYear firstExecutionYear =
-                registration.getRegistrationDataByExecutionYearSet().stream().map(x -> x.getExecutionYear())
-                        .sorted(ExecutionYear.COMPARATOR_BY_YEAR).findFirst().orElse(ExecutionYear.readCurrentExecutionYear());
+    protected PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(final Model model) {
+        return getPersonalIngressionData(getStudent(model), ExecutionYear.readCurrentExecutionYear(), true);
+    }
 
-        PrecedentDegreeInformation precedentDegreeInformation =
-                getPrecedentDegreeInformationFromRegistration(registration, firstExecutionYear);
-        PersonalIngressionData personalIngressionData = precedentDegreeInformation.getPersonalIngressionData();
-        if (personalIngressionData == null) {
-            personalIngressionData = registration.getStudent().getPersonalIngressionDataByExecutionYear(firstExecutionYear);
-            if (personalIngressionData != null) {
-                precedentDegreeInformation.setPersonalIngressionData(personalIngressionData);
-            } else {
-                personalIngressionData = new PersonalIngressionData(firstExecutionYear, precedentDegreeInformation);
-                personalIngressionData.setStudent(registration.getStudent());
+    protected PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear, final boolean create) {
+        PersonalIngressionData personalData = student.getPersonalIngressionDataByExecutionYear(executionYear);
+        
+        if(personalData != null) {
+            // Found one
+            return personalData;
+        }
+        
+        if(!create) {
+            return null;
+        }
+        
+        // Create personal ingression data with one precedentDegreeInformation from candidacy if possible
+        final Set<PrecedentDegreeInformation> pdiSetFromCandidacy = Sets.newHashSet();
+        for (final Candidacy candidacy : student.getPerson().getCandidaciesSet()) {
+            if(!candidacy.getActiveCandidacySituation().getCandidacySituationType().isActive()) {
+                continue;
             }
+            
+            if(!(candidacy instanceof StudentCandidacy)) {
+                continue;
+            }
+            
+            final StudentCandidacy studentCandidacy = (StudentCandidacy) candidacy;
+            
+            if(studentCandidacy.getExecutionYear() != executionYear) {
+                continue;
+            }
+            
+            pdiSetFromCandidacy.add(studentCandidacy.getPrecedentDegreeInformation());
+         }
+        
+        if(!pdiSetFromCandidacy.isEmpty()) {
+            return new PersonalIngressionData(student, executionYear, pdiSetFromCandidacy.iterator().next());
         }
-        return personalIngressionData;
-    }
-
-    private Registration _getMostCurrentRegistration() {
-        Registration registration = AccessControl.getPerson().getStudent().getActiveRegistrations().get(0);
-        return registration;
-    }
-
-    private PrecedentDegreeInformation getPrecedentDegreeInformationFromRegistration(Registration registration,
-            ExecutionYear executionYear) {
-        PrecedentDegreeInformation precedentDegreeInformation = registration.getPrecedentDegreeInformation(executionYear);
-        if (precedentDegreeInformation == null) {
-            precedentDegreeInformation = new PrecedentDegreeInformation();
-            registration.setPrecedentDegreeInformation(precedentDegreeInformation);
-            precedentDegreeInformation.setRegistration(registration);
+        
+        if(!student.getRegistrationsSet().isEmpty()) {
+            final PrecedentDegreeInformation pid = new PrecedentDegreeInformation();
+            pid.setRegistration(student.getRegistrationsSet().iterator().next());
+            
+            return new PersonalIngressionData(student, executionYear, pid);
         }
-        return precedentDegreeInformation;
+        
+        // Cannot create personal ingression data
+        return null;
     }
 
-    protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill() {
+    protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final Model model) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent());
+                Raides.findActiveRegistrationsWithEnrolments(getStudent(model));
 
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
         for (final Registration registration : activeRegistrationsWithEnrolments) {
@@ -104,9 +97,9 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return result;
     }
 
-    protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill() {
+    protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(final Model model) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent());
+                Raides.findActiveRegistrationsWithEnrolments(getStudent(model));
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
 
         for (final Registration registration : activeRegistrationsWithEnrolments) {
@@ -132,4 +125,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     protected abstract String getControllerURL();
 
     protected abstract boolean isFormIsFilled(final Model model);
+    
+    protected abstract Student getStudent(final Model model);
+    
 }

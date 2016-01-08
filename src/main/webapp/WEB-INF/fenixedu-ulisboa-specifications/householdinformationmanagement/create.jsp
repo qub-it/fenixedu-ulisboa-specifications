@@ -1,7 +1,7 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
-
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js"/>
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
 <script type="text/javascript" src="${datatablesUrl}"></script>
@@ -23,6 +23,8 @@ ${portal.toolkit()}
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js" ></script>
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/omnis.js"></script>
 
+
+
 <%-- TITLE --%>
 <div class="page-header">
 	<h1><spring:message code="label.HouseholdInformationManagement.create" />
@@ -32,7 +34,10 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
+	<a class="" href="${pageContext.request.contextPath}<%= HouseholdInformationManagementController.SEARCH_URL %>/${student.externalId}">
+		<spring:message code="label.back"/>
+	</a>	
 </div>
 
 	<c:if test="${not empty infoMessages}">
@@ -69,12 +74,33 @@ ${portal.toolkit()}
 				</div>	
 			</c:if>
 
+
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
 		<div class="panel-body">
 		
-			<jsp:include page="../householdinformationmanagement/householdinformationform_include.jsp" />
+			<div class="form-group row">
+				<label for="householdInformationForm_executionYear" class="col-sm-2 control-label required-field">
+					<spring:message
+						code="label.HouseholdInformationForm.executionYear" />
+				</label>
 
+				<div class="col-sm-6">
+					<select id="householdInformationForm_executionYear"
+						class="form-control" name="executionYear">
+						<c:forEach items="${executionYearValues}" var="e">
+							<option value='<c:out value='${e.externalId}'/>'><c:out value='${e.qualifiedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
+					$(document).ready(function() {
+						$("#householdInformationForm_executionYear").select2().select2('val', '<c:out value='${householdInformationForm.executionYear.externalId}'/>');
+					});
+					</script>
+				</div>
+			</div>
+		
+			<jsp:include page="householdinformationform_include.jsp" />
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"
@@ -93,5 +119,3 @@ ${portal.toolkit()}
 		display: inline;
 	}
 </style>
-
-

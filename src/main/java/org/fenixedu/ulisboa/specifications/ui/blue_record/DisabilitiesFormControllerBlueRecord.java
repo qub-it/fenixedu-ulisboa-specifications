@@ -29,6 +29,8 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFormController;
 import org.springframework.ui.Model;
@@ -77,12 +79,17 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
     
     @Override
     protected boolean isFormIsFilled(Model model) {
-        final DisabilitiesForm form = createDisabilitiesForm();
+        final DisabilitiesForm form = createDisabilitiesForm(model);
         
         if(!form.isFirstYearRegistration()) {
             return true;
         }
         
         return form.isAnswered();
+    }
+    
+    @Override
+    protected Student getStudent(final Model model) {
+        return AccessControl.getPerson().getStudent();
     }
 }
