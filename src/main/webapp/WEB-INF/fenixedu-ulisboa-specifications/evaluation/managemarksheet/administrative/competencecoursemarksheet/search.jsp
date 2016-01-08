@@ -7,6 +7,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="datatables" uri="http://github.com/dandelion/datatables"%>
 <%@taglib prefix="joda" uri="http://www.joda.org/joda/time/tags"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
@@ -204,6 +205,7 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 						<th><spring:message code="label.CompetenceCourseMarkSheet.state" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.certifier" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.shifts" /></th>
+						<th><spring:message code="label.CompetenceCourseMarkSheet.grades" /></th>
 						<%-- Operations Column --%>
 						<th></th>
 					</tr>
@@ -211,13 +213,14 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				<tbody>
 					<c:forEach var="searchResult" items="${searchcompetencecoursemarksheetResultsDataSet}">
 					<tr>
-						<td><joda:format value="${searchResult.creationDate}" style="S-" /></td>
+						<td><joda:format value="${searchResult.creationDate}" style="SM" /></td>
 						<td><c:out value="${searchResult.competenceCourse.code}" /> - <c:out value="${searchResult.competenceCourse.nameI18N.content}" /></td>
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getEvaluationSeason()).getContent()%>"></c:out></td>
 						<td><joda:format value="${searchResult.evaluationDate}" style="S-"/></td>
 						<td><c:out value='${searchResult.state}'/></td>
 						<td><c:out value='${searchResult.certifier.firstAndLastName}'/></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>
+						<td><c:out value='${fn:length(searchResult.enrolmentEvaluationSet)}'/></td>
 						<td>
 							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_TO_VIEW_ACTION_URL%>${searchResult.externalId}"><spring:message code='label.view'/></a>
 						</td>

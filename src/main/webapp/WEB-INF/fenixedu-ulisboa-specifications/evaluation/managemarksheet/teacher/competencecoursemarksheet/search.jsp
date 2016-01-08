@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="datatables" uri="http://github.com/dandelion/datatables"%>
 <%@taglib prefix="joda" uri="http://www.joda.org/joda/time/tags"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
@@ -84,7 +85,7 @@ ${portal.angularToolkit()}
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			<spring:message code="label.details" />
+			<spring:message code="label.CompetenceCourseMarkSheet.executionSemester" />
 		</h3>
 	</div>
 	
@@ -93,12 +94,7 @@ ${portal.angularToolkit()}
 			<table class="table">
 				<tbody>
 					<tr>
-						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.executionSemester" /></th>
 						<td><c:out value="${executionCourse.executionPeriod.qualifiedName}"/></td>
-					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.competenceCourse" /></th>
-						<td><c:out value="${executionCourse.nameI18N.content}"/></td>
 					</tr>
 				</tbody>
 			</table>
@@ -169,11 +165,13 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				<thead>
 					<tr>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.creationDate" /></th>
+						<th><spring:message code="label.CompetenceCourseMarkSheet.competenceCourse" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.evaluationSeason" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.state" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.certifier" /></th>
 						<th><spring:message code="label.CompetenceCourseMarkSheet.shifts" /></th>
+						<th><spring:message code="label.CompetenceCourseMarkSheet.grades" /></th>
 						<%-- Operations Column --%>
 						<th></th>
 					</tr>
@@ -181,12 +179,14 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				<tbody>
 					<c:forEach var="searchResult" items="${searchcompetencecoursemarksheetResultsDataSet}">
 					<tr>
-						<td><joda:format value="${searchResult.creationDate}" style="S-" /></td>
+						<td><joda:format value="${searchResult.creationDate}" style="SM" /></td>
+						<td><c:out value="${searchResult.competenceCourse.code}" /> - <c:out value="${searchResult.competenceCourse.nameI18N.content}" /></td>
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getEvaluationSeason()).getContent()%>"></c:out></td>
 						<td><joda:format value="${searchResult.evaluationDate}" style="S-"/></td>
 						<td><c:out value='${searchResult.state}'/></td>
 						<td><c:out value='${searchResult.certifier.firstAndLastName}'/></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>
+						<td><c:out value='${fn:length(searchResult.enrolmentEvaluationSet)}'/></td>
 						<td>
 							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_TO_VIEW_ACTION_URL%>${executionCourse.externalId}/${searchResult.externalId}"><spring:message code='label.view'/></a>
 						</td>
