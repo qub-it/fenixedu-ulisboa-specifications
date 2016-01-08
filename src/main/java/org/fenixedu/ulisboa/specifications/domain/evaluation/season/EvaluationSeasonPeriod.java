@@ -126,11 +126,12 @@ public class EvaluationSeasonPeriod extends EvaluationSeasonPeriod_Base implemen
     }
 
     /**
-     * For a given ExecutionYear and EvaluationSeasonPeriodType, one OccupationPeriod (considering all of it's Intervals) can only
+     * For a given ExecutionSemester and EvaluationSeasonPeriodType, one OccupationPeriod (considering all of it's Intervals) can
+     * only
      * be duplicated if the EvaluationSeason is different
      */
     private void checkDuplicates() {
-        for (final EvaluationSeasonPeriod iter : findBy(getExecutionYear(), getPeriodType())) {
+        for (final EvaluationSeasonPeriod iter : findBy(getExecutionSemester(), getPeriodType())) {
             if (iter != this && iter.getSeason() == getSeason()) {
 
                 if (iter.getOccupationPeriod().isEqualTo(getOccupationPeriod())) {
@@ -259,11 +260,23 @@ public class EvaluationSeasonPeriod extends EvaluationSeasonPeriod_Base implemen
         if (executionYear != null && periodType != null) {
 
             for (final ExecutionSemester semester : executionYear.getExecutionPeriodsSet()) {
-                for (final EvaluationSeasonPeriod period : semester.getEvaluationSeasonPeriodSet()) {
+                result.addAll(findBy(semester, periodType));
+            }
+        }
 
-                    if (period.getPeriodType() == periodType) {
-                        result.add(period);
-                    }
+        return result;
+    }
+
+    static public Set<EvaluationSeasonPeriod> findBy(final ExecutionSemester semester,
+            final EvaluationSeasonPeriodType periodType) {
+
+        final Set<EvaluationSeasonPeriod> result = Sets.<EvaluationSeasonPeriod> newHashSet();
+        if (semester != null && periodType != null) {
+
+            for (final EvaluationSeasonPeriod period : semester.getEvaluationSeasonPeriodSet()) {
+
+                if (period.getPeriodType() == periodType) {
+                    result.add(period);
                 }
             }
         }
