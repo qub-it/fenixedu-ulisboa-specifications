@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.manageevaluationseasonperiod.EvaluationSeasonPeriodController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -202,7 +204,7 @@ ${portal.angularToolkit()}
 							<tr>
 								<td><c:out value="${var.executionSemester.qualifiedName}"></c:out></td>
 								<td><c:out value="${var.periodType.descriptionI18N.content}"></c:out></td>
-								<td><c:out value="${var.season.name.content}"></c:out></td>
+								<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((EvaluationSeasonPeriod)pageContext.getAttribute("var")).getSeason()).getContent()%>"></c:out></td>
 								<td><c:out value="${var.intervalsDescription}"></c:out></td>
 								<td><c:out value="${var.degreesDescription}"></c:out></td>
 								<td>
