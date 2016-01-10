@@ -150,8 +150,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         final Set<EvaluationSeasonPeriod> periods = getExamsPeriods();
 
         if (periods.isEmpty()) {
-            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
-                    getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            throw new ULisboaSpecificationsDomainException(
+                    "error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod.undefined",
+                    EvaluationSeasonServices.getDescriptionI18N(getEvaluationSeason()).getContent(),
+                    getExecutionSemester().getQualifiedName());
         }
 
         for (final EvaluationSeasonPeriod iter : periods) {
@@ -167,8 +169,9 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         final Set<EvaluationSeasonPeriod> periods = getGradeSubmissionPeriods();
 
         if (periods.isEmpty()) {
-            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
-                    EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod.undefined",
+                    EvaluationSeasonServices.getDescriptionI18N(getEvaluationSeason()).getContent(),
+                    getExecutionSemester().getQualifiedName());
         }
 
         for (final EvaluationSeasonPeriod iter : periods) {
@@ -197,8 +200,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e ->
-        {
+        getEnrolmentEvaluationSet().forEach(e -> {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
