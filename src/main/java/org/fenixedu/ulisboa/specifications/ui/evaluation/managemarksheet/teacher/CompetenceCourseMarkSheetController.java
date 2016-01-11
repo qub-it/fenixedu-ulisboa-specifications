@@ -313,13 +313,13 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             final RedirectAttributes redirectAttributes) {
 
         try {
-            final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
-                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
-                    bean.getCertifier(), bean.getShifts(), true);
-            
             if (MarkSheetSettings.getInstance().getRequiresExactlyOneShift() && bean.getShifts().size() != 1) {
                 throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
             }
+
+            final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
+                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
+                    bean.getCertifier(), bean.getShifts(), true);
 
             model.addAttribute("competenceCourseMarkSheet", markSheet);
             return redirect(UPDATEEVALUATIONS_URL + executionCourse.getExternalId() + "/"
