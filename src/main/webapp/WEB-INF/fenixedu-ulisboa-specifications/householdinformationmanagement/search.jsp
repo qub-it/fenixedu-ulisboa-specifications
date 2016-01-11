@@ -34,6 +34,9 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
+
+	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+	&nbsp;
 	<a class="" href="${pageContext.request.contextPath}<%= HouseholdInformationManagementController.CREATE_URL %>/${student.externalId}">
 		<spring:message code="label.create" />
 	</a>

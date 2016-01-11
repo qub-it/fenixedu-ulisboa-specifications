@@ -29,6 +29,9 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +43,7 @@ import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
@@ -93,6 +97,11 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
         
+        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+        model.addAttribute("maritalStatusValues", maritalStatusValues);
+        
         fillFormIfRequired(model);
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
@@ -132,6 +141,7 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         form.setMotherProfessionalCondition(personalData.getMotherProfessionalCondition());
         form.setMotherProfessionType(personalData.getMotherProfessionType());
         form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
+        form.setMaritalStatus(personalData.getMaritalStatus());
 
         form.setProfessionType(personalData.getProfessionType());
         if (form.getProfessionType() == null) {
@@ -193,11 +203,11 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         }
         
         if (form.isStudentWorking()) {
-            if (StringUtils.isEmpty(form.getProfession())) {
+            if (StringUtils.isEmpty(form.getProfession()) && isProfessionRequired()) {
                 messages.add(BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.profession.required"));
             }
             
-            if (form.getProfessionTimeType() == null) {
+            if (form.getProfessionTimeType() == null  && isProfessionRequired()) {
                 messages.add(BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"));
             }
         }
@@ -245,12 +255,19 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
             personalData.setGrantOwnerProvider(null);
         }
         
+        personalData.getStudent().getPerson().setMaritalStatus(form.getMaritalStatus());
+        personalData.setMaritalStatus(form.getMaritalStatus());
+
         personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
     }
     
     @Override
     protected boolean isFormIsFilled(final Model model) {
         return false;
+    }
+    
+    protected boolean isProfessionRequired() {
+        return true;
     }
 
     public static class HouseholdInformationForm {
@@ -282,6 +299,8 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         private GrantOwnerType grantOwnerType;
         
         private String grantOwnerProvider;
+        
+        private MaritalStatus maritalStatus;
         
         public SchoolLevelType getMotherSchoolLevel() {
             return motherSchoolLevel;
@@ -385,6 +404,14 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
 
         public void setProfessionTimeType(ProfessionTimeType professionTimeType) {
             this.professionTimeType = professionTimeType;
+        }
+        
+        public MaritalStatus getMaritalStatus() {
+            return maritalStatus;
+        }
+        
+        public void setMaritalStatus(MaritalStatus maritalStatus) {
+            this.maritalStatus = maritalStatus;
         }
         
         public boolean isStudentWorking() {

@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.PreviousDegreeManagementController"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.OriginInformationManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
 <%@page import="org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory"%>
@@ -18,7 +20,7 @@
 <% if(TreasuryBridgeAPIFactory.implementation().isPersonAccountTreasuryManagementAvailable(registration.getStudent().getPerson())) { %>
 	<span class="dblock pbottom03">	
 		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
-		<html:link href="<%= request.getContextPath() + TreasuryBridgeAPIFactory.implementation().getRegistrationAccountTreasuryManagementURL(registration) %>" >
+		<html:link target="_blank" href="<%= request.getContextPath() + TreasuryBridgeAPIFactory.implementation().getRegistrationAccountTreasuryManagementURL(registration) %>" >
 			<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.payments.management" />
 		</html:link>
 	</span>
@@ -26,8 +28,22 @@
 
 	<span class="dblock pbottom03">	
 		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
-		<html:link href="<%= request.getContextPath() + HouseholdInformationManagementController.SEARCH_URL + "/" + registration.getStudent().getExternalId() %>" >
+		<html:link target="_blank" href="<%= request.getContextPath() + HouseholdInformationManagementController.SEARCH_URL + "/" + registration.getStudent().getExternalId() %>" >
 			<%= ULisboaSpecificationsUtil.bundle("label.title.householdinformationmanagement") %>
+		</html:link>
+	</span>
+
+	<span class="dblock pbottom03">	
+		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
+		<html:link target="_blank" href="<%= request.getContextPath() + OriginInformationManagementController.READ_URL + "/" + registration.getExternalId() %>" >
+			<%= ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillOriginInformation") %>
+		</html:link>
+	</span>
+
+	<span class="dblock pbottom03">	
+		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
+		<html:link target="_blank" href="<%= request.getContextPath() + PreviousDegreeManagementController.READ_URL + "/" + registration.getExternalId() %>" >
+			<%= ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillPreviousDegreeInformation") %>
 		</html:link>
 	</span>
 

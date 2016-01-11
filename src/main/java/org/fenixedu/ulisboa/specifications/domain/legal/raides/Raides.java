@@ -869,7 +869,12 @@ public class Raides {
 
     public static boolean isCompletePrecedentDegreeInformationFieldsToBeFilledByStudent(final Registration registration) {
         final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
-        return pdi.getInstitution() == null || Strings.isNullOrEmpty(pdi.getDegreeDesignation());
+        
+        if(pdi.getSchoolLevel() != null && !SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT.isHigherEducation()) {
+            return false;
+        }
+        
+        return  pdi.getInstitution() == null || Strings.isNullOrEmpty(pdi.getDegreeDesignation());
     }
 
     private static boolean isPreviousDegreePrecedentDegreeInformationRequired(final RaidesInstance raidesInstance,
@@ -943,7 +948,7 @@ public class Raides {
             return false;
         }
         
-        return (Strings.isNullOrEmpty(pdi.getPrecedentDegreeDesignation())) || pdi.getPrecedentInstitution() == null;
+        return pdi.getPrecedentInstitution() == null;
     }
 
     public static Set<Degree> getPrecedentDegreesUntilRoot(final Degree degree) {

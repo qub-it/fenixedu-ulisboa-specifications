@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.base.Strings;
+
 import pt.ist.fenixframework.FenixFramework;
 
 @Controller
@@ -75,14 +77,16 @@ public class AutoCompletesController {
         Predicate<DegreeDesignation> matchesName = null;
 
         if (schoolLevelType != null) {
-            matchesName = dd -> schoolLevelType.getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode())
-                    && StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
+            matchesName =
+                    dd -> schoolLevelType.getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode())
+                            && StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
         } else {
             matchesName = dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
         }
 
-        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
-                dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
+        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean = dd -> {
+            return new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
+        };
         return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
                 .collect(Collectors.toList());
     }
@@ -113,12 +117,22 @@ public class AutoCompletesController {
     @RequestMapping(value = "/raidesUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") String namePart, Model model) {
         assureLoggedInUser();
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
+
+        final Function<UnitName, UnitBean> createUnitBean = new Function<UnitName, UnitBean>() {
+
+            @Override
+            public UnitBean apply(UnitName t) {
+                final String code = !Strings.isNullOrEmpty(t.getUnit().getCode()) ? "[" + t.getUnit().getCode() + "]" : "";
+                return new UnitBean(t.getUnit().getExternalId(), code + " " + t.getUnit().getName());
+            }
+        };
+
         return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
     }
 
     private static String getFullDescription(DegreeDesignation designation) {
-        return designation.getDegreeClassification().getDescription1() + " - " + designation.getDescription();
+        return "[" + designation.getCode() + "] " + designation.getDegreeClassification().getDescription1() + " - "
+                + designation.getDescription();
     }
 
     private void assureLoggedInUser() {

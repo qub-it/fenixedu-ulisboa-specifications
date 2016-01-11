@@ -73,7 +73,7 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 		
-			<jsp:include page="../householdinformationmanagement/householdinformationform_include.jsp" />
+			<jsp:include page="../../householdinformationmanagement/householdinformationform_include.jsp" />
 
 		</div>
 		<div class="panel-footer">
