@@ -65,8 +65,6 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
-@BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping(PreviousDegreeOriginInformationFormController.CONTROLLER_URL)
 public abstract class PreviousDegreeOriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String GRADE_FORMAT = "\\d{2}";
@@ -123,7 +121,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         return jspPage("fillpreviousdegreeinformation");
     }
 
-    private List<SchoolLevelType> schoolLevelTypeValues() {
+    protected List<SchoolLevelType> schoolLevelTypeValues() {
         final List<SchoolLevelType> result = Lists.newArrayList();
 
         result.add(SchoolLevelType.BACHELOR_DEGREE);
@@ -140,66 +138,82 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         return result;
     }
 
-    private void fillFormIfRequired(final Registration registration, Model model) {
+    protected void fillFormIfRequired(final Registration registration, Model model) {
         model.addAttribute("registration", registration);
 
-        if (!model.containsAttribute("previousDegreeInformationForm")) {
-            PreviousDegreeInformationForm form = new PreviousDegreeInformationForm();
-
-            final PrecedentDegreeInformation precedentDegreeInformation =
-                    registration.getStudentCandidacy().getPrecedentDegreeInformation();
-
-            form.setPrecedentSchoolLevel(precedentDegreeInformation.getPrecedentSchoolLevel());
-            if (form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER) {
-                form.setOtherPrecedentSchoolLevel(precedentDegreeInformation.getOtherPrecedentSchoolLevel());
-            }
-
-            Unit institution = precedentDegreeInformation.getPrecedentInstitution();
-            if (institution != null) {
-                form.setPrecedentInstitutionOid(institution.getExternalId());
-                form.setPrecedentInstitutionName(institution.getName());
-            }
-
-            String precedentDegreeDesignationName = precedentDegreeInformation.getPrecedentDegreeDesignation();
-            if ((form.getPrecedentSchoolLevel() != null) && form.getPrecedentSchoolLevel().isHigherEducation()) {
-                DegreeDesignation precedentDegreeDesignation;
-                if (institution != null) {
-                    Predicate<DegreeDesignation> matchesName =
-                            dd -> dd.getDescription().equalsIgnoreCase(precedentDegreeDesignationName);
-                    precedentDegreeDesignation =
-                            institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
-                    form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
-                } else {
-                    precedentDegreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(precedentDegreeDesignationName,
-                            form.getPrecedentSchoolLevel());
-                    form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
-                }
+        PreviousDegreeInformationForm form =
+                (PreviousDegreeInformationForm) model.asMap().get("previousDegreeInformationForm");
+        
+        if(form == null) {
+            form = createPreviousDegreeInformationForm(registration);
+        }
+        
+        if (!StringUtils.isEmpty(form.getPrecedentInstitutionOid())) {
+            DomainObject institutionObject = FenixFramework.getDomainObject(form.getPrecedentInstitutionOid());
+            if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
+                form.setPrecedentInstitutionName(((Unit) institutionObject).getName());
             } else {
-                form.setPrecedentDegreeDesignation(precedentDegreeDesignationName);
-            }
-
-            form.setPrecedentCountry(precedentDegreeInformation.getPrecedentCountry());
-            if (form.getPrecedentCountry() == null) {
-                form.setPrecedentCountry(Country.readDefault());
-            }
-
-            form.setNumberOfEnrolmentsInPreviousDegrees(
-                    precedentDegreeInformation.getNumberOfEnrolmentsInPreviousDegrees() != null ? precedentDegreeInformation
-                            .getNumberOfEnrolmentsInPreviousDegrees() : 0);
-
-            model.addAttribute("previousDegreeInformationForm", form);
-        } else {
-            PreviousDegreeInformationForm form =
-                    (PreviousDegreeInformationForm) model.asMap().get("previousDegreeInformationForm");
-            if (!StringUtils.isEmpty(form.getPrecedentInstitutionOid())) {
-                DomainObject institutionObject = FenixFramework.getDomainObject(form.getPrecedentInstitutionOid());
-                if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
-                    form.setPrecedentInstitutionName(((Unit) institutionObject).getName());
-                } else {
-                    form.setPrecedentInstitutionName(form.getPrecedentInstitutionOid());
-                }
+                form.setPrecedentInstitutionName(form.getPrecedentInstitutionOid());
             }
         }
+        
+        model.addAttribute("previousDegreeInformationForm", form);
+    }
+    
+    protected PreviousDegreeInformationForm createPreviousDegreeInformationForm(final Registration registration) {
+        final PreviousDegreeInformationForm form = new PreviousDegreeInformationForm();
+
+        final PrecedentDegreeInformation precedentDegreeInformation =
+                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+
+        form.setPrecedentSchoolLevel(precedentDegreeInformation.getPrecedentSchoolLevel());
+        if (form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER) {
+            form.setOtherPrecedentSchoolLevel(precedentDegreeInformation.getOtherPrecedentSchoolLevel());
+        }
+
+        Unit institution = precedentDegreeInformation.getPrecedentInstitution();
+        if (institution != null) {
+            form.setPrecedentInstitutionOid(institution.getExternalId());
+            form.setPrecedentInstitutionName(institution.getName());
+        }
+
+        String precedentDegreeDesignationName = precedentDegreeInformation.getPrecedentDegreeDesignation();
+        if ((form.getPrecedentSchoolLevel() != null) && form.getPrecedentSchoolLevel().isHigherEducation()) {
+            DegreeDesignation precedentDegreeDesignation;
+            if (institution != null) {
+                Predicate<DegreeDesignation> matchesName =
+                        dd -> dd.getDescription().equalsIgnoreCase(precedentDegreeDesignationName);
+                precedentDegreeDesignation =
+                        institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
+                form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
+            } else {
+                precedentDegreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(precedentDegreeDesignationName,
+                        form.getPrecedentSchoolLevel());
+                form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
+            }
+        } else {
+            form.setPrecedentDegreeDesignation(precedentDegreeDesignationName);
+        }
+
+        form.setPrecedentCountry(precedentDegreeInformation.getPrecedentCountry());
+        if (form.getPrecedentCountry() == null) {
+            form.setPrecedentCountry(Country.readDefault());
+        }
+
+        form.setNumberOfEnrolmentsInPreviousDegrees(
+                precedentDegreeInformation.getNumberOfEnrolmentsInPreviousDegrees() != null ? precedentDegreeInformation
+                        .getNumberOfEnrolmentsInPreviousDegrees() : 0);
+
+        if (!StringUtils.isEmpty(form.getPrecedentInstitutionOid())) {
+            DomainObject institutionObject = FenixFramework.getDomainObject(form.getPrecedentInstitutionOid());
+            if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
+                form.setPrecedentInstitutionName(((Unit) institutionObject).getName());
+            } else {
+                form.setPrecedentInstitutionName(form.getPrecedentInstitutionOid());
+            }
+        }
+        
+        return form;
     }
 
     @RequestMapping(value = _FILLPREVIOUSDEGREEINFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
@@ -239,7 +253,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
     }
 
-    private boolean validate(final Registration registration, PreviousDegreeInformationForm form, Model model) {
+    protected boolean validate(final Registration registration, PreviousDegreeInformationForm form, Model model) {
 
         if (form.getPrecedentCountry() == null) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.requiredCountry"), model);

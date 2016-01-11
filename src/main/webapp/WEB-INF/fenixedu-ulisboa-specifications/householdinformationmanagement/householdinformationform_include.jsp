@@ -108,6 +108,27 @@
 			</div>
 		
 			<div class="form-group row">
+				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
+					<spring:message code="label.PersonalInformationForm.maritalStatus" />
+				</label>
+
+				<div class="col-sm-4">
+					<select id="personalInformationForm_maritalStatus"
+						class="form-control" name="maritalStatus">
+						<c:forEach items="${maritalStatusValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
+					$(document).ready(function() {
+						$("#personalInformationForm_maritalStatus").select2().select2('val', '<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
+					});
+					</script>
+				</div>
+			</div>
+		
+			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
 						code="label.HouseholdInformationForm.motherSchoolLevel" />

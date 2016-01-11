@@ -23,11 +23,9 @@ ${portal.toolkit()}
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js" ></script>
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/omnis.js"></script>
 
-
-
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.firstTimeCandidacy.fillPreviousDegreeInformation" />
+	<h1><spring:message code="label.firstTimeCandidacy.fillOriginInformation" />
 		<small></small>
 	</h1>
 </div>
@@ -74,13 +72,28 @@ ${portal.toolkit()}
 	</div>
 </c:if>
 
+<table class="table">
+	<tbody>
+		<tr class="row">
+			<th scope="row" class="col-xs-1"><spring:message
+					code="label.OriginInformationForm.registration.name" /></th>
+			<td>${registration.degree.presentationNameI18N.content}</td>
+		</tr>
+
+		<tr class="row">
+			<th scope="row" class="col-xs-2"><spring:message
+					code="label.OriginInformationForm.registration.startDate" /></th>
+			<td><c:out value="${registration.startDate.year}" /></td>
+		</tr>
+	</tbody>
+</table>
+
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
 		<div class="panel-body">
-		
-			<jsp:include page="../../previousdegreeinformationmanagement/fillpreviousdegreeinformation_include.jsp" />
-			
+			<jsp:include page="fillorigininformation_include.jsp"/>
 		</div>
+		
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"
 				value="<spring:message code="label.submit" />" />
@@ -98,4 +111,3 @@ ${portal.toolkit()}
 		display: inline;
 	}
 </style>
-

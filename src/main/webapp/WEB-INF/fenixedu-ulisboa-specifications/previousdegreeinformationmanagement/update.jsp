@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.PreviousDegreeManagementController"%>
 <%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -24,17 +25,20 @@ ${portal.toolkit()}
 <script src="${pageContext.request.contextPath}/static/fenixedu-ulisboa-specifications/js/omnis.js"></script>
 
 
-
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.firstTimeCandidacy.fillPreviousDegreeInformation" />
+	<h1><spring:message code="label.PreviousDegreeManagement.update" />
 		<small></small>
 	</h1>
 </div>
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	&nbsp;
+	<a class="" href="${pageContext.request.contextPath}<%= PreviousDegreeManagementController.READ_URL %>/${registration.externalId}">
+		<spring:message code="label.back"/>
+	</a>	
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -78,7 +82,7 @@ ${portal.toolkit()}
 	<div class="panel panel-default">
 		<div class="panel-body">
 		
-			<jsp:include page="../../previousdegreeinformationmanagement/fillpreviousdegreeinformation_include.jsp" />
+			<jsp:include page="fillpreviousdegreeinformation_include.jsp" />
 			
 		</div>
 		<div class="panel-footer">

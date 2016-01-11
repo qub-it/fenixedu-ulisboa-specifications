@@ -1,4 +1,6 @@
-<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.OriginInformationManagementController"%>
+<%@page import="org.fenixedu.academic.domain.SchoolLevelType" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -28,23 +30,16 @@ ${portal.toolkit()}
 <%-- TITLE --%>
 <div class="page-header">
 	<h1>
-		<spring:message code="label.HouseholdInformationManagement.read" />
+		<spring:message code="label.OriginInformationManagement.read" />
 		<small></small>
 	</h1>
 </div>
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-	&nbsp;
-	<a class="" href="${pageContext.request.contextPath}<%= HouseholdInformationManagementController.SEARCH_URL %>/${student.externalId}">
-		<spring:message code="label.back" />
-	</a>
-	
-	&nbsp;|&nbsp;
 	
 	<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-	<a class="" href="${pageContext.request.contextPath}<%= HouseholdInformationManagementController.UPDATE_URL %>/${student.externalId}/${personalIngressionData.executionYear.externalId}">
+	<a class="" href="${pageContext.request.contextPath}<%= OriginInformationManagementController.UPDATE_URL %>/${registration.externalId}">
 		<spring:message code="label.update" />
 	</a>
 </div>
@@ -61,122 +56,119 @@ ${portal.toolkit()}
 				<tbody>
 					<tr>
 						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.executionYear" />
+							<spring:message code="label.OriginInformationForm.studentNumber" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.executionYear.qualifiedName}' />
+							<c:out value='${registration.student.number}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.OriginInformationForm.studentName" />
+						</th>
+						<td>
+							<c:out value='${registration.student.person.name}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.OriginInformationForm.registration.degreeName" />
+						</th>
+						<td>
+							<c:out value='${registration.degree.nameI18N}' />
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree" />
+						</th>
+						<td>
+							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.country.localizedName}' />
 						</td>
 					</tr>
 
 					<tr>
 						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.professionalCondition" />
+							<spring:message code="label.OriginInformationForm.schoolLevel" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.professionalCondition.localizedName}' />
+							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.schoolLevel.localizedName}' />
+						</td>
+					</tr>
+					
+					<c:if test='${registration.studentCandidacy.precedentDegreeInformation.schoolLevel.name == "OTHER"}'>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.OriginInformationForm.otherSchoolLevel" />
+						</th>
+						<td>
+							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.otherSchoolLevel}' />
+						</td>
+					</tr>
+					</c:if>
+					
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.OriginInformationForm.institution" />
+						</th>
+						<td>
+							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.institution.code}">
+								[<c:out value='${registration.studentCandidacy.precedentDegreeInformation.institution.code}' />]
+								-
+							</c:if>
+							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.institution.nameI18n.content}' />
 						</td>
 					</tr>
 
 					<tr>
 						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.professionType" />
+							<spring:message code="label.OriginInformationForm.degreeDesignation" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.professionType.localizedName}' />
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.professionTimeType" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.professionTimeType.localizedName}' />
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.grantOwnerType" />
-						</th>
-						<td>
-							<c:if test="${not empty personalIngressionData.grantOwnerType}">
-								<spring:message code="label.GrantOwnerType.${personalIngressionData.grantOwnerType}" />
+							<c:if test="${not empty originInformationForm.raidesDegreeDesignation}">
+								[<c:out value='${originInformationForm.raidesDegreeDesignation.code}' />]
+								<c:out value='${originInformationForm.raidesDegreeDesignation.degreeClassification.description1}' />
+								&nbsp;-&nbsp;
+								<c:out value='${originInformationForm.raidesDegreeDesignation.description}' />
+							</c:if>
+							<c:if test="${empty originInformationForm.raidesDegreeDesignation}">
+								<c:out value='${originInformationForm.degreeDesignation}' />
 							</c:if>
 						</td>
 					</tr>
 
 					<tr>
 						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.grantOwnerProvider" />
+							<spring:message code="label.OriginInformationForm.conclusionYear" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.grantOwnerProvider.nameI18n.content}' />
+							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.conclusionYear}' />
 						</td>
 					</tr>
-
+					
 					<tr>
 						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.motherSchoolLevel" />
+							<spring:message code="label.OriginInformationForm.conclusionGrade" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.motherSchoolLevel.localizedName}' />
+							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.conclusionGrade}' />
 						</td>
 					</tr>
-
+					
+					<c:if test='${registration.studentCandidacy.precedentDegreeInformation.schoolLevel.name == "HIGH_SCHOOL_OR_EQUIVALENT"}'>
 					<tr>
 						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.motherProfessionType" />
+							<spring:message code="label.OriginInformationForm.highSchoolType" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.motherProfessionType.localizedName}' />
+							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.personalIngressionData.highSchoolType}">
+								<spring:message code="label.AcademicalInstitutionType.${registration.studentCandidacy.precedentDegreeInformation.personalIngressionData.highSchoolType}" />
+							</c:if>
 						</td>
 					</tr>
+					</c:if>
 
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.motherProfessionalCondition" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.motherProfessionalCondition.localizedName}' />
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.fatherSchoolLevel" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.fatherSchoolLevel.localizedName}' />
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.fatherProfessionType" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.fatherProfessionType.localizedName}' />
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.fatherProfessionalCondition" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.fatherProfessionalCondition.localizedName}' />
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.householdSalarySpan" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.householdSalarySpan.localizedName}' />
-						</td>
-					</tr>
 				</tbody>
 			</table>
 		</form>

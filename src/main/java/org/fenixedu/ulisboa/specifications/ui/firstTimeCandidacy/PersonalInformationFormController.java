@@ -121,11 +121,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         model.addAttribute("genderValues", Gender.values());
         model.addAttribute("partial", isPartialUpdate());
 
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        model.addAttribute("maritalStatusValues", maritalStatusValues);
-        
         final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
         Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
         model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
@@ -339,8 +334,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             }
             person.setSocialSecurityNumber(socialSecurityNumber);
         }
-        person.setMaritalStatus(form.getMaritalStatus());
-        personalData.setMaritalStatus(form.getMaritalStatus());
 
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         if (candidacy != null) {
@@ -402,7 +395,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate documentIdExpirationDate;
         private String socialSecurityNumber;
-        private MaritalStatus maritalStatus;
         private ProfessionalSituationConditionType professionalCondition;
         private String profession;
         private ProfessionType professionType;

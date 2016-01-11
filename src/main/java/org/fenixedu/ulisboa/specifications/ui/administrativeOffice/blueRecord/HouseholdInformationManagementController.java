@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
@@ -40,7 +43,7 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
     private static final String _SEARCH_URI = "/search";
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
-
+    
     @RequestMapping(_SEARCH_URI + "/{studentId}")
     public String search(@PathVariable("studentId") final Student student, final Model model) {
         model.addAttribute("student", student);
@@ -80,6 +83,11 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
         model.addAttribute("executionYearValues", loadActiveExecutionYearValues(student));
 
+        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+        model.addAttribute("maritalStatusValues", maritalStatusValues);
+        
         return jspPage(_CREATE_URI);
     }
 
@@ -135,6 +143,11 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
         model.addAttribute("executionYearValues", loadActiveExecutionYearValues(student));
 
+        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+        model.addAttribute("maritalStatusValues", maritalStatusValues);
+        
         return jspPage(_UPDATE_URI);
     }
 
@@ -175,6 +188,11 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         
         return result;
     }
+    
+    @Override
+    protected boolean isProfessionRequired() {
+        return false;
+    }
 
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page.substring(1, page.length());
@@ -185,6 +203,11 @@ public class HouseholdInformationManagementController extends HouseholdInformati
      * ********************
      */
 
+    @Override
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        throw new RuntimeException("not applied in this controller");
+    }
+    
     @Override
     protected Student getStudent(final Model model) {
         throw new RuntimeException("not applied in this controller");
