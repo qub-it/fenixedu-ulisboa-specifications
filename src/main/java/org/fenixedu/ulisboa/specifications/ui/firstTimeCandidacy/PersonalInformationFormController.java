@@ -165,7 +165,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
-        form.setMaritalStatus(person.getMaritalStatus());
 
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
@@ -191,10 +190,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(model);
 
-        form.setMaritalStatus(personalData.getMaritalStatus());
-        if (form.getMaritalStatus() == null) {
-            form.setMaritalStatus(MaritalStatus.SINGLE);
-        }
         form.setCountryHighSchool(person.getCountryHighSchool());
         
         form.setFirstYearRegistration(false);
@@ -487,14 +482,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         public void setSocialSecurityNumber(String socialSecurityNumber) {
             this.socialSecurityNumber = socialSecurityNumber;
-        }
-
-        public MaritalStatus getMaritalStatus() {
-            return maritalStatus;
-        }
-
-        public void setMaritalStatus(MaritalStatus maritalStatus) {
-            this.maritalStatus = maritalStatus;
         }
 
         public static long getSerialversionuid() {

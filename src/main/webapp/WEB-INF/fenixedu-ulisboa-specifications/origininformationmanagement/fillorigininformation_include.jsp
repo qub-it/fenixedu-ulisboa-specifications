@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 
-<div class="form-group row">
+		<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
 						code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree" />

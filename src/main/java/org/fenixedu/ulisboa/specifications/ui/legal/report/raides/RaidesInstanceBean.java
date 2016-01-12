@@ -28,6 +28,8 @@ public class RaidesInstanceBean implements IBean {
     private List<TupleDataSourceBean> ingressionTypesDataSource;
 
     private List<TupleDataSourceBean> registrationProtocolsDataSource;
+    
+    private boolean formsAvailableToStudents;
 
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
@@ -39,6 +41,7 @@ public class RaidesInstanceBean implements IBean {
         setDegreeChangeIngressions(Sets.newHashSet(raidesInstance.getDegreeChangeIngressionsSet()));
         setDegreeTransferIngressions(Sets.newHashSet(raidesInstance.getDegreeTransferIngressionsSet()));
         setIngressionsForGeneralAccessRegime(Sets.newHashSet(raidesInstance.getGeneralAccessRegimeIngressionsSet()));
+        setFormsAvailableToStudents(raidesInstance.getFormsAvailableToStudents());
         
         loadDataSources();
     }
@@ -110,6 +113,14 @@ public class RaidesInstanceBean implements IBean {
 
     public void setIngressionsForGeneralAccessRegime(Set<IngressionType> ingressionsForGeneralAccessRegime) {
         this.ingressionsForGeneralAccessRegime = ingressionsForGeneralAccessRegime;
+    }
+    
+    public boolean isFormsAvailableToStudents() {
+        return formsAvailableToStudents;
+    }
+    
+    public void setFormsAvailableToStudents(boolean formsAvailableToStudents) {
+        this.formsAvailableToStudents = formsAvailableToStudents;
     }
 
 }

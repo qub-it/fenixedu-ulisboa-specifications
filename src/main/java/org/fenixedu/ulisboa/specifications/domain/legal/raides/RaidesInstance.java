@@ -96,7 +96,7 @@ public class RaidesInstance extends RaidesInstance_Base {
     public void edit(final LocalizedString name, final PersistentGroup group, final Boolean synchronous,
             final Boolean hasMappings, final String passwordToZip, final Set<RegistrationProtocol> enrolledAgreements,
             final Set<RegistrationProtocol> mobilityAgreements, final Set<IngressionType> degreeTransferIngressions,
-            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions) {
+            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions, final boolean formsAvailableToStudents) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -114,6 +114,8 @@ public class RaidesInstance extends RaidesInstance_Base {
 
         getGeneralAccessRegimeIngressionsSet().clear();
         getGeneralAccessRegimeIngressionsSet().addAll(generalAccessRegimeIngressions);
+        
+        setFormsAvailableToStudents(formsAvailableToStudents);
     }
 
     @Override

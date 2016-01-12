@@ -117,6 +117,15 @@ ${portal.toolkit()}
 
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.PersonalInformationForm.maritalStatus" />
+						</th>
+						<td>
+							<c:out value='${personalIngressionData.maritalStatus.localizedName}' />
+						</td>
+					</tr>
+
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.HouseholdInformationForm.motherSchoolLevel" />
 						</th>
 						<td>
@@ -177,6 +186,50 @@ ${portal.toolkit()}
 							<c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.householdSalarySpan.localizedName}' />
 						</td>
 					</tr>
+
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.dislocatedFromPermanentResidence" />
+						</th>
+						<td>
+							<c:if test="${personalIngressionData.dislocatedFromPermanentResidence}">
+								<spring:message code="label.true" />
+							</c:if>
+							<c:if test="${not personalIngressionData.dislocatedFromPermanentResidence}">
+								<spring:message code="label.false" />
+							</c:if>
+						</td>
+					</tr>
+
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.countryOfResidence" />
+						</th>
+						<td>
+							<c:out value='${personalIngressionData.countryOfResidence.localizedName}' />
+						</td>
+					</tr>
+
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.permanentResidentDistrictSubdivision" />
+						</th>
+						<td>
+							<c:if test="${not empty personalIngressionData.districtSubdivisionOfResidence}">
+								<c:out value="${personalIngressionData.districtSubdivisionOfResidence.district.name} - ${personalIngressionData.districtSubdivisionOfResidence.name}" />
+							</c:if>
+						</td>
+					</tr>
+
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.PersonalInformationForm.countryHighSchool" />
+						</th>
+						<td>
+							<c:out value='${personalIngressionData.student.person.countryHighSchool.localizedName}' />
+						</td>
+					</tr>
+					
 				</tbody>
 			</table>
 		</form>

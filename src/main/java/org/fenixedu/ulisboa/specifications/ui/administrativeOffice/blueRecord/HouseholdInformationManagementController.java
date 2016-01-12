@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -15,6 +16,7 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
@@ -83,10 +85,19 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
         model.addAttribute("executionYearValues", loadActiveExecutionYearValues(student));
 
+        final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
+        Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
+        model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
+
+        
         List<MaritalStatus> maritalStatusValues = new ArrayList<>();
         maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
         maritalStatusValues.remove(MaritalStatus.UNKNOWN);
         model.addAttribute("maritalStatusValues", maritalStatusValues);
+
+        
+        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         
         return jspPage(_CREATE_URI);
     }
@@ -143,10 +154,17 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
         model.addAttribute("executionYearValues", loadActiveExecutionYearValues(student));
 
+        final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
+        Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
+        model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
+
         List<MaritalStatus> maritalStatusValues = new ArrayList<>();
         maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
         maritalStatusValues.remove(MaritalStatus.UNKNOWN);
         model.addAttribute("maritalStatusValues", maritalStatusValues);
+        
+        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         
         return jspPage(_UPDATE_URI);
     }
@@ -192,6 +210,11 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     @Override
     protected boolean isProfessionRequired() {
         return false;
+    }
+
+    @Override
+    protected boolean isToFillCountryHighSchool() {
+        return true;
     }
 
     private String jspPage(final String page) {

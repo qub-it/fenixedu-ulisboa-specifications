@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -122,7 +123,7 @@
 					</select>
 					<script>
 					$(document).ready(function() {
-						$("#personalInformationForm_maritalStatus").select2().select2('val', '<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
+						$("#personalInformationForm_maritalStatus").select2().select2('val', '<c:out value='${householdInformationForm.maritalStatus }'/>');
 					});
 					</script>
 				</div>
@@ -278,18 +279,194 @@
 						</c:forEach>
 					</select>
 					<script>
-					$(document).ready(function() {
-						$("#householdInformationForm_householdSalarySpan").select2().select2('val', '<c:out value='${not empty param.householdsalaryspan ? param.householdsalaryspan : householdInformationForm.householdSalarySpan.externalId }'/>');
-					});
+						$(document).ready(function() {
+							$("#householdInformationForm_householdSalarySpan").select2().select2('val', '<c:out value='${not empty param.householdsalaryspan ? param.householdsalaryspan : householdInformationForm.householdSalarySpan.externalId }'/>');
+						});
 					</script>
 				</div>
 			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.HouseholdInformationForm.dislocatedFromPermanentResidence" />
+				</div>
+
+				<div class="col-sm-10">
+					<select id="householdInformationForm_dislocatedFromPermanentResidence" name="dislocatedFromPermanentResidence" class="form-control">
+						<option value="false"><spring:message code="label.no" /></option>
+						<option value="true"><spring:message code="label.yes" /></option>
+					</select>
+				</div>
+				<script>
+					function currentSelectedCountry(){
+						return $("#householdInformationForm_countryOfResidence").val();
+					}
 			
+					function onChangeDislocatedFromPermanentResidence() {
+						var dislocated = $("#householdInformationForm_dislocatedFromPermanentResidence").select2('val');
+						if(dislocated === "true") {
+							$("#labelCountryOfResidence").addClass('required-field');
+							$("#labelPermanentResidenceDistrict").addClass('required-field');
+							$("#labelPermanentResidentDistrictSubdivision").addClass('required-field');
+						} else if(dislocated === "false") {
+							$("#householdInformationForm_countryOfResidence").select2().select2('val', '');
+							$("#householdInformationForm_permanentResidenceDistrict").select2().select2('val', '');
+							$("#householdInformationForm_permanentResidentDistrictSubdivision").select2().select2('val', '');
+							
+							$("#labelCountryOfResidence").removeClass('required-field');
+							$("#labelPermanentResidenceDistrict").removeClass('required-field');
+							$("#labelPermanentResidentDistrictSubdivision").removeClass('required-field');
+						}
+						
+						configureOriginInformationFieldsEditableState();
+					}
+				
+					function configureOriginInformationFieldsEditableState(){
+						var dislocated = $("#householdInformationForm_dislocatedFromPermanentResidence").select2('val');
+
+						if(dislocated === "false" || currentSelectedCountry() != defaultCountry){
+							$("#householdInformationForm_permanentResidenceDistrict").val("").trigger("change");
+							$("#householdInformationForm_permanentResidentDistrictSubdivision").val("").trigger("change");
+							
+							$('#labelPermanentResidenceDistrict').removeClass("required-field");
+							$('#labelPermanentResidentDistrictSubdivision').removeClass("required-field");
+						} else {
+							$('#labelPermanentResidenceDistrict').addClass("required-field");
+							$('#labelPermanentResidentDistrictSubdivision').addClass("required-field");
+						}
+					}
+					
+					$(document).ready(function() {
+						
+						
+						$("#householdInformationForm_dislocatedFromPermanentResidence").select2().select2('val', '<c:out value='${householdInformationForm.dislocatedFromPermanentResidence }'/>');
+						$("#householdInformationForm_dislocatedFromPermanentResidence").select2().on("select2:select", function(e) {
+							onChangeDislocatedFromPermanentResidence();
+						});
+					});
+				</script>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-2 control-label required-field" id="labelCountryOfResidence">
+					<spring:message
+						code="label.HouseholdInformationForm.countryOfResidence" />
+				</div>
+
+				<div class="col-sm-10">
+					<select
+						id="householdInformationForm_countryOfResidence"
+						class="form-control" name="countryOfResidence">
+							<option value="" />
+						<c:forEach var="c" items="${countries}">
+							<option value="${c.externalId}"><c:out value="${c.localizedName.content}" /></option>
+						</c:forEach>
+					</select>
+					<script>
+						$(document).ready(function() {
+					   	    $("#householdInformationForm_countryOfResidence").select2().select2('val', '<c:out value='${householdInformationForm.countryOfResidence.externalId}' />');
+						});
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label required-field" id="labelPermanentResidenceDistrict">
+					<spring:message
+						code="label.HouseholdInformationForm.permanentResidenceDistrict" />
+				</div>
+				
+				<div class="col-sm-10">
+					<select
+						id="householdInformationForm_permanentResidenceDistrict"
+						class="form-control"
+						name="permanentResidenceDistrict">
+						<option value=""></option>
+						<c:forEach var="d" items="${districts_options}">
+							<option value="${d.externalId}">${d.name}</option>
+						</c:forEach>
+					</select>
+					<script>
+						$(document).ready(function() {
+			             	 $("#householdInformationForm_permanentResidenceDistrict").select2().select2('val', '<c:out value='${householdInformationForm.permanentResidenceDistrict.externalId}'/>');
+			             	 $("#householdInformationForm_permanentResidenceDistrict").select2().on("select2:select", function(e) {
+			                   populateSubDistricts(e);
+			                 });
+						});
+					</script>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label required-field" id="labelPermanentResidentDistrictSubdivision">
+					<spring:message
+						code="label.HouseholdInformationForm.permanentResidentDistrictSubdivision" />
+				</div>
+				
+				<div class="col-sm-10">
+					<select
+						id="householdInformationForm_permanentResidentDistrictSubdivision"
+						class="form-control"
+						name="permanentResidentDistrictSubdivision">
+						<option value=""></option>
+					</select>
+
+				</div>
+			</div>
 			
 			<script>
 				$(document).ready(function() {
+
+					defaultCountry = <%= Country.readDefault().getExternalId() %>;
+
+					sortFunction = function(a,b) {
+						return a.text.localeCompare(b.text);
+					};
 				
-				
+				  	 populateSubDistricts = function(){
+				  		 oid = $("#householdInformationForm_permanentResidenceDistrict")[0].value; 
+				  		 $.ajax({url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/district/" + oid, 
+				  				success: function(result){
+				  					 //$("#originInformationForm_districtSubdivisionOfBirth").select2("destroy");
+				  					 $("#householdInformationForm_permanentResidentDistrictSubdivision").children().remove();
+				  					 $("#householdInformationForm_permanentResidentDistrictSubdivision").select2(
+						             			{
+						             				data : result.sort(sortFunction),
+						             			}	  
+						             	    );
+				  					$("#householdInformationForm_permanentResidentDistrictSubdivision").select2();
+				  					$("#householdInformationForm_permanentResidentDistrictSubdivision").select2().select2('val', '');
+				  		 		}
+				  		 });
+				  	 };
+			
+					
+				 	//setup sub-districts
+				 	$("#householdInformationForm_permanentResidentDistrictSubdivision").select2();
+				 	<c:if test="${not empty householdInformationForm.permanentResidenceDistrict}">
+				 	subDistrictOptions = [
+				            			<c:forEach items="${householdInformationForm.permanentResidenceDistrict.districtSubdivisions}" var="element"> 
+				            				{
+				            					text : "<c:out value='${element.name}'/>",  
+				            					id : "<c:out value='${element.externalId}'/>"
+				            				},
+				            			</c:forEach>
+				            		].sort(sortFunction);
+			
+				            	   $("#householdInformationForm_permanentResidentDistrictSubdivision").select2(
+					             			{
+					             				data : subDistrictOptions,
+					             			}	  
+					             	    );
+					             	    
+					             	    $("#householdInformationForm_permanentResidentDistrictSubdivision").select2().select2('val', '<c:out value='${householdInformationForm.permanentResidentDistrictSubdivision.externalId}'/>');
+			
+				   	</c:if>
+				  	 
+				   	 $("#householdInformationForm_countryOfResidence").select2().on("change", function(){
+						configureOriginInformationFieldsEditableState();
+					 });
+				   	
+					
 					ajaxForGrantOwnerProvider = {
 							    dataType: 'json',
 							    delay: 250,
@@ -343,6 +520,7 @@
 					updateGrantProvider();
 					
 					
+					onChangeDislocatedFromPermanentResidence();
 				});
 			</script>
 			
