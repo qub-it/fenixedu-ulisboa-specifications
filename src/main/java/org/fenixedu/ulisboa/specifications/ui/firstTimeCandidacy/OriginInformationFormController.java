@@ -116,10 +116,10 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             throw new RuntimeException("invalid request");
         }
         
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
 
         fillFormIfRequired(registration, model);
         
@@ -189,8 +189,14 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             DegreeDesignation degreeDesignation;
             if (institution != null) {
                 Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
-                degreeDesignation = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
-                form.setRaidesDegreeDesignation(degreeDesignation);
+                Optional<DegreeDesignation> degreeDesignationOption = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst();
+                if(degreeDesignationOption.isPresent()) {
+                    degreeDesignation = degreeDesignationOption.get();
+                    form.setRaidesDegreeDesignation(degreeDesignation);
+                } else {
+                    form.setDegreeDesignation(degreeDesignationName);                    
+                }
+                
             } else {
                 degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
                 form.setRaidesDegreeDesignation(degreeDesignation);

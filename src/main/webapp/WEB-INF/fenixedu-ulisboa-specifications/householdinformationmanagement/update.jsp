@@ -121,6 +121,28 @@ ${portal.toolkit()}
 		
 			<jsp:include page="householdinformationform_include.jsp" />
 			
+
+			<div class="form-group row">
+				<label class="col-sm-2 control.label required-field">
+					<spring:message code="label.PersonalInformationForm.countryHighSchool" />
+				</label>
+				
+				<div class="col-sm-10">
+					<select id="householdInformationForm_countryHighSchool" class="form-control" name="countryHighSchool">
+							<option value=""></option>
+						<c:forEach var="country" items="${countryHighSchoolValues}">
+							<option value="${country.externalId}"><c:out value="${country.localizedName.content}" /></option>
+						</c:forEach>
+					</select>
+					<script>
+					$(document).ready(function() {					
+						$("#householdInformationForm_countryHighSchool").select2().select2('val', '<c:out value='${householdInformationForm.countryHighSchool.externalId }'/>');
+					});
+					
+					</script>
+				</div>
+			</div>
+
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"
