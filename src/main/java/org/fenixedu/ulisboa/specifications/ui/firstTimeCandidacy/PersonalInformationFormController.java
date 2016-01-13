@@ -56,6 +56,7 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -154,6 +155,12 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             return form;
         }
 
+        return createPersonalInformationForm(getStudent(model));
+    }
+
+    protected PersonalInformationForm createPersonalInformationForm(final Student student) {
+        final Person person = student.getPerson();
+        PersonalInformationForm form;
         form = new PersonalInformationForm();
 
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
@@ -188,8 +195,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             form.setIdDocumentType(person.getIdDocumentType());
         }
 
-        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(model);
-
         form.setCountryHighSchool(person.getCountryHighSchool());
         
         form.setFirstYearRegistration(false);
@@ -205,9 +210,9 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             form.setFirstYearRegistration(true);
         }
         
-        form.setName(getStudent(model).getPerson().getName());
-        form.setUsername(getStudent(model).getPerson().getUser().getUsername());
-        form.setGender(getStudent(model).getPerson().getGender());
+        form.setName(student.getPerson().getName());
+        form.setUsername(student.getPerson().getUser().getUsername());
+        form.setGender(student.getPerson().getGender());
         
         return form;
     }
@@ -313,7 +318,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     private void writeData(PersonalInformationForm form, final Model model) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(model);
+        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(getStudent(model));
         if (!isPartialUpdate()) {
             person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
             LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
@@ -355,11 +360,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         return false;
     }
     
-    @Override
-    protected boolean isFormIsFilled(final Model model) {
-        return false;
-    }
-
     public static class DegreeDesignationBean {
         private final String degreeDesignationText;
         private final String degreeDesignationId;

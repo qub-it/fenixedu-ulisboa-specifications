@@ -32,8 +32,8 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     }
 
     @Atomic
-    protected PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(final Model model) {
-        return getPersonalIngressionData(getStudent(model), ExecutionYear.readCurrentExecutionYear(), true);
+    protected PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(final Student student) {
+        return getPersonalIngressionData(student, ExecutionYear.readCurrentExecutionYear(), true);
     }
 
     protected PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear, final boolean create) {
@@ -83,9 +83,9 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return null;
     }
 
-    protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final Model model) {
+    protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Raides.findActiveRegistrationsWithEnrolments(getStudent(model));
+                Raides.findActiveRegistrationsWithEnrolments(student);
 
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
         for (final Registration registration : activeRegistrationsWithEnrolments) {
@@ -97,9 +97,9 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return result;
     }
 
-    protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(final Model model) {
+    protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Raides.findActiveRegistrationsWithEnrolments(getStudent(model));
+                Raides.findActiveRegistrationsWithEnrolments(student);
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
 
         for (final Registration registration : activeRegistrationsWithEnrolments) {
@@ -124,7 +124,11 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
 
     protected abstract String getControllerURL();
 
-    protected abstract boolean isFormIsFilled(final Model model);
+    protected boolean isFormIsFilled(final Model model) {
+        return isFormIsFilled(getStudent(model));
+    }
+    
+    public abstract boolean isFormIsFilled(final Student student);
     
     protected abstract Student getStudent(final Model model);
     

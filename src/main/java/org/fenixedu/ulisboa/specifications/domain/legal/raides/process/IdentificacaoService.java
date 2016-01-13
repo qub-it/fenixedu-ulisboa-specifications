@@ -57,7 +57,9 @@ public class IdentificacaoService extends RaidesService {
             bean.setResidePais(countryOfResidence.getCode());
         }
 
-        if (registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool() != null) {
+        if(registration.getPerson().getCountryHighSchool() != null) {
+            bean.setPaisEnsinoSecundario(registration.getPerson().getCountryHighSchool().getCode());
+        } else if (registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool() != null) {
             bean.setPaisEnsinoSecundario(registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool().getCode());
         }
 

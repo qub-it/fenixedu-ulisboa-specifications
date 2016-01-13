@@ -67,7 +67,7 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
         raidesRequestParameter.setInterlocutorName(Authenticate.getUser().getPerson().getName());
         raidesRequestParameter.setInterlocutorEmail(Authenticate.getUser().getPerson().getDefaultEmailAddressValue());
         raidesRequestParameter.setInterlocutorPhone(Authenticate.getUser().getPerson().getDefaultPhoneNumber());
-        raidesRequestParameter.setFilterEntriesWithErrors(false);
+        raidesRequestParameter.setFilterEntriesWithErrors(true);
     }
 
 }

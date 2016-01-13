@@ -83,7 +83,18 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     }
     
     @Override
-    protected boolean isFormIsFilled(final Model model) {
+    public boolean isFormIsFilled(final Student student) {
+        final PersonalInformationForm personalInformationForm = createPersonalInformationForm(student);
+        
+        if(!personalInformationForm.isFirstYearRegistration()) {
+            return true;
+        }
+        
+        return validateForm(personalInformationForm, AccessControl.getPerson()).isEmpty();
+    }
+    
+    @Override
+    protected boolean isFormIsFilled(Model model) {
         final PersonalInformationForm personalInformationForm = fillFormIfRequired(model);
         
         if(!personalInformationForm.isFirstYearRegistration()) {

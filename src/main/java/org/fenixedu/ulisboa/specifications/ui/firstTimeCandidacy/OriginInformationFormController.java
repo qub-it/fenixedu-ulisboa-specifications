@@ -105,7 +105,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         }
 
         return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                + findCompletePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(), model,
+                + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(), model,
                 redirectAttributes);
     }
 
@@ -188,7 +188,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHigherEducation()) {
             DegreeDesignation degreeDesignation;
             if (institution != null) {
-                Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
+                Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName) && form.getSchoolLevel().getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode());
                 Optional<DegreeDesignation> degreeDesignationOption = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst();
                 if(degreeDesignationOption.isPresent()) {
                     degreeDesignation = degreeDesignationOption.get();
@@ -239,12 +239,12 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         try {
             writeData(registration, form);
 
-            if (findCompletePrecedentDegreeInformationsToFill(model).isEmpty()) {
+            if (findCompletePrecedentDegreeInformationsToFill(getStudent(model)).isEmpty()) {
                 return nextScreen(model, redirectAttributes);
             }
 
             return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                    + findCompletePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(), model,
+                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(), model,
                     redirectAttributes);
 
         } catch (Exception de) {
@@ -405,11 +405,6 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             return versionedAcronym;
         }
         return resolvedAcronym;
-    }
-    
-    @Override
-    protected boolean isFormIsFilled(Model model) {
-        return false;
     }
     
     public boolean isDistrictAndSubdivisionRequired() {

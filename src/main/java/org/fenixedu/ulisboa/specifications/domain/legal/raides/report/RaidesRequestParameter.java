@@ -69,7 +69,10 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
      * Empty constructor to create in interface
      */
     public RaidesRequestParameter() {
+        setFilterEntriesWithErrors(true);
+        
         loadDataSources();
+        
     }
 
     private void loadDataSources() {

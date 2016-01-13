@@ -108,8 +108,8 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     }
 
     @Override
-    protected boolean isFormIsFilled(Model model) {
-        return validateHouseholdInformationForm(createHouseholdInformationForm(getStudent(model), model)).isEmpty();
+    public boolean isFormIsFilled(final Student student) {
+        return validateHouseholdInformationForm(createHouseholdInformationForm(student)).isEmpty();
     }
 
     @Override

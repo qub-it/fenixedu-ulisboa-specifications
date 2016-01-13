@@ -77,8 +77,8 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
     }
     
     @Override
-    protected boolean isFormIsFilled(final Model model) {
-        return findCompletePrecedentDegreeInformationsToFill(model).isEmpty();
+    public boolean isFormIsFilled(final Student student) {
+        return findCompletePrecedentDegreeInformationsToFill(student).isEmpty();
     }
     
     @Override

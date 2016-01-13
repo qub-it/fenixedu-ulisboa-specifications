@@ -6,6 +6,9 @@ import java.util.Comparator;
 
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.scheduler.TaskRunner;
+import org.fenixedu.bennu.scheduler.domain.SchedulerSystem;
+import org.fenixedu.treasury.services.integration.erp.tasks.ERPExportSingleDocumentsTask;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.joda.time.DateTime;
 
@@ -110,7 +113,6 @@ public class LegalReportRequest extends LegalReportRequest_Base {
         result.setParameters(parameters);
 
         if (report.getSynchronous()) {
-            //immediate
             result.process();
         }
 

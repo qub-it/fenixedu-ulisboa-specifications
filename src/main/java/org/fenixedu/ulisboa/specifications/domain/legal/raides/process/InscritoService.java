@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -24,6 +25,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 public class InscritoService extends RaidesService {
+
+    private static final BigDecimal MIN_NOTA_INGRESSO = new BigDecimal(95);
+    private static final BigDecimal MAX_NOTA_INGRESSO = new BigDecimal(200);
 
     public InscritoService(final LegalReport report) {
         super(report);
@@ -135,6 +139,27 @@ public class InscritoService extends RaidesService {
                             executionYear.getQualifiedName()));
             bean.markAsInvalid();
             return;
+        }
+        
+        if(!Strings.isNullOrEmpty(bean.getNotaIngresso())) {
+            try {
+                final BigDecimal value = new BigDecimal(bean.getNotaIngresso());
+                if(value.compareTo(MIN_NOTA_INGRESSO) < 0 || value.compareTo(MAX_NOTA_INGRESSO) > 0) {
+                    LegalReportContext.addError("",
+                            i18n("error.Raides.validation.general.access.regime.notaIngresso.in.wrong.interval",
+                                    String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                                    executionYear.getQualifiedName()));                    
+                    bean.markAsInvalid();
+                    return;                
+                }
+            } catch(NumberFormatException e) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.general.access.regime.notaIngresso.wrong.format",
+                                String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                                executionYear.getQualifiedName()));
+                bean.markAsInvalid();
+                return;                
+            }
         }
     }
 

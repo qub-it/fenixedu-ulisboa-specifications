@@ -82,6 +82,11 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
      */
 
     @Override
+    public boolean isFormIsFilled(Student student) {
+        throw new RuntimeException("not applied in this controller");
+    }
+
+    @Override
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }

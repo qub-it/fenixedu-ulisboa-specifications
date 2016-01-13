@@ -60,6 +60,7 @@ public class XlsxExporter {
                 addCell("Ramo", tblInscrito.getRamo());
                 addCell("AnoLetivo", tblInscrito.getAnoLectivo());
                 addCell("AnoCurricular", tblInscrito.getAnoCurricular());
+                addCell("PrimeiraVez", tblInscrito.getPrimeiraVez());
                 addCell("RegimeFrequencia", tblInscrito.getRegimeFrequencia());
                 addCell("NumInscNesteCurso",
                         tblInscrito.getNumInscNesteCurso() != null ? (int) tblInscrito.getNumInscNesteCurso() : "");

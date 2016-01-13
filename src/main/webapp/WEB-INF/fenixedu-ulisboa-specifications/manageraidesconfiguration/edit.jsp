@@ -92,6 +92,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
  	$scope.object=${beanJson};
  	$scope.postBack = createAngularPostbackFunction($scope);
  	
+	$scope.booleanvalues = [
+    		{ name : '<spring:message code="label.no"/>', value : false },
+    		{ name : '<spring:message code="label.yes"/>', value : true } 
+	];
+	                 	
+ 	
 }]);
 </script>
 
@@ -208,8 +214,25 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 				<div class="col-sm-10">
 					<input class="form-control" type="text" ng-model="object.passwordToZip" name="passwordToZip" />
 				</div>
-			</div>			
+			</div>
 		</div>
+		
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.formsAvailableToStudents" />
+				</div>
+
+				<div class="col-sm-10">
+                    <select 
+                        name="formsAvailableToStudents" class="form-control"
+                        ng-model="object.formsAvailableToStudents"
+                        ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+                    </select>
+				</div>
+			</div>
+		</div>
+		
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default btn-xs" value="<spring:message code="label.submit" />" />
 		</div>
