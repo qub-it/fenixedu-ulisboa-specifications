@@ -1297,6 +1297,7 @@ class legal.mapping.LegalMappingEntry {
 class legal.raides.RaidesInstance extends legal.report.LegalReport {
 	boolean formsAvailableToStudents;
 	String passwordToZip;
+	String blueRecordStartMessageContent;
 }
 
 	relation RaidesInstanceMobilityAgreement {

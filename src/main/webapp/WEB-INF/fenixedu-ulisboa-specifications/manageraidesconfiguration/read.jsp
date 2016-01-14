@@ -115,6 +115,14 @@ ${portal.angularToolkit()}
 							</c:if>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" />
+						</th>
+						<td>
+							${raidesInstance.blueRecordStartMessageContent}
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</form>

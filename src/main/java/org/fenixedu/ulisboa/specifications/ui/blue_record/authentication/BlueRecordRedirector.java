@@ -19,11 +19,23 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
     @Override
     public boolean isToRedirect(final User user, final HttpServletRequest request) {
-        if(!RaidesInstance.getInstance().getFormsAvailableToStudents()) {
+        if(user == null) {
+            return false;
+        }
+        
+        if(user.getPerson() == null) {
             return false;
         }
         
         if(user.getPerson().getStudent() == null) {
+            return false;
+        }
+        
+        if(RaidesInstance.getInstance() == null) {
+            return false;
+        }
+        
+        if(!RaidesInstance.getInstance().getFormsAvailableToStudents()) {
             return false;
         }
         
