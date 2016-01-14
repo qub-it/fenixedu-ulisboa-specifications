@@ -32,6 +32,9 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "quality.mode.masterPassword")
         public String getMasterPassword();
+        
+        @ConfigurationProperty(key = "quality.mode.lightMasterPassword")
+        public String getLightMasterPassword();
 
         @ConfigurationProperty(key = "services.sas.activeStudents.enabled", defaultValue = "false")
         public Boolean getActiveStudentsServoceEnable();
