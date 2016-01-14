@@ -87,7 +87,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     protected void init(final ExecutionSemester executionSemester, final CompetenceCourse competenceCourse,
             final ExecutionCourse executionCourse, final EvaluationSeason evaluationSeason, final LocalDate evaluationDate,
-            GradeScale gradeScale, final Person certifier, final Set<Shift> shifts) {
+            GradeScale gradeScale, final Person certifier, final Set<Shift> shifts, final LocalDate expireDate) {
 
         setExecutionSemester(executionSemester);
         setCompetenceCourse(competenceCourse);
@@ -97,6 +97,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         setGradeScale(gradeScale);
         setCertifier(certifier);
         getShiftSet().addAll(shifts);
+        setExpireDate(expireDate);
         checkRules();
     }
 
@@ -166,6 +167,17 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     protected void checkIfIsGradeSubmissionAvailable() {
+
+        if (getExpireDate() != null) {
+
+            if (getExpireDate().isBefore(new LocalDate())) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod.expired");
+            }
+
+            return;
+        }
+
         final Set<EvaluationSeasonPeriod> periods = getGradeSubmissionPeriods();
 
         if (periods.isEmpty()) {
@@ -193,21 +205,28 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     @Atomic
-    public void edit(final LocalDate evaluationDate, final GradeScale gradeScale, final Person certifier) {
+    public void edit(final LocalDate evaluationDate, final GradeScale gradeScale, final Person certifier,
+            final LocalDate expireDate) {
 
         if (!isEdition()) {
             throw new ULisboaSpecificationsDomainException(
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e -> {
+        getEnrolmentEvaluationSet().forEach(e ->
+        {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
 
         init(getExecutionSemester(), getCompetenceCourse(), getExecutionCourse(), getEvaluationSeason(), evaluationDate,
-                gradeScale, certifier, getShiftSet());
+                gradeScale, certifier, getShiftSet(), expireDate);
 
+        checkRules();
+    }
+
+    void editExpireDate(LocalDate expireDate) {
+        super.setExpireDate(expireDate);
         checkRules();
     }
 
@@ -283,7 +302,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         final CompetenceCourseMarkSheet result = new CompetenceCourseMarkSheet();
         result.init(executionSemester, competenceCourse, executionCourse, evaluationSeason, evaluationDate, GradeScale.TYPE20,
-                certifier, shifts);
+                certifier, shifts, null);
         CompetenceCourseMarkSheetStateChange.createEditionState(result, byTeacher, null);
         return result;
     }
@@ -303,15 +322,22 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     public static Stream<CompetenceCourseMarkSheet> findBy(final ExecutionSemester executionSemester,
-            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState) {
+            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
+            final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
         final Set<CompetenceCourseMarkSheet> result = Sets.newHashSet();
         if (executionSemester != null) {
             result.addAll(executionSemester.getCompetenceCourseMarkSheetSet());
         }
 
-        return result.stream().filter(c -> competenceCourse == null || c.getCompetenceCourse() == competenceCourse)
-                .filter(c -> markSheetState == null || c.isInState(markSheetState));
+        return result.stream()
+
+                .filter(c -> competenceCourse == null || c.getCompetenceCourse() == competenceCourse)
+
+                .filter(c -> markSheetState == null || c.isInState(markSheetState))
+
+                .filter(c -> changeRequestState == null
+                        || c.getChangeRequestsSet().stream().anyMatch(r -> r.getState() == changeRequestState));
     }
 
     private CompetenceCourseMarkSheetStateChange getFirstStateChange() {
@@ -710,6 +736,32 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     public boolean isCertifierExecutionCourseResponsible() {
         final Professorship professorship = getExecutionCourse().getProfessorship(getCertifier());
         return professorship != null && professorship.isResponsibleFor();
+    }
+
+    public CompetenceCourseMarkSheetChangeRequest getLastChangeRequest() {
+        final Optional<CompetenceCourseMarkSheetChangeRequest> result =
+                getChangeRequestsSet().stream().max(CompetenceCourseMarkSheetChangeRequest.COMPARATOR_BY_REQUEST_DATE);
+
+        return result.isPresent() ? result.get() : null;
+    }
+
+    public CompetenceCourseMarkSheetChangeRequest getLastPendingChangeRequest() {
+        final Optional<CompetenceCourseMarkSheetChangeRequest> result = getChangeRequestsSet().stream().filter(r -> r.isPending())
+                .max(CompetenceCourseMarkSheetChangeRequest.COMPARATOR_BY_REQUEST_DATE);
+
+        return result.isPresent() ? result.get() : null;
+
+    }
+
+    public SortedSet<CompetenceCourseMarkSheetChangeRequest> getSortedChangeRequests() {
+
+        final SortedSet<CompetenceCourseMarkSheetChangeRequest> result =
+                Sets.newTreeSet(CompetenceCourseMarkSheetChangeRequest.COMPARATOR_BY_REQUEST_DATE.reversed());
+
+        result.addAll(getChangeRequestsSet());
+
+        return result;
+
     }
 
 }

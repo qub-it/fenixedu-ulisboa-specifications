@@ -48,6 +48,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -86,11 +87,20 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     private GradeScale gradeScale;
     private List<TupleDataSourceBean> gradeScaleDataSource;
 
+    private CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState;
+    private List<TupleDataSourceBean> changeRequestStateDataSource;
+
     private String reason;
 
     private List<MarkBean> evaluations;
 
     private boolean byTeacher = false;
+
+    private LocalDate expireDate;
+
+    private String changeRequestReason;
+
+    private String changeRequestComments;
 
     public CompetenceCourseMarkSheet getCompetenceCourseMarkSheet() {
         return competenceCourseMarkSheet;
@@ -289,7 +299,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             setExecutionCourse(value.iterator().next());
         }
 
-        this.executionCourseDataSource = value.stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).map(x -> {
+        this.executionCourseDataSource = value.stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).map(x ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
 
@@ -327,6 +338,30 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         updateCertifierDataSource();
     }
 
+    public LocalDate getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(LocalDate expireDate) {
+        this.expireDate = expireDate;
+    }
+
+    public String getChangeRequestReason() {
+        return changeRequestReason;
+    }
+
+    public String getChangeRequestComments() {
+        return changeRequestComments;
+    }
+
+    public void setChangeRequestReason(String changeRequestReason) {
+        this.changeRequestReason = changeRequestReason;
+    }
+
+    public void setChangeRequestComments(String changeRequestComments) {
+        this.changeRequestComments = changeRequestComments;
+    }
+
     public CompetenceCourseMarkSheetStateEnum getMarkSheetState() {
         return markSheetState;
     }
@@ -361,6 +396,23 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 value.stream().map(x -> new TupleDataSourceBean(x.name(), x.getDescription())).collect(Collectors.toList());
     }
 
+    public CompetenceCourseMarkSheetChangeRequestStateEnum getChangeRequestState() {
+        return changeRequestState;
+    }
+
+    public List<TupleDataSourceBean> getChangeRequestStateDataSource() {
+        return changeRequestStateDataSource;
+    }
+
+    public void setChangeRequestState(CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+        this.changeRequestState = changeRequestState;
+    }
+
+    public void setChangeRequestStateDataSource(List<CompetenceCourseMarkSheetChangeRequestStateEnum> value) {
+        this.changeRequestStateDataSource = value.stream()
+                .map(x -> new TupleDataSourceBean(x.name(), x.getDescriptionI18N().getContent())).collect(Collectors.toList());
+    }
+
     public CompetenceCourseMarkSheetBean() {
         update();
     }
@@ -375,6 +427,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         setCertifier(markSheet.getCertifier());
         setShifts(Sets.newHashSet(markSheet.getShiftSet()));
         setExecutionCourse(markSheet.getExecutionCourse());
+        setExpireDate(markSheet.getExpireDate());
 
         setEvaluations(buildEvaluations());
 
@@ -408,6 +461,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         setMarkSheetStateDataSource(Sets.newHashSet(CompetenceCourseMarkSheetStateEnum.values()));
 
         setGradeScaleDataSource(Lists.newArrayList(GradeScale.TYPE20, GradeScale.TYPEQUALITATIVE, GradeScale.TYPEAPT));
+
+        setChangeRequestStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetChangeRequestStateEnum.values()));
     }
 
     private Stream<ExecutionCourse> getFilteredExecutionCourses(final ExecutionCourse toFilter) {
@@ -466,5 +521,4 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     }
 
-    
 }

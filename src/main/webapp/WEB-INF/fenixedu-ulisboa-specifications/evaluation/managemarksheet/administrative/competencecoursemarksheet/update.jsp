@@ -195,6 +195,15 @@ ${portal.angularToolkit()}
 					</ui-select>
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.CompetenceCourseMarkSheet.expireDate" />
+				</div>
+
+				<div class="col-sm-4">
+					<input class="form-control" type="text" bennu-date="object.expireDate" required="true"/>
+				</div>
+			</div>
 
 		</div>
 		<div class="panel-footer">

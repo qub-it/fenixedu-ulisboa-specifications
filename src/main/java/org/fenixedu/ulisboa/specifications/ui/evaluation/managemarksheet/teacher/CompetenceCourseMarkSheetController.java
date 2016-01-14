@@ -50,6 +50,7 @@ import org.fenixedu.bennu.portal.servlet.PortalLayoutInjector;
 import org.fenixedu.bennu.struts.portal.RenderersAnnotationProcessor;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
@@ -266,7 +267,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         try {
 
-            competenceCourseMarkSheet.edit(bean.getEvaluationDate(), bean.getGradeScale(), bean.getCertifier());
+            competenceCourseMarkSheet.edit(bean.getEvaluationDate(), competenceCourseMarkSheet.getGradeScale(),
+                    bean.getCertifier(), competenceCourseMarkSheet.getExpireDate());
 
             return redirect(
                     READ_URL + executionCourse.getExternalId() + "/" + getCompetenceCourseMarkSheet(model).getExternalId(), model,
@@ -487,6 +489,32 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
                 model);
 
         return jspPage("updateevaluations");
+
+    }
+
+    private static final String _CREATE_CHANGE_REQUEST_URI = "/createchangerequest/";
+    public static final String CREATE_CHANGE_REQUEST_URL = CONTROLLER_URL + _CREATE_CHANGE_REQUEST_URI;
+
+    @RequestMapping(value = _CREATE_CHANGE_REQUEST_URI + "{executionCourseId}/{oid}", method = RequestMethod.POST)
+    public String createChangeRequest(@PathVariable("executionCourseId") final ExecutionCourse executionCourse,
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "reason", required = false) final String reason, final Model model,
+            final RedirectAttributes redirectAttributes) throws IOException {
+
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        try {
+            CompetenceCourseMarkSheetChangeRequest.create(competenceCourseMarkSheet, Authenticate.getUser().getPerson(), reason);
+
+            addInfoMessage(ULisboaSpecificationsUtil.bundle("label.success.create"), model);
+
+            return redirect(READ_URL + executionCourse.getExternalId() + "/" + competenceCourseMarkSheet.getExternalId(), model,
+                    redirectAttributes);
+
+        } catch (Exception e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+            return jspPage("read");
+        }
 
     }
 

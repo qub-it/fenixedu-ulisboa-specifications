@@ -180,10 +180,10 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				<tbody>
 					<c:forEach var="searchResult" items="${searchcompetencecoursemarksheetResultsDataSet}">
 					<tr>
-						<td><joda:format value="${searchResult.creationDate}" style="SM" /></td>
+						<td><joda:format value="${searchResult.creationDate}" pattern="yyyy-MM-dd HH:mm" /></td>
 						<td><c:out value="${searchResult.competenceCourse.code}" /> - <c:out value="${searchResult.competenceCourse.nameI18N.content}" /></td>
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getEvaluationSeason()).getContent()%>"></c:out></td>
-						<td><joda:format value="${searchResult.evaluationDate}" style="S-"/></td>
+						<td><joda:format value="${searchResult.evaluationDate}"  pattern="yyyy-MM-dd"/></td>
 						<td><c:out value='${searchResult.state}'/></td>
 						<td><c:out value='${searchResult.certifier.firstAndLastName}'/></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>

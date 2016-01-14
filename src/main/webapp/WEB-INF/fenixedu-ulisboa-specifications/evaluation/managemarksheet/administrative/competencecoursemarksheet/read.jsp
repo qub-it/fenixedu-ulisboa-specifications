@@ -172,7 +172,12 @@ ${portal.angularToolkit()}
 		&nbsp;|&nbsp; <span
 			class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp; <a class="" href="#" ng-click="revertMarkSheetToEdition()"><spring:message
 				code="label.event.evaluation.manageMarkSheet.revertToEdition" /></a>
+				
 	</c:if>
+	
+	&nbsp;|&nbsp; <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;<a class=""
+		href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_CHANGE_REQUESTS_URL%>${competenceCourseMarkSheet.externalId}"><spring:message
+			code="label.event.evaluation.manageMarkSheet.changeRequests" /> <c:if test="${not empty competenceCourseMarkSheet.lastPendingChangeRequest}"><span class="badge"><strong>1</strong></span></c:if></a>
 		
 </div>
 <c:if test="${not empty infoMessages}">
@@ -282,6 +287,12 @@ ${portal.angularToolkit()}
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.shifts" /></th>
 						<td><c:out value='${competenceCourseMarkSheet.shiftsDescription}' /></td>
 					</tr>
+					<c:if test="${not empty competenceCourseMarkSheet.expireDate}">
+					<tr>
+						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.expireDate" /></th>
+						<td><joda:format value="${competenceCourseMarkSheet.expireDate}" style="S-"/></td>
+					</tr>
+					</c:if>
 				</tbody>
 			</table>
 		</form>

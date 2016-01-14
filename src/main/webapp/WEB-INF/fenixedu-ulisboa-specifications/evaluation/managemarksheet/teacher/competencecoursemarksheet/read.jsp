@@ -73,8 +73,23 @@ ${portal.angularToolkit()}
 						$('#confirmationForm').attr('action', url);
 						$('#confirmationMessage').html(message);
 						$('#confirmationButton').html(actionText);
-						$('#confirmationModal').modal('toggle')
+						$('#confirmationModal').modal('toggle');
 					}
+					
+					$scope.showLastChangeRequestDetails = function(){
+						$('#lastChangeRequestDetailsDialog').modal('toggle');
+					}
+					
+					$scope.showCreateChangeRequest = function(){
+						$('#createChangeRequestDialog').modal('toggle');
+					}
+					
+					$scope.createChangeRequest = function(){
+						if ($scope.reason != null && $scope.reason != undefined){							
+							$('#createChangeRequestForm').submit();
+						}
+					}
+					
 					
 					
 
@@ -121,6 +136,144 @@ ${portal.angularToolkit()}
 	<!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+
+<div class="modal fade" id="lastChangeRequestDetailsDialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">
+						<spring:message code="label.CompetenceCourseMarkSheet.lastChangeRequest" />
+					</h4>
+				</div>
+				<div class="modal-body">
+				
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.state" />
+						</div>
+						
+						<div class="col-sm-5">
+							<c:out value="${competenceCourseMarkSheet.lastChangeRequest.state.descriptionI18N.content}" />
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.requestDate" />
+						</div>
+						
+						<div class="col-sm-5">
+							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.requestDate}" style="SM" />
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.requester" />
+						</div>
+						
+						<div class="col-sm-5">
+							<c:out value="${competenceCourseMarkSheet.lastChangeRequest.requester.firstAndLastName}" />
+						</div>
+					</div>
+					
+					
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.reason" />
+						</div>
+						
+						<div class="col-sm-5">
+							<pre style="border:none;background-color: inherit;white-space: pre-wrap;"><c:out value="${competenceCourseMarkSheet.lastChangeRequest.reason}"/></pre>
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.responseDate" />
+						</div>
+						
+						<div class="col-sm-5">
+							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.responseDate}" style="SM" />
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.responder" />
+						</div>
+						
+						<div class="col-sm-5">
+							<c:out value="${competenceCourseMarkSheet.lastChangeRequest.responder.firstAndLastName}" />
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.comments" />
+						</div>
+						
+						<div class="col-sm-5">
+							<pre style="border:none;background-color: inherit;white-space: pre-wrap;"><c:out value="${competenceCourseMarkSheet.lastChangeRequest.comments}"/></pre>
+						</div>
+					</div>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<spring:message code="label.close" />
+					</button>
+				</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<div class="modal fade" id="createChangeRequestDialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form id="createChangeRequestForm" action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CREATE_CHANGE_REQUEST_URL%>${executionCourse.externalId}/${competenceCourseMarkSheet.externalId}" method="post">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">
+						<spring:message code="label.CompetenceCourseMarkSheetChangeRequest" />
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group row">
+						<div class="col-sm-4 control-label">
+							<spring:message code="label.CompetenceCourseMarkSheetChangeRequest.reason" />
+						</div>
+						
+						<div class="col-sm-5">
+							<textarea rows="10" cols="30" name="reason" ng-model="reason"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<spring:message code="label.cancel" />
+					</button>
+					<button id="confirmationButton" class="btn btn-danger" type="button" ng-click="createChangeRequest()">
+						<spring:message code="label.submit" />
+					</button>
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
 	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class=""
@@ -150,7 +303,13 @@ ${portal.angularToolkit()}
 		&nbsp;|&nbsp; <span class="glyphicon glyphicon-print" aria-hidden="true"></span>&nbsp;<a class=""
 			href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.PRINT_URL%>${executionCourse.externalId}/${competenceCourseMarkSheet.externalId}"><spring:message
 				code="label.event.evaluation.manageMarkSheet.print" /></a>
+		
+		<c:if test="${competenceCourseMarkSheet.lastPendingChangeRequest == null}">		
+			&nbsp;|&nbsp; <span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>&nbsp;<a class=""
+				href="#" ng-click="showCreateChangeRequest()"><spring:message code="label.CompetenceCourseMarkSheetChangeRequest" /></a>
+		</c:if>
 	</c:if>
+	
 			
 </div>
 <c:if test="${not empty infoMessages}">
@@ -250,6 +409,21 @@ ${portal.angularToolkit()}
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.shifts" /></th>
 						<td><c:out value='${competenceCourseMarkSheet.shiftsDescription}' /></td>
 					</tr>
+					<c:if test="${not empty competenceCourseMarkSheet.expireDate}">
+					<tr>
+						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.expireDate" /></th>
+						<td><joda:format value="${competenceCourseMarkSheet.expireDate}" style="S-"/></td>
+					</tr>
+					</c:if>
+					<c:if test="${competenceCourseMarkSheet.lastChangeRequest != null}">
+					<tr>
+						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.lastChangeRequest" /></th>
+						<td>
+							<span class="label label-primary"><c:out value='${competenceCourseMarkSheet.lastChangeRequest.state.descriptionI18N.content}' /></span> 
+							(<a href="#" ng-click="showLastChangeRequestDetails()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;<spring:message code="label.details" /></a>)
+						</td>
+					</tr>
+					</c:if>
 				</tbody>
 			</table>
 		</form>

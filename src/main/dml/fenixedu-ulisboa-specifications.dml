@@ -33,6 +33,7 @@ enum org.fenixedu.academic.domain.GradeScale                                    
 
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
+enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum as CompetenceCourseMarkSheetChangeRequestStateEnum;
 
 external class .org.fenixedu.academic.domain.degree.DegreeType;
 external class .org.fenixedu.academic.domain.CompetenceCourse;
@@ -668,6 +669,7 @@ class evaluation.markSheet.CompetenceCourseMarkSheet {
     LocalDate evaluationDate;
     boolean printed;
     GradeScaleSpecifications gradeScale;
+    LocalDate expireDate;
 }
 
 class evaluation.markSheet.CompetenceCourseMarkSheetStateChange {
@@ -695,6 +697,14 @@ class evaluation.markSheet.CompetenceCourseMarkSheetSnapshotEntry {
     String degreeCode;
     LocalizedString degreeName;
     String shifts;
+}
+
+class evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest {
+    CompetenceCourseMarkSheetChangeRequestStateEnum state;
+    String reason;
+    DateTime requestDate;
+    String comments;
+    DateTime responseDate;
 }
 
 relation CompetenceCourseMarkSheetStateChangeSnapshot {
@@ -805,6 +815,42 @@ relation CompetenceCourseMarkSheetCertifier {
     .org.fenixedu.academic.domain.Person playsRole certifier {
 		multiplicity 1..1;
 	}
+}
+
+relation CompetenceCourseMarkSheetCompetenceCourseMarkSheetChangeRequest {
+
+	evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity 1..1;
+    }
+    
+	evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest playsRole changeRequests {
+		multiplicity *;
+	}
+	
+}
+
+relation CompetenceCourseMarkSheetChangeRequestRequester {
+
+	.org.fenixedu.academic.domain.Person playsRole requester {
+        multiplicity 1..1;
+    }
+    
+	evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest playsRole requestedCompetenceCourseMarkSheetChangeRequests {
+		multiplicity *;
+	}
+	
+}
+
+relation CompetenceCourseMarkSheetChangeRequestResponder {
+
+	.org.fenixedu.academic.domain.Person playsRole responder {
+        multiplicity 0..1;
+    }
+    
+	evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest playsRole respondedCompetenceCourseMarkSheetChangeRequests {
+		multiplicity *;
+	}
+	
 }
 
 // ==================== END: Evaluations ====================

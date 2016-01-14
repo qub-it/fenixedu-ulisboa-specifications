@@ -36,8 +36,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
@@ -101,7 +104,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     @RequestMapping(value = _SEARCH_URI)
     public String search(@RequestParam(value = "executionsemester", required = false) ExecutionSemester executionSemester,
             @RequestParam(value = "competencecourse", required = false) CompetenceCourse competenceCourse, final Model model) {
-        final List<CompetenceCourseMarkSheet> searchResultsDataSet = filterSearch(executionSemester, competenceCourse, null);
+        final List<CompetenceCourseMarkSheet> searchResultsDataSet =
+                filterSearch(executionSemester, competenceCourse, null, null);
 
         final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
         bean.update();
@@ -117,8 +121,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         setCompetenceCourseMarkSheetBean(bean, model);
 
-        model.addAttribute("searchcompetencecoursemarksheetResultsDataSet",
-                filterSearch(bean.getExecutionSemester(), bean.getCompetenceCourse(), bean.getMarkSheetState()));
+        model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", filterSearch(bean.getExecutionSemester(),
+                bean.getCompetenceCourse(), bean.getMarkSheetState(), bean.getChangeRequestState()));
 
         return jspPage("search");
     }
@@ -136,14 +140,17 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     }
 
     private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionSemester executionSemester,
-            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState) {
-        return CompetenceCourseMarkSheet.findBy(executionSemester, competenceCourse, markSheetState);
+            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
+            CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+        return CompetenceCourseMarkSheet.findBy(executionSemester, competenceCourse, markSheetState, changeRequestState);
     }
 
     private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionSemester executionSemester,
-            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState) {
+            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
+            final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
-        return getSearchUniverseSearchDataSet(executionSemester, competenceCourse, markSheetState).collect(Collectors.toList());
+        return getSearchUniverseSearchDataSet(executionSemester, competenceCourse, markSheetState, changeRequestState)
+                .collect(Collectors.toList());
     }
 
     private static final String _SEARCH_TO_VIEW_ACTION_URI = "/search/view/";
@@ -231,7 +238,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         try {
 
-            competenceCourseMarkSheet.edit(bean.getEvaluationDate(), bean.getGradeScale(), bean.getCertifier());
+            competenceCourseMarkSheet.edit(bean.getEvaluationDate(), bean.getGradeScale(), bean.getCertifier(),
+                    bean.getExpireDate());
 
             return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
@@ -473,6 +481,69 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         return jspPage("updateevaluations");
 
+    }
+
+    private static final String _SEARCH_CHANGE_REQUESTS_URI = "/searchchangerequests/";
+    public static final String SEARCH_CHANGE_REQUESTS_URL = CONTROLLER_URL + _SEARCH_CHANGE_REQUESTS_URI;
+
+    @RequestMapping(value = _SEARCH_CHANGE_REQUESTS_URI + "{oid}", method = RequestMethod.GET)
+    public String searchChangeRequests(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model, final RedirectAttributes redirectAttributes) throws IOException {
+
+        setCompetenceCourseMarkSheetBean(new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet), model);
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        return jspPage("searchchangerequests");
+    }
+
+    private static final String _AUTHORIZE_CHANGE_REQUEST_URI = "/authorizechangerequest/";
+    public static final String AUTHORIZE_CHANGE_REQUEST_URL = CONTROLLER_URL + _AUTHORIZE_CHANGE_REQUEST_URI;
+
+    @RequestMapping(value = _AUTHORIZE_CHANGE_REQUEST_URI + "{oid}/{changeRequestId}", method = RequestMethod.POST)
+    public String authorizeChangeRequest(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @PathVariable("changeRequestId") final CompetenceCourseMarkSheetChangeRequest changeRequest,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) throws IOException {
+
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        try {
+
+            changeRequest.authorize(Authenticate.getUser().getPerson(), bean.getChangeRequestComments(), bean.getExpireDate());
+
+            return redirect(SEARCH_CHANGE_REQUESTS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                    redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
+
+            return jspPage("searchchangerequests");
+        }
+    }
+
+    private static final String _CLOSE_CHANGE_REQUESTS_URI = "/closechangerequest/";
+    public static final String CLOSE_CHANGE_REQUESTS_URL = CONTROLLER_URL + _CLOSE_CHANGE_REQUESTS_URI;
+
+    @RequestMapping(value = _CLOSE_CHANGE_REQUESTS_URI + "{oid}/{changeRequestId}", method = RequestMethod.POST)
+    public String closeChangeRequest(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @PathVariable("changeRequestId") final CompetenceCourseMarkSheetChangeRequest changeRequest,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) throws IOException {
+
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        try {
+
+            changeRequest.close(Authenticate.getUser().getPerson(), bean.getChangeRequestComments());
+
+            return redirect(SEARCH_CHANGE_REQUESTS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                    redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
+
+            return jspPage("searchchangerequests");
+        }
     }
 
 }

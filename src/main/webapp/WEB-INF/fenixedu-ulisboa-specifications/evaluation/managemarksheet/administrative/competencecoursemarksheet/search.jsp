@@ -183,6 +183,20 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 						</ui-select>
 					</div>
 				</div>
+				<div class="form-group row">
+					<div class="col-sm-2 control-label">
+						<spring:message code="label.CompetenceCourseMarkSheetChangeRequest" />
+					</div>
+					
+					<div class="col-sm-6">
+						<ui-select	id="changeRequestStateSelect" name="changeRequestState" ng-model="$parent.object.changeRequestState" theme="bootstrap">
+							<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+							<ui-select-choices	repeat="changeRequestState.id as changeRequestState in object.changeRequestStateDataSource | filter: $select.search">
+								<span ng-bind-html="changeRequestState.text | highlight: $select.search"></span>
+							</ui-select-choices> 
+						</ui-select>
+					</div>
+				</div>
 			</div>
 			<div class="panel-footer">
 				<button type="button" class="btn btn-primary" role="button" ng-click="search()"><spring:message code="label.search" /></button> 
@@ -213,10 +227,10 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				<tbody>
 					<c:forEach var="searchResult" items="${searchcompetencecoursemarksheetResultsDataSet}">
 					<tr>
-						<td><joda:format value="${searchResult.creationDate}" style="SM" /></td>
+						<td><joda:format value="${searchResult.creationDate}" pattern="yyyy-MM-dd HH:mm" /></td>
 						<td><c:out value="${searchResult.competenceCourse.code}" /> - <c:out value="${searchResult.competenceCourse.nameI18N.content}" /></td>
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getEvaluationSeason()).getContent()%>"></c:out></td>
-						<td><joda:format value="${searchResult.evaluationDate}" style="S-"/></td>
+						<td><joda:format value="${searchResult.evaluationDate}" pattern="yyyy-MM-dd"/></td>
 						<td><c:out value='${searchResult.state}'/></td>
 						<td><c:out value='${searchResult.certifier.firstAndLastName}'/></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>
