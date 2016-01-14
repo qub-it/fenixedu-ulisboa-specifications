@@ -31,6 +31,8 @@ public class RaidesInstanceBean implements IBean {
     
     private boolean formsAvailableToStudents;
 
+    private String blueRecordStartMessageContent;
+    
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
         
@@ -42,6 +44,7 @@ public class RaidesInstanceBean implements IBean {
         setDegreeTransferIngressions(Sets.newHashSet(raidesInstance.getDegreeTransferIngressionsSet()));
         setIngressionsForGeneralAccessRegime(Sets.newHashSet(raidesInstance.getGeneralAccessRegimeIngressionsSet()));
         setFormsAvailableToStudents(raidesInstance.getFormsAvailableToStudents());
+        setBlueRecordStartMessageContent(raidesInstance.getBlueRecordStartMessageContent());
         
         loadDataSources();
     }
@@ -121,6 +124,14 @@ public class RaidesInstanceBean implements IBean {
     
     public void setFormsAvailableToStudents(boolean formsAvailableToStudents) {
         this.formsAvailableToStudents = formsAvailableToStudents;
+    }
+    
+    public String getBlueRecordStartMessageContent() {
+        return blueRecordStartMessageContent;
+    }
+    
+    public void setBlueRecordStartMessageContent(String blueRecordStartMessageContent) {
+        this.blueRecordStartMessageContent = blueRecordStartMessageContent;
     }
 
 }

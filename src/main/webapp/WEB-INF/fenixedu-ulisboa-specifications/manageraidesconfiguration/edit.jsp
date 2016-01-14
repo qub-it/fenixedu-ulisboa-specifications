@@ -232,6 +232,20 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 				</div>
 			</div>
 		</div>
+
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" />
+				</div>
+
+				<div class="col-sm-10">
+					<textarea rows="20" class="form-control" ng-model="object.blueRecordStartMessageContent" 
+						name="blueRecordStartMessageContent" >
+					</textarea>
+				</div>
+			</div>
+		</div>
 		
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default btn-xs" value="<spring:message code="label.submit" />" />
