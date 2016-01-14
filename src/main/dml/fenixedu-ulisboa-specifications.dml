@@ -964,6 +964,10 @@ class serviceRequests.processors.FillAllPlansApprovementsPropertyProcessor exten
 
 }
 
+class serviceRequests.processors.FillCurriculumPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
 class serviceRequests.processors.AutomaticOnlineRequestProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
 
 }

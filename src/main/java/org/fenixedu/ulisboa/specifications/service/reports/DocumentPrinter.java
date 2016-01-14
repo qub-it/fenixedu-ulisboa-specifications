@@ -38,9 +38,8 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ApprovedCurriculumEntriesDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.ConcludedCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntriesDataProvider;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntryRemarksDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DegreeCurricularPlanInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentSignerDataProvider;
@@ -111,8 +110,11 @@ public class DocumentPrinter {
         generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration, serviceRequest
                 .getApprovedEnrolments(), serviceRequest.getLanguage()));
 
-        generator.registerDataProvider(new CurriculumEntriesDataProvider(registration, programConclusion,
-                new CurriculumEntryRemarksDataProvider(registration), serviceRequest.getLanguage()));
+        generator.registerDataProvider(new ConcludedCurriculumEntriesDataProvider(registration, serviceRequest.getCurriculum(),
+                serviceRequest.getLanguage()));
+
+//        generator.registerDataProvider(new CurriculumEntriesDataProvider(registration, programConclusion,
+//                new CurriculumEntryRemarksDataProvider(registration), serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new UserReportDataProvider());
 
