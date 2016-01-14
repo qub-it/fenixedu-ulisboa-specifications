@@ -251,11 +251,18 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         getShiftSet().clear();
         getEnrolmentEvaluationSet().clear();
 
-        final Iterator<CompetenceCourseMarkSheetStateChange> iterator = getStateChangeSet().iterator();
-        while (iterator.hasNext()) {
-            final CompetenceCourseMarkSheetStateChange stateChange = iterator.next();
-            iterator.remove();
+        final Iterator<CompetenceCourseMarkSheetStateChange> stateIterator = getStateChangeSet().iterator();
+        while (stateIterator.hasNext()) {
+            final CompetenceCourseMarkSheetStateChange stateChange = stateIterator.next();
+            stateIterator.remove();
             stateChange.delete();
+        }
+
+        final Iterator<CompetenceCourseMarkSheetChangeRequest> changeRequestIterator = getChangeRequestsSet().iterator();
+        while (changeRequestIterator.hasNext()) {
+            final CompetenceCourseMarkSheetChangeRequest changeRequest = changeRequestIterator.next();
+            changeRequestIterator.remove();
+            changeRequest.delete();
         }
 
         ULisboaSpecificationsDomainException.throwWhenDeleteBlocked(getDeletionBlockers());

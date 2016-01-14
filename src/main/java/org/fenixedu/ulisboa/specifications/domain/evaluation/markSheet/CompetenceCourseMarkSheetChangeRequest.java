@@ -112,4 +112,14 @@ public class CompetenceCourseMarkSheetChangeRequest extends CompetenceCourseMark
         checkRules();
     }
 
+    public void delete() {
+        
+        super.setCompetenceCourseMarkSheet(null);
+        super.setRequester(null);
+        super.setResponder(null);
+
+        super.deleteDomainObject();
+
+    }
+
 }
