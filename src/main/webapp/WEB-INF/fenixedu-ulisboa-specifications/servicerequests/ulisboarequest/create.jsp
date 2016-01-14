@@ -181,7 +181,7 @@ ${portal.angularToolkit()}
            .controller(
            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
-               $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
+               $scope.object = ${ulisboaServiceRequestBeanJson};
                $scope.postBack = createAngularPostbackFunction($scope);
                $scope.onServiceRequestTypeChange = function(model) {
         	       $scope.transformDataToSubmit();

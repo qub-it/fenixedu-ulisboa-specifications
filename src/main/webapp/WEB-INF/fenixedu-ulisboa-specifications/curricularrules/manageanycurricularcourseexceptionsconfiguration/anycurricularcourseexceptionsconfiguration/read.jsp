@@ -130,8 +130,7 @@ ${portal.angularToolkit()}
 											value : true
 										} ];
 
-								$scope.object = angular
-										.fromJson('${anyCurricularCourseExceptionsConfigurationBeanJson}');
+								$scope.object = ${anyCurricularCourseExceptionsConfigurationBeanJson};
 								
 								
 								$scope.postBack = createAngularPostbackFunction($scope);

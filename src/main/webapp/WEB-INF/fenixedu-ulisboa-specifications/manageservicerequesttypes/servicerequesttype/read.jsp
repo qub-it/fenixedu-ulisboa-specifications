@@ -212,7 +212,7 @@ ${portal.angularToolkit()}
             'ServiceRequestTypeController', [ '$scope', function($scope) {
 
             	
-                $scope.object = angular.fromJson('${serviceRequestSlotsBeanJson}');
+                $scope.object = ${serviceRequestSlotsBeanJson};
                 $scope.postBack = createAngularPostbackFunction($scope);
                 $scope.booleanvalues= [
                   {name: '<spring:message code="label.no"/>', value: false},
@@ -545,7 +545,7 @@ angular.module('angularAppServiceRequestRestriction',
               {name: '<spring:message code="label.yes"/>', value: true}
             ];
             
-            $scope.object = angular.fromJson('${serviceRequestRestrictionBeanJson}');
+            $scope.object = ${serviceRequestRestrictionBeanJson};
         	$scope.postBack = createAngularPostbackFunction($scope); 
 
         	$scope.onDegreeTypeChange = function(degreeType, model) {

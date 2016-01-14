@@ -102,7 +102,7 @@ ${portal.angularToolkit()}
             [ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
             'ServiceRequestTypeController', [ '$scope', function($scope) {
 
-                $scope.object = angular.fromJson('${serviceRequestTypeBeanJson}');
+                $scope.object = ${serviceRequestTypeBeanJson};
                 $scope.booleanvalues= [
                   {name: '<spring:message code="label.no"/>', value: false},
                   {name: '<spring:message code="label.yes"/>', value: true}

@@ -585,6 +585,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
+            createStudentStatuteExecutiveRuleFor(configYear2, "42");
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
@@ -592,6 +593,7 @@ public class CurricularPeriodConfigurationInitializer {
             }
             ApprovedCredits.create(configYear3,
                     FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked));
+            createStudentStatuteExecutiveRuleFor(configYear3, "43");
 
             final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
             if (configYear4 == null) {
@@ -599,6 +601,7 @@ public class CurricularPeriodConfigurationInitializer {
             }
             ApprovedCredits.create(configYear4,
                     FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked));
+            createStudentStatuteExecutiveRuleFor(configYear4, "44");
 
             final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
             if (configYear5 == null) {
@@ -606,6 +609,7 @@ public class CurricularPeriodConfigurationInitializer {
             }
             ApprovedCredits.create(configYear5,
                     FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked));
+            createStudentStatuteExecutiveRuleFor(configYear5, "45");
 
             final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
             if (configYear6 == null) {
@@ -613,6 +617,7 @@ public class CurricularPeriodConfigurationInitializer {
             }
             ApprovedCredits.create(configYear6,
                     FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked));
+            createStudentStatuteExecutiveRuleFor(configYear6, "46");
         }
     }
 
@@ -686,6 +691,8 @@ public class CurricularPeriodConfigurationInitializer {
             } else {
                 FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
             }
+            createStudentStatuteExecutiveRuleFor(configYear2, "29");
+            
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {
@@ -701,24 +708,28 @@ public class CurricularPeriodConfigurationInitializer {
             } else {
                 FlunkedCredits.create(configYear3, BigDecimal.ZERO);
             }
+            createStudentStatuteExecutiveRuleFor(configYear3, "30");
 
             final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
             if (configYear4 == null) {
                 continue;
             }
             FlunkedCredits.create(configYear4, BigDecimal.ZERO);
+            createStudentStatuteExecutiveRuleFor(configYear4, "31");
 
             final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
             if (configYear5 == null) {
                 continue;
             }
             FlunkedCredits.create(configYear5, BigDecimal.ZERO);
+            createStudentStatuteExecutiveRuleFor(configYear5, "32");
 
             final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
             if (configYear6 == null) {
                 continue;
             }
             FlunkedCredits.create(configYear6, BigDecimal.ZERO);
+            createStudentStatuteExecutiveRuleFor(configYear6, "33");
 
         }
     }

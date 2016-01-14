@@ -29,14 +29,23 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 
-enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
+enum org.fenixedu.academic.domain.GradeScale                                                                           as GradeScaleSpecifications;
 
+enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
+enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
+
+external class .org.fenixedu.academic.domain.degree.DegreeType;
 external class .org.fenixedu.academic.domain.CompetenceCourse;
+external class .org.fenixedu.academic.domain.EvaluationSeason;
+external class .org.fenixedu.academic.domain.ExecutionSemester;
+external class .org.fenixedu.academic.domain.Person;
+external class .org.fenixedu.academic.domain.OccupationPeriod;
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
 external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.student.Registration;
 external class .org.fenixedu.academic.domain.SchoolClass;
+external class .org.fenixedu.academic.domain.Shift;
 external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 external class .org.fenixedu.academic.domain.student.Registration;
@@ -530,6 +539,277 @@ relation AnyCurricularCourseExceptionsCompetenceCourse {
 
 // ==================== END: CurricularRule Executor Logics ====================
 
+// ==================== BEGIN: Evaluations ====================
+
+class evaluation.season.EvaluationSeasonPeriod {
+}
+
+
+
+class evaluation.config.MarkSheetSettings {
+	boolean allowTeacherToChooseCertifier;
+	boolean requiresExactlyOneShift;
+	boolean limitCertifierToResponsibleTeacher;
+}
+
+relation MarkSheetSettingsRoot {
+   
+    ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
+    	multiplicity 1..1;
+    }
+    
+    evaluation.config.MarkSheetSettings playsRole markSheetSettings {
+        multiplicity 0..1;
+    }
+}
+
+class evaluation.config.CompetenceCourseMarkSheetTemplateFile extends .org.fenixedu.bennu.io.domain.GenericFile {
+
+}
+
+relation CompetenceCourseMarkSheetTemplateFileMarkSheetSettings {
+
+	evaluation.config.MarkSheetSettings playsRole markSheetSettings {
+    	multiplicity 1..1;
+    }
+    
+    evaluation.config.CompetenceCourseMarkSheetTemplateFile playsRole templateFile {
+        multiplicity 0..1;
+    }
+}
+
+
+relation EvaluationSeasonPeriodRelation {
+    protected evaluation.season.EvaluationSeasonPeriod playsRole evaluationSeasonPeriod {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.EvaluationSeason playsRole season {
+        multiplicity 1;
+    }
+}
+
+relation EvaluationSeasonOccupationPeriod {
+    protected evaluation.season.EvaluationSeasonPeriod playsRole evaluationSeasonPeriod {
+        multiplicity *;
+    }
+
+    protected .org.fenixedu.academic.domain.OccupationPeriod playsRole occupationPeriod {
+        multiplicity 1;
+    }
+}
+
+relation EvaluationSeasonPeriodExecutionSemester {
+    evaluation.season.EvaluationSeasonPeriod playsRole evaluationSeasonPeriod {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.ExecutionSemester playsRole executionSemester {
+        multiplicity 1;
+    }
+}
+
+class evaluation.season.EvaluationSeasonInformation {
+	Integer seasonOrder;
+	boolean active;
+}
+
+relation EvaluationSeasonInformationRelation {
+    evaluation.season.EvaluationSeasonInformation playsRole information {
+        multiplicity 1..1;
+    }
+
+    .org.fenixedu.academic.domain.EvaluationSeason playsRole season {
+        multiplicity 1..1;
+    }
+}
+
+class evaluation.season.rule.EvaluationSeasonRule {
+}
+
+	class evaluation.season.rule.PreviousSeasonApproval extends evaluation.season.rule.EvaluationSeasonRule {
+	}
+
+	class evaluation.season.rule.PreviousSeasonMinimumGrade extends evaluation.season.rule.EvaluationSeasonRule {
+		Grade minimum;
+	}
+
+	class evaluation.season.rule.PreviousSeasonBlockingGrade extends evaluation.season.rule.EvaluationSeasonRule {
+		Grade blocking;
+	}
+
+	class evaluation.season.rule.GradeScaleValidator extends evaluation.season.rule.EvaluationSeasonRule {
+		GradeScale gradeScale;
+		String gradeValues;
+		LocalizedString ruleDescription;
+	}
+
+relation EvaluationSeasonRuleRelation {
+    evaluation.season.rule.EvaluationSeasonRule playsRole rules {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.EvaluationSeason playsRole season {
+        multiplicity 1;
+    }
+}
+
+relation GradeScaleValidatorDegreeTypes {
+    evaluation.season.rule.GradeScaleValidator playsRole gradeScaleValidator {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.degree.DegreeType playsRole degreeType {
+        multiplicity 1..*;
+    }
+}
+
+class evaluation.markSheet.CompetenceCourseMarkSheet {
+    LocalDate evaluationDate;
+    boolean printed;
+    GradeScaleSpecifications gradeScale;
+}
+
+class evaluation.markSheet.CompetenceCourseMarkSheetStateChange {
+    CompetenceCourseMarkSheetStateEnum state;
+    DateTime date;
+    String reason;
+    boolean byTeacher;
+}
+
+class evaluation.markSheet.CompetenceCourseMarkSheetSnapshot {
+	String competenceCourseCode;
+	LocalizedString competenceCourseName;
+	String executionSemester;
+	LocalizedString evaluationSeason;
+	String certifier;
+	LocalDate evaluationDate;
+	String checkSum;
+	String shifts;
+}
+
+class evaluation.markSheet.CompetenceCourseMarkSheetSnapshotEntry {
+    Integer studentNumber;
+    String studentName;
+    Grade grade;
+    String degreeCode;
+    LocalizedString degreeName;
+    String shifts;
+}
+
+relation CompetenceCourseMarkSheetStateChangeSnapshot {
+	evaluation.markSheet.CompetenceCourseMarkSheetSnapshot playsRole snapshot {
+		multiplicity 0..1;
+	}
+	
+	evaluation.markSheet.CompetenceCourseMarkSheetStateChange playsRole stateChange {
+		multiplicity 1..1;
+	}
+}
+
+relation CompetenceCourseMarkSheetSnapshotEntryRelation {
+	protected evaluation.markSheet.CompetenceCourseMarkSheetSnapshot playsRole snapshot {
+		multiplicity 1..1;
+	}
+	
+	evaluation.markSheet.CompetenceCourseMarkSheetSnapshotEntry playsRole entry {
+		multiplicity 1..*;
+	}
+}
+
+relation CompetenceCourseMarkSheetStateChangeRelation {
+	evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+		multiplicity 1..1;
+	}
+	
+	protected evaluation.markSheet.CompetenceCourseMarkSheetStateChange playsRole stateChange {
+		multiplicity 1..*;
+	}
+}
+
+relation CompetenceCourseMarkSheetStateChangeResponsible {
+    protected evaluation.markSheet.CompetenceCourseMarkSheetStateChange playsRole competenceCourseMarkSheetChange {
+        multiplicity *;
+    }
+    
+    .org.fenixedu.academic.domain.Person playsRole responsible {
+		multiplicity 1..1;
+	}
+}
+
+relation CompetenceCourseMarkSheetRelation {
+    evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+    
+    .org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourse {
+		multiplicity 1..1;
+	}
+}
+
+relation CompetenceCourseMarkSheetExecutionCourse {
+    protected evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+    
+    .org.fenixedu.academic.domain.ExecutionCourse playsRole executionCourse {
+		multiplicity 0..1;
+	}
+}
+
+relation CompetenceCourseMarkSheetShift {
+    protected evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+    
+    .org.fenixedu.academic.domain.Shift playsRole shift {
+		multiplicity *;
+	}
+}
+
+relation CompetenceCourseMarkSheetEnrolmentEvaluation {
+    evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+		multiplicity 0..1;
+	}
+    
+    .org.fenixedu.academic.domain.EnrolmentEvaluation playsRole enrolmentEvaluation {
+        multiplicity *;
+    }
+}
+
+relation CompetenceCourseMarkSheetEvaluationSeason {
+    protected evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+    
+    .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 1..1;
+    }
+}
+
+relation CompetenceCourseMarkSheetExecutionSemester {
+    .org.fenixedu.academic.domain.ExecutionSemester playsRole executionSemester {
+        multiplicity 1..1;
+    }
+    
+    evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+}
+
+relation CompetenceCourseMarkSheetCertifier {
+    protected evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.Person playsRole certifier {
+		multiplicity 1..1;
+	}
+}
+
+// ==================== END: Evaluations ====================
+
+
 // ==================== Parishes as domain objects
 class Parish{
 	String code (REQUIRED);
@@ -973,7 +1253,3 @@ relation ULisboaSpecificationsTemporaryFileUser {
         multiplicity *;
     }
 }
-
-
-
-
