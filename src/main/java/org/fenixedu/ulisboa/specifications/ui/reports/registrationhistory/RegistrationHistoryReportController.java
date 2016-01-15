@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -196,6 +197,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("Registration.registrationProtocol",
                         registration.getRegistrationProtocol().getDescription().getContent());
                 addData("Registration.startDate", registration.getStartDate());
+
+                final RegistrationState firstState = registration.getFirstRegistrationState();
+                addData("Registration.firstStateDate", firstState != null ? firstState.getStateDate().toLocalDate() : "");
                 addData("Registration.registrationYear", registration.getRegistrationYear().getQualifiedName());
                 addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlan().getName());
                 addData("RegistrationHistoryReport.isReingression", booleanString(report.isReingression()));
