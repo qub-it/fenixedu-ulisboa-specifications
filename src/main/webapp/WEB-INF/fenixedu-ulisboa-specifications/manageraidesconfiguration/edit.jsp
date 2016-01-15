@@ -236,12 +236,26 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 		<div class="panel-body">
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" />
+					<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" /> (PT)
 				</div>
 
 				<div class="col-sm-10">
-					<textarea rows="20" class="form-control" ng-model="object.blueRecordStartMessageContent" 
-						name="blueRecordStartMessageContent" >
+					<textarea rows="20" class="form-control" ng-model="object.blueRecordStartMessageContentPt" 
+						name="blueRecordStartMessageContentPt" >
+					</textarea>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" /> (EN)
+				</div>
+
+				<div class="col-sm-10">
+					<textarea rows="20" class="form-control" ng-model="object.blueRecordStartMessageContentEn" 
+						name="blueRecordStartMessageContentEn" >
 					</textarea>
 				</div>
 			</div>

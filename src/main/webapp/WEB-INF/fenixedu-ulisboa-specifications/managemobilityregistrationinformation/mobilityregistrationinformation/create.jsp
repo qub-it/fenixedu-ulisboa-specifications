@@ -164,7 +164,42 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 					</ui-select>
 				</div>
 			</div>
-			<div class="form-group row" ng-show="object.incoming === false">
+
+			<div class="form-group row">
+				<div class="col-sm-3 control-label"  ng-show="object.incoming === true">
+					<spring:message code="label.MobilityRegistrationInformation.mobilityScientificArea" />
+				</div>
+
+				<div class="col-sm-8">
+					<%-- Relation to side 1 drop down rendered in input --%>
+					<ui-select id="mobilityRegistrationInformation_mobilityScientificArea" class="" name="mobilityscientificarea"
+						ng-model="$parent.object.mobilityScientificArea" theme="bootstrap" ng-disabled="disabled">
+						<ui-select-match>{{$select.selected.text}}</ui-select-match>
+						<ui-select-choices repeat="mobilityScientificArea.id as mobilityScientificArea in object.mobilityScientificAreaDataSource | filter: $select.search">
+							<span ng-bind-html="mobilityScientificArea.text | highlight: $select.search"></span>
+						</ui-select-choices>
+					</ui-select>
+				</div>
+			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-3 control-label"  ng-show="object.incoming === true">
+					<spring:message code="label.MobilityRegistrationInformation.mobilityProgrammeLevel" />
+				</div>
+
+				<div class="col-sm-8">
+					<%-- Relation to side 1 drop down rendered in input --%>
+					<ui-select id="mobilityRegistrationInformation_mobilityProgrammeLevel" class="" name="mobilityprogrammelevel"
+						ng-model="$parent.object.mobilityProgrammeLevel" theme="bootstrap" ng-disabled="disabled">
+						<ui-select-match>{{$select.selected.text}}</ui-select-match>
+						<ui-select-choices repeat="mobilityProgrammeLevel.id as mobilityProgrammeLevel in object.mobilityProgrammeLevelDataSource | filter: $select.search">
+							<span ng-bind-html="mobilityProgrammeLevel.text | highlight: $select.search"></span>
+						</ui-select-choices>
+					</ui-select>
+				</div>
+			</div>
+			
+			<div class="form-group row">
 				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.mobilityProgramType" />
 				</div>

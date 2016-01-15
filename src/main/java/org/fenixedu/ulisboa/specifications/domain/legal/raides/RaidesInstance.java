@@ -97,7 +97,7 @@ public class RaidesInstance extends RaidesInstance_Base {
             final Boolean hasMappings, final String passwordToZip, final Set<RegistrationProtocol> enrolledAgreements,
             final Set<RegistrationProtocol> mobilityAgreements, final Set<IngressionType> degreeTransferIngressions,
             final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions, 
-            final boolean formsAvailableToStudents, final String blueRecordStartMessageContent) {
+            final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);

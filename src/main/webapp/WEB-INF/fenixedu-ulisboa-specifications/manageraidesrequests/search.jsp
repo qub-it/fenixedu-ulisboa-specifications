@@ -75,10 +75,10 @@ ${portal.angularToolkit()}
 				<c:forEach var="request" items="${reportRequests}">
 					<tr>
 						<td>
-							<c:out value="${request.whenRequested}" />
+							<c:out value='${request.whenRequested.toString("yyyy-MM-dd HH:mm:ss")}' />
 						</td>
 						<td>
-							<c:out value="${request.whenProcessed}" />
+							<c:out value='${request.whenProcessed.toString("yyyy-MM-dd HH:mm:ss")}' />
 						</td>
 						<td>
 							<c:out value="${request.requestor.name}" />
@@ -139,11 +139,10 @@ ${portal.angularToolkit()}
 											},
 
 											"columnDefs" : [
-											//54
-											{
-												"width" : "54px",
-												"targets" : 3
-											} ],
+												{ "width" : "25px", "targets" : 0 }, 
+												{ "width" : "25px", "targets" : 1 }, 
+												{ "width" : "54px", "targets" : 3 }
+											],
 
 											//Documentation: https://datatables.net/reference/option/dom
 											"dom" : '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES

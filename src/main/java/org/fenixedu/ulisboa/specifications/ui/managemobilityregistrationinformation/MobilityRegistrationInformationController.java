@@ -120,6 +120,8 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
         model.addAttribute("registration", registration);
         model.addAttribute("mobilityRegistrationInformationBeanJson", getBeanJson(bean));
 
+        
+        
         return jspPage(_CREATE_URI);
     }
 

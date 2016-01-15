@@ -288,7 +288,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             return false;
         }
 
-        if (form.getPrecedentSchoolLevel().isHigherEducation()) {
+        if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry() && form.getPrecedentSchoolLevel().isHigherEducation()) {
             if (form.getRaidesPrecedentDegreeDesignation() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;

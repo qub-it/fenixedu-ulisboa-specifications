@@ -10,6 +10,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.DisabilitiesFormControllerBlueRecord;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.HouseholdInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.MotivationsExpectationsFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.OriginInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.PersonalInformationFormControllerBlueRecord;
@@ -49,6 +50,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
     private boolean hasSomeBlueRecordFormToFill(final Student student) {
         boolean result = false;
         result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(student);
+        result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(student);
         result |= !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(student);
         result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(student);
         result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(student);

@@ -13,7 +13,6 @@ import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.dto.candidacy.PrecedentDegreeInformationBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -30,13 +29,18 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setBennu(Bennu.getInstance());
     }
 
-    protected MobilityRegistrationInformation(final Registration registration, SchoolPeriodDuration duration, Unit unit,
-            final MobilityActivityType activityType) {
+    protected MobilityRegistrationInformation(final Registration registration, final SchoolPeriodDuration duration,
+            final Unit unit, final MobilityProgramType mobilityProgramType, final MobilityActivityType activityType,
+            final MobilityScientificArea mobilityScientificArea, final MobilityProgrammeLevel mobilityProgrammeLevel) {
         this();
         setRegistration(registration);
         setProgramDuration(duration);
         setForeignInstitutionUnit(unit);
+        setMobilityProgramType(mobilityProgramType);
         setMobilityActivityType(activityType);
+        setMobilityScientificArea(mobilityScientificArea);
+        setMobilityProgrammeLevel(mobilityProgrammeLevel);
+
         setIncoming(true);
 
         checkRulesForIncoming();
@@ -53,6 +57,7 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setMobilityActivityType(activityType);
         setForeignInstitutionUnit(foreignInstitutionUnit);
         setIncoming(false);
+
         checkRulesForOutgoing();
     }
 
@@ -154,7 +159,10 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     private void editIncoming(final MobilityRegistrationInformationBean bean) {
         setProgramDuration(bean.getProgramDuration());
         setMobilityActivityType(bean.getMobilityActivityType());
+        setMobilityProgramType(bean.getMobilityProgramType());
         setForeignInstitutionUnit(bean.getForeignInstitutionUnit());
+        setMobilityScientificArea(bean.getMobilityScientificArea());
+        setMobilityProgrammeLevel(bean.getMobilityProgrammeLevel());
         checkRulesForIncoming();
     }
 
@@ -211,30 +219,26 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         return null;
     }
 
-    // Creates a mobility registration for an external student which is coming to this institution
-    @Atomic
-    public static MobilityRegistrationInformation createMobilityRegistrationForIncoming(Registration registration,
-            PrecedentDegreeInformationBean bean) {
-        return new MobilityRegistrationInformation(registration, bean.getMobilityProgramDuration(),
-                bean.getPrecedentInstitution(), null);
-    }
-
     @Atomic
     public static MobilityRegistrationInformation createMobilityRegistrationForIncoming(
             MobilityRegistrationInformationBean bean) {
         return new MobilityRegistrationInformation(bean.getRegistration(), bean.getProgramDuration(),
-                bean.getForeignInstitutionUnit(), bean.getMobilityActivityType());
+                bean.getForeignInstitutionUnit(), bean.getMobilityProgramType(), bean.getMobilityActivityType(),
+                bean.getMobilityScientificArea(), bean.getMobilityProgrammeLevel());
     }
 
     public static MobilityRegistrationInformation createMobilityRegistrationForIncoming(final Registration registration,
-            SchoolPeriodDuration duration, Unit unit, final MobilityActivityType activityType) {
-        return new MobilityRegistrationInformation(registration, duration, unit, activityType);
+            SchoolPeriodDuration duration, Unit unit, final MobilityProgramType mobilityProgramType,
+            final MobilityActivityType activityType, final MobilityScientificArea mobilityScientificArea,
+            final MobilityProgrammeLevel mobilityProgrammeLevel) {
+        return new MobilityRegistrationInformation(registration, duration, unit, mobilityProgramType, activityType,
+                mobilityScientificArea, mobilityProgrammeLevel);
     }
 
     public static boolean hasBeenInMobility(final Registration registration, final ExecutionYear executionYear) {
         return findMobilityRegistrationInformation(registration, executionYear) != null;
     }
-    
+
     public static MobilityRegistrationInformation findIncomingInformation(final Registration registration) {
         return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> m.isIncoming()).findAny().orElse(null);
     }

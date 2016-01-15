@@ -54,7 +54,7 @@ public class RaidesConfigurationController extends FenixeduUlisboaSpecifications
             RaidesInstance raidesInstance = RaidesInstance.getInstance();
             raidesInstance.edit(raidesInstance.getName(), raidesInstance.getGroup(), raidesInstance.getSynchronous(), raidesInstance.getHasMappings(), bean.getPasswordToZip(), bean.getEnrolledAgreements(), bean.getMobilityAgreements(), 
                     bean.getDegreeTransferIngressions(), bean.getDegreeChangeIngressions(), bean.getIngressionsForGeneralAccessRegime(), 
-                    bean.isFormsAvailableToStudents(), bean.getBlueRecordStartMessageContent());
+                    bean.isFormsAvailableToStudents(), bean.getBlueRecordStartMessageContentLocalizedString());
             
             return "redirect:" + READ_URL;
         } catch (final DomainException e) {

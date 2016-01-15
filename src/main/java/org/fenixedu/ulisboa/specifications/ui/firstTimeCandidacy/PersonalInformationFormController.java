@@ -151,6 +151,9 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 form.setDocumentIdNumber(person.getDocumentIdNumber());
                 form.setIdDocumentType(person.getIdDocumentType());
             }
+            
+            fillstaticformdata(getStudent(model), form);
+            
             model.addAttribute("personalInformationForm", form);
             return form;
         }
@@ -197,8 +200,16 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         form.setCountryHighSchool(person.getCountryHighSchool());
         
+        form.setGender(student.getPerson().getGender());
+
+        fillstaticformdata(student, form);
+        
+        return form;
+    }
+
+    private void fillstaticformdata(final Student student, final PersonalInformationForm form) {
         form.setFirstYearRegistration(false);
-        for (final Registration registration : person.getStudent().getRegistrationsSet()) {
+        for (final Registration registration : student.getRegistrationsSet()) {
             if(!registration.isActive()) {
                 continue;
             }
@@ -212,9 +223,6 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         
         form.setName(student.getPerson().getName());
         form.setUsername(student.getPerson().getUser().getUsername());
-        form.setGender(student.getPerson().getGender());
-        
-        return form;
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
@@ -235,6 +243,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             de.printStackTrace();
+            
             return fillpersonalinformation(model, redirectAttributes);
         }
     }

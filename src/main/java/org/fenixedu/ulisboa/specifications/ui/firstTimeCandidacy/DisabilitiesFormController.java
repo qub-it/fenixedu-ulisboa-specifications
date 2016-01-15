@@ -89,9 +89,23 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
 
     private void fillFormIfRequired(final Model model) {
         if (!model.containsAttribute("disabilitiesForm")) {
-            DisabilitiesForm form = createDisabilitiesForm(getStudent(model));
-            model.addAttribute("disabilitiesForm", form);
+            model.addAttribute("disabilitiesForm", createDisabilitiesForm(getStudent(model)));
         }
+        
+        final DisabilitiesForm form = (DisabilitiesForm) model.asMap().get("disabilitiesForm");
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
     }
 
     protected DisabilitiesForm createDisabilitiesForm(final Student student) {

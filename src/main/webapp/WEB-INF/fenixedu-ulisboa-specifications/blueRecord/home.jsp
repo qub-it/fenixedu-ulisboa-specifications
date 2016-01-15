@@ -12,7 +12,7 @@
 </div>
 
 <div class="row well start">
-	<%= RaidesInstance.getInstance().getBlueRecordStartMessageContent() %>
+	<%= RaidesInstance.getInstance().getBlueRecordStartMessageContent().getContent() %>
 </div>
 
 <div class="">
