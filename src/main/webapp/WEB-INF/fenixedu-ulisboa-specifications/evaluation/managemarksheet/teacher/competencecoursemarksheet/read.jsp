@@ -166,7 +166,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.requestDate}" style="SM" />
+							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.requestDate}" pattern="yyyy-MM-dd HH:mm" />
 						</div>
 					</div>
 					
@@ -197,7 +197,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.responseDate}" style="SM" />
+							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.responseDate}" pattern="yyyy-MM-dd HH:mm" />
 						</div>
 					</div>
 					
@@ -362,7 +362,7 @@ ${portal.angularToolkit()}
 				<tbody>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.creationDate" /></th>
-						<td><joda:format value="${competenceCourseMarkSheet.creationDate}" style="SM" /></td>
+						<td><joda:format value="${competenceCourseMarkSheet.creationDate}" pattern="yyyy-MM-dd HH:mm" /></td>
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.executionSemester" /></th>
@@ -378,7 +378,7 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" /></th>
-						<td><joda:format value="${competenceCourseMarkSheet.evaluationDate}" style="S-"/></td>
+						<td><joda:format value="${competenceCourseMarkSheet.evaluationDate}" pattern="yyyy-MM-dd"/></td>
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.state" /></th>
@@ -412,7 +412,7 @@ ${portal.angularToolkit()}
 					<c:if test="${not empty competenceCourseMarkSheet.expireDate}">
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.expireDate" /></th>
-						<td><joda:format value="${competenceCourseMarkSheet.expireDate}" style="S-"/></td>
+						<td><joda:format value="${competenceCourseMarkSheet.expireDate}" pattern="yyyy-MM-dd"/></td>
 					</tr>
 					</c:if>
 					<c:if test="${competenceCourseMarkSheet.lastChangeRequest != null}">
@@ -444,7 +444,7 @@ ${portal.angularToolkit()}
 	<tbody>
 		<c:forEach var="each" items="${competenceCourseMarkSheet.stateChangeSet}">
 		<tr>
-			<td><joda:format value="${each.date}" style="SM" /></td>
+			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm" /></td>
 			<td><c:out value="${each.state.descriptionI18N.content}"></c:out></td>
 			<td><c:out value="${each.responsible.name}"></c:out></td>
 			<td><c:out value="${each.byTeacher ? yesLabel : noLabel}"></c:out></td>

@@ -246,12 +246,12 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" /></th>
-						<td><joda:format value="${competenceCourseMarkSheet.evaluationDate}" style="S-"/></td>
+						<td><joda:format value="${competenceCourseMarkSheet.evaluationDate}" pattern="yyyy-MM-dd"/></td>
 					</tr>
 					<c:if test="${not empty competenceCourseMarkSheet.expireDate}">
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.expireDate" /></th>
-						<td><joda:format value="${competenceCourseMarkSheet.expireDate}" style="S-"/></td>
+						<td><joda:format value="${competenceCourseMarkSheet.expireDate}" pattern="yyyy-MM-dd"/></td>
 					</tr>
 					</c:if>
 				</tbody>
