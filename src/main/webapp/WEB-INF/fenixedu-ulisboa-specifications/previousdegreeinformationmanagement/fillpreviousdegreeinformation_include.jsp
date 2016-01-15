@@ -114,6 +114,14 @@
 </div>
 
 <script>
+	function currentSelectedCountry(){
+		return $("#previousDegreeInformationForm_precedentCountry").val();
+	}
+
+	function configureOriginInformationFieldsEditableState(){
+		bool = currentSelectedCountry() != defaultCountry;
+	}
+   
 	$(document).ready(function() {
 	
 		defaultCountry = <%=Country.readDefault().getExternalId()%>;
@@ -121,15 +129,6 @@
 			return a.text.localeCompare(b.text);
 		};
 	
-	
-		function currentSelectedCountry(){
-			return $("#previousDegreeInformationForm_precedentCountry").val();
-		}
-	
-		function configureOriginInformationFieldsEditableState(){
-			bool = currentSelectedCountry() != defaultCountry;
-		}
-		   
 			//setup units provider
 			ajaxData = {
 				url : "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/raidesUnit/",	    

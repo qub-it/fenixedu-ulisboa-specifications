@@ -120,7 +120,7 @@ ${portal.angularToolkit()}
 							<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" />
 						</th>
 						<td>
-							${raidesInstance.blueRecordStartMessageContent}
+							${raidesInstance.blueRecordStartMessageContent.content}
 						</td>
 					</tr>
 				</tbody>

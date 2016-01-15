@@ -15,9 +15,12 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.util.Constants;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
+import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgrammeLevel;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
+import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityScientificArea;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.collect.Sets;
@@ -44,6 +47,8 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
     protected ExecutionSemester end;
     protected MobilityProgramType mobilityProgramType;
     protected MobilityActivityType mobilityActivityType;
+    protected MobilityScientificArea mobilityScientificArea;
+    protected MobilityProgrammeLevel mobilityProgrammeLevel;
     protected Unit foreignInstitutionUnit;
     protected boolean incoming;
     protected SchoolPeriodDuration programDuration;
@@ -54,6 +59,10 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
     private List<TupleDataSourceBean> mobilityProgramTypeDataSource;
     private List<TupleDataSourceBean> mobilityActivityTypeDataSource;
     private List<TupleDataSourceBean> foreignInstitutionUnitDataSource;
+    
+    private List<TupleDataSourceBean> mobilityScientificAreaDataSource;
+    private List<TupleDataSourceBean> mobilityProgrammeLevelDataSource;
+    
 
     public MobilityRegistrationInformationBean(final Registration registration) {
         this.setRegistration(registration);
@@ -66,6 +75,26 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
         loadDataMobilityProgramTypeDataSource();
         loadDataMobilityActivityTypeDataSource();
         loadDataForeignInstitutionUnitDataSource();
+        loadMobilityScientificAreaDataSource();
+        loadMobilityProgrammeLevelDataSource();
+    }
+
+    private void loadMobilityProgrammeLevelDataSource() {
+        final List<TupleDataSourceBean> result = Bennu.getInstance().getMobilityProgrammeLevelsSet().stream()
+                .map((cs) -> new TupleDataSourceBean(cs.getExternalId(), cs.getName().getContent())).collect(Collectors.toList());
+
+        result.add(Constants.SELECT_OPTION);
+
+        mobilityProgrammeLevelDataSource = result.stream().sorted(COMPARE_BY_ID_AND_TEXT).collect(Collectors.toList());
+    }
+
+    private void loadMobilityScientificAreaDataSource() {
+        final List<TupleDataSourceBean> result = Bennu.getInstance().getMobilityScientificAreasSet().stream()
+                .map((cs) -> new TupleDataSourceBean(cs.getExternalId(), cs.getName().getContent())).collect(Collectors.toList());
+
+        result.add(Constants.SELECT_OPTION);
+
+        mobilityScientificAreaDataSource = result.stream().sorted(COMPARE_BY_ID_AND_TEXT).collect(Collectors.toList());
     }
 
     private void loadDataForeignInstitutionUnitDataSource() {
@@ -247,6 +276,22 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
 
     public List<TupleDataSourceBean> getForeignInstitutionUnitDataSource() {
         return foreignInstitutionUnitDataSource;
+    }
+    
+    public MobilityScientificArea getMobilityScientificArea() {
+        return mobilityScientificArea;
+    }
+    
+    public void setMobilityScientificArea(MobilityScientificArea mobilityScientificArea) {
+        this.mobilityScientificArea = mobilityScientificArea;
+    }
+    
+    public MobilityProgrammeLevel getMobilityProgrammeLevel() {
+        return mobilityProgrammeLevel;
+    }
+    
+    public void setMobilityProgrammeLevel(MobilityProgrammeLevel mobilityProgrammeLevel) {
+        this.mobilityProgrammeLevel = mobilityProgrammeLevel;
     }
 
 }

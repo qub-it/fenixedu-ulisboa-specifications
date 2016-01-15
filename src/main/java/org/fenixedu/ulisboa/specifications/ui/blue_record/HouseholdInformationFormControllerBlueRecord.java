@@ -27,20 +27,37 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.GrantOwnerType;
+import org.fenixedu.academic.domain.ProfessionType;
+import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
+import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
+import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController.HouseholdInformationForm;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
 @RequestMapping(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL)
@@ -77,6 +94,51 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
                 + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI, model, redirectAttributes);
     }
 
+    @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
+    public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
+        if (isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
+        model.addAttribute("professionTypeValues", ProfessionType.values());
+        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
+        model.addAttribute("salarySpanValues", SalarySpan.readAll().collect(Collectors.toList()));
+        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
+        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
+
+        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+        model.addAttribute("maritalStatusValues", maritalStatusValues);
+
+        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+
+        model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
+        
+        fillFormIfRequired(model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
+    }
+
+    protected void fillFormIfRequired(Model model) {
+        if (!model.containsAttribute("householdInformationForm")) {
+            HouseholdInformationForm form = createHouseholdInformationForm(getStudent(model));
+
+            model.addAttribute("householdInformationForm", form);
+        }
+    }
+    
+    @Atomic
+    protected HouseholdInformationForm createHouseholdInformationForm(final Student student) {
+        return createHouseholdInformationForm(student, ExecutionYear.readCurrentExecutionYear(), true);
+    }
+    
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
     public String fillhouseholdinformation(HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);

@@ -3,6 +3,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 
+	<div class="panel panel-default">
+		<div class="panel-body">
 
 			<div class="form-group row">
 				<label for="householdInformationForm_professionalCondition" class="col-sm-2 control-label required-field">
@@ -76,6 +78,15 @@
 					</script>
 				</div>
 			</div>
+			
+			
+		</div>
+	</div>
+	
+	
+	<div class="panel panel-default">
+		<div class="panel-body">
+	
 			<div class="form-group row">
 				<label for="householdInformationForm_grantOwnerType" class="col-sm-2 control-label required-field">
 					<spring:message code="label.HouseholdInformationForm.grantOwnerType" />
@@ -107,28 +118,12 @@
 					</select>
 				</div>
 			</div>
-		
-			<div class="form-group row">
-				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.maritalStatus" />
-				</label>
-
-				<div class="col-sm-4">
-					<select id="personalInformationForm_maritalStatus"
-						class="form-control" name="maritalStatus">
-						<c:forEach items="${maritalStatusValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field.localizedName}' /></option>
-						</c:forEach>
-					</select>
-					<script>
-					$(document).ready(function() {
-						$("#personalInformationForm_maritalStatus").select2().select2('val', '<c:out value='${householdInformationForm.maritalStatus }'/>');
-					});
-					</script>
-				</div>
-			</div>
-		
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-body">
+			
 			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
@@ -285,6 +280,32 @@
 					</script>
 				</div>
 			</div>
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-body">
+
+			<div class="form-group row">
+				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
+					<spring:message code="label.PersonalInformationForm.maritalStatus" />
+				</label>
+
+				<div class="col-sm-4">
+					<select id="personalInformationForm_maritalStatus"
+						class="form-control" name="maritalStatus">
+						<c:forEach items="${maritalStatusValues}" var="field">
+							<option value='<c:out value='${field}'/>'><c:out
+									value='${field.localizedName}' /></option>
+						</c:forEach>
+					</select>
+					<script>
+					$(document).ready(function() {
+						$("#personalInformationForm_maritalStatus").select2().select2('val', '<c:out value='${householdInformationForm.maritalStatus }'/>');
+					});
+					</script>
+				</div>
+			</div>
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
@@ -309,14 +330,13 @@
 							$("#labelCountryOfResidence").addClass('required-field');
 							$("#labelPermanentResidenceDistrict").addClass('required-field');
 							$("#labelPermanentResidentDistrictSubdivision").addClass('required-field');
+							$("#labelDislocatedResidenceType").addClass('required-field');
 						} else if(dislocated === "false") {
-							$("#householdInformationForm_countryOfResidence").select2().select2('val', '');
-							$("#householdInformationForm_permanentResidenceDistrict").select2().select2('val', '');
-							$("#householdInformationForm_permanentResidentDistrictSubdivision").select2().select2('val', '');
-							
+
 							$("#labelCountryOfResidence").removeClass('required-field');
 							$("#labelPermanentResidenceDistrict").removeClass('required-field');
 							$("#labelPermanentResidentDistrictSubdivision").removeClass('required-field');
+							$("#labelDislocatedResidenceType").removeClass('required-field');
 						}
 						
 						configureOriginInformationFieldsEditableState();
@@ -412,6 +432,31 @@
 
 				</div>
 			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label required-field" id="labelDislocatedResidenceType">
+					<spring:message
+						code="label.HouseholdInformationForm.dislocatedResidenceType" />
+				</div>
+				<div class="col-sm-10">
+					<select id="householdInformationForm_dislocatedResidenceType"
+						class="form-control"
+						name="dislocatedResidenceType">
+							<option value="" ></option>
+						
+						<c:forEach var="residenceType" items="${residenceType_values}">
+							<option value="${residenceType.externalId}" ><c:out value="${residenceType.description.content}" /></option>
+						</c:forEach>						
+					</select>
+					<script>
+						$(document).ready(function() {
+			             	 $("#householdInformationForm_dislocatedResidenceType").select2().select2('val', '<c:out value='${householdInformationForm.dislocatedResidenceType.externalId}'/>');
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
 			
 			<script>
 				$(document).ready(function() {

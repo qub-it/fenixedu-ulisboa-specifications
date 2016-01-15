@@ -108,6 +108,20 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
         } else {
             form = (MotivationsExpectationsForm) model.asMap().get("motivationsexpectationsform");
         }
+        
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
         form.populateRequestCheckboxes(request);
     }
 

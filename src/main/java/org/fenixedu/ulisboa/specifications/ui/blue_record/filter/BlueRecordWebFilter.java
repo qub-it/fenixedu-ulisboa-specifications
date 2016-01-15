@@ -34,9 +34,15 @@ public class BlueRecordWebFilter implements Filter {
         
         if (path.endsWith(".js") || path.endsWith(".css") || path.endsWith(".eot") || path.endsWith(".otf") || path.endsWith(".png")
                 || path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".gif") || path.endsWith("favicon") || path.endsWith("logo")
-                || path.endsWith(".svg") || path.endsWith(".less") || path.endsWith(".ttf") || path.endsWith(".woff") || path.endsWith("/logout")) {
+                || path.endsWith(".svg") || path.endsWith(".less") || path.endsWith(".ttf") || path.endsWith(".woff") || path.endsWith("/logout")
+                || path.contains("/api/bennu-core")) {
             chain.doFilter(request, response);
             return;
+        }
+        
+        if(path.contains("/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes")) {
+            chain.doFilter(request, response);
+            return;            
         }
         
         final User user = Authenticate.getUser();

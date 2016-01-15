@@ -25,7 +25,7 @@ ${portal.toolkit()}
 
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.HouseholdInformationManagement.create" />
+	<h1><spring:message code="label.firstTimeCandidacy.fillHouseHoldInformation" />
 		<small></small>
 	</h1>
 </div>
@@ -70,13 +70,10 @@ ${portal.toolkit()}
 			</c:if>
 
 <form method="post" class="form-horizontal">
-	<div class="panel panel-default">
-		<div class="panel-body">
 		
-			<jsp:include page="../../householdinformationmanagement/householdinformationform_include.jsp" />
+		<jsp:include page="../../householdinformationmanagement/householdinformationform_include.jsp" />
 
-		</div>
-		<div class="panel-footer">
+		<div class="">
 			<input type="submit" class="btn btn-default" role="button"
 				value="<spring:message code="label.submit" />" />
 		</div>

@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.legal.report.raides;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
@@ -31,7 +33,9 @@ public class RaidesInstanceBean implements IBean {
     
     private boolean formsAvailableToStudents;
 
-    private String blueRecordStartMessageContent;
+    private String blueRecordStartMessageContentPt;
+
+    private String blueRecordStartMessageContentEn;
     
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
@@ -44,7 +48,10 @@ public class RaidesInstanceBean implements IBean {
         setDegreeTransferIngressions(Sets.newHashSet(raidesInstance.getDegreeTransferIngressionsSet()));
         setIngressionsForGeneralAccessRegime(Sets.newHashSet(raidesInstance.getGeneralAccessRegimeIngressionsSet()));
         setFormsAvailableToStudents(raidesInstance.getFormsAvailableToStudents());
-        setBlueRecordStartMessageContent(raidesInstance.getBlueRecordStartMessageContent());
+        if(raidesInstance.getBlueRecordStartMessageContent() != null) {
+            setBlueRecordStartMessageContentPt(raidesInstance.getBlueRecordStartMessageContent().getContent(ULisboaConstants.DEFAULT_LOCALE));
+            setBlueRecordStartMessageContentEn(raidesInstance.getBlueRecordStartMessageContent().getContent(LOCALE_EN));
+        }
         
         loadDataSources();
     }
@@ -126,12 +133,30 @@ public class RaidesInstanceBean implements IBean {
         this.formsAvailableToStudents = formsAvailableToStudents;
     }
     
-    public String getBlueRecordStartMessageContent() {
-        return blueRecordStartMessageContent;
+    public String getBlueRecordStartMessageContentPt() {
+        return blueRecordStartMessageContentPt;
     }
     
-    public void setBlueRecordStartMessageContent(String blueRecordStartMessageContent) {
-        this.blueRecordStartMessageContent = blueRecordStartMessageContent;
+    public void setBlueRecordStartMessageContentPt(String blueRecordStartMessageContentPt) {
+        this.blueRecordStartMessageContentPt = blueRecordStartMessageContentPt;
+    }
+    
+    public String getBlueRecordStartMessageContentEn() {
+        return blueRecordStartMessageContentEn;
+    }
+    
+    public void setBlueRecordStartMessageContentEn(String blueRecordStartMessageContentEn) {
+        this.blueRecordStartMessageContentEn = blueRecordStartMessageContentEn;
     }
 
+    public static final Locale LOCALE_EN = new Locale("EN");
+    
+    public LocalizedString getBlueRecordStartMessageContentLocalizedString() {
+        LocalizedString result = new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, getBlueRecordStartMessageContentPt());
+        
+        result = result.with(LOCALE_EN, getBlueRecordStartMessageContentEn());
+        
+        return result;
+    }
+    
 }

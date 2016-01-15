@@ -116,11 +116,11 @@ ${portal.toolkit()}
 </div>
 
 <form method="post" class="form-horizontal">
+		
+	<jsp:include page="householdinformationform_include.jsp" />
+			
 	<div class="panel panel-default">
 		<div class="panel-body">
-		
-			<jsp:include page="householdinformationform_include.jsp" />
-			
 
 			<div class="form-group row">
 				<label class="col-sm-2 control.label required-field">

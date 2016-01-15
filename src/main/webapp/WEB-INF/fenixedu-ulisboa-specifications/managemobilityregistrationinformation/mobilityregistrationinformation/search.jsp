@@ -213,6 +213,15 @@ ${portal.angularToolkit()}
 						<spring:message code="label.MobilityRegistrationInformation.programDuration" />
 					</th>
 					<th>
+						<spring:message code="label.MobilityRegistrationInformation.mobilityScientificArea" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.mobilityProgrammeLevel" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.mobilityProgramType" />
+					</th>
+					<th>
 						<spring:message code="label.MobilityRegistrationInformation.mobilityActivityType" />
 					</th>
 					<th>
@@ -227,6 +236,15 @@ ${portal.angularToolkit()}
 					<tr>
 						<td>
 							<spring:message code="label.SchoolPeriodDuration.${information.programDuration}" />
+						</td>
+						<td>
+							<c:out value='${information.mobilityScientificArea.name.content}' />
+						</td>
+						<td>
+							<c:out value='${information.mobilityProgrammeLevel.name.content}' />
+						</td>
+						<td>
+							<c:out value='${information.mobilityProgramType.name.content}' />
 						</td>
 						<td>
 							<c:out value='${information.mobilityActivityType.name.content}' />

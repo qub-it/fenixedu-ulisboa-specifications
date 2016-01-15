@@ -54,6 +54,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
+import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,44 +83,6 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         return CONTROLLER_URL;
     }
 
-    @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
-    public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
-        if (isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
-        }
-
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
-        if (accessControlRedirect.isPresent()) {
-            return accessControlRedirect.get();
-        }
-        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
-        model.addAttribute("professionTypeValues", ProfessionType.values());
-        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
-        model.addAttribute("salarySpanValues", SalarySpan.readAll().collect(Collectors.toList()));
-        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
-        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
-
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        model.addAttribute("maritalStatusValues", maritalStatusValues);
-
-        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-
-        fillFormIfRequired(model);
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
-    }
-
-    protected void fillFormIfRequired(Model model) {
-        if (!model.containsAttribute("householdInformationForm")) {
-            HouseholdInformationForm form = createHouseholdInformationForm(getStudent(model));
-
-            model.addAttribute("householdInformationForm", form);
-        }
-    }
-
     protected HouseholdInformationForm createEmptyHouseholdInformationForm(final Student student, final Model model) {
         final HouseholdInformationForm form = new HouseholdInformationForm();
 
@@ -130,10 +93,6 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         }
 
         return form;
-    }
-
-    protected HouseholdInformationForm createHouseholdInformationForm(final Student student) {
-        return createHouseholdInformationForm(student, ExecutionYear.readCurrentExecutionYear(), true);
     }
 
     protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final ExecutionYear executionYear,
@@ -174,9 +133,9 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         if (personUl != null) {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
+            form.setCountryHighSchool(personUl.getPerson().getCountryHighSchool());
+            form.setDislocatedResidenceType(personUl.getDislocatedResidenceType());
         }
-
-        form.setCountryHighSchool(personUl.getPerson().getCountryHighSchool());
 
         form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence() != null ? personalData.getDislocatedFromPermanentResidence() : false);
         form.setCountryOfResidence(personalData.getCountryOfResidence());
@@ -262,6 +221,11 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
                     "error.candidacy.workflow.PersonalInformationForm.permanentResidentDistrictSubdivision.required"));
         }
 
+        if (form.isDislocatedFromPermanentResidence() && form.getDislocatedResidenceType() == null) {
+            messages.add(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.dislocatedResidenceType.required"));
+        }
+
         return messages;
     }
 
@@ -308,6 +272,7 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         personalData.setDislocatedFromPermanentResidence(form.isDislocatedFromPermanentResidence());
         personalData.setCountryOfResidence(form.getCountryOfResidence());
         personalData.setDistrictSubdivisionOfResidence(form.getPermanentResidentDistrictSubdivision());
+        personUlisboa.setDislocatedResidenceType(form.getDislocatedResidenceType());
 
     }
 
@@ -360,6 +325,8 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         private District permanentResidenceDistrict;
 
         private DistrictSubdivision permanentResidentDistrictSubdivision;
+        
+        private ResidenceType dislocatedResidenceType;
 
         public SchoolLevelType getMotherSchoolLevel() {
             return motherSchoolLevel;
@@ -479,6 +446,14 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
 
         public void setCountryHighSchool(Country countryHighSchool) {
             this.countryHighSchool = countryHighSchool;
+        }
+        
+        public ResidenceType getDislocatedResidenceType() {
+            return dislocatedResidenceType;
+        }
+        
+        public void setDislocatedResidenceType(ResidenceType dislocatedResidenceType) {
+            this.dislocatedResidenceType = dislocatedResidenceType;
         }
 
         public boolean isStudentWorking() {

@@ -99,6 +99,8 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
         
+        model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
+        
         return jspPage(_CREATE_URI);
     }
 
@@ -165,6 +167,8 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+        
+        model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
         
         return jspPage(_UPDATE_URI);
     }
