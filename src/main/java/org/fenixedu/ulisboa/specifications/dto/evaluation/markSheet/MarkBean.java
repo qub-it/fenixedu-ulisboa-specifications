@@ -166,7 +166,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     @Override
     public int compareTo(final MarkBean o) {
-        return getStudentName().compareTo(o.getStudentName());
+        return CompetenceCourseMarkSheet.COMPARATOR_FOR_STUDENT_NAME.compare(getStudentName(), o.getStudentName());
     }
 
     public String getErrorMessage() {

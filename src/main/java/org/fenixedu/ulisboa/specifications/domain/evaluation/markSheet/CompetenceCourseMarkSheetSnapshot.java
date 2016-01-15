@@ -91,6 +91,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
                 degreeName, shifts));
     }
 
+    @Override
     public void finalize() {
         checkRules();
 
@@ -124,7 +125,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
     public SortedSet<CompetenceCourseMarkSheetSnapshotEntry> getSortedEntries() {
 
         final Comparator<CompetenceCourseMarkSheetSnapshotEntry> byStudentName =
-                (x, y) -> x.getStudentName().compareTo(y.getStudentName());
+                (x, y) -> CompetenceCourseMarkSheet.COMPARATOR_FOR_STUDENT_NAME.compare(x.getStudentName(), y.getStudentName());
 
         final SortedSet<CompetenceCourseMarkSheetSnapshotEntry> result =
                 Sets.newTreeSet(byStudentName.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID));
@@ -147,7 +148,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
     }
 
     public String getFormattedCheckSum() {
-        
+
         if (StringUtils.isEmpty(getCheckSum())) {
             return null;
         }
@@ -167,10 +168,10 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
 
         return result.toString().toUpperCase();
     }
-    
+
     public boolean isLastSnapshot() {
         return getStateChange().getCompetenceCourseMarkSheet().getLastSnapshot().get() == this;
-        
+
     }
 
 }

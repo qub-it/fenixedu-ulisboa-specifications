@@ -27,6 +27,7 @@
 
 package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
 
+import java.text.Collator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,6 +61,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
@@ -78,6 +81,23 @@ import com.google.common.collect.Sets;
 import pt.ist.fenixframework.Atomic;
 
 public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
+
+    static public Comparator<String> COMPARATOR_FOR_STUDENT_NAME = new Comparator<String>() {
+
+        @Override
+        public int compare(final String o1, final String o2) {
+            return collator.get().compare(normalize(o1), normalize(o2));
+        }
+
+        final Supplier<Collator> collator = () -> {
+            final Collator result = Collator.getInstance(I18N.getLocale());
+            return result;
+        };
+
+        private String normalize(final String input) {
+            return input == null ? "" : input.replaceAll("\\s+", "").toUpperCase();
+        }
+    };
 
     static final private Logger logger = LoggerFactory.getLogger(CompetenceCourseMarkSheet.class);
 
@@ -213,8 +233,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e ->
-        {
+        getEnrolmentEvaluationSet().forEach(e -> {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
@@ -693,8 +712,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public SortedSet<EnrolmentEvaluation> getSortedEnrolmentEvaluations() {
 
-        final Comparator<EnrolmentEvaluation> byStudentName =
-                (x, y) -> x.getRegistration().getStudent().getName().compareTo(y.getRegistration().getStudent().getName());
+        final Comparator<EnrolmentEvaluation> byStudentName = (x, y) -> CompetenceCourseMarkSheet.COMPARATOR_FOR_STUDENT_NAME
+                .compare(x.getRegistration().getStudent().getName(), y.getRegistration().getStudent().getName());
 
         final SortedSet<EnrolmentEvaluation> result =
                 Sets.newTreeSet(byStudentName.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID));
