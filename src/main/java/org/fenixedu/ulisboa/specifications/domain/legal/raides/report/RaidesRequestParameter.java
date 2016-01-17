@@ -10,12 +10,12 @@ import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.legal.report.ReportRequestParameters;
+import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequestParameters;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Lists;
 
-public class RaidesRequestParameter extends ReportRequestParameters implements Serializable {
+public class RaidesRequestParameter extends LegalReportRequestParameters implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

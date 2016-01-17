@@ -8,7 +8,7 @@ import java.util.Set;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.groups.Group;
+import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.ILegalMappingType;
@@ -105,7 +105,7 @@ public abstract class LegalReport extends LegalReport_Base {
 
     public abstract LocalizedString getLocalizedNameMappingKey(final String type, final String key);
     
-    public abstract void edit(final LocalizedString name, final Group group, final Boolean synchronous, final Boolean hasMappings);
+    public abstract void edit(final LocalizedString name, final PersistentGroup group, final Boolean synchronous, final Boolean hasMappings);
     
     public abstract void delete();
 

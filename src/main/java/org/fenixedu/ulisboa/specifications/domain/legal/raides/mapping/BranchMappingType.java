@@ -6,6 +6,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.legal.dto.mapping.LegalMappingBean;
+import org.fenixedu.ulisboa.specifications.domain.legal.mapping.DomainObjectLegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.ILegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMappingEntry;
@@ -94,7 +95,7 @@ public class BranchMappingType implements ILegalMappingType {
     
     @Override
     public LegalMapping createMapping(final LegalReport report) {
-        return new DomainObjectMapping(report, this);
+        return new DomainObjectLegalMapping(report, this);
     }
 
     protected CourseGroup getCourseGroup(final String key) {

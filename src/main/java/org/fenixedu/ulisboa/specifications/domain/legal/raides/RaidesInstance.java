@@ -4,12 +4,15 @@ import java.util.Set;
 
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
+import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.ILegalMappingType;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.collect.Sets;
 
@@ -51,8 +54,7 @@ public class RaidesInstance extends RaidesInstance_Base {
 
     @Override
     public LocalizedString getNameI18N() {
-        return QubBundleUtil.getMultiLanguageStringFromResourceBundle(QubEduLegalPlugin.BUNDLE, PropertiesManager.getLocales(),
-                "title." + RaidesInstance.class.getName());
+        return ULisboaSpecificationsUtil.bundleI18N("title." + RaidesInstance.class.getName());
     }
 
     public synchronized static RaidesInstance getInstance() {

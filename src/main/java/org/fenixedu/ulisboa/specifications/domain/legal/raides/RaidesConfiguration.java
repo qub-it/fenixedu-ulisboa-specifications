@@ -1,4 +1,4 @@
-package com.qubit.qubEdu.module.legal.domain.raides;
+package org.fenixedu.ulisboa.specifications.domain.legal.raides;
 
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
