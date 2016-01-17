@@ -68,6 +68,11 @@ ${portal.toolkit()}
 
 
 <form>
+	<table>
+	<tbody>
+	<tr>
+		<th><spring:message code="label.dges.importation.process.execution.year"/>&nbsp;</th>
+	<td>
 		<select name="executionYear" style="width : 100px">
 			<c:forEach items="${executionYears}" var="executionYear">
 				<c:if test = "${executionYear == selectedExecutionYear}">
@@ -78,7 +83,10 @@ ${portal.toolkit()}
 				</c:if>
 			</c:forEach>
 		</select>
-		<br />
+	</td>
+	</tr><tr>
+		<th><spring:message code="label.dges.importation.process.entry.phase"/>:&nbsp;</th>
+	<td>
 		<select name="phase" style="width : 100px">
 			<c:forEach items="${phases}" var="phase">
 				<c:if test = "${phase == selectedPhase}">
@@ -89,14 +97,31 @@ ${portal.toolkit()}
 				</c:if>
 			</c:forEach>
 		</select>
-		<br />
-	<input type="submit" value="Pesquisar" style="width : 100px">
-	<br />
-	<br />
+	</td>
+	</tr><tr>
+		<th></th>
+		<td><input type="submit" value="Pesquisar" style="width : 100px"></td>
+	</tr>
+	</tbody>
+	</table>
+	
+	<%
+		boolean exportStatistics = false;
+		Object exportStatisticsObj = request.getAttribute("exportStatistics");
+		if (exportStatisticsObj != null && ((Boolean) exportStatisticsObj)) {
+		    exportStatistics = true;
+		}
+	%>
+
+	<div align="right">
+	<input id="exportStatistics" name="exportStatistics" type="checkbox" onclick="this.form.submit()" <%= exportStatistics? "checked='checked'" : ""%>>
+		<label for="exportStatistics" onclick="this.form.submit()"><spring:message code="label.exportStatistics"/>&nbsp;&nbsp;&nbsp;&nbsp;</label>
+	</input>
+	</div>
 </form>
 <c:choose>
 	<c:when test="${not empty searchregistrationdgesstatebeanResultsDataSet}">
-		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover">
+		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover" style="width:100%">
 			<thead>
 				<tr>
 					<th><spring:message code="label.studentsListByCurricularCourse.degree"/></th>
@@ -104,6 +129,32 @@ ${portal.toolkit()}
 					<th><spring:message code="label.student"/></th>
 					<th><spring:message code="label.is.registered"/></th>
 					<th><spring:message code="label.candidacy"/></th>
+					<% if (exportStatistics) { %>
+					<th><spring:message code="label.FiliationForm.nationality"/></th>
+					<th><spring:message code="label.FiliationForm.secondNationality"/></th>
+					<th><spring:message code="label.Registration.ingressionType"/></th>
+					<th><spring:message code="label.PersonalInformationForm.ingressionOption"/></th>
+					<th><spring:message code="label.PersonalInformationForm.firstOptionDegreeDesignation.short"/></th>
+					<th><spring:message code="label.PersonalInformationForm.firstOptionInstitution.short"/></th>
+					<th><spring:message code="label.firstTimeCandidacy.fillResidenceInformation"/></th>
+					<th><spring:message code="label.PersonalInformationForm.profession"/></th>
+					<th><spring:message code="label.PersonalInformationForm.professionTimeType.short"/></th>
+					<th><spring:message code="label.PersonalInformationForm.professionalCondition"/></th>
+					<th><spring:message code="label.PersonalInformationForm.professionType"/></th>
+					<th><spring:message code="label.FiliationForm.fatherName"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.fatherSchoolLevel.short"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.fatherProfessionalCondition.short"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.fatherProfessionType.short"/></th>
+					<th><spring:message code="label.FiliationForm.motherName"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.motherSchoolLevel.short"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.motherProfessionalCondition.short"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.motherProfessionType.short"/></th>
+					<th><spring:message code="label.HouseholdInformationForm.householdSalarySpan.short"/></th>
+					<th><spring:message code="label.firstTimeCandidacy.fillDisabilities"/></th>
+					<th><spring:message code="label.DisabilitiesForm.needsDisabilitySupport.short"/></th>
+					<th><spring:message code="label.MotivationsExpectationsForm.universityDiscoveryMeansAnswers.short"/></th>
+					<th><spring:message code="label.MotivationsExpectationsForm.universityChoiceMotivationAnswers.short"/></th>
+					<% } %>
 				</tr>
 			</thead>
 			<tbody>
@@ -129,13 +180,39 @@ ${portal.toolkit()}
 			<c:forEach items="${searchregistrationdgesstatebeanResultsDataSet}" var="searchResult">
 				<%-- Field access / formatting  here CHANGE_ME --%>
 				{
-				"DT_RowId" : '<c:out value='${searchResult.candidacyId}'/>',
-"degreeCode" : "<c:out value='${searchResult.degreeCode}'/>",
-"idnumber" : "<c:out value='${searchResult.idNumber}'/>",
-"name" : "<c:out value='${searchResult.name}'/>",
-"registrationstate" : "<c:out value='${searchResult.registrationState}'/>",
-"candidacyState" : "<c:out value='${searchResult.candidacyState}'/>",
-			},
+					DT_RowId : "<c:out value='${searchResult.candidacyId}'/>",
+					degreeCode : "<c:out value='${searchResult.degreeCode}'/>",
+					idnumber : "<c:out value='${searchResult.idNumber}'/>",
+					name : "<c:out value='${searchResult.name}'/>",
+					registrationstate : "<c:out value='${searchResult.registrationState}'/>",
+					candidacyState : "<c:out value='${searchResult.candidacyState}'/>",
+					<% if (exportStatistics) { %>
+					nationality : "<c:out value='${searchResult.nationality}'/>",
+					secondNationality : "<c:out value='${searchResult.secondNationality}'/>",
+					ingressionType : "<c:out value='${searchResult.ingressionType}'/>",
+					placingOption : "<c:out value='${searchResult.placingOption}'/>",
+					firstOptionDegree : "<c:out value='${searchResult.firstOptionDegree}'/>",
+					firstOptionInstitution : "<c:out value='${searchResult.firstOptionInstitution}'/>",
+					dislocatedResidenceType : "<c:out value='${searchResult.dislocatedResidenceType}'/>",
+					profession : "<c:out value='${searchResult.profession}'/>",
+					professionTimeType : "<c:out value='${searchResult.professionTimeType}'/>",
+					professionalCondition : "<c:out value='${searchResult.professionalCondition}'/>",
+					professionType : "<c:out value='${searchResult.professionType}'/>",
+					fatherName : "<c:out value='${searchResult.fatherName}'/>",
+					fatherSchoolLevel : "<c:out value='${searchResult.fatherSchoolLevel}'/>",
+					fatherProfessionalCondition : "<c:out value='${searchResult.fatherProfessionalCondition}'/>",
+					fatherProfessionType : "<c:out value='${searchResult.fatherProfessionType}'/>",
+					motherName : "<c:out value='${searchResult.motherName}'/>",
+					motherSchoolLevel : "<c:out value='${searchResult.motherSchoolLevel}'/>",
+					motherProfessionalCondition : "<c:out value='${searchResult.motherProfessionalCondition}'/>",
+					motherProfessionType : "<c:out value='${searchResult.motherProfessionType}'/>",
+					salarySpan : "<c:out value='${searchResult.salarySpan}'/>",
+					disabilityType : "<c:out value='${searchResult.disabilityType}'/>",
+					needsDisabilitySupport : "<c:out value='${searchResult.needsDisabilitySupport}'/>",
+					universityDiscoveryString : "<c:out value='${searchResult.universityDiscoveryString}'/>",
+					universityChoiceString : "<c:out value='${searchResult.universityChoiceString}'/>",
+					<% } %>
+				},
             </c:forEach>
     ];
 	
@@ -149,11 +226,37 @@ ${portal.toolkit()}
 				url : "${datatablesI18NUrl}",			
 			},
 			columns: [
-				{ data: 'degreeCode' },
-				{ data: 'idnumber' },
-				{ data: 'name' },
-				{ data: 'registrationstate' },
-				{ data: 'candidacyState' },	
+				{ data: 'degreeCode', width: "12%" },
+				{ data: 'idnumber', width: "13%" },
+				{ data: 'name', width: "50%" },
+				{ data: 'registrationstate', width: "12%" },
+				{ data: 'candidacyState', width: "13%" },
+				<% if (exportStatistics) { %>
+				{ data: 'nationality', visible: false },
+				{ data: 'secondNationality', visible: false },
+				{ data: 'ingressionType', visible: false },
+				{ data: 'placingOption', visible: false },
+				{ data: 'firstOptionDegree', visible: false },
+				{ data: 'firstOptionInstitution', visible: false },
+				{ data: 'dislocatedResidenceType', visible: false },
+				{ data: 'profession', visible: false },
+				{ data: 'professionTimeType', visible: false },
+				{ data: 'professionalCondition', visible: false },
+				{ data: 'professionType', visible: false },
+				{ data: 'fatherName', visible: false },
+				{ data: 'fatherSchoolLevel', visible: false },
+				{ data: 'fatherProfessionalCondition', visible: false },
+				{ data: 'fatherProfessionType', visible: false },
+				{ data: 'motherName', visible: false },
+				{ data: 'motherSchoolLevel', visible: false },
+				{ data: 'motherProfessionalCondition', visible: false },
+				{ data: 'motherProfessionType', visible: false },
+				{ data: 'salarySpan', visible: false },
+				{ data: 'disabilityType', visible: false },
+				{ data: 'needsDisabilitySupport', visible: false },
+				{ data: 'universityDiscoveryString', visible: false },
+				{ data: 'universityChoiceString', visible: false },
+				<% } %>
 			],
 			data : searchregistrationdgesstatebeanDataSet,
 			dom: '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES

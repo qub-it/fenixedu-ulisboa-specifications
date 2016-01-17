@@ -31,18 +31,20 @@ import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguratio
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -55,11 +57,11 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(MotivationsExpectationsFormController.CONTROLLER_URL)
-public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecificationsBaseController {
+public abstract class MotivationsExpectationsFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/motivationsexpectationsform";
 
-    private static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
+    public static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
     public static final String FILLMOTIVATIONSEXPECTATIONS_URL = CONTROLLER_URL + _FILLMOTIVATIONSEXPECTATIONS_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
@@ -67,10 +69,20 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
     }
 
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
+    }
+
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
     public String fillmotivationsexpectations(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        if(isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+        
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         List<UniversityDiscoveryMeansAnswer> allDiscoveryMeans =
                 UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList());
@@ -90,27 +102,63 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
     private void fillFormIfRequired(Model model) {
         MotivationsExpectationsForm form;
         if (!model.containsAttribute("motivationsexpectationsform")) {
-            form = new MotivationsExpectationsForm();
-            PersonUlisboaSpecifications personUlisboa = AccessControl.getPerson().getPersonUlisboaSpecifications();
-            if (personUlisboa != null) {
-                form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());
-                form.getUniversityChoiceMotivationAnswers().addAll(personUlisboa.getUniversityChoiceMotivationAnswersSet());
-
-                form.setOtherUniversityChoiceMotivation(personUlisboa.getOtherUniversityChoiceMotivation());
-                form.setOtherUniversityDiscoveryMeans(personUlisboa.getOtherUniversityDiscoveryMeans());
-            }
+            form = createMotivationsExpectationsForm(getStudent(model));
 
             model.addAttribute("motivationsexpectationsform", form);
         } else {
             form = (MotivationsExpectationsForm) model.asMap().get("motivationsexpectationsform");
         }
+        
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
         form.populateRequestCheckboxes(request);
+    }
+
+    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final Student student) {
+        MotivationsExpectationsForm form = new MotivationsExpectationsForm();
+        PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
+        if (personUlisboa != null) {
+            form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());
+            form.getUniversityChoiceMotivationAnswers().addAll(personUlisboa.getUniversityChoiceMotivationAnswersSet());
+
+            form.setOtherUniversityChoiceMotivation(personUlisboa.getOtherUniversityChoiceMotivation());
+            form.setOtherUniversityDiscoveryMeans(personUlisboa.getOtherUniversityDiscoveryMeans());
+        }
+        
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : student.getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
+        form.setAnswered(personUlisboa != null ? personUlisboa.getMotivationsExpectationsFormAnswered() : false);
+        
+        return form;
     }
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.POST)
     public String fillmotivationsexpectations(MotivationsExpectationsForm form, Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         form.populateFormValues(request);
         if (!validate(form, model)) {
@@ -119,16 +167,20 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         }
 
         try {
-            writeData(form);
+            writeData(form, model);
             model.addAttribute("motivationsexpectationsform", form);
-            return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
+            return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
-            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
             return fillmotivationsexpectations(model, redirectAttributes);
         }
+    }
+
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
     }
 
     private boolean validate(MotivationsExpectationsForm form, Model model) {
@@ -162,8 +214,8 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
     }
 
     @Atomic
-    protected void writeData(MotivationsExpectationsForm form) {
-        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+    protected void writeData(MotivationsExpectationsForm form, final Model model) {
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(getStudent(model).getPerson());
         personUlisboa.getUniversityChoiceMotivationAnswersSet().clear();
         personUlisboa.getUniversityDiscoveryMeansAnswersSet().clear();
 
@@ -176,8 +228,9 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
 
         personUlisboa.setOtherUniversityChoiceMotivation(form.getOtherUniversityChoiceMotivation());
         personUlisboa.setOtherUniversityDiscoveryMeans(form.getOtherUniversityDiscoveryMeans());
+        personUlisboa.setMotivationsExpectationsFormAnswered(true);
     }
-
+    
     public static class MotivationsExpectationsForm {
         private List<UniversityDiscoveryMeansAnswer> universityDiscoveryMeansAnswers = new ArrayList<>();
 
@@ -186,6 +239,10 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
         private List<UniversityChoiceMotivationAnswer> universityChoiceMotivationAnswers = new ArrayList<>();
 
         private String otherUniversityChoiceMotivation;
+        
+        private boolean firstYearRegistration;
+        
+        private boolean answered;
 
         public List<UniversityDiscoveryMeansAnswer> getUniversityDiscoveryMeansAnswers() {
             return universityDiscoveryMeansAnswers;
@@ -246,5 +303,23 @@ public class MotivationsExpectationsFormController extends FenixeduUlisboaSpecif
                 request.setAttribute("universityChoiceMotivation_" + answer.getExternalId(), checked);
             }
         }
+        
+        
+        public boolean isFirstYearRegistration() {
+            return firstYearRegistration;
+        }
+        
+        public void setFirstYearRegistration(boolean firstYearRegistration) {
+            this.firstYearRegistration = firstYearRegistration;
+        }
+        
+        public boolean isAnswered() {
+            return answered;
+        }
+        
+        public void setAnswered(boolean answered) {
+            this.answered = answered;
+        }
+        
     }
 }

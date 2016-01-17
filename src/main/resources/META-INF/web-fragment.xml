@@ -7,4 +7,15 @@
     		<name>bennu-portal</name>
    		</after>
     </ordering>
+
+    <filter>
+        <filter-name>blueRecordFilter</filter-name>
+        <filter-class>org.fenixedu.ulisboa.specifications.ui.blue_record.filter.BlueRecordWebFilter</filter-class>
+    </filter>    
+
+    <filter-mapping>
+        <filter-name>blueRecordFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
 </web-fragment>

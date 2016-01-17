@@ -34,7 +34,7 @@ ${portal.toolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -95,6 +95,7 @@ ${portal.toolkit()}
 					<div class="form-control-static"><c:out value='${not empty param.username ? param.username : personalInformationForm.username }' /></div>
 				</div>
 			</div>
+			<c:if test="${not partial}">
 			<div class="form-group row">
 				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.gender" />
@@ -153,24 +154,28 @@ ${portal.toolkit()}
 							</c:forEach>
 						</select>
 						<script>
-							$("#personalInformationForm_idDocumentType").val('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
+							$(document).ready(function() {
+								$("#personalInformationForm_idDocumentType").select2().select2('val', ('<c:out value='${not empty param.iddocumenttype ? param.iddocumenttype : personalInformationForm.idDocumentType }'/>');
+							});
 						</script>
 					</div>
 				</div>
 			</c:if>
 			
-			<div class="form-group row">
-				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.documentIdEmissionLocation" />
-				</label>
-
-				<div class="col-sm-10">
-					<input id="personalInformationForm_documentIdEmissionLocation"
-						class="form-control" type="text" name="documentIdEmissionLocation"
-						value='<c:out value='${not empty param.documentidemissionlocation ? param.documentidemissionlocation : personalInformationForm.documentIdEmissionLocation }'/>' />
+			
+				<div class="form-group row">
+					<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
+						<spring:message
+							code="label.PersonalInformationForm.documentIdEmissionLocation" />
+					</label>
+	
+					<div class="col-sm-10">
+						<input id="personalInformationForm_documentIdEmissionLocation"
+							class="form-control" type="text" name="documentIdEmissionLocation"
+							value='<c:out value='${not empty param.documentidemissionlocation ? param.documentidemissionlocation : personalInformationForm.documentIdEmissionLocation }'/>' />
+					</div>
 				</div>
-			</div>
+			
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdEmissionDate" class="col-sm-2 control-label">
 					<spring:message
@@ -227,24 +232,7 @@ ${portal.toolkit()}
 					</div>
 				</div>
 			</c:if>
-			<div class="form-group row">
-				<label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.maritalStatus" />
-				</label>
-
-				<div class="col-sm-4">
-					<select id="personalInformationForm_maritalStatus"
-						class="form-control" name="maritalStatus">
-						<c:forEach items="${maritalStatusValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field.localizedName}' /></option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#personalInformationForm_maritalStatus").val('<c:out value='${not empty param.maritalstatus ? param.maritalstatus : personalInformationForm.maritalStatus }'/>');
-					</script>
-				</div>
-			</div>
+			</c:if>
 			<c:if test="${1 lt placingOption}">
 				<div class="form-group row">
 					<label class="col-sm-2 control-label">
@@ -273,97 +261,25 @@ ${portal.toolkit()}
 					</div>
 				</div>
 			</c:if>
+			
 			<div class="form-group row">
-				<label for="personalInformationForm_professionalCondition" class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.professionalCondition" />
+				<label class="col-sm-2 control.label">
+					<spring:message code="label.PersonalInformationForm.countryHighSchool" />
 				</label>
-
-				<div class="col-sm-4">
-					<select id="personalInformationForm_professionalCondition"
-						class="form-control" name="professionalCondition">
-						<c:forEach items="${professionalConditionValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field.localizedName}' /></option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#personalInformationForm_professionalCondition").val('<c:out value='${not empty param.professionalcondition ? param.professionalcondition : personalInformationForm.professionalCondition }'/>');
-					</script>
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="personalInformationForm_profession" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.profession" />
-				</label>
-
+				
 				<div class="col-sm-10">
-					<input id="personalInformationForm_profession" class="form-control"
-						type="text" name="profession"
-						value='<c:out value='${not empty param.profession ? param.profession : personalInformationForm.profession }'/>' />
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="personalInformationForm_professionTimeType" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.professionTimeType" />
-				</label>
-
-				<div class="col-sm-4">
-					<select id="personalInformationForm_professionTimeType" class="form-control" name="professionTimeType">
-						<option value=""></option>
-						<c:forEach items="${professionTimeTypeValues}" var="value">
-							<option value='<c:out value='${value.externalId}'/>'><c:out value='${value.description.content}' /></option>
+					<select id="personalInformationForm_countryHighSchool" class="form-control" name="countryHighSchool">
+							<option value=""></option>
+						<c:forEach var="country" items="${countryHighSchoolValues}">
+							<option value="${country.externalId}"><c:out value="${country.localizedName.content}" /></option>
 						</c:forEach>
 					</select>
 					<script>
-						$("#personalInformationForm_professionTimeType").val('<c:out value='${not empty param.professiontimetype ? param.professiontimetype : personalInformationForm.professionTimeType.externalId }'/>');
+					$(document).ready(function() {					
+						$("#personalInformationForm_countryHighSchool").select2().select2('val', '<c:out value='${not empty param.countryHighSchool ? param.countryHighSchool : personalInformationForm.countryHighSchool.externalId }'/>');
+					});
+					
 					</script>
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="personalInformationForm_professionType" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.professionType" />
-				</label>
-
-				<div class="col-sm-4">
-					<select id="personalInformationForm_professionType"
-						class="form-control" name="professionType">
-						<c:forEach items="${professionTypeValues}" var="field">
-							<option value='<c:out value='${field}'/>'><c:out
-									value='${field.localizedName}' /></option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#personalInformationForm_professionType").val('<c:out value='${not empty param.professiontype ? param.professiontype : personalInformationForm.professionType }'/>');
-					</script>
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="personalInformationForm_grantOwnerType" class="col-sm-2 control-label">
-					<spring:message code="label.PersonalInformationForm.grantOwnerType" />
-				</label>
-
-				<div class="col-sm-10">
-					<select id="personalInformationForm_grantOwnerType"	class="form-control" name="grantOwnerType">
-						<c:forEach items="${grantOwnerTypeValues}" var="field">
-							<option value='<c:out value='${field}'/>'><spring:message code="${field.qualifiedName}"/></option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#personalInformationForm_grantOwnerType").val('<c:out value='${not empty param.grantownertype ? param.grantownertype : personalInformationForm.grantOwnerType }'/>');
-					</script>
-				</div>
-			</div>
-			<div class="form-group row">
-				<label class="col-sm-2 control-label">
-					<spring:message
-						code="label.PersonalInformationForm.grantOwnerProvider" />
-				</label>
-
-				<div class="col-sm-10">
-					<select id="personalInformationForm_grantOwnerProvider" class="form-control" name="grantOwnerProvider">
-						 <option value="${personalInformationForm.grantOwnerProvider}" selected>${personalInformationForm.grantOwnerProviderName}</option>
-					</select>
 				</div>
 			</div>
 		</div>
@@ -415,10 +331,10 @@ $(document).ready(function() {
 		function updateGrantProviderAjax(){
 			val = $("#personalInformationForm_grantOwnerType").val();
 			if(val == "OTHER_INSTITUTION_GRANT_OWNER" || val == "ORIGIN_COUNTRY_GRANT_OWNER"){
-				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnitFreeOption/";
+				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/externalUnitFreeOption/";
 			}
 			else{
-				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/externalUnit/";
+				ajaxForGrantOwnerProvider.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/externalUnit/";
 			}
 				$("#personalInformationForm_grantOwnerProvider").select2({ajax : ajaxForGrantOwnerProvider});
 		}
@@ -445,7 +361,7 @@ $(document).ready(function() {
 		$("#personalInformationForm_firstOptionInstitution").select2(
 				{
 				  ajax: {
-					    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/academicUnit/",
+					    url: "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/academicUnit/",
 				    dataType: 'json',
 				    delay: 250,
 				    data: function (params) {
@@ -493,7 +409,7 @@ $(document).ready(function() {
 			    cache: true
 			  };
 		updateDegreeDesignationsUrl = function(){
-			ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/degreeDesignation/" + $("#personalInformationForm_firstOptionInstitution").val(); 
+			ajaxDataForDegreesDesignations.url = "${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes/degreeDesignation/" + $("#personalInformationForm_firstOptionInstitution").val(); 
 			$("#personalInformationForm_firstOptionDegreeDesignation").select2({ajax: ajaxDataForDegreesDesignations});
 		}
 		updateDegreeDesignationsUrl();

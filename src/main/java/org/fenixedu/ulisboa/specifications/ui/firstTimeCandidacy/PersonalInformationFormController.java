@@ -33,15 +33,16 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.Fis
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -49,41 +50,38 @@ import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.PartySocialSecurityNumber;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
+import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
-public class PersonalInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
+public abstract class PersonalInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String IDENTITY_CARD_CONTROL_DIGIT_FORMAT = "[0-9]";
 
@@ -93,12 +91,17 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform";
 
-    private static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
+    protected static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
     public static final String FILLPERSONALINFORMATION_URL = CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;
 
     @RequestMapping
     public String home(Model model) {
-        return "forward:" + CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;
+        return "forward:" + getControllerURL() + _FILLPERSONALINFORMATION_URI;
+    }
+
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
     }
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
@@ -107,22 +110,26 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
-    public String fillpersonalinformation(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+    public String fillpersonalinformation(final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+        
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         model.addAttribute("genderValues", Gender.values());
+        model.addAttribute("partial", isPartialUpdate());
 
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        model.addAttribute("maritalStatusValues", maritalStatusValues);
-        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
-        model.addAttribute("professionTypeValues", ProfessionType.values());
-        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
-        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
+        final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
+        Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
+        model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
 
-        model.addAttribute("placingOption", FirstTimeCandidacyController.getCandidacy().getPlacingOption());
+        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        if (candidacy != null) {
+            model.addAttribute("placingOption", candidacy.getPlacingOption());
+        }
 
         PersonalInformationForm form = fillFormIfRequired(model);
         model.addAttribute("personalInformationForm", form);
@@ -136,18 +143,27 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }
 
-    private PersonalInformationForm fillFormIfRequired(Model model) {
-        Person person = AccessControl.getPerson();
+    public PersonalInformationForm fillFormIfRequired(Model model) {
+        Person person = getStudent(model).getPerson();
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
             if (!form.getIsForeignStudent()) {
                 form.setDocumentIdNumber(person.getDocumentIdNumber());
                 form.setIdDocumentType(person.getIdDocumentType());
             }
+            
+            fillstaticformdata(getStudent(model), form);
+            
             model.addAttribute("personalInformationForm", form);
             return form;
         }
 
+        return createPersonalInformationForm(getStudent(model));
+    }
+
+    protected PersonalInformationForm createPersonalInformationForm(final Student student) {
+        final Person person = student.getPerson();
+        PersonalInformationForm form;
         form = new PersonalInformationForm();
 
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
@@ -159,8 +175,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
-        form.setMaritalStatus(person.getMaritalStatus());
-        form.setProfession(person.getProfession());
 
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
@@ -168,8 +182,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
                 form.setDocumentIdNumber(person.getDocumentIdNumber());
                 form.setIdDocumentType(person.getIdDocumentType());
             }
-
-            form.setProfessionTimeType(personUl.getProfessionTimeType());
 
             Unit institution = personUl.getFirstOptionInstitution();
             if (institution != null) {
@@ -186,129 +198,123 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             form.setIdDocumentType(person.getIdDocumentType());
         }
 
-        PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
-                        .getPrecedentDegreeInformation());
-        form.setMaritalStatus(personalData.getMaritalStatus());
-        if (form.getMaritalStatus() == null) {
-            form.setMaritalStatus(MaritalStatus.SINGLE);
-        }
-        form.setProfessionType(personalData.getProfessionType());
-        if (form.getProfessionType() == null) {
-            form.setProfessionType(ProfessionType.OTHER);
-        }
-        form.setGrantOwnerType(personalData.getGrantOwnerType());
-        if (form.getGrantOwnerType() == null) {
-            form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
-        }
-        Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
-        form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
-        form.setProfessionalCondition(personalData.getProfessionalCondition());
-        if (form.getProfessionalCondition() == null) {
-            form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
-        }
+        form.setCountryHighSchool(person.getCountryHighSchool());
+        
+        form.setGender(student.getPerson().getGender());
 
+        fillstaticformdata(student, form);
+        
         return form;
+    }
+
+    private void fillstaticformdata(final Student student, final PersonalInformationForm form) {
+        form.setFirstYearRegistration(false);
+        for (final Registration registration : student.getRegistrationsSet()) {
+            if(!registration.isActive()) {
+                continue;
+            }
+            
+            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+                continue;
+            }
+            
+            form.setFirstYearRegistration(true);
+        }
+        
+        form.setName(student.getPerson().getName());
+        form.setUsername(student.getPerson().getUser().getUsername());
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
     public String fillpersonalinformation(PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
         if (!validate(form, model)) {
             return fillpersonalinformation(model, redirectAttributes);
         }
 
         try {
-            writeData(form);
+            writeData(form, model);
             model.addAttribute("personalInformationForm", form);
-            return redirect(FiliationFormController.FILLFILIATION_URL, model, redirectAttributes);
+            return nextScreen(model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             de.printStackTrace();
+            
             return fillpersonalinformation(model, redirectAttributes);
         }
     }
 
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(FiliationFormController.FILLFILIATION_URL, model, redirectAttributes);
+    }
+
     private boolean validate(PersonalInformationForm form, Model model) {
-        Person person = AccessControl.getPerson();
-        IDDocumentType idType = form.getIdDocumentType();
-        if (form.getIsForeignStudent()) {
-            if (idType == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdType.required"), model);
-                return false;
+        
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+        
+        return result.isEmpty();
+    }
+
+    public Set<String> validateForm(PersonalInformationForm form, final Person person) {
+        final Set<String> result = Sets.newHashSet();
+        if (!isPartialUpdate()) {
+            IDDocumentType idType = form.getIdDocumentType();
+            if (form.getIsForeignStudent()) {
+                if (idType == null) {
+                    result.add(BundleUtil.getString(BUNDLE, "error.documentIdType.required"));
+                }
+
+                if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
+                    result.add(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"));
+                }
             }
 
-            if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"), model);
-                return false;
+            if (!form.getIsForeignStudent()) {
+                if (StringUtils.isEmpty(form.getSocialSecurityNumber())
+                        || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
+                }
+            } else {
+                if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
+                        && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
+                }
             }
-        }
 
-        if (!form.getIsForeignStudent()) {
-            if (StringUtils.isEmpty(form.getSocialSecurityNumber())
-                    || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
-                return false;
+            if (form.getDocumentIdExpirationDate() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.required"));
             }
-        } else {
-            if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
-                    && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"), model);
-                return false;
-            }
-        }
 
-        if (form.getDocumentIdExpirationDate() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.expirationDate.required"), model);
-            return false;
-        }
-
-        if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !isValidcontrib(form.getSocialSecurityNumber())) {
-            addErrorMessage(
-                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"),
-                    model);
-            return false;
-        }
-        String defaultSocialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
-        if (!defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
-            Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
-            if (party != null && party != person) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"), model);
-                return false;
+            if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !isValidcontrib(form.getSocialSecurityNumber())) {
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
+            }
+            String defaultSocialSecurityNumber =
+                    FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+            if (!defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
+                Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
+                if (party != null && party != person) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"));
+                }
             }
         }
-
-        if (form.isStudentWorking()) {
-            if (StringUtils.isEmpty(form.getProfession())) {
-                addErrorMessage(
-                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.profession.required"),
-                        model);
-                return false;
-            }
-            if (form.getProfessionTimeType() == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"), model);
-                return false;
-            }
+        
+        if(form.getCountryHighSchool() == null) {
+            result.add(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
         }
-
-        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
-        if (grantOwnerType.equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
-                || grantOwnerType.equals(GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
-            if (StringUtils.isEmpty(form.getGrantOwnerProvider())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"), model);
-                return false;
-            }
-        }
-
-        return true;
+        return result;
     }
 
     private boolean testsMode() {
@@ -318,111 +324,51 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
     }
 
     @Atomic
-    private void writeData(PersonalInformationForm form) {
+    private void writeData(PersonalInformationForm form, final Model model) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(FirstTimeCandidacyController.getCandidacy()
-                        .getPrecedentDegreeInformation());
+        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(getStudent(model));
+        if (!isPartialUpdate()) {
+            person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
+            LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
+            LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
+            person.setEmissionDateOfDocumentIdYearMonthDay(documentIdEmissionDate != null ? new YearMonthDay(
+                    documentIdEmissionDate.toDate()) : null);
+            person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
+                    documentIdExpirationDate.toDate()) : null);
 
-        person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
-        LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
-        LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
-        person.setEmissionDateOfDocumentIdYearMonthDay(documentIdEmissionDate != null ? new YearMonthDay(documentIdEmissionDate
-                .toDate()) : null);
-        person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
-                documentIdExpirationDate.toDate()) : null);
-
-        String socialSecurityNumber = form.getSocialSecurityNumber();
-        if (StringUtils.isEmpty(socialSecurityNumber)) {
-            socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+            String socialSecurityNumber = form.getSocialSecurityNumber();
+            if (StringUtils.isEmpty(socialSecurityNumber)) {
+                socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+            }
+            person.setSocialSecurityNumber(socialSecurityNumber);
         }
-        person.setSocialSecurityNumber(socialSecurityNumber);
 
-        person.setMaritalStatus(form.getMaritalStatus());
-        personalData.setMaritalStatus(form.getMaritalStatus());
-
-        if (1 < FirstTimeCandidacyController.getCandidacy().getPlacingOption()) {
-            personUl.setFirstOptionInstitution(form.getFirstOptionInstitution());
-            if (form.getFirstOptionDegreeDesignation() != null) {
-                personUl.setFirstOptionDegreeDesignation(form.getFirstOptionDegreeDesignation().getDescription());
+        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        if (candidacy != null) {
+            if (1 < candidacy.getPlacingOption()) {
+                personUl.setFirstOptionInstitution(form.getFirstOptionInstitution());
+                if (form.getFirstOptionDegreeDesignation() != null) {
+                    personUl.setFirstOptionDegreeDesignation(form.getFirstOptionDegreeDesignation().getDescription());
+                }
             }
         }
 
-        personalData.setProfessionalCondition(form.getProfessionalCondition());
-        person.setProfession(form.getProfession());
-        personalData.setProfessionType(form.getProfessionType());
-        personUl.setProfessionTimeType(form.getProfessionTimeType());
-
-        if (form.getIsForeignStudent()) {
-            person.setIdDocumentType(form.getIdDocumentType());
-            person.setDocumentIdNumber(form.getDocumentIdNumber());
-            personUl.setDgesTempIdCode("");
-        }
-
-        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
-        personalData.setGrantOwnerType(grantOwnerType);
-        if (grantOwnerType != null && !grantOwnerType.equals(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP)) {
-            Unit grantOwnerProvider = FenixFramework.getDomainObject(form.getGrantOwnerProvider());
-            if (grantOwnerProvider == null
-                    && (grantOwnerType == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER || grantOwnerType == GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER)) {
-                //We accept new institutions for these 2 cases
-                grantOwnerProvider = Unit.createNewNoOfficialExternalInstitution(form.getGrantOwnerProvider());
+        if (!isPartialUpdate()) {
+            if (form.getIsForeignStudent()) {
+                person.setIdDocumentType(form.getIdDocumentType());
+                person.setDocumentIdNumber(form.getDocumentIdNumber());
+                personUl.setDgesTempIdCode("");
             }
-            personalData.setGrantOwnerProvider(grantOwnerProvider);
-        } else {
-            personalData.setGrantOwnerProvider(null);
         }
+        
+        person.setCountryHighSchool(form.getCountryHighSchool());
     }
 
-    @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        return UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+    public boolean isPartialUpdate() {
+        return false;
     }
-
-    @RequestMapping(value = "/externalUnitFreeOption", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readExternalUnitsWithFreeOption(@RequestParam("namePart") String namePart, Model model) {
-        List<UnitBean> readExternalUnits = readExternalUnits(namePart, model);
-        readExternalUnits.add(0, new UnitBean(namePart, namePart));
-        return readExternalUnits;
-    }
-
-    @RequestMapping(value = "/academicUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readAcademicUnits(@RequestParam("namePart") String namePart, Model model) {
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
-    }
-
-    @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") String unitOid,
-            @RequestParam("namePart") String namePart, Model model) {
-        Unit unit = null;
-        try {
-            unit = FenixFramework.getDomainObject(unitOid);
-        } catch (Exception e) {
-            //Not a unit, so it is a custom value, ignore
-        }
-
-        Collection<DegreeDesignation> possibleDesignations;
-        if (unit == null) {
-            possibleDesignations = Bennu.getInstance().getDegreeDesignationsSet();
-        } else {
-            possibleDesignations = unit.getDegreeDesignationSet();
-        }
-
-        Predicate<DegreeDesignation> matchesName =
-                dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
-        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
-                dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
-        return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
-                .collect(Collectors.toList());
-    }
-
-    private static String getFullDescription(DegreeDesignation designation) {
-        return designation.getDegreeClassification().getDescription1() + " - " + designation.getDescription();
-    }
-
+    
     public static class DegreeDesignationBean {
         private final String degreeDesignationText;
         private final String degreeDesignationId;
@@ -453,7 +399,6 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate documentIdExpirationDate;
         private String socialSecurityNumber;
-        private MaritalStatus maritalStatus;
         private ProfessionalSituationConditionType professionalCondition;
         private String profession;
         private ProfessionType professionType;
@@ -467,16 +412,37 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
 
         private IDDocumentType idDocumentType;
 
+        private Country countryHighSchool;
+        
+        private boolean firstYearRegistration;
+
+        /* Read only */
+        private String name;
+        private String username;
+        private Gender gender;
+        
         public String getName() {
-            return AccessControl.getPerson().getName();
+            return name;
+        }
+        
+        public void setName(String name) {
+            this.name = name;
         }
 
         public String getUsername() {
-            return AccessControl.getPerson().getUsername();
+            return username;
+        }
+        
+        public void setUsername(String username) {
+            this.username = username;
         }
 
         public Gender getGender() {
-            return AccessControl.getPerson().getGender();
+            return gender;
+        }
+        
+        public void setGender(Gender gender) {
+            this.gender = gender;
         }
 
         public String getDocumentIdNumber() {
@@ -527,110 +493,16 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             this.socialSecurityNumber = socialSecurityNumber;
         }
 
-        public ProfessionType getProfessionType() {
-            return professionType;
-        }
-
-        public void setProfessionType(ProfessionType professionType) {
-            this.professionType = professionType;
-        }
-
-        public ProfessionalSituationConditionType getProfessionalCondition() {
-            return professionalCondition;
-        }
-
-        public void setProfessionalCondition(ProfessionalSituationConditionType professionalCondition) {
-            this.professionalCondition = professionalCondition;
-        }
-
-        public String getProfession() {
-            return profession;
-        }
-
-        public void setProfession(String profession) {
-            this.profession = profession;
-        }
-
-        public MaritalStatus getMaritalStatus() {
-            return maritalStatus;
-        }
-
-        public void setMaritalStatus(MaritalStatus maritalStatus) {
-            this.maritalStatus = maritalStatus;
-        }
-
-        public GrantOwnerType getGrantOwnerType() {
-            return grantOwnerType;
-        }
-
-        public void setGrantOwnerType(GrantOwnerType grantOwnerType) {
-            this.grantOwnerType = grantOwnerType;
-        }
-
-        public String getGrantOwnerProvider() {
-            return grantOwnerProvider;
-        }
-
-        public void setGrantOwnerProvider(String grantOwnerProvider) {
-            this.grantOwnerProvider = grantOwnerProvider;
-        }
-
         public static long getSerialversionuid() {
             return serialVersionUID;
         }
 
-        public ProfessionTimeType getProfessionTimeType() {
-            return professionTimeType;
+        public Country getCountryHighSchool() {
+            return countryHighSchool;
         }
-
-        public void setProfessionTimeType(ProfessionTimeType professionTimeType) {
-            this.professionTimeType = professionTimeType;
-        }
-
-        public boolean isStudentWorking() {
-            if (isWorkingCondition()) {
-                return true;
-            }
-            if (!StringUtils.isEmpty(getProfession())) {
-                return true;
-            }
-            if (getProfessionTimeType() != null) {
-                return true;
-            }
-            if (isWorkingProfessionType()) {
-                return true;
-            }
-            return false;
-        }
-
-        private boolean isWorkingCondition() {
-            switch (getProfessionalCondition()) {
-            case WORKS_FOR_OTHERS:
-                return true;
-            case EMPLOYEER:
-                return true;
-            case INDEPENDENT_WORKER:
-                return true;
-            case WORKS_FOR_FAMILY_WITHOUT_PAYMENT:
-                return true;
-            case HOUSEWIFE:
-                return true;
-            case MILITARY_SERVICE:
-                return true;
-            default:
-                return false;
-            }
-        }
-
-        private boolean isWorkingProfessionType() {
-            switch (getProfessionType()) {
-            case UNKNOWN:
-                return false;
-            case OTHER:
-                return false;
-            default:
-                return true;
-            }
+        
+        public void setCountryHighSchool(Country countryHighSchool) {
+            this.countryHighSchool = countryHighSchool;
         }
 
         public Unit getFirstOptionInstitution() {
@@ -649,18 +521,17 @@ public class PersonalInformationFormController extends FenixeduUlisboaSpecificat
             this.firstOptionDegreeDesignation = firstOptionDegreeDesignation;
         }
 
-        public String getGrantOwnerProviderName() {
-            Unit unit = FenixFramework.getDomainObject(getGrantOwnerProvider());
-            if (unit == null) {
-                return getGrantOwnerProvider();
-            } else {
-                return unit.getName();
-            }
-        }
-
         public boolean getIsForeignStudent() {
             Country nationality = AccessControl.getPerson().getCountry();
             return nationality == null || !nationality.isDefaultCountry();
+        }
+        
+        public boolean isFirstYearRegistration() {
+            return firstYearRegistration;
+        }
+        
+        public void setFirstYearRegistration(boolean firstYearRegistration) {
+            this.firstYearRegistration = firstYearRegistration;
         }
     }
 }

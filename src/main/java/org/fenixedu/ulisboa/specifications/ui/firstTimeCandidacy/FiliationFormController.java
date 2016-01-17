@@ -31,7 +31,9 @@ import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguratio
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
@@ -79,7 +81,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         model.addAttribute("countries_options", Bennu.getInstance().getCountrysSet());
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+        model.addAttribute("districts_options", getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
         fillFormIfRequired(model);
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillFiliation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation";
@@ -185,7 +187,7 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
         Function<DistrictSubdivision, DistrictSubdivisionBean> createSubdivisionBean =
                 ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName());
         List<DistrictSubdivisionBean> subdivisions =
-                district.getDistrictSubdivisionsSet().stream().map(createSubdivisionBean).collect(Collectors.toList());
+                getSubdivisionsWithParishes(district).map(createSubdivisionBean).collect(Collectors.toList());
         subdivisions.add(new DistrictSubdivisionBean("", ""));
         return subdivisions;
     }
@@ -198,6 +200,16 @@ public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseCo
                 districtSubdivision.getParishSet().stream().map(createParishBean).collect(Collectors.toList());
         parishes.add(new ParishBean("", ""));
         return parishes;
+    }
+
+    public static Stream<District> getDistrictsWithSubdivisionsAndParishes() {
+        Predicate<District> hasSubdivisionsWithParishes = district -> getSubdivisionsWithParishes(district).count() != 0l;
+        return Bennu.getInstance().getDistrictsSet().stream().filter(hasSubdivisionsWithParishes);
+    }
+
+    public static Stream<DistrictSubdivision> getSubdivisionsWithParishes(District district) {
+        Predicate<DistrictSubdivision> hasParishes = subdivision -> !subdivision.getParishSet().isEmpty();
+        return district.getDistrictSubdivisionsSet().stream().filter(hasParishes);
     }
 
     public static class FiliationForm {

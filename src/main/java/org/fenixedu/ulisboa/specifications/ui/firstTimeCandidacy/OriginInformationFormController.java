@@ -30,11 +30,9 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
@@ -45,21 +43,19 @@ import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutio
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController.DegreeDesignationBean;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UnitBean;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
@@ -67,8 +63,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
@@ -76,10 +70,9 @@ import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
-@BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping(OriginInformationFormController.CONTROLLER_URL)
-public class OriginInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
+public abstract class OriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     private static final String GRADE_FORMAT = "\\d{2}";
 
@@ -87,7 +80,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform";
 
-    private static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
+    public static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
     public static final String FILLORIGININFORMATION_URL = CONTROLLER_URL + _FILLORIGININFORMATION_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
@@ -95,108 +88,185 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         return redirect(ContactsFormController.FILLCONTACTS_URL, model, redirectAttributes);
     }
 
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
+    }
+
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
-    public String fillorigininformation(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+    public String fillorigininformation(final Model model, final RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
+
+        if (isFormIsFilled(model)) {
+            return nextScreen(model, redirectAttributes);
+        }
+
+        return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
+                + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(), model,
+                redirectAttributes);
+    }
+
+    @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
+    public String fillorigininformation(@PathVariable("registrationId") final Registration registration, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != getStudent(model).getPerson()) {
+            throw new RuntimeException("invalid request");
+        }
+        
+        model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
-        fillFormIfRequired(model);
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillOriginInformation.info"), model);
+        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
+
+        fillFormIfRequired(registration, model);
+        
+        addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillOriginInformation.info"), model);
+
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
     }
 
-    private void fillFormIfRequired(Model model) {
+    protected Object schoolLevelTypeValues() {
+        final List<SchoolLevelType> result = Lists.newArrayList();
+
+        result.add(SchoolLevelType.BACHELOR_DEGREE);
+        result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.DEGREE);
+        result.add(SchoolLevelType.DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.DOCTORATE_DEGREE);
+        result.add(SchoolLevelType.DOCTORATE_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.MASTER_DEGREE);
+        result.add(SchoolLevelType.MASTER_DEGREE_INTEGRATED);
+        result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.OTHER);
+        result.add(SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT);
+        result.add(SchoolLevelType.MEDIUM_EDUCATION);
+        result.add(SchoolLevelType.TECHNICAL_SPECIALIZATION);
+
+        return result;
+    }
+
+    private void fillFormIfRequired(final Registration registration, Model model) {
+        model.addAttribute("registration", registration);
+        model.addAttribute("districtAndSubdivisionRequired", isDistrictAndSubdivisionRequired());
+        
         if (!model.containsAttribute("originInformationForm")) {
-            OriginInformationForm form = new OriginInformationForm();
+            model.addAttribute("originInformationForm", createOriginInformationForm(registration));
+        }
 
-            PrecedentDegreeInformation precedentDegreeInformation =
-                    FirstTimeCandidacyController.getCandidacy().getPrecedentDegreeInformation();
-            PersonalIngressionData personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
-
-            form.setSchoolLevel(precedentDegreeInformation.getSchoolLevel());
-            if (form.getSchoolLevel() == SchoolLevelType.OTHER) {
-                form.setOtherSchoolLevel(precedentDegreeInformation.getOtherSchoolLevel());
-            }
-
-            Unit institution = precedentDegreeInformation.getInstitution();
-            if (institution != null) {
-                form.setInstitutionOid(institution.getExternalId());
-                form.setInstitutionName(institution.getName());
-            }
-
-            String degreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
-            if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHigherEducation()) {
-                DegreeDesignation degreeDesignation;
-                if (institution != null) {
-                    Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName);
-                    degreeDesignation = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
-                    form.setRaidesDegreeDesignation(degreeDesignation);
-                } else {
-                    degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
-                    form.setRaidesDegreeDesignation(degreeDesignation);
-                }
+        final OriginInformationForm form = (OriginInformationForm) model.asMap().get("originInformationForm");
+        if (!StringUtils.isEmpty(form.getInstitutionOid())) {
+            DomainObject institutionObject = FenixFramework.getDomainObject(form.getInstitutionOid());
+            if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
+                form.setInstitutionName(((Unit) institutionObject).getName());
             } else {
-                form.setDegreeDesignation(degreeDesignationName);
-            }
-
-            form.setConclusionGrade(precedentDegreeInformation.getConclusionGrade());
-            form.setConclusionYear(precedentDegreeInformation.getConclusionYear());
-            form.setCountryWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getCountry());
-            if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
-                form.setCountryWhereFinishedPreviousCompleteDegree(Country.readDefault());
-            }
-
-            form.setDistrictWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrict());
-            form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
-
-            form.setHighSchoolType(personalData.getHighSchoolType());
-
-            model.addAttribute("originInformationForm", form);
-        } else {
-            OriginInformationForm form = (OriginInformationForm) model.asMap().get("originInformationForm");
-            if (!StringUtils.isEmpty(form.getInstitutionOid())) {
-                DomainObject institutionObject = FenixFramework.getDomainObject(form.getInstitutionOid());
-                if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
-                    form.setInstitutionName(((Unit) institutionObject).getName());
-                } else {
-                    form.setInstitutionName(form.getInstitutionOid());
-                }
+                form.setInstitutionName(form.getInstitutionOid());
             }
         }
     }
 
-    @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.POST)
-    public String fillorigininformation(OriginInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+    protected OriginInformationForm createOriginInformationForm(final Registration registration) {
+        final OriginInformationForm form = new OriginInformationForm();
+
+        final PrecedentDegreeInformation precedentDegreeInformation =
+                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+
+        form.setSchoolLevel(precedentDegreeInformation.getSchoolLevel());
+        if (form.getSchoolLevel() == SchoolLevelType.OTHER) {
+            form.setOtherSchoolLevel(precedentDegreeInformation.getOtherSchoolLevel());
         }
-        if (!validate(form, model)) {
-            return fillorigininformation(model, redirectAttributes);
+
+        Unit institution = precedentDegreeInformation.getInstitution();
+        if (institution != null) {
+            form.setInstitutionOid(institution.getExternalId());
+            form.setInstitutionName(institution.getName());
+        }
+
+        String degreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
+        if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHigherEducation()) {
+            DegreeDesignation degreeDesignation;
+            if (institution != null) {
+                Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName) && form.getSchoolLevel().getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode());
+                Optional<DegreeDesignation> degreeDesignationOption = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst();
+                if(degreeDesignationOption.isPresent()) {
+                    degreeDesignation = degreeDesignationOption.get();
+                    form.setRaidesDegreeDesignation(degreeDesignation);
+                } else {
+                    form.setDegreeDesignation(degreeDesignationName);                    
+                }
+                
+            } else {
+                degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
+                form.setRaidesDegreeDesignation(degreeDesignation);
+            }
+        } else {
+            form.setDegreeDesignation(degreeDesignationName);
+        }
+
+        form.setConclusionGrade(precedentDegreeInformation.getConclusionGrade());
+        form.setConclusionYear(precedentDegreeInformation.getConclusionYear());
+        form.setCountryWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getCountry());
+        if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
+            form.setCountryWhereFinishedPreviousCompleteDegree(Country.readDefault());
+        }
+
+        form.setDistrictWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrict());
+        form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
+
+        form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
+        
+        return form;
+    }
+
+    @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
+    public String fillorigininformation(OriginInformationForm form,
+            @PathVariable("registrationId") final Registration registration, Model model, RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != getStudent(model).getPerson()) {
+            throw new RuntimeException("invalid request");
+        }
+        
+        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
+        if (!validate(registration, form, model)) {
+            return fillorigininformation(registration, model, redirectAttributes);
         }
 
         try {
-            writeData(form);
-            model.addAttribute("originInformationForm", form);
-            return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
+            writeData(registration, form);
+
+            if (findCompletePrecedentDegreeInformationsToFill(getStudent(model)).isEmpty()) {
+                return nextScreen(model, redirectAttributes);
+            }
+
+            return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
+                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(), model,
+                    redirectAttributes);
+
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
-            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
             return fillorigininformation(model, redirectAttributes);
         }
     }
 
-    private boolean validate(OriginInformationForm form, Model model) {
+    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(PreviousDegreeOriginInformationFormController.FILLPREVIOUSDEGREEINFORMATION_URL, model,
+                redirectAttributes);
+    }
+
+    protected boolean validate(final Registration registration, OriginInformationForm form, Model model) {
+
         if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
             return false;
         }
-        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()) {
+        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && isDistrictAndSubdivisionRequired()) {
             if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
                     || form.getDistrictWhereFinishedPreviousCompleteDegree() == null) {
                 addErrorMessage(
@@ -232,7 +302,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             }
         }
 
-        if (StringUtils.isEmpty(form.getConclusionGrade()) || !form.getConclusionGrade().matches(GRADE_FORMAT)) {
+        if (!StringUtils.isEmpty(form.getConclusionGrade()) && !form.getConclusionGrade().matches(GRADE_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"), model);
             return false;
         }
@@ -248,7 +318,7 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
             return false;
         }
 
-        int birthYear = AccessControl.getPerson().getDateOfBirthYearMonthDay().getYear();
+        int birthYear = registration.getPerson().getDateOfBirthYearMonthDay().getYear();
         if (form.getConclusionYear() < birthYear) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"), model);
             return false;
@@ -266,11 +336,10 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
     }
 
     @Atomic
-    protected void writeData(OriginInformationForm form) {
-        PrecedentDegreeInformation precedentDegreeInformation =
-                FirstTimeCandidacyController.getCandidacy().getPrecedentDegreeInformation();
-        PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(precedentDegreeInformation);
+    protected void writeData(final Registration registration, final OriginInformationForm form) {
+        final PrecedentDegreeInformation precedentDegreeInformation =
+                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        final PersonalIngressionData personalData = precedentDegreeInformation.getPersonalIngressionData();
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());
         precedentDegreeInformation.setDegreeDesignation(form.getDegreeDesignation());
@@ -337,50 +406,9 @@ public class OriginInformationFormController extends FenixeduUlisboaSpecificatio
         }
         return resolvedAcronym;
     }
-
-    @RequestMapping(value = "/raidesUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") String namePart, Model model) {
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
-    }
-
-    //Adds a false unit with OID=Name to enable the user adding new units
-    @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        List<UnitBean> collect =
-                UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
-        collect.add(0, new UnitBean(namePart, namePart));
-        return collect;
-    }
-
-    @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") String unitOid,
-            @RequestParam("namePart") String namePart, Model model) {
-        Unit unit = null;
-        try {
-            unit = FenixFramework.getDomainObject(unitOid);
-        } catch (Exception e) {
-            //Not a unit, so it is a custom value, ignore
-        }
-
-        Collection<DegreeDesignation> possibleDesignations;
-        if (unit == null) {
-            possibleDesignations = Bennu.getInstance().getDegreeDesignationsSet();
-        } else {
-            possibleDesignations = unit.getDegreeDesignationSet();
-        }
-
-        Predicate<DegreeDesignation> matchesName =
-                dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
-        Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
-                dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
-        return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)
-                .collect(Collectors.toList());
-    }
-
-    private static String getFullDescription(DegreeDesignation designation) {
-        return designation.getDegreeClassification().getDescription1() + " - " + designation.getDescription();
+    
+    public boolean isDistrictAndSubdivisionRequired() {
+        return true;
     }
 
     public static class OriginInformationForm {
