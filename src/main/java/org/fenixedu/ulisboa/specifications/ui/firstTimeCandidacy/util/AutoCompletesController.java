@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
+import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
@@ -54,7 +55,8 @@ public class AutoCompletesController {
 
     @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") String unitOid,
-            @RequestParam("namePart") String namePart, Model model) {
+            @RequestParam("namePart") String namePart,
+            @RequestParam(value = "schoolLevelType", required = false) final SchoolLevelType schoolLevelType, Model model) {
         assureLoggedInUser();
         Unit unit = null;
         try {
@@ -70,8 +72,15 @@ public class AutoCompletesController {
             possibleDesignations = unit.getDegreeDesignationSet();
         }
 
-        Predicate<DegreeDesignation> matchesName =
-                dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
+        Predicate<DegreeDesignation> matchesName = null;
+
+        if (schoolLevelType != null) {
+            matchesName = dd -> schoolLevelType.getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode())
+                    && StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
+        } else {
+            matchesName = dd -> StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(namePart));
+        }
+
         Function<DegreeDesignation, DegreeDesignationBean> createDesignationBean =
                 dd -> new DegreeDesignationBean(getFullDescription(dd), dd.getExternalId());
         return possibleDesignations.stream().filter(matchesName).map(createDesignationBean).limit(50)

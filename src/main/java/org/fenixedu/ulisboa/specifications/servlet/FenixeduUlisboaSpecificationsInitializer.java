@@ -49,6 +49,7 @@ import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
@@ -67,6 +68,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInit
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 import org.slf4j.Logger;
@@ -133,6 +135,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         RegistrationObservations.setupDeleteListener();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
+        
+        ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
     }
 
