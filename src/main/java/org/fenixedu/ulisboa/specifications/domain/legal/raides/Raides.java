@@ -50,6 +50,8 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlToBaseFile
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.services.reportLog.transform.xls.XlsExporterLog;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -343,23 +345,14 @@ public class Raides {
 
     protected boolean hasConcludedInPeriod(final Interval interval, final ExecutionYear academicPeriod,
             final Registration registration) {
-        final RegistrationConclusionBean registrationConclusionBean = new RegistrationConclusionBean(registration);
-        if (registrationConclusionBean.isConcluded() && registrationConclusionBean.getConclusionDate() != null) {
-            final DateTime dateTimeAtStartOfDay =
-                    registrationConclusionBean.getConclusionDate().toLocalDate().toDateTimeAtStartOfDay();
-
-            return interval.contains(dateTimeAtStartOfDay);
+        
+        final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+        for (final RegistrationConclusionInformation rci : informationConclusionSet) {
+            if(interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
+                return true;
+            }
         }
-
-        // TODO
-//        if (hadScholarPartApprovement(registration, academicPeriod)
-//                && registration.getLastApprovedEnrolmentEvaluationDate() != null) {
-//            final DateTime dateTimeAtStartOfDay =
-//                    registration.getLastApprovedEnrolmentEvaluationDate().toLocalDate().toDateTimeAtStartOfDay();
-//
-//            return interval.contains(dateTimeAtStartOfDay);
-//        }
-
+        
         return false;
     }
 
@@ -518,26 +511,28 @@ public class Raides {
     }
 
     protected boolean hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
-        if (registration.hasConcluded() && new RegistrationConclusionBean(registration).getConclusionYear() == executionYear) {
-            return true;
+        final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+        for (final RegistrationConclusionInformation rci : informationConclusionSet) {
+            if(!rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
+                return true;
+            }
         }
 
         return hadScholarPartApprovement(registration, executionYear);
     }
 
     public static boolean hadScholarPartApprovement(final Registration registration, final ExecutionYear executionYear) {
-        if (!isMasterDegreeOrDoctoralDegree(registration)) {
+        if(!Raides.isMasterDegreeOrDoctoralDegree(registration)) {
             return false;
         }
-
-//        if (registration.getDegree().getCycleTypes().size() == 1) {
-//            final CycleCurriculumGroup cycleCurriculumGroup =
-//                    registration.getLastStudentCurricularPlan().getCycle(
-//                            registration.getDegree().getCycleTypes().iterator().next());
-//            return cycleCurriculumGroup.isScholarPartConcluded()
-//                    && registration.getLastApprovementExecutionYear() == executionYear;
-//        }
-
+        
+        final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+        for (final RegistrationConclusionInformation rci : informationConclusionSet) {
+            if(rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
+                return true;
+            }
+        }
+        
         return false;
     }
 

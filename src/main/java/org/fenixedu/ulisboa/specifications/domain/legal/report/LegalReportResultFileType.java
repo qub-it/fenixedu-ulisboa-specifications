@@ -48,7 +48,13 @@ public enum LegalReportResultFileType implements IPresentableEnum {
         public String getFileExtension() {
             return "txt";
         }
-
+    },
+    ZIP {
+        @Override
+        public String getFileExtension() {
+            return "zip";
+        }
+        
     };
 
     protected String qualifiedName() {

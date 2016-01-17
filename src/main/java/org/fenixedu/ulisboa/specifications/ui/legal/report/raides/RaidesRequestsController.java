@@ -3,12 +3,16 @@ package org.fenixedu.ulisboa.specifications.ui.legal.report.raides;
 import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
+import org.fenixedu.bennu.scheduler.TaskRunner;
+import org.fenixedu.bennu.scheduler.domain.SchedulerSystem;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.treasury.services.integration.erp.tasks.ERPExportSingleDocumentsTask;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
+import org.fenixedu.ulisboa.specifications.domain.legal.task.ProcessPendingLegalReportRequest;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
@@ -97,7 +101,11 @@ public class RaidesRequestsController extends FenixeduUlisboaSpecificationsBaseC
     public String createpost(@RequestParam("bean") final RaidesRequestParameter raidesRequestParameter, final Model model) {
 
         try {
-            LegalReportRequest.createRequest(RaidesInstance.getInstance() , raidesRequestParameter);
+            final LegalReportRequest request = LegalReportRequest.createRequest(RaidesInstance.getInstance() , raidesRequestParameter);
+            
+            if(request.isPending()) {
+                SchedulerSystem.queue(new TaskRunner(new ProcessPendingLegalReportRequest(request.getExternalId())));            
+            }
 
             return "redirect:" + SEARCH_URL;
         } catch (final DomainException e) {

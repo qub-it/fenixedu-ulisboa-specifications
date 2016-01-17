@@ -114,7 +114,7 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
 
     protected void fillFormIfRequired(Model model) {
         if (!model.containsAttribute("householdInformationForm")) {
-            HouseholdInformationForm form = createHouseholdInformationForm(getStudent(model), model);
+            HouseholdInformationForm form = createHouseholdInformationForm(getStudent(model));
 
             model.addAttribute("householdInformationForm", form);
         }
@@ -132,12 +132,12 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         return form;
     }
 
-    protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final Model model) {
-        return createHouseholdInformationForm(student, ExecutionYear.readCurrentExecutionYear(), true, model);
+    protected HouseholdInformationForm createHouseholdInformationForm(final Student student) {
+        return createHouseholdInformationForm(student, ExecutionYear.readCurrentExecutionYear(), true);
     }
 
     protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final ExecutionYear executionYear,
-            final boolean create, final Model model) {
+            final boolean create) {
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, create);
 
         final HouseholdInformationForm form = new HouseholdInformationForm();
@@ -178,7 +178,7 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
 
         form.setCountryHighSchool(personUl.getPerson().getCountryHighSchool());
 
-        form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
+        form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence() != null ? personalData.getDislocatedFromPermanentResidence() : false);
         form.setCountryOfResidence(personalData.getCountryOfResidence());
         form.setPermanentResidenceDistrict(personalData.getDistrictSubdivisionOfResidence() != null ? personalData
                 .getDistrictSubdivisionOfResidence().getDistrict() : null);
@@ -309,11 +309,6 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         personalData.setCountryOfResidence(form.getCountryOfResidence());
         personalData.setDistrictSubdivisionOfResidence(form.getPermanentResidentDistrictSubdivision());
 
-    }
-
-    @Override
-    protected boolean isFormIsFilled(final Model model) {
-        return false;
     }
 
     protected boolean isProfessionRequired() {

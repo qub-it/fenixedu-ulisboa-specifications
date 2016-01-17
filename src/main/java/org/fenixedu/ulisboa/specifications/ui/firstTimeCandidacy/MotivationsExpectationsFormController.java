@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -101,7 +102,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
     private void fillFormIfRequired(Model model) {
         MotivationsExpectationsForm form;
         if (!model.containsAttribute("motivationsexpectationsform")) {
-            form = createMotivationsExpectationsForm(model);
+            form = createMotivationsExpectationsForm(getStudent(model));
 
             model.addAttribute("motivationsexpectationsform", form);
         } else {
@@ -110,9 +111,9 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
         form.populateRequestCheckboxes(request);
     }
 
-    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final Model model) {
+    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final Student student) {
         MotivationsExpectationsForm form = new MotivationsExpectationsForm();
-        PersonUlisboaSpecifications personUlisboa = getStudent(model).getPerson().getPersonUlisboaSpecifications();
+        PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
             form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());
             form.getUniversityChoiceMotivationAnswers().addAll(personUlisboa.getUniversityChoiceMotivationAnswersSet());
@@ -122,7 +123,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
         }
         
         form.setFirstYearRegistration(false);
-        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
+        for (final Registration registration : student.getRegistrationsSet()) {
             if(!registration.isActive()) {
                 continue;
             }
@@ -216,11 +217,6 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
         personUlisboa.setMotivationsExpectationsFormAnswered(true);
     }
     
-    @Override
-    protected boolean isFormIsFilled(Model model) {
-        return false;
-    }
-
     public static class MotivationsExpectationsForm {
         private List<UniversityDiscoveryMeansAnswer> universityDiscoveryMeansAnswers = new ArrayList<>();
 

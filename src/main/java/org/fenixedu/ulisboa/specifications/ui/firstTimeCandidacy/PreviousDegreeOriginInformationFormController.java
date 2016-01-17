@@ -100,7 +100,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
 
         return redirect(
                 getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                        + findPreviousDegreePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(),
+                        + findPreviousDegreePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
                 model, redirectAttributes);
     }
 
@@ -111,6 +111,10 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
     public String fillpreviousdegreeinformation(@PathVariable("registrationId") final Registration registration,
             final Model model, final RedirectAttributes redirectAttributes) {
 
+        if(registration.getPerson() != getStudent(model).getPerson()) {
+            throw new RuntimeException("invalid request");
+        }
+        
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
 
@@ -220,6 +224,10 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
     public String fillpreviousinformation(PreviousDegreeInformationForm form,
             @PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != getStudent(model).getPerson()) {
+            throw new RuntimeException("invalid request");
+        }
+        
         final Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -232,13 +240,13 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         try {
             writeData(registration, form);
 
-            if (findCompletePrecedentDegreeInformationsToFill(model).isEmpty()) {
+            if (findCompletePrecedentDegreeInformationsToFill(getStudent(model)).isEmpty()) {
                 return nextScreen(model, redirectAttributes);
             }
 
             return redirect(
                     getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                            + findCompletePrecedentDegreeInformationsToFill(model).get(0).getRegistration().getExternalId(),
+                            + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
                     model, redirectAttributes);
 
         } catch (Exception de) {
@@ -357,11 +365,6 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             return versionedAcronym;
         }
         return resolvedAcronym;
-    }
-
-    @Override
-    protected boolean isFormIsFilled(Model model) {
-        return false;
     }
 
     private String jspPage(final String page) {

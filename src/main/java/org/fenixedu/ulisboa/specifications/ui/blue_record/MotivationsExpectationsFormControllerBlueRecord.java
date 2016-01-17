@@ -79,8 +79,8 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     }
     
     @Override
-    protected boolean isFormIsFilled(Model model) {
-        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(model);
+    public boolean isFormIsFilled(final Student student) {
+        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(student);
         
         if(!form.isFirstYearRegistration()) {
             return true;

@@ -52,6 +52,8 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         createTipoBolsaMapping();
 
     }
+    
+    
 
     private void createTipoBolsaMapping() {
         if(LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.GRANT_OWNER_TYPE) == null) {

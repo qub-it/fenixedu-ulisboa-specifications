@@ -89,6 +89,11 @@ public class OriginInformationManagementController extends OriginInformationForm
      * MAPPINGS NOT APPLIED 
      * ********************
      */
+    
+    @Override
+    public boolean isFormIsFilled(Student student) {
+        throw new RuntimeException("not applied in this controller");
+    }
 
     @Override
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {

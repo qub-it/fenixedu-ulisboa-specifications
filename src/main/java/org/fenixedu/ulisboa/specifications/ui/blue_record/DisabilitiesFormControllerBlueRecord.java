@@ -78,8 +78,8 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
     }
     
     @Override
-    protected boolean isFormIsFilled(Model model) {
-        final DisabilitiesForm form = createDisabilitiesForm(model);
+    public boolean isFormIsFilled(final Student student) {
+        final DisabilitiesForm form = createDisabilitiesForm(student);
         
         if(!form.isFirstYearRegistration()) {
             return true;

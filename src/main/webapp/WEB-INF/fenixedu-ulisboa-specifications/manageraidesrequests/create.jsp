@@ -95,6 +95,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
  	$scope.object=${beanJson};
  	$scope.postBack = createAngularPostbackFunction($scope);
  	
+ 	
+	$scope.booleanvalues = [
+		{ name : '<spring:message code="label.no"/>', value : false },
+		{ name : '<spring:message code="label.yes"/>', value : true} 
+	];
+ 	
  	$scope.cleanPeriods = function(periodType) {
 		var i = $scope.object.periods.length;
 		while(i--) {
@@ -270,7 +276,21 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 				<div class="col-sm-10">
 					<input class="form-control" type="text" ng-model="object.interlocutorEmail" name="code" />
 				</div>
-			</div>			
+			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesRequests.filterEntriesWithErrors" />
+				</div>
+				
+				<div class="col-sm-10">
+                    <select 
+                        name="filterEntriesWithErrors" class="form-control"
+                        ng-model="object.filterEntriesWithErrors"
+                        ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+                    </select>
+				</div>
+			</div>
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default btn-xs" value="<spring:message code="label.submit" />" />

@@ -78,8 +78,8 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
     }
     
     @Override
-    protected boolean isFormIsFilled(final Model model) {
-        return findPreviousDegreePrecedentDegreeInformationsToFill(model).isEmpty();
+    public boolean isFormIsFilled(final Student student) {
+        return findPreviousDegreePrecedentDegreeInformationsToFill(student).isEmpty();
     }
     
     @Override

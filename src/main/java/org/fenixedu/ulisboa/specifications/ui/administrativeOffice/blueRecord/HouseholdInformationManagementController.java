@@ -137,7 +137,7 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     @RequestMapping(value = _UPDATE_URI + "/{studentId}/{executionYearId}", method = RequestMethod.GET)
     public String update(@PathVariable("studentId") final Student student, @PathVariable("executionYearId") final ExecutionYear executionYear, 
             final Model model) {
-        return _update(student, executionYear, createHouseholdInformationForm(student, executionYear, false, model), model);
+        return _update(student, executionYear, createHouseholdInformationForm(student, executionYear, false), model);
     }
 
     private String _update(final Student student, final ExecutionYear executionYear, final HouseholdInformationForm form,
@@ -225,6 +225,11 @@ public class HouseholdInformationManagementController extends HouseholdInformati
      * MAPPINGS NOT APPLIED 
      * ********************
      */
+    
+    @Override
+    public boolean isFormIsFilled(Student student) {
+        throw new RuntimeException("not applied in this controller");
+    }
 
     @Override
     protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {

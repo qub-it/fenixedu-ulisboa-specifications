@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -88,14 +89,14 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
 
     private void fillFormIfRequired(final Model model) {
         if (!model.containsAttribute("disabilitiesForm")) {
-            DisabilitiesForm form = createDisabilitiesForm(model);
+            DisabilitiesForm form = createDisabilitiesForm(getStudent(model));
             model.addAttribute("disabilitiesForm", form);
         }
     }
 
-    protected DisabilitiesForm createDisabilitiesForm(final Model model) {
+    protected DisabilitiesForm createDisabilitiesForm(final Student student) {
         DisabilitiesForm form = new DisabilitiesForm();
-        PersonUlisboaSpecifications personUlisboa = getStudent(model).getPerson().getPersonUlisboaSpecifications();
+        PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
             form.setHasDisabilities(personUlisboa.getHasDisabilities());
             if (personUlisboa.getDisabilityType() != null) {
@@ -107,7 +108,7 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
         }
         
         form.setFirstYearRegistration(false);
-        for (final Registration registration : getStudent(model).getRegistrationsSet()) {
+        for (final Registration registration : student.getRegistrationsSet()) {
             if(!registration.isActive()) {
                 continue;
             }
@@ -184,11 +185,6 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
         personUlisboa.setDisabilitiesFormAnswered(true);
     }
     
-    @Override
-    protected boolean isFormIsFilled(Model model) {
-        return false;
-    }
-
     public static class DisabilitiesForm {
         private boolean hasDisabilities = false;
 
