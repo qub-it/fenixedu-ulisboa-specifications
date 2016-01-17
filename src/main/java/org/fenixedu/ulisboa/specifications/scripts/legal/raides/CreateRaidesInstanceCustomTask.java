@@ -210,9 +210,9 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
     }
 
     private void createNivelEscolarMapping() {
-        if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.MOBILITY_SCHOOL_LEVEL) == null) {
+        if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.SCHOOL_LEVEL) == null) {
             final EnumerationLegalMapping legalMapping = (EnumerationLegalMapping) LegalMapping
-                    .create(LegalMappingType.MOBILITY_SCHOOL_LEVEL, RaidesInstance.getInstance());
+                    .create(LegalMappingType.SCHOOL_LEVEL, RaidesInstance.getInstance());
 
             legalMapping.addEntry(SchoolLevelType.BACHELOR_DEGREE, "18");
             legalMapping.addEntry(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA, "18");

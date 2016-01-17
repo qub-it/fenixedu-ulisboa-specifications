@@ -94,7 +94,7 @@ ${portal.angularToolkit()}
 						<td>
 							<c:forEach var="resultDataFile" items="${request.legalResultDataFile}">
 								<p>
-									<a href="${pageContext.request.contextPath}/<%= RaidesRequestsController.DOWNLOAD_RESULT_FILE_URL %>/${resultDataFile.externalId}" >
+									<a href="${pageContext.request.contextPath}<%= RaidesRequestsController.DOWNLOAD_RESULT_FILE_URL %>/${resultDataFile.externalId}" >
 										<c:out value="${resultDataFile.filename}" />
 									</a>
 									&nbsp;
@@ -104,7 +104,7 @@ ${portal.angularToolkit()}
 						</td>
 						<td>
 							<a class="btn btn-default btn-xs"
-								href="${pageContext.request.contextPath}/<%= RaidesRequestsController.READ_URL %>/${request.externalId}">
+								href="${pageContext.request.contextPath}<%= RaidesRequestsController.READ_URL %>/${request.externalId}">
 								<spring:message code='label.view' />
 							</a>
 						</td>

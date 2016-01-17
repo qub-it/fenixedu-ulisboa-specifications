@@ -183,8 +183,7 @@ public class InscritoService extends RaidesService {
             return null;
         }
 
-        return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE)
-                .translate(Raides.Bolseiro.KEY(pid.getGrantOwnerType()));
+        return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(pid.getGrantOwnerType());
     }
 
     protected boolean isWorkingStudent(final Registration registration, final ExecutionYear executionYear) {
@@ -208,12 +207,12 @@ public class InscritoService extends RaidesService {
     protected boolean isDegreeChangeOrTransfer(final RaidesRequestParameter raidesRequestParameter,
             final Registration registration) {
         return Raides.isDegreeChange(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType())
-                || Raides.isDegreeTransfer(raidesRequestParameter,
-                        registration.getStudentCandidacy().getIngressionType());
+                || Raides.isDegreeTransfer(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType());
     }
 
     protected Integer numberOfYearsEnrolled(final ExecutionYear executionYear, final Registration registration) {
-        return Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration, executionYear.getPreviousExecutionYear()).size();
+        return Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration, executionYear.getPreviousExecutionYear())
+                .size();
     }
 
     protected boolean deliveredDissertation(final ExecutionYear executionYear, final Registration registration) {

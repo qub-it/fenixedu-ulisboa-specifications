@@ -99,13 +99,16 @@ public class MobilidadeInternacionalService extends RaidesService {
     }
 
     protected boolean isFirstTimeOnDegree(final Registration registration, final ExecutionYear executionYear) {
+        /*
         if (!registration.getDegree().isEmpty()) {
             return isFirstTimeOnDegree(registration, executionYear);
         }
+        
         if (Raides.getRootRegistration(registration) != registration) {
             return false;
         }
-
+        */
+        
         return executionYear == registration.getStartExecutionYear();
     }
 }

@@ -12,7 +12,7 @@ public class LegalReportResultFile extends LegalReportResultFile_Base {
     }
 
     public LegalReportResultFile(final LegalReportRequest reportRequest, final LegalReportResultFileType type, final byte[] content) {
-        this(reportRequest, type, reportRequest.getLegalReport().getName() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm") + "." + 
+        this(reportRequest, type, reportRequest.getLegalReport().getName().getContent() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm") + "." + 
                 type.getFileExtension(), content);
     }
 
@@ -22,8 +22,7 @@ public class LegalReportResultFile extends LegalReportResultFile_Base {
         setType(type);
         setLegalReportRequest(reportRequest);
 
-        final String now = new DateTime().toString("dd-MM-yyyy-HH-mm");
-        final String displayName = reportRequest.getLegalReport().getName() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm");
+        final String displayName = reportRequest.getLegalReport().getName().getContent() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm");
 
         init(displayName, filename, content);
     }

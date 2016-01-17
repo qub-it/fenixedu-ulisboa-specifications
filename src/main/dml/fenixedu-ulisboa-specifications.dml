@@ -1476,7 +1476,7 @@ class legal.report.LegalReportRequest {
 
 	relation PendingReportRequestRootDomainObject {
 		.org.fenixedu.bennu.core.domain.Bennu playsRole bennuPending {
-			multiplicity 1..1;
+			multiplicity 0..1;
 		}
 	
 		legal.report.LegalReportRequest playsRole pendingLegalReportRequests {

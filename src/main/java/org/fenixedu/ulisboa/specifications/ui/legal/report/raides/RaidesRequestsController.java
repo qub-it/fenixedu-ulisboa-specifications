@@ -49,7 +49,7 @@ public class RaidesRequestsController extends FenixeduUlisboaSpecificationsBaseC
         return jspPage(_READ_URI);
     }
 
-    private static final String _DOWNLOAD_RESULT_FILE_URI = "downloadresultfile";
+    private static final String _DOWNLOAD_RESULT_FILE_URI = "/downloadresultfile";
     public static final String DOWNLOAD_RESULT_FILE_URL = CONTROLLER_URL + _DOWNLOAD_RESULT_FILE_URI;
 
     @RequestMapping(_DOWNLOAD_RESULT_FILE_URI + "/{resultFileId}")
