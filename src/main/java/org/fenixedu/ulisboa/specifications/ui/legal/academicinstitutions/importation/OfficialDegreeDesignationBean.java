@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.legal.academicinstitutions.importation;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +9,9 @@ import org.fenixedu.bennu.IBean;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class OfficialDegreeDesignationBean implements IBean {
+public class OfficialDegreeDesignationBean implements IBean, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String code;
     private String name;

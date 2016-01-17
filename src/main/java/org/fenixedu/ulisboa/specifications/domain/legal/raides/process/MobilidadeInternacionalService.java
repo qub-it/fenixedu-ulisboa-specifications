@@ -30,8 +30,6 @@ public class MobilidadeInternacionalService extends RaidesService {
         bean.setRegistration(registration);
         preencheInformacaoMatricula(report, bean, institutionUnit, executionYear, registration);
 
-        final PrecedentDegreeInformation previousQualification = registration.getStudentCandidacy().getPrecedentDegreeInformation();
-
         bean.setAnoCurricular(anoCurricular(registration, executionYear));
         bean.setPrimeiraVez(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
         bean.setEctsInscrito(enrolledEcts(executionYear, registration).toString());
@@ -46,7 +44,7 @@ public class MobilidadeInternacionalService extends RaidesService {
             }
         }
 
-        if (registration.getRegistrationProtocol() != null && registration.getRegistrationProtocol().isMobilityAgreement()) {
+        if (registration.getRegistrationProtocol() != null && Raides.isAgreementPartOfMobilityReport(raidesRequestParameter, registration)) {
             MobilityRegistrationInformation mobilityInformation = MobilityRegistrationInformation.findIncomingInformation(registration);
             if (mobilityInformation != null) {
                 if (mobilityInformation.getMobilityActivityType() != null) {
@@ -55,22 +53,31 @@ public class MobilidadeInternacionalService extends RaidesService {
                 } else {
                     bean.setTipoProgMobilidade(Raides.ActividadeMobilidade.MOBILIDADE_ESTUDO);
                 }
+                
                 if (mobilityInformation.getProgramDuration() != null) {
                     bean.setDuracaoPrograma(LegalMapping.find(report, LegalMappingType.SCHOOL_PERIOD_DURATION).translate(
                             mobilityInformation.getProgramDuration()));
                 }
-            }
-        }
-
-        if (previousQualification.getPrecedentSchoolLevel() != null) {
-            bean.setNivelCursoOrigem(LegalMapping.find(report, LegalMappingType.MOBILITY_SCHOOL_LEVEL).translate(
-                    previousQualification.getPrecedentSchoolLevel()));
-            if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())) {
-                bean.setOutroNivelCurOrigem(previousQualification.getOtherPrecedentSchoolLevel());
-            }
-            if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())
-                    && Strings.isNullOrEmpty(bean.getOutroNivelCurOrigem())) {
-                bean.setOutroNivelCurOrigem(previousQualification.getPrecedentSchoolLevel().getLocalizedName());
+                
+                if(mobilityInformation.getOriginMobilityProgrammeLevel() != null) {
+                    bean.setNivelCursoOrigem(mobilityInformation.getOriginMobilityProgrammeLevel().getCode());
+                    
+                    if(mobilityInformation.getOriginMobilityProgrammeLevel().isOtherLevel()) {
+                        bean.setOutroNivelCurOrigem(mobilityInformation.getOtherOriginMobilityProgrammeLevel());
+                    }
+                }
+                
+                if(mobilityInformation.getMobilityScientificArea() != null) {
+                    bean.setAreaCientifica(mobilityInformation.getMobilityScientificArea().getCode());
+                }
+                
+                if(mobilityInformation.getIncomingMobilityProgrammeLevel() != null) {
+                    bean.setNivelCursoDestino(mobilityInformation.getIncomingMobilityProgrammeLevel().getCode());
+                    
+                    if(mobilityInformation.getIncomingMobilityProgrammeLevel().isOtherLevel()) {
+                        bean.setOutroNivelCursoDestino(mobilityInformation.getOtherIncomingMobilityProgrammeLevel());
+                    }
+                }
             }
         }
 

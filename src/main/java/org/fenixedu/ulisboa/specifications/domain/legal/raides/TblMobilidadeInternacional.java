@@ -18,6 +18,11 @@ public class TblMobilidadeInternacional extends RaidesData implements IMatricula
     protected String duracaoPrograma;
     protected String nivelCursoOrigem;
     protected String outroNivelCurOrigem;
+    
+    protected String areaCientifica;
+    protected String nivelCursoDestino;
+    protected String outroNivelCursoDestino;
+    
     protected boolean valid = true;
 
 
@@ -153,6 +158,30 @@ public class TblMobilidadeInternacional extends RaidesData implements IMatricula
 
     public void setOutroNivelCurOrigem(String outroNivelCurOrigem) {
         this.outroNivelCurOrigem = outroNivelCurOrigem;
+    }
+    
+    public String getAreaCientifica() {
+        return areaCientifica;
+    }
+    
+    public void setAreaCientifica(String areaCientifica) {
+        this.areaCientifica = areaCientifica;
+    }
+    
+    public String getNivelCursoDestino() {
+        return nivelCursoDestino;
+    }
+    
+    public void setNivelCursoDestino(String nivelCursoDestino) {
+        this.nivelCursoDestino = nivelCursoDestino;
+    }
+    
+    public String getOutroNivelCursoDestino() {
+        return outroNivelCursoDestino;
+    }
+    
+    public void setOutroNivelCursoDestino(String outroNivelCursoDestino) {
+        this.outroNivelCursoDestino = outroNivelCursoDestino;
     }
 
     public void setValid(boolean valid) {

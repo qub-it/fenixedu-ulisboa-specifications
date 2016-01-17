@@ -34,7 +34,7 @@ ${portal.toolkit()}
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
 	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;
-	<a class="" href="${pageContext.request.contextPath}/<%= AcademicInstitutionsImportationController.VIEW_DEGREE_DESIGNATIONS_URL %>">
+	<a class="" href="${pageContext.request.contextPath}/<%= AcademicInstitutionsImportationController.VIEW_ACADEMIC_UNITS_URL %>">
 		<spring:message code="label.AcademicInstitutionsImportationController.viewacademicunits.title"/>
 	</a>
 	

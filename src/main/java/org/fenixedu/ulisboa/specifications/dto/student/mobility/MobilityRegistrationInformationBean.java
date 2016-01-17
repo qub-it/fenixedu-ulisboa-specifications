@@ -48,10 +48,14 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
     protected MobilityProgramType mobilityProgramType;
     protected MobilityActivityType mobilityActivityType;
     protected MobilityScientificArea mobilityScientificArea;
-    protected MobilityProgrammeLevel mobilityProgrammeLevel;
+    protected MobilityProgrammeLevel incomingMobilityProgrammeLevel;
+    protected MobilityProgrammeLevel originMobilityProgrammeLevel;
     protected Unit foreignInstitutionUnit;
     protected boolean incoming;
     protected SchoolPeriodDuration programDuration;
+    
+    protected String otherIncomingMobilityProgrammeLevel;
+    protected String otherOriginMobilityProgrammeLevel;
 
     private List<TupleDataSourceBean> programDurationDataSource;
     private List<TupleDataSourceBean> beginDataSource;
@@ -286,12 +290,35 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
         this.mobilityScientificArea = mobilityScientificArea;
     }
     
-    public MobilityProgrammeLevel getMobilityProgrammeLevel() {
-        return mobilityProgrammeLevel;
+    public MobilityProgrammeLevel getIncomingMobilityProgrammeLevel() {
+        return incomingMobilityProgrammeLevel;
     }
     
-    public void setMobilityProgrammeLevel(MobilityProgrammeLevel mobilityProgrammeLevel) {
-        this.mobilityProgrammeLevel = mobilityProgrammeLevel;
+    public void setIncomingMobilityProgrammeLevel(MobilityProgrammeLevel incomingMobilityProgrammeLevel) {
+        this.incomingMobilityProgrammeLevel = incomingMobilityProgrammeLevel;
     }
-
+    
+    public MobilityProgrammeLevel getOriginMobilityProgrammeLevel() {
+        return originMobilityProgrammeLevel;
+    }
+    
+    public void setOriginMobilityProgrammeLevel(MobilityProgrammeLevel originMobilityProgrammeLevel) {
+        this.originMobilityProgrammeLevel = originMobilityProgrammeLevel;
+    }
+    
+    public String getOtherIncomingMobilityProgrammeLevel() {
+        return otherIncomingMobilityProgrammeLevel;
+    }
+    
+    public void setOtherIncomingMobilityProgrammeLevel(String otherIncomingMobilityProgrammeLevel) {
+        this.otherIncomingMobilityProgrammeLevel = otherIncomingMobilityProgrammeLevel;
+    }
+    
+    public String getOtherOriginMobilityProgrammeLevel() {
+        return otherOriginMobilityProgrammeLevel;
+    }
+    
+    public void setOtherOriginMobilityProgrammeLevel(String otherOriginMobilityProgrammeLevel) {
+        this.otherOriginMobilityProgrammeLevel = otherOriginMobilityProgrammeLevel;
+    }
 }

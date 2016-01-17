@@ -216,10 +216,10 @@ ${portal.angularToolkit()}
 						<spring:message code="label.MobilityRegistrationInformation.mobilityScientificArea" />
 					</th>
 					<th>
-						<spring:message code="label.MobilityRegistrationInformation.mobilityProgrammeLevel" />
+						<spring:message code="label.MobilityRegistrationInformation.originMobilityProgrammeLevel" />
 					</th>
 					<th>
-						<spring:message code="label.MobilityRegistrationInformation.mobilityProgramType" />
+						<spring:message code="label.MobilityRegistrationInformation.incomingMobilityProgrammeLevel" />
 					</th>
 					<th>
 						<spring:message code="label.MobilityRegistrationInformation.mobilityActivityType" />
@@ -241,10 +241,16 @@ ${portal.angularToolkit()}
 							<c:out value='${information.mobilityScientificArea.name.content}' />
 						</td>
 						<td>
-							<c:out value='${information.mobilityProgrammeLevel.name.content}' />
+							<p><c:out value='${information.originMobilityProgrammeLevel.name.content}' /></p>
+							<p>
+								<em><c:out value='${information.otherOriginMobilityProgrammeLevel}' /></em>
+							</p>
 						</td>
 						<td>
-							<c:out value='${information.mobilityProgramType.name.content}' />
+							<p><c:out value='${information.incomingMobilityProgrammeLevel.name.content}' /></p>
+							<p>
+								<em><c:out value='${information.otherIncomingMobilityProgrammeLevel}' /></em>
+							</p>
 						</td>
 						<td>
 							<c:out value='${information.mobilityActivityType.name.content}' />

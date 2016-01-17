@@ -152,8 +152,9 @@ public class XlsxExporter {
                         addCell("DuracaoPrograma", tblMobilidadeInternacional.getDuracaoPrograma());
                         addCell("NivelCursoOrigem", tblMobilidadeInternacional.getNivelCursoOrigem());
                         addCell("OutroNivelCurOrigem", tblMobilidadeInternacional.getOutroNivelCurOrigem());
-                        addCell("NivelCursoDestino", "");
-                        addCell("OutroNivelCurDestino", "");
+                        addCell("AreaCientifica", tblMobilidadeInternacional.getAreaCientifica());
+                        addCell("NivelCursoDestino", tblMobilidadeInternacional.getNivelCursoDestino());
+                        addCell("OutroNivelCurDestino", tblMobilidadeInternacional.getOutroNivelCursoDestino());
                     }
                 };
 
