@@ -1368,6 +1368,7 @@ class student.mobility.MobilityScientificArea {
 class student.mobility.MobilityProgrammeLevel {
 	String code;
 	LocalizedString name;
+	boolean otherLevel;
 }
 
 	relation MobilityProgrammeLevelBennu {
@@ -1385,6 +1386,8 @@ class student.mobility.MobilityRegistrationInformation {
 	// Or can be an internal student in mobility program
 	boolean incoming;
 	SchoolPeriodDuration programDuration;
+	String otherOriginMobilityProgrammeLevel;
+	String otherIncomingMobilityProgrammeLevel;
 }
 
 	relation MobilityRegistrationInformationBennu {
@@ -1467,7 +1470,17 @@ class student.mobility.MobilityRegistrationInformation {
 			multiplicity *;
 		}
 	
-		student.mobility.MobilityProgrammeLevel playsRole mobilityProgrammeLevel {
+		student.mobility.MobilityProgrammeLevel playsRole incomingMobilityProgrammeLevel {
+			multiplicity 0..1;
+		}
+	}
+	
+	relation MobilityRegistrationInformationOriginMobilityProgrammeLevel {
+		student.mobility.MobilityRegistrationInformation playsRole mobilityRegistrationInformationsForOrigin {
+			multiplicity *;
+		}
+	
+		student.mobility.MobilityProgrammeLevel playsRole originMobilityProgrammeLevel {
 			multiplicity 0..1;
 		}
 	}
@@ -1758,8 +1771,16 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 		}
 	}
 	
-/** TODO: replace with RaidesRequestParameter **/
-
+	relation RaidesInstanceDegrees {
+		legal.raides.RaidesInstance playsRole {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.Degree playsRole degreesToReport {
+			multiplicity *;
+		}
+	}
+	
 /* Legal Settings */
 
 class legal.settings.LegalSettings {

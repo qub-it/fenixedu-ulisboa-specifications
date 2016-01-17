@@ -165,8 +165,8 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 
-			<div class="form-group row">
-				<div class="col-sm-3 control-label"  ng-show="object.incoming === true">
+			<div class="form-group row" ng-show="object.incoming === true">
+				<div class="col-sm-3 control-label"  >
 					<spring:message code="label.MobilityRegistrationInformation.mobilityScientificArea" />
 				</div>
 
@@ -182,15 +182,15 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 			
-			<div class="form-group row">
-				<div class="col-sm-3 control-label"  ng-show="object.incoming === true">
-					<spring:message code="label.MobilityRegistrationInformation.mobilityProgrammeLevel" />
+			<div class="form-group row" ng-show="object.incoming === true">
+				<div class="col-sm-3 control-label" >
+					<spring:message code="label.MobilityRegistrationInformation.originMobilityProgrammeLevel" />
 				</div>
 
 				<div class="col-sm-8">
 					<%-- Relation to side 1 drop down rendered in input --%>
-					<ui-select id="mobilityRegistrationInformation_mobilityProgrammeLevel" class="" name="mobilityprogrammelevel"
-						ng-model="$parent.object.mobilityProgrammeLevel" theme="bootstrap" ng-disabled="disabled">
+					<ui-select id="mobilityRegistrationInformation_originMobilityProgrammeLevel" class="" name="originmobilityprogrammelevel"
+						ng-model="$parent.object.originMobilityProgrammeLevel" theme="bootstrap" ng-disabled="disabled">
 						<ui-select-match>{{$select.selected.text}}</ui-select-match>
 						<ui-select-choices repeat="mobilityProgrammeLevel.id as mobilityProgrammeLevel in object.mobilityProgrammeLevelDataSource | filter: $select.search">
 							<span ng-bind-html="mobilityProgrammeLevel.text | highlight: $select.search"></span>
@@ -199,7 +199,47 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 			
-			<div class="form-group row">
+			<div class="form-group row" ng-show="object.incoming === true">
+				<div class="col-sm-3 control-label" >
+					<spring:message code="label.MobilityRegistrationInformation.otherOriginMobilityProgrammeLevel" />
+				</div>
+
+				<div class="col-sm-8">
+                    <input id="mobilityRegistrationInformation_otherOriginMobilityProgrammeLevel" class="form-control" type="text" 
+                    	ng-model="object.otherOriginMobilityProgrammeLevel" />
+				</div>
+			</div>
+			
+			<div class="form-group row" ng-show="object.incoming === true">
+				<div class="col-sm-3 control-label" >
+					<spring:message code="label.MobilityRegistrationInformation.incomingMobilityProgrammeLevel" />
+				</div>
+
+				<div class="col-sm-8">
+					<%-- Relation to side 1 drop down rendered in input --%>
+					<ui-select id="mobilityRegistrationInformation_incomingMobilityProgrammeLevel" class="" name="incomingmobilityprogrammelevel"
+						ng-model="$parent.object.incomingMobilityProgrammeLevel" theme="bootstrap" ng-disabled="disabled">
+						<ui-select-match>{{$select.selected.text}}</ui-select-match>
+						<ui-select-choices repeat="mobilityProgrammeLevel.id as mobilityProgrammeLevel in object.mobilityProgrammeLevelDataSource | filter: $select.search">
+							<span ng-bind-html="mobilityProgrammeLevel.text | highlight: $select.search"></span>
+						</ui-select-choices>
+					</ui-select>
+				</div>
+			</div>
+			
+			<div class="form-group row" ng-show="object.incoming === true">
+				<div class="col-sm-3 control-label" >
+					<spring:message code="label.MobilityRegistrationInformation.otherIncomingMobilityProgrammeLevel" />
+				</div>
+
+				<div class="col-sm-8">
+                    <input id="mobilityRegistrationInformation_otherIncomingMobilityProgrammeLevel" class="form-control" type="text" 
+                    	ng-model="object.otherIncomingMobilityProgrammeLevel" />
+				</div>
+			</div>
+			
+			
+			<div class="form-group row" ng-show="object.incoming === false">
 				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.mobilityProgramType" />
 				</div>

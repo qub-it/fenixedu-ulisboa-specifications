@@ -540,7 +540,7 @@ public class Raides {
         return alunos.containsKey(student);
     }
 
-    protected boolean isAgreementPartOfMobilityReport(final RaidesRequestParameter raidesRequestParameter,
+    public static boolean isAgreementPartOfMobilityReport(final RaidesRequestParameter raidesRequestParameter,
             final Registration registration) {
         return raidesRequestParameter.getAgreementsForMobility().contains(registration.getRegistrationProtocol());
     }

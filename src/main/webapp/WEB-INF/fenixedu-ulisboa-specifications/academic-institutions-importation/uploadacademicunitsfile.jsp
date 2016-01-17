@@ -78,20 +78,12 @@ ${portal.toolkit()}
 	</div>
 </c:if>
 
-
-<script type="text/javascript">
-      function processUpload(externalId) {
-        $('#uploadModal').modal('toggle')
-      }
-</script>
-
 <div>
-	<form action="${pageContext.request.contextPath}/<%= AcademicInstitutionsImportationController.UPDATE_ACADEMIC_UNITS_URL %>" 
-		method="post">
+	<form enctype="multipart/form-data" action="${pageContext.request.contextPath}<%= AcademicInstitutionsImportationController.UPDATE_ACADEMIC_UNITS_URL %>" method="post">
+
+        <input type="file" name="officialAcademicUnitsFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
 		
-		<input type="hidden" name="bean" value="${jsonOfficialAcademicUnitsBeans}" />
-		
-		<button type="submit" class="btn btn-default btn-xs" value=""><spring:message code="label.event.update" /></button>
+		<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.event.update" />" />
 	</form>
 </div>
 

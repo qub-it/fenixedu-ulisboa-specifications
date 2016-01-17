@@ -1,10 +1,15 @@
 package org.fenixedu.ulisboa.specifications.ui.legal.academicinstitutions.importation;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -122,19 +127,36 @@ public class AcademicInstitutionsImportationController extends FenixeduUlisboaSp
             final Model model, final RedirectAttributes redirectAttributes) {
 
         try {
-            final List<List<String>> officialList = ExcelUtils.readExcel(officialAcademicUnitsFile.getInputStream(), MAX_COLS);
+            final byte[] byteArray = IOUtils.toByteArray(officialAcademicUnitsFile.getInputStream());
+            final List<List<String>> officialList = ExcelUtils.readExcel(new ByteArrayInputStream(byteArray), MAX_COLS);
 
             final List<OfficialAcademicUnitBean> academicUnitBeanList = Lists.newArrayList();
             final List<OfficialDegreeDesignationBean> degreeDesignationBeanList = Lists.newArrayList();
-            
+
             OfficialAcademicUnitBean.read(officialList, academicUnitBeanList, degreeDesignationBeanList);
 
-            model.addAttribute("officialAcademicUnits", academicUnitBeanList);
+            final OfficialAcademicUnitAndDegreeBeanAggregator aggregatorBean =
+                    new OfficialAcademicUnitAndDegreeBeanAggregator(academicUnitBeanList, degreeDesignationBeanList);
+
+            return _uploadacademicunitsfile(aggregatorBean, byteArray, model);
+
         } catch (IOException e) {
             addErrorMessage(
                     ULisboaSpecificationsUtil.bundle("error.AcademicInstitutionsImportationController.cannot.read.excel.file"),
                     model);
+            return _uploadacademicunitsfile(
+                    new OfficialAcademicUnitAndDegreeBeanAggregator(Lists.newArrayList(), Lists.newArrayList()), new byte[0],
+                    model);
         }
+
+    }
+
+    public String _uploadacademicunitsfile(final OfficialAcademicUnitAndDegreeBeanAggregator aggregatorBean,
+            byte[] officialListByteArray, final Model model) {
+
+        model.addAttribute("officialAcademicUnits", aggregatorBean.getAcademicUnitBeanList());
+        model.addAttribute("jsonOfficialAcademicUnitsBeans",
+                new String(Base64.encodeBase64(officialListByteArray), Charset.forName("ASCII")));
 
         return jspPage(_UPLOAD_ACADEMIC_UNITS_FILE_URI);
     }
@@ -143,43 +165,55 @@ public class AcademicInstitutionsImportationController extends FenixeduUlisboaSp
     public static final String UPDATE_ACADEMIC_UNITS_URL = CONTROLLER_URL + _UPDATE_ACADEMIC_UNITS_URI;
 
     @RequestMapping(value = _UPDATE_ACADEMIC_UNITS_URI, method = RequestMethod.POST)
-    public String updateacademicunits(@RequestParam("bean") final List<OfficialAcademicUnitBean> officialAcademicUnitBeanList,
+    public String updateacademicunits(@RequestParam(value = "officialAcademicUnitsFile", required = true) MultipartFile officialAcademicUnitsFile, 
             final Model model, final RedirectAttributes redirectAttributes) {
-        
-        if(officialAcademicUnitBeanList == null) {
-            addErrorMessage("error.AcademicInstitutionsImportationController.officialAcademicUnitBeanList.required", model);
+
+        try {
+            final byte[] byteArray = IOUtils.toByteArray(officialAcademicUnitsFile.getInputStream());
+            final List<List<String>> officialList = ExcelUtils.readExcel(new ByteArrayInputStream(byteArray), MAX_COLS);
+
+            final List<OfficialAcademicUnitBean> academicUnitBeanList = Lists.newArrayList();
+            final List<OfficialDegreeDesignationBean> degreeDesignationBeanList = Lists.newArrayList();
+
+            OfficialAcademicUnitBean.read(officialList, academicUnitBeanList, degreeDesignationBeanList);
             
+            OfficialAcademicUnitBean.updateAcademicUnits(academicUnitBeanList);
+
             return redirect(UPDATE_ACADEMIC_UNITS_URL, model, redirectAttributes);
+            
+        } catch (IOException e) {
+            addErrorMessage(
+                    ULisboaSpecificationsUtil.bundle("error.AcademicInstitutionsImportationController.cannot.read.excel.file"),
+                    model);
+            return _uploadacademicunitsfile(
+                    new OfficialAcademicUnitAndDegreeBeanAggregator(Lists.newArrayList(), Lists.newArrayList()), new byte[0],
+                    model);
         }
-        
-        OfficialAcademicUnitBean.updateAcademicUnits(officialAcademicUnitBeanList);
-        
-        return redirect(UPDATE_ACADEMIC_UNITS_URL, model, redirectAttributes);
     }
 
     public static final String _UPLOAD_DEGREE_DESIGNATIONS_FILE_URI = "/uploaddegreedesignationsfile";
     public static final String UPLOAD_DEGREE_DESIGNATIONS_FILE_URL = CONTROLLER_URL + _UPLOAD_DEGREE_DESIGNATIONS_FILE_URI;
 
     @RequestMapping(value = _UPLOAD_DEGREE_DESIGNATIONS_FILE_URI, method = RequestMethod.GET)
-    public String uploaddegreedesignationsfile(
-            @RequestParam(value = "officialDegreeDesignationsFile", required = true) MultipartFile officialDegreeDesignationsFile,
+    public String uploaddegreedesignationsfile(@RequestParam(value = "officialDegreeDesignationsFile", required = true) MultipartFile officialDegreeDesignationsFile,
             final Model model, final RedirectAttributes redirectAttributes) {
-        
+
         try {
-            final List<List<String>> officialList = ExcelUtils.readExcel(officialDegreeDesignationsFile.getInputStream(), MAX_COLS);
+            final List<List<String>> officialList =
+                    ExcelUtils.readExcel(officialDegreeDesignationsFile.getInputStream(), MAX_COLS);
 
             final List<OfficialAcademicUnitBean> academicUnitBeanList = Lists.newArrayList();
             final List<OfficialDegreeDesignationBean> degreeDesignationBeanList = Lists.newArrayList();
-            
+
             OfficialAcademicUnitBean.read(officialList, academicUnitBeanList, degreeDesignationBeanList);
-            
+
             model.addAttribute("officialDegreeDesignations", degreeDesignationBeanList);
         } catch (IOException e) {
             addErrorMessage(
                     ULisboaSpecificationsUtil.bundle("error.AcademicInstitutionsImportationController.cannot.read.excel.file"),
                     model);
         }
-        
+
         return jspPage(_UPLOAD_DEGREE_DESIGNATIONS_FILE_URI);
     }
 

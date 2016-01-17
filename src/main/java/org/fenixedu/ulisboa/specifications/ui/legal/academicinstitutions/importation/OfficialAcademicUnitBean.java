@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.legal.academicinstitutions.importation;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +18,10 @@ import com.google.common.collect.Maps;
 
 import pt.ist.fenixframework.Atomic;
 
-public class OfficialAcademicUnitBean implements IBean {
+public class OfficialAcademicUnitBean implements IBean, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     private static final int UNIT_CODE_COLUMN = 0;
     private static final int UNIT_NAME_COLUMN = 1;
     private static final int DEGREE_DESIGNATION_CODE_COLUMN = 2;

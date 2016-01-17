@@ -151,6 +151,10 @@ public class XmlToBaseFileWriter {
         mobilidade.setOutroPrograma(tblMobilidadeInternacional.getOutroPrograma());
         mobilidade.setProgMobilidade(longValueOf(tblMobilidadeInternacional.getProgMobilidade()));
 
+        mobilidade.setAreaCientifica(longValueOf(tblMobilidadeInternacional.getAreaCientifica()));
+        mobilidade.setNivelCursoDestino(longValueOf(tblMobilidadeInternacional.getNivelCursoDestino()));
+        mobilidade.setOutroNivelCurDestino(tblMobilidadeInternacional.getOutroNivelCursoDestino());
+        
         if (!Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo())) {
             mobilidade.setRamo(tblMobilidadeInternacional.getRamo());
         } else {

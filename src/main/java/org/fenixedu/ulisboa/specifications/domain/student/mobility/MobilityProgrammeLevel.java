@@ -10,21 +10,25 @@ public class MobilityProgrammeLevel extends MobilityProgrammeLevel_Base {
         setBennu(Bennu.getInstance());
     }
     
-    protected MobilityProgrammeLevel(final String code, final LocalizedString name) {
+    protected MobilityProgrammeLevel(final String code, final LocalizedString name, final boolean otherLevel) {
         this();
         
         setCode(code);
         setName(name);
+        setOtherLevel(otherLevel);
         
         checkRules();
     }
+    
+    public boolean isOtherLevel() {
+        return getOtherLevel();
+    }
 
     private void checkRules() {
-        
     }
     
-    public static MobilityProgrammeLevel create(final String code, final LocalizedString name) {
-        return new MobilityProgrammeLevel(code, name);
+    public static MobilityProgrammeLevel create(final String code, final LocalizedString name, final boolean otherLevel) {
+        return new MobilityProgrammeLevel(code, name, otherLevel);
     }
     
 }

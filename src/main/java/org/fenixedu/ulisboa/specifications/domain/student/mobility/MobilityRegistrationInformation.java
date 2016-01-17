@@ -31,7 +31,9 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
 
     protected MobilityRegistrationInformation(final Registration registration, final SchoolPeriodDuration duration,
             final Unit unit, final MobilityProgramType mobilityProgramType, final MobilityActivityType activityType,
-            final MobilityScientificArea mobilityScientificArea, final MobilityProgrammeLevel mobilityProgrammeLevel) {
+            final MobilityScientificArea mobilityScientificArea, final MobilityProgrammeLevel originMobilityProgrammeLevel,
+            final MobilityProgrammeLevel incomingMobilityProgrammeLevel, final String otherOriginMobilityProgrammeLevel,
+            final String otherIncomingMobilityProgrammeLevel) {
         this();
         setRegistration(registration);
         setProgramDuration(duration);
@@ -39,7 +41,10 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setMobilityProgramType(mobilityProgramType);
         setMobilityActivityType(activityType);
         setMobilityScientificArea(mobilityScientificArea);
-        setMobilityProgrammeLevel(mobilityProgrammeLevel);
+        setIncomingMobilityProgrammeLevel(incomingMobilityProgrammeLevel);
+        setOriginMobilityProgrammeLevel(originMobilityProgrammeLevel);
+        setOtherIncomingMobilityProgrammeLevel(otherIncomingMobilityProgrammeLevel);
+        setOtherOriginMobilityProgrammeLevel(otherOriginMobilityProgrammeLevel);
 
         setIncoming(true);
 
@@ -162,7 +167,11 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setMobilityProgramType(bean.getMobilityProgramType());
         setForeignInstitutionUnit(bean.getForeignInstitutionUnit());
         setMobilityScientificArea(bean.getMobilityScientificArea());
-        setMobilityProgrammeLevel(bean.getMobilityProgrammeLevel());
+        setIncomingMobilityProgrammeLevel(bean.getIncomingMobilityProgrammeLevel());
+        setOtherIncomingMobilityProgrammeLevel(bean.getOtherIncomingMobilityProgrammeLevel());
+        setOriginMobilityProgrammeLevel(bean.getOriginMobilityProgrammeLevel());
+        setOtherOriginMobilityProgrammeLevel(bean.getOtherOriginMobilityProgrammeLevel());
+
         checkRulesForIncoming();
     }
 
@@ -224,15 +233,9 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
             MobilityRegistrationInformationBean bean) {
         return new MobilityRegistrationInformation(bean.getRegistration(), bean.getProgramDuration(),
                 bean.getForeignInstitutionUnit(), bean.getMobilityProgramType(), bean.getMobilityActivityType(),
-                bean.getMobilityScientificArea(), bean.getMobilityProgrammeLevel());
-    }
-
-    public static MobilityRegistrationInformation createMobilityRegistrationForIncoming(final Registration registration,
-            SchoolPeriodDuration duration, Unit unit, final MobilityProgramType mobilityProgramType,
-            final MobilityActivityType activityType, final MobilityScientificArea mobilityScientificArea,
-            final MobilityProgrammeLevel mobilityProgrammeLevel) {
-        return new MobilityRegistrationInformation(registration, duration, unit, mobilityProgramType, activityType,
-                mobilityScientificArea, mobilityProgrammeLevel);
+                bean.getMobilityScientificArea(), bean.getOriginMobilityProgrammeLevel(),
+                bean.getIncomingMobilityProgrammeLevel(), bean.getOtherOriginMobilityProgrammeLevel(),
+                bean.getOtherIncomingMobilityProgrammeLevel());
     }
 
     public static boolean hasBeenInMobility(final Registration registration, final ExecutionYear executionYear) {

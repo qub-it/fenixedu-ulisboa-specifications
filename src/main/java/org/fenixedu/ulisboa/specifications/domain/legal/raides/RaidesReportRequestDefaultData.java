@@ -44,7 +44,7 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
                 DATETIME_FORMATTER.parseDateTime("31/12/2015").toLocalDate(), true, true, new BigDecimal("15"), null, true, 0, 1);
 
         // Degrees
-        raidesRequestParameter.getDegrees().addAll(Degree.readBolonhaDegrees());
+        raidesRequestParameter.getDegrees().addAll(RaidesInstance.getInstance().getDegreesToReportSet());
 
         // AgreementsForEnrolled
         raidesRequestParameter.getAgreementsForEnrolled().addAll(RaidesInstance.getInstance().getEnrolledAgreementsSet());
