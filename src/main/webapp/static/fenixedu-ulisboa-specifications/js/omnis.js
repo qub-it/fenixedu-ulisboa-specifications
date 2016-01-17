@@ -100,7 +100,9 @@ function createDataTablesWithSortSwitch(tableid, showsearchbox, showtools, pagin
 				"sSwfPath" : pagecontext + "/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
 			}
 	});
+	
 	table.columns.adjust().draw();
+	
 	$('#' + tableid +' tbody').on('click', 'tr', function() {
 		$(this).toggleClass('selected');
 	});

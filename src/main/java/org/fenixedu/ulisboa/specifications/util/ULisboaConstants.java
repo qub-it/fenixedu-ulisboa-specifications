@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.Locale;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -105,6 +106,7 @@ public class ULisboaConstants {
             "label.FillRequestPropertyProcessor.AllPlansApprovements.name";
     public static final String FILL_CURRICULUM_PROPERTY_PROCESSOR = "label.FillRequestPropertyProcessor.Curriculum.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
+
     public static final String VALIDATE_PROGRAM_CONCLUSION_PROCESSOR = "label.ValidateProgramConclusionProcessor.name";
 
     /* Predicates and filtering criteria */
@@ -154,5 +156,12 @@ public class ULisboaConstants {
         return conclusionBean.getCurriculumForConclusion().getCurriculumEntries().stream().collect(Collectors.toList());
         // programConclusion -> programConclusionInformation -> curriculumGroup/cycleGroup -> studentCurricularPlan
     }
+
+
+
+    public static final String PROGRAM_CONCLUSION_PROCESSOR = "label.ProgramConclusionProcessor.name";
+    
+    
+    public static final Locale DEFAULT_LOCALE = new Locale("PT");
 
 }
