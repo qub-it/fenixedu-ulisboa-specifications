@@ -165,13 +165,34 @@ ${portal.angularToolkit()}
 					}
 				}
 				
-				$scope.exportResult = function() {
+				$scope.exportRegistrations = function() {
+					$scope.exportResult(
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportregistrations', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
+				}
+				
+				$scope.exportApprovals = function() {
+					$scope.exportResult(
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportapprovals', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
+				}
+				
+				$scope.exportEnrolments = function() {
+					$scope.exportResult(
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportenrolments', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
+				}
+				
+				$scope.exportResult = function(reportUrl,reportStatusUrl,reportDownloadUrl) {
 					
 					$scope.exportAborted = false;
 					
 					$.ajax({
 						type : "POST",
-						url : '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportresult',
+						url : reportUrl,
 						data : "bean=" + encodeURIComponent(JSON.stringify($scope.object)),
 						cache : false,
 						success : function(data, textStatus, jqXHR) {
@@ -180,7 +201,7 @@ ${portal.angularToolkit()}
 							    keyboard: false
 							});
 							
-							$scope.exportResultPooling(data);
+							$scope.exportResultPooling(reportStatusUrl,reportDownloadUrl,data);
 							
 						},
 						error : function(jqXHR, textStatus, errorThrown) {
@@ -189,20 +210,20 @@ ${portal.angularToolkit()}
 					});
 				}
 				
-				$scope.exportResultPooling = function(reportId) {
+				$scope.exportResultPooling = function(reportStatusUrl,reportDownloadUrl,reportId) {
 
 					$.ajax({
-						url : '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/' + reportId,
+						url : reportStatusUrl + reportId,
 						type : "GET",
 						cache : false,
 						success : function(data, textStatus, jqXHR) {
 							if (data == 'true'){								
 								$scope.hideProgressDialog();
-								$scope.downloadResult(reportId);
+								$scope.downloadResult(reportDownloadUrl, reportId);
 							} else {
 								if (!$scope.exportAborted) {
 									$timeout(function() { 
-										$scope.exportResultPooling(reportId); 
+										$scope.exportResultPooling(reportStatusUrl,reportDownloadUrl, reportId); 
 										}, 3000);
 								}
 							}
@@ -222,8 +243,8 @@ ${portal.angularToolkit()}
 					$('#exportInProgress').modal('hide');
 				}
 				
-				$scope.downloadResult = function(reportId) {
-					window.location.href = '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadresultfile/' + reportId;
+				$scope.downloadResult = function(reportDownloadUrl, reportId) {
+					window.location.href = reportDownloadUrl + reportId;
 				}
 
 		}]);
@@ -433,9 +454,19 @@ ${portal.angularToolkit()}
 					code="label.event.reports.registrationHistory.search" />
 			</button>
 			<button type="button" class="btn btn-primary"
-				ng-click="exportResult()">
+				ng-click="exportRegistrations()">
 				<spring:message
-					code="label.event.reports.registrationHistory.exportResult" />
+					code="label.event.reports.registrationHistory.exportRegistrations" />
+			</button>
+			<button type="button" class="btn btn-primary"
+				ng-click="exportEnrolments()">
+				<spring:message
+					code="label.event.reports.registrationHistory.exportEnrolments" />
+			</button>
+			<button type="button" class="btn btn-primary"
+				ng-click="exportApprovals()">
+				<spring:message
+					code="label.event.reports.registrationHistory.exportApprovals" />
 			</button>
 		</div>
 	</div>

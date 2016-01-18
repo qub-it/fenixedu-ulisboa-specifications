@@ -1,17 +1,22 @@
 package org.fenixedu.ulisboa.specifications.domain.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+
+import com.google.common.collect.Sets;
 
 public class RegistrationServices {
 
@@ -48,6 +53,21 @@ public class RegistrationServices {
             }
             registration.getSchoolClassesSet().add(schoolClass);
         }
+    }
+
+    public static Collection<EnrolmentEvaluation> getImprovementEvaluations(final Registration registration,
+            final ExecutionYear executionYear) {
+        final Collection<EnrolmentEvaluation> result = Sets.newHashSet();
+
+        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
+            for (final EnrolmentEvaluation evaluation : executionSemester.getEnrolmentEvaluationsSet()) {
+                if (evaluation.getEvaluationSeason().isImprovement() && evaluation.getRegistration() == registration) {
+                    result.add(evaluation);
+                }
+            }
+        }
+
+        return result;
     }
 
 }

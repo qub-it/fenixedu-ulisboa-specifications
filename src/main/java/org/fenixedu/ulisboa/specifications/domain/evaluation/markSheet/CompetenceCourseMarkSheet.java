@@ -89,7 +89,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return collator.get().compare(normalize(o1), normalize(o2));
         }
 
-        final Supplier<Collator> collator = () -> {
+        final Supplier<Collator> collator = () ->
+        {
             final Collator result = Collator.getInstance(I18N.getLocale());
             return result;
         };
@@ -233,7 +234,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e -> {
+        getEnrolmentEvaluationSet().forEach(e ->
+        {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
@@ -505,7 +507,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            if (!getShiftSet().isEmpty() && !EnrolmentServices.containsAnyShift(enrolment, getShiftSet())) {
+            if (!getShiftSet().isEmpty()
+                    && !EnrolmentServices.containsAnyShift(enrolment, getExecutionSemester(), getShiftSet())) {
                 continue;
             }
 
@@ -673,7 +676,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             final Registration registration = evaluation.getRegistration();
             final Degree degree = evaluation.getStudentCurricularPlan().getDegree();
             snapshot.addEntry(registration.getNumber(), registration.getName(), evaluation.getGrade(), degree.getCode(),
-                    degree.getNameI18N().toLocalizedString(), EnrolmentServices.getShiftsDescription(evaluation.getEnrolment()));
+                    degree.getNameI18N().toLocalizedString(),
+                    EnrolmentServices.getShiftsDescription(evaluation.getEnrolment(), evaluation.getExecutionPeriod()));
         }
 
         snapshot.finalize();

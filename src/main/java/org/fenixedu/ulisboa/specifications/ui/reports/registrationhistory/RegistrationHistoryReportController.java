@@ -5,20 +5,27 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -28,6 +35,8 @@ import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
 import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.dto.report.registrationhistory.RegistrationHistoryReportParametersBean;
 import org.fenixedu.ulisboa.specifications.service.report.registrationhistory.RegistrationHistoryReport;
 import org.fenixedu.ulisboa.specifications.service.report.registrationhistory.RegistrationHistoryReportService;
@@ -45,6 +54,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import fr.opensagres.xdocreport.core.io.internal.ByteArrayOutputStream;
 import pt.ist.fenixframework.Atomic;
@@ -92,23 +105,24 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         model.addAttribute("results", results);
     }
 
-    @RequestMapping(value = "/exportresult", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
-    public @ResponseBody ResponseEntity<String> exportResult(
+    @RequestMapping(value = "/exportregistrations", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportRegistrations(
             @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
             final Model model) {
 
         final String reportId = UUID.randomUUID().toString();
-        new Thread(() -> processReport(bean, reportId)).start();
+        new Thread(() -> processReport(this::exportRegistrationsToXLS, bean, reportId)).start();
 
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
     }
 
     @Atomic(mode = TxMode.READ)
-    protected void processReport(final RegistrationHistoryReportParametersBean bean, final String reportId) {
+    protected void processReport(final Function<RegistrationHistoryReportParametersBean, byte[]> reportProcessor,
+            final RegistrationHistoryReportParametersBean bean, final String reportId) {
 
         byte[] content = null;
         try {
-            content = exportResultToXLS(generateReport(bean, true));
+            content = reportProcessor.apply(bean);
         } catch (Throwable e) {
             content = createXLSWithError(
                     (e instanceof ULisboaSpecificationsDomainException) ? ((ULisboaSpecificationsDomainException) e)
@@ -127,13 +141,13 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/downloadresultfile/{reportId}", method = RequestMethod.GET)
-    public void downloadResultFile(@PathVariable("reportId") String reportId, final Model model,
+    @RequestMapping(value = "/downloadreport/{reportId}", method = RequestMethod.GET)
+    public void downloadReport(@PathVariable("reportId") String reportId, final Model model,
             RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
         final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
                 ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
-        writeFile(response, Registration.class.getSimpleName() + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls",
-                "application/vnd.ms-excel", temporaryFile.get().getContent());
+        writeFile(response, "Report_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls", "application/vnd.ms-excel",
+                temporaryFile.get().getContent());
     }
 
     protected Collection<RegistrationHistoryReport> generateReport(RegistrationHistoryReportParametersBean bean,
@@ -166,7 +180,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 .collect(Collectors.toList());
     }
 
-    private byte[] exportResultToXLS(Collection<RegistrationHistoryReport> toExport) throws IOException {
+    private byte[] exportRegistrationsToXLS(RegistrationHistoryReportParametersBean bean) {
+
+        final Collection<RegistrationHistoryReport> toExport = generateReport(bean, true);
 
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
         builder.addSheet("Registrations", new SheetData<RegistrationHistoryReport>(toExport) {
@@ -204,7 +220,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlan().getName());
                 addData("RegistrationHistoryReport.isReingression", booleanString(report.isReingression()));
                 addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
-                addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits().toPlainString());
+                addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
                 addData("RegistrationHistoryReport.average", report.getAverage() != null ? report.getAverage().getValue() : null);
                 addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
 
@@ -401,7 +417,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
-        builder.build(WorkbookExportFormat.EXCEL, result);
+        try {
+            builder.build(WorkbookExportFormat.EXCEL, result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return result.toByteArray();
 
@@ -445,4 +465,149 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page;
     }
+
+    @RequestMapping(value = "/exportapprovals", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportApprovals(
+            @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
+            final Model model) {
+
+        final String reportId = UUID.randomUUID().toString();
+        new Thread(() -> processReport(this::exportApprovalsToXLS, bean, reportId)).start();
+
+        return new ResponseEntity<String>(reportId, HttpStatus.OK);
+    }
+
+    private byte[] exportApprovalsToXLS(RegistrationHistoryReportParametersBean bean) {
+
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
+
+        final Collection<Curriculum> curriculums =
+                reports.stream().map(r -> r.getRegistration().getLastStudentCurricularPlan().getCurriculum(new DateTime(), null))
+                        .sorted((x, y) -> x.getStudentCurricularPlan().getRegistration().getNumber()
+                                .compareTo(x.getStudentCurricularPlan().getRegistration().getNumber()))
+                        .distinct().collect(Collectors.toList());
+
+        final Multimap<Curriculum, ICurriculumEntry> approvalsByCurriculum = HashMultimap.create();
+        curriculums.stream().forEach(c -> approvalsByCurriculum.putAll(c, c.getCurriculumEntries()));
+
+        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        builder.addSheet("Approvals", new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
+
+            @Override
+            protected void makeLine(Entry<Curriculum, ICurriculumEntry> entry) {
+                final Registration registration = entry.getKey().getStudentCurricularPlan().getRegistration();
+                final ICurriculumEntry curriculumEntry = entry.getValue();
+
+                addData("Student.number", registration.getStudent().getNumber());
+                addData("Registration.number", registration.getNumber().toString());
+                addData("Person.name", registration.getStudent().getPerson().getName());
+                addData("Degree.code", registration.getDegree().getCode());
+                addData("Degree.name", registration.getDegree().getNameI18N().getContent());
+                addData("ICurriculumEntry.code", curriculumEntry.getCode());
+                addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
+                addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
+                addData("ICurriculumEntry.ectsCreditsForCurriculum", curriculumEntry.getEctsCreditsForCurriculum());
+                addData("ICurriculumEntry.executionPeriod", curriculumEntry.getExecutionPeriod().getQualifiedName());
+                addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil.bundle(
+                        entry.getKey().getDismissalRelatedEntries().contains(entry.getValue()) ? "label.yes" : "label.no"));
+                addData("Curriculum.totalApprovals", entry.getKey().getCurriculumEntries().size());
+                addData("Curriculum.simpleAverage",
+                        entry.getKey().getCurriculumEntries().stream().filter(e -> e.getGrade().isNumeric())
+                                .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average()
+                                .getAsDouble());
+
+            }
+
+            private void addData(String key, Object data) {
+                addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+            }
+
+        });
+
+        final ByteArrayOutputStream result = new ByteArrayOutputStream();
+        try {
+            builder.build(WorkbookExportFormat.EXCEL, result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result.toByteArray();
+    }
+
+    @RequestMapping(value = "/exportenrolments", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportEnrolments(
+            @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
+            final Model model) {
+
+        final String reportId = UUID.randomUUID().toString();
+        new Thread(() -> processReport(this::exportEnrolmentsToXLS, bean, reportId)).start();
+
+        return new ResponseEntity<String>(reportId, HttpStatus.OK);
+    }
+
+    private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
+
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
+        final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
+        reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
+
+        final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
+        reports.stream().forEach(r ->
+        {
+            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev ->
+            {
+                enrolments.put(r, ev.getEnrolment());
+
+                if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
+                    improvementsOnly.put(ev.getEnrolment(), ev.getExecutionPeriod());
+                }
+
+            });
+        });
+
+        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        builder.addSheet("Enrolments", new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(enrolments.entries()) {
+
+            @Override
+            protected void makeLine(Entry<RegistrationHistoryReport, Enrolment> entry) {
+
+                final RegistrationHistoryReport report = entry.getKey();
+                final Registration registration = report.getRegistration();
+                final Enrolment enrolment = entry.getValue();
+
+                final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
+                final ExecutionSemester enrolmentPeriod =
+                        improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+
+                addData("Student.number", registration.getStudent().getNumber());
+                addData("Registration.number", registration.getNumber().toString());
+                addData("Person.name", registration.getStudent().getPerson().getName());
+                addData("Degree.code", registration.getDegree().getCode());
+                addData("Degree.name", registration.getDegree().getNameI18N().getContent());
+                addData("Enrolment.code", enrolment.getCode());
+                addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
+                addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
+                addData("Enrolment.improvementOnly",
+                        ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
+                addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
+                addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
+            }
+
+            private void addData(String key, Object data) {
+                addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+            }
+
+        });
+
+        final ByteArrayOutputStream result = new ByteArrayOutputStream();
+        try {
+            builder.build(WorkbookExportFormat.EXCEL, result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result.toByteArray();
+    }
+
 }
