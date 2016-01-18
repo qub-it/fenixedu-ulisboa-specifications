@@ -129,6 +129,32 @@ ${portal.angularToolkit()}
 	</div>
 </div>
 
+<h3><spring:message code="label.RaidesInstance.degrees" /></h3>
+
+<div class="panel panel-primary">
+	<div class="panel-body">
+		<table id="degreestable" class="table">
+			<thead>
+				<tr class="row">
+					<th><spring:message code="label.RaidesInstance.degreeCode" /></th>
+					<th><spring:message code="label.RaidesInstance.degreeDesignation" /></th>
+				</tr>
+			</thead>
+			
+			<tbody>
+				<c:forEach items="${raidesInstance.degreesToReportSet}" var="d">
+					<tr class="row">
+						<td><c:out value="${d.code}" /></td>
+						<td><c:out value="${d.nameI18N.content}" /></td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+
+
 <h3><spring:message code="label.RaidesInstance.enrolledAgreements" /></h3>
 
 <c:choose>
@@ -312,5 +338,29 @@ ${portal.angularToolkit()}
 <script>
 	$(document).ready(function() {
 
+		var table = $('#degreestable').DataTable({language : {
+			url : "${datatablesI18NUrl}",			
+		},
+
+		"columnDefs": [
+		//54
+		               { "width": "54px", "targets": 3 } 
+		             ],
+
+			//Documentation: https://datatables.net/reference/option/dom
+				"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
+				//"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
+				//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
+				//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
+		        "tableTools": {
+		            "sSwfPath": "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"        	
+		        }
+			});
+			table.columns.adjust().draw();
+				
+		$('#degreestable tbody').on( 'click', 'tr', function () {
+			$(this).toggleClass('selected');
+		} );
+		
 	});
 </script>

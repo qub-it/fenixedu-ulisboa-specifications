@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.scripts.legal.raides;
 
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
@@ -13,6 +14,8 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.treasury.domain.FinantialInstitution;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.DomainObjectLegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.EnumerationLegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
@@ -23,7 +26,9 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMapp
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
-import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
+
+import com.google.common.collect.Sets;
 
 public class CreateRaidesInstanceCustomTask extends CustomTask {
 
@@ -208,8 +213,168 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             legalMapping.addEntry("18", "18");
             legalMapping.addEntry("19", "19");
             legalMapping.addEntry("20", "20");
+
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            legalMapping.addEntry("20", "20");
+            
+            LETRAS_QualitativeGrades(legalMapping);
+            FARMACIA_QualitativeGrades(legalMapping);
+            VETERINARIA_QualitativeGrades(legalMapping);
+            DENTARIA_QualitativeGrades(legalMapping);
+            REITORIA_QualitativeGrades(legalMapping);
+            
         }
     }
+
+    private void REITORIA_QualitativeGrades(final StringLegalMapping legalMapping) {
+        final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
+        if(!"510739024".equals(finantialInstitution.getFiscalNumber())) {
+            return;
+        }
+        
+        final String BOM_DISTINCAO = "BD";
+        final String DISTINCAO = "D";
+        final String BOM = "B";
+        final String MUITO_BOM = "MB";
+        final String DISTINCAO_LOUVOR = "DL";
+        final String APROVADO = "A";
+        final String SUFICIENTE = "SU";
+        final String EXCELENTE = "E";
+        final String CREDITACAO = "C";
+        
+        legalMapping.addEntry(BOM, "21");
+        legalMapping.addEntry(BOM_DISTINCAO, "22");
+        legalMapping.addEntry(MUITO_BOM, "23");
+        legalMapping.addEntry(EXCELENTE, "24");
+        legalMapping.addEntry(APROVADO, "25");
+        legalMapping.addEntry(DISTINCAO, "26");
+        legalMapping.addEntry(DISTINCAO_LOUVOR, "27");
+        legalMapping.addEntry(SUFICIENTE, "28");
+        
+    }
+
+
+
+    private void DENTARIA_QualitativeGrades(final StringLegalMapping legalMapping) {
+        final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
+        if(!"503013366".equals(finantialInstitution.getFiscalNumber())) {
+            return;
+        }
+        
+        final String NAO_APTO = "NAPT";
+        final String APTO = "APT";
+        final String INSUFICIENTE = "I";
+        final String SUFICIENTE = "SU";
+        final String BOM = "B";
+        final String MUITO_BOM = "MB";
+        final String BOM_COM_DISTINCAO = "BD";
+        final String COM_APROVEITAMENTO = "CA";
+        final String DISTINCAO_LOUVOR = "DL";
+        final String APROVADO = "A";
+        
+        legalMapping.addEntry(BOM, "21");
+        legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
+        legalMapping.addEntry(MUITO_BOM, "23");
+        legalMapping.addEntry(APROVADO, "25");
+        legalMapping.addEntry(DISTINCAO_LOUVOR, "27");
+        legalMapping.addEntry(SUFICIENTE, "28");
+    }
+
+    private void VETERINARIA_QualitativeGrades(final StringLegalMapping legalMapping) {
+        final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
+        if(!"502286326".equals(finantialInstitution.getFiscalNumber())) {
+            return;
+        }
+        
+        final String BOM = "B";
+        final String MUITO_BOM = "MB";
+        final String SUFICIENTE = "SU";
+        final String BOM_COM_DISTINCAO = "BD";
+        final String MUITO_BOM_DISTINCAO = "MBD";
+        final String APROVADO_MUITO_BOM_DISTINCAO = "AMBD";
+        final String APROVADO_MUITO_BOM = "AMB";
+        final String APROVADO = "A";
+        final String APROVADO_DISTINCAO_LOUVOR = "ADL";
+        
+        legalMapping.addEntry(BOM, "21");
+        legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
+        legalMapping.addEntry(MUITO_BOM, "23");
+        legalMapping.addEntry(APROVADO, "25");
+        legalMapping.addEntry(APROVADO_DISTINCAO_LOUVOR, "27");
+        legalMapping.addEntry(SUFICIENTE, "28");
+    }
+
+    private void FARMACIA_QualitativeGrades(final StringLegalMapping legalMapping) {
+        final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
+        if(!"502659807".equals(finantialInstitution.getFiscalNumber())) {
+            return;
+        }
+        
+        final String INSUFICIENTE = "I";
+        final String SUFICIENTE = "SU";
+        final String BOM = "B";
+        final String MUITO_BOM = "MB";
+        final String MUITO_BOM_DISTINCAO_LOUVOR = "MBDL";
+        final String BOM_COM_DISTINCAO = "BD";
+        final String EXCELENTE = "E";
+        final String RECUSADO = "R";
+        final String APROVADO_COM_DISTINCAO = "AD";
+        final String APROVADO_COM_DISTINCAO_LOUVOR = "ADL";
+        final String APROVADO = "A";
+        final String APROVADO_COM_MUITO_BOM = "AMB";
+        
+        legalMapping.addEntry(BOM, "21");
+        legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
+        legalMapping.addEntry(MUITO_BOM, "23");
+        legalMapping.addEntry(EXCELENTE, "24");
+        legalMapping.addEntry(APROVADO, "25");
+        legalMapping.addEntry(APROVADO_COM_DISTINCAO, "26");
+        legalMapping.addEntry(APROVADO_COM_DISTINCAO_LOUVOR, "27");
+        legalMapping.addEntry(SUFICIENTE, "28");
+        legalMapping.addEntry(MUITO_BOM_DISTINCAO_LOUVOR, "29");
+    }
+
+    private void LETRAS_QualitativeGrades(final StringLegalMapping legalMapping) {
+        final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
+        if(!"502657456".equals(finantialInstitution.getFiscalNumber())) {
+            return;
+        }
+        
+        final String INSUFIENTE = "I";
+        final String SUFICIENTE = "SU";
+        final String BOM = "B";
+        final String MUITO_BOM = "MB";
+        final String EXCELENTE = "E";
+        final String NOTA_QUALITATIVA = "NQ";
+        final String MAU = "MA";
+        final String MEDIOCRE = "ME";
+        final String SATISFAZ = "SA";
+        final String BOM_COM_DISTINCAO = "BD";
+        final String APROVADO = "A";
+        final String REPROVADO = "RE";
+        final String APROVADO_COM_DISTINCAO_E_LOUVOR = "ADL";
+        final String APROVADO_COM_DISTINCAO = "AD";
+
+        
+        legalMapping.addEntry(BOM, "21");
+        legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
+        legalMapping.addEntry(MUITO_BOM, "23");
+        legalMapping.addEntry(EXCELENTE, "24");
+        legalMapping.addEntry(APROVADO, "25");
+        legalMapping.addEntry(APROVADO_COM_DISTINCAO, "26");
+        legalMapping.addEntry(APROVADO_COM_DISTINCAO_E_LOUVOR, "27");
+        legalMapping.addEntry(SUFICIENTE, "28");
+        
+    }
+
+
 
     private void createNivelEscolarMapping() {
         if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.SCHOOL_LEVEL) == null) {
@@ -377,8 +542,12 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
     private void createRaidesReport() {
         if (RaidesInstance.getInstance() == null) {
             LegalReport.createReport(RaidesInstance.class);
-            RaidesInstance.getInstance().edit(ULisboaSpecificationsUtil.bundleI18N("title." + RaidesInstance.class.getName()),
-                    Group.parse("#academicAdmOffice").toPersistentGroup(), false, true);
+            RaidesInstance.getInstance().edit(new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, "RAIDES"),
+                    Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", 
+                    Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), 
+                    false, new LocalizedString());
+            
+            RaidesInstance.getInstance().getDegreesToReportSet().addAll(Degree.readBolonhaDegrees());
         }
     }
 

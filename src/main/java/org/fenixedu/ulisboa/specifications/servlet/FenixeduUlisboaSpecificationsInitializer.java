@@ -130,7 +130,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
 
         ServiceRequestSlot.initStaticSlots();
-        ULisboaServiceRequestProcessor.initValidators();
+        // ULisboaServiceRequestProcessor.initValidators();
 
         RegistrationObservations.setupDeleteListener();
 
