@@ -213,16 +213,6 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             legalMapping.addEntry("19", "19");
             legalMapping.addEntry("20", "20");
 
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            legalMapping.addEntry("20", "20");
-            
             LETRAS_QualitativeGrades(legalMapping);
             FARMACIA_QualitativeGrades(legalMapping);
             VETERINARIA_QualitativeGrades(legalMapping);
@@ -360,7 +350,6 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         final String REPROVADO = "RE";
         final String APROVADO_COM_DISTINCAO_E_LOUVOR = "ADL";
         final String APROVADO_COM_DISTINCAO = "AD";
-
         
         legalMapping.addEntry(BOM, "21");
         legalMapping.addEntry(BOM_COM_DISTINCAO, "22");

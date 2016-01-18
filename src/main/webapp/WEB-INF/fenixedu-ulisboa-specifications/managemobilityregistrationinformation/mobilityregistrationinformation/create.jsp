@@ -104,6 +104,46 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 }]);
 </script>
 
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<spring:message code="label.details" />
+		</h3>
+	</div>
+	<div class="panel-body">
+		<form method="post" class="form-horizontal">
+			<table class="table">
+				<tbody>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.MobilityRegistrationInformation.studentNumber" />
+						</th>
+						<td>
+							<c:out value='${registration.student.number}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.MobilityRegistrationInformation.studentName" />
+						</th>
+						<td>
+							<c:out value='${registration.student.person.name}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.MobilityRegistrationInformation.degreeName" />
+						</th>
+						<td>
+							<c:out value='${registration.degree.presentationName}' />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+
 <form name='form' method="post" class="form-horizontal" ng-app="angularAppMobilityRegistrationInformation"
 	ng-controller="MobilityRegistrationInformationController"
 	action='${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.CREATE_URL  %>/${registration.externalId}'>

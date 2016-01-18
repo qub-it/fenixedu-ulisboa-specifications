@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
@@ -29,6 +31,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.collect.Sets;
@@ -202,14 +205,7 @@ public enum LegalMappingType implements ILegalMappingType {
         case INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT:
             return ((RegistrationProtocol) FenixFramework.getDomainObject(key)).getDescription();
         case GRADE:
-            /*
-            for (final GradeScaleType gradeScaleType : GradeScaleType.readAll()) {
-                if (gradeScaleType.findValueByAcronym(key) != null) {
-                    return gradeScaleType.findValueByAcronym(key).getName();
-                }
-            }
-            */
-            throw new RuntimeException("grade not found");
+            return new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, key);
         default:
             return new LocalizedString();
         }
