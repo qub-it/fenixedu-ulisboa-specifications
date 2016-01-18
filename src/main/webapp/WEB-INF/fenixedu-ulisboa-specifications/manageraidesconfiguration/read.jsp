@@ -131,27 +131,25 @@ ${portal.angularToolkit()}
 
 <h3><spring:message code="label.RaidesInstance.degrees" /></h3>
 
-<div class="panel panel-primary">
-	<div class="panel-body">
-		<table id="degreestable" class="table">
-			<thead>
-				<tr class="row">
-					<th><spring:message code="label.RaidesInstance.degreeCode" /></th>
-					<th><spring:message code="label.RaidesInstance.degreeDesignation" /></th>
-				</tr>
-			</thead>
-			
-			<tbody>
-				<c:forEach items="${raidesInstance.degreesToReportSet}" var="d">
-					<tr class="row">
-						<td><c:out value="${d.code}" /></td>
-						<td><c:out value="${d.nameI18N.content}" /></td>
-					</tr>
-				</c:forEach>
-			</tbody>
-		</table>
-	</div>
-</div>
+<table id="degreestable" class="table responsive table-bordered table-hover">
+	<thead>
+		<tr>
+			<th><spring:message code="label.RaidesInstance.degreeCode" /></th>
+			<th><spring:message code="label.RaidesInstance.degreeType" /></th>
+			<th><spring:message code="label.RaidesInstance.degreeDesignation" /></th>
+		</tr>
+	</thead>
+	
+	<tbody>
+		<c:forEach items="${raidesInstance.degreesToReportSet}" var="d">
+			<tr>
+				<td><c:out value="${d.code}" /></td>
+				<td><c:out value="${d.degreeType.name.content}" /></td>
+				<td><c:out value="${d.nameI18N.content}" /></td>
+			</tr>
+		</c:forEach>
+	</tbody>
+</table>
 
 
 
@@ -162,14 +160,14 @@ ${portal.angularToolkit()}
 		<table id="simpletable"
 			class="table responsive table-bordered table-hover">
 			<thead>
-				<tr class="row">
+				<tr>
 					<th class="col-sm-2"><spring:message code="label.RaidesInstance.agreementCode" /></th>
 					<th><spring:message code="label.RaidesInstance.agreementName" /></th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach var="a" items="${raidesInstance.enrolledAgreementsSet}">
-					<tr class="row">
+					<tr>
 						<td class="col-sm-2"><c:out value="${a.code}" /></td>
 						<td><c:out value="${a.description.content}" /></td>
 					</tr>
@@ -273,6 +271,7 @@ ${portal.angularToolkit()}
 				<tr class="row">
 					<th class="col-sm-2"><spring:message code="label.RaidesInstance.ingressionCode" /></th>
 					<th><spring:message code="label.RaidesInstance.ingressionName" /></th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -280,6 +279,7 @@ ${portal.angularToolkit()}
 					<tr class="row">
 						<td class="col-sm-2"><c:out value="${ingressionType.code}" /></td>
 						<td><c:out value="${ingressionType.description.content}" /></td>
+						<td></td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -342,10 +342,7 @@ ${portal.angularToolkit()}
 			url : "${datatablesI18NUrl}",			
 		},
 
-		"columnDefs": [
-		//54
-		               { "width": "54px", "targets": 3 } 
-		             ],
+		"columnDefs": [],
 
 			//Documentation: https://datatables.net/reference/option/dom
 				"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
