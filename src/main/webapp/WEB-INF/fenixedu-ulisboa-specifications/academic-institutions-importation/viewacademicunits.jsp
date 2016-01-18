@@ -34,7 +34,7 @@ ${portal.toolkit()}
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
 	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;
-	<a class="" href="${pageContext.request.contextPath}/<%= AcademicInstitutionsImportationController.VIEW_DEGREE_DESIGNATIONS_URL %>">
+	<a class="" href="${pageContext.request.contextPath}<%= AcademicInstitutionsImportationController.VIEW_DEGREE_DESIGNATIONS_URL %>">
 		<spring:message code="label.AcademicInstitutionsImportationController.viewdegreedesignations.title"/>
 	</a>
 	
@@ -142,7 +142,7 @@ ${portal.toolkit()}
 				<td><c:out value="${unit.nameI18n.content}" /></td>
 				<td><c:out value="${unit.degreeDesignationSet.size()}" /></td>
 				<td>
-					<a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}/<%= AcademicInstitutionsImportationController.VIEW_ACADEMIC_UNIT_DETAIL_URL %>/${unit.externalId}">
+					<a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= AcademicInstitutionsImportationController.VIEW_ACADEMIC_UNIT_DETAIL_URL %>/${unit.externalId}">
 						<spring:message code="label.view" />
 					</a>
 				</td>
@@ -167,7 +167,7 @@ ${portal.toolkit()}
 				<td><c:out value="${unit.nameI18n.content}" /></td>
 				<td><c:out value="${unit.degreeDesignationSet.size()}" /></td>
 				<td style="width: 10px;">
-					<a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}/<%= AcademicInstitutionsImportationController.VIEW_ACADEMIC_UNIT_DETAIL_URL %>/${unit.externalId}">
+					<a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= AcademicInstitutionsImportationController.VIEW_ACADEMIC_UNIT_DETAIL_URL %>/${unit.externalId}">
 						<spring:message code="label.view" />
 					</a>
 				</td>

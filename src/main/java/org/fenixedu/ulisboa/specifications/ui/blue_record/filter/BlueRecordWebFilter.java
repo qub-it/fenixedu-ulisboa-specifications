@@ -20,37 +20,42 @@ import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRec
 public class BlueRecordWebFilter implements Filter {
 
     private static final BlueRecordRedirector r = new BlueRecordRedirector();
-    
+
     @Override
     public void destroy() {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        
+
         final String path = httpServletRequest.getRequestURI();
-        
-        if (path.endsWith(".js") || path.endsWith(".css") || path.endsWith(".eot") || path.endsWith(".otf") || path.endsWith(".png")
-                || path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".gif") || path.endsWith("favicon") || path.endsWith("logo")
-                || path.endsWith(".svg") || path.endsWith(".less") || path.endsWith(".ttf") || path.endsWith(".woff") || path.endsWith("/logout")
+
+        if (path.endsWith(".js") || path.endsWith(".css") || path.endsWith(".eot") || path.endsWith(".otf")
+                || path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".gif")
+                || path.endsWith("favicon") || path.endsWith("logo") || path.endsWith(".svg") || path.endsWith(".less")
+                || path.endsWith(".ttf") || path.endsWith(".woff") || path.endsWith("/logout")
                 || path.contains("/api/bennu-core")) {
             chain.doFilter(request, response);
             return;
         }
-        
-        if(path.contains("/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes")) {
+
+        if (path.contains("/fenixedu-ulisboa-specifications/firsttimecandidacy/autocompletes")) {
             chain.doFilter(request, response);
-            return;            
-        }
-        
-        final User user = Authenticate.getUser();
-        if(user != null && r.isToRedirect(user, httpServletRequest) && !path.contains(r.redirectionPath(user, httpServletRequest))) {
-            httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/" + r.redirectionPath(user, httpServletRequest));
             return;
         }
-        
+
+        final User user = Authenticate.getUser();
+        if (user != null && r.isToRedirect(user, httpServletRequest)
+                && !path.contains(r.redirectionPath(user, httpServletRequest))) {
+            String contextPath = httpServletRequest.getContextPath();
+            httpServletResponse.sendRedirect(
+                    contextPath + (contextPath.endsWith("/") ? "" : "/") + r.redirectionPath(user, httpServletRequest));
+            return;
+        }
+
         chain.doFilter(request, response);
     }
 

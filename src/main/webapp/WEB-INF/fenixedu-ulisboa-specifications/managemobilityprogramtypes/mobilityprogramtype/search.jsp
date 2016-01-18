@@ -159,7 +159,7 @@ ${portal.angularToolkit()}
 						</td>
 						<td>
 							<a class="btn btn-default btn-xs"
-								href="${pageContext.request.contextPath}/<%= MobilityProgramTypeController.READ_URL %>/${mobilityProgramType.externalId}">
+								href="${pageContext.request.contextPath}<%= MobilityProgramTypeController.READ_URL %>/${mobilityProgramType.externalId}">
 								<spring:message code='label.view' />
 							</a>
 							<a class="btn btn-danger btn-xs" href="#" onclick="showDeleteModal(${mobilityProgramType.externalId});return false;">

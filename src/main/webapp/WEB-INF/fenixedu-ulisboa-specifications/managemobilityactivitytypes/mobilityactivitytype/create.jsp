@@ -100,7 +100,7 @@ ${portal.angularToolkit()}
 </script>
 
 <form name='form' method="post" class="form-horizontal" ng-app="angularAppMobilityActivityType" ng-controller="MobilityActivityTypeController"
-	action='${pageContext.request.contextPath}/<%= MobilityActivityTypeController.CREATE_URL %>'>
+	action='${pageContext.request.contextPath}<%= MobilityActivityTypeController.CREATE_URL %>'>
 	
 	<input type="hidden" name="bean" value="{{ object }}" />
 	

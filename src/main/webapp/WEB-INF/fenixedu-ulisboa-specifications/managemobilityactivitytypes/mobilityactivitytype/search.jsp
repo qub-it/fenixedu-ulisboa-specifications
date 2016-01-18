@@ -165,7 +165,7 @@ ${portal.angularToolkit()}
 						<td><c:out value="${mobilityActivityType.name.content}" /></td>
 						<td><spring:message code='${mobilityActivityType.active ? "label.true" : "label.false"}' /></td>
 						<td>
-							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}/<%= MobilityActivityTypeController.READ_URL %>/${mobilityActivityType.externalId}">
+							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= MobilityActivityTypeController.READ_URL %>/${mobilityActivityType.externalId}">
 								<spring:message code='label.view' />
 							</a>
 							<a class="btn btn-danger btn-xs" href="#" onclick="showDeleteModal(${mobilityActivityType.externalId});return false;">

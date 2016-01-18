@@ -55,7 +55,6 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         createTipoProfissaoMapping();
         createTipoProgramaMobilidadeMapping();
         createTipoBolsaMapping();
-
     }
     
     

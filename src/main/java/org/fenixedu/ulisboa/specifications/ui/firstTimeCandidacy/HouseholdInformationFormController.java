@@ -98,31 +98,43 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
     protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final ExecutionYear executionYear,
             final boolean create) {
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, create);
-
+        
         final HouseholdInformationForm form = new HouseholdInformationForm();
-        form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());
-        form.setFatherProfessionType(personalData.getFatherProfessionType());
-        form.setFatherSchoolLevel(personalData.getFatherSchoolLevel());
-        form.setMotherProfessionalCondition(personalData.getMotherProfessionalCondition());
-        form.setMotherProfessionType(personalData.getMotherProfessionType());
-        form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
-
-        form.setMaritalStatus(personalData.getMaritalStatus());
+        
+        if(personalData != null) {
+            form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());
+            form.setFatherProfessionType(personalData.getFatherProfessionType());
+            form.setFatherSchoolLevel(personalData.getFatherSchoolLevel());
+            form.setMotherProfessionalCondition(personalData.getMotherProfessionalCondition());
+            form.setMotherProfessionType(personalData.getMotherProfessionType());
+            form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
+            
+            form.setMaritalStatus(personalData.getMaritalStatus());
+            form.setProfessionType(personalData.getProfessionType());
+            form.setGrantOwnerType(personalData.getGrantOwnerType());
+            
+            Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
+            form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
+            form.setProfessionalCondition(personalData.getProfessionalCondition());
+            
+            form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence() != null ? personalData.getDislocatedFromPermanentResidence() : false);
+            form.setCountryOfResidence(personalData.getCountryOfResidence());
+            form.setPermanentResidenceDistrict(personalData.getDistrictSubdivisionOfResidence() != null ? personalData
+                    .getDistrictSubdivisionOfResidence().getDistrict() : null);
+            form.setPermanentResidentDistrictSubdivision(personalData.getDistrictSubdivisionOfResidence());
+        }
+        
         if (form.getMaritalStatus() == null) {
             form.setMaritalStatus(MaritalStatus.SINGLE);
         }
 
-        form.setProfessionType(personalData.getProfessionType());
         if (form.getProfessionType() == null) {
             form.setProfessionType(ProfessionType.OTHER);
         }
-        form.setGrantOwnerType(personalData.getGrantOwnerType());
         if (form.getGrantOwnerType() == null) {
             form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
         }
-        Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
-        form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
-        form.setProfessionalCondition(personalData.getProfessionalCondition());
+        
         if (form.getProfessionalCondition() == null) {
             form.setProfessionalCondition(ProfessionalSituationConditionType.STUDENT);
         }
@@ -136,12 +148,6 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
             form.setCountryHighSchool(personUl.getPerson().getCountryHighSchool());
             form.setDislocatedResidenceType(personUl.getDislocatedResidenceType());
         }
-
-        form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence() != null ? personalData.getDislocatedFromPermanentResidence() : false);
-        form.setCountryOfResidence(personalData.getCountryOfResidence());
-        form.setPermanentResidenceDistrict(personalData.getDistrictSubdivisionOfResidence() != null ? personalData
-                .getDistrictSubdivisionOfResidence().getDistrict() : null);
-        form.setPermanentResidentDistrictSubdivision(personalData.getDistrictSubdivisionOfResidence());
 
         return form;
     }

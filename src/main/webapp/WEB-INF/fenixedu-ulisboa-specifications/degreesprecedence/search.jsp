@@ -70,7 +70,7 @@ ${portal.angularToolkit()}
 						</td>
 						<td>
 							<a class="btn btn-default btn-xs"
-								href="${pageContext.request.contextPath}/<%= DegreesPrecedenceController.VIEW_URL %>/${degree.externalId}">
+								href="${pageContext.request.contextPath}<%= DegreesPrecedenceController.VIEW_URL %>/${degree.externalId}">
 								<spring:message code='label.view' />
 							</a>
 						</td>
