@@ -51,8 +51,11 @@ public class BlueRecordWebFilter implements Filter {
         if (user != null && r.isToRedirect(user, httpServletRequest)
                 && !path.contains(r.redirectionPath(user, httpServletRequest))) {
             String contextPath = httpServletRequest.getContextPath();
-            httpServletResponse.sendRedirect(
-                    contextPath + (contextPath.endsWith("/") ? "" : "/") + r.redirectionPath(user, httpServletRequest));
+            if(contextPath.endsWith("/")) {
+                httpServletResponse.sendRedirect(r.redirectionPath(user, httpServletRequest).substring(1));                
+            } else {
+                httpServletResponse.sendRedirect(contextPath + r.redirectionPath(user, httpServletRequest));
+            }
             return;
         }
 

@@ -54,9 +54,9 @@ public class FindBlueRecordStudents extends CustomTask {
             } catch(NullPointerException e) {
                 p++;
             }
-            
-            taskLog("P: %s\n", p);
         }
+        
+        taskLog("P: %s\n", p);
     }
 
     private boolean hasSomeBlueRecordFormToFill(final Student student) {
