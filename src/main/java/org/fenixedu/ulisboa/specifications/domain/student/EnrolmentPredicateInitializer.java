@@ -30,9 +30,12 @@ import java.util.function.Supplier;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,7 @@ abstract public class EnrolmentPredicateInitializer {
 
             Enrolment.setPredicateSeason(PREDICATE_SEASON);
             Enrolment.setPredicateImprovement(PREDICATE_IMPROVEMENT);
+            Enrolment.setPredicateSpecialSeason(PREDICATE_SPECIAL_SEASON);
             logger.info("Overriding default");
 
         } else {
@@ -57,22 +61,23 @@ abstract public class EnrolmentPredicateInitializer {
 
     static private Supplier<EnrolmentPredicate> PREDICATE_SEASON = () -> new EnrolmentPredicate() {
 
+        @Override
         public boolean test(final Enrolment enrolment) {
 
             if (enrolment.isEvaluatedInSeason(getEvaluationSeason(), getExecutionSemester())) {
-                throw new DomainException("error.EvaluationSeason.enrolment.evaluated.in.this.season", enrolment.getName()
-                        .getContent(), getEvaluationSeason().getName().getContent());
+                throw new DomainException("error.EvaluationSeason.enrolment.evaluated.in.this.season",
+                        enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
             }
 
             if (getContext() == EnrolmentEvaluationContext.MARK_SHEET_EVALUATION) {
                 if (enrolment.isEnroledInSeason(getEvaluationSeason(), getExecutionSemester())) {
-                    throw new DomainException("error.EvaluationSeason.already.enroled.in.this.season", enrolment.getName()
-                            .getContent(), getEvaluationSeason().getName().getContent());
+                    throw new DomainException("error.EvaluationSeason.already.enroled.in.this.season",
+                            enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
                 }
 
                 if (enrolment.isApproved() && !getEvaluationSeason().isImprovement()) {
-                    throw new DomainException("error.EvaluationSeason.evaluation.already.approved", enrolment.getName()
-                            .getContent(), getEvaluationSeason().getName().getContent());
+                    throw new DomainException("error.EvaluationSeason.evaluation.already.approved",
+                            enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
                 }
             }
 
@@ -88,7 +93,7 @@ abstract public class EnrolmentPredicateInitializer {
             final ExecutionSemester improvementSemester = getExecutionSemester();
 
             final ExecutionSemester enrolmentSemester = enrolment.getExecutionPeriod();
-            if (improvementSemester.isBeforeOrEquals(enrolmentSemester)) {
+            if (improvementSemester.isBefore(enrolmentSemester)) {
                 throw new DomainException("error.EnrolmentEvaluation.improvement.semester.must.be.after.or.equal.enrolment",
                         enrolment.getName().getContent());
             }
@@ -110,6 +115,58 @@ abstract public class EnrolmentPredicateInitializer {
 
             return true;
         }
+    };
+
+    static private Supplier<EnrolmentPredicate> PREDICATE_SPECIAL_SEASON = () -> new EnrolmentPredicate() {
+
+        @Override
+        public boolean test(final Enrolment enrolment) {
+            final ExecutionSemester specialSeasonSemester = getExecutionSemester();
+
+            final ExecutionSemester enrolmentSemester = enrolment.getExecutionPeriod();
+            if (specialSeasonSemester != enrolmentSemester) {
+                throw new DomainException("error.EnrolmentEvaluation.special.season.semester.must.be",
+                        enrolment.getName().getContent());
+            }
+
+            if (enrolment.isApproved()) {
+                throw new DomainException(
+                        "curricularRules.ruleExecutors.EnrolmentInSpecialSeasonEvaluationExecutor.degree.module.has.been.approved",
+                        enrolment.getName().getContent());
+            }
+
+            PREDICATE_SEASON.get().fill(getEvaluationSeason(), getExecutionSemester(), getContext()).test(enrolment);
+
+            final boolean isServices =
+                    AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser());
+            return considerThisEnrolmentNormalEnrolments(enrolment)
+                    || considerThisEnrolmentPropaedeuticEnrolments(enrolment, isServices)
+                    || considerThisEnrolmentExtraCurricularEnrolments(enrolment, isServices)
+                    || considerThisEnrolmentStandaloneEnrolments(enrolment, isServices);
+        }
+
+        private boolean considerThisEnrolmentNormalEnrolments(Enrolment enrolment) {
+            if (enrolment.isBolonhaDegree() && !enrolment.isExtraCurricular() && !enrolment.isPropaedeutic()
+                    && !enrolment.isStandalone()) {
+                if (enrolment.getParentCycleCurriculumGroup().isConclusionProcessed()) {
+                    return false;
+                }
+            }
+            return !enrolment.parentCurriculumGroupIsNoCourseGroupCurriculumGroup() || enrolment.isPropaedeutic();
+        }
+
+        private boolean considerThisEnrolmentPropaedeuticEnrolments(Enrolment enrolment, boolean isServices) {
+            return enrolment.isPropaedeutic() && isServices;
+        }
+
+        private boolean considerThisEnrolmentExtraCurricularEnrolments(Enrolment enrolment, boolean isServices) {
+            return enrolment.isExtraCurricular() && isServices;
+        }
+
+        private boolean considerThisEnrolmentStandaloneEnrolments(Enrolment enrolment, boolean isServices) {
+            return enrolment.isStandalone() && isServices;
+        }
+
     };
 
 }

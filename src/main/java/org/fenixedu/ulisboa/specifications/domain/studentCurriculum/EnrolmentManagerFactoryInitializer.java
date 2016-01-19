@@ -32,7 +32,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.phd.enrolments.PhdStudentCurricularPlanEnrolmentManager;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment.EnrolmentManagerFactory;
-import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanExtraEnrolmentManager;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanPropaeudeuticsEnrolmentManager;
