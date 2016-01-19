@@ -3,8 +3,10 @@ package org.fenixedu.ulisboa.specifications.domain.evaluation;
 import java.util.Comparator;
 import java.util.Date;
 
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 
 /*
  * Based on original EvaluationConfiguration.EnrolmentComparator
@@ -12,6 +14,7 @@ import org.fenixedu.academic.domain.curriculum.EnrollmentState;
  *
  */
 public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
+
     @Override
     public int compare(EnrolmentEvaluation o1, EnrolmentEvaluation o2) {
 
@@ -36,7 +39,6 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
         }
 
         return compareByStateAndGradeAndEvaluationDate(o1, o2);
-
     }
 
     private int compareMyWhenAlteredDateToAnotherWhenAlteredDate(Date when1, Date whenAltered) {
@@ -51,7 +53,8 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
 
     }
 
-    private int compareBySpecialAuthorizationAndStateAndGradeAndEvaluationDate(EnrolmentEvaluation left, EnrolmentEvaluation right) {
+    private int compareBySpecialAuthorizationAndStateAndGradeAndEvaluationDate(EnrolmentEvaluation left,
+            EnrolmentEvaluation right) {
 
         if (left.getEvaluationSeason().isSpecialAuthorization() && !right.getEvaluationSeason().isSpecialAuthorization()) {
             return 1;
@@ -70,23 +73,37 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
         final EnrollmentState rightEnrolmentState = right.getEnrollmentStateByGrade();
 
         if (leftEnrolmentState == EnrollmentState.APROVED && rightEnrolmentState == EnrollmentState.APROVED) {
-            return compareByGradeAndEvaluationDate(left, right);
+            return compareByGradeAndEvaluationDate(left, right, true);
         } else if (leftEnrolmentState == EnrollmentState.APROVED) {
             return 1;
         } else if (rightEnrolmentState == EnrollmentState.APROVED) {
             return -1;
         } else {
-            return compareByGradeAndEvaluationDate(left, right);
+            return compareByGradeAndEvaluationDate(left, right, false);
         }
     }
 
-    protected int compareByGradeAndEvaluationDate(EnrolmentEvaluation left, EnrolmentEvaluation right) {
+    protected int compareByGradeAndEvaluationDate(EnrolmentEvaluation left, EnrolmentEvaluation right,
+            final boolean bothApproved) {
         int result = left.getGrade().compareTo(right.getGrade());
         if (result != 0) {
             return result;
         }
 
-        result = left.getExamDateYearMonthDay().compareTo(right.getExamDateYearMonthDay());
+        if (bothApproved) {
+            result = left.getExamDateYearMonthDay().compareTo(right.getExamDateYearMonthDay());
+            if (result != 0) {
+                return result;
+            }
+        }
+
+        result = EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.compare(left.getEvaluationSeason(),
+                right.getEvaluationSeason());
+        if (result != 0) {
+            return result;
+        }
+
+        result = DomainObjectUtil.COMPARATOR_BY_ID.compare(left, right);
         if (result != 0) {
             return result;
         }
