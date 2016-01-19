@@ -680,7 +680,8 @@ public class StudentCurricularPlanLayout extends Layout {
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES + COLUMNS_BETWEEN_TEXT_AND_GRADE - level);
 
         final Grade grade = evaluation.getGrade();
-        generateCellWithText(enrolmentRow, grade.isEmpty() ? EMPTY_INFO : grade.getValue(), renderer.getGradeCellClass());
+        generateCellWithText(enrolmentRow, grade.isEmpty() || !evaluation.isFinal() ? EMPTY_INFO : grade.getValue(),
+                renderer.getGradeCellClass());
 
         generateCellWithText(enrolmentRow, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
