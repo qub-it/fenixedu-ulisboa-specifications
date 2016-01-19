@@ -502,7 +502,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("Registration.number", registration.getNumber().toString());
                 addData("Person.name", registration.getStudent().getPerson().getName());
                 addData("Degree.code", registration.getDegree().getCode());
-                addData("Degree.name", registration.getDegree().getNameI18N().getContent());
+                addData("Degree.presentationName", registration.getDegree().getPresentationName());
                 addData("ICurriculumEntry.code", curriculumEntry.getCode());
                 addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
                 addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
@@ -583,7 +583,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("Registration.number", registration.getNumber().toString());
                 addData("Person.name", registration.getStudent().getPerson().getName());
                 addData("Degree.code", registration.getDegree().getCode());
-                addData("Degree.name", registration.getDegree().getNameI18N().getContent());
+                addData("Degree.presentationName", registration.getDegree().getPresentationName());
                 addData("Enrolment.code", enrolment.getCode());
                 addData("Enrolment.name", enrolment.getPresentationName().getContent());
                 addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
