@@ -534,8 +534,6 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
                     Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", 
                     Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), 
                     false, new LocalizedString());
-            
-            RaidesInstance.getInstance().getDegreesToReportSet().addAll(Degree.readBolonhaDegrees());
         }
     }
 

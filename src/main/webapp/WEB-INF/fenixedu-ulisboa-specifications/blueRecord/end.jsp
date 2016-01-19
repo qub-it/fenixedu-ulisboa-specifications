@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.bennu.portal.domain.PortalConfiguration"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%> 
 
 <style>
@@ -16,8 +17,17 @@
 </div>
 
 <div>
-	<a class="btn btn-primary start" href="<%= request.getContextPath() %>/student">
+<%
+		if(request.getContextPath().endsWith("/")) {
+		    request.setAttribute("path", "student");
+		} else {
+		    request.setAttribute("path", "/student");		    
+		}
+%>
+
+	<a class="btn btn-primary start" href="<%= request.getContextPath() %>${path}">
 		<span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>&nbsp;
 		<spring:message code="label.event.firstTimeCandidacy.student.portal" />
 	</a>
+	
 </div>
