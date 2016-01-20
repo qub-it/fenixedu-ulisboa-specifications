@@ -205,11 +205,11 @@ public class InscritoService extends RaidesService {
     protected String bolseiro(final Registration registration, final ExecutionYear executionYear) {
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
         if (pid == null) {
-            return null;
+            return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
         }
         
         if(pid.getGrantOwnerType() == null) {
-            return null;
+            return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
         }
 
         return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(pid.getGrantOwnerType());

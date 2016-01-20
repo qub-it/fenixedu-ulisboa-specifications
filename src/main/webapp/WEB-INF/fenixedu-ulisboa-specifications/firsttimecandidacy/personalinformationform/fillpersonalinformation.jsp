@@ -95,6 +95,33 @@ ${portal.toolkit()}
 					<div class="form-control-static"><c:out value='${not empty param.username ? param.username : personalInformationForm.username }' /></div>
 				</div>
 			</div>
+	<c:if test="${not personalInformationForm.isForeignStudent}">
+			<div class="form-group row">
+				<label class="col-sm-2 control-label">
+					<spring:message code="label.PersonalInformationForm.documentIdNumber" />
+				</label>
+
+				<div class="col-sm-10">
+					<div class="form-control-static"><c:out value='${personalInformationForm.documentIdNumber}' /></div>
+				</div>
+			</div>
+			
+		<c:if test="${identityCardExtraDigitRequired}">
+			<div class="form-group row">
+				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
+					<spring:message
+						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
+				</label>
+
+				<div class="col-sm-10">
+					<input id="personalInformationForm_identificationDocumentSeriesNumber"
+						class="form-control" type="text" name="identificationDocumentSeriesNumber"
+						value='<c:out value='${personalInformationForm.identificationDocumentSeriesNumber }'/>' />
+				</div>
+			</div>
+		</c:if>
+	</c:if>
+			
 			<c:if test="${not partial}">
 			<div class="form-group row">
 				<label class="col-sm-2 control-label">
@@ -105,17 +132,6 @@ ${portal.toolkit()}
 					<div class="form-control-static"><c:out value='${not empty param.gender ? param.gender : personalInformationForm.gender.localizedName }' /></div>
 				</div>
 			</div>
-			<c:if test="${not personalInformationForm.isForeignStudent}">
-				<div class="form-group row">
-					<label class="col-sm-2 control-label">
-						<spring:message code="label.PersonalInformationForm.documentIdNumber" />
-					</label>
-	
-					<div class="col-sm-10">
-						<div class="form-control-static"><c:out value='${personalInformationForm.documentIdNumber }' /></div>
-					</div>
-				</div>
-			</c:if>
 			<c:if test="${personalInformationForm.isForeignStudent}">
 				<div class="form-group row">
 					<label class="col-sm-2 control-label required-field">
@@ -263,7 +279,7 @@ ${portal.toolkit()}
 			</c:if>
 			
 			<div class="form-group row">
-				<label class="col-sm-2 control.label">
+				<label class="col-sm-2 control.label required-field">
 					<spring:message code="label.PersonalInformationForm.countryHighSchool" />
 				</label>
 				

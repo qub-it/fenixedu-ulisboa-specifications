@@ -69,6 +69,37 @@ ${portal.toolkit()}
 							<c:out value='${student.person.name}' />
 						</td>
 					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.idDocumentType" />
+						</th>
+						<td>
+							<c:out value='${student.person.idDocumentType.localizedName}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.documentIdNumber" />
+						</th>
+						<td>
+							<c:out value='${student.person.documentIdNumber}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.HouseholdInformationForm.documentIdControlNumber" />
+						</th>
+						<td>
+							<c:choose>
+								<c:when test="${not empty student.person.identificationDocumentSeriesNumberValue}">
+									<c:out value='${student.person.identificationDocumentSeriesNumberValue}' />
+								</c:when>
+								<c:when test="${not empty student.person.identificationDocumentExtraDigitValue}">
+									<c:out value='${student.person.identificationDocumentExtraDigitValue}' />
+								</c:when>
+							</c:choose>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</form>

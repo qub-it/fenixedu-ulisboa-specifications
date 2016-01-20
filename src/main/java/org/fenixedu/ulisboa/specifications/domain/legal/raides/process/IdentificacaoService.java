@@ -40,6 +40,10 @@ public class IdentificacaoService extends RaidesService {
 
         bean.setCheckDigitId(student.getPerson().getIdentificationDocumentSeriesNumberValue());
 
+        if(Strings.isNullOrEmpty(bean.getCheckDigitId())) {
+            bean.setCheckDigitId(student.getPerson().getIdentificationDocumentExtraDigitValue());            
+        }
+        
         if (student.getPerson().getDateOfBirthYearMonthDay() != null) {
             bean.setDataNasc(student.getPerson().getDateOfBirthYearMonthDay().toLocalDate());
         }

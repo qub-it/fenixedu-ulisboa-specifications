@@ -65,6 +65,7 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -111,10 +113,10 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
     public String fillpersonalinformation(final Model model, final RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
+        if (isFormIsFilled(model)) {
             return nextScreen(model, redirectAttributes);
         }
-        
+
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -138,22 +140,27 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         idDocumentTypeValues.addAll(Arrays.asList(IDDocumentType.values()));
         idDocumentTypeValues.remove(IDDocumentType.CITIZEN_CARD);
         model.addAttribute("idDocumentTypeValues", idDocumentTypeValues);
-
+        
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillPersonalInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }
 
     public PersonalInformationForm fillFormIfRequired(Model model) {
         Person person = getStudent(model).getPerson();
+        
+        model.addAttribute("identityCardExtraDigitRequired", person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD && 
+                !isIdentityCardControlNumberValid(getIdentityCardControlNumber(person)));
+        
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
             if (!form.getIsForeignStudent()) {
                 form.setDocumentIdNumber(person.getDocumentIdNumber());
                 form.setIdDocumentType(person.getIdDocumentType());
+                form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentExtraDigitValue());
             }
-            
+
             fillstaticformdata(getStudent(model), form);
-            
+
             model.addAttribute("personalInformationForm", form);
             return form;
         }
@@ -169,19 +176,19 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
         YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
         YearMonthDay expirationDateOfDocumentIdYearMonthDay = person.getExpirationDateOfDocumentIdYearMonthDay();
-        form.setDocumentIdEmissionDate(emissionDateOfDocumentIdYearMonthDay != null ? new LocalDate(person
-                .getEmissionDateOfDocumentIdYearMonthDay().toDateMidnight()) : null);
+        form.setDocumentIdEmissionDate(emissionDateOfDocumentIdYearMonthDay != null ? new LocalDate(
+                person.getEmissionDateOfDocumentIdYearMonthDay().toDateMidnight()) : null);
         form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
 
+        form.setDocumentIdNumber(person.getDocumentIdNumber());
+        form.setIdDocumentType(person.getIdDocumentType());
+        form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
+        
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
-            if (!StringUtils.equals(personUl.getDgesTempIdCode(), person.getDocumentIdNumber())) {
-                form.setDocumentIdNumber(person.getDocumentIdNumber());
-                form.setIdDocumentType(person.getIdDocumentType());
-            }
 
             Unit institution = personUl.getFirstOptionInstitution();
             if (institution != null) {
@@ -193,34 +200,31 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                         institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
                 form.setFirstOptionDegreeDesignation(degreeDesignation);
             }
-        } else {
-            form.setDocumentIdNumber(person.getDocumentIdNumber());
-            form.setIdDocumentType(person.getIdDocumentType());
         }
 
         form.setCountryHighSchool(person.getCountryHighSchool());
-        
+
         form.setGender(student.getPerson().getGender());
 
         fillstaticformdata(student, form);
-        
+
         return form;
     }
 
     private void fillstaticformdata(final Student student, final PersonalInformationForm form) {
         form.setFirstYearRegistration(false);
         for (final Registration registration : student.getRegistrationsSet()) {
-            if(!registration.isActive()) {
+            if (!registration.isActive()) {
                 continue;
             }
-            
-            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+
+            if (registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
                 continue;
             }
-            
+
             form.setFirstYearRegistration(true);
         }
-        
+
         form.setName(student.getPerson().getName());
         form.setUsername(student.getPerson().getUser().getUsername());
     }
@@ -243,7 +247,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             de.printStackTrace();
-            
+
             return fillpersonalinformation(model, redirectAttributes);
         }
     }
@@ -253,13 +257,13 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
-        
+
         final Set<String> result = validateForm(form, getStudent(model).getPerson());
 
         for (final String message : result) {
             addErrorMessage(message, model);
         }
-        
+
         return result.isEmpty();
     }
 
@@ -309,12 +313,35 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 }
             }
         }
-        
-        if(form.getCountryHighSchool() == null) {
-            result.add(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
+
+        if (form.getCountryHighSchool() == null) {
+            result.add(
+                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
         }
+
+        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
+                && !isIdentityCardControlNumberValid(getIdentityCardControlNumber(person))
+                && !isIdentityCardControlNumberValid(form.getIdentificationDocumentSeriesNumber())) {
+            result.add(ULisboaSpecificationsUtil.bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
+        }
+        
         return result;
+    }
+    
+    private String getIdentityCardControlNumber(final Person person) {
+        if(!Strings.isNullOrEmpty(person.getIdentificationDocumentSeriesNumberValue())) {
+            return person.getIdentificationDocumentSeriesNumberValue();
+        }
+        
+        return person.getIdentificationDocumentExtraDigitValue();
+    }
+    
+    private void setIdentityCardControlNumber(final Person person, final String number) {
+        person.setIdentificationDocumentSeriesNumber(number);
+    }
+    
+    private boolean isIdentityCardControlNumberValid(final String extraValue) {
+        return !Strings.isNullOrEmpty(extraValue) && (extraValue.matches("\\d") || extraValue.matches("\\d[A-Z][A-Z]\\d"));
     }
 
     private boolean testsMode() {
@@ -332,10 +359,10 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
             LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
             LocalDate documentIdExpirationDate = form.getDocumentIdExpirationDate();
-            person.setEmissionDateOfDocumentIdYearMonthDay(documentIdEmissionDate != null ? new YearMonthDay(
-                    documentIdEmissionDate.toDate()) : null);
-            person.setExpirationDateOfDocumentIdYearMonthDay(documentIdExpirationDate != null ? new YearMonthDay(
-                    documentIdExpirationDate.toDate()) : null);
+            person.setEmissionDateOfDocumentIdYearMonthDay(
+                    documentIdEmissionDate != null ? new YearMonthDay(documentIdEmissionDate.toDate()) : null);
+            person.setExpirationDateOfDocumentIdYearMonthDay(
+                    documentIdExpirationDate != null ? new YearMonthDay(documentIdExpirationDate.toDate()) : null);
 
             String socialSecurityNumber = form.getSocialSecurityNumber();
             if (StringUtils.isEmpty(socialSecurityNumber)) {
@@ -361,14 +388,20 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 personUl.setDgesTempIdCode("");
             }
         }
-        
+
         person.setCountryHighSchool(form.getCountryHighSchool());
+        
+        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
+                && !isIdentityCardControlNumberValid(getIdentityCardControlNumber(person))) {
+            setIdentityCardControlNumber(person, form.getIdentificationDocumentSeriesNumber());
+        }
+        
     }
 
     public boolean isPartialUpdate() {
         return false;
     }
-    
+
     public static class DegreeDesignationBean {
         private final String degreeDesignationText;
         private final String degreeDesignationId;
@@ -413,18 +446,18 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         private IDDocumentType idDocumentType;
 
         private Country countryHighSchool;
-        
+
         private boolean firstYearRegistration;
 
         /* Read only */
         private String name;
         private String username;
         private Gender gender;
-        
+
         public String getName() {
             return name;
         }
-        
+
         public void setName(String name) {
             this.name = name;
         }
@@ -432,7 +465,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         public String getUsername() {
             return username;
         }
-        
+
         public void setUsername(String username) {
             this.username = username;
         }
@@ -440,7 +473,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         public Gender getGender() {
             return gender;
         }
-        
+
         public void setGender(Gender gender) {
             this.gender = gender;
         }
@@ -500,7 +533,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         public Country getCountryHighSchool() {
             return countryHighSchool;
         }
-        
+
         public void setCountryHighSchool(Country countryHighSchool) {
             this.countryHighSchool = countryHighSchool;
         }
@@ -525,13 +558,21 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             Country nationality = AccessControl.getPerson().getCountry();
             return nationality == null || !nationality.isDefaultCountry();
         }
-        
+
         public boolean isFirstYearRegistration() {
             return firstYearRegistration;
         }
-        
+
         public void setFirstYearRegistration(boolean firstYearRegistration) {
             this.firstYearRegistration = firstYearRegistration;
+        }
+        
+        public String getIdentificationDocumentSeriesNumber() {
+            return identificationDocumentSeriesNumber;
+        }
+        
+        public void setIdentificationDocumentSeriesNumber(String identificationDocumentSeriesNumber) {
+            this.identificationDocumentSeriesNumber = identificationDocumentSeriesNumber;
         }
     }
 }
