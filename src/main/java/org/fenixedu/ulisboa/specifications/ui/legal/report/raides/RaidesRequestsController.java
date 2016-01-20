@@ -1,18 +1,24 @@
 package org.fenixedu.ulisboa.specifications.ui.legal.report.raides;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletResponse;
 
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.scheduler.TaskRunner;
 import org.fenixedu.bennu.scheduler.domain.SchedulerSystem;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.treasury.services.integration.erp.tasks.ERPExportSingleDocumentsTask;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
 import org.fenixedu.ulisboa.specifications.domain.legal.task.ProcessPendingLegalReportRequest;
+import org.fenixedu.ulisboa.specifications.dto.DegreeTypeBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
@@ -20,6 +26,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.gson.Gson;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageRaidesRequests",
         accessGroup = "logged")
@@ -63,7 +71,7 @@ public class RaidesRequestsController extends FenixeduUlisboaSpecificationsBaseC
             response.setContentType(resultFile.getContentType());
             response.setHeader("Content-Disposition", "attachment;filename=" + resultFile.getFilename());
             response.getOutputStream().write(resultFile.getContent());
-            
+
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -84,8 +92,29 @@ public class RaidesRequestsController extends FenixeduUlisboaSpecificationsBaseC
     private String _create(final RaidesRequestParameter raidesRequestParameter, final Model model) {
         model.addAttribute("bean", raidesRequestParameter);
         model.addAttribute("beanJson", getBeanJson(raidesRequestParameter));
+        //Bean is serialized and saved in database
+        //The below attributes don't need to be serialized.
+        model.addAttribute("executionYearDataSource", getNotClosedExecutionYearsJson());
+        model.addAttribute("degreeTypeDataSource", getDegreeTypesJson());
 
         return jspPage(_CREATE_URI);
+    }
+
+    private String getNotClosedExecutionYearsJson() {
+        List<TupleDataSourceBean> list =
+                ExecutionYear.readNotClosedExecutionYears().stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getName());
+                    return tuple;
+                }).collect(Collectors.toList());
+        return new Gson().toJson(list);
+    }
+
+    private String getDegreeTypesJson() {
+        List<DegreeTypeBean> list = Bennu.getInstance().getDegreeTypeSet().stream().map(type -> new DegreeTypeBean(type))
+                .sorted(DegreeTypeBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+        return new Gson().toJson(list);
     }
 
     private static final String _CREATE_POSTBACK_URI = "/createpostback";
@@ -101,10 +130,11 @@ public class RaidesRequestsController extends FenixeduUlisboaSpecificationsBaseC
     public String createpost(@RequestParam("bean") final RaidesRequestParameter raidesRequestParameter, final Model model) {
 
         try {
-            final LegalReportRequest request = LegalReportRequest.createRequest(RaidesInstance.getInstance() , raidesRequestParameter);
-            
-            if(request.isPending()) {
-                SchedulerSystem.queue(new TaskRunner(new ProcessPendingLegalReportRequest(request.getExternalId())));            
+            final LegalReportRequest request =
+                    LegalReportRequest.createRequest(RaidesInstance.getInstance(), raidesRequestParameter);
+
+            if (request.isPending()) {
+                SchedulerSystem.queue(new TaskRunner(new ProcessPendingLegalReportRequest(request.getExternalId())));
             }
 
             return "redirect:" + SEARCH_URL;
