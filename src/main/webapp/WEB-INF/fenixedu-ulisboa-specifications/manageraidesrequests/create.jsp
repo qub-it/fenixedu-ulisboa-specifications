@@ -430,7 +430,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             <div class="form-group row">
                 <div class="col-sm-2"></div>
                 <div class="col-sm-1">
-                    <button type="button" class="btn btn-default" ng-disabled="isDegreeFieldEmpty()" ng-click="addDegree()">
+                    <button type="button" class="btn btn-primary" ng-disabled="isDegreeFieldEmpty()" ng-click="addDegree()">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
                     </button>
                 </div>
