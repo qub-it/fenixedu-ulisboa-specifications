@@ -71,7 +71,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
     @Override
     public ActionForward prepareChooseEvaluationSeason(final ActionMapping mapping, final ActionForm form,
             final HttpServletRequest request, final HttpServletResponse response) {
-        
+
         super.prepareChooseEvaluationSeason(mapping, form, request, response);
 
         request.setAttribute("chooseEvaluationSeasonBean", new ImprovementChooseEvaluationSeasonBean());
@@ -86,7 +86,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
         super.prepareShowDegreeModulesToEnrol(mapping, form, request, response, studentCurricularPlan, executionSemester,
                 evaluationSeason);
-        
+
         request.setAttribute("bolonhaStudentEnrollmentBean",
                 new ImprovementBolonhaStudentEnrolmentBean(studentCurricularPlan, executionSemester, evaluationSeason));
 
@@ -97,50 +97,6 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
     protected String getAction() {
         return "/improvementBolonhaStudentEnrolment.do";
     }
-
-// TODO legidio
-//
-//    @Override
-//    public ActionForward enrolInDegreeModules(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-//            HttpServletResponse response) throws FenixServiceException {
-//
-//        final ImprovementBolonhaStudentEnrolmentBean bolonhaStudentEnrollmentBean =
-//                (ImprovementBolonhaStudentEnrolmentBean) getBolonhaStudentEnrollmentBeanFromViewState();
-//        try {
-//            StudentCurricularPlan studentCurricularPlan = bolonhaStudentEnrollmentBean.getStudentCurricularPlan();
-//            final RuleResult ruleResults = studentCurricularPlan.enrol(bolonhaStudentEnrollmentBean.getExecutionPeriod(),
-//                    new HashSet<IDegreeModuleToEvaluate>(bolonhaStudentEnrollmentBean.getDegreeModulesToEvaluate()),
-//                    bolonhaStudentEnrollmentBean.getCurriculumModulesToRemove(),
-//                    bolonhaStudentEnrollmentBean.getCurricularRuleLevel(), bolonhaStudentEnrollmentBean.getEvaluationSeason());
-//
-//            if (!bolonhaStudentEnrollmentBean.getDegreeModulesToEvaluate().isEmpty()
-//                    || !bolonhaStudentEnrollmentBean.getCurriculumModulesToRemove().isEmpty()) {
-//                addActionMessage("success", request, "label.save.success");
-//            }
-//
-//            if (ruleResults.isWarning()) {
-//                addRuleResultMessagesToActionMessages("warning", request, ruleResults);
-//            }
-//
-//            enroledWithSuccess(request, bolonhaStudentEnrollmentBean);
-//
-//        } catch (EnrollmentDomainException ex) {
-//            addRuleResultMessagesToActionMessages("error", request, ex.getFalseResult());
-//
-//            return prepareShowDegreeModulesToEnrol(mapping, form, request, response, bolonhaStudentEnrollmentBean);
-//
-//        } catch (DomainException ex) {
-//            addActionMessage("error", request, ex.getKey(), ex.getArgs());
-//
-//            return prepareShowDegreeModulesToEnrol(mapping, form, request, response, bolonhaStudentEnrollmentBean);
-//        }
-//
-//        RenderUtils.invalidateViewState();
-//
-//        return prepareShowDegreeModulesToEnrol(mapping, form, request, response,
-//                bolonhaStudentEnrollmentBean.getStudentCurricularPlan(), bolonhaStudentEnrollmentBean.getExecutionPeriod(),
-//                bolonhaStudentEnrollmentBean.getEvaluationSeason());
-//    }
 
     @SuppressWarnings("serial")
     static private class ImprovementChooseEvaluationSeasonBean
