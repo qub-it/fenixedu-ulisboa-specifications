@@ -105,7 +105,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
         @Override
         public Collection<EvaluationSeason> getActiveEvaluationSeasons() {
             return EvaluationSeasonServices.findByActive(true).filter(i -> i.isImprovement())
-                    .sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).collect(Collectors.toSet());
+                    .sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).collect(Collectors.toList());
         }
     }
 
