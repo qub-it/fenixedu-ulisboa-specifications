@@ -133,6 +133,10 @@ angular.isUndefinedOrNull = function(val) {
     return angular.isUndefined(val) || val === null
 };
 
+angular.isUndefinedOrNullOrEmpty = function(val) {
+    return angular.isUndefinedOrNull(val) || val === "";
+};
+
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
  	$scope.object=${beanJson};
@@ -201,10 +205,20 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	};
 	
 	$scope.isRequiredFieldsEmpty = function () {
-	    return angular.isUndefinedOrNull($scope.newPeriod.academicPeriod) ||
-	    	   angular.isUndefinedOrNull($scope.newPeriod.begin) ||
-	    	   angular.isUndefinedOrNull($scope.newPeriod.end) ||
-	    	   angular.isUndefinedOrNull($scope.newPeriod.enrolledInAcademicPeriod);
+	    var isEmpty = false;
+	    if($scope.newPeriod.enrolmentEctsConstraint) {
+		    isEmpty = angular.isUndefinedOrNull($scope.newPeriod.minEnrolmentEcts) ||
+ 	           angular.isUndefinedOrNull($scope.newPeriod.maxEnrolmentEcts);
+	    }
+	    if($scope.newPeriod.enrolmentYearsConstraint) {
+            isEmpty = angular.isUndefinedOrNull($scope.newPeriod.minEnrolmentYears) ||
+               angular.isUndefinedOrNull($scope.newPeriod.maxEnrolmentYears);		
+	    }
+	    isEmpty = isEmpty || angular.isUndefinedOrNull($scope.newPeriod.academicPeriod) ||
+            angular.isUndefinedOrNullOrEmpty($scope.newPeriod.begin) ||
+            angular.isUndefinedOrNullOrEmpty($scope.newPeriod.end) ||
+            angular.isUndefinedOrNull($scope.newPeriod.enrolledInAcademicPeriod);	    
+	    return isEmpty;
 	};
 	
 	$scope.isDegreeFieldEmpty = function () {
