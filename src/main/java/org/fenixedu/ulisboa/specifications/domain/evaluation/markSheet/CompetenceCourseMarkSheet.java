@@ -89,8 +89,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return collator.get().compare(normalize(o1), normalize(o2));
         }
 
-        final Supplier<Collator> collator = () ->
-        {
+        final Supplier<Collator> collator = () -> {
             final Collator result = Collator.getInstance(I18N.getLocale());
             return result;
         };
@@ -234,8 +233,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.markSheet.can.only.be.updated.in.edition.state");
         }
 
-        getEnrolmentEvaluationSet().forEach(e ->
-        {
+        getEnrolmentEvaluationSet().forEach(e -> {
             e.setExamDateYearMonthDay(evaluationDate == null ? null : evaluationDate.toDateTimeAtStartOfDay().toYearMonthDay());
             e.setPersonResponsibleForGrade(certifier);
         });
@@ -560,7 +558,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return temporaryEvaluation.get().getExecutionPeriod() == executionSemester;
         }
 
-        return !EvaluationSeasonServices.isRequiresEnrolmentEvaluation(season) || !temporaryEvaluation.isPresent();
+        return !EvaluationSeasonServices.isRequiresEnrolmentEvaluation(season) || temporaryEvaluation.isPresent();
     }
 
     /**
