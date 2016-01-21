@@ -15,12 +15,16 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "gradescale.typequalitative.logic.class")
         public String typeQualitativeGradeScaleLogic();
 
+        @ConfigurationProperty(key = "domain.academic.enrolments.ImprovementEvaluationsDependOnAcademicalActsBlocked",
+                defaultValue = "true")
+        public Boolean getEnrolmentsInImprovementEvaluationsDependOnAcademicalActsBlocked();
+
         @ConfigurationProperty(key = "domain.academic.enrolmentPredicate.override", defaultValue = "true")
         public Boolean getEnrolmentPredicateOverride();
-        
+
         @ConfigurationProperty(key = "domain.academic.registrationRegimeVerifier.override", defaultValue = "true")
         public Boolean getRegistrationRegimeVerifierOverride();
-        
+
         @ConfigurationProperty(key = "domain.academic.curricularYearCalculator.override", defaultValue = "true")
         public Boolean getCurricularYearCalculatorOverride();
 
@@ -32,7 +36,7 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "quality.mode.masterPassword")
         public String getMasterPassword();
-        
+
         @ConfigurationProperty(key = "quality.mode.lightMasterPassword")
         public String getLightMasterPassword();
 

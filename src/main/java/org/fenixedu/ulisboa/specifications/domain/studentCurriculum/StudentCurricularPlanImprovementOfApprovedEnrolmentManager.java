@@ -28,10 +28,11 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.joda.time.LocalDate;
 
-public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager extends
-        org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanImprovementOfApprovedEnrolmentManager {
+public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager
+        extends org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanImprovementOfApprovedEnrolmentManager {
 
     public StudentCurricularPlanImprovementOfApprovedEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
@@ -48,7 +49,8 @@ public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager extends
 //            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
 //        }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
+        if (ULisboaConfiguration.getConfiguration().getEnrolmentsInImprovementEvaluationsDependOnAcademicalActsBlocked()
+                && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
             throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
         }
 
