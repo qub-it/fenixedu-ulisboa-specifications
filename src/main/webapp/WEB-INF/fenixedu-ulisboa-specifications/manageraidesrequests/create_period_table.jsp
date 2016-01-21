@@ -80,6 +80,11 @@
                                 ng-bind-html="executionYear.text | highlight: $select.search"></span>
                             </ui-select-choices> </ui-select>
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>                
                     <div class="form-group row">
                     	<div class="col-sm-2 control-label">
@@ -88,6 +93,11 @@
                     	<div class="col-sm-7">
                     		<input id="raidesRequests_begin" class="form-control" type="text" bennu-date="newPeriod.begin" />
                     	</div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2 control-label">
@@ -96,6 +106,11 @@
                         <div class="col-sm-7">
                             <input id="raidesRequests_end" class="form-control" type="text" bennu-date="newPeriod.end" />
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2 control-label">
@@ -113,6 +128,11 @@
                                 </ui-select-choices>
                             </ui-select> 
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2 control-label">
@@ -138,6 +158,11 @@
                         <div class="col-sm-7">
                             <input id="raidesRequests_minEnrolmentEcts" class="form-control" type="number" ng-model="newPeriod.minEnrolmentEcts" />
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                     <div class="form-group row" ng-show="newPeriod.enrolmentEctsConstraint">
                         <div class="col-sm-2 control-label">
@@ -146,6 +171,11 @@
                         <div class="col-sm-7">
                             <input id="raidesRequests_maxEnrolmentEcts" class="form-control" type="number" ng-model="newPeriod.maxEnrolmentEcts" />
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2 control-label">
@@ -171,6 +201,11 @@
                         <div class="col-sm-7">
                             <input id="raidesRequests_minEnrolmentYears" class="form-control" type="number" ng-model="newPeriod.minEnrolmentYears" />
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                     <div class="form-group row" ng-show="newPeriod.enrolmentYearsConstraint">
                         <div class="col-sm-2 control-label">
@@ -179,6 +214,11 @@
                         <div class="col-sm-7">
                             <input id="raidesRequests_maxEnrolmentYears" class="form-control" type="number" ng-model="newPeriod.maxEnrolmentYears" />
                         </div>
+                        <div class="col-sm-3">
+                            <span class="alert alert-warning btn-xs">
+                                <spring:message code="warning.required.field" />
+                            </span>
+                        </div>                        
                     </div>
                 </div>
                 <div class="modal-footer">
