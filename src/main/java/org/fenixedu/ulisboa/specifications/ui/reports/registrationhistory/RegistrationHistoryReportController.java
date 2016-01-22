@@ -16,7 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
@@ -33,6 +35,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
 import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
@@ -185,236 +188,251 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final Collection<RegistrationHistoryReport> toExport = generateReport(bean, true);
 
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
-        builder.addSheet("Registrations", new SheetData<RegistrationHistoryReport>(toExport) {
+        builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.students"),
+                new SheetData<RegistrationHistoryReport>(toExport) {
 
-            @Override
-            protected void makeLine(RegistrationHistoryReport report) {
-                addPrimaryData(report);
-                addSecondaryData(report);
-            }
+                    @Override
+                    protected void makeLine(RegistrationHistoryReport report) {
+                        addPrimaryData(report);
+                        addSecondaryData(report);
+                    }
 
-            protected void addPrimaryData(final RegistrationHistoryReport report) {
-                final Registration registration = report.getRegistration();
-                final Person person = registration.getPerson();
-                final Degree degree = registration.getDegree();
+                    protected void addPrimaryData(final RegistrationHistoryReport report) {
+                        final Registration registration = report.getRegistration();
+                        final Person person = registration.getPerson();
+                        final Degree degree = registration.getDegree();
 
-                addData("RegistrationHistoryReport.executionYear", report.getExecutionYear().getQualifiedName());
-                addData("Student.number", registration.getStudent().getNumber().toString());
-                addData("Registration.number", registration.getNumber().toString());
-                addData("Person.username", person.getUsername());
-                addData("Person.name", person.getName());
-                addData("Person.gender", person.getGender().getLocalizedName());
-                addData("Degree.code", degree.getCode());
-                addData("Degree.ministryCode", degree.getMinistryCode());
-                addData("Degree.degreeType", degree.getDegreeType().getName());
-                addData("Degree.name", degree.getNameI18N().getContent());
-                addData("Degree.presentationName", degree.getPresentationName());
-                addData("Registration.ingressionType", registration.getIngressionType().getDescription().getContent());
-                addData("Registration.registrationProtocol",
-                        registration.getRegistrationProtocol().getDescription().getContent());
-                addData("Registration.startDate", registration.getStartDate());
+                        addData("RegistrationHistoryReport.executionYear", report.getExecutionYear().getQualifiedName());
+                        addData("Student.number", registration.getStudent().getNumber().toString());
+                        addData("Registration.number", registration.getNumber().toString());
+                        addData("Person.username", person.getUsername());
+                        addData("Person.name", person.getName());
+                        addData("Person.gender", person.getGender().getLocalizedName());
+                        addData("Degree.code", degree.getCode());
+                        addData("Degree.ministryCode", degree.getMinistryCode());
+                        addData("Degree.degreeType", degree.getDegreeType().getName());
+                        addData("Degree.name", degree.getNameI18N().getContent());
+                        addData("Degree.presentationName", degree.getPresentationName());
+                        addData("Registration.ingressionType", registration.getIngressionType().getDescription().getContent());
+                        addData("Registration.registrationProtocol",
+                                registration.getRegistrationProtocol().getDescription().getContent());
+                        addData("Registration.startDate", registration.getStartDate());
 
-                final RegistrationState firstState = registration.getFirstRegistrationState();
-                addData("Registration.firstStateDate", firstState != null ? firstState.getStateDate().toLocalDate() : "");
-                addData("Registration.registrationYear", registration.getRegistrationYear().getQualifiedName());
-                addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlan().getName());
-                addData("RegistrationHistoryReport.isReingression", booleanString(report.isReingression()));
-                addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
-                addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
-                addData("RegistrationHistoryReport.average", report.getAverage() != null ? report.getAverage().getValue() : null);
-                addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
+                        final RegistrationState firstState = registration.getFirstRegistrationState();
+                        addData("Registration.firstStateDate", firstState != null ? firstState.getStateDate().toLocalDate() : "");
+                        addData("Registration.registrationYear", registration.getRegistrationYear().getQualifiedName());
+                        addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlan().getName());
+                        addData("RegistrationHistoryReport.isReingression", booleanString(report.isReingression()));
+                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
+                        addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
+                        addData("RegistrationHistoryReport.average",
+                                report.getAverage() != null ? report.getAverage().getValue() : null);
+                        addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
 
-                final ExecutionYear lastEnrolmentExecutionYear = registration.getLastEnrolmentExecutionYear();
-                addData("Registration.lastEnrolmentExecutionYear",
-                        lastEnrolmentExecutionYear != null ? lastEnrolmentExecutionYear.getQualifiedName() : "");
+                        final ExecutionYear lastEnrolmentExecutionYear = registration.getLastEnrolmentExecutionYear();
+                        addData("Registration.lastEnrolmentExecutionYear",
+                                lastEnrolmentExecutionYear != null ? lastEnrolmentExecutionYear.getQualifiedName() : "");
 
-                addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
-                addData("RegistrationHistoryReport.secondaryBranch", report.getSecondaryBranchName());
-                addData("RegistrationHistoryReport.statutes",
-                        report.getStatuteTypes().stream().map(s -> s.getName().getContent()).collect(Collectors.joining(", ")));
-                addData("RegistrationHistoryReport.regimeType", report.getRegimeType().getLocalizedName());
-                addData("RegistrationHistoryReport.enrolmentsWithoutShifts", booleanString(report.hasEnrolmentsWithoutShifts()));
-                addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
-                        booleanString(report.hasAnyInactiveRegistrationStateForYear()));
-                addData("RegistrationHistoryReport.lastRegistrationState",
-                        report.getLastRegistrationState() != null ? report.getLastRegistrationState().getDescription() : null);
-                addData("RegistrationHistoryReport.firstTime", booleanString(report.isFirstTime()));
-                addData("RegistrationHistoryReport.dismissals", booleanString(report.hasDismissals()));
-                addData("RegistrationHistoryReport.enroledInImprovement", booleanString(report.hasImprovementEvaluations()));
-                addData("RegistrationHistoryReport.annulledEnrolments", booleanString(report.hasAnnulledEnrolments()));
-                addData("RegistrationHistoryReport.enrolmentsCount", report.getEnrolmentsCount());
-                addData("RegistrationHistoryReport.enrolmentsCredits", report.getEnrolmentsCredits());
-                addData("RegistrationHistoryReport.extraCurricularEnrolmentsCount", report.getExtraCurricularEnrolmentsCount());
-                addData("RegistrationHistoryReport.extraCurricularEnrolmentsCredits",
-                        report.getExtraCurricularEnrolmentsCredits());
-                addData("RegistrationHistoryReport.standaloneEnrolmentsCount", report.getStandaloneEnrolmentsCount());
-                addData("RegistrationHistoryReport.standaloneEnrolmentsCredits", report.getStandaloneEnrolmentsCredits());
-                addData("RegistrationHistoryReport.executionYearSimpleAverage", report.getExecutionYearSimpleAverage());
-                addData("RegistrationHistoryReport.executionYearWeightedAverage", report.getExecutionYearWeightedAverage());
+                        addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
+                        addData("RegistrationHistoryReport.secondaryBranch", report.getSecondaryBranchName());
+                        addData("RegistrationHistoryReport.statutes", report.getStatuteTypes().stream()
+                                .map(s -> s.getName().getContent()).collect(Collectors.joining(", ")));
+                        addData("RegistrationHistoryReport.regimeType", report.getRegimeType().getLocalizedName());
+                        addData("RegistrationHistoryReport.enrolmentsWithoutShifts",
+                                booleanString(report.hasEnrolmentsWithoutShifts()));
+                        addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
+                                booleanString(report.hasAnyInactiveRegistrationStateForYear()));
+                        addData("RegistrationHistoryReport.lastRegistrationState",
+                                report.getLastRegistrationState() != null ? report.getLastRegistrationState()
+                                        .getDescription() : null);
+                        addData("RegistrationHistoryReport.firstTime", booleanString(report.isFirstTime()));
+                        addData("RegistrationHistoryReport.dismissals", booleanString(report.hasDismissals()));
+                        addData("RegistrationHistoryReport.enroledInImprovement",
+                                booleanString(report.hasImprovementEvaluations()));
+                        addData("RegistrationHistoryReport.annulledEnrolments", booleanString(report.hasAnnulledEnrolments()));
+                        addData("RegistrationHistoryReport.enrolmentsCount", report.getEnrolmentsCount());
+                        addData("RegistrationHistoryReport.enrolmentsCredits", report.getEnrolmentsCredits());
+                        addData("RegistrationHistoryReport.extraCurricularEnrolmentsCount",
+                                report.getExtraCurricularEnrolmentsCount());
+                        addData("RegistrationHistoryReport.extraCurricularEnrolmentsCredits",
+                                report.getExtraCurricularEnrolmentsCredits());
+                        addData("RegistrationHistoryReport.standaloneEnrolmentsCount", report.getStandaloneEnrolmentsCount());
+                        addData("RegistrationHistoryReport.standaloneEnrolmentsCredits", report.getStandaloneEnrolmentsCredits());
+                        addData("RegistrationHistoryReport.executionYearSimpleAverage", report.getExecutionYearSimpleAverage());
+                        addData("RegistrationHistoryReport.executionYearWeightedAverage",
+                                report.getExecutionYearWeightedAverage());
 
-                addData("Registration.registrationObservations",
-                        registration.getRegistrationObservationsSet().stream()
-                                .map(o -> o.getVersioningUpdatedBy().getUsername() + ":" + o.getValue())
-                                .collect(Collectors.joining(" \n --------------\n ")));
+                        addData("Registration.registrationObservations",
+                                registration.getRegistrationObservationsSet().stream()
+                                        .map(o -> o.getVersioningUpdatedBy().getUsername() + ":" + o.getValue())
+                                        .collect(Collectors.joining(" \n --------------\n ")));
 
-                addConclusionData(report);
+                        addConclusionData(report);
 
-            }
+                    }
 
-            private void addConclusionData(RegistrationHistoryReport report) {
+                    private void addConclusionData(RegistrationHistoryReport report) {
 
-                //TODO: program conclusions should already be sorted
-                final List<ProgramConclusion> sortedProgramConclusions = report.getProgramConclusions()
-                        .stream().sorted(Comparator.comparing(ProgramConclusion::getName)
-                                .thenComparing(ProgramConclusion::getDescription).thenComparing(ProgramConclusion::getExternalId))
-                        .collect(Collectors.toList());
+                        //TODO: program conclusions should already be sorted
+                        final List<ProgramConclusion> sortedProgramConclusions = report.getProgramConclusions().stream()
+                                .sorted(Comparator.comparing(ProgramConclusion::getName)
+                                        .thenComparing(ProgramConclusion::getDescription)
+                                        .thenComparing(ProgramConclusion::getExternalId))
+                                .collect(Collectors.toList());
 
-                for (final ProgramConclusion programConclusion : sortedProgramConclusions) {
+                        for (final ProgramConclusion programConclusion : sortedProgramConclusions) {
 
-                    final RegistrationConclusionBean bean = report.getConclusionReportFor(programConclusion);
+                            final RegistrationConclusionBean bean = report.getConclusionReportFor(programConclusion);
 
-                    final String concluded = bean == null ? null : booleanString(bean.isConcluded());
-                    addCell(labelFor(programConclusion, "concluded"), concluded);
+                            final String concluded = bean == null ? null : booleanString(bean.isConcluded());
+                            addCell(labelFor(programConclusion, "concluded"), concluded);
 
-                    final String conclusionProcessed = bean == null ? null : booleanString(bean.isConclusionProcessed());
-                    addCell(labelFor(programConclusion, "conclusionProcessed"), conclusionProcessed);
+                            final String conclusionProcessed = bean == null ? null : booleanString(bean.isConclusionProcessed());
+                            addCell(labelFor(programConclusion, "conclusionProcessed"), conclusionProcessed);
 
-                    final String rawGrade = bean == null || bean.getRawGrade() == null ? null : bean.getRawGrade().getValue();
-                    addCell(labelFor(programConclusion, "rawGrade"), rawGrade);
+                            final String rawGrade =
+                                    bean == null || bean.getRawGrade() == null ? null : bean.getRawGrade().getValue();
+                            addCell(labelFor(programConclusion, "rawGrade"), rawGrade);
 
-                    final String finalGrade =
-                            bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
-                    addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
+                            final String finalGrade =
+                                    bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
+                            addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
 
-                    final String descriptiveGrade =
-                            bean == null || bean.getDescriptiveGrade() == null ? null : bean.getDescriptiveGradeExtendedValue()
-                                    + " (" + bean.getDescriptiveGrade().getValue() + ")";
-                    addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
+                            final String descriptiveGrade = bean == null
+                                    || bean.getDescriptiveGrade() == null ? null : bean.getDescriptiveGradeExtendedValue() + " ("
+                                            + bean.getDescriptiveGrade().getValue() + ")";
+                            addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
 
-                    final YearMonthDay conclusionDate =
-                            bean == null || bean.getConclusionDate() == null ? null : bean.getConclusionDate();
-                    addCell(labelFor(programConclusion, "conclusionDate"), conclusionDate);
+                            final YearMonthDay conclusionDate =
+                                    bean == null || bean.getConclusionDate() == null ? null : bean.getConclusionDate();
+                            addCell(labelFor(programConclusion, "conclusionDate"), conclusionDate);
 
-                    final String conclusionYear =
-                            bean == null || bean.getConclusionYear() == null ? null : bean.getConclusionYear().getQualifiedName();
-                    addCell(labelFor(programConclusion, "conclusionYear"), conclusionYear);
+                            final String conclusionYear = bean == null || bean.getConclusionYear() == null ? null : bean
+                                    .getConclusionYear().getQualifiedName();
+                            addCell(labelFor(programConclusion, "conclusionYear"), conclusionYear);
 
-                    final String ectsCredits = bean == null ? null : String.valueOf(bean.getEctsCredits());
-                    addCell(labelFor(programConclusion, "ectsCredits"), ectsCredits);
+                            final String ectsCredits = bean == null ? null : String.valueOf(bean.getEctsCredits());
+                            addCell(labelFor(programConclusion, "ectsCredits"), ectsCredits);
 
-                }
+                        }
 
-            }
+                    }
 
-            private String labelFor(ProgramConclusion programConclusion, String field) {
-                final String programConclusionPrefix =
-                        programConclusion.getName().getContent() + " - " + programConclusion.getDescription().getContent() + ": ";
+                    private String labelFor(ProgramConclusion programConclusion, String field) {
+                        final String programConclusionPrefix = programConclusion.getName().getContent() + " - "
+                                + programConclusion.getDescription().getContent() + ": ";
 
-                return programConclusionPrefix + bundle("label.RegistrationConclusionBean." + field);
+                        return programConclusionPrefix + bundle("label.RegistrationConclusionBean." + field);
 
-            }
+                    }
 
-            private void addSecondaryData(RegistrationHistoryReport registrationHistoryReport) {
+                    private void addSecondaryData(RegistrationHistoryReport registrationHistoryReport) {
 
-                addPrecedentDegreeInformation(registrationHistoryReport.getRegistration());
-                addPersonalData(registrationHistoryReport);
+                        addPrecedentDegreeInformation(registrationHistoryReport.getRegistration());
+                        addPersonalData(registrationHistoryReport);
 
-            }
+                    }
 
-            private void addPrecedentDegreeInformation(Registration registration) {
-                final PrecedentDegreeInformation information = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                    private void addPrecedentDegreeInformation(Registration registration) {
+                        final PrecedentDegreeInformation information =
+                                registration.getStudentCandidacy().getPrecedentDegreeInformation();
 
-                if (information != null) {
-                    addData("PrecedentDegreeInformation.institutionUnit", information.getInstitutionName());
-                    addData("PrecedentDegreeInformation.schoolLevel",
-                            information.getSchoolLevel() != null ? information.getSchoolLevel().getLocalizedName() : "");
-                    addData("PrecedentDegreeInformation.degreeDesignation", information.getDegreeDesignation());
-                    addData("PrecedentDegreeInformation.precedentInstitution",
-                            information.getPrecedentInstitution() != null ? information.getPrecedentInstitution().getName() : "");
-                    addData("PrecedentDegreeInformation.precedentSchoolLevel",
-                            information.getPrecedentSchoolLevel() != null ? information.getPrecedentSchoolLevel()
-                                    .getLocalizedName() : "");
-                    addData("PrecedentDegreeInformation.precedentDegreeDesignation", information.getPrecedentDegreeDesignation());
-                } else {
-                    addData("PrecedentDegreeInformation.institutionUnit", "");
-                    addData("PrecedentDegreeInformation.schoolLevel", "");
-                    addData("PrecedentDegreeInformation.degreeDesignation", "");
-                    addData("PrecedentDegreeInformation.precedentInstitution", "");
-                    addData("PrecedentDegreeInformation.precedentSchoolLevel", "");
-                    addData("PrecedentDegreeInformation.precedentDegreeDesignation", "");
-                }
+                        if (information != null) {
+                            addData("PrecedentDegreeInformation.institutionUnit", information.getInstitutionName());
+                            addData("PrecedentDegreeInformation.schoolLevel",
+                                    information.getSchoolLevel() != null ? information.getSchoolLevel().getLocalizedName() : "");
+                            addData("PrecedentDegreeInformation.degreeDesignation", information.getDegreeDesignation());
+                            addData("PrecedentDegreeInformation.precedentInstitution",
+                                    information.getPrecedentInstitution() != null ? information.getPrecedentInstitution()
+                                            .getName() : "");
+                            addData("PrecedentDegreeInformation.precedentSchoolLevel",
+                                    information.getPrecedentSchoolLevel() != null ? information.getPrecedentSchoolLevel()
+                                            .getLocalizedName() : "");
+                            addData("PrecedentDegreeInformation.precedentDegreeDesignation",
+                                    information.getPrecedentDegreeDesignation());
+                        } else {
+                            addData("PrecedentDegreeInformation.institutionUnit", "");
+                            addData("PrecedentDegreeInformation.schoolLevel", "");
+                            addData("PrecedentDegreeInformation.degreeDesignation", "");
+                            addData("PrecedentDegreeInformation.precedentInstitution", "");
+                            addData("PrecedentDegreeInformation.precedentSchoolLevel", "");
+                            addData("PrecedentDegreeInformation.precedentDegreeDesignation", "");
+                        }
 
-            }
+                    }
 
-            protected void addPersonalData(RegistrationHistoryReport registrationHistoryReport) {
+                    protected void addPersonalData(RegistrationHistoryReport registrationHistoryReport) {
 
-                final Person person = registrationHistoryReport.getRegistration().getPerson();
+                        final Person person = registrationHistoryReport.getRegistration().getPerson();
 
-                addData("Person.idDocumentType", person.getIdDocumentType().getLocalizedName());
-                addData("Person.idDocumentNumber", person.getDocumentIdNumber());
-                addData("Person.dateOfBirth", person.getDateOfBirthYearMonthDay());
-                addData("Person.nameOfFather", person.getNameOfFather());
-                addData("Person.nameOfMother", person.getNameOfMother());
-                addData("Person.nationality", person.getCountry() != null ? person.getCountry().getName() : "");
-                addData("Person.countryOfBirth", person.getCountryOfBirth() != null ? person.getCountryOfBirth().getName() : "");
-                addData("Person.socialSecurityNumber", person.getSocialSecurityNumber());
-                addData("Person.districtOfBirth", person.getDistrictOfBirth());
-                addData("Person.districtSubdivisionOfBirth", person.getDistrictSubdivisionOfBirth());
-                addData("Person.parishOfBirth", person.getParishOfBirth());
+                        addData("Person.idDocumentType", person.getIdDocumentType().getLocalizedName());
+                        addData("Person.idDocumentNumber", person.getDocumentIdNumber());
+                        addData("Person.dateOfBirth", person.getDateOfBirthYearMonthDay());
+                        addData("Person.nameOfFather", person.getNameOfFather());
+                        addData("Person.nameOfMother", person.getNameOfMother());
+                        addData("Person.nationality", person.getCountry() != null ? person.getCountry().getName() : "");
+                        addData("Person.countryOfBirth",
+                                person.getCountryOfBirth() != null ? person.getCountryOfBirth().getName() : "");
+                        addData("Person.socialSecurityNumber", person.getSocialSecurityNumber());
+                        addData("Person.districtOfBirth", person.getDistrictOfBirth());
+                        addData("Person.districtSubdivisionOfBirth", person.getDistrictSubdivisionOfBirth());
+                        addData("Person.parishOfBirth", person.getParishOfBirth());
 
-                addData("Student.studentPersonalDataAuthorizationChoice",
-                        registrationHistoryReport.getStudentPersonalDataAuthorizationChoice() != null ? registrationHistoryReport
-                                .getStudentPersonalDataAuthorizationChoice().getDescription() : "");
+                        addData("Student.studentPersonalDataAuthorizationChoice",
+                                registrationHistoryReport
+                                        .getStudentPersonalDataAuthorizationChoice() != null ? registrationHistoryReport
+                                                .getStudentPersonalDataAuthorizationChoice().getDescription() : "");
 
-                addContactsData(person);
-            }
+                        addContactsData(person);
+                    }
 
-            protected void addContactsData(Person person) {
-                addData("Person.defaultEmailAddress", person.getDefaultEmailAddressValue());
-                addData("Person.institutionalEmailAddress", person.getInstitutionalEmailAddressValue());
-                addData("Person.otherEmailAddresses",
-                        person.getEmailAddresses().stream().map(e -> e.getValue()).collect(Collectors.joining(",")));
-                addData("Person.defaultPhone", person.getDefaultPhoneNumber());
-                addData("Person.defaultMobilePhone", person.getDefaultMobilePhoneNumber());
+                    protected void addContactsData(Person person) {
+                        addData("Person.defaultEmailAddress", person.getDefaultEmailAddressValue());
+                        addData("Person.institutionalEmailAddress", person.getInstitutionalEmailAddressValue());
+                        addData("Person.otherEmailAddresses",
+                                person.getEmailAddresses().stream().map(e -> e.getValue()).collect(Collectors.joining(",")));
+                        addData("Person.defaultPhone", person.getDefaultPhoneNumber());
+                        addData("Person.defaultMobilePhone", person.getDefaultMobilePhoneNumber());
 
-                if (person.hasDefaultPhysicalAddress()) {
-                    final PhysicalAddress address = person.getDefaultPhysicalAddress();
-                    addData("PhysicalAddress.address", address.getAddress());
-                    addData("PhysicalAddress.districtOfResidence", address.getDistrictOfResidence());
-                    addData("PhysicalAddress.districtSubdivisionOfResidence", address.getDistrictSubdivisionOfResidence());
-                    addData("PhysicalAddress.parishOfResidence", address.getParishOfResidence());
-                    addData("PhysicalAddress.area", address.getArea());
-                    addData("PhysicalAddress.areaCode", address.getAreaCode());
-                    addData("PhysicalAddress.areaOfAreaCode", address.getAreaOfAreaCode());
-                    addData("PhysicalAddress.countryOfResidence", address.getCountryOfResidenceName());
+                        if (person.hasDefaultPhysicalAddress()) {
+                            final PhysicalAddress address = person.getDefaultPhysicalAddress();
+                            addData("PhysicalAddress.address", address.getAddress());
+                            addData("PhysicalAddress.districtOfResidence", address.getDistrictOfResidence());
+                            addData("PhysicalAddress.districtSubdivisionOfResidence",
+                                    address.getDistrictSubdivisionOfResidence());
+                            addData("PhysicalAddress.parishOfResidence", address.getParishOfResidence());
+                            addData("PhysicalAddress.area", address.getArea());
+                            addData("PhysicalAddress.areaCode", address.getAreaCode());
+                            addData("PhysicalAddress.areaOfAreaCode", address.getAreaOfAreaCode());
+                            addData("PhysicalAddress.countryOfResidence", address.getCountryOfResidenceName());
 
-                } else {
-                    addData("PhysicalAddress.address", "");
-                    addData("PhysicalAddress.districtOfResidence", "");
-                    addData("PhysicalAddress.districtSubdivisionOfResidence", "");
-                    addData("PhysicalAddress.parishOfResidence", "");
-                    addData("PhysicalAddress.area", "");
-                    addData("PhysicalAddress.areaCode", "");
-                    addData("PhysicalAddress.areaOfAreaCode", "");
-                    addData("PhysicalAddress.countryOfResidence", "");
+                        } else {
+                            addData("PhysicalAddress.address", "");
+                            addData("PhysicalAddress.districtOfResidence", "");
+                            addData("PhysicalAddress.districtSubdivisionOfResidence", "");
+                            addData("PhysicalAddress.parishOfResidence", "");
+                            addData("PhysicalAddress.area", "");
+                            addData("PhysicalAddress.areaCode", "");
+                            addData("PhysicalAddress.areaOfAreaCode", "");
+                            addData("PhysicalAddress.countryOfResidence", "");
 
-                }
+                        }
 
-            }
+                    }
 
-            private void addData(String bundleKey, Object value) {
-                addCell(bundle("label." + bundleKey), value);
-            }
+                    private void addData(String bundleKey, Object value) {
+                        addCell(bundle("label." + bundleKey), value);
+                    }
 
-            private String booleanString(boolean value) {
-                return value ? bundle("label.yes") : bundle("label.no");
-            }
+                    private String booleanString(boolean value) {
+                        return value ? bundle("label.yes") : bundle("label.no");
+                    }
 
-            private String bundle(String key) {
-                return ULisboaSpecificationsUtil.bundle(key);
-            }
+                    private String bundle(String key) {
+                        return ULisboaSpecificationsUtil.bundle(key);
+                    }
 
-        });
+                });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
@@ -491,38 +509,39 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         curriculums.stream().forEach(c -> approvalsByCurriculum.putAll(c, c.getCurriculumEntries()));
 
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
-        builder.addSheet("Approvals", new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
+        builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
+                new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
 
-            @Override
-            protected void makeLine(Entry<Curriculum, ICurriculumEntry> entry) {
-                final Registration registration = entry.getKey().getStudentCurricularPlan().getRegistration();
-                final ICurriculumEntry curriculumEntry = entry.getValue();
+                    @Override
+                    protected void makeLine(Entry<Curriculum, ICurriculumEntry> entry) {
+                        final Registration registration = entry.getKey().getStudentCurricularPlan().getRegistration();
+                        final ICurriculumEntry curriculumEntry = entry.getValue();
 
-                addData("Student.number", registration.getStudent().getNumber());
-                addData("Registration.number", registration.getNumber().toString());
-                addData("Person.name", registration.getStudent().getPerson().getName());
-                addData("Degree.code", registration.getDegree().getCode());
-                addData("Degree.presentationName", registration.getDegree().getPresentationName());
-                addData("ICurriculumEntry.code", curriculumEntry.getCode());
-                addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
-                addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
-                addData("ICurriculumEntry.ectsCreditsForCurriculum", curriculumEntry.getEctsCreditsForCurriculum());
-                addData("ICurriculumEntry.executionPeriod", curriculumEntry.getExecutionPeriod().getQualifiedName());
-                addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil.bundle(
-                        entry.getKey().getDismissalRelatedEntries().contains(entry.getValue()) ? "label.yes" : "label.no"));
-                addData("Curriculum.totalApprovals", entry.getKey().getCurriculumEntries().size());
-                addData("Curriculum.simpleAverage",
-                        entry.getKey().getCurriculumEntries().stream().filter(e -> e.getGrade().isNumeric())
-                                .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average()
-                                .getAsDouble());
+                        addData("Student.number", registration.getStudent().getNumber());
+                        addData("Registration.number", registration.getNumber().toString());
+                        addData("Person.name", registration.getStudent().getPerson().getName());
+                        addData("Degree.code", registration.getDegree().getCode());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("ICurriculumEntry.code", curriculumEntry.getCode());
+                        addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
+                        addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
+                        addData("ICurriculumEntry.ectsCreditsForCurriculum", curriculumEntry.getEctsCreditsForCurriculum());
+                        addData("ICurriculumEntry.executionPeriod", curriculumEntry.getExecutionPeriod().getQualifiedName());
+                        addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil.bundle(entry.getKey()
+                                .getDismissalRelatedEntries().contains(entry.getValue()) ? "label.yes" : "label.no"));
+                        addData("Curriculum.totalApprovals", entry.getKey().getCurriculumEntries().size());
+                        addData("Curriculum.simpleAverage",
+                                entry.getKey().getCurriculumEntries().stream().filter(e -> e.getGrade().isNumeric())
+                                        .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average()
+                                        .getAsDouble());
 
-            }
+                    }
 
-            private void addData(String key, Object data) {
-                addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
-            }
+                    private void addData(String key, Object data) {
+                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    }
 
-        });
+                });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
@@ -566,39 +585,71 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         });
 
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
-        builder.addSheet("Enrolments", new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(enrolments.entries()) {
+        builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.enrolments"),
+                new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(enrolments.entries()) {
 
-            @Override
-            protected void makeLine(Entry<RegistrationHistoryReport, Enrolment> entry) {
+                    @Override
+                    protected void makeLine(Entry<RegistrationHistoryReport, Enrolment> entry) {
 
-                final RegistrationHistoryReport report = entry.getKey();
-                final Registration registration = report.getRegistration();
-                final Enrolment enrolment = entry.getValue();
+                        final RegistrationHistoryReport report = entry.getKey();
+                        final Registration registration = report.getRegistration();
+                        final Enrolment enrolment = entry.getValue();
 
-                final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
-                final ExecutionSemester enrolmentPeriod =
-                        improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+                        final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
+                        final ExecutionSemester enrolmentPeriod =
+                                improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
 
-                addData("Student.number", registration.getStudent().getNumber());
-                addData("Registration.number", registration.getNumber().toString());
-                addData("Person.name", registration.getStudent().getPerson().getName());
-                addData("Degree.code", registration.getDegree().getCode());
-                addData("Degree.presentationName", registration.getDegree().getPresentationName());
-                addData("Enrolment.code", enrolment.getCode());
-                addData("Enrolment.name", enrolment.getPresentationName().getContent());
-                addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
-                addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
-                addData("Enrolment.improvementOnly",
-                        ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
-                addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
-                addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
-            }
+                        addData("Student.number", registration.getStudent().getNumber());
+                        addData("Registration.number", registration.getNumber().toString());
+                        addData("Person.name", registration.getStudent().getPerson().getName());
+                        addData("Degree.code", registration.getDegree().getCode());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("Enrolment.code", enrolment.getCode());
+                        addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                        addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
+                        addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
+                        addData("Enrolment.improvementOnly",
+                                ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
+                        addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
+                        addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
+                    }
 
-            private void addData(String key, Object data) {
-                addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
-            }
+                    private void addData(String key, Object data) {
+                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    }
 
-        });
+                });
+
+        final List<EnrolmentEvaluation> evaluations =
+                enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
+                        .filter(e -> EvaluationSeasonServices.isRequiresEnrolmentEvaluation(e.getEvaluationSeason()))
+                        .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                        .collect(Collectors.toList());
+        builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),
+                new SheetData<EnrolmentEvaluation>(evaluations) {
+
+                    @Override
+                    protected void makeLine(EnrolmentEvaluation item) {
+
+                        final Registration registration = item.getRegistration();
+                        final Enrolment enrolment = item.getEnrolment();
+
+                        addData("Student.number", registration.getStudent().getNumber());
+                        addData("Registration.number", registration.getNumber().toString());
+                        addData("Person.name", registration.getStudent().getPerson().getName());
+                        addData("Degree.code", registration.getDegree().getCode());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("Enrolment.code", enrolment.getCode());
+                        addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                        addData("Enrolment.executionPeriod", item.getExecutionPeriod().getQualifiedName());
+                        addData("EnrolmentEvaluation.season", item.getEvaluationSeason().getName().getContent());
+                    }
+
+                    private void addData(String key, Object data) {
+                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    }
+
+                });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
