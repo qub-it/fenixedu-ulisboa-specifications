@@ -441,7 +441,9 @@ public class CurricularPeriodConfigurationInitializer {
                 if (config == null) {
                     continue;
                 }
-
+                if(dcp == null || dcp.getDegree() == null || dcp.getDegree().getCode() == null){
+                    continue;
+                }
                 if (dcp.getDegree().getCode().equals("5618")) {
                     CurricularPeriodRule rule = CreditsInEnrolmentPeriod.create(config, BigDecimal.valueOf(120));
                     rule.messagePrefixDisabled();
