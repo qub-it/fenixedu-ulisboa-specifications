@@ -298,10 +298,6 @@ public class XmlToBaseFileWriter {
         inscricao.setOutroCursoEscolarAnt(tblInscrito.getOutroCursoEscolarAnt());
         inscricao.setTipoEstabSec(longValueOf(tblInscrito.getTipoEstabSec()));
 
-        if (inscricao.getTipoEstabSec() == null) {
-            inscricao.setTipoEstabSec(longValueOf(Raides.TipoEstabSec.PUBLICO));
-        }
-
         return inscricao;
     }
 

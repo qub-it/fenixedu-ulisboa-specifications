@@ -2,8 +2,10 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.IDDocumentType;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
@@ -61,17 +63,39 @@ public class IdentificacaoService extends RaidesService {
             bean.setResidePais(countryOfResidence.getCode());
         }
 
-        if(registration.getPerson().getCountryHighSchool() != null) {
-            bean.setPaisEnsinoSecundario(registration.getPerson().getCountryHighSchool().getCode());
-        } else if (registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool() != null) {
-            bean.setPaisEnsinoSecundario(registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool().getCode());
-        }
+        bean.setPaisEnsinoSecundario(countryHighSchool(registration));
 
         validaPais(bean, institution, student, registration, executionYear);
         validaDocumentoIdentificacao(bean, institution, student, registration, executionYear);
         validaDataNascimento(bean, institution, student, registration, executionYear);
 
         return bean;
+    }
+    
+    protected String countryHighSchool(final Registration registration) {
+        final PrecedentDegreeInformation pid = registration.getStudentCandidacy().getPrecedentDegreeInformation();
+        
+        if(pid != null && pid.getSchoolLevel() == SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT && pid.getCountry() != null) {
+            return pid.getCountry().getCode();
+        }
+        
+        if(registration.getPerson().getCountryHighSchool() != null) {
+            return registration.getPerson().getCountryHighSchool().getCode();
+        }
+        
+        if(registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool() != null) {
+            return registration.getStudentCandidacy().getPrecedentDegreeInformation().getCountryHighSchool().getCode();
+        }
+        
+        if(registration.getPerson().getCountry() != null) {
+            LegalReportContext.addWarn(
+                    "",
+                    i18n("warn.Raides.countryHighSchool.retrived.from.nationality", String.valueOf(registration.getStudent().getNumber()),
+                            registration.getDegreeNameWithDescription(), ""));
+            return registration.getPerson().getCountry().getCode();
+        }
+        
+        return null;
     }
 
     protected void validaDataNascimento(final TblIdentificacao bean, final Unit institution, final Student student,

@@ -37,6 +37,9 @@ public class RaidesInstanceBean implements IBean {
 
     private String blueRecordStartMessageContentEn;
     
+    private String institutionCode;
+    private String interlocutorPhone;
+    
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
         
@@ -147,6 +150,22 @@ public class RaidesInstanceBean implements IBean {
     
     public void setBlueRecordStartMessageContentEn(String blueRecordStartMessageContentEn) {
         this.blueRecordStartMessageContentEn = blueRecordStartMessageContentEn;
+    }
+    
+    public String getInstitutionCode() {
+        return institutionCode;
+    }
+    
+    public void setInstitutionCode(String institutionCode) {
+        this.institutionCode = institutionCode;
+    }
+    
+    public String getInterlocutorPhone() {
+        return interlocutorPhone;
+    }
+    
+    public void setInterlocutorPhone(String interlocutorPhone) {
+        this.interlocutorPhone = interlocutorPhone;
     }
 
     public static final Locale LOCALE_EN = new Locale("EN");

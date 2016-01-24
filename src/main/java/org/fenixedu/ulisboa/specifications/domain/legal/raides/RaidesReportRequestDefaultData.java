@@ -13,6 +13,8 @@ import org.fenixedu.ulisboa.specifications.domain.legal.settings.LegalSettings;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.common.base.Strings;
+
 public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefaultData {
 
     public static final Boolean IsRaidesStudentEditionActive() {
@@ -62,11 +64,12 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
         raidesRequestParameter.getIngressionsForGeneralAccessRegime().addAll(RaidesInstance.getInstance().getGeneralAccessRegimeIngressionsSet());
 
         raidesRequestParameter.setInstitution(Bennu.getInstance().getInstitutionUnit());
-        raidesRequestParameter.setInstitutionCode(Bennu.getInstance().getInstitutionUnit().getCode());
+        raidesRequestParameter.setInstitutionCode(!Strings.isNullOrEmpty(RaidesInstance.getInstance().getInstitutionCode()) ? 
+                RaidesInstance.getInstance().getInstitutionCode() : Bennu.getInstance().getInstitutionUnit().getCode());
         raidesRequestParameter.setMoment("1");
         raidesRequestParameter.setInterlocutorName(Authenticate.getUser().getPerson().getName());
         raidesRequestParameter.setInterlocutorEmail(Authenticate.getUser().getPerson().getDefaultEmailAddressValue());
-        raidesRequestParameter.setInterlocutorPhone(Authenticate.getUser().getPerson().getDefaultPhoneNumber());
+        raidesRequestParameter.setInterlocutorPhone(RaidesInstance.getInstance().getInterlocutorPhone());
         raidesRequestParameter.setFilterEntriesWithErrors(true);
     }
 

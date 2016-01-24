@@ -270,6 +270,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesRequests.interlocutorPhone" />
+				</div>
+
+				<div class="col-sm-10">
+					<input class="form-control" type="text" ng-model="object.interlocutorPhone" name="interlocutorphone" />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
 					<spring:message code="label.RaidesRequests.interlocutorEmail" />
 				</div>
 

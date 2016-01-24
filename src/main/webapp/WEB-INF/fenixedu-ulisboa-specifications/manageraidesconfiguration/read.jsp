@@ -96,6 +96,22 @@ ${portal.angularToolkit()}
 				<tbody>
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.institutionCode" />
+						</th>
+						<td>
+							<c:out value='${raidesInstance.institutionCode}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.interlocutorPhone" />
+						</th>
+						<td>
+							<c:out value='${raidesInstance.interlocutorPhone}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.RaidesInstance.passwordToZip" />
 						</th>
 						<td>

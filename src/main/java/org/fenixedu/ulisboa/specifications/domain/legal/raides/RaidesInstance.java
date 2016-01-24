@@ -97,7 +97,9 @@ public class RaidesInstance extends RaidesInstance_Base {
             final Boolean hasMappings, final String passwordToZip, final Set<RegistrationProtocol> enrolledAgreements,
             final Set<RegistrationProtocol> mobilityAgreements, final Set<IngressionType> degreeTransferIngressions,
             final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions, 
-            final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent) {
+            final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent,
+            final String institutionCode,
+            final String interlocutorPhone) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -119,6 +121,9 @@ public class RaidesInstance extends RaidesInstance_Base {
         setFormsAvailableToStudents(formsAvailableToStudents);
         
         setBlueRecordStartMessageContent(blueRecordStartMessageContent);
+        
+        setInstitutionCode(institutionCode);
+        setInterlocutorPhone(interlocutorPhone);
     }
 
     @Override

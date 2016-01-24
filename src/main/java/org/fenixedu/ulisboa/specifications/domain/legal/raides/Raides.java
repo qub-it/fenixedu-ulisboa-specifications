@@ -47,8 +47,10 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.Mobilidad
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlToBaseFileWriter;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlZipFileWriter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
+import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
 import org.fenixedu.ulisboa.specifications.domain.legal.services.reportLog.transform.xls.XlsExporterLog;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
@@ -114,11 +116,11 @@ public class Raides {
     }
 
     public static class Bolseiro {
-        public static final String NAO_BOLSEIRO = "NAO_BOLSEIRO";
-        public static final String CANDIDATO_BOLSEIRO_ACCAO_SOCIAL = "CANDIDATO_BOLSEIRO_ACCAO_SOCIAL";
+        public static final GrantOwnerType NAO_BOLSEIRO = GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP;
+        public static final GrantOwnerType CANDIDATO_BOLSEIRO_ACCAO_SOCIAL = GrantOwnerType.HIGHER_EDUCATION_SAS_GRANT_OWNER_CANDIDATE;
 
         public static Set<String> VALUES() {
-            final Set<String> result = Sets.newHashSet(NAO_BOLSEIRO, CANDIDATO_BOLSEIRO_ACCAO_SOCIAL);
+            final Set<String> result = Sets.newHashSet(NAO_BOLSEIRO.name(), CANDIDATO_BOLSEIRO_ACCAO_SOCIAL.name());
             for (final GrantOwnerType type : GrantOwnerType.values()) {
                 result.add(type.name());
             }
@@ -209,11 +211,14 @@ public class Raides {
         XlsxExporter.write(reportRequest, this);
 
         // XML
-        XmlToBaseFileWriter.write(reportRequest, raidesRequestParameter, this);
+        LegalReportResultFile xml = XmlToBaseFileWriter.write(reportRequest, raidesRequestParameter, this);
 
         // Log
         XlsExporterLog.write(reportRequest, LegalReportContext.getReport());
 
+        // XML password protected zip
+//        XmlZipFileWriter.write(reportRequest, raidesRequestParameter, this, xml);
+        
         reportRequest.markAsProcessed();
     }
 
@@ -767,7 +772,7 @@ public class Raides {
                 && !Strings.isNullOrEmpty(
                         registration.getPerson().getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence())) {
             final District district =
-                    District.readByName(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence());
+                    findDistrictByName(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence());
 
             final DistrictSubdivision districtSubdivision = findDistrictSubdivisionByName(district,
                     registration.getPerson().getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence());
@@ -1049,11 +1054,23 @@ public class Raides {
         return null;
     }
 
+    public static District findDistrictByName(final String name) {
+        final String n = name;
+        for (final District district : Bennu.getInstance().getDistrictsSet()) {
+            if (district.getName().equals(n.trim())) {
+                return district;
+            }
+        }
+
+        return null;
+    }
+
     public static DistrictSubdivision findDistrictSubdivisionByName(final District district, final String name) {
         DistrictSubdivision result = null;
-        if (district != null && !Strings.isNullOrEmpty(name)) {
+        String n = name.trim();
+        if (district != null && !Strings.isNullOrEmpty(n)) {
             for (final DistrictSubdivision iter : Bennu.getInstance().getDistrictSubdivisionsSet()) {
-                if (iter.getDistrict().equals(district) && name.toLowerCase().equals(iter.getName().toLowerCase())) {
+                if (iter.getDistrict().equals(district) && n.toLowerCase().equals(iter.getName().toLowerCase())) {
                     if (result != null) {
                         throw new ULisboaSpecificationsDomainException("error.DistrictSubdivision.found.duplicate",
                                 district.getCode(), name, result.toString(), iter.toString());

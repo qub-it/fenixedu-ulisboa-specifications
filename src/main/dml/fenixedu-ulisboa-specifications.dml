@@ -1719,6 +1719,8 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 	boolean formsAvailableToStudents;
 	String passwordToZip;
 	LocalizedString blueRecordStartMessageContent;
+	String institutionCode;
+	String interlocutorPhone;
 }
 
 	relation RaidesInstanceMobilityAgreement {

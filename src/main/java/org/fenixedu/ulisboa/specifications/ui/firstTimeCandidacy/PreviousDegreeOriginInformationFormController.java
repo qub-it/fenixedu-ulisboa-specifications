@@ -98,9 +98,8 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             return nextScreen(model, redirectAttributes);
         }
 
-        return redirect(
-                getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                        + findPreviousDegreePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+        return redirect(getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
+                + findPreviousDegreePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
                 model, redirectAttributes);
     }
 
@@ -111,10 +110,10 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
     public String fillpreviousdegreeinformation(@PathVariable("registrationId") final Registration registration,
             final Model model, final RedirectAttributes redirectAttributes) {
 
-        if(registration.getPerson() != getStudent(model).getPerson()) {
+        if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
-        
+
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
 
@@ -145,13 +144,12 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
     protected void fillFormIfRequired(final Registration registration, Model model) {
         model.addAttribute("registration", registration);
 
-        PreviousDegreeInformationForm form =
-                (PreviousDegreeInformationForm) model.asMap().get("previousDegreeInformationForm");
-        
-        if(form == null) {
+        PreviousDegreeInformationForm form = (PreviousDegreeInformationForm) model.asMap().get("previousDegreeInformationForm");
+
+        if (form == null) {
             form = createPreviousDegreeInformationForm(registration);
         }
-        
+
         if (!StringUtils.isEmpty(form.getPrecedentInstitutionOid())) {
             DomainObject institutionObject = FenixFramework.getDomainObject(form.getPrecedentInstitutionOid());
             if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
@@ -160,10 +158,10 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
                 form.setPrecedentInstitutionName(form.getPrecedentInstitutionOid());
             }
         }
-        
+
         model.addAttribute("previousDegreeInformationForm", form);
     }
-    
+
     protected PreviousDegreeInformationForm createPreviousDegreeInformationForm(final Registration registration) {
         final PreviousDegreeInformationForm form = new PreviousDegreeInformationForm();
 
@@ -182,13 +180,14 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         }
 
         String precedentDegreeDesignationName = precedentDegreeInformation.getPrecedentDegreeDesignation();
-        if ((form.getPrecedentSchoolLevel() != null) && form.getPrecedentSchoolLevel().isHigherEducation()) {
+        if ((form.getPrecedentSchoolLevel() != null) && form.getPrecedentCountry() != null
+                && form.getPrecedentCountry().isDefaultCountry() && form.getPrecedentSchoolLevel().isHigherEducation()) {
             DegreeDesignation precedentDegreeDesignation;
             if (institution != null) {
                 Predicate<DegreeDesignation> matchesName =
                         dd -> dd.getDescription().equalsIgnoreCase(precedentDegreeDesignationName);
                 precedentDegreeDesignation =
-                        institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().get();
+                        institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
                 form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
             } else {
                 precedentDegreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(precedentDegreeDesignationName,
@@ -216,7 +215,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
                 form.setPrecedentInstitutionName(form.getPrecedentInstitutionOid());
             }
         }
-        
+
         return form;
     }
 
@@ -224,10 +223,10 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
     public String fillpreviousinformation(PreviousDegreeInformationForm form,
             @PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
-        if(registration.getPerson() != getStudent(model).getPerson()) {
+        if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
-        
+
         final Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -244,9 +243,8 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
                 return nextScreen(model, redirectAttributes);
             }
 
-            return redirect(
-                    getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                            + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+            return redirect(getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
+                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
                     model, redirectAttributes);
 
         } catch (Exception de) {
@@ -288,6 +286,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             return false;
         }
 
+        /*
         if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry() && form.getPrecedentSchoolLevel().isHigherEducation()) {
             if (form.getRaidesPrecedentDegreeDesignation() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
@@ -299,9 +298,11 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
                 return false;
             }
         }
-        
-        if(form.getNumberOfEnrolmentsInPreviousDegrees() == 0) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"), model);            
+        */
+
+        if (form.getNumberOfEnrolmentsInPreviousDegrees() == 0) {
+            addErrorMessage(BundleUtil.getString(BUNDLE,
+                    "error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"), model);
         }
 
         return true;

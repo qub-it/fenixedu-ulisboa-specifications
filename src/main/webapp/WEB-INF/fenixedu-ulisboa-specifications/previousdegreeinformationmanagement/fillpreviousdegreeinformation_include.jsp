@@ -77,7 +77,7 @@
 </div>
 <div class="form-group row"
 	id="previousDegreeInformationForm_precedentDegreeDesignation_row">
-	<div class="col-sm-2 control-label required-field">
+	<div class="col-sm-2 control-label">
 		<spring:message
 			code="label.PreviousDegreeInformationForm.precedentDegreeDesignation" />
 	</div>
@@ -90,7 +90,7 @@
 </div>
 <div class="form-group row"
 	id="previousDegreeInformationForm_raidesPrecedentDegreeDesignation_row">
-	<div class="col-sm-2 control-label required-field">
+	<div class="col-sm-2 control-label">
 		<spring:message
 			code="label.PreviousDegreeInformationForm.raidesPrecedentDegreeDesignation" />
 	</div>

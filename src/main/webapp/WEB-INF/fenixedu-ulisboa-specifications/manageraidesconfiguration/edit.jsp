@@ -140,7 +140,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 						<ui-select-match>{{$item.text}}</ui-select-match> 
 						<ui-select-choices repeat="registrationProtocol.id as registrationProtocol in object.registrationProtocolsDataSource | filter: $select.search">
 							<span ng-bind-html="registrationProtocol.text | highlight: $select.search"></span>
-						</ui-select-choices>
+						</ui-select-choices>interstellar streaming
 					</ui-select>
 				</div>
 			</div>
@@ -206,6 +206,24 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 	
 	<div class="panel panel-default">
 		<div class="panel-body">
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.institutionCode" />
+				</div>
+
+				<div class="col-sm-10">
+					<input class="form-control" type="text" ng-model="object.institutionCode" name="institutionCode" />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.interlocutorPhone" />
+				</div>
+
+				<div class="col-sm-10">
+					<input class="form-control" type="text" ng-model="object.interlocutorPhone" name="interlocutorPhone" />
+				</div>
+			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.RaidesInstance.passwordToZip" />

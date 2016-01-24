@@ -133,6 +133,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
 
         result.add(SchoolLevelType.BACHELOR_DEGREE);
         result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
+        result.add(SchoolLevelType.MASTER_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.DEGREE);
         result.add(SchoolLevelType.DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.DOCTORATE_DEGREE);
