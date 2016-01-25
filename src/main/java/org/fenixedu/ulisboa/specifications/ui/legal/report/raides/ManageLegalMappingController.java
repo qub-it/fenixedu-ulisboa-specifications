@@ -120,7 +120,7 @@ public class ManageLegalMappingController extends FenixeduUlisboaSpecificationsB
                 .sorted((e1, e2) -> e1.getMappingKey().compareTo(e2.getMappingKey())).collect(Collectors.toList()));
         List<TupleDataSourceBean> possibleLegalMappingEntryKeys = legalMapping.getPossibleKeys().stream().map(o -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(o.toString());
+            tuple.setId(legalMapping.keyForObject(o));
             tuple.setText(legalMapping.getLocalizedNameEntryKeyI18NForObject(o).getContent());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());

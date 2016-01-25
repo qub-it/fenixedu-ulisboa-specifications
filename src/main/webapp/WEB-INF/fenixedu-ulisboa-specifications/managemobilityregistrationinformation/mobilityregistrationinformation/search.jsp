@@ -170,7 +170,7 @@ ${portal.angularToolkit()}
 </div>
 
 
-<h4><spring:message code="label.manageMobilityRegistrationInformation.incoming" /></h4>
+<h4><spring:message code="label.manageMobilityRegistrationInformation.outgoing" /></h4>
 
 <c:choose>
 	<c:when test="${not empty searchmobilityregistrationinformationResultsDataSetForOutgoing}">
@@ -241,7 +241,7 @@ ${portal.angularToolkit()}
 	</c:otherwise>	
 </c:choose>
 
-<h4><spring:message code="label.manageMobilityRegistrationInformation.outgoing" /></h4>
+<h4><spring:message code="label.manageMobilityRegistrationInformation.incoming" /></h4>
 
 <c:choose>
 	<c:when test="${not empty searchmobilityregistrationinformationResultsDataSet}">
