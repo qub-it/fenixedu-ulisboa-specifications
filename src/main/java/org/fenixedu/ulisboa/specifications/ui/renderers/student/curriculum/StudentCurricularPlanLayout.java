@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -39,6 +38,7 @@ import org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPl
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.joda.time.YearMonthDay;
@@ -599,7 +599,10 @@ public class StudentCurricularPlanLayout extends Layout {
             generateSpacerCellsIfRequired(enrolmentRow);
         }
 
-        if (!isDismissal && renderer.isDetailed() && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
+        if (!isDismissal && renderer.isDetailed()
+        // qubExtension
+        // && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)
+        ) {
 
             // qubExtension, show temporary evaluations for improvements and special seasons
             for (final EnrolmentEvaluation iter : getDetailedEvaluations(enrolment)) {
@@ -631,21 +634,26 @@ public class StudentCurricularPlanLayout extends Layout {
     /**
      * qubExtension, show temporary evaluations for improvements and special seasons
      */
-    static private Set<EnrolmentEvaluation> getDetailedEvaluations(final Enrolment enrolment) {
+    private Set<EnrolmentEvaluation> getDetailedEvaluations(final Enrolment enrolment) {
         final Set<EnrolmentEvaluation> result = Sets.newTreeSet(new EvaluationComparator());
 
-        for (final Iterator<EvaluationSeason> iterator = EvaluationSeason.all().sorted().iterator(); iterator.hasNext();) {
+        for (final Iterator<EvaluationSeason> iterator = EvaluationSeasonServices.findAll().iterator(); iterator.hasNext();) {
             final EvaluationSeason season = iterator.next();
 
-            final Optional<EnrolmentEvaluation> finalEvaluation = enrolment.getFinalEnrolmentEvaluationBySeason(season);
-            if (finalEvaluation.isPresent()) {
-                result.add(finalEvaluation.get());
+            if (StudentCurricularPlanRenderer.isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)
+                    || EvaluationSeasonServices.isRequiresEnrolmentEvaluation(season)) {
 
-            } else if (season.isImprovement() || season.isSpecial()) {
+                final Optional<EnrolmentEvaluation> finalEvaluation = enrolment.getFinalEnrolmentEvaluationBySeason(season);
+                if (finalEvaluation.isPresent()) {
 
-                final EnrolmentEvaluation latestEvaluation = enrolment.getLatestEnrolmentEvaluationBySeason(season);
-                if (latestEvaluation != null) {
-                    result.add(latestEvaluation);
+                    result.add(finalEvaluation.get());
+
+                } else if (season.isImprovement() || season.isSpecial()) {
+
+                    final EnrolmentEvaluation latestEvaluation = enrolment.getLatestEnrolmentEvaluationBySeason(season);
+                    if (latestEvaluation != null) {
+                        result.add(latestEvaluation);
+                    }
                 }
             }
         }
