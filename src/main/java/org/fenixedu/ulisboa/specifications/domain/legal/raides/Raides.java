@@ -870,7 +870,7 @@ public class Raides {
     public static boolean isCompletePrecedentDegreeInformationFieldsToBeFilledByStudent(final Registration registration) {
         final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
         
-        if(pdi.getSchoolLevel() != null && !SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT.isHigherEducation()) {
+        if(pdi.getSchoolLevel() != null && !pdi.getSchoolLevel().isHigherEducation()) {
             return false;
         }
         

@@ -303,6 +303,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         if (form.getNumberOfEnrolmentsInPreviousDegrees() == 0) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"), model);
+            return false;
         }
 
         return true;

@@ -105,24 +105,24 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         }
 
         return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(), model,
-                redirectAttributes);
+                + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+                model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
     public String fillorigininformation(@PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
-        if(registration.getPerson() != getStudent(model).getPerson()) {
+        if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
-        
+
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("highSchoolTypeValues", AcademicalInstitutionType.getHighSchoolTypes());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
 
         fillFormIfRequired(registration, model);
-        
+
         addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillOriginInformation.info"), model);
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
@@ -152,7 +152,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
     private void fillFormIfRequired(final Registration registration, Model model) {
         model.addAttribute("registration", registration);
         model.addAttribute("districtAndSubdivisionRequired", isDistrictAndSubdivisionRequired());
-        
+
         if (!model.containsAttribute("originInformationForm")) {
             model.addAttribute("originInformationForm", createOriginInformationForm(registration));
         }
@@ -189,15 +189,18 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         if ((form.getSchoolLevel() != null) && form.getSchoolLevel().isHigherEducation()) {
             DegreeDesignation degreeDesignation;
             if (institution != null) {
-                Predicate<DegreeDesignation> matchesName = dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName) && form.getSchoolLevel().getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode());
-                Optional<DegreeDesignation> degreeDesignationOption = institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst();
-                if(degreeDesignationOption.isPresent()) {
+                Predicate<DegreeDesignation> matchesName =
+                        dd -> dd.getDescription().equalsIgnoreCase(degreeDesignationName) && form.getSchoolLevel()
+                                .getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode());
+                Optional<DegreeDesignation> degreeDesignationOption =
+                        institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst();
+                if (degreeDesignationOption.isPresent()) {
                     degreeDesignation = degreeDesignationOption.get();
                     form.setRaidesDegreeDesignation(degreeDesignation);
                 } else {
-                    form.setDegreeDesignation(degreeDesignationName);                    
+                    form.setDegreeDesignation(degreeDesignationName);
                 }
-                
+
             } else {
                 degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
                 form.setRaidesDegreeDesignation(degreeDesignation);
@@ -217,17 +220,17 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
 
         form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
-        
+
         return form;
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm form,
             @PathVariable("registrationId") final Registration registration, Model model, RedirectAttributes redirectAttributes) {
-        if(registration.getPerson() != getStudent(model).getPerson()) {
+        if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
-        
+
         Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -245,8 +248,8 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             }
 
             return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(), model,
-                    redirectAttributes);
+                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+                    model, redirectAttributes);
 
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
@@ -261,12 +264,18 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
                 redirectAttributes);
     }
 
-    protected boolean validate(final Registration registration, OriginInformationForm form, Model model) {
+    protected boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
+
+        /* -------
+         * COUNTRY
+         * -------
+         */
 
         if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
             return false;
         }
+
         if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && isDistrictAndSubdivisionRequired()) {
             if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
                     || form.getDistrictWhereFinishedPreviousCompleteDegree() == null) {
@@ -277,37 +286,75 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             }
         }
 
-        if (form.getSchoolLevel() == null || form.getSchoolLevel() == SchoolLevelType.OTHER
-                && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
+        /* ------------
+         * SCHOOL LEVEL
+         * ------------
+         */
+
+        if (form.getSchoolLevel() == null
+                || form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
             return false;
         }
 
-        if (StringUtils.isEmpty(StringUtils.trim(form.getInstitutionOid()))) {
-            addErrorMessage(
-                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"),
-                    model);
-            return false;
-        }
+        /* -----------
+         * INSTITUTION
+         * -----------
+         */
 
-        if (form.getSchoolLevel().isHigherEducation()) {
+        if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
+            if (StringUtils.isEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+                addErrorMessage(
+                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"),
+                        model);
+                return false;
+            }
+        } else {
+            if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
+                    && form.getSchoolLevel().isHigherEducation()) {
+                if (StringUtils.isEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+                    addErrorMessage(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"), model);
+                    return false;
+                }
+            }
+        }
+        
+        /* ------------------
+         * DEGREE DESIGNATION
+         * ------------------
+         */
+
+        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && form.getSchoolLevel().isHigherEducation()) {
             if (form.getRaidesDegreeDesignation() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;
             }
         } else {
-            if (StringUtils.isEmpty(form.getDegreeDesignation())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
-                return false;
+            if(isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
+                if (StringUtils.isEmpty(form.getDegreeDesignation())) {
+                    addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
+                    return false;
+                }
             }
         }
 
+        /* ----------------
+         * CONCLUSION GRADE
+         * ----------------
+         */
+        
         if (!StringUtils.isEmpty(form.getConclusionGrade()) && !form.getConclusionGrade().matches(GRADE_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"), model);
             return false;
         }
 
+        /* ---------------
+         * CONCLUSION YEAR
+         * ---------------
+         */
+        
         if (form.getConclusionYear() == null || !form.getConclusionYear().toString().matches(YEAR_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"), model);
             return false;
@@ -325,8 +372,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             return false;
         }
 
-        if (form.getSchoolLevel().isHighSchoolOrEquivalent()
-                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()) {
+        if (form.getSchoolLevel().isHighSchoolOrEquivalent()) {
             if (form.getHighSchoolType() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.highSchoolType.required"), model);
                 return false;
@@ -349,23 +395,24 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             precedentDegreeInformation.setOtherSchoolLevel(form.getOtherSchoolLevel());
         }
 
-        String institution = form.getInstitutionOid();
-        DomainObject institutionObject = FenixFramework.getDomainObject(institution);
-        if (!(institutionObject instanceof Unit) || !FenixFramework.isDomainObjectValid(institutionObject)) {
-            institutionObject = UnitUtils.readExternalInstitutionUnitByName(institution);
-            if (institutionObject == null) {
-                Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
-                Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
-                Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                institutionObject =
-                        Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
-                                resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
-                                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
-                                null, null);
+        if(isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() || !Strings.isNullOrEmpty(form.getInstitutionOid())) {
+            String institution = form.getInstitutionOid();
+            DomainObject institutionObject = FenixFramework.getDomainObject(institution);
+            if (!(institutionObject instanceof Unit) || !FenixFramework.isDomainObjectValid(institutionObject)) {
+                institutionObject = UnitUtils.readExternalInstitutionUnitByName(institution);
+                if (institutionObject == null) {
+                    Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
+                    Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
+                    Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
+                    institutionObject = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
+                            resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
+                            AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null, null,
+                            null);
+                }
             }
+            precedentDegreeInformation.setInstitution((Unit) institutionObject);
         }
-        precedentDegreeInformation.setInstitution((Unit) institutionObject);
-
+        
         precedentDegreeInformation.setConclusionYear(form.getConclusionYear());
         Country country = form.getCountryWhereFinishedPreviousCompleteDegree();
         precedentDegreeInformation.setCountry(country);
@@ -407,8 +454,12 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         }
         return resolvedAcronym;
     }
-    
+
     public boolean isDistrictAndSubdivisionRequired() {
+        return true;
+    }
+
+    protected boolean isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() {
         return true;
     }
 

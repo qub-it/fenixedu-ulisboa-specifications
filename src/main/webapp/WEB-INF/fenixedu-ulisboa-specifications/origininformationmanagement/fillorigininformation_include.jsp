@@ -256,7 +256,7 @@
 					updateHighSchoolType = function(){
 				 		schoolLevel = $("#originInformationForm_schoolLevel").val();
 						country = $("#originInformationForm_countryWhereFinishedPreviousCompleteDegree option:selected").text();
-						if ((schoolLevel == "HIGH_SCHOOL_OR_EQUIVALENT" || schoolLevel == "POST_HIGH_SCHOOL_SPECIALIZATION") && country == "Portugal"){
+						if ((schoolLevel == "HIGH_SCHOOL_OR_EQUIVALENT" || schoolLevel == "POST_HIGH_SCHOOL_SPECIALIZATION")){
 							$("#originInformationForm_highSchoolType_row").show();
 						}
 						else {

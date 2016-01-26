@@ -80,6 +80,11 @@ public class OriginInformationManagementController extends OriginInformationForm
     public boolean isDistrictAndSubdivisionRequired() {
         return false;
     }
+    
+    @Override
+    protected boolean isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() {
+        return false;
+    }
 
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page.substring(1, page.length());
