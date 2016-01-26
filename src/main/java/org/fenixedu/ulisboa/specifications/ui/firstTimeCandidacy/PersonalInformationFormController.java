@@ -153,12 +153,13 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
-            if (!form.getIsForeignStudent()) {
-                form.setDocumentIdNumber(person.getDocumentIdNumber());
-                form.setIdDocumentType(person.getIdDocumentType());
-                form.setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentExtraDigitValue());
+            form.setDocumentIdNumber(person.getDocumentIdNumber());
+            form.setIdDocumentType(person.getIdDocumentType());
+            
+            if(person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+                form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
             }
-
+            
             fillstaticformdata(getStudent(model), form);
 
             model.addAttribute("personalInformationForm", form);

@@ -95,7 +95,7 @@ ${portal.toolkit()}
 					<div class="form-control-static"><c:out value='${not empty param.username ? param.username : personalInformationForm.username }' /></div>
 				</div>
 			</div>
-	<c:if test="${not personalInformationForm.isForeignStudent}">
+			
 			<div class="form-group row">
 				<label class="col-sm-2 control-label">
 					<spring:message code="label.PersonalInformationForm.documentIdNumber" />
@@ -120,7 +120,6 @@ ${portal.toolkit()}
 				</div>
 			</div>
 		</c:if>
-	</c:if>
 			
 			<c:if test="${not partial}">
 			<div class="form-group row">
