@@ -72,15 +72,16 @@ public class CurricularPeriodServices {
     }
 
     static public int getCurricularYear(final CurriculumLine input) {
-        final DegreeModule degreeModule =
-                input instanceof OptionalEnrolment ? ((OptionalEnrolment) input).getOptionalCurricularCourse() : input
-                        .getDegreeModule();
-        final ExecutionYear executionYear = input.getExecutionYear();
-        final Set<Context> contexts =
-                input.getCurriculumGroup().isNoCourseGroupCurriculumGroup() ? Collections.emptySet() : input.getCurriculumGroup()
-                        .getDegreeModule().getChildContextsSet();
-
         final String report = input.print(StringUtils.EMPTY).toString();
+        if (input.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
+            logger.debug("NoCourseGroupCurriculumGroup as parent for [{}], returning 1", report);
+            return 1;
+        }
+
+        final DegreeModule degreeModule = input instanceof OptionalEnrolment ? ((OptionalEnrolment) input)
+                .getOptionalCurricularCourse() : input.getDegreeModule();
+        final ExecutionYear executionYear = input.getExecutionYear();
+        final Set<Context> contexts = input.getCurriculumGroup().getDegreeModule().getChildContextsSet();
 
         return getCurricularYear(report, degreeModule, executionYear, contexts);
     }
