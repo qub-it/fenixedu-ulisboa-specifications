@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -17,14 +18,17 @@ import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.dto.GradingTableBean;
+import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
@@ -34,6 +38,7 @@ import pt.ist.fenixframework.core.AbstractDomainObject;
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageECTSGradingTables",
         accessGroup = "academic(MANAGE_DEGREE_CURRICULAR_PLANS)| #managers")
 @RequestMapping(EctsGradingTableBackofficeController.CONTROLLER_URL)
+@SessionAttributes("sectoken")
 public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecificationsBaseController {
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/ectsgradingtable";
@@ -59,6 +64,8 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         model.addAttribute("degreeGradeTable", DegreeGradingTable.find(executionYear));
         model.addAttribute("courseGradeTableHeaders", calculateHeaders(CourseGradingTable.find(executionYear)));
         model.addAttribute("courseGradeTable", CourseGradingTable.find(executionYear));
+        String token = SecToken.generate();
+        model.addAttribute("sectoken", token);
     }
 
     private static final String _SEARCH_URI = "/search/";
@@ -76,12 +83,16 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     private static final String _CREATE_INSTITUTIONAL_URI = "/createinstitutional/";
     public static final String CREATE_INSTITUTIONAL_URL = CONTROLLER_URL + _CREATE_INSTITUTIONAL_URI;
 
-    @RequestMapping(value = _CREATE_INSTITUTIONAL_URI + "{oid}", method = RequestMethod.GET)
-    public String createInstitutional(@PathVariable(value = "oid") ExecutionYear executionYear, Model model) {
+    @RequestMapping(value = _CREATE_INSTITUTIONAL_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
+    public String createInstitutional(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+        if (!token.equals(sectoken)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), model);
+        } else {
+            generateInstitutionGradingTable(executionYear);
+        }
         loadModel(model, executionYear);
-        generateInstitutionGradingTable(executionYear);
-        model.addAttribute("institutionGradeTable", InstitutionGradingTable.find(executionYear));
-        model.addAttribute("degreeGradeTable", DegreeGradingTable.find(executionYear));
         return VIEW_URL + "search";
     }
 
@@ -93,9 +104,15 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     private static final String _CREATE_DEGREES_URI = "/createdegrees/";
     public static final String CREATE_DEGREES_URL = CONTROLLER_URL + _CREATE_DEGREES_URI;
 
-    @RequestMapping(value = _CREATE_DEGREES_URI + "{oid}", method = RequestMethod.GET)
-    public String createDegrees(@PathVariable(value = "oid") ExecutionYear executionYear, Model model) {
-        generateDegreesGradingTable(executionYear);
+    @RequestMapping(value = _CREATE_DEGREES_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
+    public String createDegrees(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+        if (!token.equals(sectoken)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), model);
+        } else {
+            generateDegreesGradingTable(executionYear);
+        }
         loadModel(model, executionYear);
         return VIEW_URL + "search";
     }
@@ -108,9 +125,15 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     private static final String _CREATE_COURSESS_URI = "/createcourses/";
     public static final String CREATE_COURSESS_URL = CONTROLLER_URL + _CREATE_COURSESS_URI;
 
-    @RequestMapping(value = _CREATE_COURSESS_URI + "{oid}", method = RequestMethod.GET)
-    public String createCourses(@PathVariable(value = "oid") ExecutionYear executionYear, Model model) {
-        generateCoursesGradingTable(executionYear);
+    @RequestMapping(value = _CREATE_COURSESS_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
+    public String createCourses(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+        if (!token.equals(sectoken)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), model);
+        } else {
+            generateCoursesGradingTable(executionYear);
+        }
         loadModel(model, executionYear);
         return VIEW_URL + "search";
     }
@@ -123,10 +146,16 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     private static final String _DELETE_TABLES_URI = "/deletetable/";
     public static final String DELETE_TABLES_URL = CONTROLLER_URL + _DELETE_TABLES_URI;
 
-    @RequestMapping(value = _DELETE_TABLES_URI + "{oid}" + "/" + "{oids}", method = RequestMethod.GET)
+    @RequestMapping(value = _DELETE_TABLES_URI + "{oid}" + "/" + "{oids}" + "/" + "{token}", method = RequestMethod.GET)
     public String deleteTable(@PathVariable(value = "oid") ExecutionYear executionYear,
-            @PathVariable(value = "oids") String oids, Model model) {
-        deleteTables(oids.split("\\+"));
+            @PathVariable(value = "oids") String oids, @PathVariable(value = "token") String token,
+            @ModelAttribute("sectoken") String sectoken, Model model) {
+        if (!token.equals(sectoken)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), model);
+        } else {
+            deleteTables(oids.split("\\+"));
+        }
         loadModel(model, executionYear);
         return VIEW_URL + "search";
     }
@@ -152,6 +181,22 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
             }
         }
         return headers;
+    }
+
+    private static class SecToken {
+        private static String seed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+
+        public static String generate(int keySize) {
+            char[] key = new char[keySize];
+            for (int i = 0; i < keySize; i++) {
+                key[i] = seed.charAt(ThreadLocalRandom.current().nextInt(0, (seed.length() - 1)));
+            }
+            return String.valueOf(key);
+        }
+
+        public static String generate() {
+            return generate(16);
+        }
     }
 
 }
