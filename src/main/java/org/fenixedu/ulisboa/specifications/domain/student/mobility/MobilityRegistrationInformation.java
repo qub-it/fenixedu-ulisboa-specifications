@@ -183,6 +183,10 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setMobilityProgramType(null);
         setMobilityActivityType(null);
         setForeignInstitutionUnit(null);
+        setMobilityScientificArea(null);
+        setIncomingMobilityProgrammeLevel(null);
+        setOriginMobilityProgrammeLevel(null);
+        
         setBennu(null);
 
         deleteDomainObject();
