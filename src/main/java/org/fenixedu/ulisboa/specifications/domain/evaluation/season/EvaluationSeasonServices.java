@@ -29,11 +29,14 @@ package org.fenixedu.ulisboa.specifications.domain.evaluation.season;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -41,6 +44,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
@@ -110,12 +114,14 @@ abstract public class EvaluationSeasonServices {
         assert args.length > 0;
         int count = 0;
         for (boolean b : args) {
-            if (b)
+            if (b) {
                 count++;
-            if (count > n)
+            }
+            if (count > n) {
                 return false;
+            }
         }
-        return (count == n);
+        return count == n;
     }
 
     @Atomic
@@ -505,6 +511,142 @@ abstract public class EvaluationSeasonServices {
         }
 
         return result;
+    }
+
+    static public Set<Enrolment> getEnrolmentsForGradeSubmission(final EvaluationSeason evaluationSeason,
+            final Collection<CurricularCourse> curricularCourses, final LocalDate evaluationDate,
+            final ExecutionSemester executionSemester) {
+        final Set<Enrolment> result = new HashSet<Enrolment>();
+        for (CurricularCourse curricularCourse : curricularCourses) {
+            result.addAll(getEnrolmentsForGradeSubmission(evaluationSeason, curricularCourse, evaluationDate, executionSemester));
+        }
+        return result;
+
+    }
+
+    static public Set<Enrolment> getEnrolmentsForGradeSubmission(final EvaluationSeason evaluationSeason,
+            final CurricularCourse curricularCourse, final LocalDate evaluationDate, final ExecutionSemester executionSemester) {
+        final Set<Enrolment> result = new HashSet<Enrolment>();
+        for (final CurriculumModule curriculumModule : curricularCourse.getCurriculumModulesSet()) {
+            if (!curriculumModule.isEnrolment()) {
+                continue;
+            }
+            final Enrolment enrolment = (Enrolment) curriculumModule;
+            if (!evaluationSeason.isEvaluatesOnlyApprovedEnrolments() && !enrolment.isValid(executionSemester)) {
+                continue;
+            }
+            if (!evaluationSeason.isEnrolmentCandidateForEvaluation(enrolment, evaluationDate, executionSemester)) {
+                continue;
+            }
+            final EnrolmentEvaluation evaluation =
+                    getActiveEvaluationBySeason(enrolment, evaluationSeason, evaluationDate, executionSemester, false);
+            if (evaluation != null && evaluation.getMarkSheet() != null) {
+                continue;
+            }
+            result.add(enrolment);
+        }
+        return result;
+    }
+
+    static public EnrolmentEvaluation getActiveEvaluationBySeason(final Enrolment enrolment, final EvaluationSeason season,
+            final LocalDate evaluationDate, final ExecutionSemester semester, final boolean isFinal) {
+        return enrolment.getEvaluationsSet().stream().filter(e -> e instanceof EnrolmentEvaluation)
+                .map(EnrolmentEvaluation.class::cast)
+                .filter(eEval -> !eEval.isAnnuled() && eEval.getEvaluationSeason() == season
+                        && eEval.getEvaluationSeason().isEvaluatesOnlyApprovedEnrolments()
+                        && eEval.getExecutionPeriod() == semester && evaluationDate != null
+                        && eEval.getExamDateYearMonthDay().toLocalDate().isEqual(evaluationDate)
+                        && (isFinal && eEval.isFinal() || isFinal && eEval.isTemporary()))
+                .findFirst().get();
+    }
+
+    static public boolean isEnrolmentCandidateForEvaluation(final EvaluationSeason evaluationSeason, final Enrolment enrolment,
+            final LocalDate evaluationDate, final ExecutionSemester executionSemester) {
+
+        if (getActiveEvaluationBySeason(enrolment, evaluationSeason, evaluationDate, executionSemester, true) != null) {
+            return false;
+        }
+
+        // only evaluations before the input evaluation date should be investigated
+        final List<EnrolmentEvaluation> evaluations = getAllFinalEnrolmentEvaluations(enrolment, evaluationDate);
+        final EnrolmentEvaluation latestEvaluation = getLatestEnrolmentEvaluation(evaluations);
+        final boolean isApproved = latestEvaluation != null && latestEvaluation.isApproved();
+
+        // this evaluation season is for not approved enrolments
+        if (!evaluationSeason.isEvaluatesOnlyApprovedEnrolments()) {
+
+            if (isApproved) {
+                return false;
+            }
+        }
+
+        // this evaluation season is for approved enrolments
+        if (evaluationSeason.isEvaluatesOnlyApprovedEnrolments()) {
+
+            if (!isApproved) {
+                return false;
+            }
+        }
+
+        if (latestEvaluation != null && latestEvaluation.isSubsequentEvaluationPrevented()) {
+            return false;
+        }
+
+        if (isRequiresEvaluationOnPreviousSeason()) {
+            if (latestEvaluation == null) {
+                return false;
+            }
+
+            boolean exclude = true;
+
+            final EvaluationSeason previousSeason = getPreviousSeason();
+            if (previousSeason != null) {
+
+                // WARNING: we should be using EnrolmentEvaluation.find API, but for simplicity reasons we're dealing with this "manually" 
+                for (final EnrolmentEvaluation iter : evaluations) {
+                    if (iter.getEvaluationSeason() == previousSeason) {
+                        exclude = false;
+                        break;
+                    }
+                }
+            }
+
+            if (exclude) {
+                return false;
+            }
+        }
+
+        final EnrolmentEvaluation temporaryEvaluation =
+                enrolment.getActiveEvaluationBySeason(this, evaluationDate, executionSemester, false);
+
+        if (isRequiresEnrolmentEvaluation() && isEvaluatesOnlyApprovedEnrolments() && temporaryEvaluation != null) {
+            return temporaryEvaluation.getExecutionPeriod() == executionSemester;
+        }
+
+        if (isRequiresEnrolmentEvaluation() && isSupportsMultipleEvaluation() && temporaryEvaluation != null) {
+            return evaluationDate != null && temporaryEvaluation.getExamDateYearMonthDay().toLocalDate().isEqual(evaluationDate);
+        }
+
+        return !this.isRequiresEnrolmentEvaluation() || temporaryEvaluation != null;
+
+    }
+
+    public static List<EnrolmentEvaluation> getAllFinalEnrolmentEvaluations(Enrolment enrolment, LocalDate evaluationDate) {
+        Stream<EnrolmentEvaluation> stream = enrolment.getEvaluationsSet().stream().filter(e -> e.isFinal() && !e.isRectified());
+        if (evaluationDate != null) {
+            stream = stream
+                    .filter(e -> e.getExamDateYearMonthDay() != null && e.getExamDateYearMonthDay().isBefore(evaluationDate));
+        }
+        return stream.collect(Collectors.toList());
+    }
+
+    public static EnrolmentEvaluation getLatestEnrolmentEvaluation(Collection<EnrolmentEvaluation> enrolmentEvaluations) {
+        if (enrolmentEvaluations == null || enrolmentEvaluations.isEmpty()) {
+            return null;
+        }
+        //TODOJN : sorted to get lastest...
+        return enrolmentEvaluations.stream().sorted((eEval1, eEval2) -> eEval1.getExternalId().compareTo(eEval2.getExternalId()))
+                .findFirst().get();
     }
 
 }
