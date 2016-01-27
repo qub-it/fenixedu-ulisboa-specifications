@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,32 @@ import org.fenixedu.academic.domain.MarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 public class MarkSheetStatusReportService {
+
+    public List<ExecutionCourseSeasonReport> generateExecutionCourseReport(final ExecutionCourse executionCourse) {
+        final Collection<EvaluationSeason> seasons = EvaluationSeasonServices.findByActive(true).collect(Collectors.toList());
+
+        final List<ExecutionCourseSeasonReport> result = new ArrayList<ExecutionCourseSeasonReport>();
+        for (final EvaluationSeason season : seasons) {
+
+            final Multimap<LocalDate, CurricularCourseSeasonReport> reportsByEvaluationDate = ArrayListMultimap.create();
+            for (final CurricularCourseSeasonReport curricularCourseReport : generateCurricularCoursesReport(
+                    executionCourse.getAssociatedCurricularCoursesSet(), season, executionCourse.getExecutionPeriod())) {
+                reportsByEvaluationDate.put(curricularCourseReport.getEvaluationDate(), curricularCourseReport);
+            }
+
+            for (final Map.Entry<LocalDate, Collection<CurricularCourseSeasonReport>> entry : reportsByEvaluationDate.asMap()
+                    .entrySet()) {
+                result.add(new ExecutionCourseSeasonReport(executionCourse, season, entry.getKey(), entry.getValue()));
+            }
+
+        }
+
+        return result;
+    }
 
     public List<CurricularCourseSeasonReport> generateCurricularCourseReport(final ExecutionInterval executionInterval) {
         List<EvaluationSeason> activeSeasons = EvaluationSeasonServices.findByActive(true).collect(Collectors.toList());
@@ -77,7 +103,7 @@ public class MarkSheetStatusReportService {
         final CurricularCourseSeasonReport result =
                 new CurricularCourseSeasonReport(curricularCourse, season, executionSemester, evaluationDate);
 
-        //TODOJN : -> Eugidio getEnrolmentsForGradeSubmission não existe
+        //TODOJN : -> Egidio getEnrolmentsForGradeSubmission não existe
 //        result.setNotEvaluatedStudents(EvaluationSeasonServices
 //                .getEnrolmentsForGradeSubmission(season, curricularCourse, evaluationDate, executionSemester).size());
         result.setNotEvaluatedStudents(2);
@@ -93,11 +119,11 @@ public class MarkSheetStatusReportService {
             }
         }
 
-        //TODOJN: Eugidio: passar para 0 novamente
+        //TODOJN: Egidio: passar para 0 novamente
         int evaluatedStudents = 5;
         for (final Enrolment enrolment : enrolmentsToProcess) {
 
-            //TODOJN: Eugidio -> metodo para ir buscar o getActiveEvaluationBySeason não existe
+            //TODOJN: Egidio -> metodo para ir buscar o getActiveEvaluationBySeason não existe
 //            final EnrolmentEvaluation activeEvaluation = EvaluationSeasonServices.getActiveEvaluationBySeason(enrolment, season,
 //                    evaluationDate, executionSemester, false);
 //            if (activeEvaluation != null && activeEvaluation.getMarkSheet() != null) {
@@ -109,7 +135,7 @@ public class MarkSheetStatusReportService {
 
         int marksheetsToConfirm = 0;
         for (final MarkSheet markSheet : curricularCourse.getMarkSheetsByPeriod(executionSemester)) {
-            //TODOJN : Eugidio -> o primeiro if era isCancelled, mas aqui não existe..
+            //TODOJN : Egidio -> o primeiro if era isCancelled, mas aqui não existe..
             if (markSheet.isNotConfirmed() || markSheet.isRectification() || markSheet.getEvaluationSeason() != season) {
                 continue;
             }

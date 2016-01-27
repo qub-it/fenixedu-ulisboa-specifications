@@ -42,6 +42,7 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.bennu.core.domain.exceptions.AuthorizationException;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.model.Functionality;
@@ -56,6 +57,9 @@ import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCo
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.administrativeOffice.marksheet.ExecutionCourseSeasonReport;
+import org.fenixedu.ulisboa.specifications.ui.administrativeOffice.marksheet.MarkSheetStatusReportService;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -86,8 +90,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     }
 
     @RequestMapping
-    public String home(final Model model) {
-        return "forward:" + CONTROLLER_URL + "/";
+    public String home(final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(SEARCH_URL, model, redirectAttributes);
     }
 
     private CompetenceCourseMarkSheetBean getCompetenceCourseMarkSheetBean(final Model model) {
@@ -150,6 +154,29 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheetBean(bean, model);
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
+
+        //Add status report information
+        final MarkSheetStatusReportService service = new MarkSheetStatusReportService();
+        for (ExecutionCourseSeasonReport report : service.generateExecutionCourseReport(executionCourse)) {
+            boolean withDate = report.getEvaluationDate() != null;
+            String season = report.getSeason().getName().getContent();
+            String totalStudents = String.valueOf(report.getTotalStudents());
+            String notEvaluatedStudents = String.valueOf(report.getNotEvaluatedStudents());
+            String evaluatedStudents = String.valueOf(report.getEvaluatedStudents());
+            String evaluationDate = withDate ? report.getEvaluationDate().toString("yyyy-MM-dd") : "";
+
+            String message;
+            if (withDate) {
+                message = BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "message.MarksheetReportEntry.reportEntry.description.with.evaluationDate", season, evaluationDate,
+                        totalStudents, evaluatedStudents, notEvaluatedStudents);
+            } else {
+                message = BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description",
+                        season, totalStudents, evaluatedStudents, notEvaluatedStudents);
+            }
+            addInfoMessage(message, model);
+        }
+
         return jspPage("search");
     }
 
