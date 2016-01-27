@@ -184,18 +184,19 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     }
 
     private static class SecToken {
-        private static String seed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+        private static String SEED = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+        private static int DEFAULT_KEY_SIZE = 16;
 
         public static String generate(int keySize) {
             char[] key = new char[keySize];
             for (int i = 0; i < keySize; i++) {
-                key[i] = seed.charAt(ThreadLocalRandom.current().nextInt(0, (seed.length() - 1)));
+                key[i] = SEED.charAt(ThreadLocalRandom.current().nextInt(0, (SEED.length() - 1)));
             }
             return String.valueOf(key);
         }
 
         public static String generate() {
-            return generate(16);
+            return generate(DEFAULT_KEY_SIZE);
         }
     }
 
