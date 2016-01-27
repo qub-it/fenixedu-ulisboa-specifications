@@ -69,15 +69,22 @@ ${portal.angularToolkit()}
 </c:if>
 
 <div class="panel panel-default">
-    <form method="get" class="form-horizontal">
+    <form method="post" class="form-horizontal">
         <div class="panel-body">
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
                     <spring:message code="label.MarkSheetStatusReport.periodInterval" />
                 </div>
                 <div class="col-sm-10">
-                    <input id="currency_code" class="form-control" type="text" name="code"
-                        value='<c:out value='${not empty param.code ? param.code : currency.code }'/>' />
+                    <select id="marksheetreport_periodInterval"
+                        class="js-example-basic-single"
+                        name="executionInterval">
+                        <c:forEach var="executionInterval" items="${ executionIntervals }">
+                            <option value="${ executionInterval.externalId }">
+                                <c:out value="${ executionInterval.qualifiedName }" />
+                            </option>
+                        </c:forEach>
+                    </select>
                 </div>
             </div>
         </div>
