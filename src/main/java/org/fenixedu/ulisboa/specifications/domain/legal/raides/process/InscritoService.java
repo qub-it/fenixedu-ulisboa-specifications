@@ -63,7 +63,7 @@ public class InscritoService extends RaidesService {
 
         if (isFirstCycle(executionYear, registration) && isFirstTimeOnDegree(registration, executionYear)) {
             bean.setFormaIngresso(LegalMapping.find(report, LegalMappingType.REGISTRATION_INGRESSION_TYPE)
-                    .translate(registration.getStudentCandidacy().getIngressionType()));
+                    .translate(registration.getIngressionType()));
 
             if (isDegreeChangeOrTransfer(raidesRequestParameter, registration)) {
                 final PrecedentDegreeInformation precedentQualification =
@@ -76,8 +76,7 @@ public class InscritoService extends RaidesService {
                     bean.setOutroEstabInscAnt(precedentQualification.getPrecedentInstitution().getNameI18n().getContent());
                 }
 
-                // TODO
-//                bean.setNumInscCursosAnt(precedentQualification.getNumberOfEnrollements());
+                bean.setNumInscCursosAnt(precedentQualification.getNumberOfEnrolmentsInPreviousDegrees());
 
             } else if (isGeneralAccessRegime(raidesRequestParameter, registration)) {
                 if (registration.getStudentCandidacy().getEntryGrade() != null) {
@@ -114,13 +113,27 @@ public class InscritoService extends RaidesService {
 
         validaInformacaoMudancaCursoTransferencia(raidesRequestParameter, bean, institutionUnit, executionYear, registration);
         validaInformacaoRegimeGeralAcesso(raidesRequestParameter, bean, institutionUnit, executionYear, registration);
-
+        validaNumInscricoesNoCurso(raidesRequestParameter, bean, institutionUnit, executionYear, registration);
+        
         return bean;
     }
 
     /*
      * VALIDACOES
      */
+
+    private void validaNumInscricoesNoCurso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean, final Unit institutionUnit,
+            final ExecutionYear executionYear, final Registration registration) {
+        
+        if(isFirstTimeOnDegree(registration, executionYear) && new Integer(0).equals(bean.getNumInscNesteCurso())) {
+            LegalReportContext.addError("",
+                    i18n("error.Raides.validation.is.not.first.time.student.but.number.previous.enrolments.in.registration.is.zero",
+                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                            executionYear.getQualifiedName()));            
+            bean.markAsInvalid();
+        }
+        
+    }
 
     protected void validaInformacaoRegimeGeralAcesso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean,
             final Unit institutionUnit, final ExecutionYear executionYear, final Registration registration) {
@@ -230,13 +243,13 @@ public class InscritoService extends RaidesService {
     }
 
     private boolean isGeneralAccessRegime(final RaidesRequestParameter raidesRequestParameter, final Registration registration) {
-        return Raides.isGeneralAccessRegime(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType());
+        return Raides.isGeneralAccessRegime(raidesRequestParameter, registration.getIngressionType());
     }
 
     protected boolean isDegreeChangeOrTransfer(final RaidesRequestParameter raidesRequestParameter,
             final Registration registration) {
-        return Raides.isDegreeChange(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType())
-                || Raides.isDegreeTransfer(raidesRequestParameter, registration.getStudentCandidacy().getIngressionType());
+        return Raides.isDegreeChange(raidesRequestParameter, registration.getIngressionType())
+                || Raides.isDegreeTransfer(raidesRequestParameter, registration.getIngressionType());
     }
 
     protected Integer numberOfYearsEnrolled(final ExecutionYear executionYear, final Registration registration) {

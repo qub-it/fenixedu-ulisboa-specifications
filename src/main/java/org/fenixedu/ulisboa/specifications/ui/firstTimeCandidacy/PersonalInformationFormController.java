@@ -65,6 +65,7 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
+import org.fenixedu.ulisboa.specifications.util.IdentityCardUtils;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -342,7 +343,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
     
     private boolean isIdentityCardControlNumberValid(final String extraValue) {
-        return !Strings.isNullOrEmpty(extraValue) && (extraValue.matches("\\d") || extraValue.matches("\\d[A-Z][A-Z]\\d"));
+        return IdentityCardUtils.isIdentityCardDigitControlFormatValid(extraValue);
     }
 
     private boolean testsMode() {

@@ -211,11 +211,13 @@ public class RaidesService {
         }
 
         if (bean.isTipoEstabSecSpecified()) {
-            if (lastCompletedQualification.getSchoolLevel() == SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT
-                    && highSchoolType(studentCandidacy) != null) {
-                bean.setTipoEstabSec(LegalMapping.find(report, LegalMappingType.HIGH_SCHOOL_TYPE)
-                        .translate(highSchoolType(studentCandidacy)));
+            if (lastCompletedQualification.getSchoolLevel().isHighSchoolOrEquivalent()) {
 
+                if(highSchoolType(studentCandidacy) != null) {
+                    bean.setTipoEstabSec(LegalMapping.find(report, LegalMappingType.HIGH_SCHOOL_TYPE)
+                            .translate(highSchoolType(studentCandidacy)));
+                }
+ 
                 if (Strings.isNullOrEmpty(bean.getTipoEstabSec())) {
                     bean.setTipoEstabSec(Raides.TipoEstabSec.PUBLICO);
                     LegalReportContext.addWarn("",
@@ -261,7 +263,11 @@ public class RaidesService {
 
     protected boolean isPrecedentDegreePortugueseHigherEducation(final PrecedentDegreeInformation lastCompletedQualification) {
         return lastCompletedQualification.getCountry() != null && lastCompletedQualification.getCountry().isDefaultCountry()
-                && lastCompletedQualification.getSchoolLevel() != null
+                && isHigherEducation(lastCompletedQualification);
+    }
+    
+    protected boolean isHigherEducation(final PrecedentDegreeInformation lastCompletedQualification) {
+        return lastCompletedQualification.getSchoolLevel() != null
                 && lastCompletedQualification.getSchoolLevel().isHigherEducation();
     }
 
@@ -303,6 +309,20 @@ public class RaidesService {
 
             bean.markAsInvalid();
         }
+        
+        /*
+        if(Strings.isNullOrEmpty(bean.getAnoEscolaridadeAnt())) {
+            try {
+                
+            } catch(NumberFormatException e) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.previous.complete.year.missing",
+                                String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                                executionYear.getQualifiedName()));
+                bean.markAsInvalid();
+            }
+        }
+        */
 
         validaEstabelecimentoAnteriorCompleto(institutionUnit, executionYear, registration, lastCompletedQualification, bean);
         validaCursoAnteriorCompleto(institutionUnit, executionYear, registration, lastCompletedQualification, bean);
@@ -386,6 +406,15 @@ public class RaidesService {
         if (!degreeDesignationContainsInstitution) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.official.precedent.degree.is.not.offered.by.institution",
+                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                            executionYear.getQualifiedName()));
+            bean.markAsInvalid();
+        }
+        
+        if((Raides.isMasterDegreeOrDoctoralDegree(registration) || Raides.isSpecializationDegree(registration)) 
+                && !isHigherEducation(lastCompletedQualification)) {
+            LegalReportContext.addError("",
+                    i18n("error.Raides.validation.isMasterDoctoralOrSpecialization.but.completed.qualification.is.not.higher",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
                             executionYear.getQualifiedName()));
         }

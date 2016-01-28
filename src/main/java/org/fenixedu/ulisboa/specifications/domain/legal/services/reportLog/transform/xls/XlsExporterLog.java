@@ -38,9 +38,23 @@ public class XlsExporterLog {
 
                 addCell("Tipo", type);
                 addCell("Assunto", reportEntry.getTarget());
-                addCell("Mensagem",
-                        reportEntry.getMessage()
-                                + (reportEntry.getMessageArgs().length > 0 ? " " + reportEntry.getMessageArgs()[0] : ""));
+                
+                final String[] fields = reportEntry.getMessage().split(";");
+
+                for(int i = 0; i < fields.length; i++) {
+                    if(i == 1) {
+                        addCell("Aluno", fields[i]);
+                    } else if(i == 3) {
+                        addCell("Curso", fields[i]);
+                    } else if(i == 5) {
+                        addCell("Ano", fields[i]);
+                    } else if(i == 6) {
+                        addCell("Mensagem", fields[i]);                            
+                    } else if(i > 6) {
+                        addCell(String.format("[%d]", i), fields[i]);
+                    }
+                 }
+                
             }
         };
 

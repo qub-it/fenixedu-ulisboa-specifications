@@ -172,7 +172,7 @@ public class XlsxExporter {
                                         .getRegistration().getRegistrationProtocol().getDescription().getContent() : "");
                         addCell("Ingresso", personalInformationBean.getRegistration().getStudentCandidacy()
                                 .getIngressionType() != null ? personalInformationBean.getRegistration()
-                                .getStudentCandidacy().getIngressionType().getDescription().getContent() : "");
+                                .getIngressionType().getDescription().getContent() : "");
                         addCell("Nome", personalInformationBean.getRegistration().getStudent().getName());
 
                         addCell("Reportar como Inscrito", raides.isInEnrolledData(personalInformationBean.getRegistration()));

@@ -117,7 +117,8 @@ public class Raides {
 
     public static class Bolseiro {
         public static final GrantOwnerType NAO_BOLSEIRO = GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP;
-        public static final GrantOwnerType CANDIDATO_BOLSEIRO_ACCAO_SOCIAL = GrantOwnerType.HIGHER_EDUCATION_SAS_GRANT_OWNER_CANDIDATE;
+        public static final GrantOwnerType CANDIDATO_BOLSEIRO_ACCAO_SOCIAL =
+                GrantOwnerType.HIGHER_EDUCATION_SAS_GRANT_OWNER_CANDIDATE;
 
         public static Set<String> VALUES() {
             final Set<String> result = Sets.newHashSet(NAO_BOLSEIRO.name(), CANDIDATO_BOLSEIRO_ACCAO_SOCIAL.name());
@@ -218,7 +219,7 @@ public class Raides {
 
         // XML password protected zip
 //        XmlZipFileWriter.write(reportRequest, raidesRequestParameter, this, xml);
-        
+
         reportRequest.markAsProcessed();
     }
 
@@ -350,14 +351,15 @@ public class Raides {
 
     protected boolean hasConcludedInPeriod(final Interval interval, final ExecutionYear academicPeriod,
             final Registration registration) {
-        
-        final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+
+        final Set<RegistrationConclusionInformation> informationConclusionSet =
+                RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if(interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
+            if (interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -516,9 +518,10 @@ public class Raides {
     }
 
     protected boolean hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
-        final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+        final Set<RegistrationConclusionInformation> informationConclusionSet =
+                RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if(!rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
+            if (!rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
                 return true;
             }
         }
@@ -527,17 +530,18 @@ public class Raides {
     }
 
     public static boolean hadScholarPartApprovement(final Registration registration, final ExecutionYear executionYear) {
-        if(!Raides.isMasterDegreeOrDoctoralDegree(registration)) {
+        if (!Raides.isMasterDegreeOrDoctoralDegree(registration)) {
             return false;
         }
-        
-        final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+
+        final Set<RegistrationConclusionInformation> informationConclusionSet =
+                RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if(rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
+            if (rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -784,11 +788,16 @@ public class Raides {
     }
 
     public static boolean isMasterDegreeOrDoctoralDegree(final Registration registration) {
-        return registration.getDegreeType().isSecondCycle() || registration.getDegreeType().isThirdCycle();
+        return (registration.getDegreeType().isSecondCycle() && !registration.getDegreeType().isIntegratedMasterDegree())
+                || registration.getDegreeType().isThirdCycle();
     }
 
     public static boolean isDoctoralDegree(final Registration registration) {
         return registration.getDegreeType().isThirdCycle();
+    }
+
+    public static boolean isSpecializationDegree(final Registration registration) {
+        return registration.getDegreeType().isSpecializationDegree();
     }
 
     public static PersonalIngressionData personalIngressionData(Registration registration, ExecutionYear executionYear) {
@@ -869,12 +878,12 @@ public class Raides {
 
     public static boolean isCompletePrecedentDegreeInformationFieldsToBeFilledByStudent(final Registration registration) {
         final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
-        
-        if(pdi.getSchoolLevel() != null && !pdi.getSchoolLevel().isHigherEducation()) {
+
+        if (pdi.getSchoolLevel() != null && !pdi.getSchoolLevel().isHigherEducation()) {
             return false;
         }
-        
-        return  pdi.getInstitution() == null || Strings.isNullOrEmpty(pdi.getDegreeDesignation());
+
+        return pdi.getInstitution() == null || Strings.isNullOrEmpty(pdi.getDegreeDesignation());
     }
 
     private static boolean isPreviousDegreePrecedentDegreeInformationRequired(final RaidesInstance raidesInstance,
@@ -938,16 +947,18 @@ public class Raides {
         return result;
     }
 
-    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsFilled(final RaidesInstance raidesInstance, final Registration registration) {
+    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsFilled(final RaidesInstance raidesInstance,
+            final Registration registration) {
         return verifyPreviousDegreePrecedentDegreeInformationFieldsFilled(raidesInstance, registration).isEmpty();
     }
 
-    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsToBeFilledByStudent(final RaidesInstance raidesInstance, final Registration registration) {
+    public static boolean isPreviousDegreePrecedentDegreeInformationFieldsToBeFilledByStudent(final RaidesInstance raidesInstance,
+            final Registration registration) {
         final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPrecedentDegreeInformation();
         if (!isPreviousDegreePrecedentDegreeInformationRequired(raidesInstance, registration)) {
             return false;
         }
-        
+
         return pdi.getPrecedentInstitution() == null;
     }
 
@@ -1014,6 +1025,8 @@ public class Raides {
         final Set<ExecutionYear> result = Sets.newHashSet();
         for (final Registration it : registrations) {
             result.addAll(it.getEnrolmentsExecutionYears());
+            result.addAll(it.getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getEnrolmentDate() != null)
+                    .map(rd -> rd.getExecutionYear()).collect(Collectors.toSet()));
         }
 
         if (untilExecutionYear == null) {
