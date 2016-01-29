@@ -165,7 +165,36 @@ ${portal.angularToolkit()}
 </c:if>
 
 <script>
-    Array.prototype.containsId = function(elementId){
+    function createPostbackFunction(angular_scope) {
+        return function(model, successFunction) {
+    
+            angular_scope.$apply();
+            var form = $('form[name="' + angular_scope.form.$name + '"]');
+            var previousActionURL = form.attr("action");
+            form.submit = function(e) {
+                var postData = $(this).serializeArray();
+                var formURL = $(this).attr("action");
+                $.ajax({
+                    url : formURL,
+                    type : "POST",
+                    data : postData,
+                    success : function(data, textStatus, jqXHR) {
+                        angular_scope.object = data;
+                        angular_scope.$apply();
+                        successFunction();
+                    },
+                    error : function(jqXHR, textStatus, errorThrown) {
+                        messageAlert("Erro", jqXHR.responseText);
+                    },
+                });
+            };
+    
+            form.attr("action", form.find('input[name="postback"]').attr('value'));
+            form.submit();
+            form.attr("action", previousActionURL);
+        };
+   }
+   Array.prototype.containsId = function(elementId){
         for(var i = 0; i < this.length; i++) {
         	if(this[i].code == elementId) {
         		return i;
@@ -182,10 +211,13 @@ ${portal.angularToolkit()}
            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
                $scope.object = ${ulisboaServiceRequestBeanJson};
-               $scope.postBack = createAngularPostbackFunction($scope);
-               $scope.onServiceRequestTypeChange = function(model) {
+               $scope.postBack = createPostbackFunction($scope);
+               $scope.onDropDownChange = function(model) {
         	       $scope.transformDataToSubmit();
-        	       $scope.postBack(model);
+        	       $scope.postBack(model, $scope.transformDataToShow);
+//         	       setTimeout(function () {
+//         		       $scope.transformDataToShow();
+//         	       }, 1000);
                }
                $scope.booleanvalues= [
                  {name: '<spring:message code="label.no"/>', value: false},
@@ -273,6 +305,22 @@ ${portal.angularToolkit()}
                    });
                    $scope.$apply();        	   
                }
+               $scope.transformDataToShow = function () {
+                   // Change the Properties' values for the expected format
+                   angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {
+                       // DropDown one value can be stored in three different variables
+                       if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE%>') {
+                           if(element.code == '<%= ULisboaConstants.LANGUAGE %>') {
+                               element.value = element.localeValue;
+                           } else if(element.code == '<%= ULisboaConstants.CYCLE_TYPE %>') {
+                               element.value = element.cycleTypeValue;
+                           } else {
+                               element.value = element.domainObjectValue;
+                           }
+                       }
+                   });
+                   $scope.$apply();            
+               };
                $scope.submitFormIfValid = function (event) {
                    if($scope['form'].$invalid) {
                	       return;
@@ -320,7 +368,7 @@ ${portal.angularToolkit()}
                     <spring:message code="label.ULisboaServiceRequest.documentType" />
                 </div>
                 <div class="col-sm-7">
-                    <ui-select id="uLisboaServiceRequest_documentType" on-select="onServiceRequestTypeChange($model)"
+                    <ui-select id="uLisboaServiceRequest_documentType" on-select="onDropDownChange($model)"
                         ng-model="$parent.object.serviceRequestType"
                         theme="bootstrap"> <ui-select-match allow-clear="true">
                     {{$select.selected.text}}
@@ -337,7 +385,7 @@ ${portal.angularToolkit()}
                     {{ serviceRequestProperty.label[language] }}
                 </div>
                 <div class="col-sm-7">
-                    <ui-select id="{{ serviceRequestProperty.code}}" name="field"
+                    <ui-select id="{{ serviceRequestProperty.code}}" name="field" on-select="onDropDownChange($model)"
                         ng-model="serviceRequestProperty.value"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
