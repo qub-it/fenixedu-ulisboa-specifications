@@ -215,9 +215,6 @@ ${portal.angularToolkit()}
                $scope.onDropDownChange = function(model) {
         	       $scope.transformDataToSubmit();
         	       $scope.postBack(model, $scope.transformDataToShow);
-//         	       setTimeout(function () {
-//         		       $scope.transformDataToShow();
-//         	       }, 1000);
                }
                $scope.booleanvalues= [
                  {name: '<spring:message code="label.no"/>', value: false},
@@ -225,21 +222,7 @@ ${portal.angularToolkit()}
                ];
                //Dependencies for ngShow
                $scope.showElement = function (elementId) {
-               	return $scope.otherDocumentPurposeDependency(elementId) && $scope.hideRequiredFieldsWithOneValue(elementId);
-               };
-               $scope.hideRequiredFieldsWithOneValue = function(elementId) {
-                   var elementIndex = $scope.object.serviceRequestPropertyBeans.containsId(elementId);
-                   var element = $scope.object.serviceRequestPropertyBeans[elementIndex];
-                   if(!angular.isUndefinedOrNull(element.dataSource) && element.dataSource.length == 1 && element.required) {
-                       if(element.uiComponentType == '<%= UIComponentType.DROP_DOWN_MULTIPLE %>') {
-                	       element.domainObjectListValue = [{'id' : element.dataSource[0].id}];
-                       }
-                       if(element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE %>') {
-                           element.value = element.dataSource[0].id;
-                       }
-                       return false;
-                   }
-                   return true; 
+               	return $scope.otherDocumentPurposeDependency(elementId);
                };
                $scope.otherDocumentPurposeDependency = function (elementId) {
                    if(elementId != '<%= ULisboaConstants.OTHER_DOCUMENT_PURPOSE %>') {
@@ -316,6 +299,15 @@ ${portal.angularToolkit()}
                                element.value = element.cycleTypeValue;
                            } else {
                                element.value = element.domainObjectValue;
+                           }
+                       }
+                       // Select unique value when it is required in Dropdown
+                       if(!angular.isUndefinedOrNull(element.dataSource) && element.dataSource.length == 1 && element.required) {
+                           if(element.uiComponentType == '<%= UIComponentType.DROP_DOWN_MULTIPLE %>') {
+                               element.domainObjectListValue = [{'id' : element.dataSource[0].id}];
+                           }
+                           if(element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE %>') {
+                               element.value = element.dataSource[0].id;
                            }
                        }
                    });
