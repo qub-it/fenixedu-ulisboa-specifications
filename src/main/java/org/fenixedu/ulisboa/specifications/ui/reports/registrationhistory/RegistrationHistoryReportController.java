@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -535,10 +536,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil.bundle(entry.getKey()
                                 .getDismissalRelatedEntries().contains(entry.getValue()) ? "label.yes" : "label.no"));
                         addData("Curriculum.totalApprovals", entry.getKey().getCurriculumEntries().size());
-                        addData("Curriculum.simpleAverage",
+                        final OptionalDouble average =
                                 entry.getKey().getCurriculumEntries().stream().filter(e -> e.getGrade().isNumeric())
-                                        .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average()
-                                        .getAsDouble());
+                                        .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average();
+                        addData("Curriculum.simpleAverage", average.isPresent() ? average.getAsDouble() : null);
 
                     }
 
