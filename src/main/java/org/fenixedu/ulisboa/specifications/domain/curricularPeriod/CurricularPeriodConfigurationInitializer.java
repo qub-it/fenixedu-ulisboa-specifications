@@ -441,7 +441,7 @@ public class CurricularPeriodConfigurationInitializer {
                 if (config == null) {
                     continue;
                 }
-                if(dcp == null || dcp.getDegree() == null || dcp.getDegree().getCode() == null){
+                if (dcp == null || dcp.getDegree() == null || dcp.getDegree().getCode() == null) {
                     continue;
                 }
                 if (dcp.getDegree().getCode().equals("5618")) {
@@ -690,11 +690,13 @@ public class CurricularPeriodConfigurationInitializer {
                 FlunkedCurricularCourses.create(configYear2, BigDecimal.ZERO, 1, "9200114,9200112");
             } else if (StringUtils.equals(dcp.getDegree().getCode(), "9791" /*LPD*/)) {
                 FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
+            } else if (StringUtils.equals(dcp.getDegree().getCode(), "5596")
+                    || StringUtils.equals(dcp.getDegree().getCode(), "5597")) {
+                FlunkedCredits.create(configYear2, BigDecimal.ZERO);
             } else {
                 FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
             }
             createStudentStatuteExecutiveRuleFor(configYear2, "29");
-            
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {

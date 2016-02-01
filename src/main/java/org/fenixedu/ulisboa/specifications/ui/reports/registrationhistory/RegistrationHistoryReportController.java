@@ -522,6 +522,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("RegistrationHistoryReport.curricularYear",
+                                registration.getCurricularYear(ExecutionYear.readCurrentExecutionYear()));
                         addData("ICurriculumEntry.code", curriculumEntry.getCode());
                         addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
@@ -571,8 +573,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
-        reports.stream().forEach(r -> {
-            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev -> {
+        reports.stream().forEach(r ->
+        {
+            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev ->
+            {
                 enrolments.put(r, ev.getEnrolment());
 
                 if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
