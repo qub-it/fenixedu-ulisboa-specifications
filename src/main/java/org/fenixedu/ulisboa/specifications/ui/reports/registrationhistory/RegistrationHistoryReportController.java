@@ -566,7 +566,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
     private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
 
-        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean, true);
         final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
         reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
 
@@ -602,6 +602,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
