@@ -159,8 +159,7 @@ public class EvaluationSeasonPeriodController extends FenixeduUlisboaSpecificati
             addInfoMessage(ULisboaSpecificationsUtil.bundle("label.success.delete"), model);
 
         } catch (Exception ex) {
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.delete") + "\"" + ex.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(ex.getLocalizedMessage(), model);
         }
 
         return redirect(SEARCH_URL, model, redirectAttributes);
@@ -191,8 +190,7 @@ public class EvaluationSeasonPeriodController extends FenixeduUlisboaSpecificati
             return redirect(UPDATEINTERVALS_URL + getPeriod(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             setPeriod(period, model);
             this.setBean(bean, model);
 
@@ -212,8 +210,7 @@ public class EvaluationSeasonPeriodController extends FenixeduUlisboaSpecificati
             return redirect(UPDATEINTERVALS_URL + getPeriod(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             setPeriod(period, model);
             this.setBean(new EvaluationSeasonPeriodBean(period), model);
 
@@ -246,8 +243,7 @@ public class EvaluationSeasonPeriodController extends FenixeduUlisboaSpecificati
 
             return redirect(UPDATEDEGREES_URL + getPeriod(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             this.setBean(bean, model);
 
             return jspPage("updatedegrees");
@@ -266,8 +262,7 @@ public class EvaluationSeasonPeriodController extends FenixeduUlisboaSpecificati
 
             return redirect(UPDATEDEGREES_URL + getPeriod(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             this.setBean(new EvaluationSeasonPeriodBean(period), model);
 
             return jspPage("updatedegrees");
@@ -309,8 +304,7 @@ public class EvaluationSeasonPeriodController extends FenixeduUlisboaSpecificati
             return redirect(SEARCH_URL, model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.create") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             this.setBean(bean, model);
             return jspPage("create");
 
