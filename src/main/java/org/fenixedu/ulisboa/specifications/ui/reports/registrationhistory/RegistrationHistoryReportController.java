@@ -508,6 +508,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final Multimap<Curriculum, ICurriculumEntry> approvalsByCurriculum = HashMultimap.create();
         curriculums.stream().forEach(c -> approvalsByCurriculum.putAll(c, c.getCurriculumEntries()));
 
+        final ExecutionYear executionYearForCurricularYear =
+                bean.getExecutionYears().stream().max(ExecutionYear.COMPARATOR_BY_BEGIN_DATE).get();
+
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
                 new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
@@ -523,7 +526,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
                         addData("RegistrationHistoryReport.curricularYear",
-                                registration.getCurricularYear(ExecutionYear.readCurrentExecutionYear()));
+                                registration.getCurricularYear(executionYearForCurricularYear));
                         addData("ICurriculumEntry.code", curriculumEntry.getCode());
                         addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
