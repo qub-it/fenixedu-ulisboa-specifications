@@ -253,12 +253,14 @@ abstract public class EvaluationSeasonServices {
                         return true;
                     }
 
-                    final Optional<EnrolmentEvaluation> enrolmentEvaluation =
-                            enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
-                    if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
-                            .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
-                            .isInDebt(enrolmentEvaluation.get())) {
-                        return true;
+                    if (season.isImprovement()) {
+                        final Optional<EnrolmentEvaluation> enrolmentEvaluation =
+                                enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
+                        if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
+                                .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
+                                .isInDebt(enrolmentEvaluation.get())) {
+                            return true;
+                        }
                     }
                 }
             }
