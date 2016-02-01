@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,7 @@ abstract public class EnrolmentPredicateInitializer {
                             enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
                 }
 
-                if (enrolment.isApproved() && !getEvaluationSeason().isImprovement()) {
+                if (enrolment.isApproved() && !EvaluationSeasonServices.isForApprovedEnrolments(getEvaluationSeason())) {
                     throw new DomainException("error.EvaluationSeason.evaluation.already.approved",
                             enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
                 }

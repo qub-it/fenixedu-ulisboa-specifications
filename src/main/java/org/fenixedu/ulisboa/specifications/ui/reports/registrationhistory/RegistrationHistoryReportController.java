@@ -571,10 +571,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
-        reports.stream().forEach(r ->
-        {
-            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev ->
-            {
+        reports.stream().forEach(r -> {
+            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev -> {
                 enrolments.put(r, ev.getEnrolment());
 
                 if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
@@ -622,7 +620,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final List<EnrolmentEvaluation> evaluations =
                 enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
-                        .filter(e -> EvaluationSeasonServices.isRequiresEnrolmentEvaluation(e.getEvaluationSeason()))
+                        .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason()))
                         .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
                         .collect(Collectors.toList());
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),

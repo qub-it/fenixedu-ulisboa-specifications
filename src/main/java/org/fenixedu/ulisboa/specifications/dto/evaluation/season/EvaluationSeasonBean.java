@@ -45,7 +45,7 @@ public class EvaluationSeasonBean implements IBean {
     private boolean specialAuthorization;
     private Integer seasonOrder;
     private boolean active;
-    private boolean requiresEnrolmentEvaluation;
+    private boolean requiredEnrolmentEvaluation;
 
     public EvaluationSeasonInformation getInformation() {
         return evaluationSeasonInformation;
@@ -127,12 +127,12 @@ public class EvaluationSeasonBean implements IBean {
         active = value;
     }
 
-    public boolean getRequiresEnrolmentEvaluation() {
-        return requiresEnrolmentEvaluation;
+    public boolean getRequiredEnrolmentEvaluation() {
+        return requiredEnrolmentEvaluation;
     }
 
-    public void setRequiresEnrolmentEvaluation(boolean value) {
-        requiresEnrolmentEvaluation = value;
+    public void setRequiredEnrolmentEvaluation(boolean value) {
+        requiredEnrolmentEvaluation = value;
     }
 
     public EvaluationSeasonBean() {
@@ -150,7 +150,7 @@ public class EvaluationSeasonBean implements IBean {
         this.setSpecialAuthorization(evaluationSeason.getSpecialAuthorization());
         this.setSeasonOrder(getInformation().getSeasonOrder());
         this.setActive(getInformation().getActive());
-        this.setRequiresEnrolmentEvaluation(EvaluationSeasonServices.isRequiresEnrolmentEvaluation(evaluationSeason));
+        this.setRequiredEnrolmentEvaluation(EvaluationSeasonServices.isRequiredEnrolmentEvaluation(evaluationSeason));
     }
 
 }

@@ -638,7 +638,10 @@ relation EvaluationSeasonInformationRelation {
 class evaluation.season.rule.EvaluationSeasonRule {
 }
 
-	class evaluation.season.rule.PreviousSeasonApproval extends evaluation.season.rule.EvaluationSeasonRule {
+	class evaluation.season.rule.BlockingTreasuryEventInDebt extends evaluation.season.rule.EvaluationSeasonRule {
+	}
+
+	class evaluation.season.rule.PreviousSeasonEvaluation extends evaluation.season.rule.EvaluationSeasonRule {
 	}
 
 	class evaluation.season.rule.PreviousSeasonMinimumGrade extends evaluation.season.rule.EvaluationSeasonRule {

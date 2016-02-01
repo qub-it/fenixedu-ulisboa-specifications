@@ -160,14 +160,14 @@ ${portal.angularToolkit()}
 						.getContent()%>"></c:out></td>
 					</tr>
 					<tr>
-						<th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.requiresEnrolmentEvaluation" /></th>
+						<th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.requiredEnrolmentEvaluation" /></th>
 						<td><c:if
 								test="<%=EvaluationSeasonServices
-						.isRequiresEnrolmentEvaluation((EvaluationSeason) request.getAttribute("evaluationSeason"))%>">
+						.isRequiredEnrolmentEvaluation((EvaluationSeason) request.getAttribute("evaluationSeason"))%>">
 								<spring:message code="label.true" />
 							</c:if> <c:if
 								test="<%=!EvaluationSeasonServices
-						.isRequiresEnrolmentEvaluation((EvaluationSeason) request.getAttribute("evaluationSeason"))%>">
+						.isRequiredEnrolmentEvaluation((EvaluationSeason) request.getAttribute("evaluationSeason"))%>">
 								<spring:message code="label.false" />
 							</c:if></td>
 					</tr>

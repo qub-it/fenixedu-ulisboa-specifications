@@ -30,20 +30,29 @@ package org.fenixedu.ulisboa.specifications.domain.evaluation.season;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonApproval;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonEvaluation;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,20 +191,6 @@ abstract public class EvaluationSeasonServices {
         return getEnrolmentEvaluationType(input).getDescriptionI18N();
     }
 
-    static public boolean isRequiredPreviousSeasonApproval(final EvaluationSeason season) {
-        if (season != null) {
-
-            for (final EvaluationSeasonRule iter : season.getRulesSet()) {
-                if (iter instanceof PreviousSeasonApproval) {
-
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     static public boolean hasPreviousSeasonBlockingGrade(final EvaluationSeason season, final EnrolmentEvaluation evaluation) {
         if (season != null && evaluation != null) {
 
@@ -242,8 +237,61 @@ abstract public class EvaluationSeasonServices {
         return true;
     }
 
-    static public boolean isRequiresEnrolmentEvaluation(final EvaluationSeason season) {
+    static public boolean isBlockingTreasuryEventInDebt(final EvaluationSeason season, final Enrolment enrolment,
+            final ExecutionSemester semester) {
+        if (season != null && enrolment != null) {
+
+            for (final EvaluationSeasonRule iter : season.getRulesSet()) {
+                if (iter instanceof BlockingTreasuryEventInDebt) {
+
+                    final Registration registration = enrolment.getRegistration();
+                    final Person person = registration.getPerson();
+
+                    if (ULisboaConfiguration.getConfiguration()
+                            .getEnrolmentsInImprovementEvaluationsDependOnAcademicalActsBlocked()
+                            && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
+                        return true;
+                    }
+
+                    final Optional<EnrolmentEvaluation> enrolmentEvaluation =
+                            enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
+                    if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
+                            .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
+                            .isInDebt(enrolmentEvaluation.get())) {
+                        return true;
+                    }
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    static public boolean isRequiredPreviousSeasonEvaluation(final EvaluationSeason season) {
+        if (season != null) {
+
+            for (final EvaluationSeasonRule iter : season.getRulesSet()) {
+                if (iter instanceof PreviousSeasonEvaluation) {
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    static public boolean isRequiredEnrolmentEvaluation(final EvaluationSeason season) {
         return season != null && (season.isImprovement() || season.isSpecial());
+    }
+
+    static public boolean isForApprovedEnrolments(final EvaluationSeason season) {
+        return season != null && season.isImprovement();
+    }
+
+    static public boolean isDifferentEvaluationSemesterAccepted(final EvaluationSeason season) {
+        return season != null && season.isImprovement();
     }
 
     static public EvaluationSeason getPreviousSeason(final EvaluationSeason input) {

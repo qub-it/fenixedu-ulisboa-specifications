@@ -124,9 +124,15 @@ ${portal.angularToolkit()}
 
 		<ul class="dropdown-menu">
 			<li><form method="post"
-					action="${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.CREATEPREVIOUSSEASONAPPROVAL_URL%>${evaluationSeasonRuleBean.season.externalId}">
+					action="${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.CREATEBLOCKINGTREASURYEVENTINDEBT_URL%>${evaluationSeasonRuleBean.season.externalId}">
 					<button type="submit" class="btn btn-default btn-xs">
-						<spring:message code="PreviousSeasonApproval" />
+						<spring:message code="BlockingTreasuryEventInDebt" />
+					</button>
+				</form></li>
+			<li><form method="post"
+					action="${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.CREATEPREVIOUSSEASONEVALUATION_URL%>${evaluationSeasonRuleBean.season.externalId}">
+					<button type="submit" class="btn btn-default btn-xs">
+						<spring:message code="PreviousSeasonEvaluation" />
 					</button>
 				</form></li>
 			<li><form method="get"

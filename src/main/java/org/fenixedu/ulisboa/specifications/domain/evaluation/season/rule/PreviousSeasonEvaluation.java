@@ -33,15 +33,15 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import pt.ist.fenixframework.Atomic;
 
-public class PreviousSeasonApproval extends PreviousSeasonApproval_Base {
+public class PreviousSeasonEvaluation extends PreviousSeasonEvaluation_Base {
 
-    protected PreviousSeasonApproval() {
+    protected PreviousSeasonEvaluation() {
         super();
     }
 
     @Atomic
     static public EvaluationSeasonRule create(final EvaluationSeason season) {
-        final PreviousSeasonApproval result = new PreviousSeasonApproval();
+        final PreviousSeasonEvaluation result = new PreviousSeasonEvaluation();
         result.init(season);
         return result;
     }
