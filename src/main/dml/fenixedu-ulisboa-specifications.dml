@@ -1287,10 +1287,28 @@ relation DegreeGradingTableProgramConclusion {
     }
 }
 
+relation DegreeGradingTableRegistration {
+	public .org.fenixedu.academic.domain.student.Registration playsRole registration {
+        multiplicity 0..1;
+    }
+    public ects.DegreeGradingTable playsRole degreeGradingTables {
+    	multiplicity *;
+    }
+}
+
 relation CourseGradingTableCompetenceCourse {
 	public .org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourse {
 		multiplicity 1..1;
 	}
+	public ects.CourseGradingTable playsRole courseGradingTables {
+    	multiplicity *;
+    }
+}
+
+relation CourseGradingTableCurriculumLine {
+	public .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLines {
+        multiplicity 0..1;
+    }
 	public ects.CourseGradingTable playsRole courseGradingTables {
     	multiplicity *;
     }

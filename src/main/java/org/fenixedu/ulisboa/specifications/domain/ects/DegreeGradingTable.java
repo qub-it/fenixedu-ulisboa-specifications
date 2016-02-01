@@ -21,6 +21,7 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     public void delete() {
         setDegree(null);
         setProgramConclusion(null);
+        setRegistration(null);
         super.delete();
     }
 

@@ -21,6 +21,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     @Override
     public void delete() {
         setCompetenceCourse(null);
+        setCurriculumLines(null);
         super.delete();
     }
 

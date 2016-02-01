@@ -64,8 +64,7 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         model.addAttribute("degreeGradeTable", DegreeGradingTable.find(executionYear));
         model.addAttribute("courseGradeTableHeaders", calculateHeaders(CourseGradingTable.find(executionYear)));
         model.addAttribute("courseGradeTable", CourseGradingTable.find(executionYear));
-        String token = SecToken.generate();
-        model.addAttribute("sectoken", token);
+        model.addAttribute("sectoken", SecToken.generate());
     }
 
     private static final String _SEARCH_URI = "/search/";
