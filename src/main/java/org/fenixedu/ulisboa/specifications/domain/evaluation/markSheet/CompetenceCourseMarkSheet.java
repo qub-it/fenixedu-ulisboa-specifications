@@ -349,7 +349,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public static Stream<CompetenceCourseMarkSheet> findBy(final ExecutionSemester executionSemester,
             final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-            final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+            final EvaluationSeason evaluationSeason, final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
         final Set<CompetenceCourseMarkSheet> result = Sets.newHashSet();
         if (executionSemester != null) {
@@ -361,6 +361,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 .filter(c -> competenceCourse == null || c.getCompetenceCourse() == competenceCourse)
 
                 .filter(c -> markSheetState == null || c.isInState(markSheetState))
+
+                .filter(c -> evaluationSeason == null || c.getEvaluationSeason() == evaluationSeason)
 
                 .filter(c -> changeRequestState == null
                         || c.getChangeRequestsSet().stream().anyMatch(r -> r.getState() == changeRequestState));
