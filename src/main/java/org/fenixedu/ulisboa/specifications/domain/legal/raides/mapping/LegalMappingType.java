@@ -3,7 +3,9 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -43,7 +45,7 @@ public enum LegalMappingType implements ILegalMappingType {
     BOOLEAN, GENDER, ID_DOCUMENT_TYPE, CYCLE_TYPE, REGIME_TYPE, GRANT_OWNER_TYPE, REGISTRATION_INGRESSION_TYPE, MARITAL_STATUS,
     SCHOOL_LEVEL, PROFESSIONAL_SITUATION_CONDITION, PROFESSION_TYPE, HIGH_SCHOOL_TYPE, SCHOOL_PERIOD_DURATION,
     INTERNATIONAL_MOBILITY_PROGRAM, INTERNATIONAL_MOBILITY_ACTIVITY, CURRICULAR_YEAR, REGIME_FREQUENCIA, PRECEDENT_SCHOOL_LEVEL,
-    MOBILITY_SCHOOL_LEVEL, INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT, GRADE;
+    MOBILITY_SCHOOL_LEVEL, INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT, GRADE, INTEGRATED_MASTER_FIRST_CYCLE_CODES;
 
     private static final String ENUMERATION_RESOURCES = "resources.EnumerationResources";
 
@@ -98,6 +100,9 @@ public enum LegalMappingType implements ILegalMappingType {
             */
 
             return possibleGrades;
+        case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
+            return Sets.newHashSet(Bennu.getInstance().getDegreesSet().stream()
+                    .filter(d -> d.getDegreeType().isIntegratedMasterDegree()).collect(Collectors.toSet()));
         default:
             return Collections.EMPTY_SET;
         }
@@ -133,6 +138,7 @@ public enum LegalMappingType implements ILegalMappingType {
         case INTERNATIONAL_MOBILITY_PROGRAM:
         case INTERNATIONAL_MOBILITY_ACTIVITY:
         case INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT:
+        case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
             return new DomainObjectLegalMapping(report, this);
         case BOOLEAN:
         case CURRICULAR_YEAR:
@@ -192,7 +198,6 @@ public enum LegalMappingType implements ILegalMappingType {
             final AcademicalInstitutionType academicalInstitutionType = AcademicalInstitutionType.valueOf(key);
             return localizedName(academicalInstitutionType, I18N.getLocale());
         case SCHOOL_PERIOD_DURATION:
-            final SchoolPeriodDuration schoolPeriodDuration = SchoolPeriodDuration.valueOf(key);
             return ULisboaSpecificationsUtil.bundleI18N("label.SchoolPeriodDuration." + key);
         case CURRICULAR_YEAR:
             return Raides.AnoCurricular.LOCALIZED_NAME(key);
@@ -206,42 +211,44 @@ public enum LegalMappingType implements ILegalMappingType {
             return ((RegistrationProtocol) FenixFramework.getDomainObject(key)).getDescription();
         case GRADE:
             return new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, key);
+        case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
+            return ((Degree) FenixFramework.getDomainObject(key)).getPresentationNameI18N();
         default:
             return new LocalizedString();
         }
     }
 
-    private LocalizedString localizedName(final SchoolLevelType schoolLevel, final Locale ... locales) {
+    private LocalizedString localizedName(final SchoolLevelType schoolLevel, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES, schoolLevel.getQualifiedName(), locales);
     }
 
-    private LocalizedString localizedName(final SchoolPeriodDuration schoolPeriodDuration, final Locale ... locales) {
+    private LocalizedString localizedName(final SchoolPeriodDuration schoolPeriodDuration, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES,
                 schoolPeriodDuration.getClass().getSimpleName() + "." + schoolPeriodDuration.name(), locales);
     }
 
-    private LocalizedString localizedName(final AcademicalInstitutionType academicalInstitutionType, final Locale ... locales) {
+    private LocalizedString localizedName(final AcademicalInstitutionType academicalInstitutionType, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES,
                 academicalInstitutionType.getClass().getSimpleName() + "." + academicalInstitutionType.name(), locales);
     }
 
-    private LocalizedString localizedName(final ProfessionType professionType, final Locale ... locales) {
+    private LocalizedString localizedName(final ProfessionType professionType, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES, professionType.getQualifiedName(), locales);
     }
 
-    private LocalizedString localizedName(final ProfessionalSituationConditionType condition, final Locale ... locales) {
+    private LocalizedString localizedName(final ProfessionalSituationConditionType condition, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES, condition.getQualifiedName(), locales);
     }
 
-    private LocalizedString localizedName(final MaritalStatus maritalStatus, final Locale ... locales) {
+    private LocalizedString localizedName(final MaritalStatus maritalStatus, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES, maritalStatus.getClass().getName() + "." + maritalStatus.name(), locales);
     }
 
-    private LocalizedString localizedName(final RegistrationRegimeType registrationRegimeType, final Locale ... locales) {
+    private LocalizedString localizedName(final RegistrationRegimeType registrationRegimeType, final Locale... locales) {
         return localizedName(ENUMERATION_RESOURCES, registrationRegimeType.getQualifiedName(), locales);
     }
 
-    private LocalizedString localizedName(final String bundle, final String key, final Locale ... locales) {
+    private LocalizedString localizedName(final String bundle, final String key, final Locale... locales) {
         return BundleUtil.getLocalizedString(ENUMERATION_RESOURCES, key);
     }
 

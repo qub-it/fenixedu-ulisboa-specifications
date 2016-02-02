@@ -233,6 +233,23 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 					<input class="form-control" type="text" ng-model="object.passwordToZip" name="passwordToZip" />
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.integratedMasterFirstCycleGraduatedReportOption" />
+				</div>
+
+				<div class="col-sm-10">
+
+					<ui-select id="integratedMasterFirstCycleGraduatedReportOptionSelect" name="integratedMasterFirstCycleGraduatedReportOption"
+						ng-model="$parent.object.integratedMasterFirstCycleGraduatedReportOption" theme="bootstrap" >
+						<ui-select-match>{{$item.text}}</ui-select-match> 
+						<ui-select-choices repeat="i.id as i in object.integratedMasterFirstCycleGraduatedReportOptionsDataSource | filter: $select.search">
+							<span ng-bind-html="i.text | highlight: $select.search"></span>
+						</ui-select-choices>
+					</ui-select>
+
+				</div>			
+			</div>
 		</div>
 		
 		<div class="panel-body">

@@ -96,10 +96,10 @@ public class RaidesInstance extends RaidesInstance_Base {
     public void edit(final LocalizedString name, final PersistentGroup group, final Boolean synchronous,
             final Boolean hasMappings, final String passwordToZip, final Set<RegistrationProtocol> enrolledAgreements,
             final Set<RegistrationProtocol> mobilityAgreements, final Set<IngressionType> degreeTransferIngressions,
-            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions, 
+            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions,
             final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent,
-            final String institutionCode,
-            final String interlocutorPhone) {
+            final String institutionCode, final String interlocutorPhone,
+            final IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -117,13 +117,28 @@ public class RaidesInstance extends RaidesInstance_Base {
 
         getGeneralAccessRegimeIngressionsSet().clear();
         getGeneralAccessRegimeIngressionsSet().addAll(generalAccessRegimeIngressions);
-        
+
         setFormsAvailableToStudents(formsAvailableToStudents);
-        
+
         setBlueRecordStartMessageContent(blueRecordStartMessageContent);
-        
+
         setInstitutionCode(institutionCode);
         setInterlocutorPhone(interlocutorPhone);
+
+        setIntegratedMasterFirstCycleGraduatedReportOption(integratedMasterFirstCycleGraduatedReportOption);
+    }
+
+    public boolean isToReportAllIntegratedMasterFirstCycleGraduatedStudents() {
+        return getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.ALL;
+    }
+
+    public boolean isToReportIntegratedMasterFirstCycleGraduatedStudentsOnlyWithConclusionProcess() {
+        return getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.WITH_CONCLUSION_PROCESS;
+    }
+
+    public boolean isToNotReportIntegratedMasterFirstCycleGraduatedStudents() {
+        return getIntegratedMasterFirstCycleGraduatedReportOption() == null
+                || getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.NONE;
     }
 
     @Override

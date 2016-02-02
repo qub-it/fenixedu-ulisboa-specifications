@@ -190,7 +190,8 @@ public class XmlToBaseFileWriter {
         diploma.setPaisEscolaridadeAnt(tblDiplomado.getPaisEscolaridadeAnt());
         diploma.setPaisMobilidadeCredito(tblDiplomado.getPaisMobilidadeCredito());
         diploma.setProgMobilidadeCredito(longValueOf(tblDiplomado.getProgMobilidadeCredito()));
-
+        diploma.setAreaInvestigacao(integerValueOf(tblDiplomado.getAreaInvestigacao()));
+        
         if (!Strings.isNullOrEmpty(tblDiplomado.getRamo())) {
             diploma.setRamo(tblDiplomado.getRamo());
         } else {
@@ -376,4 +377,13 @@ public class XmlToBaseFileWriter {
 
         return Boolean.valueOf(value);
     }
+    
+    protected static Integer integerValueOf(final String value) {
+        if (Strings.isNullOrEmpty(value)) {
+            return null;
+        }
+
+        return Integer.valueOf(value);
+    }
+
 }

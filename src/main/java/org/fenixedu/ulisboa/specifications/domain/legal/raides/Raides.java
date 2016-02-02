@@ -530,10 +530,6 @@ public class Raides {
     }
 
     public static boolean hadScholarPartApprovement(final Registration registration, final ExecutionYear executionYear) {
-        if (!Raides.isMasterDegreeOrDoctoralDegree(registration)) {
-            return false;
-        }
-
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
@@ -788,8 +784,12 @@ public class Raides {
     }
 
     public static boolean isMasterDegreeOrDoctoralDegree(final Registration registration) {
-        return (registration.getDegreeType().isSecondCycle() && !registration.getDegreeType().isIntegratedMasterDegree())
+        return (registration.getDegreeType().isSecondCycle() && !isIntegratedMasterDegree(registration))
                 || registration.getDegreeType().isThirdCycle();
+    }
+    
+    public static boolean isIntegratedMasterDegree(final Registration registration) {
+        return registration.getDegreeType().isIntegratedMasterDegree();
     }
 
     public static boolean isDoctoralDegree(final Registration registration) {

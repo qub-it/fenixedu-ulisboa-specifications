@@ -120,6 +120,14 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.integratedMasterFirstCycleGraduatedReportOption" />
+						</th>
+						<td>
+							<c:out value='${raidesInstance.integratedMasterFirstCycleGraduatedReportOption.localizedName.content}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.RaidesInstance.formsAvailableToStudents" />
 						</th>
 						<td>

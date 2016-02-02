@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.raides.DegreeClassification;
@@ -26,6 +27,7 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
@@ -94,19 +96,38 @@ public class RaidesService {
         bean.setAnoLectivo(executionYear.getQualifiedName());
         bean.setCurso(degree(registration).getMinistryCode());
 
-        /*
-        if (registration.getStudentCurricularPlan(executionYear).getInternalCyclesBranches().size() > 2) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.enrolled.more.than.one.branch",
-                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
-        } else if (registration.getStudentCurricularPlan(executionYear).getInternalCyclesBranches().isEmpty()) {
-            bean.setRamo(null);
-        } else {
-            bean.setRamo(BranchMappingType.readMapping(report).translate(registration.getStudentCurricularPlan(executionYear)
-                    .getInternalCyclesBranches().iterator().next().getDegreeModule()));
+        final Set<CourseGroup> branches = branches(registration, executionYear);
+        bean.setRamo(null);
+        if (!branches.isEmpty()) {
+            if (branches.size() > 1) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.enrolled.more.than.one.branch",
+                                String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                                executionYear.getQualifiedName()));
+            }
+        
+            bean.setRamo(BranchMappingType.readMapping(report).translate(branches.iterator().next()));
         }
-        */
+        
+    }
+
+    private Set<CourseGroup> branches(final Registration registration, final ExecutionYear executionYear) {
+        final Set<CourseGroup> result = Sets.newHashSet();
+        
+        final StudentCurricularPlan scp = registration.getStudentCurricularPlan(executionYear);
+        
+        for (final CurriculumGroup curriculumGroup : scp.getAllCurriculumGroups()) {
+            if(curriculumGroup.getDegreeModule() == null) {
+                continue;
+            }
+            
+            final CourseGroup courseGroup = curriculumGroup.getDegreeModule();
+            if(BranchMappingType.readMapping(report).isKeyDefined(courseGroup)) {
+                result.add(courseGroup);
+            }
+        }
+        
+        return result;
     }
 
     protected class DEGREE_VALUE_COMPARATOR implements Comparator<Degree> {

@@ -108,6 +108,7 @@ public class XlsxExporter {
                 addCell("Curso", tblDiplomado.getCurso());
                 addCell("Ramo", tblDiplomado.getRamo());
                 addCell("AnoLetivo", tblDiplomado.getAnoLectivo());
+                addCell("AreaInvestigacao", tblDiplomado.getAreaInvestigacao());
                 addCell("ConcluiGrau", tblDiplomado.getConcluiGrau());
                 addCell("NumInscConclusao", tblDiplomado.getNumInscConclusao());
                 addCell("ClassificacaoFinal", tblDiplomado.getClassificacaoFinal());
@@ -141,7 +142,7 @@ public class XlsxExporter {
                         addCell("Curso", tblMobilidadeInternacional.getCurso());
                         addCell("Ramo", tblMobilidadeInternacional.getRamo());
                         addCell("AnoLetivo", tblMobilidadeInternacional.getAnoLectivo());
-                        addCell("AreaCientifica", "");
+                        addCell("AreaCientifica", tblMobilidadeInternacional.getAreaCientifica());
                         addCell("AnoCurricular", tblMobilidadeInternacional.getAnoCurricular());
                         addCell("PrimeiraVez", tblMobilidadeInternacional.getPrimeiraVez());
                         addCell("RegimeFrequencia", tblMobilidadeInternacional.getRegimeFrequencia());

@@ -125,7 +125,7 @@ public class InscritoService extends RaidesService {
     private void validaNumInscricoesNoCurso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean, final Unit institutionUnit,
             final ExecutionYear executionYear, final Registration registration) {
         
-        if(isFirstTimeOnDegree(registration, executionYear) && new Integer(0).equals(bean.getNumInscNesteCurso())) {
+        if(!isFirstTimeOnDegree(registration, executionYear) && new Integer(0).equals(bean.getNumInscNesteCurso())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.is.not.first.time.student.but.number.previous.enrolments.in.registration.is.zero",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),

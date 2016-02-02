@@ -11,18 +11,21 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 public class RaidesInstanceBean implements IBean {
 
     private String passwordToZip;
     private Set<RegistrationProtocol> mobilityAgreements;
     private Set<RegistrationProtocol> enrolledAgreements;
-    
+
     private Set<IngressionType> degreeChangeIngressions;
     private Set<IngressionType> degreeTransferIngressions;
     private Set<IngressionType> ingressionsForGeneralAccessRegime;
@@ -30,32 +33,39 @@ public class RaidesInstanceBean implements IBean {
     private List<TupleDataSourceBean> ingressionTypesDataSource;
 
     private List<TupleDataSourceBean> registrationProtocolsDataSource;
-    
+
+    private List<TupleDataSourceBean> integratedMasterFirstCycleGraduatedReportOptionsDataSource;
+
     private boolean formsAvailableToStudents;
 
     private String blueRecordStartMessageContentPt;
 
     private String blueRecordStartMessageContentEn;
-    
+
     private String institutionCode;
+
     private String interlocutorPhone;
-    
+
+    private IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption;
+
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
-        
-        
+
         setMobilityAgreements(Sets.newHashSet(raidesInstance.getMobilityAgreementsSet()));
         setEnrolledAgreements(Sets.newHashSet(raidesInstance.getEnrolledAgreementsSet()));
-        
+
         setDegreeChangeIngressions(Sets.newHashSet(raidesInstance.getDegreeChangeIngressionsSet()));
         setDegreeTransferIngressions(Sets.newHashSet(raidesInstance.getDegreeTransferIngressionsSet()));
         setIngressionsForGeneralAccessRegime(Sets.newHashSet(raidesInstance.getGeneralAccessRegimeIngressionsSet()));
         setFormsAvailableToStudents(raidesInstance.getFormsAvailableToStudents());
-        if(raidesInstance.getBlueRecordStartMessageContent() != null) {
-            setBlueRecordStartMessageContentPt(raidesInstance.getBlueRecordStartMessageContent().getContent(ULisboaConstants.DEFAULT_LOCALE));
+        if (raidesInstance.getBlueRecordStartMessageContent() != null) {
+            setBlueRecordStartMessageContentPt(
+                    raidesInstance.getBlueRecordStartMessageContent().getContent(ULisboaConstants.DEFAULT_LOCALE));
             setBlueRecordStartMessageContentEn(raidesInstance.getBlueRecordStartMessageContent().getContent(LOCALE_EN));
         }
-        
+
+        setIntegratedMasterFirstCycleGraduatedReportOption(raidesInstance.getIntegratedMasterFirstCycleGraduatedReportOption());
+
         loadDataSources();
     }
 
@@ -70,10 +80,17 @@ public class RaidesInstanceBean implements IBean {
         this.registrationProtocolsDataSource = Lists.newArrayList();
         this.registrationProtocolsDataSource.add(ULisboaConstants.SELECT_OPTION);
 
-        this.registrationProtocolsDataSource.addAll(Bennu.getInstance().getRegistrationProtocolsSet()
-                .stream()
+        this.registrationProtocolsDataSource.addAll(Bennu.getInstance().getRegistrationProtocolsSet().stream()
                 .map(r -> new TupleDataSourceBean(r.getExternalId(), r.getDescription().getContent()))
                 .collect(Collectors.toList()));
+
+        List<IntegratedMasterFirstCycleGraduatedReportOption> l =
+                Lists.newArrayList(IntegratedMasterFirstCycleGraduatedReportOption.values());
+        
+        this.integratedMasterFirstCycleGraduatedReportOptionsDataSource = Lists.newArrayList();
+        this.integratedMasterFirstCycleGraduatedReportOptionsDataSource
+                .addAll(l.stream().map(i -> new TupleDataSourceBean(i.name(), i.getLocalizedName().getContent())).collect(Collectors.toSet()));
+        
     }
 
     public String getPasswordToZip() {
@@ -91,11 +108,11 @@ public class RaidesInstanceBean implements IBean {
     public void setMobilityAgreements(Set<RegistrationProtocol> mobilityAgreements) {
         this.mobilityAgreements = mobilityAgreements;
     }
-    
+
     public Set<RegistrationProtocol> getEnrolledAgreements() {
         return enrolledAgreements;
     }
-    
+
     public void setEnrolledAgreements(Set<RegistrationProtocol> enrolledAgreements) {
         this.enrolledAgreements = enrolledAgreements;
     }
@@ -127,55 +144,64 @@ public class RaidesInstanceBean implements IBean {
     public void setIngressionsForGeneralAccessRegime(Set<IngressionType> ingressionsForGeneralAccessRegime) {
         this.ingressionsForGeneralAccessRegime = ingressionsForGeneralAccessRegime;
     }
-    
+
     public boolean isFormsAvailableToStudents() {
         return formsAvailableToStudents;
     }
-    
+
     public void setFormsAvailableToStudents(boolean formsAvailableToStudents) {
         this.formsAvailableToStudents = formsAvailableToStudents;
     }
-    
+
     public String getBlueRecordStartMessageContentPt() {
         return blueRecordStartMessageContentPt;
     }
-    
+
     public void setBlueRecordStartMessageContentPt(String blueRecordStartMessageContentPt) {
         this.blueRecordStartMessageContentPt = blueRecordStartMessageContentPt;
     }
-    
+
     public String getBlueRecordStartMessageContentEn() {
         return blueRecordStartMessageContentEn;
     }
-    
+
     public void setBlueRecordStartMessageContentEn(String blueRecordStartMessageContentEn) {
         this.blueRecordStartMessageContentEn = blueRecordStartMessageContentEn;
     }
-    
+
     public String getInstitutionCode() {
         return institutionCode;
     }
-    
+
     public void setInstitutionCode(String institutionCode) {
         this.institutionCode = institutionCode;
     }
-    
+
     public String getInterlocutorPhone() {
         return interlocutorPhone;
     }
-    
+
     public void setInterlocutorPhone(String interlocutorPhone) {
         this.interlocutorPhone = interlocutorPhone;
     }
 
+    public IntegratedMasterFirstCycleGraduatedReportOption getIntegratedMasterFirstCycleGraduatedReportOption() {
+        return integratedMasterFirstCycleGraduatedReportOption;
+    }
+
+    public void setIntegratedMasterFirstCycleGraduatedReportOption(
+            IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption) {
+        this.integratedMasterFirstCycleGraduatedReportOption = integratedMasterFirstCycleGraduatedReportOption;
+    }
+
     public static final Locale LOCALE_EN = new Locale("EN");
-    
+
     public LocalizedString getBlueRecordStartMessageContentLocalizedString() {
         LocalizedString result = new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, getBlueRecordStartMessageContentPt());
-        
+
         result = result.with(LOCALE_EN, getBlueRecordStartMessageContentEn());
-        
+
         return result;
     }
-    
+
 }
