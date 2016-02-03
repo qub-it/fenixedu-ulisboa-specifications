@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.helpdeskreport;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
@@ -20,7 +21,11 @@ public class HelpdeskReportForm implements Serializable {
     private String functionality;
     private String referer;
     private String userAgent;
+    private Collection<Attachment> attachments;
+
+    @Deprecated
     private String attachment;
+    @Deprecated
     private String fileName;
     private String mimeType;
     private String email;
@@ -82,18 +87,22 @@ public class HelpdeskReportForm implements Serializable {
         this.userAgent = userAgent;
     }
 
+    @Deprecated
     public String getAttachment() {
         return attachment;
     }
 
+    @Deprecated
     public void setAttachment(String attachment) {
         this.attachment = attachment;
     }
 
+    @Deprecated
     public String getFileName() {
         return fileName;
     }
 
+    @Deprecated
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -114,6 +123,14 @@ public class HelpdeskReportForm implements Serializable {
         this.priority = priority;
     }
 
+    public Collection<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Collection<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
     public String getEmail() {
         if (!Strings.isNullOrEmpty(email) && !email.equals("null")) {
             return email;
@@ -130,5 +147,35 @@ public class HelpdeskReportForm implements Serializable {
 
     public MenuFunctionality getMenuFunctionality() {
         return Strings.isNullOrEmpty(functionality) ? null : FenixFramework.getDomainObject(functionality);
+    }
+
+    public static class Attachment {
+        String name;
+        String content;
+
+        public Attachment() {
+        }
+
+        public Attachment(String name, String content) {
+            this.name = name;
+            this.content = content;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
     }
 }
