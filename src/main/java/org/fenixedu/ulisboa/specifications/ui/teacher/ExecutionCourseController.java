@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.ui;
+package org.fenixedu.ulisboa.specifications.ui.teacher;
 
 import java.util.Optional;
 
