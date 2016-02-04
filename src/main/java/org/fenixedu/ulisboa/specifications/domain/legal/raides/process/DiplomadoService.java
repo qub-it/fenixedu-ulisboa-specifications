@@ -85,7 +85,8 @@ public class DiplomadoService extends RaidesService {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
             bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
                     .translate(registrationConclusionBean.getFinalGrade().getValue()));
-        } else if (Raides.isIntegratedMasterDegree(registration) && isScholarPartConcluded(registration, executionYear)) {
+        } else if (Raides.isIntegratedMasterDegree(registration) && isScholarPartConcluded(registration, executionYear) 
+                && !isTerminalConcluded(registration, executionYear)) {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
 
             if (((RaidesInstance) report).isToReportAllIntegratedMasterFirstCycleGraduatedStudents()
