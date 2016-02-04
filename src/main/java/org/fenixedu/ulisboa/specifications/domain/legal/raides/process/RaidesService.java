@@ -601,12 +601,11 @@ public class RaidesService {
             }
 
             if (!Strings.isNullOrEmpty(bean.getResideConcelho())
-                    && (bean.getResideConcelho().startsWith("19") || bean.getResideConcelho().startsWith("22"))) {
+                    && (bean.getResideConcelho().startsWith("31"))) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.district.is.island.review",
                                 String.valueOf(registration.getStudent().getNumber()),
                                 registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
-                bean.markAsInvalid();
             }
         }
 

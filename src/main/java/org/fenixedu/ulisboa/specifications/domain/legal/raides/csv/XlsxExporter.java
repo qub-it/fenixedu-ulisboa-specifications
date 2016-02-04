@@ -26,6 +26,8 @@ import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResult
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
+import com.google.common.base.Strings;
+
 import net.fortuna.ical4j.model.parameter.Language;
 
 public class XlsxExporter {
@@ -139,8 +141,8 @@ public class XlsxExporter {
                     @Override
                     protected void makeLine(final TblMobilidadeInternacional tblMobilidadeInternacional) {
                         addCell("IdAluno", tblMobilidadeInternacional.getIdAluno());
-                        addCell("Curso", tblMobilidadeInternacional.getCurso());
-                        addCell("Ramo", tblMobilidadeInternacional.getRamo());
+                        addCell("Curso", !Strings.isNullOrEmpty(tblMobilidadeInternacional.getCurso()) ? tblMobilidadeInternacional.getCurso() : "" );
+                        addCell("Ramo", !Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo()) ? tblMobilidadeInternacional.getRamo() : "");
                         addCell("AnoLetivo", tblMobilidadeInternacional.getAnoLectivo());
                         addCell("AreaCientifica", tblMobilidadeInternacional.getAreaCientifica());
                         addCell("AnoCurricular", tblMobilidadeInternacional.getAnoCurricular());

@@ -30,6 +30,8 @@ public class MobilidadeInternacionalService extends RaidesService {
         bean.setRegistration(registration);
         preencheInformacaoMatricula(report, bean, institutionUnit, executionYear, registration);
 
+        bean.setCurso(null);
+        bean.setRamo(null);
         bean.setAnoCurricular(anoCurricular(registration, executionYear));
         bean.setPrimeiraVez(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
         bean.setEctsInscrito(enrolledEcts(executionYear, registration).toString());

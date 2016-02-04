@@ -141,6 +141,19 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.sumEctsCreditsBetweenPlans" />
+						</th>
+						<td>
+							<c:if test="${raidesInstance.sumEctsCreditsBetweenPlans}">
+								<spring:message code="label.true" />
+							</c:if>
+							<c:if test="${not raidesInstance.sumEctsCreditsBetweenPlans}">
+								<spring:message code="label.false" />
+							</c:if>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.RaidesInstance.blueRecordStartMessageContent" />
 						</th>
 						<td>

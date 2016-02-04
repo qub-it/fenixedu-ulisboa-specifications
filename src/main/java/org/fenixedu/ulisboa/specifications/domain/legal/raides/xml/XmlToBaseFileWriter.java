@@ -157,8 +157,6 @@ public class XmlToBaseFileWriter {
         
         if (!Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo())) {
             mobilidade.setRamo(tblMobilidadeInternacional.getRamo());
-        } else {
-            mobilidade.setRamo(Raides.Ramo.TRONCO_COMUM);
         }
 
         mobilidade.setRegimeFrequencia(longValueOf(tblMobilidadeInternacional.getRegimeFrequencia()));

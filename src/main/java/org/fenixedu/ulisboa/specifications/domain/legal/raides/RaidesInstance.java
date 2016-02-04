@@ -140,6 +140,10 @@ public class RaidesInstance extends RaidesInstance_Base {
         return getIntegratedMasterFirstCycleGraduatedReportOption() == null
                 || getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.NONE;
     }
+    
+    public boolean isSumEctsCreditsBetweenPlans() {
+        return getSumEctsCreditsBetweenPlans();
+    }
 
     @Override
     @Atomic

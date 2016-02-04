@@ -19,6 +19,8 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
+import com.google.common.base.Strings;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
 
@@ -199,9 +201,15 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
             throw new ULisboaSpecificationsDomainException(
                     "error.MobilityRegistrationInformation.found.more.than.one.parent.country.of.foreign.unit");
         }
+        
         if (parentParties.size() == 1) {
-            return ((CountryUnit) parentParties.iterator().next()).getCountry();
+            if(((CountryUnit) parentParties.iterator().next()).getCountry() != null) {
+                return ((CountryUnit) parentParties.iterator().next()).getCountry();
+            } else if(!Strings.isNullOrEmpty(((CountryUnit) parentParties.iterator().next()).getAcronym())){
+                return Country.readByTwoLetterCode(((CountryUnit) parentParties.iterator().next()).getAcronym());
+            }
         }
+        
         return null;
     }
 

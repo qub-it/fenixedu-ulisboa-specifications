@@ -197,7 +197,7 @@ public class Raides {
     protected Multimap<Student, TblDiplomado> diplomados = LinkedListMultimap.create();
     protected Multimap<Student, TblMobilidadeInternacional> mobilidadeInternacional = LinkedListMultimap.create();
 
-    protected Set<Registration> registrationList = new HashSet<Registration>();
+    public Set<Registration> registrationList = new HashSet<Registration>();
 
     protected static IRaidesReportRequestDefaultData requestDefaultData;
 
@@ -223,7 +223,7 @@ public class Raides {
         reportRequest.markAsProcessed();
     }
 
-    protected void processMobilidadeInternacional(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
+    public void processMobilidadeInternacional(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
 
         for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForInternationalMobility()) {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
@@ -265,13 +265,13 @@ public class Raides {
         }
     }
 
-    protected void processGraduated(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
+    public void processGraduated(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
 
         for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForGraduated()) {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
-
+                    
                     try {
                         if (enroledPeriod.isEnrolledInAcademicPeriod()
                                 && !isEnrolledInExecutionYear(enroledPeriod.getAcademicPeriod(), registration)) {
@@ -363,7 +363,7 @@ public class Raides {
         return false;
     }
 
-    protected void processEnrolled(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
+    public void processEnrolled(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
         for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForEnrolled()) {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
             for (final Degree degree : raidesRequestParameter.getDegrees()) {

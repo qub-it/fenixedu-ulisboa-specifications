@@ -40,7 +40,7 @@ public class CreateResearchAreas extends CustomTask {
             new Bean("23", "Engenharia mecânica", "Engenharia mecânica"),
             new Bean("24", "Engenharia química", "Engenharia química"),
             new Bean("25", "Engenharia dos materiais", "Engenharia dos materiais"),
-            new Bean("26", "IEngenharia médica", "Engenharia médica"),
+            new Bean("26", "Engenharia médica", "Engenharia médica"),
             new Bean("27", "Engenharia do ambiente", "Engenharia do ambiente"),
             new Bean("28", "Biotecnologia ambiental", "Biotecnologia ambiental"),
             new Bean("29", "Biotecnologia industrial", "Biotecnologia industrial"),

@@ -1725,6 +1725,7 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 	String institutionCode;
 	String interlocutorPhone;
 	IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption;
+	boolean sumEctsCreditsBetweenPlans;
 }
 
 	relation RaidesInstanceMobilityAgreement {

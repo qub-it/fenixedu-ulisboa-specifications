@@ -13,9 +13,13 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
@@ -54,8 +58,7 @@ public class InscritoService extends RaidesService {
             bean.setEctsInscricao(enrolledEcts(executionYear, registration));
         }
 
-        bean.setEctsAcumulados(registration.getStudentCurricularPlan(executionYear).getRoot().getCurriculum(executionYear)
-                .getSumEctsCredits().setScale(1));
+        bean.setEctsAcumulados(ectsAcumulados(registration, executionYear));
 
         bean.setTempoParcial(
                 LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isInPartialRegime(executionYear, registration)));
@@ -114,7 +117,7 @@ public class InscritoService extends RaidesService {
         validaInformacaoMudancaCursoTransferencia(raidesRequestParameter, bean, institutionUnit, executionYear, registration);
         validaInformacaoRegimeGeralAcesso(raidesRequestParameter, bean, institutionUnit, executionYear, registration);
         validaNumInscricoesNoCurso(raidesRequestParameter, bean, institutionUnit, executionYear, registration);
-        
+
         return bean;
     }
 
@@ -122,17 +125,63 @@ public class InscritoService extends RaidesService {
      * VALIDACOES
      */
 
-    private void validaNumInscricoesNoCurso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean, final Unit institutionUnit,
-            final ExecutionYear executionYear, final Registration registration) {
+    private boolean hasCreditsBetweenPlans(final Registration reg) {
+        for (final StudentCurricularPlan scp : reg.getStudentCurricularPlansSet()) {
+            for (final Credits credits : scp.getCreditsSet()) {
+                for (EnrolmentWrapper wrapper : credits.getEnrolmentsSet()) {
+                    if (wrapper.getIEnrolment().isExternalEnrolment()) {
+                        continue;
+                    }
+
+                    final Enrolment e = (Enrolment) wrapper.getIEnrolment();
+
+                    if (reg.getStudentCurricularPlansSet().contains(e.getStudentCurricularPlan())) {
+                        return true;
+                    }
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    
+    private BigDecimal ectsAcumulados(final Registration registration, final ExecutionYear executionYear) {
+        if(registration.getStudentCurricularPlansSet().size() > 1 && ((RaidesInstance) report).isSumEctsCreditsBetweenPlans()) {
+            if(!hasCreditsBetweenPlans(registration)) {
+                LegalReportContext.addWarn("",
+                        i18n("warn.Raides.ects.acumulados.sum.of.student.curricular.plans",
+                                String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                                executionYear.getQualifiedName()));
+                
+                return sumEctsAcumulados(registration, executionYear);
+            }
+        }
         
-        if(!isFirstTimeOnDegree(registration, executionYear) && new Integer(0).equals(bean.getNumInscNesteCurso())) {
+        return registration.getStudentCurricularPlan(executionYear).getRoot().getCurriculum(executionYear).getSumEctsCredits()
+                .setScale(1);
+    }
+
+    private BigDecimal sumEctsAcumulados(final Registration registration, final ExecutionYear executionYear) {
+        Curriculum curriculumSum = Curriculum.createEmpty(executionYear);
+        for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
+            curriculumSum.add(studentCurricularPlan.getRoot().getCurriculum(executionYear));
+        }
+        
+        return curriculumSum.getSumEctsCredits().setScale(1);
+    }
+
+    private void validaNumInscricoesNoCurso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean,
+            final Unit institutionUnit, final ExecutionYear executionYear, final Registration registration) {
+
+        if (!isFirstTimeOnDegree(registration, executionYear) && new Integer(0).equals(bean.getNumInscNesteCurso())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.is.not.first.time.student.but.number.previous.enrolments.in.registration.is.zero",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));            
+                            executionYear.getQualifiedName()));
             bean.markAsInvalid();
         }
-        
     }
 
     protected void validaInformacaoRegimeGeralAcesso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean,
@@ -153,25 +202,25 @@ public class InscritoService extends RaidesService {
             bean.markAsInvalid();
             return;
         }
-        
-        if(!Strings.isNullOrEmpty(bean.getNotaIngresso())) {
+
+        if (!Strings.isNullOrEmpty(bean.getNotaIngresso())) {
             try {
                 final BigDecimal value = new BigDecimal(bean.getNotaIngresso());
-                if(value.compareTo(MIN_NOTA_INGRESSO) < 0 || value.compareTo(MAX_NOTA_INGRESSO) > 0) {
+                if (value.compareTo(MIN_NOTA_INGRESSO) < 0 || value.compareTo(MAX_NOTA_INGRESSO) > 0) {
                     LegalReportContext.addError("",
                             i18n("error.Raides.validation.general.access.regime.notaIngresso.in.wrong.interval",
-                                    String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                                    executionYear.getQualifiedName()));                    
+                                    String.valueOf(registration.getStudent().getNumber()),
+                                    registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
                     bean.markAsInvalid();
-                    return;                
+                    return;
                 }
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.general.access.regime.notaIngresso.wrong.format",
-                                String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                                String.valueOf(registration.getStudent().getNumber()),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
                 bean.markAsInvalid();
-                return;                
+                return;
             }
         }
     }
@@ -220,8 +269,8 @@ public class InscritoService extends RaidesService {
         if (pid == null) {
             return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
         }
-        
-        if(pid.getGrantOwnerType() == null) {
+
+        if (pid.getGrantOwnerType() == null) {
             return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
         }
 
