@@ -116,7 +116,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 				<div class="col-sm-10">
 					<ui-select id="branchKeySelect" name="branchKey"
 						ng-model="$parent.object.branchKey" theme="bootstrap">
-						<ui-select-match>{{$item.text}}</ui-select-match> 
+						<ui-select-match>{{$select.selected.text}}</ui-select-match>
 						<ui-select-choices repeat="branchKey.id as branchKey in object.branchKeysDataSource | filter: $select.search">
 							<span ng-bind-html="branchKey.text | highlight: $select.search"></span>
 						</ui-select-choices>
