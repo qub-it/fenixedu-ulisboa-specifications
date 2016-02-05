@@ -35,13 +35,13 @@ enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType 
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum as CompetenceCourseMarkSheetChangeRequestStateEnum;
 
-
-external class .org.fenixedu.academic.domain.degree.DegreeType;
-
 enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFileType as LegalReportResultFileType;
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType as RaidesPeriodInputType;
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption as IntegratedMasterFirstCycleGraduatedReportOption;
 
+external class .org.fenixedu.academic.domain.degree.DegreeType;
+external class .org.fenixedu.academic.domain.ExecutionInterval;
+external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.ExecutionSemester;
@@ -1175,11 +1175,21 @@ relation ProgramConclusionServiceRequestProperty {
     }
 }
 
-relation ExecutionYearServiceRequestProperty {
-    public .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
+relation ExecutionIntervalServiceRequestProperty {
+    public .org.fenixedu.academic.domain.ExecutionInterval playsRole executionInterval {
         multiplicity 0..1;
     }
+    
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
 
+relation EvaluationSeasonServiceRequestProperty {
+    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 0..1;
+    }
+    
     public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
         multiplicity *;
     }

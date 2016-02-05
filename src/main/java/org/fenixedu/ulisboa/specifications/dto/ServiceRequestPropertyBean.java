@@ -247,10 +247,13 @@ public class ServiceRequestPropertyBean implements IBean {
         propertyNames.put(UIComponentType.DATE.toString(), "dateTimeValue");
         propertyNames.put(UIComponentType.DROP_DOWN_MULTIPLE.toString(), "domainObjectListValue");
         Map<String, String> dropDownPropertyNames = new HashMap<>();
+        //TODO : review one way to all domainObjectValues
         dropDownPropertyNames.put(ULisboaConstants.DOCUMENT_PURPOSE_TYPE, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.CURRICULAR_PLAN, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.PROGRAM_CONCLUSION, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.EXECUTION_YEAR, "domainObjectValue");
+        dropDownPropertyNames.put(ULisboaConstants.EXECUTION_SEMESTER, "domainObjectValue");
+        dropDownPropertyNames.put(ULisboaConstants.EVALUATION_SEASON, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.LANGUAGE, "localeValue");
         dropDownPropertyNames.put(ULisboaConstants.CYCLE_TYPE, "cycleTypeValue");
         propertyNames.put(UIComponentType.DROP_DOWN_ONE_VALUE.toString(), dropDownPropertyNames);
