@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
@@ -148,10 +150,10 @@ public class ULisboaServiceRequestBean implements IBean {
         this();
         setRegistration(registration);
         setRequestedOnline(requestedOnline);
-        setServiceRequestTypesDataSource(ServiceRequestType.findActive()
-                .filter(ServiceRequestRestriction.restrictionFilter(registration))
-                .filter(srt -> !requestedOnline || srt.isRequestedOnline())
-                .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
+        setServiceRequestTypesDataSource(
+                ServiceRequestType.findActive().filter(ServiceRequestRestriction.restrictionFilter(registration))
+                        .filter(srt -> !requestedOnline || srt.isRequestedOnline())
+                        .sorted(ServiceRequestType.COMPARE_BY_CATEGORY_THEN_BY_NAME).collect(Collectors.toList()));
     }
 
     public ULisboaServiceRequestBean(ULisboaServiceRequest request) {
@@ -174,9 +176,8 @@ public class ULisboaServiceRequestBean implements IBean {
     private boolean isSameServiceRequestType() {
         Set<String> oldSlotNames =
                 serviceRequestPropertyBeans.stream().map(ServiceRequestPropertyBean::getCode).collect(Collectors.toSet());
-        Set<String> newSlotNames =
-                serviceRequestType.getServiceRequestSlotEntriesSet().stream()
-                        .map(entry -> entry.getServiceRequestSlot().getCode()).collect(Collectors.toSet());
+        Set<String> newSlotNames = serviceRequestType.getServiceRequestSlotEntriesSet().stream()
+                .map(entry -> entry.getServiceRequestSlot().getCode()).collect(Collectors.toSet());
         return oldSlotNames.size() == newSlotNames.size() && Sets.difference(oldSlotNames, newSlotNames).isEmpty();
     }
 
@@ -230,11 +231,11 @@ public class ULisboaServiceRequestBean implements IBean {
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 return DocumentPurposeTypeInstance.findActivesFor(bean.getServiceRequestType())
                         .sorted(DocumentPurposeTypeInstance.COMPARE_BY_LEGACY).map(x -> {
-                            TupleDataSourceBean tuple = new TupleDataSourceBean();
-                            tuple.setId(x.getExternalId());
-                            tuple.setText(x.getName().getContent());
-                            return tuple;
-                        }).collect(Collectors.toList());
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getName().getContent());
+                    return tuple;
+                }).collect(Collectors.toList());
             }
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CYCLE_TYPE, new DataSourceProvider() {
@@ -244,13 +245,13 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (bean.getRegistration().getDegreeType() == null) {
                     return Collections.emptyList();
                 }
-                return bean.getRegistration().getDegreeType().getCycleTypes().stream()
-                        .sorted(CycleType.COMPARATOR_BY_LESS_WEIGHT).map(x -> {
-                            TupleDataSourceBean tuple = new TupleDataSourceBean();
-                            tuple.setId(x.toString());
-                            tuple.setText(x.getDescription());
-                            return tuple;
-                        }).collect(Collectors.toList());
+                return bean.getRegistration().getDegreeType().getCycleTypes().stream().sorted(CycleType.COMPARATOR_BY_LESS_WEIGHT)
+                        .map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.toString());
+                    tuple.setText(x.getDescription());
+                    return tuple;
+                }).collect(Collectors.toList());
             }
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.PROGRAM_CONCLUSION, new DataSourceProvider() {
@@ -277,11 +278,11 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (executionYear == null) {
                     return bean.getRegistration().getStudentCurricularPlansSet().stream()
                             .sorted((x, y) -> x.getName().compareTo(y.getName())).map(x -> {
-                                TupleDataSourceBean tuple = new TupleDataSourceBean();
-                                tuple.setId(x.getExternalId());
-                                tuple.setText(x.getName());
-                                return tuple;
-                            }).collect(Collectors.toList());
+                        TupleDataSourceBean tuple = new TupleDataSourceBean();
+                        tuple.setId(x.getExternalId());
+                        tuple.setText(x.getName());
+                        return tuple;
+                    }).collect(Collectors.toList());
                 }
 
                 final StudentCurricularPlan studentCurricularPlan =
@@ -303,9 +304,8 @@ public class ULisboaServiceRequestBean implements IBean {
                         || bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup() == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection =
-                        bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup().getEnrolmentsSet()
-                                .stream().map(ICurriculumEntry.class::cast);
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getLastStudentCurricularPlan()
+                        .getExtraCurriculumGroup().getEnrolmentsSet().stream().map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
 
@@ -356,10 +356,9 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection =
-                        bean.getRegistration().getStudentCurricularPlan(executionYear)
-                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isNormalEnrolment)
-                                .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionYear)
+                        .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isNormalEnrolment)
+                        .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
         });
@@ -371,10 +370,9 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection =
-                        bean.getRegistration().getStudentCurricularPlan(executionYear)
-                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
-                                .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionYear)
+                        .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
+                        .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
         });
@@ -386,10 +384,9 @@ public class ULisboaServiceRequestBean implements IBean {
                 if (executionYear == null || bean.getRegistration().getStudentCurricularPlan(executionYear) == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection =
-                        bean.getRegistration().getStudentCurricularPlan(executionYear)
-                                .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isExtraCurricular)
-                                .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionYear)
+                        .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isExtraCurricular)
+                        .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
         });
@@ -400,11 +397,51 @@ public class ULisboaServiceRequestBean implements IBean {
                 return ExecutionYear.readNotClosedExecutionYears().stream()
                         .filter(e -> e.isAfterOrEquals(bean.getRegistration().getRegistrationYear()))
                         .sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(x -> {
-                            TupleDataSourceBean tuple = new TupleDataSourceBean();
-                            tuple.setId(x.getExternalId());
-                            tuple.setText(x.getName());
-                            return tuple;
-                        }).collect(Collectors.toList());
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getName());
+                    return tuple;
+                }).collect(Collectors.toList());
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EXECUTION_SEMESTER, new DataSourceProvider() {
+
+            @Override
+            //TODOJN - review this provider, I put dummy values
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                return ExecutionSemester.readNotClosedExecutionPeriods().stream()
+                        .sorted((e1, e2) -> ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.compare(e2, e1)).map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getQualifiedName());
+                    return tuple;
+                }).collect(Collectors.toList());
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EVALUATION_SEASON, new DataSourceProvider() {
+
+            @Override
+            //TODOJN - review this provider, I put dummy values
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                Stream<EvaluationSeason> seasons =
+                        Stream.concat(EvaluationSeason.readNormalSeasons(), EvaluationSeason.readImprovementSeasons());
+                return Stream.concat(seasons, EvaluationSeason.readSpecialSeasons()).map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(getExtendedName(x));
+                    return tuple;
+                }).collect(Collectors.toList());
+            }
+
+            //TODOJN - Delete after provider reviewed
+            private String getExtendedName(EvaluationSeason x) {
+                if (x.isNormal()) {
+                    return "Normal - " + x.getName().getContent();
+                }
+                if (x.isImprovement()) {
+                    return "Improvement - " + x.getName().getContent();
+                }
+                return "Special - " + x.getName().getContent();
             }
         });
     }

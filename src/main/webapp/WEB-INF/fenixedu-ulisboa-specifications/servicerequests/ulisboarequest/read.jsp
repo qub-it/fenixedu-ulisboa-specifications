@@ -620,9 +620,10 @@ ${portal.toolkit()}
                                                     ${ property.locale.displayLanguage }
                                                     ${ property.cycleType.description } 
                                                     ${ property.localizedString.content }
-                                                    ${ propety.registration } ${ property.executionYear.name } 
+                                                    ${ propety.registration } ${ property.executionInterval.qualifiedName } 
                                                     ${ property.documentPurposeTypeInstance.name.content }
                                                     ${ property.studentCurricularPlan.name }
+                                                    ${ property.evaluationSeason.name.content }
                                                     ${ property.programConclusion.name.content}' />
                                     </c:otherwise>
                                 </c:choose>
