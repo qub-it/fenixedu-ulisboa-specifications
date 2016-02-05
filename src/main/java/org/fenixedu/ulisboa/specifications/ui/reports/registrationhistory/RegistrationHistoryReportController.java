@@ -604,6 +604,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
                         final ExecutionSemester enrolmentPeriod =
                                 improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+                                
+                        final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
                         addData("Student.number", registration.getStudent().getNumber());
                         addData("Registration.number", registration.getNumber().toString());
@@ -614,6 +616,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
+                        addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
                         addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
