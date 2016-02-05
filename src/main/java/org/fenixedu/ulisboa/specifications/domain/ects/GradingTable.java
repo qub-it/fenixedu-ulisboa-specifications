@@ -12,6 +12,7 @@ abstract public class GradingTable extends GradingTable_Base {
     public GradingTable() {
         super();
         setBennu(Bennu.getInstance());
+        setCopied(false);
     }
 
     public void delete() {
@@ -99,19 +100,6 @@ abstract public class GradingTable extends GradingTable_Base {
         return new ArrayList<GradeConversion>(getData().getTable());
     }
 
-    // Dummy harvest algortithm
-    protected static void compileData(GradingTable table) {
-        table.addMark("10", "E");
-        table.addMark("11", "E");
-        table.addMark("12", "D");
-        table.addMark("13", "D");
-        table.addMark("14", "C");
-        table.addMark("15", "C");
-        table.addMark("16", "B");
-        table.addMark("17", "B");
-        table.addMark("18", "A");
-        table.addMark("19", "A");
-        table.addMark("20", "A");
-    }
+    abstract public void compileData();
 
 }

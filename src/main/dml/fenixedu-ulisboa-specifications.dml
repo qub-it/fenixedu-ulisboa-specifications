@@ -1249,6 +1249,11 @@ class ects.GradingTable {
 	}
 	class ects.CourseGradingTable extends ects.GradingTable {
 	}
+	
+class ects.GradingTableSettings {
+	Integer minSampleSize;
+	Integer minPastYears;
+}
 
 
 relation GradingTableBennu {
@@ -1311,6 +1316,15 @@ relation CourseGradingTableCurriculumLine {
     }
 	public ects.CourseGradingTable playsRole courseGradingTables {
     	multiplicity *;
+    }
+}
+
+relation GradingTableSettingsBennu {
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+    public ects.GradingTableSettings playsRole gradingTableSettings {
+    	multiplicity 0..1;
     }
 }
 

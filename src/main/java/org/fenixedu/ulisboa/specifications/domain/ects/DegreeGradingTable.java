@@ -50,12 +50,17 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
                     table.setExecutionYear(executionYear);
                     table.setProgramConclusion(programConclusion);
                     table.setDegree(degree);
-                    table.setData(new GradingTableData());
-                    compileData(table);
+                    table.compileData();
                 }
                 allTables.add(table);
             }
         }
         return allTables;
+    }
+
+    @Override
+    public void compileData() {
+        GradingTableData tableData = new GradingTableData();
+        GradingTableSettings.defaultData(this);
     }
 }

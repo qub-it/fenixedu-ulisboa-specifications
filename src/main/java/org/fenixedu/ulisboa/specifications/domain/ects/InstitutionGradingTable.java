@@ -26,9 +26,14 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
         }
         InstitutionGradingTable table = new InstitutionGradingTable();
         table.setExecutionYear(executionYear);
-        table.setData(new GradingTableData());
-        compileData(table);
+        table.compileData();
         return table;
+    }
+
+    @Override
+    public void compileData() {
+        GradingTableData tableData = new GradingTableData();
+        GradingTableSettings.defaultData(this);
     }
 
 }
