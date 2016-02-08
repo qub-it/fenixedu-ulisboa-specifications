@@ -74,19 +74,10 @@ public class ULisboaConstants {
     public static final String APPROVED_ENROLMENTS = "approvedEnrolments";
     public static final String CURRICULUM = "curriculum";
     public static final String ENROLMENTS_BY_YEAR = "enrolmentsByYear";
+    public static final String ENROLMENTS_BY_SEMESTER = "enrolmentsBySemester";
     public static final String STANDALONE_ENROLMENTS_BY_YEAR = "standaloneEnrolmentsByYear";
     public static final String EXTRACURRICULAR_ENROLMENTS_BY_YEAR = "extracurricularEnrolmentsByYear";
-    /*Slots that use DropDown Multiple as UI Component */
-    public static final List<String> DROP_DOWN_MULTIPLE_DOMAIN_OBJECTS =
-            Arrays.asList(APPROVED_EXTRA_CURRICULUM, APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM,
-                    ENROLMENTS_BY_YEAR, STANDALONE_ENROLMENTS_BY_YEAR, EXTRACURRICULAR_ENROLMENTS_BY_YEAR);
-    /*Slots that use DropDown Simple as UI Component */
-    public static final List<String> DROP_DOWN_SINGLE_DOMAIN_OBJECTS =
-            Arrays.asList(PROGRAM_CONCLUSION, DOCUMENT_PURPOSE_TYPE, EXECUTION_YEAR, EXECUTION_SEMESTER, CURRICULAR_PLAN);
-    /*Slots which is values are stored as ICurriculumEntry */
-    public static final List<String> ICURRICULUM_ENTRY_OBJECTS =
-            Arrays.asList(APPROVED_EXTRA_CURRICULUM, APPROVED_STANDALONE_CURRICULUM, APPROVED_ENROLMENTS, CURRICULUM,
-                    ENROLMENTS_BY_YEAR, STANDALONE_ENROLMENTS_BY_YEAR, EXTRACURRICULAR_ENROLMENTS_BY_YEAR);
+    public static final String ENROLMENTS_BEFORE_SEMESTER = "enrolmentsBeforeSemester";
     /*Slots used as default */
     public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
     /*Subset of AcademicServiceRequestSituationType. This are the valid states for the ULisboa Service Request */

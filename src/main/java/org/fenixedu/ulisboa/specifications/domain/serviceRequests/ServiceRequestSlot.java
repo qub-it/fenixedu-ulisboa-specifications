@@ -203,6 +203,14 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
             createStaticSlot(ULisboaConstants.EVALUATION_SEASON, UIComponentType.DROP_DOWN_ONE_VALUE,
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.evaluationSeason"));
         }
+        if (findByCode(ULisboaConstants.ENROLMENTS_BY_SEMESTER).count() == 0) {
+            createStaticSlot(ULisboaConstants.ENROLMENTS_BY_SEMESTER, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsBySemester"));
+        }
+        if (findByCode(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER).count() == 0) {
+            createStaticSlot(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, UIComponentType.DROP_DOWN_MULTIPLE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsBeforeSemester"));
+        }
 
     }
 }
