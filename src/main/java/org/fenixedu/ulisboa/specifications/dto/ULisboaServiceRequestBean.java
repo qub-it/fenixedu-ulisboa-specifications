@@ -207,7 +207,7 @@ public class ULisboaServiceRequestBean implements IBean {
         return collection.sorted((x, y) -> x.getName().compareTo(y.getName())).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
-            tuple.setText(x.getCode() + " - " + x.getName().getContent() + " - " + x.getExecutionYear().getQualifiedName());
+            tuple.setText(x.getCode() + " - " + x.getName().getContent() + " - " + x.getExecutionPeriod().getQualifiedName());
             return tuple;
         }).collect(Collectors.toList());
     }
@@ -362,6 +362,22 @@ public class ULisboaServiceRequestBean implements IBean {
                 return provideForCurriculumEntry(collection);
             }
         });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ENROLMENTS_BY_SEMESTER, new DataSourceProvider() {
+
+            @Override
+            //TODOJN - review this provider, I put dummy values
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                final ExecutionSemester executionSemester =
+                        bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
+                if (executionSemester == null || bean.getRegistration().getStudentCurricularPlan(executionSemester) == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionSemester)
+                        .getEnrolmentsByExecutionPeriod(executionSemester).stream().filter(ULisboaConstants.isNormalEnrolment)
+                        .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+        });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR, new DataSourceProvider() {
 
             @Override
@@ -387,6 +403,23 @@ public class ULisboaServiceRequestBean implements IBean {
                 Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionYear)
                         .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isExtraCurricular)
                         .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
+                return provideForCurriculumEntry(collection);
+            }
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, new DataSourceProvider() {
+
+            @Override
+            //TODOJN - review this provider, I put dummy values
+            public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
+                final ExecutionSemester executionSemester =
+                        bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
+                if (executionSemester == null || bean.getRegistration().getStudentCurricularPlan(executionSemester) == null) {
+                    return Collections.emptyList();
+                }
+                Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionSemester)
+                        .getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod().isBefore(executionSemester))
+                        .filter(ULisboaConstants.isNormalEnrolment).sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID)
+                        .map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
             }
         });
