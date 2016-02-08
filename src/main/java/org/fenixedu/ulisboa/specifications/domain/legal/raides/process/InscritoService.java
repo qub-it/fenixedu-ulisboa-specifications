@@ -96,15 +96,13 @@ public class InscritoService extends RaidesService {
         }
 
         if (!registration.isFirstTime(executionYear)) {
-            final List<ExecutionYear> enrolmentsExecutionYears =
-                    Lists.newArrayList(
-                            Sets.union(
-                                    registration.getRegistrationDataByExecutionYearSet().stream().map(l -> l.getExecutionYear())
-                                            .collect(Collectors.toSet()),
-                                    Sets.newHashSet(registration.getEnrolmentsExecutionYears())));
+            final List<ExecutionYear> enrolmentsExecutionYears = Lists.newArrayList(Sets.union(
+                    registration.getRegistrationDataByExecutionYearSet().stream().filter(l -> l.getEnrolmentDate() != null)
+                            .map(l -> l.getExecutionYear()).collect(Collectors.toSet()),
+                    Sets.newHashSet(registration.getEnrolmentsExecutionYears())));
 
             Collections.sort(enrolmentsExecutionYears, ExecutionYear.COMPARATOR_BY_YEAR);
-            
+
             for (ExecutionYear it = executionYear; it != null; it = it.getNextExecutionYear()) {
                 enrolmentsExecutionYears.remove(it);
             }
