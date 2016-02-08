@@ -1788,6 +1788,16 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 		}
 	}
 	
+	relation RaidesInstanceDefaultDistrictOfResidence {
+		legal.raides.RaidesInstance playsRole {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.District playsRole defaultDistrictOfResidence {
+			multiplicity 0..1;
+		}
+	}
+	
 /* Legal Settings */
 
 class legal.settings.LegalSettings {

@@ -56,7 +56,8 @@ public class DiplomadoService extends RaidesService {
                     String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
 
             if (registrationConclusionBean.getDescriptiveGrade() != null
-                    && !registrationConclusionBean.getDescriptiveGrade().isEmpty()) {
+                    && !registrationConclusionBean.getDescriptiveGrade().isEmpty() &&
+                    Raides.isDoctoralDegree(registration)) {
                 bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
                         .translate(finalGrade(registrationConclusionBean.getDescriptiveGrade().getValue())));
             } else if (registrationConclusionBean.getFinalGrade().isEmpty()) {

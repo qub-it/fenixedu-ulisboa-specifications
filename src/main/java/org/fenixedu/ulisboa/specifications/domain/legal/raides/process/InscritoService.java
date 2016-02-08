@@ -3,6 +3,8 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -27,6 +29,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class InscritoService extends RaidesService {
 
@@ -93,9 +96,15 @@ public class InscritoService extends RaidesService {
         }
 
         if (!registration.isFirstTime(executionYear)) {
-            final Collection<ExecutionYear> enrolmentsExecutionYears =
-                    Lists.newArrayList(registration.getEnrolmentsExecutionYears());
+            final List<ExecutionYear> enrolmentsExecutionYears =
+                    Lists.newArrayList(
+                            Sets.union(
+                                    registration.getRegistrationDataByExecutionYearSet().stream().map(l -> l.getExecutionYear())
+                                            .collect(Collectors.toSet()),
+                                    Sets.newHashSet(registration.getEnrolmentsExecutionYears())));
 
+            Collections.sort(enrolmentsExecutionYears, ExecutionYear.COMPARATOR_BY_YEAR);
+            
             for (ExecutionYear it = executionYear; it != null; it = it.getNextExecutionYear()) {
                 enrolmentsExecutionYears.remove(it);
             }
@@ -146,19 +155,18 @@ public class InscritoService extends RaidesService {
         return false;
     }
 
-    
     private BigDecimal ectsAcumulados(final Registration registration, final ExecutionYear executionYear) {
-        if(registration.getStudentCurricularPlansSet().size() > 1 && ((RaidesInstance) report).isSumEctsCreditsBetweenPlans()) {
-            if(!hasCreditsBetweenPlans(registration)) {
+        if (registration.getStudentCurricularPlansSet().size() > 1 && ((RaidesInstance) report).isSumEctsCreditsBetweenPlans()) {
+            if (!hasCreditsBetweenPlans(registration)) {
                 LegalReportContext.addWarn("",
                         i18n("warn.Raides.ects.acumulados.sum.of.student.curricular.plans",
-                                String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
-                
+                                String.valueOf(registration.getStudent().getNumber()),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+
                 return sumEctsAcumulados(registration, executionYear);
             }
         }
-        
+
         return registration.getStudentCurricularPlan(executionYear).getRoot().getCurriculum(executionYear).getSumEctsCredits()
                 .setScale(1);
     }
@@ -168,7 +176,7 @@ public class InscritoService extends RaidesService {
         for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
             curriculumSum.add(studentCurricularPlan.getRoot().getCurriculum(executionYear));
         }
-        
+
         return curriculumSum.getSumEctsCredits().setScale(1);
     }
 

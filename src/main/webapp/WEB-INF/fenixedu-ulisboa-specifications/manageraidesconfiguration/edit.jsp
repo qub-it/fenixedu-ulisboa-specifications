@@ -242,13 +242,29 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 
 					<ui-select id="integratedMasterFirstCycleGraduatedReportOptionSelect" name="integratedMasterFirstCycleGraduatedReportOption"
 						ng-model="$parent.object.integratedMasterFirstCycleGraduatedReportOption" theme="bootstrap" >
-						<ui-select-match>{{$item.text}}</ui-select-match> 
+						<ui-select-match>{{$select.selected.text}}</ui-select-match> 
 						<ui-select-choices repeat="i.id as i in object.integratedMasterFirstCycleGraduatedReportOptionsDataSource | filter: $select.search">
 							<span ng-bind-html="i.text | highlight: $select.search"></span>
 						</ui-select-choices>
 					</ui-select>
 
 				</div>			
+			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.defaultDistrictOfResidence" />
+				</div>
+				
+				<div class="col-sm-10">
+					<ui-select id="defaultDistrictOfResidenceSelect" name="defaultdistrictofresidence"
+						ng-model="$parent.object.defaultDistrictOfResidence" theme="bootstrap" >
+						<ui-select-match>{{$select.selected.text}}</ui-select-match> 
+						<ui-select-choices repeat="i.id as i in object.defaultDistrictOfResidenceDataSource | filter: $select.search">
+							<span ng-bind-html="i.text | highlight: $select.search"></span>
+						</ui-select-choices>
+					</ui-select>
+				</div>
 			</div>
 		</div>
 		

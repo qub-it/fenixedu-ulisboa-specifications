@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.registrationEntryGrade.ManageRegistrationEntryGradeController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.registrationResearchArea.ManageRegistrationResearchAreaController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.PreviousDegreeManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.OriginInformationManagementController"%>
@@ -53,6 +54,13 @@
 		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
 		<html:link target="_blank" href="<%= request.getContextPath() + ManageRegistrationResearchAreaController.EDIT_URL  + "/" + registration.getExternalId() %>" >
 			<%= ULisboaSpecificationsUtil.bundle("label.ManageRegistrationResearchArea.link") %>
+		</html:link>
+	</span>
+
+	<span class="dblock pbottom03">	
+		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
+		<html:link target="_blank" href="<%= request.getContextPath() + ManageRegistrationEntryGradeController.EDIT_URL  + "/" + registration.getExternalId() %>" >
+			<%= ULisboaSpecificationsUtil.bundle("label.ManageRegistrationEntryGrade.link") %>
 		</html:link>
 	</span>
 

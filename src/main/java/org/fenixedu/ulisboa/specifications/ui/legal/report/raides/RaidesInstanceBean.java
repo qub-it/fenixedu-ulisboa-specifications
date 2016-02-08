@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.bennu.IBean;
@@ -36,6 +37,8 @@ public class RaidesInstanceBean implements IBean {
 
     private List<TupleDataSourceBean> integratedMasterFirstCycleGraduatedReportOptionsDataSource;
 
+    private List<TupleDataSourceBean> defaultDistrictOfResidenceDataSource;
+
     private boolean formsAvailableToStudents;
 
     private String blueRecordStartMessageContentPt;
@@ -47,6 +50,8 @@ public class RaidesInstanceBean implements IBean {
     private String interlocutorPhone;
 
     private IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption;
+
+    private District defaultDistrictOfResidence;
 
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
@@ -65,6 +70,7 @@ public class RaidesInstanceBean implements IBean {
         }
 
         setIntegratedMasterFirstCycleGraduatedReportOption(raidesInstance.getIntegratedMasterFirstCycleGraduatedReportOption());
+        setDefaultDistrictOfResidence(raidesInstance.getDefaultDistrictOfResidence());
 
         loadDataSources();
     }
@@ -86,11 +92,15 @@ public class RaidesInstanceBean implements IBean {
 
         List<IntegratedMasterFirstCycleGraduatedReportOption> l =
                 Lists.newArrayList(IntegratedMasterFirstCycleGraduatedReportOption.values());
-        
+
         this.integratedMasterFirstCycleGraduatedReportOptionsDataSource = Lists.newArrayList();
-        this.integratedMasterFirstCycleGraduatedReportOptionsDataSource
-                .addAll(l.stream().map(i -> new TupleDataSourceBean(i.name(), i.getLocalizedName().getContent())).collect(Collectors.toSet()));
-        
+        this.integratedMasterFirstCycleGraduatedReportOptionsDataSource.addAll(l.stream()
+                .map(i -> new TupleDataSourceBean(i.name(), i.getLocalizedName().getContent())).collect(Collectors.toSet()));
+
+        this.defaultDistrictOfResidenceDataSource = Lists.newArrayList();
+        this.defaultDistrictOfResidenceDataSource.addAll(Bennu.getInstance().getDistrictsSet().stream()
+                .map(i -> new TupleDataSourceBean(i.getExternalId(), i.getName())).collect(Collectors.toSet()));
+
     }
 
     public String getPasswordToZip() {
@@ -192,6 +202,14 @@ public class RaidesInstanceBean implements IBean {
     public void setIntegratedMasterFirstCycleGraduatedReportOption(
             IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption) {
         this.integratedMasterFirstCycleGraduatedReportOption = integratedMasterFirstCycleGraduatedReportOption;
+    }
+
+    public District getDefaultDistrictOfResidence() {
+        return defaultDistrictOfResidence;
+    }
+
+    public void setDefaultDistrictOfResidence(District defaultDistrictOfResidence) {
+        this.defaultDistrictOfResidence = defaultDistrictOfResidence;
     }
 
     public static final Locale LOCALE_EN = new Locale("EN");

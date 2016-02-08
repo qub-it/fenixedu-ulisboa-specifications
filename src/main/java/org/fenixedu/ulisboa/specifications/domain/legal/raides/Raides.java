@@ -782,6 +782,30 @@ public class Raides {
 
         return null;
     }
+    
+    public static District districtOfResidence(final Registration registration, final ExecutionYear executionYear) {
+        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
+
+        if (pid != null) {
+            if (pid.getDistrictSubdivisionOfResidence() != null) {
+                return pid.getDistrictSubdivisionOfResidence().getDistrict();
+            }
+        }
+
+        if (registration.getPerson().getDefaultPhysicalAddress() != null
+                && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null
+                && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence().isDefaultCountry()
+                && !Strings.isNullOrEmpty(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence())
+                && !Strings.isNullOrEmpty(
+                        registration.getPerson().getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence())) {
+            final District district =
+                    findDistrictByName(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence());
+
+            return district;
+        }
+
+        return null;        
+    }
 
     public static boolean isMasterDegreeOrDoctoralDegree(final Registration registration) {
         return (registration.getDegreeType().isSecondCycle() && !isIntegratedMasterDegree(registration))

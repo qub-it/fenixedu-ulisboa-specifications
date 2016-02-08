@@ -128,6 +128,14 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.defaultDistrictOfResidence" />
+						</th>
+						<td>	
+							<c:out value='${raidesInstance.defaultDistrictOfResidence.name}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.RaidesInstance.formsAvailableToStudents" />
 						</th>
 						<td>

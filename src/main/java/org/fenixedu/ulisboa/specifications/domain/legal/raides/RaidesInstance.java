@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides;
 
 import java.util.Set;
 
+import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -99,7 +100,8 @@ public class RaidesInstance extends RaidesInstance_Base {
             final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions,
             final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent,
             final String institutionCode, final String interlocutorPhone,
-            final IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption) {
+            final IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption,
+            final District defaultDistrictOfResidence) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -126,6 +128,7 @@ public class RaidesInstance extends RaidesInstance_Base {
         setInterlocutorPhone(interlocutorPhone);
 
         setIntegratedMasterFirstCycleGraduatedReportOption(integratedMasterFirstCycleGraduatedReportOption);
+        setDefaultDistrictOfResidence(defaultDistrictOfResidence);
     }
 
     public boolean isToReportAllIntegratedMasterFirstCycleGraduatedStudents() {
