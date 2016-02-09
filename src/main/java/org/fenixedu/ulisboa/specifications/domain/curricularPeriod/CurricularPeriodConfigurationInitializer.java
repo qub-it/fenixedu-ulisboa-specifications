@@ -634,7 +634,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             CurricularPeriodRule rule =
-                    ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
+                    ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear2, "102");
 
@@ -643,7 +643,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear3,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear3, "103");
 
@@ -652,7 +652,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear4,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear4, "104");
 
@@ -661,7 +661,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear5,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear5, "105");
 
@@ -670,7 +670,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear6,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear6, "106");
         }

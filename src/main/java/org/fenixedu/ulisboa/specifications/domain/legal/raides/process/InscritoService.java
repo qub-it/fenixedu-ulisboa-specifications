@@ -16,8 +16,6 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
-import org.fenixedu.academic.domain.studentCurriculum.Credits;
-import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
@@ -26,6 +24,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -132,37 +131,15 @@ public class InscritoService extends RaidesService {
      * VALIDACOES
      */
 
-    private boolean hasCreditsBetweenPlans(final Registration reg) {
-        for (final StudentCurricularPlan scp : reg.getStudentCurricularPlansSet()) {
-            for (final Credits credits : scp.getCreditsSet()) {
-                for (EnrolmentWrapper wrapper : credits.getEnrolmentsSet()) {
-                    if (wrapper.getIEnrolment().isExternalEnrolment()) {
-                        continue;
-                    }
-
-                    final Enrolment e = (Enrolment) wrapper.getIEnrolment();
-
-                    if (reg.getStudentCurricularPlansSet().contains(e.getStudentCurricularPlan())) {
-                        return true;
-                    }
-                }
-            }
-
-        }
-
-        return false;
-    }
-
     private BigDecimal ectsAcumulados(final Registration registration, final ExecutionYear executionYear) {
-        if (registration.getStudentCurricularPlansSet().size() > 1 && ((RaidesInstance) report).isSumEctsCreditsBetweenPlans()) {
-            if (!hasCreditsBetweenPlans(registration)) {
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.ects.acumulados.sum.of.student.curricular.plans",
-                                String.valueOf(registration.getStudent().getNumber()),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+        if (((RaidesInstance) report).isSumEctsCreditsBetweenPlans()
+                && RegistrationServices.canCollectAllPlansForCurriculum(registration)) {
+            LegalReportContext.addWarn("",
+                    i18n("warn.Raides.ects.acumulados.sum.of.student.curricular.plans",
+                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
+                            executionYear.getQualifiedName()));
 
-                return sumEctsAcumulados(registration, executionYear);
-            }
+            return sumEctsAcumulados(registration, executionYear);
         }
 
         return registration.getStudentCurricularPlan(executionYear).getRoot().getCurriculum(executionYear).getSumEctsCredits()
@@ -170,12 +147,7 @@ public class InscritoService extends RaidesService {
     }
 
     private BigDecimal sumEctsAcumulados(final Registration registration, final ExecutionYear executionYear) {
-        Curriculum curriculumSum = Curriculum.createEmpty(executionYear);
-        for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
-            curriculumSum.add(studentCurricularPlan.getRoot().getCurriculum(executionYear));
-        }
-
-        return curriculumSum.getSumEctsCredits().setScale(1);
+        return RegistrationServices.getAllPlansCurriculum(registration, executionYear).getSumEctsCredits().setScale(1);
     }
 
     private void validaNumInscricoesNoCurso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean,
