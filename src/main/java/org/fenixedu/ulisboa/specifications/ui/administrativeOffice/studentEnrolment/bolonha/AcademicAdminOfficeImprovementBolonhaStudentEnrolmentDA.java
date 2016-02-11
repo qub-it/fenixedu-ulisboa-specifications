@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrol
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,27 +37,42 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroup;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.NoCourseGroupEnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumEnrolmentBean;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
+import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
+import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.ImprovementEnrolmentLayout;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
+
+import com.google.common.collect.Lists;
+
+import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
+import pt.ist.fenixframework.Atomic;
 
 @Mapping(path = "/improvementBolonhaStudentEnrolment", module = "academicAdministration",
         formBean = "bolonhaStudentEnrollmentForm", functionality = SearchForStudentsDA.class)
@@ -64,7 +80,9 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSe
         @Forward(name = "chooseEvaluationSeason",
                 path = "/academicAdminOffice/student/enrollment/bolonha/chooseEvaluationSeason.jsp"),
         @Forward(name = "showDegreeModulesToEnrol",
-                path = "/academicAdminOffice/student/enrollment/bolonha/showDegreeModulesToEnrol.jsp") })
+                path = "/academicAdminOffice/student/enrollment/bolonha/showDegreeModulesToEnrol.jsp"),
+        @Forward(name = "showImprovementsToAttend",
+                path = "/academicAdminOffice/student/enrollment/bolonha/showImprovementsToAttend.jsp") })
 public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
         org.fenixedu.academic.ui.struts.action.administrativeOffice.studentEnrolment.bolonha.AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA {
 
@@ -89,6 +107,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
         request.setAttribute("bolonhaStudentEnrollmentBean",
                 new ImprovementBolonhaStudentEnrolmentBean(studentCurricularPlan, executionSemester, evaluationSeason));
+        request.setAttribute("enrolmentLayoutClassName", ImprovementEnrolmentLayout.class.getName());
 
         return mapping.findForward("showDegreeModulesToEnrol");
     }
@@ -96,6 +115,172 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
     @Override
     protected String getAction() {
         return "/improvementBolonhaStudentEnrolment.do";
+    }
+
+    @Override
+    public ActionForward enrolInDegreeModules(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) throws FenixServiceException {
+
+        final ImprovementBolonhaStudentEnrolmentBean bean =
+                (ImprovementBolonhaStudentEnrolmentBean) getBolonhaStudentEnrollmentBeanFromViewState();
+        try {
+            StudentCurricularPlan studentCurricularPlan = bean.getStudentCurricularPlan();
+            final RuleResult ruleResults = studentCurricularPlan.enrol(bean.getExecutionPeriod(),
+                    new HashSet<IDegreeModuleToEvaluate>(bean.getDegreeModulesToEvaluate()), bean.getCurriculumModulesToRemove(),
+                    bean.getCurricularRuleLevel(), bean.getEvaluationSeason());
+
+            if (!bean.getDegreeModulesToEvaluate().isEmpty() || !bean.getCurriculumModulesToRemove().isEmpty()) {
+                addActionMessage("success", request, "label.save.success");
+            }
+
+            if (ruleResults.isWarning()) {
+                addRuleResultMessagesToActionMessages("warning", request, ruleResults);
+            }
+
+            enroledWithSuccess(request, bean);
+
+        } catch (EnrollmentDomainException ex) {
+            addRuleResultMessagesToActionMessages("error", request, ex.getFalseResult());
+
+            return prepareShowDegreeModulesToEnrol(mapping, form, request, response, bean);
+
+        } catch (DomainException ex) {
+            addActionMessage("error", request, ex.getKey(), ex.getArgs());
+
+            return prepareShowDegreeModulesToEnrol(mapping, form, request, response, bean);
+        }
+
+        // qubExtension, if at least one improvement doesn't have attends
+        final Collection<ImprovementAttendsBean> improvementAttendsBeans = getImprovementAttendsBeans(bean);
+        if (improvementAttendsBeans.stream().anyMatch(i -> !i.isShiftEnroled())) {
+
+            return prepareShowImprovementsToAttend(mapping, form, request, response, bean, improvementAttendsBeans);
+
+        } else {
+
+            RenderUtils.invalidateViewState();
+            return prepareShowDegreeModulesToEnrol(mapping, form, request, response, bean.getStudentCurricularPlan(),
+                    bean.getExecutionPeriod(), bean.getEvaluationSeason());
+        }
+    }
+
+    private ActionForward prepareShowImprovementsToAttend(final ActionMapping mapping, final ActionForm form,
+            final HttpServletRequest request, final HttpServletResponse response,
+            final ImprovementBolonhaStudentEnrolmentBean bean, final Collection<ImprovementAttendsBean> improvementAttendsBeans) {
+
+        request.setAttribute("bolonhaStudentEnrollmentBean", bean);
+        request.setAttribute("evaluationSeason", bean.getEvaluationSeason().getName().getContent());
+        request.setAttribute("improvementAttendsBeans", improvementAttendsBeans);
+
+        addDebtsWarningMessages(bean.getStudentCurricularPlan().getRegistration().getStudent(), bean.getExecutionPeriod(),
+                request);
+
+        return mapping.findForward("showImprovementsToAttend");
+    }
+
+    public ActionForward enrolInAttend(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
+            final HttpServletResponse response) {
+
+        final ImprovementBolonhaStudentEnrolmentBean bean =
+                (ImprovementBolonhaStudentEnrolmentBean) getBolonhaStudentEnrollmentBeanFromViewState();
+
+        final Enrolment enrolment = getDomainObject(request, "enrolmentId");
+        final ExecutionCourse executionCourse = getDomainObject(request, "executionCourseId");
+        final ExecutionSemester improvementSemester = bean.getExecutionPeriod();
+        createOrSwitchAttend(enrolment, improvementSemester, executionCourse);
+
+        return prepareShowImprovementsToAttend(mapping, form, request, response, bean, getImprovementAttendsBeans(bean));
+    }
+
+    @Atomic
+    static private void createOrSwitchAttend(final Enrolment enrolment, final ExecutionSemester improvementSemester,
+            final ExecutionCourse executionCourse) {
+
+        final Attends current = enrolment.getAttendsFor(improvementSemester);
+        if (current != null) {
+            // the UI garantees that we won't be able to switch if any shifts are associated with the existing attends
+            current.delete();
+        }
+
+        AttendsServices.createAttend(enrolment, executionCourse);
+    }
+
+    static private Collection<ImprovementAttendsBean> getImprovementAttendsBeans(
+            final ImprovementBolonhaStudentEnrolmentBean input) {
+        final List<ImprovementAttendsBean> result = Lists.newArrayList();
+
+        final ExecutionSemester semester = input.getExecutionPeriod();
+        for (final EnrolmentEvaluation evaluation : input.getStudentCurricularPlan().getEnroledImprovements(semester)) {
+            result.add(createImprovementAttendsBeans(evaluation.getEnrolment(), semester));
+        }
+
+        Collections.sort(result, new BeanComparator<>("enrolment.externalId"));
+        return result;
+    }
+
+    /**
+     * This is ugly, but may avoid unnecessary UI interaction.
+     * Will be useless if exists more than one execution course for this curricular course
+     * Based on org.fenixedu.academic.domain.Enrolment.createAttendForImprovement(ExecutionSemester)
+     */
+    static private ImprovementAttendsBean createImprovementAttendsBeans(final Enrolment enrolment,
+            final ExecutionSemester semester) {
+
+        final ImprovementAttendsBean result = new ImprovementAttendsBean(enrolment, semester);
+        if (result.getAttends() == null) {
+
+            // find unique execution
+            final ExecutionCourse uniqueExecution = result.getUniqueExecutionCourse();
+            if (uniqueExecution != null) {
+                result.setAttends(AttendsServices.createAttend(enrolment, uniqueExecution));
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("serial")
+    static public class ImprovementAttendsBean {
+
+        private Enrolment enrolment;
+        private ExecutionSemester semester;
+        private Attends attends;
+        private List<ExecutionCourse> executionCourses;
+
+        private ImprovementAttendsBean(final Enrolment enrolment, final ExecutionSemester semester) {
+            this.enrolment = enrolment;
+            this.semester = semester;
+            setAttends(enrolment.getAttendsFor(semester));
+        }
+
+        public Enrolment getEnrolment() {
+            return enrolment;
+        }
+
+        public Attends getAttends() {
+            return this.attends;
+        }
+
+        public void setAttends(final Attends input) {
+            this.attends = input;
+        }
+
+        public boolean isShiftEnroled() {
+            return getAttends() != null && getAttends().hasAnyShiftEnrolments();
+        }
+
+        public List<ExecutionCourse> getExecutionCourses() {
+            if (executionCourses == null) {
+                executionCourses =
+                        getEnrolment().getCurricularCourse().getCompetenceCourse().getExecutionCoursesByExecutionPeriod(semester);
+            }
+
+            return executionCourses;
+        }
+
+        private ExecutionCourse getUniqueExecutionCourse() {
+            return getExecutionCourses().size() != 1 ? null : getExecutionCourses().iterator().next();
+        }
     }
 
     @SuppressWarnings("serial")
