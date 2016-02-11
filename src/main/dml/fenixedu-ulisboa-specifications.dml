@@ -1249,6 +1249,8 @@ class ects.GradingTable {
 	}
 	class ects.CourseGradingTable extends ects.GradingTable {
 	}
+	class ects.GeneralPurposeGradingTable extends ects.GradingTable {
+	}
 	
 class ects.GradingTableSettings {
 	Integer minSampleSize;

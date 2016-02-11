@@ -100,6 +100,14 @@ abstract public class GradingTable extends GradingTable_Base {
         return new ArrayList<GradeConversion>(getData().getTable());
     }
 
+    public String printScale() {
+        String scale = "";
+        for (GradeConversion gc : getEctsGrades()) {
+            scale += gc.getEctsGrade();
+        }
+        return scale;
+    }
+
     abstract public void compileData();
 
 }

@@ -7,43 +7,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
 
 public class TestEctsGradeConversion extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        List<BigDecimal> sample = generateSampleUniform();
-        generateTableData(sample);
+        String[] control = new String[8];
+        control[0] = "ABBCCCCDDDE"; // Uniform distro
+        control[1] = "AAABBBCCDDE"; // Chi-squared distro
+        control[2] = "AAABBCCDDEE"; // Normal distro
+        control[3] = "AABBBCDDDEE"; // Normal distro #2
+        control[4] = "ABBCDDDEEEE"; // Tripolar distro
+        control[5] = "ABCDDDDEEEE"; // Unbalanced tripolar distro
+        control[6] = "ABCDEEEEEEE"; // Bipolar distro
+        control[7] = "ABCDEEEEEEE"; // Monopolar distro
 
-        sample.clear();
-        sample = generateSampleChi2();
-        generateTableData(sample);
+        verify("Uniform distro", generateSampleUniform(), control[0]);
+        verify("Chi-squared distro", generateSampleChiSq(), control[1]);
+        verify("Normal distro", generateSampleNormal(), control[2]);
+        verify("Normal distro #2", generateSampleNormal2(), control[3]);
+        verify("Tripolar distro", generateSampleTripolar(), control[4]);
+        verify("Unbalanced tripolar distro", generateSampleTripolarUnbalanced(), control[5]);
+        verify("Bipolar distro", generateSampleBipolar(), control[6]);
+        verify("Monopolar distro", generateSampleMonopolar(), control[7]);
+    }
 
-        sample.clear();
-        sample = generateSampleNormal();
-        generateTableData(sample);
-
-        sample.clear();
-        sample = generateSampleNormal2();
-        generateTableData(sample);
-
-        sample.clear();
-        sample = generateSampleTripolar();
-        generateTableData(sample);
-
-        sample.clear();
-        sample = generateSampleTripolarUnbalanced();
-        generateTableData(sample);
-
-        sample.clear();
-        sample = generateSampleBipolar();
-        generateTableData(sample);
-
-        sample.clear();
-        sample = generateSampleMonopolar();
-        generateTableData(sample);
-
+    public void verify(String testTitle, List<BigDecimal> input, String expectedOutput) {
+        GeneralPurposeGradingTable testingTable = new GeneralPurposeGradingTable(input);
+        String result = testingTable.printScale();
+        if (result.equals(expectedOutput)) {
+            taskLog("✓ " + testTitle + ": PASSED");
+        } else {
+            taskLog("  " + testTitle + ": FAILED");
+        }
+        testingTable.delete();
     }
 
     public List<BigDecimal> generateSampleUniform() {
@@ -76,7 +76,7 @@ public class TestEctsGradeConversion extends CustomTask {
         return sample;
     }
 
-    public List<BigDecimal> generateSampleChi2() {
+    public List<BigDecimal> generateSampleChiSq() {
         List<BigDecimal> sample = new ArrayList<BigDecimal>();
         for (int i = 0; i < 100; i++) {
             if (i < 2) {
@@ -285,201 +285,4 @@ public class TestEctsGradeConversion extends CustomTask {
         }
         return sample;
     }
-
-    public void generateTableData(List<BigDecimal> sample) {
-        Map<BigDecimal, Integer> gradeDistro = new LinkedHashMap<BigDecimal, Integer>();
-        Map<BigDecimal, BigDecimal> heapedGradeDistro = new LinkedHashMap<BigDecimal, BigDecimal>();
-        BigDecimal sampleSize = new BigDecimal(sample.size());
-        gradeDistro.put(new BigDecimal("20.0"), 0);
-        gradeDistro.put(new BigDecimal("19.0"), 0);
-        gradeDistro.put(new BigDecimal("18.0"), 0);
-        gradeDistro.put(new BigDecimal("17.0"), 0);
-        gradeDistro.put(new BigDecimal("16.0"), 0);
-        gradeDistro.put(new BigDecimal("15.0"), 0);
-        gradeDistro.put(new BigDecimal("14.0"), 0);
-        gradeDistro.put(new BigDecimal("13.0"), 0);
-        gradeDistro.put(new BigDecimal("12.0"), 0);
-        gradeDistro.put(new BigDecimal("11.0"), 0);
-        gradeDistro.put(new BigDecimal("10.0"), 0);
-
-        // 1. Grades distributions
-        for (BigDecimal grade : sample) {
-            gradeDistro.put(grade, (gradeDistro.get(grade) + 1));
-        }
-
-        // 2. Heaped grades distribution
-        BigDecimal heap = BigDecimal.ZERO;
-        for (Entry<BigDecimal, Integer> step : gradeDistro.entrySet()) {
-            BigDecimal grade = step.getKey();
-            BigDecimal count = new BigDecimal(step.getValue());
-            BigDecimal share = count.divide(sampleSize, 5, BigDecimal.ROUND_HALF_EVEN);
-            heap = heap.add(share);
-            heapedGradeDistro.put(grade, heap);
-        }
-
-        // 3. Initial table fill ABCDEEEEEEE
-        Map<BigDecimal, String> tableMap = new LinkedHashMap<BigDecimal, String>();
-        tableMap.put(new BigDecimal("20.0"), "A");
-        tableMap.put(new BigDecimal("19.0"), "B");
-        tableMap.put(new BigDecimal("18.0"), "C");
-        tableMap.put(new BigDecimal("17.0"), "D");
-        tableMap.put(new BigDecimal("16.0"), "E");
-        tableMap.put(new BigDecimal("15.0"), "E");
-        tableMap.put(new BigDecimal("14.0"), "E");
-        tableMap.put(new BigDecimal("13.0"), "E");
-        tableMap.put(new BigDecimal("12.0"), "E");
-        tableMap.put(new BigDecimal("11.0"), "E");
-        tableMap.put(new BigDecimal("10.0"), "E");
-
-        // 4. Shift according to distribution
-        int gradesSize = tableMap.keySet().size();
-        int ectsGradesSize = tableMap.values().stream().distinct().mapToInt(s -> 1).sum();
-        int gradesCnt = 0;
-        for (Entry<BigDecimal, BigDecimal> step : heapedGradeDistro.entrySet()) {
-            BigDecimal grade = step.getKey();
-            BigDecimal heapedShare = step.getValue();
-            String ectsGrade = getEctsGrade(heapedShare);
-            String grantedValue = tableMap.get(grade);
-            gradesCnt++;
-
-            //taskLog(grade.toPlainString() + "\t" + ectsGrade + "\t" + grantedValue);
-            if (isStagnant(grade, heapedGradeDistro)) {
-                if (shouldIncrement(grade, grantedValue, heapedGradeDistro, tableMap)) {
-                    switch (grantedValue) {
-                    case "A":
-                        tableMap.put(grade, "B");
-                        break;
-                    case "B":
-                        tableMap.put(grade, "C");
-                        break;
-                    case "C":
-                        tableMap.put(grade, "D");
-                        break;
-                    case "D":
-                        tableMap.put(grade, "E");
-                        break;
-                    default:
-                        break;
-                    }
-                    ectsGradesSize--;
-                } else if (shouldNormalize(grade, grantedValue, heapedGradeDistro, tableMap)) {
-                    tableMap.put(grade, getPrevGrade(grade, tableMap));
-                }
-
-            } else {
-                // Inflate
-                if (ectsGrade.compareTo(grantedValue) < 0) {
-                    if (((gradesSize - gradesCnt) >= ectsGradesSize)) {
-                        boolean found = false;
-                        String updateValue = "";
-                        for (Entry<BigDecimal, String> entry : tableMap.entrySet()) {
-                            if (entry.getKey().equals(grade)) {
-                                found = true;
-                                updateValue = entry.getValue();
-                                entry.setValue(ectsGrade);
-                            } else if (found) {
-                                String passValue = entry.getValue();
-                                entry.setValue(updateValue);
-                                updateValue = passValue;
-                            }
-                        }
-                    }
-                } else {
-                    ectsGradesSize--;
-                }
-            }
-        }
-
-        // 5. Populate the table with final values
-        String grades = "";
-        String ectsGrades = "";
-        for (Entry<BigDecimal, String> entry : tableMap.entrySet()) {
-            grades += entry.getKey().toPlainString() + "\t";
-            ectsGrades += entry.getValue() + "\t";
-        }
-        taskLog(grades.trim());
-        taskLog(ectsGrades.trim());
-    }
-
-    private String getEctsGrade(BigDecimal heapedDistro) {
-        for (Entry<String, BigDecimal> interval : GradingTableSettings.getEctsAccumulativeDistro().entrySet()) {
-            if (heapedDistro.compareTo(interval.getValue()) < 1) {
-                return interval.getKey();
-            }
-        }
-        return null;
-    }
-
-    private boolean shouldIncrement(BigDecimal grade, String ectsGrade, Map<BigDecimal, BigDecimal> heapedGradeDistro,
-            Map<BigDecimal, String> tableMap) {
-        boolean isStagnant = isStagnant(grade, heapedGradeDistro);
-        BigDecimal nextHeap = nextIncrement(grade, heapedGradeDistro);
-        String nextEctsGrade = nextHeap != null ? getEctsGrade(nextHeap) : ectsGrade;
-//        taskLog("I\t" + grade.toPlainString() + "\t" + String.valueOf(isStagnant) + "\t"
-//                + String.valueOf(hasIncrementedEcts(grade, tableMap)) + "\t" + ectsGrade + "\t" + nextEctsGrade);
-
-        return isStagnant && !hasIncrementedEcts(grade, tableMap) && (compareEctsGrade(ectsGrade, nextEctsGrade) < 0);
-    }
-
-    private boolean shouldNormalize(BigDecimal grade, String ectsGrade, Map<BigDecimal, BigDecimal> heapedGradeDistro,
-            Map<BigDecimal, String> tableMap) {
-        boolean isStagnant = isStagnant(grade, heapedGradeDistro);
-        BigDecimal nextHeap = nextIncrement(grade, heapedGradeDistro);
-        String nextEctsGrade = nextHeap != null ? getEctsGrade(nextHeap) : ectsGrade;
-//        taskLog("N\t" + grade.toPlainString() + "\t" + String.valueOf(isStagnant) + "\t"
-//                + String.valueOf(hasIncrementedEcts(grade, tableMap)) + "\t" + ectsGrade + "\t" + nextEctsGrade);
-
-        return isStagnant && (compareEctsGrade(ectsGrade, nextEctsGrade) > 0);
-    }
-
-    private boolean isStagnant(BigDecimal grade, Map<BigDecimal, BigDecimal> heapedGradeDistro) {
-        BigDecimal prevHeap = null;
-        for (Entry<BigDecimal, BigDecimal> step : heapedGradeDistro.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                return prevHeap != null && prevHeap.equals(step.getValue());
-            }
-            prevHeap = step.getValue();
-        }
-        return false;
-    }
-
-    private BigDecimal nextIncrement(BigDecimal grade, Map<BigDecimal, BigDecimal> heapedGradeDistro) {
-        BigDecimal prevHeap = null;
-        for (Entry<BigDecimal, BigDecimal> step : heapedGradeDistro.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                prevHeap = step.getValue();
-            }
-            if (prevHeap != null && prevHeap.compareTo(step.getValue()) < 0) {
-                return step.getValue();
-            }
-        }
-        return null;
-    }
-
-    private boolean hasIncrementedEcts(BigDecimal grade, Map<BigDecimal, String> tableMap) {
-        String prevEctsGrade = null;
-        for (Entry<BigDecimal, String> step : tableMap.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                return prevEctsGrade != null && !prevEctsGrade.equals(step.getValue());
-            }
-            prevEctsGrade = step.getValue();
-        }
-        return false;
-    }
-
-    private String getPrevGrade(BigDecimal grade, Map<BigDecimal, String> tableMap) {
-        String prevEctsGrade = null;
-        for (Entry<BigDecimal, String> step : tableMap.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                return prevEctsGrade;
-            }
-            prevEctsGrade = step.getValue();
-        }
-        return prevEctsGrade;
-    }
-
-    private int compareEctsGrade(String ects0, String ects1) {
-        return ects0.charAt(0) - ects1.charAt(0);
-    }
-
 }

@@ -72,9 +72,9 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         setData(tableData);
         List<BigDecimal> sample = harvestSample();
         if (sample != null) {
-            GradingTableSettings.generateTableData(this, sample);
+            GradingTableGenerator.generateTableData(this, sample);
         } else {
-            GradingTableSettings.defaultData(this);
+            InstitutionGradingTable.copyData(this);
             setCopied(true);
         }
     }
