@@ -658,6 +658,25 @@ public class RaidesService {
 
         return new BigDecimal(result);
     }
+    
+    protected Set<Enrolment> scholarPartEnrolments(final ExecutionYear executionYear, final Registration registration) {
+        final StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
+        
+        final Set<Enrolment> result = Sets.newHashSet();
+        for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
+            if(enrolment.getCurricularCourse() != null && enrolment.getCurricularCourse().isDissertation()) {
+                continue;
+            }
+            
+            if(!enrolment.isValid(executionYear)) {
+                continue;
+            }
+            
+            result.add(enrolment);
+        }
+        
+        return result; 
+    }
 
     protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration) {
         if (BigDecimal.ZERO.compareTo(enrolledEcts(executionYear, registration)) != 0) {

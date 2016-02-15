@@ -533,7 +533,7 @@ public class Raides {
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if (rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
+            if (rci.isScholarPart() && scholarPartConclusionYear(rci) == executionYear) {
                 return true;
             }
         }
@@ -541,6 +541,25 @@ public class Raides {
         return false;
     }
 
+    public static ExecutionYear scholarPartConclusionYear(final RegistrationConclusionInformation rci) {
+        if (!Raides.isMasterDegreeOrDoctoralDegree(rci.getRegistrationConclusionBean().getRegistration())) {
+            return rci.getConclusionYear();
+        }
+        
+        if(!rci.getRegistrationConclusionBean().isConclusionProcessed()) {
+            return rci.getConclusionYear();
+        }
+        
+        final ExecutionYear conclusionYearByDate = ExecutionYear.readByDateTime(rci.getConclusionDate());
+        final ExecutionYear conclusionYearByInformation = rci.getConclusionYear();
+        
+        if(conclusionYearByDate.isBefore(conclusionYearByInformation)) {
+            return conclusionYearByDate;
+        }
+        
+        return rci.getConclusionYear();
+    }
+    
     protected boolean containsStudentIdentification(final Student student) {
         return alunos.containsKey(student);
     }

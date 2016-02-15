@@ -44,7 +44,7 @@ public class DiplomadoService extends RaidesService {
         preencheInformacaoMatricula(report, bean, institutionUnit, executionYear, registration);
 
         bean.setAreaInvestigacao(registration.getResearchArea() != null ? registration.getResearchArea().getCode() : "");
-        
+
         if (isTerminalConcluded(registration, executionYear)) {
             final RegistrationConclusionInformation terminalConclusionInfo =
                     terminalConclusionInformation(registration, executionYear);
@@ -56,8 +56,7 @@ public class DiplomadoService extends RaidesService {
                     String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
 
             if (registrationConclusionBean.getDescriptiveGrade() != null
-                    && !registrationConclusionBean.getDescriptiveGrade().isEmpty() &&
-                    Raides.isDoctoralDegree(registration)) {
+                    && !registrationConclusionBean.getDescriptiveGrade().isEmpty() && Raides.isDoctoralDegree(registration)) {
                 bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
                         .translate(finalGrade(registrationConclusionBean.getDescriptiveGrade().getValue())));
             } else if (registrationConclusionBean.getFinalGrade().isEmpty()) {
@@ -85,8 +84,8 @@ public class DiplomadoService extends RaidesService {
             bean.setAnoLectivo(registrationConclusionBean.getConclusionYear().getQualifiedName());
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
             bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
-                    .translate(registrationConclusionBean.getFinalGrade().getValue()));
-        } else if (Raides.isIntegratedMasterDegree(registration) && isScholarPartConcluded(registration, executionYear) 
+                    .translate(finalGrade(registrationConclusionBean.getFinalGrade().getValue())));
+        } else if (Raides.isIntegratedMasterDegree(registration) && isScholarPartConcluded(registration, executionYear)
                 && !isTerminalConcluded(registration, executionYear)) {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
 
@@ -170,7 +169,7 @@ public class DiplomadoService extends RaidesService {
                 continue;
             }
 
-            if (rci.getConclusionYear() != executionYear) {
+            if (Raides.scholarPartConclusionYear(rci) != executionYear) {
                 continue;
             }
 
@@ -179,6 +178,7 @@ public class DiplomadoService extends RaidesService {
 
         return null;
     }
+
 
     private boolean isScholarPartConcluded(final Registration registration, final ExecutionYear executionYear) {
         return scholarPartConclusionInformation(registration, executionYear) != null;
@@ -288,11 +288,11 @@ public class DiplomadoService extends RaidesService {
     }
 
     private void validaAreaInvestigacao(ExecutionYear executionYear, Registration registration, TblDiplomado bean) {
-        if(Raides.isDoctoralDegree(registration) && Strings.isNullOrEmpty(bean.getAreaInvestigacao())) {
+        if (Raides.isDoctoralDegree(registration) && Strings.isNullOrEmpty(bean.getAreaInvestigacao())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.doctoral.requires.research.area",
                             String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));            
+                            executionYear.getQualifiedName()));
         }
     }
 
