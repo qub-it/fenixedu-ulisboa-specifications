@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.ects;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -102,10 +104,14 @@ public class CourseGradingTable extends CourseGradingTable_Base {
 //                    } catch (final NumberFormatException e) {
 //                        continue;
 //                    }
-                    if (enrolment.getFinalGrade() == null) {
+
+                    Integer finalGrade =
+                            isNumeric(enrolment.getGrade()) ? enrolment.getGrade().getNumericValue()
+                                    .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
+                    if (finalGrade == 0) {
                         continue;
                     }
-                    sample.add(new BigDecimal(enrolment.getFinalGrade()));
+                    sample.add(new BigDecimal(finalGrade));
                 }
             }
 
@@ -116,6 +122,21 @@ public class CourseGradingTable extends CourseGradingTable_Base {
             }
         }
         return sampleOK ? sample : null;
+    }
+
+    private boolean isNumeric(Grade grade) {
+        if (grade == null) {
+            return false;
+        }
+        try {
+            Double.parseDouble(grade.getValue());
+            if (grade.getNumericValue() != null) {
+                return true;
+            }
+            return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 }
