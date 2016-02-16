@@ -143,7 +143,7 @@ public class XmlToBaseFileWriter {
         mobilidade.setAreaCientifica(null);
         mobilidade.setCurso(tblMobilidadeInternacional.getCurso());
         mobilidade.setDuracaoPrograma(duracaoProgramaValueOf(tblMobilidadeInternacional));
-        mobilidade.setECTSInscricao(new BigDecimal(tblMobilidadeInternacional.getEctsInscrito()));
+        mobilidade.setECTSInscricao(bigDecimalValueOf(tblMobilidadeInternacional.getEctsInscrito()));
         mobilidade.setNivelCursoDestino(null);
         mobilidade.setNivelCursoOrigem(longValueOf(tblMobilidadeInternacional.getNivelCursoOrigem()));
         mobilidade.setOutroNivelCurDestino(null);
@@ -163,6 +163,14 @@ public class XmlToBaseFileWriter {
         mobilidade.setTipoProgMobilidade(longValueOf(tblMobilidadeInternacional.getTipoProgMobilidade()));
 
         return mobilidade;
+    }
+
+    private static BigDecimal bigDecimalValueOf(final String value) {
+        if(Strings.isNullOrEmpty(value)) {
+            return null;
+        }
+        
+        return new BigDecimal(value);
     }
 
     private static Diploma fillDiploma(Raides raides, ObjectFactory factory, Student student, TblDiplomado tblDiplomado) {
