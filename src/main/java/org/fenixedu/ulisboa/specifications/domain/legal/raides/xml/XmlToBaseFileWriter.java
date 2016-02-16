@@ -90,49 +90,55 @@ public class XmlToBaseFileWriter {
 
     protected static Aluno fillAluno(final RaidesRequestParameter raidesRequestParameter, final Raides raides,
             ObjectFactory factory, final Student student) {
-        final TblIdentificacao tblIdentificacao = raides.identificacaoForStudent(student);
-        final Collection<TblInscrito> inscricoesForStudent = raides.inscricoesForStudent(student, raidesRequestParameter);
-        final Collection<TblDiplomado> diplomadosForStudent = raides.diplomadosForStudent(student, raidesRequestParameter);
-        final TblMobilidadeInternacional tblMobilidadeInternacional =
-                raides.mobilidadeInternacionalForStudent(student, raidesRequestParameter);
-
-        if (raidesRequestParameter.isFilterEntriesWithErrors() && !tblIdentificacao.isValid()) {
+        try {
+            final TblIdentificacao tblIdentificacao = raides.identificacaoForStudent(student);
+            final Collection<TblInscrito> inscricoesForStudent = raides.inscricoesForStudent(student, raidesRequestParameter);
+            final Collection<TblDiplomado> diplomadosForStudent = raides.diplomadosForStudent(student, raidesRequestParameter);
+            final TblMobilidadeInternacional tblMobilidadeInternacional =
+                    raides.mobilidadeInternacionalForStudent(student, raidesRequestParameter);
+            
+            if (raidesRequestParameter.isFilterEntriesWithErrors() && !tblIdentificacao.isValid()) {
+                return null;
+            }
+            
+            if (raidesRequestParameter.isFilterEntriesWithErrors() && inscricoesForStudent.isEmpty()
+                    && diplomadosForStudent.isEmpty() && tblMobilidadeInternacional == null) {
+                return null;
+            }
+            
+            final Aluno aluno = factory.createInformacaoAlunosAlunosAluno();
+            aluno.setIdentificacao(fillIdentificacaoAluno(raides, factory, student));
+            
+            if (!inscricoesForStudent.isEmpty()) {
+                final Inscricoes inscricoes = factory.createInformacaoAlunosAlunosAlunoInscricoes();
+                aluno.setInscricoes(inscricoes);
+                
+                for (final TblInscrito tblInscrito : inscricoesForStudent) {
+                    inscricoes.getInscricao().add(fillInscricao(raides, factory, student, tblInscrito));
+                }
+            }
+            
+            if (!diplomadosForStudent.isEmpty()) {
+                final Diplomas diplomas = factory.createInformacaoAlunosAlunosAlunoDiplomas();
+                aluno.setDiplomas(diplomas);
+                
+                for (final TblDiplomado tblDiplomado : diplomadosForStudent) {
+                    diplomas.getDiploma().add(fillDiploma(raides, factory, student, tblDiplomado));
+                }
+            }
+            
+            if (tblMobilidadeInternacional != null) {
+                final Mobilidade mobilidade = fillMobilidadeInternacional(raides, factory, student, tblMobilidadeInternacional);
+                aluno.setMobilidade(mobilidade);
+                
+            }
+            
+            return aluno;
+            
+        } catch(final Exception e) {
+            e.printStackTrace();
             return null;
         }
-
-        if (raidesRequestParameter.isFilterEntriesWithErrors() && inscricoesForStudent.isEmpty()
-                && diplomadosForStudent.isEmpty() && tblMobilidadeInternacional == null) {
-            return null;
-        }
-
-        final Aluno aluno = factory.createInformacaoAlunosAlunosAluno();
-        aluno.setIdentificacao(fillIdentificacaoAluno(raides, factory, student));
-
-        if (!inscricoesForStudent.isEmpty()) {
-            final Inscricoes inscricoes = factory.createInformacaoAlunosAlunosAlunoInscricoes();
-            aluno.setInscricoes(inscricoes);
-
-            for (final TblInscrito tblInscrito : inscricoesForStudent) {
-                inscricoes.getInscricao().add(fillInscricao(raides, factory, student, tblInscrito));
-            }
-        }
-
-        if (!diplomadosForStudent.isEmpty()) {
-            final Diplomas diplomas = factory.createInformacaoAlunosAlunosAlunoDiplomas();
-            aluno.setDiplomas(diplomas);
-
-            for (final TblDiplomado tblDiplomado : diplomadosForStudent) {
-                diplomas.getDiploma().add(fillDiploma(raides, factory, student, tblDiplomado));
-            }
-        }
-
-        if (tblMobilidadeInternacional != null) {
-            final Mobilidade mobilidade = fillMobilidadeInternacional(raides, factory, student, tblMobilidadeInternacional);
-            aluno.setMobilidade(mobilidade);
-
-        }
-
-        return aluno;
     }
 
     private static Mobilidade fillMobilidadeInternacional(Raides raides, ObjectFactory factory, Student student,

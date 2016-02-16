@@ -54,7 +54,15 @@ public class DiplomadoService extends RaidesService {
             bean.setAnoLectivo(terminalConclusionInfo.getConclusionYear().getQualifiedName());
             bean.setNumInscConclusao(
                     String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
-
+            
+            if(Raides.isDoctoralDegree(registration) && !registrationConclusionBean.isConclusionProcessed()) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.doctoral.degree.without.conclusion.process",
+                                String.valueOf(registration.getStudent().getNumber()),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                bean.markAsInvalid();                
+            }
+            
             if (registrationConclusionBean.getDescriptiveGrade() != null
                     && !registrationConclusionBean.getDescriptiveGrade().isEmpty() && Raides.isDoctoralDegree(registration)) {
                 bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
