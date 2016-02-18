@@ -29,6 +29,8 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 
+enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType as AcademicEnrolmentPeriodType;
+
 enum org.fenixedu.academic.domain.GradeScale                                                                           as GradeScaleSpecifications;
 
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
@@ -64,6 +66,7 @@ external class .org.fenixedu.academic.domain.ExecutionSemester;
 external class .org.fenixedu.bennu.core.domain.User;
 external class .org.fenixedu.bennu.io.domain.GenericFile;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
+external class .org.fenixedu.academic.domain.student.StatuteType;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -1839,4 +1842,62 @@ relation PersonCountryHighSchool {
     
     .org.fenixedu.academic.domain.Country playsRole countryHighSchool;
 }
+
+
+//======================= = AcademicEnrolmentPeriod = =========================
+
+class enrolmentPeriod.AcademicEnrolmentPeriod {
+    DateTime startDate;
+    DateTime endDate;
+    Boolean specialSeason;
+    Boolean firstTimeRegistration;
+    Boolean restrictToSelectedStatutes;
+    Integer minStudentNumber;
+    Integer maxStudentNumber;
+    Integer curricularYear;
+    AcademicEnrolmentPeriodType enrolmentPeriodType;
+}
+
+relation AcademicEnrolmentPeriodBennu {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation AcademicEnrolmentPeriodExecutionSemester {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.ExecutionSemester playsRole executionSemester {
+        multiplicity 1..1;
+    }    
+}
+
+relation AcademicEnrolmentPeriodDegreeCurricularPlan {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlans {
+        multiplicity *;
+    }    
+}
+
+relation AcademicEnrolmentPeriodStatuteType {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes {
+        multiplicity *;
+    }    
+}
+
+
+//======================= = END AcademicEnrolmentPeriod = =========================
 
