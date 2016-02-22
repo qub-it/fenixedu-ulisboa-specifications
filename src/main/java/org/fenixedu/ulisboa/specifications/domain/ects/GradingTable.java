@@ -4,8 +4,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
+
+import pt.ist.fenixframework.CallableWithoutException;
+import pt.ist.fenixframework.FenixFramework;
 
 abstract public class GradingTable extends GradingTable_Base {
 
@@ -109,5 +114,24 @@ abstract public class GradingTable extends GradingTable_Base {
     }
 
     abstract public void compileData();
+
+    protected static class GeneratorWorker<T extends GradingTable> extends Thread {
+
+        private T table;
+        private CallableWithoutException<T> logic;
+
+        public GeneratorWorker(CallableWithoutException<T> logic) {
+            this.logic = logic;
+        }
+
+        @Override
+        public void run() {
+            table = FenixFramework.getTransactionManager().withTransaction(logic);
+        }
+
+        T getTable() {
+            return table;
+        }
+    }
 
 }

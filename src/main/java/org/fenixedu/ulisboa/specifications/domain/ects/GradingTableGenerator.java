@@ -1,6 +1,8 @@
 package org.fenixedu.ulisboa.specifications.domain.ects;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,8 +139,10 @@ public class GradingTableGenerator {
         }
 
         // 5. Populate the table with final values
-        for (Entry<BigDecimal, String> entry : tableMap.entrySet()) {
-            table.addMark(entry.getKey(), entry.getValue());
+        List<BigDecimal> reverseOrderedKeys = new ArrayList<BigDecimal>(tableMap.keySet());
+        Collections.reverse(reverseOrderedKeys);
+        for (BigDecimal mark : reverseOrderedKeys) {
+            table.addMark(mark, tableMap.get(mark));
         }
     }
 

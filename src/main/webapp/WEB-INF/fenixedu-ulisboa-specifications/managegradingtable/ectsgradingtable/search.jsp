@@ -15,15 +15,16 @@
 <spring:url var="datatablesI18NUrl" value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json" />
 
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/CSS/dataTables/dataTables.bootstrap.min.css" />
-<link href="${pageContext.request.contextPath}/static/treasury/css/dataTables.responsive.css" rel="stylesheet" />
+<link href="${pageContext.request.contextPath}/static/ulisboaspecifications/css/dataTables.responsive.css" rel="stylesheet" />
 <link href="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/css/dataTables.tableTools.css" rel="stylesheet" />
 <link href="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/css/select2.min.css" rel="stylesheet" />
+<link href="${pageContext.request.contextPath}/static/ulisboaspecifications/css/omnis.css" rel="stylesheet" />
 
-<script src="${pageContext.request.contextPath}/static/treasury/js/dataTables.responsive.js"></script>
+<script src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/dataTables.responsive.js"></script>
 <script src="${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/js/dataTables.tableTools.js"></script>
 <script src="${pageContext.request.contextPath}/webjars/select2/4.0.0-rc.2/dist/js/select2.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/webjars/bootbox/4.4.0/bootbox.js"></script>
-<script src="${pageContext.request.contextPath}/static/treasury/js/omnis.js"></script>
+<script src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/omnis.js"></script>
 
 ${portal.toolkit()}
 
@@ -34,7 +35,7 @@ ${portal.toolkit()}
 </style>
 
 
-<div class="modal fade" id="deleteECTSTableModal">
+<div class="modal fade" id="deleteSingleECTSTableModal">
     <div class="modal-dialog">
         <div class="modal-content">
 	        <div class="modal-header">
@@ -61,10 +62,42 @@ ${portal.toolkit()}
         </div>
     </div>
 </div>
+<div class="modal fade" id="deleteMultiECTSTableModal">
+	<form method="post" class="form-horizontal" enctype="multipart/form-data">
+    <div class="modal-dialog">
+        <div class="modal-content">
+	        <div class="modal-header">
+	            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                <span aria-hidden="true">&times;</span>
+	            </button>
+	            <h4 class="modal-title">
+	                <spring:message code="label.confirmation" />
+	            </h4>
+	        </div>
+	        <div class="modal-body">
+	            <div class="form-group row">
+	                <spring:message code="label.gradingTables.deleteConfirmation" />
+	            </div>
+	        </div>
+	        <div class="modal-footer">
+	            <button type="button" class="btn btn-default" data-dismiss="modal">
+	                <spring:message code="label.close" />
+	            </button>
+	            <input id="submitButton" class="btn btn-primary" type="submit" value="<spring:message code="label.confirm" />"/>
+	        </div>
+        </div>
+    </div>
+    </form>
+</div>
 <script type="text/javascript">
 function openDeletionModal(url) {
-    $("#deleteECTSTableModal #submitButton").attr("href", url);
-    $('#deleteECTSTableModal').modal('toggle');
+    $("#deleteSingleECTSTableModal #submitButton").attr("href", url);
+    $('#deleteSingleECTSTableModal').modal('toggle');
+}
+function openDeletionModal(url, oids) {
+    $("#deleteMultiECTSTableModal form").attr("action", url);
+    $("#deleteMultiECTSTableModal form").prepend("<input type='hidden' name='oids' value='" + oids + "'>");
+    $('#deleteMultiECTSTableModal').modal('toggle');
 }
 </script>
 
@@ -152,7 +185,7 @@ function openDeletionModal(url) {
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-xs-2">
-				<a class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_INSTITUTIONAL_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTable'/></a>
+				<a id="instituionTableGenButton" class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_INSTITUTIONAL_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTable'/></a>
 			</div>
 		</div>
 		<div class="row ects-row">
@@ -163,6 +196,7 @@ function openDeletionModal(url) {
 							<thead>
 								<tr>
 									<th><!-- School Name  --></th>
+									<th><spring:message code='label.gradingTables.copied'/></th>
 									<c:forEach var="conversion" items="${institutionGradeTable.data.table}" varStatus="loop">
 										<th><c:out value='${conversion.mark}'/></th>
 									</c:forEach>
@@ -172,6 +206,7 @@ function openDeletionModal(url) {
 							<tbody>
 								<tr>
 									<td><%= Unit.getInstitutionName().getContent() %></td>
+									<td><c:if test="${institutionGradeTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not institutionGradeTable.copied}"><spring:message code="label.false" /></c:if></td>
 									<c:forEach var="conversion" items="${institutionGradeTable.data.table}" varStatus="loop">
 										<td><c:out value='${conversion.ectsGrade}'/></td>
 									</c:forEach>
@@ -205,7 +240,7 @@ function openDeletionModal(url) {
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-xs-2">
-				<a class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_DEGREES_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTables'/></a>
+				<a id="degreeTableGenButton" class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_DEGREES_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTables'/></a>
 			</div>
 		</div>
 		<c:choose>
@@ -217,6 +252,7 @@ function openDeletionModal(url) {
 								<tr>
 									<th><spring:message code='label.gradingTables.degree'/></th>
 									<th><spring:message code='label.gradingTables.programConclusion'/></th>
+									<th><spring:message code='label.gradingTables.copied'/></th>
 									<c:forEach var="dataHeader" items="${degreeGradeTableHeaders}" varStatus="loop_h">
 										<th><c:out value='${dataHeader}'/></th>
 									</c:forEach>
@@ -228,6 +264,7 @@ function openDeletionModal(url) {
 								<tr>
 									<td><c:out value="${degreeTable.degree.presentationNameI18N.content}" /></td>
 									<td><c:out value="${degreeTable.programConclusion.name.content}" /></td>
+									<td><c:if test="${degreeTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not degreeTable.copied}"><spring:message code="label.false" /></c:if></td>
 									<c:forEach var="conversion" items="${degreeTable.data.table}" varStatus="loop">
 										<td><c:out value='${conversion.ectsGrade}'/></td>
 									</c:forEach>
@@ -272,7 +309,7 @@ function openDeletionModal(url) {
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-xs-2">
-				<a class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_COURSESS_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTables'/></a>
+				<a id="courseTableGenButton" class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_COURSESS_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTables'/></a>
 			</div>
 		</div>
 		<c:choose>
@@ -283,6 +320,7 @@ function openDeletionModal(url) {
 							<thead>
 								<tr>
 									<th><spring:message code='label.gradingTables.course'/></th>
+									<th><spring:message code='label.gradingTables.copied'/></th>
 									<c:forEach var="dataHeader" items="${courseGradeTableHeaders}" varStatus="loop_h">
 										<th><c:out value='${dataHeader}'/></th>
 									</c:forEach>
@@ -293,6 +331,7 @@ function openDeletionModal(url) {
 								<c:forEach var="courseTable" items="${courseGradeTable}" varStatus="loop_out">
 								<tr>
 									<td><c:out value="${courseTable.competenceCourse.nameI18N.content}" /></td>
+									<td><c:if test="${courseTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not courseTable.copied}"><spring:message code="label.false" /></c:if></td>
 									<c:forEach var="conversion" items="${courseTable.data.table}" varStatus="loop">
 										<td><c:out value='${conversion.ectsGrade}'/></td>
 									</c:forEach>
@@ -342,6 +381,14 @@ function openDeletionModal(url) {
 	
 	$(document).ready(function() {
 
+		var blockerMsgs = {
+				'title': '<spring:message code="label.gradingTables.generator.blockerTitle"/>',
+				'message': '<spring:message code="label.gradingTables.generator.blockerMessage"/>'
+			};
+		Omnis.block('instituionTableGenButton', blockerMsgs);
+		Omnis.block('degreeTableGenButton', blockerMsgs);
+		Omnis.block('courseTableGenButton', blockerMsgs);
+		
  		createDataTables('institutionGradeTable', false /*filterable*/, false /*show tools*/, false /*paging*/, "${pageContext.request.contextPath}", "${datatablesI18NUrl}");
  		delay(
  			function () {
@@ -368,7 +415,7 @@ function openDeletionModal(url) {
 				},
 				function () {
 		 	 		$('#degreeGradeTable .sorting, #degreeGradeTable .sorting_desc, #degreeGradeTable .sorting_asc').each( function (index) {
-		 	 			if (index > 1) {
+		 	 			if (index > 2) {
 		 	 				$(this).removeClass('sorting');
 			 	 			$(this).removeClass('sorting_asc');
 			 	 			$(this).removeClass('sorting_desc');
@@ -390,14 +437,14 @@ function openDeletionModal(url) {
 		$('#delete-all-selected-degrees').on('click', function () {
 			var oids = '';
 			var url = "${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/";
-			var token = "/${sectoken}";
+			var token = "${sectoken}";
 			$('#degreeGradeTable tr.selected a').each( function (index) {
 				var slugs = $(this).attr('href').split('/');
 				slugs.pop() // discard token...
 				oids += slugs.pop() + '+';
 			});
 			oids = oids.slice(0, -1);
-			openDeletionModal(url+oids+token)
+			openDeletionModal(url+token, oids)
 			return;
 		});
 		$('#degreeGradeTable tbody').off('click');
@@ -439,14 +486,14 @@ function openDeletionModal(url) {
 		$('#delete-all-selected-courses').on('click', function () {
 			var oids = '';
 			var url = "${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/";
-			var token = "/${sectoken}";
+			var token = "${sectoken}";
 			$('#courseGradeTable tr.selected a').each( function (index) {
 				var slugs = $(this).attr('href').split('/');
 				slugs.pop() // discard token...
 				oids += slugs.pop() + '+';
 			});
 			oids = oids.slice(0, -1);
-			openDeletionModal(url+oids+token)
+			openDeletionModal(url+token, oids)
 			return;
 		});
 		$('#courseGradeTable tbody').off('click');

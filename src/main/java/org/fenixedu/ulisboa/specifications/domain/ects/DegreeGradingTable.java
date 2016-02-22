@@ -21,6 +21,9 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable.GeneratorWorker;
+
+import pt.ist.fenixframework.CallableWithoutException;
 
 public class DegreeGradingTable extends DegreeGradingTable_Base {
 
@@ -55,15 +58,29 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
         for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
             Degree degree = dcp.getDegree();
             for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp).collect(Collectors.toSet())) {
-                DegreeGradingTable table = find(executionYear, programConclusion, degree);
-                if (table == null) {
-                    table = new DegreeGradingTable();
-                    table.setExecutionYear(executionYear);
-                    table.setProgramConclusion(programConclusion);
-                    table.setDegree(degree);
-                    table.compileData();
+                CallableWithoutException<DegreeGradingTable> workerLogic = new CallableWithoutException<DegreeGradingTable>() {
+                    @Override
+                    public DegreeGradingTable call() {
+                        DegreeGradingTable table = find(executionYear, programConclusion, degree);
+                        if (table == null) {
+                            table = new DegreeGradingTable();
+                            table.setExecutionYear(executionYear);
+                            table.setProgramConclusion(programConclusion);
+                            table.setDegree(degree);
+                            table.compileData();
+                        }
+                        return table;
+                    }
+
+                };
+                GeneratorWorker<DegreeGradingTable> worker = new GeneratorWorker<DegreeGradingTable>(workerLogic);
+                worker.start();
+                try {
+                    worker.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                allTables.add(table);
+                allTables.add(worker.getTable());
             }
         }
         return allTables;

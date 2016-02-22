@@ -49,6 +49,8 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
             for (GradeConversion gc : institutionTable.getData().getTable()) {
                 table.addMark(gc.getMark(), gc.getEctsGrade());
             }
+        } else {
+            GradingTableGenerator.defaultData(table);
         }
     }
 

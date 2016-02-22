@@ -116,7 +116,6 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         return VIEW_URL + "search";
     }
 
-    @Atomic
     private void generateDegreesGradingTable(final ExecutionYear executionYear) {
         DegreeGradingTable.generate(executionYear);
     }
@@ -137,7 +136,6 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         return VIEW_URL + "search";
     }
 
-    @Atomic
     private void generateCoursesGradingTable(final ExecutionYear executionYear) {
         CourseGradingTable.generate(executionYear);
     }
@@ -146,8 +144,22 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     public static final String DELETE_TABLES_URL = CONTROLLER_URL + _DELETE_TABLES_URI;
 
     @RequestMapping(value = _DELETE_TABLES_URI + "{oid}" + "/" + "{oids}" + "/" + "{token}", method = RequestMethod.GET)
-    public String deleteTable(@PathVariable(value = "oid") ExecutionYear executionYear,
+    public String deleteTableGet(@PathVariable(value = "oid") ExecutionYear executionYear,
             @PathVariable(value = "oids") String oids, @PathVariable(value = "token") String token,
+            @ModelAttribute("sectoken") String sectoken, Model model) {
+        if (!token.equals(sectoken)) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), model);
+        } else {
+            deleteTables(oids.split("\\+"));
+        }
+        loadModel(model, executionYear);
+        return VIEW_URL + "search";
+    }
+
+    @RequestMapping(value = _DELETE_TABLES_URI + "{oid}" + "/" + "{token}", method = RequestMethod.POST)
+    public String deleteTablePost(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @PathVariable(value = "token") String token, @RequestParam(value = "oids", required = true) String oids,
             @ModelAttribute("sectoken") String sectoken, Model model) {
         if (!token.equals(sectoken)) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,

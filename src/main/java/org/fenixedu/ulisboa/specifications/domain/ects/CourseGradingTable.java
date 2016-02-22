@@ -3,26 +3,21 @@ package org.fenixedu.ulisboa.specifications.domain.ects;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
-import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.bennu.core.domain.Bennu;
+
+import pt.ist.fenixframework.CallableWithoutException;
+import pt.ist.fenixframework.FenixFramework;
 
 public class CourseGradingTable extends CourseGradingTable_Base {
 
@@ -55,14 +50,28 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         Set<CourseGradingTable> allTables = new HashSet<CourseGradingTable>();
         for (CompetenceCourse cc : Bennu.getInstance().getCompetenceCoursesSet()) {
             if (cc.hasActiveScopesInExecutionYear(executionYear)) {
-                CourseGradingTable table = find(executionYear, cc);
-                if (table == null) {
-                    table = new CourseGradingTable();
-                    table.setExecutionYear(executionYear);
-                    table.setCompetenceCourse(cc);
-                    table.compileData();
+                CallableWithoutException<CourseGradingTable> workerLogic = new CallableWithoutException<CourseGradingTable>() {
+                    @Override
+                    public CourseGradingTable call() {
+                        CourseGradingTable table = CourseGradingTable.find(executionYear, cc);
+                        if (table == null) {
+                            table = new CourseGradingTable();
+                            table.setExecutionYear(executionYear);
+                            table.setCompetenceCourse(cc);
+                            table.compileData();
+                        }
+                        return table;
+                    }
+
+                };
+                GeneratorWorker<CourseGradingTable> worker = new GeneratorWorker<CourseGradingTable>(workerLogic);
+                worker.start();
+                try {
+                    worker.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                allTables.add(table);
+                allTables.add(worker.getTable());
             }
         }
         return allTables;
@@ -138,5 +147,4 @@ public class CourseGradingTable extends CourseGradingTable_Base {
             return false;
         }
     }
-
 }
