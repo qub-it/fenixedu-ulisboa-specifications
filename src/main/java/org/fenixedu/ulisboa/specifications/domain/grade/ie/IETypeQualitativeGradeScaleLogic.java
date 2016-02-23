@@ -73,7 +73,7 @@ public class IETypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public boolean isNotApproved(Grade grade) {
-        return RE.equals(grade.getValue());
+        return R.equals(grade.getValue());
     }
 
     @Override
