@@ -240,6 +240,11 @@ public class Raides {
                             continue;
                         }
 
+                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(),
+                                registration)) {
+                            continue;
+                        }
+                        
                         if (!isInEnrolledEctsLimit(enroledPeriod, registration, academicPeriod)) {
                             continue;
                         }
