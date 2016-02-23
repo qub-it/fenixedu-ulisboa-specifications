@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.grade.igot;
+package org.fenixedu.ulisboa.specifications.domain.grade.fc;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,23 +11,26 @@ import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
 
-public class IGOTTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
+public class FCTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
-    private static final String A = "A";
+    private static final String I = "I";
     private static final String SU = "SU";
+    private static final String A = "A";
     private static final String B = "B";
     private static final String BD = "BD";
     private static final String MB = "MB";
-    private static final String E = "E";
     private static final String AD = "AD";
     private static final String ADL = "ADL";
+    private static final String MH = "MH";
+    private static final String E = "E";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(A, AD, ADL, SU, B, BD, MB, E);
+    private static final List<String> SORTED_GRADES = Arrays.asList(I, SU, A, B, BD, MB, AD, ADL, MH, E);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
     static {
+        CONFIGURATION.put(I, new LocalizedString(Locale.getDefault(), "Insuficiente").with(Locale.ENGLISH, "Not Enough"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
         CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
@@ -39,6 +42,8 @@ public class IGOTTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
                 "Approved with Distinction"));
         CONFIGURATION.put(ADL, new LocalizedString(Locale.getDefault(), "Aprovado com Distinção e Louvor").with(Locale.ENGLISH,
                 "Approved with Distinction and Honors"));
+        CONFIGURATION.put(MH,
+                new LocalizedString(Locale.getDefault(), "Menção Honrosa").with(Locale.ENGLISH, "Honorable mention"));
 
     }
 
@@ -65,7 +70,7 @@ public class IGOTTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public boolean isNotApproved(Grade grade) {
-        return false;
+        return I.equals(grade.getValue());
     }
 
     @Override
