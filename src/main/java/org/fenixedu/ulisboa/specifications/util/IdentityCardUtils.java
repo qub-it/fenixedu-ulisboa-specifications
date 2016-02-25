@@ -1,10 +1,49 @@
 package org.fenixedu.ulisboa.specifications.util;
 
+import org.fenixedu.academic.domain.IdentificationDocumentExtraDigit;
+import org.fenixedu.academic.domain.IdentificationDocumentSeriesNumber;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.PersonIdentificationDocumentExtraInfo;
+import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import com.google.common.base.Strings;
 
 public class IdentityCardUtils {
+
+    public static String getDigitControlFromPerson(final Person person) {
+        if (!Strings.isNullOrEmpty(person.getIdentificationDocumentSeriesNumberValue())) {
+            return person.getIdentificationDocumentSeriesNumberValue();
+        }
+
+        return person.getIdentificationDocumentExtraDigitValue();
+    }
+
+    public static void editDigitControlOnPerson(final Person person, final String digitControl) {
+        PersonIdentificationDocumentExtraInfo documentExtraInfo = person
+                .getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
+
+        if (documentExtraInfo == null) {
+            documentExtraInfo = person.getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
+        }
+
+        if (documentExtraInfo == null) {
+            documentExtraInfo = new IdentificationDocumentSeriesNumber();
+            documentExtraInfo.setPerson(person);
+        }
+
+        if (person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+            if (Strings.isNullOrEmpty(digitControl)) {
+                throw new ULisboaSpecificationsDomainException("error.IdentityCardUtils.digit.control.required");
+            }
+
+            if (!validate(person.getDocumentIdNumber(), digitControl)) {
+                throw new ULisboaSpecificationsDomainException("error.IdentityCardUtils.invalid.digit.control");
+            }
+        }
+
+        documentExtraInfo.setValue(digitControl);
+    }
 
     public static boolean validate(final String idDocumentNumber, final String digitControl) {
 
@@ -19,21 +58,22 @@ public class IdentityCardUtils {
         return false;
     }
 
-    private static boolean validateBilheteIdentidadeDigitControl(final String idDocumentNumber, final String digitControl) {
-        if (!isCartaoCidadaoDigitControlFormatValid(digitControl)) {
-            throw new RuntimeException("Identity card digit control invalid");
+    private static boolean validateBilheteIdentidadeDigitControl(final String idDocumentNumber,
+            final String digitControl) {
+        if (!isBilheteIdentidadeDigitControlFormatValid(digitControl)) {
+            return false;
         }
 
-        return generateBilheteIdentidadeDigitControl(idDocumentNumber) == Integer.valueOf(digitControl);
+        return generateBilheteIdentidadeDigitControl(idDocumentNumber) == Integer.parseInt(digitControl);
     }
 
     private static boolean validateCartaoCidadaoDigitControl(final String idDocumentNumber, final String digitControl) {
         if (!isCartaoCidadaoDigitControlFormatValid(digitControl)) {
-            throw new RuntimeException("Citizen card digit control invalid");
+            return false;
         }
 
-        if (idDocumentNumber.length() != 12) {
-            throw new ULisboaSpecificationsDomainException("Tamanho inválido para número de documento.");
+        if ((idDocumentNumber.length() + digitControl.length()) != 12) {
+            return false;
         }
 
         final String s = idDocumentNumber + digitControl;
@@ -41,7 +81,7 @@ public class IdentityCardUtils {
         int sum = 0;
         boolean secondDigit = false;
         for (int i = s.length() - 1; i >= 0; --i) {
-            int valor = GetNumberFromChar(s.charAt(i));
+            int valor = getNumberFromChar(s.charAt(i));
             if (secondDigit) {
                 valor *= 2;
 
@@ -58,8 +98,8 @@ public class IdentityCardUtils {
     }
 
     public static boolean isIdentityCardDigitControlFormatValid(final String extraValue) {
-        return !Strings.isNullOrEmpty(extraValue)
-                && (isBilheteIdentidadeDigitControlFormatValid(extraValue) || isCartaoCidadaoDigitControlFormatValid(extraValue));
+        return !Strings.isNullOrEmpty(extraValue) && (isBilheteIdentidadeDigitControlFormatValid(extraValue)
+                || isCartaoCidadaoDigitControlFormatValid(extraValue));
     }
 
     public static boolean isBilheteIdentidadeDigitControlFormatValid(final String extraValue) {
@@ -70,7 +110,8 @@ public class IdentityCardUtils {
         return extraValue.matches("\\d[A-Z][A-Z]\\d");
     }
 
-    public static int generateBilheteIdentidadeDigitControl(final String idDocumentNumber) throws NumberFormatException {
+    public static int generateBilheteIdentidadeDigitControl(final String idDocumentNumber)
+            throws NumberFormatException {
 
         Integer.valueOf(idDocumentNumber);
 
@@ -95,7 +136,7 @@ public class IdentityCardUtils {
         return checkDigit;
     }
 
-    private static int GetNumberFromChar(char letter) {
+    private static int getNumberFromChar(char letter) {
         switch (letter) {
         case '0':
             return 0;
@@ -171,6 +212,7 @@ public class IdentityCardUtils {
             return 35;
         }
 
-        throw new ULisboaSpecificationsDomainException("Valor inválido no número de documento.");
+        throw new ULisboaSpecificationsDomainException("error.IdentityCardUtils.invalid.document.number");
     }
+
 }
