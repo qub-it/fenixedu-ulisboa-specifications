@@ -90,11 +90,11 @@ ${portal.toolkit()}
     </form>
 </div>
 <script type="text/javascript">
-function openDeletionModal(url) {
+function openSingleDeletionModal (url) {
     $("#deleteSingleECTSTableModal #submitButton").attr("href", url);
     $('#deleteSingleECTSTableModal').modal('toggle');
 }
-function openDeletionModal(url, oids) {
+function openDeletionModal (url, oids) {
     $("#deleteMultiECTSTableModal form").attr("action", url);
     $("#deleteMultiECTSTableModal form").prepend("<input type='hidden' name='oids' value='" + oids + "'>");
     $('#deleteMultiECTSTableModal').modal('toggle');
@@ -403,7 +403,7 @@ function openDeletionModal(url, oids) {
 	 	 			$(this).off('click');
 	 	 		});
 	 	 		$('#institutionGradeTable a').on('click', function () {
-	 	 			openDeletionModal($(this).attr('href'));
+	 	 			openSingleDeletionModal($(this).attr('href'));
 	 	 			return false;
 	 	 		});
 			});
@@ -423,7 +423,7 @@ function openDeletionModal(url, oids) {
 		 	 			}
 		 	 		});
 		 	 		$('#degreeGradeTable a').on('click', function () {
-		 	 			openDeletionModal($(this).attr('href'));
+		 	 			openSingleDeletionModal($(this).attr('href'));
 		 	 			return false;
 		 	 		});
 				});
@@ -472,7 +472,7 @@ function openDeletionModal(url, oids) {
 		 	 			}
 		 	 		});
 		 	 		$('#courseGradeTable a').on('click', function () {
-		 	 			openDeletionModal($(this).attr('href'));
+		 	 			openSingleDeletionModal($(this).attr('href'));
 		 	 			return false;
 		 	 		});
 				});

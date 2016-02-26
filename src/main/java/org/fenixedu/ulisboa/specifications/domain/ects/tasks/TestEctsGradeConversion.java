@@ -1,21 +1,17 @@
-package org.fenixedu.ulisboa.specifications.domain.ects;
+package org.fenixedu.ulisboa.specifications.domain.ects.tasks;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
-import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
+import org.fenixedu.ulisboa.specifications.domain.ects.GeneralPurposeGradingTable;
 
 public class TestEctsGradeConversion extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        String[] control = new String[8];
+        String[] control = new String[9];
         control[0] = "ABBCCCCDDDE"; // Uniform distro
         control[1] = "AAABBBCCDDE"; // Chi-squared distro
         control[2] = "AAABBCCDDEE"; // Normal distro
@@ -24,6 +20,7 @@ public class TestEctsGradeConversion extends CustomTask {
         control[5] = "ABCDDDDEEEE"; // Unbalanced tripolar distro
         control[6] = "ABCDEEEEEEE"; // Bipolar distro
         control[7] = "ABCDEEEEEEE"; // Monopolar distro
+        control[8] = "AAABCDEEEEE"; // Clogged distro
 
         verify("Uniform distro", generateSampleUniform(), control[0]);
         verify("Chi-squared distro", generateSampleChiSq(), control[1]);
@@ -33,12 +30,13 @@ public class TestEctsGradeConversion extends CustomTask {
         verify("Unbalanced tripolar distro", generateSampleTripolarUnbalanced(), control[5]);
         verify("Bipolar distro", generateSampleBipolar(), control[6]);
         verify("Monopolar distro", generateSampleMonopolar(), control[7]);
+        verify("Clogged distro", generateSampleClogged(), control[8]);
     }
 
     public void verify(String testTitle, List<BigDecimal> input, String expectedOutput) {
         GeneralPurposeGradingTable testingTable = new GeneralPurposeGradingTable(input);
         String result = testingTable.printScale();
-        if (result.equals(expectedOutput)) {
+        if (result.equals(new StringBuilder(expectedOutput).reverse().toString())) {
             taskLog("✓ " + testTitle + ": PASSED");
         } else {
             taskLog("  " + testTitle + ": FAILED");
@@ -270,6 +268,36 @@ public class TestEctsGradeConversion extends CustomTask {
             } else if (i < 100) {
                 sample.add(new BigDecimal("16.0"));
             } else if (i < 100) {
+                sample.add(new BigDecimal("15.0"));
+            } else if (i < 100) {
+                sample.add(new BigDecimal("14.0"));
+            } else if (i < 100) {
+                sample.add(new BigDecimal("13.0"));
+            } else if (i < 100) {
+                sample.add(new BigDecimal("12.0"));
+            } else if (i < 100) {
+                sample.add(new BigDecimal("11.0"));
+            } else if (i < 100) {
+                sample.add(new BigDecimal("10.0"));
+            }
+        }
+        return sample;
+    }
+
+    public List<BigDecimal> generateSampleClogged() {
+        List<BigDecimal> sample = new ArrayList<BigDecimal>();
+        for (int i = 0; i < 100; i++) {
+            if (i < 0) {
+                sample.add(new BigDecimal("20.0"));
+            } else if (i < 0) {
+                sample.add(new BigDecimal("19.0"));
+            } else if (i < 7) {
+                sample.add(new BigDecimal("18.0"));
+            } else if (i < 46) {
+                sample.add(new BigDecimal("17.0"));
+            } else if (i < 76) {
+                sample.add(new BigDecimal("16.0"));
+            } else if (i < 95) {
                 sample.add(new BigDecimal("15.0"));
             } else if (i < 100) {
                 sample.add(new BigDecimal("14.0"));

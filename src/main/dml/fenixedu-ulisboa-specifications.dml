@@ -1313,11 +1313,11 @@ relation CourseGradingTableCompetenceCourse {
 }
 
 relation CourseGradingTableCurriculumLine {
-	public .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLines {
+	public .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLine {
         multiplicity 0..1;
     }
-	public ects.CourseGradingTable playsRole courseGradingTables {
-    	multiplicity *;
+	public ects.CourseGradingTable playsRole courseGradingTable {
+    	multiplicity 0..1;
     }
 }
 

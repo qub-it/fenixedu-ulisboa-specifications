@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui;
 
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,23 @@ public class FenixeduUlisboaSpecificationsBaseController extends FenixEDUBaseCon
             outputStream.write(content);
             outputStream.flush();
             response.flushBuffer();
+        }
+    }
+
+    protected static class SecToken {
+        private static String SEED = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+        private static int DEFAULT_KEY_SIZE = 16;
+
+        public static String generate(int keySize) {
+            char[] key = new char[keySize];
+            for (int i = 0; i < keySize; i++) {
+                key[i] = SEED.charAt(ThreadLocalRandom.current().nextInt(0, (SEED.length() - 1)));
+            }
+            return String.valueOf(key);
+        }
+
+        public static String generate() {
+            return generate(DEFAULT_KEY_SIZE);
         }
     }
 }

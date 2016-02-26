@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.ects;
 
+import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Degree;
@@ -17,6 +19,12 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.CallableWithoutException;
+import pt.ist.fenixframework.FenixFramework;
 
 public class InstitutionGradingTable extends InstitutionGradingTable_Base {
 
@@ -99,27 +107,109 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
     private Map<ExecutionYear, Set<RegistrationConclusionBean>> collectConclusions() {
         final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap =
                 new LinkedHashMap<ExecutionYear, Set<RegistrationConclusionBean>>();
+        final Set<Registration> batch = new HashSet<Registration>();
 
         for (final Registration registration : Bennu.getInstance().getRegistrationsSet()) {
             if (registration.getStudentCurricularPlansSet().isEmpty()) {
                 continue;
             }
-
-            ProgramConclusion.conclusionsFor(registration).forEach(pc -> {
-                final RegistrationConclusionBean bean = new RegistrationConclusionBean(registration, pc);
-
-                if (!bean.isConcluded()) {
-                    return;
-                }
-                final ExecutionYear conclusionYear = bean.getConclusionYear();
+            batch.add(registration);
+            if (batch.size() < 500) {
+                continue;
+            }
+            Callable<Set<RegistrationConclusionInformation>> workerLogic =
+                    new Callable<Set<RegistrationConclusionInformation>>() {
+                        @Override
+                        public Set<RegistrationConclusionInformation> call() throws Exception {
+                            final Set<RegistrationConclusionInformation> conclusions =
+                                    new HashSet<RegistrationConclusionInformation>();
+                            for (Registration reg : batch) {
+                                for (RegistrationConclusionInformation info : RegistrationConclusionServices.inferConclusion(reg)) {
+                                    if (info.isConcluded()) {
+                                        conclusions.add(info);
+                                    }
+                                }
+                            }
+                            return conclusions;
+                        }
+                    };
+            HarvesterWorker worker = new HarvesterWorker(workerLogic);
+            worker.start();
+            try {
+                worker.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (RegistrationConclusionInformation conclusion : worker.getConclusions()) {
+                final ExecutionYear conclusionYear = conclusion.getRegistrationConclusionBean().getConclusionYear();
                 if (!conclusionsMap.containsKey(conclusionYear)) {
                     conclusionsMap.put(conclusionYear, new HashSet<RegistrationConclusionBean>());
                 }
 
-                conclusionsMap.get(conclusionYear).add(bean);
-            });
+                conclusionsMap.get(conclusionYear).add(conclusion.getRegistrationConclusionBean());
+            }
+            batch.clear();
+            if (isDenseEnough(conclusionsMap)) {
+                break;
+            }
         }
         return conclusionsMap;
     }
 
+    private boolean isDenseEnough(final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap) {
+        int yearsSweeped = 0;
+        ExecutionYear year = getExecutionYear().getPreviousExecutionYear();
+        while (year != null) {
+            if (conclusionsMap.get(year) != null
+                    && conclusionsMap.get(year).size() < (2 * GradingTableSettings.getMinimumSampleSize())) {
+                return false;
+            }
+            if (++yearsSweeped >= (2 * GradingTableSettings.getMinimumPastYears())) {
+                return true;
+            }
+            year = year.getPreviousExecutionYear();
+        }
+        return false;
+    }
+
+    private class HarvesterWorker extends Thread {
+
+        private Callable<Set<RegistrationConclusionInformation>> logic;
+        private Set<RegistrationConclusionInformation> conclusions;
+
+        public HarvesterWorker(Callable<Set<RegistrationConclusionInformation>> logic) {
+            this.logic = logic;
+        }
+
+        @Override
+        public void run() {
+            try {
+                conclusions = FenixFramework.getTransactionManager().withTransaction(logic, new Atomic() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+
+                    @Override
+                    public boolean flattenNested() {
+                        return true;
+                    }
+
+                    @Override
+                    public TxMode mode() {
+                        return TxMode.READ;
+                    }
+                });
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        Set<RegistrationConclusionInformation> getConclusions() {
+            return conclusions;
+        }
+    }
 }

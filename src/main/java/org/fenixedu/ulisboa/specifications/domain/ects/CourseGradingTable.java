@@ -17,7 +17,6 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 import pt.ist.fenixframework.CallableWithoutException;
-import pt.ist.fenixframework.FenixFramework;
 
 public class CourseGradingTable extends CourseGradingTable_Base {
 
@@ -28,7 +27,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     @Override
     public void delete() {
         setCompetenceCourse(null);
-        setCurriculumLines(null);
+        setCurriculumLine(null);
         super.delete();
     }
 
@@ -46,32 +45,38 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                 .orElse(null);
     }
 
+//    public static CourseGradingTable find() {
+//        return findAll().filter(cgt -> cgt.get)
+//    }
+
     public static Set<CourseGradingTable> generate(final ExecutionYear executionYear) {
         Set<CourseGradingTable> allTables = new HashSet<CourseGradingTable>();
         for (CompetenceCourse cc : Bennu.getInstance().getCompetenceCoursesSet()) {
             if (cc.hasActiveScopesInExecutionYear(executionYear)) {
-                CallableWithoutException<CourseGradingTable> workerLogic = new CallableWithoutException<CourseGradingTable>() {
-                    @Override
-                    public CourseGradingTable call() {
-                        CourseGradingTable table = CourseGradingTable.find(executionYear, cc);
-                        if (table == null) {
-                            table = new CourseGradingTable();
-                            table.setExecutionYear(executionYear);
-                            table.setCompetenceCourse(cc);
-                            table.compileData();
-                        }
-                        return table;
+                CourseGradingTable table = CourseGradingTable.find(executionYear, cc);
+                if (table == null) {
+                    CallableWithoutException<CourseGradingTable> workerLogic =
+                            new CallableWithoutException<CourseGradingTable>() {
+                                @Override
+                                public CourseGradingTable call() {
+                                    CourseGradingTable table = new CourseGradingTable();
+                                    table.setExecutionYear(executionYear);
+                                    table.setCompetenceCourse(cc);
+                                    table.compileData();
+                                    return table;
+                                }
+                            };
+                    GeneratorWorker<CourseGradingTable> worker = new GeneratorWorker<CourseGradingTable>(workerLogic);
+                    worker.start();
+                    try {
+                        worker.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-
-                };
-                GeneratorWorker<CourseGradingTable> worker = new GeneratorWorker<CourseGradingTable>(workerLogic);
-                worker.start();
-                try {
-                    worker.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    allTables.add(worker.getTable());
+                } else {
+                    allTables.add(table);
                 }
-                allTables.add(worker.getTable());
             }
         }
         return allTables;

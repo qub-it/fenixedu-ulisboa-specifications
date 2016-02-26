@@ -111,7 +111,20 @@ public class GradingTableGenerator {
                     }
                     ectsGradesSize--;
                 } else if (shouldNormalize(grade, grantedValue, heapedGradeDistro, tableMap)) {
-                    tableMap.put(grade, getPrevGrade(grade, tableMap));
+                    String prevEctsGrade = getPrevGrade(grade, tableMap);
+                    boolean found = false;
+                    String updateValue = "";
+                    for (Entry<BigDecimal, String> entry : tableMap.entrySet()) {
+                        if (entry.getKey().equals(grade)) {
+                            found = true;
+                            updateValue = entry.getValue();
+                            entry.setValue(prevEctsGrade);
+                        } else if (found) {
+                            String passValue = entry.getValue();
+                            entry.setValue(updateValue);
+                            updateValue = passValue;
+                        }
+                    }
                 }
 
             } else {

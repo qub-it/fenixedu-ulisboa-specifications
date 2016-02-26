@@ -22,6 +22,8 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable.GeneratorWorker;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 
 import pt.ist.fenixframework.CallableWithoutException;
 
@@ -58,29 +60,31 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
         for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
             Degree degree = dcp.getDegree();
             for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp).collect(Collectors.toSet())) {
-                CallableWithoutException<DegreeGradingTable> workerLogic = new CallableWithoutException<DegreeGradingTable>() {
-                    @Override
-                    public DegreeGradingTable call() {
-                        DegreeGradingTable table = find(executionYear, programConclusion, degree);
-                        if (table == null) {
-                            table = new DegreeGradingTable();
-                            table.setExecutionYear(executionYear);
-                            table.setProgramConclusion(programConclusion);
-                            table.setDegree(degree);
-                            table.compileData();
-                        }
-                        return table;
+                DegreeGradingTable table = find(executionYear, programConclusion, degree);
+                if (table == null) {
+                    CallableWithoutException<DegreeGradingTable> workerLogic =
+                            new CallableWithoutException<DegreeGradingTable>() {
+                                @Override
+                                public DegreeGradingTable call() {
+                                    DegreeGradingTable table = new DegreeGradingTable();
+                                    table.setExecutionYear(executionYear);
+                                    table.setProgramConclusion(programConclusion);
+                                    table.setDegree(degree);
+                                    table.compileData();
+                                    return table;
+                                }
+                            };
+                    GeneratorWorker<DegreeGradingTable> worker = new GeneratorWorker<DegreeGradingTable>(workerLogic);
+                    worker.start();
+                    try {
+                        worker.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-
-                };
-                GeneratorWorker<DegreeGradingTable> worker = new GeneratorWorker<DegreeGradingTable>(workerLogic);
-                worker.start();
-                try {
-                    worker.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    allTables.add(worker.getTable());
+                } else {
+                    allTables.add(table);
                 }
-                allTables.add(worker.getTable());
             }
         }
         return allTables;
@@ -136,18 +140,17 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
             if (registration.getStudentCurricularPlansSet().isEmpty()) {
                 continue;
             }
+            for (RegistrationConclusionInformation info : RegistrationConclusionServices.inferConclusion(registration)) {
+                if (info.getCurriculumGroup() == null || !info.isConcluded()) {
+                    continue;
+                }
+                final ExecutionYear conclusionYear = info.getRegistrationConclusionBean().getConclusionYear();
+                if (!conclusionsMap.containsKey(conclusionYear)) {
+                    conclusionsMap.put(conclusionYear, new HashSet<RegistrationConclusionBean>());
+                }
 
-            final RegistrationConclusionBean bean = new RegistrationConclusionBean(registration, getProgramConclusion());
-
-            if (bean.getCurriculumGroup() == null || !bean.isConcluded()) {
-                continue;
+                conclusionsMap.get(conclusionYear).add(info.getRegistrationConclusionBean());
             }
-            final ExecutionYear conclusionYear = bean.getConclusionYear();
-            if (!conclusionsMap.containsKey(conclusionYear)) {
-                conclusionsMap.put(conclusionYear, new HashSet<RegistrationConclusionBean>());
-            }
-
-            conclusionsMap.get(conclusionYear).add(bean);
         }
         return conclusionsMap;
     }

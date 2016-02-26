@@ -1,16 +1,15 @@
-package org.fenixedu.ulisboa.specifications.domain.ects;
+package org.fenixedu.ulisboa.specifications.domain.ects.tasks;
 
 import java.util.List;
 
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
-
-//import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
+import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData;
+import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
 
 public class TestGradingTableData extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        /*
         GradingTableData gradingTable = new GradingTableData();
         List<GradeConversion> data = gradingTable.getTable();
         data.add(new GradeConversion("10", "E"));
@@ -30,10 +29,8 @@ public class TestGradingTableData extends CustomTask {
         print(json2);
 
         taskLog("--Finished--");
-        */
     }
 
-    /*
     private void print(final List<GradeConversion> data) {
         taskLog("[");
         for (int index = 0; index < data.size(); index++) {
@@ -43,7 +40,6 @@ public class TestGradingTableData extends CustomTask {
         }
         taskLog("]");
     }
-    */
 
     private void print(String json) {
         taskLog(json);

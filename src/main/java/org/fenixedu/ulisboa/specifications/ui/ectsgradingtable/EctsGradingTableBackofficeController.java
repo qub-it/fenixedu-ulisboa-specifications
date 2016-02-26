@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
@@ -16,12 +12,9 @@ import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
-import org.fenixedu.ulisboa.specifications.dto.GradingTableBean;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,11 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
-import pt.ist.fenixframework.core.AbstractDomainObject;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageECTSGradingTables",
         accessGroup = "academic(MANAGE_DEGREE_CURRICULAR_PLANS)| #managers")
@@ -85,19 +77,22 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     @RequestMapping(value = _CREATE_INSTITUTIONAL_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
     public String createInstitutional(@PathVariable(value = "oid") ExecutionYear executionYear,
             @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+        InstitutionGradingTable createdTable = null;
         if (!token.equals(sectoken)) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
                     "label.gradingTables.unauthorizedOperation"), model);
         } else {
-            generateInstitutionGradingTable(executionYear);
+            createdTable = generateInstitutionGradingTable(executionYear);
         }
         loadModel(model, executionYear);
+        model.addAttribute("institutionGradeTable", createdTable);
         return VIEW_URL + "search";
     }
 
     @Atomic
-    private void generateInstitutionGradingTable(final ExecutionYear executionYear) {
-        InstitutionGradingTable.generate(executionYear);
+    private InstitutionGradingTable generateInstitutionGradingTable(final ExecutionYear executionYear) {
+        return InstitutionGradingTable.find(executionYear) != null ? InstitutionGradingTable.find(executionYear) : InstitutionGradingTable
+                .generate(executionYear);
     }
 
     private static final String _CREATE_DEGREES_URI = "/createdegrees/";
@@ -105,19 +100,16 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
 
     @RequestMapping(value = _CREATE_DEGREES_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
     public String createDegrees(@PathVariable(value = "oid") ExecutionYear executionYear,
-            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model,
+            RedirectAttributes redirectAttributes) {
         if (!token.equals(sectoken)) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
                     "label.gradingTables.unauthorizedOperation"), model);
-        } else {
-            generateDegreesGradingTable(executionYear);
+            loadModel(model, executionYear);
+            return VIEW_URL + "search";
         }
-        loadModel(model, executionYear);
-        return VIEW_URL + "search";
-    }
-
-    private void generateDegreesGradingTable(final ExecutionYear executionYear) {
         DegreeGradingTable.generate(executionYear);
+        return redirect(SEARCH_URL, model, redirectAttributes);
     }
 
     private static final String _CREATE_COURSESS_URI = "/createcourses/";
@@ -125,19 +117,16 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
 
     @RequestMapping(value = _CREATE_COURSESS_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
     public String createCourses(@PathVariable(value = "oid") ExecutionYear executionYear,
-            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model,
+            RedirectAttributes redirectAttributes) {
         if (!token.equals(sectoken)) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
                     "label.gradingTables.unauthorizedOperation"), model);
-        } else {
-            generateCoursesGradingTable(executionYear);
+            loadModel(model, executionYear);
+            return VIEW_URL + "search";
         }
-        loadModel(model, executionYear);
-        return VIEW_URL + "search";
-    }
-
-    private void generateCoursesGradingTable(final ExecutionYear executionYear) {
         CourseGradingTable.generate(executionYear);
+        return redirect(SEARCH_URL, model, redirectAttributes);
     }
 
     private static final String _DELETE_TABLES_URI = "/deletetable/";
@@ -193,22 +182,4 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         }
         return headers;
     }
-
-    private static class SecToken {
-        private static String SEED = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
-        private static int DEFAULT_KEY_SIZE = 16;
-
-        public static String generate(int keySize) {
-            char[] key = new char[keySize];
-            for (int i = 0; i < keySize; i++) {
-                key[i] = SEED.charAt(ThreadLocalRandom.current().nextInt(0, (SEED.length() - 1)));
-            }
-            return String.valueOf(key);
-        }
-
-        public static String generate() {
-            return generate(DEFAULT_KEY_SIZE);
-        }
-    }
-
 }
