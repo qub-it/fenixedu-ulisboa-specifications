@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 import pt.ist.fenixframework.CallableWithoutException;
@@ -45,9 +46,10 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                 .orElse(null);
     }
 
-//    public static CourseGradingTable find() {
-//        return findAll().filter(cgt -> cgt.get)
-//    }
+    public static CourseGradingTable find(CurriculumLine line) {
+        return findAll().filter(cgt -> cgt.getCurriculumLine() == line).findFirst()
+                .orElse(find(line.getExecutionYear(), line.getCurricularCourse().getCompetenceCourse()));
+    }
 
     public static Set<CourseGradingTable> generate(final ExecutionYear executionYear) {
         Set<CourseGradingTable> allTables = new HashSet<CourseGradingTable>();

@@ -11,17 +11,17 @@ import java.util.Map.Entry;
 public class GradingTableGenerator {
 
     public static void defaultData(GradingTable table) {
-        table.addMark("10", "E");
-        table.addMark("11", "E");
-        table.addMark("12", "D");
-        table.addMark("13", "D");
-        table.addMark("14", "C");
-        table.addMark("15", "C");
-        table.addMark("16", "B");
-        table.addMark("17", "B");
-        table.addMark("18", "A");
-        table.addMark("19", "A");
-        table.addMark("20", "A");
+        table.addMark("10.0", "E");
+        table.addMark("11.0", "E");
+        table.addMark("12.0", "D");
+        table.addMark("13.0", "D");
+        table.addMark("14.0", "C");
+        table.addMark("15.0", "C");
+        table.addMark("16.0", "B");
+        table.addMark("17.0", "B");
+        table.addMark("18.0", "A");
+        table.addMark("19.0", "A");
+        table.addMark("20.0", "A");
     }
 
     public static Map<String, BigDecimal> getEctsAccumulativeDistro() {

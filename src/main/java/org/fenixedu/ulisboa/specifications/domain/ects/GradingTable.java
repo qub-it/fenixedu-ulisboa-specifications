@@ -28,7 +28,16 @@ abstract public class GradingTable extends GradingTable_Base {
 
     //Private methods
     private GradeConversion find(final String mark) {
-        return getData().getTable().stream().filter((gc -> gc.getMark().equals(mark))).findFirst().orElse(null);
+        return getData().getTable().stream().filter(gc -> {
+            try {
+                // If marks are numerical, BigDecimal is the canonical representation.
+                BigDecimal tableMark = new BigDecimal(gc.getMark());
+                BigDecimal testingMark = new BigDecimal(mark);
+                return tableMark.compareTo(testingMark) == 0;
+            } catch (NumberFormatException nfe) {
+                return gc.getMark().equals(mark);
+            }
+        }).findFirst().orElse(null);
     }
 
     // Public API - getEctsGrade

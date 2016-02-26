@@ -70,6 +70,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularY
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
+import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentManagerFactoryInitializer.init();
         EvaluationSeasonServices.initialize();
         StudentCurricularPlanLayout.register();
+        CurriculumLayout.register();
         configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
@@ -135,7 +137,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         RegistrationObservations.setupDeleteListener();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
-        
+
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
     }
@@ -197,8 +199,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
-                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic =
+                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
+                        .typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);
