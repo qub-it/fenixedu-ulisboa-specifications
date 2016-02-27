@@ -20,8 +20,8 @@ public class IdentityCardUtils {
     }
 
     public static void editDigitControlOnPerson(final Person person, final String digitControl) {
-        PersonIdentificationDocumentExtraInfo documentExtraInfo = person
-                .getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
+        PersonIdentificationDocumentExtraInfo documentExtraInfo =
+                person.getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
 
         if (documentExtraInfo == null) {
             documentExtraInfo = person.getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
@@ -58,8 +58,7 @@ public class IdentityCardUtils {
         return false;
     }
 
-    private static boolean validateBilheteIdentidadeDigitControl(final String idDocumentNumber,
-            final String digitControl) {
+    private static boolean validateBilheteIdentidadeDigitControl(final String idDocumentNumber, final String digitControl) {
         if (!isBilheteIdentidadeDigitControlFormatValid(digitControl)) {
             return false;
         }
@@ -98,8 +97,8 @@ public class IdentityCardUtils {
     }
 
     public static boolean isIdentityCardDigitControlFormatValid(final String extraValue) {
-        return !Strings.isNullOrEmpty(extraValue) && (isBilheteIdentidadeDigitControlFormatValid(extraValue)
-                || isCartaoCidadaoDigitControlFormatValid(extraValue));
+        return !Strings.isNullOrEmpty(extraValue)
+                && (isBilheteIdentidadeDigitControlFormatValid(extraValue) || isCartaoCidadaoDigitControlFormatValid(extraValue));
     }
 
     public static boolean isBilheteIdentidadeDigitControlFormatValid(final String extraValue) {
@@ -110,10 +109,13 @@ public class IdentityCardUtils {
         return extraValue.matches("\\d[A-Z][A-Z]\\d");
     }
 
-    public static int generateBilheteIdentidadeDigitControl(final String idDocumentNumber)
-            throws NumberFormatException {
+    public static int generateBilheteIdentidadeDigitControl(final String idDocumentNumber) throws NumberFormatException {
 
-        Integer.valueOf(idDocumentNumber);
+        try {
+            Integer.valueOf(idDocumentNumber);
+        } catch (NumberFormatException ex) {
+            throw new ULisboaSpecificationsDomainException("error.IdentityCardUtils.invalid.document.number");
+        }
 
         int mult = 2;
         int controlSum = 0;
