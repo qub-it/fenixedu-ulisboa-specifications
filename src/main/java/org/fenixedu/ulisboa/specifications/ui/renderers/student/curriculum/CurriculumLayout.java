@@ -8,6 +8,8 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.OptionalEnrolment;
+import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -16,9 +18,11 @@ import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.ui.renderers.student.curriculum.CurriculumRenderer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import pt.ist.fenixWebFramework.renderers.components.HtmlBlockContainer;
 import pt.ist.fenixWebFramework.renderers.components.HtmlComponent;
@@ -140,7 +144,9 @@ public class CurriculumLayout extends Layout {
         textCell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
 
         generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
-        generateCellWithText(groupRow, "EECC", renderer.getGradeCellClass());
+        generateCellWithText(groupRow,
+                BundleUtil.getString(ULisboaSpecificationsUtil.BUNDLE, "label.gradingTables.curriculumRenderer.ectsGrade"),
+                renderer.getGradeCellClass());
         generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.weight"),
                 renderer.getEctsCreditsCellClass());
 
@@ -212,10 +218,12 @@ public class CurriculumLayout extends Layout {
             if (table != null) {
                 ectsGrade = table.getEctsGrade(grade);
             } else {
-                generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
-                        FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                        "label.gradingTables.curriculumRenderer.generateInstitutionTable"));
-                return;
+                if (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION).isMember(Authenticate.getUser())) {
+                    generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
+                            FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                            "label.gradingTables.curriculumRenderer.generateInstitutionTable"));
+                    return;
+                }
             }
 
         } else if (entry instanceof CurriculumLine) {
@@ -229,10 +237,12 @@ public class CurriculumLayout extends Layout {
                 if (table != null) {
                     ectsGrade = table.getEctsGrade(grade);
                 } else {
-                    generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
-                            FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                            "label.gradingTables.curriculumRenderer.generateCourseTable"));
-                    return;
+                    if (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION).isMember(Authenticate.getUser())) {
+                        generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
+                                FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                                "label.gradingTables.curriculumRenderer.generateCourseTable"));
+                        return;
+                    }
                 }
             }
         }
