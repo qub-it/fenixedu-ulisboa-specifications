@@ -1,3 +1,88 @@
+
+window.Omnis = {};
+
+(function () {
+
+	/**
+		block - Instantiate a blocking modal to prevent user actions
+
+			Arguments:	
+					-elementId (string)
+					if no id is passed block just ignores that call.
+
+					-messages (object, optional)
+					accepts an object with keys 'title' and 'message'
+					as configurations for the modal window shown.
+
+			Returns:
+					-(anonymous function)
+					handler that cancels the blocking modal.
+
+	 */
+	this.block = function (elementId, messages) {
+		var conf = {};
+		if (elementId === undefined) {
+			return;
+		}
+		conf.id = elementId;
+		if (messages !== undefined && messages.title) {
+			conf.title =  messages.title;
+		}
+		if (messages !== undefined && messages.message) {
+			conf.message =  messages.message;
+		}
+
+		var blocker = new Blocker(conf);
+		$('#'+elementId).click(function () {blocker.show();});
+		return (function () {blocker.hide();});
+	};
+
+	function Blocker (conf) {
+		var defaultMessages = {
+			title: {
+				'pt': 'Por favor aguarde&hellip;',
+				'en': 'Please wait&hellip;'
+			},
+			message: {
+				'pt': 'A processar o seu pedido.',
+				'en': 'Processing your request.'
+			}
+		};
+		var lang = (typeof Bennu !== 'undefined' && Bennu.locale && Bennu.locale.lang) ? Bennu.locale.lang : 'pt';
+		this.properties = {
+			id: conf.id,
+			title: conf.title || defaultMessages.title[lang],
+			message: conf.message || defaultMessages.message[lang]
+		};
+	};
+	Blocker.prototype.show = function () {
+		$('body').append(
+			'<div id="' + this.properties.id + '-blocker" class="modal fade" tabindex="-1" role="dialog">' +
+				'<div class="modal-dialog">' +
+					'<div class="modal-content">' +
+						'<div class="modal-header">' +
+							'<h4 class="modal-title">' + this.properties.title + '</h4>' +
+						'</div>' +
+						'<div class="modal-body">' +
+							'<p>' + this.properties.message + '</p>' +
+							'<div class="turning-gears"><span class="glyphicon glyphicon-cog bigcog"></span><span class="glyphicon glyphicon-cog smallcog"></span></div>' +
+						'</div>' +
+					'</div>' +
+				'</div>' +
+			'</div>'
+		);
+		$('#' + this.properties.id + '-blocker').modal({
+			backdrop: 'static',
+			keyboard: false,
+			show: true
+		});
+	};
+	Blocker.prototype.hide = function () {
+		$('#' + this.properties.id + '-blocker').modal('hide');
+	};
+
+}).apply(window.Omnis);
+
 function messageAlert(title, message) {
 	bootbox.dialog({
 		title : title,
@@ -92,7 +177,8 @@ function createDataTables(tableid, showsearchbox, showtools,pagination, pagecont
 			"dom" : dom, 
 			"tableTools" : {
 				"sSwfPath" : pagecontext + "/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
-			}
+			},
+			"lengthMenu": [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ]
 	});
 	table.columns.adjust().draw();
 	$('#' + tableid +' tbody').on('click', 'tr', function() {
