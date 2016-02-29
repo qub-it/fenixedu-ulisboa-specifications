@@ -55,6 +55,10 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
                 .filter(dgt -> dgt.getDegree() == d).findAny().orElse(null);
     }
 
+    public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Registration reg) {
+        return findAll().filter(dgt -> dgt.getRegistration() == reg).findFirst().orElse(find(ey, pc, reg.getDegree()));
+    }
+
     public static Set<DegreeGradingTable> generate(final ExecutionYear executionYear) {
         Set<DegreeGradingTable> allTables = new HashSet<DegreeGradingTable>();
         for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
