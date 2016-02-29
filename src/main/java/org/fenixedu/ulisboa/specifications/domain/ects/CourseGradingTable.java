@@ -92,7 +92,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         if (sample != null) {
             GradingTableGenerator.generateTableData(this, sample);
         } else {
-            InstitutionGradingTable.copyData(this);
+            GradingTableGenerator.defaultData(this);
             setCopied(true);
         }
     }
