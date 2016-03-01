@@ -349,7 +349,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public static Stream<CompetenceCourseMarkSheet> findBy(final ExecutionSemester executionSemester,
             final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-            final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+            final EvaluationSeason evaluationSeason, final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
         final Set<CompetenceCourseMarkSheet> result = Sets.newHashSet();
         if (executionSemester != null) {
@@ -361,6 +361,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 .filter(c -> competenceCourse == null || c.getCompetenceCourse() == competenceCourse)
 
                 .filter(c -> markSheetState == null || c.isInState(markSheetState))
+
+                .filter(c -> evaluationSeason == null || c.getEvaluationSeason() == evaluationSeason)
 
                 .filter(c -> changeRequestState == null
                         || c.getChangeRequestsSet().stream().anyMatch(r -> r.getState() == changeRequestState));
@@ -497,7 +499,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            if (!season.isImprovement() && !enrolment.isValid(executionSemester)) {
+            if (!EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)
+                    && !enrolment.isValid(executionSemester)) {
                 continue;
             }
 
@@ -529,17 +532,22 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return false;
         }
 
+        // only evaluations before the input evaluation date should be investigated
         final Collection<EnrolmentEvaluation> evaluations = getAllFinalEnrolmentEvaluations(enrolment);
         final EnrolmentEvaluation latestEvaluation = getLatestEnrolmentEvaluation(evaluations);
         final boolean isApproved = latestEvaluation != null && latestEvaluation.isApproved();
 
         // this evaluation season is for not approved enrolments
-        if (!season.isImprovement() && isApproved) {
+        if (!EvaluationSeasonServices.isForApprovedEnrolments(season) && isApproved) {
             return false;
         }
 
         // this evaluation season is for approved enrolments
-        if (season.isImprovement() && !isApproved) {
+        if (EvaluationSeasonServices.isForApprovedEnrolments(season) && !isApproved) {
+            return false;
+        }
+
+        if (EvaluationSeasonServices.isBlockingTreasuryEventInDebt(season, enrolment, executionSemester)) {
             return false;
         }
 
@@ -551,14 +559,38 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return false;
         }
 
+        if (EvaluationSeasonServices.isRequiredPreviousSeasonEvaluation(season)) {
+            if (latestEvaluation == null) {
+                return false;
+            }
+
+            boolean exclude = true;
+
+            final EvaluationSeason previousSeason = EvaluationSeasonServices.getPreviousSeason(season);
+            if (previousSeason != null) {
+
+                // WARNING: we should be using EnrolmentEvaluation.find API, but for simplicity reasons we're dealing with this "manually" 
+                for (final EnrolmentEvaluation iter : evaluations) {
+                    if (iter.getEvaluationSeason() == previousSeason) {
+                        exclude = false;
+                        break;
+                    }
+                }
+            }
+
+            if (exclude) {
+                return false;
+            }
+        }
+
         final Optional<EnrolmentEvaluation> temporaryEvaluation =
                 enrolment.getEnrolmentEvaluation(season, executionSemester, false);
 
-        if (season.isImprovement() && temporaryEvaluation.isPresent()) {
+        if (EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season) && temporaryEvaluation.isPresent()) {
             return temporaryEvaluation.get().getExecutionPeriod() == executionSemester;
         }
 
-        return !EvaluationSeasonServices.isRequiresEnrolmentEvaluation(season) || temporaryEvaluation.isPresent();
+        return !EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season) || temporaryEvaluation.isPresent();
     }
 
     /**

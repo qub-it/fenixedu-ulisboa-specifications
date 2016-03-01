@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides;
 
 import java.util.Set;
 
+import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -96,10 +97,11 @@ public class RaidesInstance extends RaidesInstance_Base {
     public void edit(final LocalizedString name, final PersistentGroup group, final Boolean synchronous,
             final Boolean hasMappings, final String passwordToZip, final Set<RegistrationProtocol> enrolledAgreements,
             final Set<RegistrationProtocol> mobilityAgreements, final Set<IngressionType> degreeTransferIngressions,
-            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions, 
+            final Set<IngressionType> degreeChangeIngressions, final Set<IngressionType> generalAccessRegimeIngressions,
             final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent,
-            final String institutionCode,
-            final String interlocutorPhone) {
+            final String institutionCode, final String interlocutorPhone,
+            final IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption,
+            final District defaultDistrictOfResidence) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -117,13 +119,33 @@ public class RaidesInstance extends RaidesInstance_Base {
 
         getGeneralAccessRegimeIngressionsSet().clear();
         getGeneralAccessRegimeIngressionsSet().addAll(generalAccessRegimeIngressions);
-        
+
         setFormsAvailableToStudents(formsAvailableToStudents);
-        
+
         setBlueRecordStartMessageContent(blueRecordStartMessageContent);
-        
+
         setInstitutionCode(institutionCode);
         setInterlocutorPhone(interlocutorPhone);
+
+        setIntegratedMasterFirstCycleGraduatedReportOption(integratedMasterFirstCycleGraduatedReportOption);
+        setDefaultDistrictOfResidence(defaultDistrictOfResidence);
+    }
+
+    public boolean isToReportAllIntegratedMasterFirstCycleGraduatedStudents() {
+        return getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.ALL;
+    }
+
+    public boolean isToReportIntegratedMasterFirstCycleGraduatedStudentsOnlyWithConclusionProcess() {
+        return getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.WITH_CONCLUSION_PROCESS;
+    }
+
+    public boolean isToNotReportIntegratedMasterFirstCycleGraduatedStudents() {
+        return getIntegratedMasterFirstCycleGraduatedReportOption() == null
+                || getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.NONE;
+    }
+    
+    public boolean isSumEctsCreditsBetweenPlans() {
+        return getSumEctsCreditsBetweenPlans();
     }
 
     @Override

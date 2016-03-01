@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.legal.dto.mapping.LegalMappingBean;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.DomainObjectLegalMapping;
@@ -45,7 +46,7 @@ public class BranchMappingType implements ILegalMappingType {
     @Override
     public LocalizedString getLocalizedNameKey(final String key) {
         final CourseGroup branch = getCourseGroup(key);
-        return branch.getNameI18N().toLocalizedString();
+        return new LocalizedString(I18N.getLocale(), branch.getOneFullName());
     }
 
     public Set<LegalMappingEntry> getMappingEntries(final LegalMapping mapping, final DegreeCurricularPlan degreeCurricularPlan) {

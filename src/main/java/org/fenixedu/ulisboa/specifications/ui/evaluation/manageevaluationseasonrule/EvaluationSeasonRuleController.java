@@ -31,10 +31,11 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonApproval;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonEvaluation;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.season.EvaluationSeasonRuleBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -120,8 +121,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             addInfoMessage(ULisboaSpecificationsUtil.bundle("label.success.delete"), model);
 
         } catch (Exception ex) {
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.delete") + "\"" + ex.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(ex.getLocalizedMessage(), model);
         }
 
         return redirect(SEARCH_URL + season.getExternalId(), model, redirectAttributes);
@@ -186,8 +186,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             return redirect(SEARCH_URL + rule.getSeason().getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             setEvaluationSeasonRule(rule, model);
             this.setEvaluationSeasonRuleBean(bean, model);
 
@@ -234,8 +233,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             return redirect(SEARCH_URL + rule.getSeason().getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             setEvaluationSeasonRule(rule, model);
             this.setEvaluationSeasonRuleBean(bean, model);
 
@@ -280,8 +278,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             return redirect(SEARCH_URL + rule.getSeason().getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.update") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             setEvaluationSeasonRule(rule, model);
             this.setEvaluationSeasonRuleBean(bean, model);
 
@@ -289,20 +286,37 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
         }
     }
 
-    private static final String _CREATEPREVIOUSSEASONAPPROVAL_URI = "/createpreviousseasonapproval/";
-    public static final String CREATEPREVIOUSSEASONAPPROVAL_URL = CONTROLLER_URL + _CREATEPREVIOUSSEASONAPPROVAL_URI;
+    private static final String _CREATEBLOCKINGTREASURYEVENTINDEBT_URI = "/createblockingtreasuryeventindebt/";
+    public static final String CREATEBLOCKINGTREASURYEVENTINDEBT_URL = CONTROLLER_URL + _CREATEBLOCKINGTREASURYEVENTINDEBT_URI;
 
-    @RequestMapping(value = _CREATEPREVIOUSSEASONAPPROVAL_URI + "{oid}", method = RequestMethod.POST)
-    public String createPreviousSeasonApproval(@PathVariable("oid") final EvaluationSeason season, final Model model,
+    @RequestMapping(value = _CREATEBLOCKINGTREASURYEVENTINDEBT_URI + "{oid}", method = RequestMethod.POST)
+    public String createBlockingTreasuryEventInDebt(@PathVariable("oid") final EvaluationSeason season, final Model model,
             final RedirectAttributes redirectAttributes) {
 
         try {
-            final EvaluationSeasonRule rule = PreviousSeasonApproval.create(season);
+            final EvaluationSeasonRule rule = BlockingTreasuryEventInDebt.create(season);
             model.addAttribute("evaluationSeasonRule", rule);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.create") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
+        }
+
+        return redirect(SEARCH_URL + season.getExternalId(), model, redirectAttributes);
+    }
+
+    private static final String _CREATEPREVIOUSSEASONEVALUATION_URI = "/createpreviousseasonevaluated/";
+    public static final String CREATEPREVIOUSSEASONEVALUATION_URL = CONTROLLER_URL + _CREATEPREVIOUSSEASONEVALUATION_URI;
+
+    @RequestMapping(value = _CREATEPREVIOUSSEASONEVALUATION_URI + "{oid}", method = RequestMethod.POST)
+    public String createPreviousSeasonEvaluation(@PathVariable("oid") final EvaluationSeason season, final Model model,
+            final RedirectAttributes redirectAttributes) {
+
+        try {
+            final EvaluationSeasonRule rule = PreviousSeasonEvaluation.create(season);
+            model.addAttribute("evaluationSeasonRule", rule);
+        } catch (Exception de) {
+
+            addErrorMessage(de.getLocalizedMessage(), model);
         }
 
         return redirect(SEARCH_URL + season.getExternalId(), model, redirectAttributes);
@@ -346,8 +360,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             return redirect(SEARCH_URL + getEvaluationSeasonRule(model).getSeason().getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.create") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             this.setEvaluationSeasonRuleBean(bean, model);
             return jspPage("createpreviousseasonblockinggrade");
         }
@@ -391,8 +404,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             return redirect(SEARCH_URL + getEvaluationSeasonRule(model).getSeason().getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.error.create") + "\"" + de.getLocalizedMessage() + "\"",
-                    model);
+            addErrorMessage(de.getLocalizedMessage(), model);
             this.setEvaluationSeasonRuleBean(bean, model);
             return jspPage("createpreviousseasonminimumgrade");
         }

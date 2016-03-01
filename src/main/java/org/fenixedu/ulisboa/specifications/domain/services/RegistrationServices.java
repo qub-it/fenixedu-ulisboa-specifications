@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.services;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -7,14 +8,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 
 import com.google.common.collect.Sets;
 
@@ -70,4 +76,39 @@ public class RegistrationServices {
         return result;
     }
 
+    public static boolean hasCreditsBetweenPlans(final Registration registration) {
+        for (final StudentCurricularPlan scp : registration.getStudentCurricularPlansSet()) {
+            for (final Credits credits : scp.getCreditsSet()) {
+                for (EnrolmentWrapper wrapper : credits.getEnrolmentsSet()) {
+                    if (wrapper.getIEnrolment().isExternalEnrolment()) {
+                        continue;
+                    }
+
+                    final Enrolment e = (Enrolment) wrapper.getIEnrolment();
+
+                    if (registration.getStudentCurricularPlansSet().contains(e.getStudentCurricularPlan())) {
+                        return true;
+                    }
+                }
+            }
+
+        }
+
+        return false;
+    }
+    
+    public static final boolean canCollectAllPlansForCurriculum(final Registration registration) {
+        return registration.getStudentCurricularPlansSet().size() > 1 && !hasCreditsBetweenPlans(registration);
+    }
+    
+    
+    public static Curriculum getAllPlansCurriculum(final Registration registration, final ExecutionYear executionYear) {
+        Curriculum curriculumSum = Curriculum.createEmpty(executionYear);
+        for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
+            curriculumSum.add(studentCurricularPlan.getRoot().getCurriculum(executionYear));
+        }
+        
+        return curriculumSum;
+    }    
+    
 }

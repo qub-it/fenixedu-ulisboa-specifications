@@ -120,6 +120,22 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.integratedMasterFirstCycleGraduatedReportOption" />
+						</th>
+						<td>
+							<c:out value='${raidesInstance.integratedMasterFirstCycleGraduatedReportOption.localizedName.content}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.defaultDistrictOfResidence" />
+						</th>
+						<td>	
+							<c:out value='${raidesInstance.defaultDistrictOfResidence.name}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.RaidesInstance.formsAvailableToStudents" />
 						</th>
 						<td>
@@ -127,6 +143,19 @@ ${portal.angularToolkit()}
 								<spring:message code="label.true" />
 							</c:if>
 							<c:if test="${not raidesInstance.formsAvailableToStudents}">
+								<spring:message code="label.false" />
+							</c:if>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.sumEctsCreditsBetweenPlans" />
+						</th>
+						<td>
+							<c:if test="${raidesInstance.sumEctsCreditsBetweenPlans}">
+								<spring:message code="label.true" />
+							</c:if>
+							<c:if test="${not raidesInstance.sumEctsCreditsBetweenPlans}">
 								<spring:message code="label.false" />
 							</c:if>
 						</td>

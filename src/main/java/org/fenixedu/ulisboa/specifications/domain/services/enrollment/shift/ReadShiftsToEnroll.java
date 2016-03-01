@@ -37,7 +37,7 @@ public class ReadShiftsToEnroll {
     public static List<ShiftToEnrol> readWithStudentRestrictionsForShiftsEnrolments(Registration registration,
             ExecutionSemester executionSemester) throws FenixServiceException {
 
-        checkStudentRestrictionsForShiftsEnrolments(registration);
+        checkStudentRestrictionsForShiftsEnrolments(registration, executionSemester);
         return read(registration, executionSemester);
     }
 
@@ -53,12 +53,13 @@ public class ReadShiftsToEnroll {
         return result;
     }
 
-    private static void checkStudentRestrictionsForShiftsEnrolments(Registration registration) throws FenixServiceException {
+    private static void checkStudentRestrictionsForShiftsEnrolments(Registration registration, ExecutionSemester executionSemester) throws FenixServiceException {
         if (registration == null) {
             throw new FenixServiceException("errors.impossible.operation");
         }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
+        if (executionSemester.isFirstOfYear()
+                && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
             if (!registration.getInterruptedStudies()) {
                 throw new FenixServiceException("error.exception.notAuthorized.student.warningTuition");
             }

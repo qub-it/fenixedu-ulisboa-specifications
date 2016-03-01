@@ -29,7 +29,7 @@ public class RaidesConfigurationController extends FenixeduUlisboaSpecifications
     @RequestMapping(value = _READ_URI, method = RequestMethod.GET)
     public String read(final Model model) {
         model.addAttribute("raidesInstance", RaidesInstance.getInstance());
-        
+
         return jspPage(_READ_URI);
     }
 
@@ -44,7 +44,7 @@ public class RaidesConfigurationController extends FenixeduUlisboaSpecifications
     private String _edit(final RaidesInstanceBean bean, final Model model) {
         model.addAttribute("bean", bean);
         model.addAttribute("beanJson", getBeanJson(bean));
-        
+
         return jspPage(_EDIT_URI);
     }
 
@@ -52,11 +52,14 @@ public class RaidesConfigurationController extends FenixeduUlisboaSpecifications
     public String editpost(@RequestParam("bean") final RaidesInstanceBean bean, final Model model) {
         try {
             RaidesInstance raidesInstance = RaidesInstance.getInstance();
-            raidesInstance.edit(raidesInstance.getName(), raidesInstance.getGroup(), raidesInstance.getSynchronous(), raidesInstance.getHasMappings(), bean.getPasswordToZip(), bean.getEnrolledAgreements(), bean.getMobilityAgreements(), 
-                    bean.getDegreeTransferIngressions(), bean.getDegreeChangeIngressions(), bean.getIngressionsForGeneralAccessRegime(), 
-                    bean.isFormsAvailableToStudents(), bean.getBlueRecordStartMessageContentLocalizedString(), 
-                    bean.getInstitutionCode(), bean.getInterlocutorPhone());
-            
+            raidesInstance.edit(raidesInstance.getName(), raidesInstance.getGroup(), raidesInstance.getSynchronous(),
+                    raidesInstance.getHasMappings(), bean.getPasswordToZip(), bean.getEnrolledAgreements(),
+                    bean.getMobilityAgreements(), bean.getDegreeTransferIngressions(), bean.getDegreeChangeIngressions(),
+                    bean.getIngressionsForGeneralAccessRegime(), bean.isFormsAvailableToStudents(),
+                    bean.getBlueRecordStartMessageContentLocalizedString(), bean.getInstitutionCode(),
+                    bean.getInterlocutorPhone(), bean.getIntegratedMasterFirstCycleGraduatedReportOption(),
+                    bean.getDefaultDistrictOfResidence());
+
             return "redirect:" + READ_URL;
         } catch (final DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);

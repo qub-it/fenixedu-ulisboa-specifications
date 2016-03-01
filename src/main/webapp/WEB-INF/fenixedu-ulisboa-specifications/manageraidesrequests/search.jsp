@@ -137,7 +137,7 @@ ${portal.angularToolkit()}
 											language : {
 												url : "${datatablesI18NUrl}",
 											},
-
+											"order": [[ 0, "desc" ]],
 											"columnDefs" : [
 												{ "width" : "25px", "targets" : 0 }, 
 												{ "width" : "25px", "targets" : 1 }, 
@@ -154,7 +154,7 @@ ${portal.angularToolkit()}
 											}
 										});
 						table.columns.adjust().draw();
-
+						
 						$('#simpletablename tbody').on('click',
 								'tr', function() {
 									$(this).toggleClass('selected');

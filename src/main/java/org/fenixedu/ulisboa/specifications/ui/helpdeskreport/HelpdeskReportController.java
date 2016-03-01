@@ -36,6 +36,7 @@ import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.helpdesk.HelpdeskConfigurations;
 import org.fenixedu.ulisboa.specifications.domain.helpdesk.HelpdeskRecipient;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.helpdeskreport.HelpdeskReportForm.Attachment;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,6 +244,15 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
                 multipart.addBodyPart(messageBodyPart);
             }
 
+            if(bean.getAttachments() != null){
+                for(Attachment attachment : bean.getAttachments()){
+                    BodyPart messageBodyPart = new MimeBodyPart();
+                    messageBodyPart.setDataHandler(new DataHandler(
+                            new ByteArrayDataSource(Base64.getDecoder().decode(attachment.getContent()), bean.getMimeType())));
+                    messageBodyPart.setFileName(attachment.getName());
+                    multipart.addBodyPart(messageBodyPart);
+                }
+            }
             if (!Strings.isNullOrEmpty(bean.getAttachment())) {
                 BodyPart messageBodyPart = new MimeBodyPart();
                 messageBodyPart.setDataHandler(new DataHandler(

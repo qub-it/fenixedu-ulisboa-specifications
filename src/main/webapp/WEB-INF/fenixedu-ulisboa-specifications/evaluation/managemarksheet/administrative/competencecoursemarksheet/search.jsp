@@ -185,6 +185,20 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				</div>
 				<div class="form-group row">
 					<div class="col-sm-2 control-label">
+						<spring:message code="label.CompetenceCourseMarkSheet.evaluationSeason" />
+					</div>
+					
+					<div class="col-sm-6">
+						<ui-select	id="evaluationSeasonSelect" name="evaluationSeason" ng-model="$parent.object.evaluationSeason" theme="bootstrap">
+							<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+							<ui-select-choices	repeat="evaluationSeason.id as evaluationSeason in object.evaluationSeasonDataSource | filter: $select.search">
+								<span ng-bind-html="evaluationSeason.text | highlight: $select.search"></span>
+							</ui-select-choices> 
+						</ui-select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-2 control-label">
 						<spring:message code="label.CompetenceCourseMarkSheetChangeRequest" />
 					</div>
 					

@@ -29,6 +29,8 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 
+enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType as AcademicEnrolmentPeriodType;
+
 enum org.fenixedu.academic.domain.GradeScale                                                                           as GradeScaleSpecifications;
 
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
@@ -48,7 +50,7 @@ external class .org.fenixedu.academic.domain.degree.DegreeType;
 
 enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFileType as LegalReportResultFileType;
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType as RaidesPeriodInputType;
-
+enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption as IntegratedMasterFirstCycleGraduatedReportOption;
 
 external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.EvaluationSeason;
@@ -72,6 +74,7 @@ external class .org.fenixedu.academic.domain.ExecutionSemester;
 external class .org.fenixedu.bennu.core.domain.User;
 external class .org.fenixedu.bennu.io.domain.GenericFile;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
+external class .org.fenixedu.academic.domain.student.StatuteType;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -495,6 +498,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		}
 		
 		class curricularPeriod.rule.transition.ApprovedCredits extends curricularPeriod.rule.RuleTransition {
+			boolean allowToCollectAllCurricularPlans;
 		}
 		
 		class curricularPeriod.rule.transition.FlunkedCurricularCourses extends curricularPeriod.rule.RuleTransition {
@@ -646,7 +650,10 @@ relation EvaluationSeasonInformationRelation {
 class evaluation.season.rule.EvaluationSeasonRule {
 }
 
-	class evaluation.season.rule.PreviousSeasonApproval extends evaluation.season.rule.EvaluationSeasonRule {
+	class evaluation.season.rule.BlockingTreasuryEventInDebt extends evaluation.season.rule.EvaluationSeasonRule {
+	}
+
+	class evaluation.season.rule.PreviousSeasonEvaluation extends evaluation.season.rule.EvaluationSeasonRule {
 	}
 
 	class evaluation.season.rule.PreviousSeasonMinimumGrade extends evaluation.season.rule.EvaluationSeasonRule {
@@ -1603,11 +1610,11 @@ class student.ResearchArea {
 	}
 	
 	relation ResearchAreaStudentCurricularPlan {
-		.org.fenixedu.academic.domain.StudentCurricularPlan playsRole studentCurricularPlan {
-	        multiplicity 0..1;
-	    }
+		.org.fenixedu.academic.domain.student.Registration playsRole registration {
+			multiplicity *;
+		}
 	
-		student.ResearchArea playsRole studentCurricularPlan {
+		student.ResearchArea playsRole researchArea {
 			multiplicity 0..1;
 		}
 	}
@@ -1823,6 +1830,8 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 	LocalizedString blueRecordStartMessageContent;
 	String institutionCode;
 	String interlocutorPhone;
+	IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption;
+	boolean sumEctsCreditsBetweenPlans;
 }
 
 	relation RaidesInstanceMobilityAgreement {
@@ -1885,6 +1894,16 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 		}
 	}
 	
+	relation RaidesInstanceDefaultDistrictOfResidence {
+		legal.raides.RaidesInstance playsRole {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.District playsRole defaultDistrictOfResidence {
+			multiplicity 0..1;
+		}
+	}
+	
 /* Legal Settings */
 
 class legal.settings.LegalSettings {
@@ -1925,4 +1944,62 @@ relation PersonCountryHighSchool {
     
     .org.fenixedu.academic.domain.Country playsRole countryHighSchool;
 }
+
+
+//======================= = AcademicEnrolmentPeriod = =========================
+
+class enrolmentPeriod.AcademicEnrolmentPeriod {
+    DateTime startDate;
+    DateTime endDate;
+    Boolean specialSeason;
+    Boolean firstTimeRegistration;
+    Boolean restrictToSelectedStatutes;
+    Integer minStudentNumber;
+    Integer maxStudentNumber;
+    Integer curricularYear;
+    AcademicEnrolmentPeriodType enrolmentPeriodType;
+}
+
+relation AcademicEnrolmentPeriodBennu {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation AcademicEnrolmentPeriodExecutionSemester {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.ExecutionSemester playsRole executionSemester {
+        multiplicity 1..1;
+    }    
+}
+
+relation AcademicEnrolmentPeriodDegreeCurricularPlan {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlans {
+        multiplicity *;
+    }    
+}
+
+relation AcademicEnrolmentPeriodStatuteType {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes {
+        multiplicity *;
+    }    
+}
+
+
+//======================= = END AcademicEnrolmentPeriod = =========================
 

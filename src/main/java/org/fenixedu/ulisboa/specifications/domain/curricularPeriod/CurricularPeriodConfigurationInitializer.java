@@ -441,7 +441,7 @@ public class CurricularPeriodConfigurationInitializer {
                 if (config == null) {
                     continue;
                 }
-                if(dcp == null || dcp.getDegree() == null || dcp.getDegree().getCode() == null){
+                if (dcp == null || dcp.getDegree() == null || dcp.getDegree().getCode() == null) {
                     continue;
                 }
                 if (dcp.getDegree().getCode().equals("5618")) {
@@ -634,7 +634,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             CurricularPeriodRule rule =
-                    ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
+                    ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear2, "102");
 
@@ -643,7 +643,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear3,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear3, "103");
 
@@ -652,7 +652,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear4,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear4, "104");
 
@@ -661,7 +661,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear5,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear5, "105");
 
@@ -670,7 +670,7 @@ public class CurricularPeriodConfigurationInitializer {
                 continue;
             }
             rule = ApprovedCredits.create(configYear6,
-                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked));
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked), true);
             rule.messagePrefixDisabled();
             createStudentStatuteExecutiveRuleFor(configYear6, "106");
         }
@@ -690,11 +690,13 @@ public class CurricularPeriodConfigurationInitializer {
                 FlunkedCurricularCourses.create(configYear2, BigDecimal.ZERO, 1, "9200114,9200112");
             } else if (StringUtils.equals(dcp.getDegree().getCode(), "9791" /*LPD*/)) {
                 FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
+            } else if (StringUtils.equals(dcp.getDegree().getCode(), "5596")
+                    || StringUtils.equals(dcp.getDegree().getCode(), "5597")) {
+                FlunkedCredits.create(configYear2, BigDecimal.ZERO);
             } else {
                 FlunkedCredits.create(configYear2, BigDecimal.valueOf(15));
             }
             createStudentStatuteExecutiveRuleFor(configYear2, "29");
-            
 
             final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
             if (configYear3 == null) {

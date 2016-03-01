@@ -640,16 +640,18 @@ public class StudentCurricularPlanLayout extends Layout {
         for (final Iterator<EvaluationSeason> iterator = EvaluationSeasonServices.findAll().iterator(); iterator.hasNext();) {
             final EvaluationSeason season = iterator.next();
 
+            // either the person has access or this season should always show it's enrolment evaluations
             if (StudentCurricularPlanRenderer.isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)
-                    || EvaluationSeasonServices.isRequiresEnrolmentEvaluation(season)) {
+                    || EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
 
                 final Optional<EnrolmentEvaluation> finalEvaluation = enrolment.getFinalEnrolmentEvaluationBySeason(season);
                 if (finalEvaluation.isPresent()) {
 
                     result.add(finalEvaluation.get());
 
-                } else if (season.isImprovement() || season.isSpecial()) {
+                } else if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
 
+                    // we want to show the temporary enrolment evaluation
                     final EnrolmentEvaluation latestEvaluation = enrolment.getLatestEnrolmentEvaluationBySeason(season);
                     if (latestEvaluation != null) {
                         result.add(latestEvaluation);

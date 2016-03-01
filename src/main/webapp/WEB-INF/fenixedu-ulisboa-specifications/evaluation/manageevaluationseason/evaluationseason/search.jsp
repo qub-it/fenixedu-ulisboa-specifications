@@ -91,7 +91,7 @@ ${portal.angularToolkit()}
 					<th><spring:message code="label.EvaluationSeason.code" /></th>
 					<th><spring:message code="label.EvaluationSeason.active" /></th>
 					<th><spring:message code="label.EvaluationSeason.type" /></th>
-					<th><spring:message code="label.EvaluationSeason.requiresEnrolmentEvaluation" /></th>
+					<th><spring:message code="label.EvaluationSeason.requiredEnrolmentEvaluation" /></th>
 					<%-- Operations Column --%>
 					<th></th>
 				</tr>
@@ -113,11 +113,11 @@ ${portal.angularToolkit()}
 									.getContent()%>"></c:out></td>
 						<td><c:if
 								test="<%=EvaluationSeasonServices
-									.isRequiresEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
+									.isRequiredEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
 								<spring:message code="label.true" />
 							</c:if> <c:if
 								test="<%=!EvaluationSeasonServices
-									.isRequiresEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
+									.isRequiredEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
 								<spring:message code="label.false" />
 							</c:if></td>
 						<td><a class="btn btn-default btn-xs"

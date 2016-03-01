@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -508,6 +509,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final Multimap<Curriculum, ICurriculumEntry> approvalsByCurriculum = HashMultimap.create();
         curriculums.stream().forEach(c -> approvalsByCurriculum.putAll(c, c.getCurriculumEntries()));
 
+        final ExecutionYear executionYearForCurricularYear =
+                bean.getExecutionYears().stream().max(ExecutionYear.COMPARATOR_BY_BEGIN_DATE).get();
+
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
                 new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
@@ -522,6 +526,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("RegistrationHistoryReport.curricularYear",
+                                registration.getCurricularYear(executionYearForCurricularYear));
                         addData("ICurriculumEntry.code", curriculumEntry.getCode());
                         addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
@@ -530,10 +536,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil.bundle(entry.getKey()
                                 .getDismissalRelatedEntries().contains(entry.getValue()) ? "label.yes" : "label.no"));
                         addData("Curriculum.totalApprovals", entry.getKey().getCurriculumEntries().size());
-                        addData("Curriculum.simpleAverage",
+                        final OptionalDouble average =
                                 entry.getKey().getCurriculumEntries().stream().filter(e -> e.getGrade().isNumeric())
-                                        .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average()
-                                        .getAsDouble());
+                                        .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average();
+                        addData("Curriculum.simpleAverage", average.isPresent() ? average.getAsDouble() : null);
 
                     }
 
@@ -566,7 +572,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
     private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
 
-        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean, true);
         final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
         reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
 
@@ -598,15 +604,19 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
                         final ExecutionSemester enrolmentPeriod =
                                 improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+                                
+                        final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
                         addData("Student.number", registration.getStudent().getNumber());
                         addData("Registration.number", registration.getNumber().toString());
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
+                        addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
                         addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
@@ -622,7 +632,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final List<EnrolmentEvaluation> evaluations =
                 enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
-                        .filter(e -> EvaluationSeasonServices.isRequiresEnrolmentEvaluation(e.getEvaluationSeason()))
+                        .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason()))
                         .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
                         .collect(Collectors.toList());
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),

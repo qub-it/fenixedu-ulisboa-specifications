@@ -90,49 +90,55 @@ public class XmlToBaseFileWriter {
 
     protected static Aluno fillAluno(final RaidesRequestParameter raidesRequestParameter, final Raides raides,
             ObjectFactory factory, final Student student) {
-        final TblIdentificacao tblIdentificacao = raides.identificacaoForStudent(student);
-        final Collection<TblInscrito> inscricoesForStudent = raides.inscricoesForStudent(student, raidesRequestParameter);
-        final Collection<TblDiplomado> diplomadosForStudent = raides.diplomadosForStudent(student, raidesRequestParameter);
-        final TblMobilidadeInternacional tblMobilidadeInternacional =
-                raides.mobilidadeInternacionalForStudent(student, raidesRequestParameter);
-
-        if (raidesRequestParameter.isFilterEntriesWithErrors() && !tblIdentificacao.isValid()) {
+        try {
+            final TblIdentificacao tblIdentificacao = raides.identificacaoForStudent(student);
+            final Collection<TblInscrito> inscricoesForStudent = raides.inscricoesForStudent(student, raidesRequestParameter);
+            final Collection<TblDiplomado> diplomadosForStudent = raides.diplomadosForStudent(student, raidesRequestParameter);
+            final TblMobilidadeInternacional tblMobilidadeInternacional =
+                    raides.mobilidadeInternacionalForStudent(student, raidesRequestParameter);
+            
+            if (raidesRequestParameter.isFilterEntriesWithErrors() && !tblIdentificacao.isValid()) {
+                return null;
+            }
+            
+            if (raidesRequestParameter.isFilterEntriesWithErrors() && inscricoesForStudent.isEmpty()
+                    && diplomadosForStudent.isEmpty() && tblMobilidadeInternacional == null) {
+                return null;
+            }
+            
+            final Aluno aluno = factory.createInformacaoAlunosAlunosAluno();
+            aluno.setIdentificacao(fillIdentificacaoAluno(raides, factory, student));
+            
+            if (!inscricoesForStudent.isEmpty()) {
+                final Inscricoes inscricoes = factory.createInformacaoAlunosAlunosAlunoInscricoes();
+                aluno.setInscricoes(inscricoes);
+                
+                for (final TblInscrito tblInscrito : inscricoesForStudent) {
+                    inscricoes.getInscricao().add(fillInscricao(raides, factory, student, tblInscrito));
+                }
+            }
+            
+            if (!diplomadosForStudent.isEmpty()) {
+                final Diplomas diplomas = factory.createInformacaoAlunosAlunosAlunoDiplomas();
+                aluno.setDiplomas(diplomas);
+                
+                for (final TblDiplomado tblDiplomado : diplomadosForStudent) {
+                    diplomas.getDiploma().add(fillDiploma(raides, factory, student, tblDiplomado));
+                }
+            }
+            
+            if (tblMobilidadeInternacional != null) {
+                final Mobilidade mobilidade = fillMobilidadeInternacional(raides, factory, student, tblMobilidadeInternacional);
+                aluno.setMobilidade(mobilidade);
+                
+            }
+            
+            return aluno;
+            
+        } catch(final Exception e) {
+            e.printStackTrace();
             return null;
         }
-
-        if (raidesRequestParameter.isFilterEntriesWithErrors() && inscricoesForStudent.isEmpty()
-                && diplomadosForStudent.isEmpty() && tblMobilidadeInternacional == null) {
-            return null;
-        }
-
-        final Aluno aluno = factory.createInformacaoAlunosAlunosAluno();
-        aluno.setIdentificacao(fillIdentificacaoAluno(raides, factory, student));
-
-        if (!inscricoesForStudent.isEmpty()) {
-            final Inscricoes inscricoes = factory.createInformacaoAlunosAlunosAlunoInscricoes();
-            aluno.setInscricoes(inscricoes);
-
-            for (final TblInscrito tblInscrito : inscricoesForStudent) {
-                inscricoes.getInscricao().add(fillInscricao(raides, factory, student, tblInscrito));
-            }
-        }
-
-        if (!diplomadosForStudent.isEmpty()) {
-            final Diplomas diplomas = factory.createInformacaoAlunosAlunosAlunoDiplomas();
-            aluno.setDiplomas(diplomas);
-
-            for (final TblDiplomado tblDiplomado : diplomadosForStudent) {
-                diplomas.getDiploma().add(fillDiploma(raides, factory, student, tblDiplomado));
-            }
-        }
-
-        if (tblMobilidadeInternacional != null) {
-            final Mobilidade mobilidade = fillMobilidadeInternacional(raides, factory, student, tblMobilidadeInternacional);
-            aluno.setMobilidade(mobilidade);
-
-        }
-
-        return aluno;
     }
 
     private static Mobilidade fillMobilidadeInternacional(Raides raides, ObjectFactory factory, Student student,
@@ -143,7 +149,7 @@ public class XmlToBaseFileWriter {
         mobilidade.setAreaCientifica(null);
         mobilidade.setCurso(tblMobilidadeInternacional.getCurso());
         mobilidade.setDuracaoPrograma(duracaoProgramaValueOf(tblMobilidadeInternacional));
-        mobilidade.setECTSInscricao(new BigDecimal(tblMobilidadeInternacional.getEctsInscrito()));
+        mobilidade.setECTSInscricao(bigDecimalValueOf(tblMobilidadeInternacional.getEctsInscrito()));
         mobilidade.setNivelCursoDestino(null);
         mobilidade.setNivelCursoOrigem(longValueOf(tblMobilidadeInternacional.getNivelCursoOrigem()));
         mobilidade.setOutroNivelCurDestino(null);
@@ -157,14 +163,20 @@ public class XmlToBaseFileWriter {
         
         if (!Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo())) {
             mobilidade.setRamo(tblMobilidadeInternacional.getRamo());
-        } else {
-            mobilidade.setRamo(Raides.Ramo.TRONCO_COMUM);
         }
 
         mobilidade.setRegimeFrequencia(longValueOf(tblMobilidadeInternacional.getRegimeFrequencia()));
         mobilidade.setTipoProgMobilidade(longValueOf(tblMobilidadeInternacional.getTipoProgMobilidade()));
 
         return mobilidade;
+    }
+
+    private static BigDecimal bigDecimalValueOf(final String value) {
+        if(Strings.isNullOrEmpty(value)) {
+            return null;
+        }
+        
+        return new BigDecimal(value);
     }
 
     private static Diploma fillDiploma(Raides raides, ObjectFactory factory, Student student, TblDiplomado tblDiplomado) {
@@ -190,7 +202,8 @@ public class XmlToBaseFileWriter {
         diploma.setPaisEscolaridadeAnt(tblDiplomado.getPaisEscolaridadeAnt());
         diploma.setPaisMobilidadeCredito(tblDiplomado.getPaisMobilidadeCredito());
         diploma.setProgMobilidadeCredito(longValueOf(tblDiplomado.getProgMobilidadeCredito()));
-
+        diploma.setAreaInvestigacao(integerValueOf(tblDiplomado.getAreaInvestigacao()));
+        
         if (!Strings.isNullOrEmpty(tblDiplomado.getRamo())) {
             diploma.setRamo(tblDiplomado.getRamo());
         } else {
@@ -376,4 +389,13 @@ public class XmlToBaseFileWriter {
 
         return Boolean.valueOf(value);
     }
+    
+    protected static Integer integerValueOf(final String value) {
+        if (Strings.isNullOrEmpty(value)) {
+            return null;
+        }
+
+        return Integer.valueOf(value);
+    }
+
 }

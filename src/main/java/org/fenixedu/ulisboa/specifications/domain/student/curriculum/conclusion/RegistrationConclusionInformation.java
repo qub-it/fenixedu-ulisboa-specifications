@@ -41,6 +41,14 @@ public class RegistrationConclusionInformation {
     }
 
     public ExecutionYear getConclusionYear() {
+        if(registrationConclusionBean.isConclusionProcessed()) {
+            return registrationConclusionBean.getConclusionYear();
+        }
+        
+        if(registrationConclusionBean.getConclusionYear() != null) {
+            return registrationConclusionBean.getConclusionYear();
+        }
+        
         return ExecutionYear.readByDateTime(registrationConclusionBean.getConclusionDate().toLocalDate());
     }
 

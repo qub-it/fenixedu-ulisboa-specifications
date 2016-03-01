@@ -33,10 +33,10 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
-import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ abstract public class EnrolmentPredicateInitializer {
                             enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
                 }
 
-                if (enrolment.isApproved() && !getEvaluationSeason().isImprovement()) {
+                if (enrolment.isApproved() && !EvaluationSeasonServices.isForApprovedEnrolments(getEvaluationSeason())) {
                     throw new DomainException("error.EvaluationSeason.evaluation.already.approved",
                             enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
                 }
@@ -105,13 +105,6 @@ abstract public class EnrolmentPredicateInitializer {
             }
 
             PREDICATE_SEASON.get().fill(getEvaluationSeason(), improvementSemester, getContext()).test(enrolment);
-
-            final DegreeModule degreeModule = enrolment.getDegreeModule();
-            if (!degreeModule.hasAnyParentContexts(improvementSemester)) {
-                throw new DomainException(
-                        "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.has.no.context.in.present.execution.period",
-                        enrolment.getName().getContent(), improvementSemester.getQualifiedName());
-            }
 
             return true;
         }

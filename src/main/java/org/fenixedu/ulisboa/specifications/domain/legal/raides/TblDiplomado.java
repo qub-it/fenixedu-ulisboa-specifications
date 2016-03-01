@@ -11,6 +11,8 @@ public class TblDiplomado extends RaidesData implements IGrauPrecedenteCompleto,
     protected String ramo;
 
     protected String anoLectivo;
+    
+    protected String areaInvestigacao;
 
     protected String concluiGrau;
 
@@ -94,6 +96,14 @@ public class TblDiplomado extends RaidesData implements IGrauPrecedenteCompleto,
 
     public void setAnoLectivo(String anoLectivo) {
         this.anoLectivo = anoLectivo;
+    }
+    
+    public String getAreaInvestigacao() {
+        return areaInvestigacao;
+    }
+    
+    public void setAreaInvestigacao(String areaInvestigacao) {
+        this.areaInvestigacao = areaInvestigacao;
     }
 
     public String getConcluiGrau() {

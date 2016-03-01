@@ -1,6 +1,5 @@
 package org.fenixedu.ulisboa.specifications.scripts.legal.raides;
 
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
@@ -20,6 +19,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.mapping.DomainObjectLega
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.EnumerationLegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.StringLegalMapping;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
@@ -47,7 +47,6 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         createPeriodoDeEstudosMapping();
         createProgramaMobilidadeMapping();
         createProgramaMobilidadeMapeadoAcordoMapping();
-        createRamosMapping();
         createRegimeFrequenciaMapping();
         createSituacaoProfissionalMapping();
         createTipoDocumentoMapping();
@@ -161,10 +160,6 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
 
             legalMapping.addEntry(Raides.RegimeFrequencia.ETD_CODE, "16");
         }
-    }
-
-    // TODO
-    private void createRamosMapping() {
     }
 
     private void createProgramaMobilidadeMapeadoAcordoMapping() {
@@ -533,7 +528,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             RaidesInstance.getInstance().edit(new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, "RAIDES"),
                     Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", 
                     Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), 
-                    false, new LocalizedString(), "", "");
+                    false, new LocalizedString(), "", "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null);
         }
     }
 

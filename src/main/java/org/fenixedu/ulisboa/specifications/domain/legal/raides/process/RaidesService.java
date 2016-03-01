@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.raides.DegreeClassification;
@@ -26,12 +27,14 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.IGrauPrecedenteCompleto;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.IMatricula;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
@@ -94,19 +97,38 @@ public class RaidesService {
         bean.setAnoLectivo(executionYear.getQualifiedName());
         bean.setCurso(degree(registration).getMinistryCode());
 
-        /*
-        if (registration.getStudentCurricularPlan(executionYear).getInternalCyclesBranches().size() > 2) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.enrolled.more.than.one.branch",
-                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
-        } else if (registration.getStudentCurricularPlan(executionYear).getInternalCyclesBranches().isEmpty()) {
-            bean.setRamo(null);
-        } else {
-            bean.setRamo(BranchMappingType.readMapping(report).translate(registration.getStudentCurricularPlan(executionYear)
-                    .getInternalCyclesBranches().iterator().next().getDegreeModule()));
+        final Set<CourseGroup> branches = branches(registration, executionYear);
+        bean.setRamo(null);
+        if (!branches.isEmpty()) {
+            if (branches.size() > 1) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.enrolled.more.than.one.branch",
+                                String.valueOf(registration.getStudent().getNumber()),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            }
+
+            bean.setRamo(BranchMappingType.readMapping(report).translate(branches.iterator().next()));
         }
-        */
+
+    }
+
+    private Set<CourseGroup> branches(final Registration registration, final ExecutionYear executionYear) {
+        final Set<CourseGroup> result = Sets.newHashSet();
+
+        final StudentCurricularPlan scp = registration.getStudentCurricularPlan(executionYear);
+
+        for (final CurriculumGroup curriculumGroup : scp.getAllCurriculumGroups()) {
+            if (curriculumGroup.getDegreeModule() == null) {
+                continue;
+            }
+
+            final CourseGroup courseGroup = curriculumGroup.getDegreeModule();
+            if (BranchMappingType.readMapping(report).isKeyDefined(courseGroup)) {
+                result.add(courseGroup);
+            }
+        }
+
+        return result;
     }
 
     protected class DEGREE_VALUE_COMPARATOR implements Comparator<Degree> {
@@ -213,11 +235,11 @@ public class RaidesService {
         if (bean.isTipoEstabSecSpecified()) {
             if (lastCompletedQualification.getSchoolLevel().isHighSchoolOrEquivalent()) {
 
-                if(highSchoolType(studentCandidacy) != null) {
+                if (highSchoolType(studentCandidacy) != null) {
                     bean.setTipoEstabSec(LegalMapping.find(report, LegalMappingType.HIGH_SCHOOL_TYPE)
                             .translate(highSchoolType(studentCandidacy)));
                 }
- 
+
                 if (Strings.isNullOrEmpty(bean.getTipoEstabSec())) {
                     bean.setTipoEstabSec(Raides.TipoEstabSec.PUBLICO);
                     LegalReportContext.addWarn("",
@@ -249,10 +271,10 @@ public class RaidesService {
                 && studentCandidacy.getPrecedentDegreeInformation().getPersonalIngressionData().getHighSchoolType() != null) {
             return studentCandidacy.getPrecedentDegreeInformation().getPersonalIngressionData().getHighSchoolType();
         }
-        
-        if(studentCandidacy.getPerson().getStudent() != null) {
+
+        if (studentCandidacy.getPerson().getStudent() != null) {
             for (final PersonalIngressionData pid : studentCandidacy.getPerson().getStudent().getPersonalIngressionsDataSet()) {
-                if(pid.getHighSchoolType() != null) {
+                if (pid.getHighSchoolType() != null) {
                     return pid.getHighSchoolType();
                 }
             }
@@ -265,7 +287,7 @@ public class RaidesService {
         return lastCompletedQualification.getCountry() != null && lastCompletedQualification.getCountry().isDefaultCountry()
                 && isHigherEducation(lastCompletedQualification);
     }
-    
+
     protected boolean isHigherEducation(final PrecedentDegreeInformation lastCompletedQualification) {
         return lastCompletedQualification.getSchoolLevel() != null
                 && lastCompletedQualification.getSchoolLevel().isHigherEducation();
@@ -309,7 +331,7 @@ public class RaidesService {
 
             bean.markAsInvalid();
         }
-        
+
         /*
         if(Strings.isNullOrEmpty(bean.getAnoEscolaridadeAnt())) {
             try {
@@ -410,8 +432,8 @@ public class RaidesService {
                             executionYear.getQualifiedName()));
             bean.markAsInvalid();
         }
-        
-        if((Raides.isMasterDegreeOrDoctoralDegree(registration) || Raides.isSpecializationDegree(registration)) 
+
+        if ((Raides.isMasterDegreeOrDoctoralDegree(registration) || Raides.isSpecializationDegree(registration))
                 && !isHigherEducation(lastCompletedQualification)) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.isMasterDoctoralOrSpecialization.but.completed.qualification.is.not.higher",
@@ -500,6 +522,27 @@ public class RaidesService {
                     .translate(personalIngressionData.getDislocatedFromPermanentResidence()));
         }
 
+        if (Strings.isNullOrEmpty(bean.getAlunoDeslocado())
+                && ((RaidesInstance) report).getDefaultDistrictOfResidence() != null) {
+            
+            if(Raides.countryOfResidence(registration, executionYear) != null && !Raides.countryOfResidence(registration, executionYear).isDefaultCountry()) {
+                bean.setAlunoDeslocado(LegalMapping.find(report, LegalMappingType.BOOLEAN)
+                        .translate(false));
+            } else if(Raides.countryOfResidence(registration, executionYear) != null && Raides.districtSubdivisionOfResidence(registration, executionYear) != null) {
+                bean.setAlunoDeslocado(LegalMapping.find(report, LegalMappingType.BOOLEAN)
+                        .translate(Raides.districtOfResidence(registration, executionYear) != ((RaidesInstance) report)
+                                .getDefaultDistrictOfResidence()));
+            }
+            
+            if(!Strings.isNullOrEmpty(bean.getAlunoDeslocado())) {
+                LegalReportContext.addWarn("",
+                        i18n("warn.Raides.validation.dislocated.from.residence.missing",
+                                String.valueOf(registration.getStudent().getNumber()),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            }
+            
+        }
+
         final Country countryOfResidence = Raides.countryOfResidence(registration, executionYear);
         final DistrictSubdivision districtSubdivision = Raides.districtSubdivisionOfResidence(registration, executionYear);
         if (countryOfResidence != null && districtSubdivision != null) {
@@ -578,15 +621,6 @@ public class RaidesService {
                                 registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
                 bean.markAsInvalid();
             }
-
-            if (!Strings.isNullOrEmpty(bean.getResideConcelho())
-                    && (bean.getResideConcelho().startsWith("19") || bean.getResideConcelho().startsWith("22"))) {
-                LegalReportContext.addError("",
-                        i18n("error.Raides.validation.district.is.island.review",
-                                String.valueOf(registration.getStudent().getNumber()),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
-                bean.markAsInvalid();
-            }
         }
 
         if (!Strings.isNullOrEmpty(bean.getProfissaoAluno())
@@ -623,6 +657,25 @@ public class RaidesService {
         }
 
         return new BigDecimal(result);
+    }
+    
+    protected Set<Enrolment> scholarPartEnrolments(final ExecutionYear executionYear, final Registration registration) {
+        final StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
+        
+        final Set<Enrolment> result = Sets.newHashSet();
+        for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
+            if(enrolment.getCurricularCourse() != null && enrolment.getCurricularCourse().isDissertation()) {
+                continue;
+            }
+            
+            if(!enrolment.isValid(executionYear)) {
+                continue;
+            }
+            
+            result.add(enrolment);
+        }
+        
+        return result; 
     }
 
     protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration) {

@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -105,7 +106,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     public String search(@RequestParam(value = "executionsemester", required = false) ExecutionSemester executionSemester,
             @RequestParam(value = "competencecourse", required = false) CompetenceCourse competenceCourse, final Model model) {
         final List<CompetenceCourseMarkSheet> searchResultsDataSet =
-                filterSearch(executionSemester, competenceCourse, null, null);
+                filterSearch(executionSemester, competenceCourse, (CompetenceCourseMarkSheetStateEnum) null,
+                        (EvaluationSeason) null, (CompetenceCourseMarkSheetChangeRequestStateEnum) null);
 
         final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
         bean.update();
@@ -122,7 +124,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheetBean(bean, model);
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", filterSearch(bean.getExecutionSemester(),
-                bean.getCompetenceCourse(), bean.getMarkSheetState(), bean.getChangeRequestState()));
+                bean.getCompetenceCourse(), bean.getMarkSheetState(), bean.getEvaluationSeason(), bean.getChangeRequestState()));
 
         return jspPage("search");
     }
@@ -141,16 +143,17 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
     private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionSemester executionSemester,
             final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-            CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
-        return CompetenceCourseMarkSheet.findBy(executionSemester, competenceCourse, markSheetState, changeRequestState);
+            final EvaluationSeason evaluationSeason, CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+        return CompetenceCourseMarkSheet.findBy(executionSemester, competenceCourse, markSheetState, evaluationSeason,
+                changeRequestState);
     }
 
     private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionSemester executionSemester,
             final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-            final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+            final EvaluationSeason evaluationSeason, final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
-        return getSearchUniverseSearchDataSet(executionSemester, competenceCourse, markSheetState, changeRequestState)
-                .collect(Collectors.toList());
+        return getSearchUniverseSearchDataSet(executionSemester, competenceCourse, markSheetState, evaluationSeason,
+                changeRequestState).collect(Collectors.toList());
     }
 
     private static final String _SEARCH_TO_VIEW_ACTION_URI = "/search/view/";

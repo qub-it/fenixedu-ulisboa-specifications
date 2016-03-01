@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 
 public class CreateMobilityScientificAreas extends CustomTask {
 
+    
     private static class Bean {
         String code;
         LocalizedString name;
@@ -53,7 +54,7 @@ public class CreateMobilityScientificAreas extends CustomTask {
             new Bean("32", "Desconhecido ou não especificado", "Desconhecido ou não especificado")
     );
     // @formatter:on
-    
+
     @Override
     public void runTask() throws Exception {
         for (Bean bean : MOB_SCIENT_AREAS) {
