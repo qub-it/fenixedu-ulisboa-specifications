@@ -19,7 +19,6 @@ import org.joda.time.DateTime;
 
 import com.qubit.terra.docs.core.DocumentGenerator;
 import com.qubit.terra.docs.util.IDocumentFieldsData;
-import com.qubit.terra.docs.util.IFieldsExporter;
 import com.qubit.terra.docs.util.IReportDataProvider;
 
 public class MarkSheetDocumentPrintService {
@@ -122,11 +121,6 @@ public class MarkSheetDocumentPrintService {
         @Override
         public void registerFieldsAndImages(IDocumentFieldsData arg0) {
             arg0.registerCollectionAsField(MARK_SHEET_EVALUATIONS_KEY);
-        }
-
-        @Override
-        public void registerFieldsMetadata(IFieldsExporter arg0) {
-
         }
 
     }
