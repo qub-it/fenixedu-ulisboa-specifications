@@ -146,7 +146,7 @@ function openDeletionModal (url, oids) {
 </c:if>
 
 <div class="panel panel-default">
-    <form method="get" class="form-horizontal" action="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.SEARCH_URL%>">
+    <form id="search-form" method="get" class="form-horizontal" action="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.SEARCH_URL%>">
         <div class="panel-body">
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
@@ -385,9 +385,9 @@ function openDeletionModal (url, oids) {
 				'title': '<spring:message code="label.gradingTables.generator.blockerTitle"/>',
 				'message': '<spring:message code="label.gradingTables.generator.blockerMessage"/>'
 			};
-		Omnis.block('instituionTableGenButton', blockerMsgs);
-		Omnis.block('degreeTableGenButton', blockerMsgs);
-		Omnis.block('courseTableGenButton', blockerMsgs);
+		var closeIBlocker = Omnis.block('instituionTableGenButton', blockerMsgs);
+		var closeDBlocker = Omnis.block('degreeTableGenButton', blockerMsgs);
+		var closeCBlocker = Omnis.block('courseTableGenButton', blockerMsgs);
 		
  		createDataTables('institutionGradeTable', false /*filterable*/, false /*show tools*/, false /*paging*/, "${pageContext.request.contextPath}", "${datatablesI18NUrl}");
  		delay(
@@ -505,6 +505,67 @@ function openDeletionModal (url, oids) {
 				$('#delete-all-selected-courses').attr('disabled', true);
 			}
 		});
+		
+		$('#instituionTableGenButton').on('click', function () {
+			var url = $(this).attr('href');	
+			startWorker(url, closeIBlocker)
+			return false;
+		});
+		
+		$('#degreeTableGenButton').on('click', function () {
+			var url = $(this).attr('href');	
+			startWorker(url, closeDBlocker)
+			return false;
+		});
+		
+		$('#courseTableGenButton').on('click', function () {
+			var url = $(this).attr('href');	
+			startWorker(url, closeCBlocker)
+			return false;
+		});
+		
+		function startWorker (url, blocker) {
+			var pollingURL = "${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.POLL_WORKERS_URL%>";
+			$.get(
+					url,
+					function (msg) { //success
+						setTimeout(pollWorkers, 10000, pollingURL, msg, blocker);
+					}
+				).fail(
+					function (msg) {
+						addErrorMsg(msg.responseText, blocker);
+					}
+				);
+		}
+		
+		function pollWorkers (url, params, blocker) {
+			$.get(
+				 url + params,
+				function (msg) { //success
+					if (msg === 'done') {
+						//location.reload(true);
+						$('#search-form').submit();
+					} else {
+						setTimeout(pollWorkers, 10000, url, params);
+					}
+				}
+			).fail(
+				function (msg, blocker) {
+					addErrorMsg(msg.responseText, blocker);
+				}
+			);
+		}
+		
+		function addErrorMsg (msg, blocker) {
+			$('.page-header').after(
+				'<div class="alert alert-danger" role="alert">' +
+		            '<p>' +
+		                '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>' + msg +
+		            '</p>' +
+		    	'</div>');
+			blocker();
+			$('html, body').animate({scrollTop: '0px'}, 300);
+		}
  
 	}); 
 </script>

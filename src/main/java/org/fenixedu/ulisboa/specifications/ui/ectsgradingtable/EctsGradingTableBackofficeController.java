@@ -3,7 +3,10 @@ package org.fenixedu.ulisboa.specifications.ui.ectsgradingtable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -15,20 +18,24 @@ import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeCon
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageECTSGradingTables",
-        accessGroup = "academic(MANAGE_DEGREE_CURRICULAR_PLANS)| #managers")
+        accessGroup = "academic(MANAGE_CONCLUSION)| #managers")
 @RequestMapping(EctsGradingTableBackofficeController.CONTROLLER_URL)
 @SessionAttributes("sectoken")
 public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecificationsBaseController {
@@ -36,6 +43,8 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     public static final String CONTROLLER_URL = "/ulisboaspecifications/ectsgradingtable";
 
     public static final String VIEW_URL = "fenixedu-ulisboa-specifications/managegradingtable/ectsgradingtable/";
+
+    private static final Map<Long, Thread> workers = new HashMap<Long, Thread>();
 
     @RequestMapping
     public String home(Model model) {
@@ -59,6 +68,18 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         model.addAttribute("sectoken", SecToken.generate());
     }
 
+    private synchronized boolean hasFinished(long workerId) {
+        if (workers.get(workerId) != null) {
+            if (workers.get(workerId).isAlive()) {
+                return false;
+            } else {
+                workers.remove(workerId);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static final String _SEARCH_URI = "/search/";
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
@@ -75,58 +96,76 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     public static final String CREATE_INSTITUTIONAL_URL = CONTROLLER_URL + _CREATE_INSTITUTIONAL_URI;
 
     @RequestMapping(value = _CREATE_INSTITUTIONAL_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
-    public String createInstitutional(@PathVariable(value = "oid") ExecutionYear executionYear,
+    public @ResponseBody ResponseEntity<String> createInstitutional(@PathVariable(value = "oid") ExecutionYear executionYear,
             @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
-        InstitutionGradingTable createdTable = null;
         if (!token.equals(sectoken)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                    "label.gradingTables.unauthorizedOperation"), model);
-        } else {
-            createdTable = generateInstitutionGradingTable(executionYear);
+            return new ResponseEntity<String>(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), HttpStatus.UNAUTHORIZED);
         }
-        loadModel(model, executionYear);
-        model.addAttribute("institutionGradeTable", createdTable);
-        return VIEW_URL + "search";
+        Thread worker = new Thread(() -> generateInstitutionGradingTable(executionYear));
+        workers.put(worker.getId(), worker);
+        worker.start();
+        return new ResponseEntity<String>(worker.getId() + "/" + token, HttpStatus.OK);
     }
 
     @Atomic
-    private InstitutionGradingTable generateInstitutionGradingTable(final ExecutionYear executionYear) {
-        return InstitutionGradingTable.find(executionYear) != null ? InstitutionGradingTable.find(executionYear) : InstitutionGradingTable
-                .generate(executionYear);
+    private void generateInstitutionGradingTable(ExecutionYear executionYear) {
+        InstitutionGradingTable.generate(executionYear);
     }
 
     private static final String _CREATE_DEGREES_URI = "/createdegrees/";
     public static final String CREATE_DEGREES_URL = CONTROLLER_URL + _CREATE_DEGREES_URI;
 
     @RequestMapping(value = _CREATE_DEGREES_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
-    public String createDegrees(@PathVariable(value = "oid") ExecutionYear executionYear,
-            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model,
-            RedirectAttributes redirectAttributes) {
+    public @ResponseBody ResponseEntity<String> createDegrees(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
         if (!token.equals(sectoken)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                    "label.gradingTables.unauthorizedOperation"), model);
-            loadModel(model, executionYear);
-            return VIEW_URL + "search";
+            return new ResponseEntity<String>(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), HttpStatus.UNAUTHORIZED);
         }
+        Thread worker = new Thread(() -> generateDegreeGradingTables(executionYear));
+        workers.put(worker.getId(), worker);
+        worker.start();
+        return new ResponseEntity<String>(worker.getId() + "/" + token, HttpStatus.OK);
+    }
+
+    @Atomic
+    private void generateDegreeGradingTables(ExecutionYear executionYear) {
         DegreeGradingTable.generate(executionYear);
-        return redirect(SEARCH_URL, model, redirectAttributes);
     }
 
     private static final String _CREATE_COURSESS_URI = "/createcourses/";
     public static final String CREATE_COURSESS_URL = CONTROLLER_URL + _CREATE_COURSESS_URI;
 
     @RequestMapping(value = _CREATE_COURSESS_URI + "{oid}" + "/" + "{token}", method = RequestMethod.GET)
-    public String createCourses(@PathVariable(value = "oid") ExecutionYear executionYear,
-            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model,
-            RedirectAttributes redirectAttributes) {
+    public @ResponseBody ResponseEntity<String> createCourses(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
         if (!token.equals(sectoken)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                    "label.gradingTables.unauthorizedOperation"), model);
-            loadModel(model, executionYear);
-            return VIEW_URL + "search";
+            return new ResponseEntity<String>(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), HttpStatus.UNAUTHORIZED);
         }
+        Thread worker = new Thread(() -> generateCourseGradingTables(executionYear));
+        workers.put(worker.getId(), worker);
+        worker.start();
+        return new ResponseEntity<String>(worker.getId() + "/" + token, HttpStatus.OK);
+    }
+
+    @Atomic
+    private void generateCourseGradingTables(ExecutionYear executionYear) {
         CourseGradingTable.generate(executionYear);
-        return redirect(SEARCH_URL, model, redirectAttributes);
+    }
+
+    private static final String _POLL_WORKERS_URI = "/pollworkers/";
+    public static final String POLL_WORKERS_URL = CONTROLLER_URL + _POLL_WORKERS_URI;
+
+    @RequestMapping(value = _POLL_WORKERS_URI + "{workerId}" + "/" + "{token}", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<String> pollWorkers(@PathVariable(value = "workerId") long workerId, @PathVariable(
+            value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+        if (!token.equals(sectoken)) {
+            return new ResponseEntity<String>(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.unauthorizedOperation"), HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<String>(hasFinished(workerId) ? "done" : "ongoing", HttpStatus.OK);
     }
 
     private static final String _DELETE_TABLES_URI = "/deletetable/";
