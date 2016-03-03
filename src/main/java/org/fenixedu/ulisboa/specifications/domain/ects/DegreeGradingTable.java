@@ -63,6 +63,9 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
         Set<DegreeGradingTable> allTables = new HashSet<DegreeGradingTable>();
         for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
             Degree degree = dcp.getDegree();
+            if (!GradingTableSettings.getApplicableDegreeTypes().contains(degree.getDegreeType())) {
+                continue;
+            }
             for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp).collect(Collectors.toSet())) {
                 DegreeGradingTable table = find(executionYear, programConclusion, degree);
                 if (table == null) {

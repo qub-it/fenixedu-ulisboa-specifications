@@ -1,5 +1,33 @@
+<!--
+ /**
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * software development project between Quorum Born IT and Serviços Partilhados da
+ * Universidade de Lisboa:
+ *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *
+ * Contributors: diogo.simoe@qub-it.com 
+ *
+ * 
+ * This file is part of FenixEdu Specifications.
+ *
+ * FenixEdu Specifications is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FenixEdu Specifications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ectsgradingtable.EctsGradingTableBackofficeController"%>
-<%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -28,9 +56,12 @@
 
 ${portal.toolkit()}
 
-<style>
+<style type="text/css">
 	.ects-row {
 		margin-top: 2em;
+	}
+	.degree-type {
+		margin: 2px;
 	}
 </style>
 
@@ -145,37 +176,86 @@ function openDeletionModal (url, oids) {
     </div>
 </c:if>
 
-<div class="panel panel-default">
-    <form id="search-form" method="get" class="form-horizontal" action="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.SEARCH_URL%>">
-        <div class="panel-body">
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.academicRequest.executionYear" />
-                </div>
-                <div class="col-sm-6">
-                    <select id="academicRequest_executionYear"
-                        class="js-example-basic-single"
-                        name="executionYear">
-                        <c:forEach var="year" items="${executionYearsList}">
-                        	<c:if test="${year.externalId != selectedYear.externalId}">
-                        		<option value="${year.externalId}">${year.qualifiedName}</option>
-                        	</c:if>
-                        	<c:if test="${year.externalId == selectedYear.externalId}">                    	
-	                        	<option value="${year.externalId}" selected>${year.qualifiedName}</option>
-                        	</c:if>
-                        </c:forEach>
-                    </select>
-                    <script type="text/javascript">
-		                $("#academicRequest_executionYear").select2();
-                    </script>
-                </div>
-            </div>
-        </div>
-        <div class="panel-footer">
-            <input type="submit" class="btn btn-default" role="button"
-                value="<spring:message code="label.search" />" />
-        </div>
-    </form>
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel panel-default">
+		    <div class="panel-heading">
+				<h3 class="panel-title"><spring:message code="label.gradingTables.search"/></h3>
+			</div>
+			<form id="search-form" method="get" class="form-horizontal" action="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.SEARCH_URL%>">
+		        <div class="panel-body">
+		            <div class="form-group row">
+		                <div class="col-sm-2 control-label">
+		                    <spring:message code="label.academicRequest.executionYear" />
+		                </div>
+		                <div class="col-sm-6">
+		                    <select id="academicRequest_executionYear"
+		                        class="js-example-basic-single"
+		                        name="executionYear">
+		                        <c:forEach var="year" items="${executionYearsList}">
+		                        	<c:if test="${year.externalId != selectedYear.externalId}">
+		                        		<option value="${year.externalId}">${year.qualifiedName}</option>
+		                        	</c:if>
+		                        	<c:if test="${year.externalId == selectedYear.externalId}">                    	
+			                        	<option value="${year.externalId}" selected>${year.qualifiedName}</option>
+		                        	</c:if>
+		                        </c:forEach>
+		                    </select>
+		                    <script type="text/javascript">
+				                $("#academicRequest_executionYear").select2();
+		                    </script>
+		                </div>
+		            </div>
+		        </div>
+		        <div class="panel-footer">
+		            <input type="submit" class="btn btn-default" role="button"
+		                value="<spring:message code="label.search" />" />
+		        </div>
+		    </form>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><spring:message code="label.gradingTables.settings"/></h3>
+			</div>
+			<div class="panel-body">
+				<form method="post" class="form-horizontal">
+					<table class="table">
+						<tbody>
+							<tr>
+								<th scope="row" class="col-xs-4"><spring:message code="label.gradingTables.settings.minSampleSize"/></th> 
+								<td>
+									<c:out value='${gradingTableSettings.minSampleSize}'/>
+								</td> 
+							</tr>
+							<tr>
+								<th scope="row" class="col-xs-4"><spring:message code="label.gradingTables.settings.minPastYears"/></th> 
+								<td>
+									<c:out value='${gradingTableSettings.minPastYears}'/>
+								</td> 
+							</tr>
+							<tr>
+								<th scope="row" class="col-xs-4"><spring:message code="label.gradingTables.settings.applicableDegreeTypes"/></th> 
+								<td>
+									<c:if test="${not empty gradingTableSettings.applicableDegreeTypesSet}">
+										<div>
+										<c:forEach items="${gradingTableSettings.applicableDegreeTypesSet}" var="degreeType">
+											<span class="badge degree-type"><c:out value='${degreeType.name.content}'/></span>
+										</c:forEach>
+										</div>
+									</c:if>
+								</td> 
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+			<div class="panel-footer">
+	            <a class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.UPDATE_SETTINGS_URL%>${selectedYear.externalId}"><spring:message code="label.edit" /></a>
+	        </div>
+		</div>		
+	</div>
 </div>
 
 <div class="panel panel-default">
@@ -261,7 +341,7 @@ function openDeletionModal (url, oids) {
 							</thead>
 							<tbody>
 								<c:forEach var="degreeTable" items="${degreeGradeTable}" varStatus="loop_out">
-								<tr>
+								<tr data-tableoid="${degreeTable.externalId}">
 									<td><c:out value="${degreeTable.degree.presentationNameI18N.content}" /></td>
 									<td><c:out value="${degreeTable.programConclusion.name.content}" /></td>
 									<td><c:if test="${degreeTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not degreeTable.copied}"><spring:message code="label.false" /></c:if></td>
@@ -329,7 +409,7 @@ function openDeletionModal (url, oids) {
 							</thead>
 							<tbody>
 								<c:forEach var="courseTable" items="${courseGradeTable}" varStatus="loop_out">
-								<tr>
+								<tr data-tableoid="${courseTable.externalId}">
 									<td><c:out value="${courseTable.competenceCourse.nameI18N.content}" /></td>
 									<td><c:if test="${courseTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not courseTable.copied}"><spring:message code="label.false" /></c:if></td>
 									<c:forEach var="conversion" items="${courseTable.data.table}" varStatus="loop">
@@ -438,10 +518,8 @@ function openDeletionModal (url, oids) {
 			var oids = '';
 			var url = "${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/";
 			var token = "${sectoken}";
-			$('#degreeGradeTable tr.selected a').each( function (index) {
-				var slugs = $(this).attr('href').split('/');
-				slugs.pop() // discard token...
-				oids += slugs.pop() + '+';
+			$('#degreeGradeTable tr.selected').each( function (index) {
+				oids += $(this).attr('data-tableoid') + '+';
 			});
 			oids = oids.slice(0, -1);
 			openDeletionModal(url+token, oids)
@@ -487,10 +565,8 @@ function openDeletionModal (url, oids) {
 			var oids = '';
 			var url = "${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/";
 			var token = "${sectoken}";
-			$('#courseGradeTable tr.selected a').each( function (index) {
-				var slugs = $(this).attr('href').split('/');
-				slugs.pop() // discard token...
-				oids += slugs.pop() + '+';
+			$('#courseGradeTable tr.selected').each( function (index) {
+				oids += $(this).attr('data-tableoid') + '+';
 			});
 			oids = oids.slice(0, -1);
 			openDeletionModal(url+token, oids)
@@ -569,4 +645,3 @@ function openDeletionModal (url, oids) {
  
 	}); 
 </script>
-

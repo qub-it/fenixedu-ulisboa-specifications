@@ -1337,6 +1337,15 @@ relation GradingTableSettingsBennu {
     }
 }
 
+relation GradingTableSettingsDegreeType {
+	public .org.fenixedu.academic.domain.degree.DegreeType playsRole applicableDegreeTypes {
+        multiplicity *;
+    }
+    public ects.GradingTableSettings playsRole gradingTableSettings {
+    	multiplicity 0..1;
+    }
+}
+
 /*
  * ***************************************************
  *    ICurriculum Entries

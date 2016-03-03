@@ -236,7 +236,7 @@ public class CurriculumLayout extends Layout {
                 CourseGradingTable table = CourseGradingTable.find(line);
                 if (table != null) {
                     ectsGrade = table.getEctsGrade(grade);
-                } else {
+                } else if (CourseGradingTable.isApplicable(line)) {
                     if (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION).isMember(Authenticate.getUser())) {
                         generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
                                 FenixeduUlisboaSpecificationsInitializer.BUNDLE,

@@ -51,6 +51,10 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                 .orElse(find(line.getExecutionYear(), line.getCurricularCourse().getCompetenceCourse()));
     }
 
+    public static boolean isApplicable(CurriculumLine line) {
+        return GradingTableSettings.getApplicableDegreeTypes().contains(line.getCurricularCourse().getDegreeType());
+    }
+
     public static Set<CourseGradingTable> generate(final ExecutionYear executionYear) {
         Set<CourseGradingTable> allTables = new HashSet<CourseGradingTable>();
         for (CompetenceCourse cc : Bennu.getInstance().getCompetenceCoursesSet()) {
@@ -104,23 +108,14 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         for (ExecutionYear year = getExecutionYear().getPreviousExecutionYear(); year != null; year =
                 year.getPreviousExecutionYear()) {
             for (final CurricularCourse curricularCourse : getCompetenceCourse().getAssociatedCurricularCoursesSet()) {
+                if (!GradingTableSettings.getApplicableDegreeTypes().contains(curricularCourse.getDegreeType())) {
+                    continue;
+                }
                 List<Enrolment> enrolmentsByExecutionYear = curricularCourse.getEnrolmentsByExecutionYear(year);
                 for (Enrolment enrolment : enrolmentsByExecutionYear) {
                     if (!enrolment.isApproved()) {
                         continue;
                     }
-//                    //dsimoes@03_02_2016: Porque tenho que filtrar só inscrições em planos concluidos??
-//                    if (!isGraduated(enrolment)) {
-//                        continue;
-//                    }
-//                    // dsimoes@03_02_2016: Estas grades existem mesmo e são mesmo para ignorar?
-//                    // Test if grade is integer because some grades are decimal
-//                    try {
-//                        Integer.valueOf(enrolment.getGradeValue());
-//                    } catch (final NumberFormatException e) {
-//                        continue;
-//                    }
-
                     Integer finalGrade =
                             isNumeric(enrolment.getGrade()) ? enrolment.getGrade().getNumericValue()
                                     .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
