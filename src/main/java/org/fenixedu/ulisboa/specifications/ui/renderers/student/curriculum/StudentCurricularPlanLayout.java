@@ -37,7 +37,6 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
@@ -635,9 +634,11 @@ public class StudentCurricularPlanLayout extends Layout {
      * qubExtension, show temporary evaluations for improvements and special seasons
      */
     private Set<EnrolmentEvaluation> getDetailedEvaluations(final Enrolment enrolment) {
-        final Set<EnrolmentEvaluation> result = Sets.newTreeSet(new EvaluationComparator());
+        final Set<EnrolmentEvaluation> result = Sets.newLinkedHashSet();
 
-        for (final Iterator<EvaluationSeason> iterator = EvaluationSeasonServices.findAll().iterator(); iterator.hasNext();) {
+        for (final Iterator<EvaluationSeason> iterator =
+                EvaluationSeasonServices.findAll().sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).iterator(); iterator
+                        .hasNext();) {
             final EvaluationSeason season = iterator.next();
 
             // either the person has access or this season should always show it's enrolment evaluations
