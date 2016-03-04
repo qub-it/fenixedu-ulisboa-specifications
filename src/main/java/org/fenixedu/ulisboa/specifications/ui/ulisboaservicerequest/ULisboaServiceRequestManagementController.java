@@ -136,6 +136,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
         } catch (ULisboaSpecificationsDomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (RuntimeException e) {
+            addErrorMessage(e.getMessage(), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }

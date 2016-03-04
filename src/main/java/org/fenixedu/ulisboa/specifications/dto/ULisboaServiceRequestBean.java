@@ -413,11 +413,16 @@ public class ULisboaServiceRequestBean implements IBean {
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 final ExecutionSemester executionSemester =
                         bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
-                if (executionSemester == null || bean.getRegistration().getStudentCurricularPlan(executionSemester) == null) {
+                StudentCurricularPlan studentCurricularPlan =
+                        bean.getServiceRequestPropertyValue(ULisboaConstants.CURRICULAR_PLAN);
+                if (studentCurricularPlan == null) {
+                    studentCurricularPlan = bean.getRegistration().getStudentCurricularPlan(executionSemester);
+                }
+                if (executionSemester == null || studentCurricularPlan == null) {
                     return Collections.emptyList();
                 }
-                Stream<ICurriculumEntry> collection = bean.getRegistration().getStudentCurricularPlan(executionSemester)
-                        .getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod().isBefore(executionSemester))
+                Stream<ICurriculumEntry> collection = studentCurricularPlan.getEnrolmentsSet().stream()
+                        .filter(e -> e.getExecutionPeriod().isBefore(executionSemester))
                         .filter(ULisboaConstants.isNormalEnrolment).sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID)
                         .map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);

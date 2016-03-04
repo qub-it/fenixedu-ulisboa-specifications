@@ -143,7 +143,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
 
         ServiceRequestSlot.initStaticSlots();
-        // ULisboaServiceRequestProcessor.initValidators();
+        ULisboaServiceRequestProcessor.initValidators();
 
         CourseGradingTable.registerProvider();
         DegreeGradingTable.registerProvider();
@@ -225,9 +225,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic =
-                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
-                        .typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
+                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);
