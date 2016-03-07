@@ -39,7 +39,12 @@ import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.CreditsDismissal;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
@@ -61,6 +66,7 @@ import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularC
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
@@ -79,7 +85,9 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
+import pt.ist.fenixframework.dml.runtime.Relation;
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
+import pt.ist.fenixframework.dml.runtime.RelationListener;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
@@ -128,6 +136,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForDegreeDelete();
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
+        setupListenerForInvalidEquivalences();
         ULisboaServiceRequest.setupListenerForPropertiesDeletion();
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
 
@@ -177,6 +186,18 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             @Override
             public void deleting(SchoolClass schoolClass) {
                 schoolClass.getRegistrationsSet().clear();
+            }
+        });
+    }
+
+    private void setupListenerForInvalidEquivalences() {
+        Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
+            @Override
+            public void beforeAdd(Dismissal dismissal, Credits credits) {
+                if (dismissal instanceof CreditsDismissal && credits.isEquivalence()) {
+                    throw new DomainException("error.curricularplan.equivalence.without.destination");
+
+                }
             }
         });
     }
