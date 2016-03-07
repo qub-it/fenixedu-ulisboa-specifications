@@ -232,6 +232,8 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         dropDownPropertyNames.put(ULisboaConstants.EXECUTION_SEMESTER, "executionInterval");
         dropDownPropertyNames.put(ULisboaConstants.EVALUATION_SEASON, "evaluationSeason");
         dropDownPropertyNames.put(ULisboaConstants.CURRICULAR_PLAN, "studentCurricularPlan");
+        dropDownPropertyNames.put(ULisboaConstants.ENROLMENTS_BY_SEMESTER, "enrolment");
+        dropDownPropertyNames.put(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, "enrolment");
         PROPERTY_NAMES.put(UIComponentType.DROP_DOWN_ONE_VALUE.toString(), dropDownPropertyNames);
     }
 

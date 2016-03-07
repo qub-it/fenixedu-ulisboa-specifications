@@ -3,7 +3,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
+import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -134,17 +134,17 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
         if (findByName(
                 BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR))
                         .count() == 0) {
-            ValidateEnrolmentProcessor.create(
+            ValidateSpecialSeasonEnrolmentProcessor.create(
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                             ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR),
-                    CurricularRuleLevel.SPECIAL_SEASON_ENROLMENT, ULisboaConstants.ENROLMENTS_BY_SEMESTER);
+                    EvaluationSeason.readSpecialSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BY_SEMESTER);
         }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR))
                 .count() == 0) {
-            ValidateEnrolmentProcessor.create(
+            ValidateImprovementEnrolmentProcessor.create(
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                             ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR),
-                    CurricularRuleLevel.IMPROVEMENT_ENROLMENT, ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER);
+                    EvaluationSeason.readImprovementSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER);
         }
     }
 

@@ -254,6 +254,8 @@ public class ServiceRequestPropertyBean implements IBean {
         dropDownPropertyNames.put(ULisboaConstants.EXECUTION_YEAR, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.EXECUTION_SEMESTER, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.EVALUATION_SEASON, "domainObjectValue");
+        dropDownPropertyNames.put(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, "domainObjectValue");
+        dropDownPropertyNames.put(ULisboaConstants.ENROLMENTS_BY_SEMESTER, "domainObjectValue");
         dropDownPropertyNames.put(ULisboaConstants.LANGUAGE, "localeValue");
         dropDownPropertyNames.put(ULisboaConstants.CYCLE_TYPE, "cycleTypeValue");
         propertyNames.put(UIComponentType.DROP_DOWN_ONE_VALUE.toString(), dropDownPropertyNames);

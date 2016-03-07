@@ -78,6 +78,8 @@ external class .org.fenixedu.bennu.core.domain.User;
 external class .org.fenixedu.bennu.io.domain.GenericFile;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
 external class .org.fenixedu.academic.domain.student.StatuteType;
+external class .org.fenixedu.academic.domain.EvaluationSeason;
+external class .org.fenixedu.academic.domain.Enrolment;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -1046,11 +1048,33 @@ class serviceRequests.processors.AutomaticOnlineRequestProcessor extends service
 
 }
 
-class serviceRequests.processors.ValidateEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
-    CurricularRuleLevel curricularRuleLevel;
+class serviceRequests.processors.ValidateImprovementEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+    String curricularEntriesPropertyName;    
+}
+
+class serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
     String curricularEntriesPropertyName;
 }
 
+relation ValidateImprovementEnrolmentProcessorEvaluationSeason {
+    public serviceRequests.processors.ValidateImprovementEnrolmentProcessor playsRole validateImprovementEnrolmentProcessors {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 1..1;
+    }
+}
+
+relation ValidateSpecialSeasonEnrolmentProcessorEvaluationSeason {
+    public serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor playsRole validateSpecialSeasonEnrolmentProcessors {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 1..1;
+    }
+}
 
 relation ULisboaServiceRequestProcessorBennu {
     protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
@@ -1217,6 +1241,16 @@ relation EvaluationSeasonServiceRequestProperty {
 
 relation StudentCurricularPlanServiceRequestProperty {
     public .org.fenixedu.academic.domain.StudentCurricularPlan playsRole studentCurricularPlan {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation EnrolmentServiceRequestProperty {
+    public .org.fenixedu.academic.domain.Enrolment playsRole enrolment {
         multiplicity 0..1;
     }
 

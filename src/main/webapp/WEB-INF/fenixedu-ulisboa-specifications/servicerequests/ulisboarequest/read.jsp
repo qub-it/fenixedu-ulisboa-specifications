@@ -615,6 +615,9 @@ ${portal.toolkit()}
                                     <c:when test="${ property.dateTime != null }">
                                         <joda:format value='${property.dateTime}' style='S-' />
                                     </c:when>
+                                    <c:when test="${ property.enrolment != null }">
+                                        <c:out value="${ property.enrolment.code } - ${ property.enrolment.name.content } - ${ property.enrolment.executionYear.qualifiedName }"/>
+                                    </c:when>
                                     <c:otherwise>
                                         <c:out value='${ property.string } ${ property.integer } 
                                                     ${ property.locale.displayLanguage }
