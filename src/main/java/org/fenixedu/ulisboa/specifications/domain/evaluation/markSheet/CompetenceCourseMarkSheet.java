@@ -178,12 +178,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         }
 
         for (final EvaluationSeasonPeriod iter : periods) {
-
-            if (!iter.isContainingDate(getEvaluationDate())) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
-                        getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            if (iter.isContainingDate(getEvaluationDate())) {
+                return;
             }
         }
+
+        throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
+                getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
     }
 
     protected void checkIfIsGradeSubmissionAvailable() {
@@ -208,11 +209,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         for (final EvaluationSeasonPeriod iter : periods) {
 
-            if (!iter.isContainingDate(new LocalDate())) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
-                        EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            if (iter.isContainingDate(new LocalDate())) {
+                return;
             }
         }
+
+        throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
+                EvaluationSeasonPeriod.getIntervalsDescription(periods));
     }
 
     private void checkIfEvaluationsDateIsEqualToMarkSheetEvaluationDate() {
