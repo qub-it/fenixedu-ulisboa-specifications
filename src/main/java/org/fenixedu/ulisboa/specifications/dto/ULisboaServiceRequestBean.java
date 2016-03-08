@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +44,6 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
@@ -53,10 +51,6 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPur
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
-import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.RootCurriculumGroup;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -67,6 +61,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateImprovementEnrolmentProcessor;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -220,83 +215,6 @@ public class ULisboaServiceRequestBean implements IBean {
             tuple.setText(x.getCode() + " - " + x.getName().getContent() + " - " + x.getExecutionPeriod().getQualifiedName());
             return tuple;
         }).collect(Collectors.toList());
-    }
-
-    private static List<Enrolment> getValidEnrolmentsToEnrol(ULisboaServiceRequestBean bean) {
-        boolean isImprovement = false;
-        EvaluationSeason evaluationSeason = null;
-        final ExecutionSemester executionSemester = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
-        final StudentCurricularPlan studentCurricularPlan = bean.getServiceRequestPropertyValue(ULisboaConstants.CURRICULAR_PLAN);
-        for (ULisboaServiceRequestProcessor processor : bean.getServiceRequestType().getULisboaServiceRequestProcessorsSet()) {
-            if (processor instanceof ValidateImprovementEnrolmentProcessor) {
-                ValidateImprovementEnrolmentProcessor improvementProcessor = (ValidateImprovementEnrolmentProcessor) processor;
-                isImprovement = true;
-                evaluationSeason = improvementProcessor.getEvaluationSeason();
-                break;
-            }
-            if (processor instanceof ValidateSpecialSeasonEnrolmentProcessor) {
-                ValidateSpecialSeasonEnrolmentProcessor specialSeasonProcessor =
-                        (ValidateSpecialSeasonEnrolmentProcessor) processor;
-                evaluationSeason = specialSeasonProcessor.getEvaluationSeason();
-                break;
-            }
-        }
-        if (evaluationSeason == null) {
-            //No filter
-            return studentCurricularPlan.getRoot().getCurriculumModulesSet().stream().filter(module -> module.isEnrolment())
-                    .map(Enrolment.class::cast).collect(Collectors.toList());
-        }
-
-        final List<Enrolment> result = new ArrayList<Enrolment>();
-        EnrolmentPredicate predicate = null;
-        if (isImprovement) {
-            predicate = Enrolment.getPredicateImprovement();
-        } else {
-            predicate = Enrolment.getPredicateSpecialSeason();
-        }
-
-        RootCurriculumGroup rootGroup = studentCurricularPlan.getRoot();
-        final Set<CurriculumGroup> curriculumGroupsToEnrolmentProcess = rootGroup.getCurriculumGroupsToEnrolmentProcess();
-        if (!rootGroup.isNoCourseGroupCurriculumGroup()) {
-            for (final NoCourseGroupCurriculumGroup curriculumGroup : rootGroup.getNoCourseGroupCurriculumGroups()) {
-                if (curriculumGroup.isVisible()) {
-                    curriculumGroupsToEnrolmentProcess.add(curriculumGroup);
-                }
-            }
-        }
-
-        Set<Enrolment> enrolmentSet = new TreeSet<Enrolment>(Enrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME);
-        getValidEnrolmentsToEnrol(studentCurricularPlan.getRoot(), enrolmentSet);
-        for (Enrolment enrolment : enrolmentSet) {
-            if (predicate.fill(evaluationSeason, executionSemester, EnrolmentEvaluationContext.MARK_SHEET_EVALUATION)
-                    .testExceptionless(enrolment)) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
-
-    }
-
-    private static Set<Enrolment> getValidEnrolmentsToEnrol(CurriculumGroup curriculumGroup, Set<Enrolment> enrolmentSet) {
-        for (CurriculumModule curriculumModule : curriculumGroup.getCurriculumModulesSet()) {
-            if (curriculumModule.isEnrolment()) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                enrolmentSet.add(enrolment);
-            }
-        }
-        final Set<CurriculumGroup> curriculumGroupsToEnrolmentProcess = curriculumGroup.getCurriculumGroupsToEnrolmentProcess();
-        if (!curriculumGroup.isNoCourseGroupCurriculumGroup()) {
-            for (final NoCourseGroupCurriculumGroup group : curriculumGroup.getNoCourseGroupCurriculumGroups()) {
-                if (group.isVisible()) {
-                    curriculumGroupsToEnrolmentProcess.add(group);
-                }
-            }
-        }
-        for (CurriculumGroup group : curriculumGroupsToEnrolmentProcess) {
-            getValidEnrolmentsToEnrol(group, enrolmentSet);
-        }
-        return enrolmentSet;
     }
 
     public static void initProviderMap() {
@@ -513,10 +431,42 @@ public class ULisboaServiceRequestBean implements IBean {
                     return Collections.emptyList();
                 }
 
+                List<Enrolment> enrolments = getEnrolmentsToEnrol(executionSemester, studentCurricularPlan,
+                        bean.getServiceRequestType().getULisboaServiceRequestProcessorsSet());
                 Stream<ICurriculumEntry> collection =
-                        getValidEnrolmentsToEnrol(bean).stream().filter(e -> e.getExecutionPeriod().isBefore(executionSemester))
+                        enrolments.stream().filter(e -> e.getExecutionPeriod().isBefore(executionSemester))
                                 .sorted(Enrolment.COMPARATOR_BY_NAME_AND_ID).map(ICurriculumEntry.class::cast);
                 return provideForCurriculumEntry(collection);
+            }
+
+            private List<Enrolment> getEnrolmentsToEnrol(ExecutionSemester executionSemester,
+                    StudentCurricularPlan studentCurricularPlan, Set<ULisboaServiceRequestProcessor> processors) {
+                EvaluationSeason evaluationSeason = null;
+                EnrolmentPredicate predicate = null;
+                for (ULisboaServiceRequestProcessor processor : processors) {
+                    if (processor instanceof ValidateImprovementEnrolmentProcessor) {
+                        ValidateImprovementEnrolmentProcessor improvementProcessor =
+                                (ValidateImprovementEnrolmentProcessor) processor;
+                        evaluationSeason = improvementProcessor.getEvaluationSeason();
+                        predicate = Enrolment.getPredicateImprovement();
+                        break;
+                    }
+                    if (processor instanceof ValidateSpecialSeasonEnrolmentProcessor) {
+                        ValidateSpecialSeasonEnrolmentProcessor specialSeasonProcessor =
+                                (ValidateSpecialSeasonEnrolmentProcessor) processor;
+                        evaluationSeason = specialSeasonProcessor.getEvaluationSeason();
+                        predicate = Enrolment.getPredicateSpecialSeason();
+                        break;
+                    }
+                }
+                if (evaluationSeason == null) {
+                    //No filter
+                    return studentCurricularPlan.getRoot().getCurriculumModulesSet().stream()
+                            .filter(module -> module.isEnrolment()).map(Enrolment.class::cast).collect(Collectors.toList());
+                }
+
+                return EnrolmentServices.getEnrolmentsToEnrol(studentCurricularPlan, executionSemester, evaluationSeason,
+                        predicate);
             }
 
         });
