@@ -20,6 +20,7 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
+import org.fenixedu.ulisboa.specifications.domain.ects.DefaultGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -214,7 +215,7 @@ public class CurriculumLayout extends Layout {
         final String grade = entry.getGrade().isEmpty() ? "-" : entry.getGrade().getValue();
         String ectsGrade = null;
         if (entry instanceof ExternalEnrolment) {
-            InstitutionGradingTable table = InstitutionGradingTable.find(entry.getExecutionYear());
+            DefaultGradingTable table = DefaultGradingTable.getDefaultGradingTable();
             if (table != null) {
                 ectsGrade = table.getEctsGrade(grade);
             } else {

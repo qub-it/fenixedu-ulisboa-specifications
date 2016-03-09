@@ -14,9 +14,11 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
-
+import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import pt.ist.fenixframework.CallableWithoutException;
 
 public class CourseGradingTable extends CourseGradingTable_Base {
@@ -49,6 +51,30 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     public static CourseGradingTable find(CurriculumLine line) {
         return findAll().filter(cgt -> cgt.getCurriculumLine() == line).findFirst()
                 .orElse(find(line.getExecutionYear(), line.getCurricularCourse().getCompetenceCourse()));
+    }
+
+    public static String getEctsGrade(ICurriculumEntry entry) {
+        final String grade = entry.getGrade().isEmpty() ? "-" : entry.getGrade().getValue();
+        String ectsGrade = null;
+        if (entry instanceof ExternalEnrolment) {
+            DefaultGradingTable table = DefaultGradingTable.getDefaultGradingTable();
+            if (table != null) {
+                ectsGrade = table.getEctsGrade(grade);
+            }
+        } else if (entry instanceof CurriculumLine) {
+            CurriculumLine line = (CurriculumLine) entry;
+            if (line.getCurricularCourse() != null) {
+                CourseGradingTable table = find(line);
+                if (table != null) {
+                    ectsGrade = table.getEctsGrade(grade);
+                }
+            }
+        }
+        return ectsGrade != null ? ectsGrade : "-";
+    }
+
+    public static void registerProvider() {
+        CurriculumEntry.setCourseEctsGradeProviderProvider(entry -> CourseGradingTable.getEctsGrade(entry));
     }
 
     public static boolean isApplicable(CurriculumLine line) {

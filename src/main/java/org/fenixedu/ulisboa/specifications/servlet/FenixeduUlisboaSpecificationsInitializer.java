@@ -63,6 +63,8 @@ import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
+import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
+import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -142,6 +144,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         ServiceRequestSlot.initStaticSlots();
         // ULisboaServiceRequestProcessor.initValidators();
+
+        CourseGradingTable.registerProvider();
+        DegreeGradingTable.registerProvider();
 
         RegistrationObservations.setupDeleteListener();
 
