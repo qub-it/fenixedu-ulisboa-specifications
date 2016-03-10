@@ -15,9 +15,9 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "gradescale.typequalitative.logic.class")
         public String typeQualitativeGradeScaleLogic();
 
-        @ConfigurationProperty(key = "domain.academic.enrolments.ImprovementEvaluationsDependOnAcademicalActsBlocked",
+        @ConfigurationProperty(key = "domain.academic.enrolments.EnrolmentEvaluationsDependOnAcademicalActsBlocked",
                 defaultValue = "true")
-        public Boolean getEnrolmentsInImprovementEvaluationsDependOnAcademicalActsBlocked();
+        public Boolean getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked();
 
         @ConfigurationProperty(key = "domain.academic.enrolmentPredicate.override", defaultValue = "true")
         public Boolean getEnrolmentPredicateOverride();

@@ -49,7 +49,7 @@ public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager
 //            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
 //        }
 
-        if (ULisboaConfiguration.getConfiguration().getEnrolmentsInImprovementEvaluationsDependOnAcademicalActsBlocked()
+        if (ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
                 && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
             throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
         }

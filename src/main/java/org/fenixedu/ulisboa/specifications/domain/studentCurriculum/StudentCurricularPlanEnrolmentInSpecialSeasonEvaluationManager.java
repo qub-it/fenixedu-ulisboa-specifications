@@ -37,6 +37,9 @@ import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.joda.time.LocalDate;
 
 public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager
         extends org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager {
@@ -46,17 +49,13 @@ public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager
     }
 
     @Override
-    protected void assertEnrolmentPreConditions() {
-        if (isResponsiblePersonManager()) {
-            return;
+    protected void checkDebts() {
+
+        if (ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
+                && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), getExecutionYear()
+                        .getEndLocalDate().isBefore(new LocalDate()) ? getExecutionYear().getEndLocalDate() : new LocalDate())) {
+            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
         }
-
-// qubExtension, removed check - should be replaced somehow?
-//        if (!hasRegistrationInValidState()) {
-//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-//        }
-
-        super.assertEnrolmentPreConditions();
     }
 
     @Override
