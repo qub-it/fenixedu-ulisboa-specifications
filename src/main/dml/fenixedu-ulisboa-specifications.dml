@@ -75,6 +75,7 @@ external class .org.fenixedu.bennu.core.domain.User;
 external class .org.fenixedu.bennu.io.domain.GenericFile;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
 external class .org.fenixedu.academic.domain.student.StatuteType;
+external class .org.fenixedu.academic.domain.DegreeInfo;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -1347,6 +1348,26 @@ relation GradingTableSettingsDegreeType {
     	multiplicity 0..1;
     }
 }
+
+
+
+// ====================== = ExtendeDegreeInfo = ========================
+
+class ExtendedDegreeInfo {
+	LocalizedString scientificAreas;
+	LocalizedString studyRegime;
+	LocalizedString studyProgrammeRequirements;
+	LocalizedString higherEducationAccess;
+	LocalizedString professionalStatus;
+	LocalizedString supplementExtraInformation;
+	LocalizedString supplementOtherSources;
+}
+
+relation DegreeInfoExtendedDegreeInfo {
+    .org.fenixedu.academic.domain.DegreeInfo playsRole degreeInfo;
+    ExtendedDegreeInfo playsRole extendedDegreeInfo;
+}
+
 
 /*
  * ***************************************************
