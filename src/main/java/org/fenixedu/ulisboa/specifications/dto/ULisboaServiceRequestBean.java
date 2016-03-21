@@ -370,7 +370,6 @@ public class ULisboaServiceRequestBean implements IBean {
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ENROLMENTS_BY_SEMESTER, new DataSourceProvider() {
 
             @Override
-            //TODOJN - review this provider, I put dummy values
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 final ExecutionSemester executionSemester =
                         bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
@@ -418,7 +417,6 @@ public class ULisboaServiceRequestBean implements IBean {
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, new DataSourceProvider() {
 
             @Override
-            //TODOJN - review this provider, I put dummy values
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 final ExecutionSemester executionSemester =
                         bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
@@ -487,10 +485,9 @@ public class ULisboaServiceRequestBean implements IBean {
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EXECUTION_SEMESTER, new DataSourceProvider() {
 
             @Override
-            //TODOJN - review this provider, I put dummy values
             public List<TupleDataSourceBean> provideDataSourceList(ULisboaServiceRequestBean bean) {
                 return ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                        .sorted((e1, e2) -> ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.compare(e2, e1)).map(x -> {
+                        .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
                     TupleDataSourceBean tuple = new TupleDataSourceBean();
                     tuple.setId(x.getExternalId());
                     tuple.setText(x.getQualifiedName());
