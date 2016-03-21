@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -189,8 +190,12 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
         setDegreeCurricularPlans(Collections.emptyList());
         setStatuteTypes(Collections.emptyList());
-        //TODOJN : ver como popular
-        setDegreeCurricularPlanDataSource(DegreeCurricularPlan.readNotEmptyDegreeCurricularPlans());
+        if (executionSemester != null) {
+            setDegreeCurricularPlanDataSource(DegreeCurricularPlan.readByDegreeTypesAndStateWithExecutionDegreeForYear(dt -> true,
+                    DegreeCurricularPlanState.ACTIVE, executionSemester.getExecutionYear()));
+        } else {
+            setDegreeCurricularPlanDataSource(Collections.emptyList());
+        }
         setStatuteTypeDataSource(Bennu.getInstance().getStatuteTypesSet().stream().collect(Collectors.toList()));
     }
 
@@ -211,8 +216,12 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     }
 
     public void updateLists() {
-        //TODOJN : ver como popular
-        setDegreeCurricularPlanDataSource(DegreeCurricularPlan.readNotEmptyDegreeCurricularPlans());
+        if (executionSemester != null) {
+            setDegreeCurricularPlanDataSource(DegreeCurricularPlan.readByDegreeTypesAndStateWithExecutionDegreeForYear(dt -> true,
+                    DegreeCurricularPlanState.ACTIVE, executionSemester.getExecutionYear()));
+        } else {
+            setDegreeCurricularPlanDataSource(Collections.emptyList());
+        }
         setStatuteTypeDataSource(Bennu.getInstance().getStatuteTypesSet().stream().collect(Collectors.toList()));
     }
 
