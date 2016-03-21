@@ -19,6 +19,7 @@ public class ExtendedDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> executionYearOptions;
     private Degree degree;
     private List<TupleDataSourceBean> degreeOptions;
+    private String degreeType;
     private String degreeAcron;
     private LocalizedString scientificAreas;
     private LocalizedString studyRegime;
@@ -78,6 +79,14 @@ public class ExtendedDegreeInfoBean implements IBean {
             tupleDataSourceBean.setText(d.getDegreeTypeName() + "-" + d.getNameI18N(getExecutionYear()).getContent());
             return tupleDataSourceBean;
         }).collect(Collectors.toList());
+    }
+
+    public String getDegreeType() {
+        return degreeType;
+    }
+
+    public void setDegreeType(String degreeType) {
+        this.degreeType = degreeType;
     }
 
     public String getDegreeAcron() {

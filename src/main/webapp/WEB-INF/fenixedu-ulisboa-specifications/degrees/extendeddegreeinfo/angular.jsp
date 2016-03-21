@@ -131,7 +131,7 @@ ${portal.angularToolkit()}
 	    <div class="panel panel-primary">
 	        <div class="panel-heading">
 	            <h3 class="panel-title panel-title-with-actions">
-	        		<spring:message code="label.extendedDegreeInformation.backoffice.edit" /> - <span ng-bind="year"> <span ng-bind="degreeAcron"> 
+	        		<span class="pane-title-header"><spring:message code="label.extendedDegreeInformation.backoffice.edit" /></span> <span ng-bind="year"></span> <span ng-bind="degreeType"></span> <span ng-bind="object.degreeAcron"></span>
 	        	</h3>
 	        	<div class="panel-heading-actions">
 	        		<a href="" class="btn btn-xs btn-default" ng-show="editMode" ng-click="toggleEditMode()" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
@@ -232,6 +232,9 @@ ${portal.angularToolkit()}
                 		$scope.year = $scope.object.executionYearOptions[y].text
                 	}
                 }
+                $scope.degreeType = $scope.object.degreeType.match(/[A-Z][^\s]*/g).reduce( function (previous, current) {
+                	return previous + current.substring(0,3);
+                }, "");
                 
                 $scope.editMode = false;
                 $scope.toggleEditMode = function () {
@@ -321,6 +324,10 @@ ${portal.angularToolkit()}
 		display: inline-block;
 		line-height: 3rem;
 		
+	}
+	.panel-title-with-actions > .pane-title-header {
+		font-weight: 800;
+		margin-right: 2rem;
 	}
 	.panel-heading-actions {
 		display: inline;

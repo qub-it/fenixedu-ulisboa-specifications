@@ -29,6 +29,7 @@ public class ExtendedDegreeInfoController extends FenixeduUlisboaSpecificationsB
 
     private void setExtendedDegreeInfoBean(ExtendedDegreeInfoBean bean, Model model) {
         map(bean);
+        bean.setDegreeType(bean.getDegree().getDegreeTypeName());
         bean.setDegreeAcron(bean.getDegree().getSigla());
         model.addAttribute("extendedDegreeInfoBeanJson", getBeanJson(bean));
         model.addAttribute("extendedDegreeInfoBean", bean);
