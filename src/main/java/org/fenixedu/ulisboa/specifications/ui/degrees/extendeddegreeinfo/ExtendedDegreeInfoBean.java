@@ -21,6 +21,32 @@ public class ExtendedDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> degreeOptions;
     private String degreeType;
     private String degreeAcron;
+
+    // DegreeInfo fields
+    private LocalizedString name;
+    private LocalizedString description;
+    private LocalizedString history;
+    private LocalizedString objectives;
+    private LocalizedString designedFor;
+    private LocalizedString professionalExits; // "Professional Exits"? LOL!!
+    private LocalizedString operationalRegime;
+    private LocalizedString gratuity;
+    private LocalizedString additionalInfo;
+    private LocalizedString links;
+    private LocalizedString testIngression;
+    private LocalizedString classifications;
+    private LocalizedString accessRequisites;
+    private LocalizedString candidacyDocuments;
+    private Integer driftsInitial;
+    private Integer driftsFirst;
+    private Integer driftsSecond;
+    private Double markMin;
+    private Double markMax;
+    private Double markAverage;
+    private LocalizedString qualificationLevel;
+    private LocalizedString recognitions;
+
+    // ExtendedDegreeInfo fields
     private LocalizedString scientificAreas;
     private LocalizedString studyRegime;
     private LocalizedString studyProgrammeRequirements;
@@ -95,6 +121,182 @@ public class ExtendedDegreeInfoBean implements IBean {
 
     public void setDegreeAcron(String degreeAcron) {
         this.degreeAcron = degreeAcron;
+    }
+
+    public LocalizedString getName() {
+        return name;
+    }
+
+    public void setName(LocalizedString name) {
+        this.name = name;
+    }
+
+    public LocalizedString getDescription() {
+        return description;
+    }
+
+    public void setDescription(LocalizedString description) {
+        this.description = description;
+    }
+
+    public LocalizedString getHistory() {
+        return history;
+    }
+
+    public void setHistory(LocalizedString history) {
+        this.history = history;
+    }
+
+    public LocalizedString getObjectives() {
+        return objectives;
+    }
+
+    public void setObjectives(LocalizedString objectives) {
+        this.objectives = objectives;
+    }
+
+    public LocalizedString getDesignedFor() {
+        return designedFor;
+    }
+
+    public void setDesignedFor(LocalizedString designedFor) {
+        this.designedFor = designedFor;
+    }
+
+    public LocalizedString getProfessionalExits() {
+        return professionalExits;
+    }
+
+    public void setProfessionalExits(LocalizedString professionalExits) {
+        this.professionalExits = professionalExits;
+    }
+
+    public LocalizedString getOperationalRegime() {
+        return operationalRegime;
+    }
+
+    public void setOperationalRegime(LocalizedString operationalRegime) {
+        this.operationalRegime = operationalRegime;
+    }
+
+    public LocalizedString getGratuity() {
+        return gratuity;
+    }
+
+    public void setGratuity(LocalizedString gratuity) {
+        this.gratuity = gratuity;
+    }
+
+    public LocalizedString getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(LocalizedString additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    public LocalizedString getLinks() {
+        return links;
+    }
+
+    public void setLinks(LocalizedString links) {
+        this.links = links;
+    }
+
+    public LocalizedString getTestIngression() {
+        return testIngression;
+    }
+
+    public void setTestIngression(LocalizedString testIngression) {
+        this.testIngression = testIngression;
+    }
+
+    public LocalizedString getClassifications() {
+        return classifications;
+    }
+
+    public void setClassifications(LocalizedString classifications) {
+        this.classifications = classifications;
+    }
+
+    public LocalizedString getAccessRequisites() {
+        return accessRequisites;
+    }
+
+    public void setAccessRequisites(LocalizedString accessRequisites) {
+        this.accessRequisites = accessRequisites;
+    }
+
+    public LocalizedString getCandidacyDocuments() {
+        return candidacyDocuments;
+    }
+
+    public void setCandidacyDocuments(LocalizedString candidacyDocuments) {
+        this.candidacyDocuments = candidacyDocuments;
+    }
+
+    public Integer getDriftsInitial() {
+        return driftsInitial;
+    }
+
+    public void setDriftsInitial(Integer driftsInitial) {
+        this.driftsInitial = driftsInitial;
+    }
+
+    public Integer getDriftsFirst() {
+        return driftsFirst;
+    }
+
+    public void setDriftsFirst(Integer driftsFirst) {
+        this.driftsFirst = driftsFirst;
+    }
+
+    public Integer getDriftsSecond() {
+        return driftsSecond;
+    }
+
+    public void setDriftsSecond(Integer driftsSecond) {
+        this.driftsSecond = driftsSecond;
+    }
+
+    public Double getMarkMin() {
+        return markMin;
+    }
+
+    public void setMarkMin(Double markMin) {
+        this.markMin = markMin;
+    }
+
+    public Double getMarkMax() {
+        return markMax;
+    }
+
+    public void setMarkMax(Double markMax) {
+        this.markMax = markMax;
+    }
+
+    public Double getMarkAverage() {
+        return markAverage;
+    }
+
+    public void setMarkAverage(Double markAverage) {
+        this.markAverage = markAverage;
+    }
+
+    public LocalizedString getQualificationLevel() {
+        return qualificationLevel;
+    }
+
+    public void setQualificationLevel(LocalizedString qualificationLevel) {
+        this.qualificationLevel = qualificationLevel;
+    }
+
+    public LocalizedString getRecognitions() {
+        return recognitions;
+    }
+
+    public void setRecognitions(LocalizedString recognitions) {
+        this.recognitions = recognitions;
     }
 
     public LocalizedString getScientificAreas() {
