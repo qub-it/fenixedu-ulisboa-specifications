@@ -1331,7 +1331,7 @@ relation GradingTableBennu {
 
 relation GradingTableExecutionYear {
 	.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
-        multiplicity 1..1;
+        multiplicity 0..1;
     }
     public ects.GradingTable playsRole gradingTables {
     	multiplicity *;
