@@ -140,7 +140,177 @@ ${portal.angularToolkit()}
 	        	</div>
 	    	</div>
 	    	<div class="panel panel-body">
-	    					
+	    		
+	    		<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.name" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_name_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="name" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_name" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.name" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.description" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_description_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="description" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_description" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.description" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.history" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_history_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="history" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_history" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.history" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.objectives" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_objectives_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="objectives" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_objectives" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.objectives" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.designedFor" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_designedFor_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="designedFor" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_designedFor" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.designedFor" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.professionalExits" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_professionalExits_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="professionalExits" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_professionalExits" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.professionalExits" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.operationalRegime" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_operationalRegime_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="operationalRegime" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_operationalRegime" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.operationalRegime" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.gratuity" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_gratuity_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="gratuity" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_gratuity" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.gratuity" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+
+				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.additionalInfo" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_additionalInfo_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="additionalInfo" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_additionalInfo" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.additionalInfo" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.links" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_links_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="links" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_links" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.links" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+
+				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.testIngression" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_testIngression_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="testIngression" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_testIngression" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.testIngression" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+
+				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.classifications" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_classifications_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="classifications" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_classifications" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.classifications" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+
+				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.accessRequisites" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_accessRequisites_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="accessRequisites" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_accessRequisites" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.accessRequisites" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+
+				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.candidacyDocuments" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_candidacyDocuments_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="candidacyDocuments" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_candidacyDocuments" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.candidacyDocuments" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+
+				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.driftsInitial" /></div>	
+	                <div class="col-sm-10">
+	                	<input id="extendedDegreeInformation_driftsInitial" class="form-control" type="number" ng-readonly="!editMode" ng-model="object.driftsInitial" />
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.driftsFirst" /></div>	
+	                <div class="col-sm-10">
+	                	<input id="extendedDegreeInformation_driftsFirst" class="form-control" type="number" ng-readonly="!editMode" ng-model="object.driftsFirst" />
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.driftsSecond" /></div>	
+	                <div class="col-sm-10">
+	                	<input id="extendedDegreeInformation_driftsSecond" class="form-control" type="number" ng-readonly="!editMode" ng-model="object.driftsSecond" />
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.markMin" /></div>	
+	                <div class="col-sm-10">
+	                	<input id="extendedDegreeInformation_markMin" class="form-control" type="number" ng-readonly="!editMode" ng-model="object.markMin" />
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.markMax" /></div>	
+	                <div class="col-sm-10">
+	                	<input id="extendedDegreeInformation_markMax" class="form-control" type="number" ng-readonly="!editMode" ng-model="object.markMax" />
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.markAverage" /></div>	
+	                <div class="col-sm-10">
+	                	<input id="extendedDegreeInformation_markAverage" class="form-control" type="number" ng-readonly="!editMode" ng-model="object.markAverage" />
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.qualificationLevel" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_qualificationLevel_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="qualificationLevel" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_qualificationLevel" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.qualificationLevel" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>
+	            
+	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.recognitions" /></div>	
+	                <div class="col-sm-10">
+	                	<textarea id="extendedDegreeInformation_recognitions_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode" ng-readonly="true" ng-model="recognitions" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_recognitions" rows="6" class="form-control" ng-show="editMode" ng-readonly="false" ng-localized-string="object.recognitions" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	            </div>	            
+	    		
 				<div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.scientificAreas" /></div>	
 	                <div class="col-sm-10">
@@ -218,7 +388,29 @@ ${portal.angularToolkit()}
                 
                 $scope.locale = Bennu.locale.tag;
                 $scope.fieldIds = [
-                	"scientificAreas",
+                    "name",
+                    "description",
+                    "history",
+                    "objectives",
+                    "designedFor",
+                    "professionalExits",
+                    "operationalRegime",
+                    "gratuity",
+                    "additionalInfo",
+                    "links",
+                    "testIngression",
+                    "classifications",
+                    "accessRequisites",
+                    "candidacyDocuments",
+                    "driftsInitial",
+                    "driftsFirst",
+                    "driftsSecond",
+                    "markMin",
+                    "markMax",
+                    "markAverage",
+                    "qualificationLevel",
+                    "recognitions",
+                    "scientificAreas",
                 	"studyRegime",
                 	"studyProgrammeRequirements",
                 	"higherEducationAccess",
