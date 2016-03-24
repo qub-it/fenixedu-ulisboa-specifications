@@ -3,7 +3,6 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -131,21 +130,22 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
             ValidateProgramConclusionProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.VALIDATE_PROGRAM_CONCLUSION_PROCESSOR));
         }
-        if (findByName(
-                BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR))
-                        .count() == 0) {
-            ValidateSpecialSeasonEnrolmentProcessor.create(
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR),
-                    EvaluationSeason.readSpecialSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BY_SEMESTER);
-        }
-        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR))
-                .count() == 0) {
-            ValidateImprovementEnrolmentProcessor.create(
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                            ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR),
-                    EvaluationSeason.readImprovementSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER);
-        }
+        //TODOJN : Test validators
+//        if (findByName(
+//                BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR))
+//                        .count() == 0) {
+//            ValidateSpecialSeasonEnrolmentProcessor.create(
+//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+//                            ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR),
+//                    EvaluationSeason.readSpecialSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BY_SEMESTER);
+//        }
+//        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR))
+//                .count() == 0) {
+//            ValidateImprovementEnrolmentProcessor.create(
+//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+//                            ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR),
+//                    EvaluationSeason.readImprovementSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER);
+//        }
     }
 
     public abstract void process(ULisboaServiceRequest request);
