@@ -100,7 +100,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
                         .sorted((x, y) -> x.getName().getContent().compareTo(y.getName().getContent()))
                         .collect(Collectors.toList()));
-        model.addAttribute("typeValues", EvaluationSeasonServices.findByActive(true)
+        model.addAttribute("typeValues", EvaluationSeasonServices.findAll()
                 .sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).collect(Collectors.toList()));
         model.addAttribute("gradeScaleValues",
                 Arrays.<GradeScale> asList(GradeScale.values()).stream()

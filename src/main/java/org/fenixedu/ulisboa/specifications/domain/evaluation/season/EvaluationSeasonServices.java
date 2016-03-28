@@ -247,8 +247,7 @@ abstract public class EvaluationSeasonServices {
                     final Registration registration = enrolment.getRegistration();
                     final Person person = registration.getPerson();
 
-                    if (ULisboaConfiguration.getConfiguration()
-                            .getEnrolmentsInImprovementEvaluationsDependOnAcademicalActsBlocked()
+                    if (ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
                             && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
                         return true;
                     }

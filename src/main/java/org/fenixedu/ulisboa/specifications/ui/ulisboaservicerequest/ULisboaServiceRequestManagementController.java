@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
@@ -134,8 +135,10 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         try {
             ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
             return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
-        } catch (ULisboaSpecificationsDomainException e) {
+        } catch (DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (RuntimeException e) {
+            addErrorMessage(e.getMessage(), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
@@ -221,7 +224,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         try {
             serviceRequest.update(bean);
             return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
-        } catch (ULisboaSpecificationsDomainException e) {
+        } catch (DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/update";
@@ -240,7 +243,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.transitToProcessState();
             addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.processed.success"),
                     model);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         if (redirectToReferrer) {
@@ -262,7 +265,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.transitToConcludedState();
             addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.concluded.success"),
                     model);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         if (redirectToReferrer) {
@@ -284,7 +287,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.transitToDeliverState();
             addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.delivered.success"),
                     model);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         if (redirectToReferrer) {
@@ -306,7 +309,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.transitToCancelState(justification);
             addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.canceled.success"),
                     model);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
@@ -325,7 +328,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.transitToRejectState(justification);
             addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.rejected.success"),
                     model);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
@@ -350,7 +353,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.setPrintSettings(signer, template);
             serviceRequest.generateDocument();
             download(serviceRequest, model, response);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
     }
@@ -368,7 +371,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             response.setContentType(document.getContentType());
             response.setHeader("Content-disposition", "attachment; filename=" + document.getFilename());
             response.getOutputStream().write(document.getContent());
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -388,7 +391,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             serviceRequest.revertState(notifyRevertAction);
             addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.reverted.success",
                     serviceRequest.getAcademicServiceRequestSituationType().getLocalizedName()), model);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);

@@ -11,6 +11,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
@@ -26,7 +29,7 @@ import pt.ist.fenixframework.Atomic;
 
 public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
-    public static final Map<String, Object> propertyNames = new HashMap<>();
+    public static final Map<String, Object> PROPERTY_NAMES = new HashMap<>();
 
     static {
         initPropertyNames();
@@ -77,7 +80,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
         setULisboaServiceRequest(null);
         setDocumentPurposeTypeInstance(null);
-        setExecutionYear(null);
+        setExecutionInterval(null);
         setServiceRequestSlot(null);
         super.getCurriculumLinesSet().clear();
         super.getExternalEnrolmentsSet().clear();
@@ -104,6 +107,32 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
                 throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.curriculumEntry.not.supported");
             }
         }
+    }
+
+    public ExecutionYear getExecutionYear() {
+        ExecutionInterval executionInterval = getExecutionInterval();
+        if (executionInterval != null && executionInterval instanceof ExecutionSemester) {
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.executionInterval.wrong.getter",
+                    "getExecutionSemester");
+        }
+        return (ExecutionYear) executionInterval;
+    }
+
+    public void setExecutionYear(ExecutionYear executionYear) {
+        setExecutionInterval(executionYear);
+    }
+
+    public ExecutionSemester getExecutionSemester() {
+        ExecutionInterval executionInterval = getExecutionInterval();
+        if (executionInterval != null && executionInterval instanceof ExecutionYear) {
+            throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.executionInterval.wrong.getter",
+                    "getExecutionYear");
+        }
+        return (ExecutionSemester) executionInterval;
+    }
+
+    public void setExecutionSemester(ExecutionSemester executionSemester) {
+        setExecutionInterval(executionSemester);
     }
 
     public void setValue(Object value) {
@@ -179,7 +208,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     }
 
     private static String getPropertyName(ServiceRequestSlot slot) {
-        Object propertyName = propertyNames.get(slot.getUiComponentType().toString());
+        Object propertyName = PROPERTY_NAMES.get(slot.getUiComponentType().toString());
         if (propertyName instanceof Map) {
             return ((Map<String, String>) propertyName).get(slot.getCode());
         } else {
@@ -188,20 +217,24 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     }
 
     private static void initPropertyNames() {
-        propertyNames.put(UIComponentType.DROP_DOWN_BOOLEAN.toString(), "booleanValue");
-        propertyNames.put(UIComponentType.NUMBER.toString(), "integer");
-        propertyNames.put(UIComponentType.TEXT.toString(), "string");
-        propertyNames.put(UIComponentType.TEXT_LOCALIZED_STRING.toString(), "localizedString");
-        propertyNames.put(UIComponentType.DATE.toString(), "dateTime");
-        propertyNames.put(UIComponentType.DROP_DOWN_MULTIPLE.toString(), "ICurriculumEntriesSet");
+        PROPERTY_NAMES.put(UIComponentType.DROP_DOWN_BOOLEAN.toString(), "booleanValue");
+        PROPERTY_NAMES.put(UIComponentType.NUMBER.toString(), "integer");
+        PROPERTY_NAMES.put(UIComponentType.TEXT.toString(), "string");
+        PROPERTY_NAMES.put(UIComponentType.TEXT_LOCALIZED_STRING.toString(), "localizedString");
+        PROPERTY_NAMES.put(UIComponentType.DATE.toString(), "dateTime");
+        PROPERTY_NAMES.put(UIComponentType.DROP_DOWN_MULTIPLE.toString(), "ICurriculumEntriesSet");
         Map<String, String> dropDownPropertyNames = new HashMap<>();
         dropDownPropertyNames.put(ULisboaConstants.LANGUAGE, "locale");
         dropDownPropertyNames.put(ULisboaConstants.DOCUMENT_PURPOSE_TYPE, "documentPurposeTypeInstance");
         dropDownPropertyNames.put(ULisboaConstants.CYCLE_TYPE, "cycleType");
         dropDownPropertyNames.put(ULisboaConstants.PROGRAM_CONCLUSION, "programConclusion");
-        dropDownPropertyNames.put(ULisboaConstants.EXECUTION_YEAR, "executionYear");
+        dropDownPropertyNames.put(ULisboaConstants.EXECUTION_YEAR, "executionInterval");
+        dropDownPropertyNames.put(ULisboaConstants.EXECUTION_SEMESTER, "executionInterval");
+        dropDownPropertyNames.put(ULisboaConstants.EVALUATION_SEASON, "evaluationSeason");
         dropDownPropertyNames.put(ULisboaConstants.CURRICULAR_PLAN, "studentCurricularPlan");
-        propertyNames.put(UIComponentType.DROP_DOWN_ONE_VALUE.toString(), dropDownPropertyNames);
+        dropDownPropertyNames.put(ULisboaConstants.ENROLMENTS_BY_SEMESTER, "enrolment");
+        dropDownPropertyNames.put(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, "enrolment");
+        PROPERTY_NAMES.put(UIComponentType.DROP_DOWN_ONE_VALUE.toString(), dropDownPropertyNames);
     }
 
 }

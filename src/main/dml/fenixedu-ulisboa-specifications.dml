@@ -36,7 +36,7 @@ enum org.fenixedu.academic.domain.GradeScale                                    
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum as CompetenceCourseMarkSheetChangeRequestStateEnum;
-
+enum org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel as CurricularRuleLevel;
 
 valueType org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData as GradingTableData {
     externalizeWith {
@@ -52,6 +52,9 @@ enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFi
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType as RaidesPeriodInputType;
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption as IntegratedMasterFirstCycleGraduatedReportOption;
 
+external class .org.fenixedu.academic.domain.degree.DegreeType;
+external class .org.fenixedu.academic.domain.ExecutionInterval;
+external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.ExecutionSemester;
@@ -76,6 +79,8 @@ external class .org.fenixedu.bennu.io.domain.GenericFile;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
 external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.DegreeInfo;
+external class .org.fenixedu.academic.domain.EvaluationSeason;
+external class .org.fenixedu.academic.domain.Enrolment;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -1044,6 +1049,34 @@ class serviceRequests.processors.AutomaticOnlineRequestProcessor extends service
 
 }
 
+class serviceRequests.processors.ValidateImprovementEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+    String curricularEntriesPropertyName;    
+}
+
+class serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+    String curricularEntriesPropertyName;
+}
+
+relation ValidateImprovementEnrolmentProcessorEvaluationSeason {
+    public serviceRequests.processors.ValidateImprovementEnrolmentProcessor playsRole validateImprovementEnrolmentProcessors {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 1..1;
+    }
+}
+
+relation ValidateSpecialSeasonEnrolmentProcessorEvaluationSeason {
+    public serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor playsRole validateSpecialSeasonEnrolmentProcessors {
+        multiplicity *;
+    }
+
+    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 1..1;
+    }
+}
+
 relation ULisboaServiceRequestProcessorBennu {
     protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
         multiplicity 1..1;
@@ -1187,8 +1220,28 @@ relation ProgramConclusionServiceRequestProperty {
     }
 }
 
-relation ExecutionYearServiceRequestProperty {
-    public .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
+relation ExecutionIntervalServiceRequestProperty {
+    public .org.fenixedu.academic.domain.ExecutionInterval playsRole executionInterval {
+        multiplicity 0..1;
+    }
+    
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation EvaluationSeasonServiceRequestProperty {
+    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+        multiplicity 0..1;
+    }
+    
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation StudentCurricularPlanServiceRequestProperty {
+    public .org.fenixedu.academic.domain.StudentCurricularPlan playsRole studentCurricularPlan {
         multiplicity 0..1;
     }
 
@@ -1197,8 +1250,8 @@ relation ExecutionYearServiceRequestProperty {
     }
 }
 
-relation StudentCurricularPlanServiceRequestProperty {
-    public .org.fenixedu.academic.domain.StudentCurricularPlan playsRole studentCurricularPlan {
+relation EnrolmentServiceRequestProperty {
+    public .org.fenixedu.academic.domain.Enrolment playsRole enrolment {
         multiplicity 0..1;
     }
 
@@ -1279,7 +1332,7 @@ relation GradingTableBennu {
 
 relation GradingTableExecutionYear {
 	.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
-        multiplicity 1..1;
+        multiplicity 0..1;
     }
     public ects.GradingTable playsRole gradingTables {
     	multiplicity *;
