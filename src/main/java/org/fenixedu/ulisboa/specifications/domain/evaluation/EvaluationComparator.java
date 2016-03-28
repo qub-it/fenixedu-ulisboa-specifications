@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.evaluation;
 
 import java.util.Comparator;
-import java.util.Date;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
@@ -16,59 +15,55 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSe
 public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
 
     @Override
-    public int compare(EnrolmentEvaluation o1, EnrolmentEvaluation o2) {
+    public int compare(final EnrolmentEvaluation left, final EnrolmentEvaluation right) {
 
-        if (!o1.hasConfirmedMarkSheet() && !o2.hasConfirmedMarkSheet()) {
-            return compareBySpecialAuthorizationAndStateAndGradeAndEvaluationDate(o1, o2);
-        }
+        if (hasConfirmedMarkSheet(left) && !hasConfirmedMarkSheet(right)) {
 
-        if (o1.getEvaluationSeason().equals(o2.getEvaluationSeason())) {
-
-            if ((o1.isRectification() && o2.isRectification()) || (o1.isRectified() && o2.isRectified())) {
-                return compareMyWhenAlteredDateToAnotherWhenAlteredDate(o1.getWhen(), o2.getWhen());
-            }
-
-            if (o1.isRectification()) {
+            if (!isSpecialAuthorization(right)) {
                 return 1;
             }
+        }
 
-            if (o2.isRectification()) {
+        if (!hasConfirmedMarkSheet(left) && hasConfirmedMarkSheet(right)) {
+
+            if (!isSpecialAuthorization(left)) {
                 return -1;
             }
-
         }
 
-        return compareByStateAndGradeAndEvaluationDate(o1, o2);
+        return compareBySpecialAuthorizationAndStateAndGradeAndEvaluationDate(left, right);
     }
 
-    private int compareMyWhenAlteredDateToAnotherWhenAlteredDate(Date when1, Date whenAltered) {
-        if (when1 == null) {
-            return -1;
-        }
-        if (whenAltered == null) {
-            return 1;
-        }
+    static private int compareBySpecialAuthorizationAndStateAndGradeAndEvaluationDate(final EnrolmentEvaluation left,
+            final EnrolmentEvaluation right) {
 
-        return when1.compareTo(whenAltered);
+        if (isSpecialAuthorization(left) && !isSpecialAuthorization(right)) {
 
-    }
-
-    private int compareBySpecialAuthorizationAndStateAndGradeAndEvaluationDate(EnrolmentEvaluation left,
-            EnrolmentEvaluation right) {
-
-        if (left.getEvaluationSeason().isSpecialAuthorization() && !right.getEvaluationSeason().isSpecialAuthorization()) {
-            return 1;
+            if (!hasConfirmedMarkSheet(right)) {
+                return 1;
+            }
         }
 
-        if (right.getEvaluationSeason().isSpecialAuthorization() && !left.getEvaluationSeason().isSpecialAuthorization()) {
-            return -1;
+        if (!isSpecialAuthorization(left) && isSpecialAuthorization(right)) {
+
+            if (!hasConfirmedMarkSheet(left)) {
+                return -1;
+            }
         }
 
         return compareByStateAndGradeAndEvaluationDate(left, right);
-
     }
 
-    protected int compareByStateAndGradeAndEvaluationDate(EnrolmentEvaluation left, EnrolmentEvaluation right) {
+    static private boolean hasConfirmedMarkSheet(final EnrolmentEvaluation input) {
+        return input != null && input.getCompetenceCourseMarkSheet() != null
+                && input.getCompetenceCourseMarkSheet().isConfirmed();
+    }
+
+    static private boolean isSpecialAuthorization(final EnrolmentEvaluation input) {
+        return input != null && input.getEvaluationSeason().isSpecialAuthorization();
+    }
+
+    static private int compareByStateAndGradeAndEvaluationDate(final EnrolmentEvaluation left, final EnrolmentEvaluation right) {
         final EnrollmentState leftEnrolmentState = left.getEnrollmentStateByGrade();
         final EnrollmentState rightEnrolmentState = right.getEnrollmentStateByGrade();
 
@@ -83,7 +78,7 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
         }
     }
 
-    protected int compareByGradeAndEvaluationDate(EnrolmentEvaluation left, EnrolmentEvaluation right,
+    static private int compareByGradeAndEvaluationDate(final EnrolmentEvaluation left, final EnrolmentEvaluation right,
             final boolean bothApproved) {
         int result = left.getGrade().compareTo(right.getGrade());
         if (result != 0) {

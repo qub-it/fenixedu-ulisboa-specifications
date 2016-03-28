@@ -195,5 +195,22 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                             "label.ServiceRequestSlot.label.extracurricularEnrolmentsByYear"));
         }
+        if (findByCode(ULisboaConstants.EXECUTION_SEMESTER).count() == 0) {
+            createStaticSlot(ULisboaConstants.EXECUTION_SEMESTER, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.executionSemester"));
+        }
+        if (findByCode(ULisboaConstants.EVALUATION_SEASON).count() == 0) {
+            createStaticSlot(ULisboaConstants.EVALUATION_SEASON, UIComponentType.DROP_DOWN_ONE_VALUE,
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.evaluationSeason"));
+        }
+        if (findByCode(ULisboaConstants.ENROLMENTS_BY_SEMESTER).count() == 0) {
+            createStaticSlot(ULisboaConstants.ENROLMENTS_BY_SEMESTER, UIComponentType.DROP_DOWN_ONE_VALUE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsBySemester"));
+        }
+        if (findByCode(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER).count() == 0) {
+            createStaticSlot(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, UIComponentType.DROP_DOWN_ONE_VALUE, BundleUtil
+                    .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsBeforeSemester"));
+        }
+
     }
 }

@@ -113,47 +113,56 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
             if (registration.getStudentCurricularPlansSet().isEmpty()) {
                 continue;
             }
+            if (!GradingTableSettings.getApplicableDegreeTypes().contains(registration.getDegreeType())) {
+                continue;
+            }
             batch.add(registration);
             if (batch.size() < 500) {
                 continue;
             }
-            Callable<Set<RegistrationConclusionInformation>> workerLogic =
-                    new Callable<Set<RegistrationConclusionInformation>>() {
-                        @Override
-                        public Set<RegistrationConclusionInformation> call() throws Exception {
-                            final Set<RegistrationConclusionInformation> conclusions =
-                                    new HashSet<RegistrationConclusionInformation>();
-                            for (Registration reg : batch) {
-                                for (RegistrationConclusionInformation info : RegistrationConclusionServices.inferConclusion(reg)) {
-                                    if (info.isConcluded()) {
-                                        conclusions.add(info);
-                                    }
-                                }
-                            }
-                            return conclusions;
-                        }
-                    };
-            HarvesterWorker worker = new HarvesterWorker(workerLogic);
-            worker.start();
-            try {
-                worker.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            for (RegistrationConclusionInformation conclusion : worker.getConclusions()) {
-                final ExecutionYear conclusionYear = conclusion.getRegistrationConclusionBean().getConclusionYear();
-                if (!conclusionsMap.containsKey(conclusionYear)) {
-                    conclusionsMap.put(conclusionYear, new HashSet<RegistrationConclusionBean>());
-                }
-
-                conclusionsMap.get(conclusionYear).add(conclusion.getRegistrationConclusionBean());
-            }
+            processBatch(batch, conclusionsMap);
             batch.clear();
             if (isDenseEnough(conclusionsMap)) {
                 break;
             }
         }
+        if (!batch.isEmpty()) {
+            processBatch(batch, conclusionsMap);
+        }
         return conclusionsMap;
+    }
+
+    private void processBatch(final Set<Registration> batch,
+            final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap) {
+        Callable<Set<RegistrationConclusionInformation>> workerLogic = new Callable<Set<RegistrationConclusionInformation>>() {
+            @Override
+            public Set<RegistrationConclusionInformation> call() throws Exception {
+                final Set<RegistrationConclusionInformation> conclusions = new HashSet<RegistrationConclusionInformation>();
+                for (Registration reg : batch) {
+                    for (RegistrationConclusionInformation info : RegistrationConclusionServices.inferConclusion(reg)) {
+                        if (info.isConcluded()) {
+                            conclusions.add(info);
+                        }
+                    }
+                }
+                return conclusions;
+            }
+        };
+        HarvesterWorker worker = new HarvesterWorker(workerLogic);
+        worker.start();
+        try {
+            worker.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (RegistrationConclusionInformation conclusion : worker.getConclusions()) {
+            final ExecutionYear conclusionYear = conclusion.getRegistrationConclusionBean().getConclusionYear();
+            if (!conclusionsMap.containsKey(conclusionYear)) {
+                conclusionsMap.put(conclusionYear, new HashSet<RegistrationConclusionBean>());
+            }
+
+            conclusionsMap.get(conclusionYear).add(conclusion.getRegistrationConclusionBean());
+        }
     }
 
     private boolean isDenseEnough(final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap) {

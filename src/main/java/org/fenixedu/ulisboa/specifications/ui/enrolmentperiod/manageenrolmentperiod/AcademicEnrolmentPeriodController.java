@@ -62,6 +62,7 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
     public String search(@RequestParam(value = "executionSemester", required = false) ExecutionSemester executionSemester,
             @RequestParam(value = "enrolmentPeriodType", required = false) AcademicEnrolmentPeriodType enrolmentPeriodType,
             Model model) {
+        //TODOJN - this list is not going correctly sorted to the screen
         List<ExecutionSemester> semesters = ExecutionSemester.readNotClosedExecutionPeriods().stream()
                 .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
         model.addAttribute("executionSemesters", semesters);

@@ -39,7 +39,12 @@ import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.CreditsDismissal;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
@@ -50,6 +55,7 @@ import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
+import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
@@ -58,9 +64,12 @@ import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
+import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
+import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
@@ -79,7 +88,9 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
+import pt.ist.fenixframework.dml.runtime.Relation;
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
+import pt.ist.fenixframework.dml.runtime.RelationListener;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
@@ -128,11 +139,18 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForDegreeDelete();
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
+        setupListenerForInvalidEquivalences();
         ULisboaServiceRequest.setupListenerForPropertiesDeletion();
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
 
         ServiceRequestSlot.initStaticSlots();
-        // ULisboaServiceRequestProcessor.initValidators();
+        ULisboaServiceRequestProcessor.initValidators();
+
+        CourseGradingTable.registerProvider();
+        DegreeGradingTable.registerProvider();
+
+        ExtendedDegreeInfo.setupDeleteListener();
+        ExtendedDegreeInfo.setupCreationListener();
 
         RegistrationObservations.setupDeleteListener();
 
@@ -181,6 +199,18 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         });
     }
 
+    private void setupListenerForInvalidEquivalences() {
+        Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
+            @Override
+            public void beforeAdd(Dismissal dismissal, Credits credits) {
+                if (dismissal instanceof CreditsDismissal && credits.isEquivalence()) {
+                    throw new DomainException("error.curricularplan.equivalence.without.destination");
+
+                }
+            }
+        });
+    }
+
     static private void configureEnrolmentEvaluationComparator() {
         EvaluationConfiguration.setEnrolmentEvaluationOrder(new EvaluationComparator());
     }
@@ -199,9 +229,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic =
-                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
-                        .typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
+                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);

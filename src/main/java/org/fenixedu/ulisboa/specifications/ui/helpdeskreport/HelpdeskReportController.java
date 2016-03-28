@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
+import javax.activation.MimetypesFileTypeMap;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -169,7 +170,7 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
         Person person = AccessControl.getPerson();
         if (person != null) {
             List<RoleType> roles = Arrays.asList(RoleType.values());
-            builder.append(roles.stream().filter(rt -> rt.isMember(person.getUser())).map(rt -> rt.getName())
+            builder.append(roles.stream().filter(rt -> rt.isMember(person.getUser())).map(rt -> rt.getLocalizedName())
                     .reduce("", (a, b) -> a + " " + b).trim());
         }
         builder.append("]\n");
@@ -244,12 +245,18 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
                 multipart.addBodyPart(messageBodyPart);
             }
 
-            if(bean.getAttachments() != null){
-                for(Attachment attachment : bean.getAttachments()){
+            if (bean.getAttachments() != null) {
+                for (Attachment attachment : bean.getAttachments()) {
                     BodyPart messageBodyPart = new MimeBodyPart();
-                    messageBodyPart.setDataHandler(new DataHandler(
-                            new ByteArrayDataSource(Base64.getDecoder().decode(attachment.getContent()), bean.getMimeType())));
-                    messageBodyPart.setFileName(attachment.getName());
+                    String content = attachment.getContent();
+                    MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
+
+                    // only by file name
+                    String fileName = attachment.getName();
+                    String mimeType = mimeTypesMap.getContentType(fileName);
+                    messageBodyPart.setDataHandler(new DataHandler(new ByteArrayDataSource(Base64.getDecoder().decode(content),
+                            mimeType != null ? mimeType : "text/plain")));
+                    messageBodyPart.setFileName(fileName);
                     multipart.addBodyPart(messageBodyPart);
                 }
             }

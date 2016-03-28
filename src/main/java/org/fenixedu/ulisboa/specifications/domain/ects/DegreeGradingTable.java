@@ -21,6 +21,8 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable.GeneratorWorker;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
@@ -59,10 +61,31 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
         return findAll().filter(dgt -> dgt.getRegistration() == reg).findFirst().orElse(find(ey, pc, reg.getDegree()));
     }
 
+    public static String getEctsGrade(RegistrationConclusionBean registrationConclusionBean) {
+        if (registrationConclusionBean != null && registrationConclusionBean.getFinalGrade() != null
+                && registrationConclusionBean.getFinalGrade().getValue() != null) {
+            DegreeGradingTable table =
+                    DegreeGradingTable.find(registrationConclusionBean.getConclusionYear(),
+                            registrationConclusionBean.getProgramConclusion(), registrationConclusionBean.getRegistration());
+            if (table != null) {
+                return table.getEctsGrade(registrationConclusionBean.getFinalGrade().getValue());
+            }
+        }
+        return "-";
+    }
+
+    public static void registerProvider() {
+        ConclusionInformationDataProvider.setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable
+                .getEctsGrade(conclusion));
+    }
+
     public static Set<DegreeGradingTable> generate(final ExecutionYear executionYear) {
         Set<DegreeGradingTable> allTables = new HashSet<DegreeGradingTable>();
         for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
             Degree degree = dcp.getDegree();
+            if (!GradingTableSettings.getApplicableDegreeTypes().contains(degree.getDegreeType())) {
+                continue;
+            }
             for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp).collect(Collectors.toSet())) {
                 DegreeGradingTable table = find(executionYear, programConclusion, degree);
                 if (table == null) {

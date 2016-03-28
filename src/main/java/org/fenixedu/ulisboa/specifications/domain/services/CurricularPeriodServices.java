@@ -115,7 +115,7 @@ public class CurricularPeriodServices {
         if (!curricularYears.isEmpty()) {
             return Collections.min(curricularYears);
         } else {
-            logger.warn("Unable to guess curricular year for [{}], returning 1", report);
+            logger.warn("Unable to guess curricular year for [{}], returning 1", report.replace("\n", ""));
             return 1;
         }
     }

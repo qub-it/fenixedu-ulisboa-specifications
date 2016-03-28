@@ -6,13 +6,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable;
+import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableSettings;
 import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
@@ -59,6 +63,7 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
 
     private void loadModel(final Model model, final ExecutionYear executionYear) {
         loadModel(model);
+        model.addAttribute("gradingTableSettings", GradingTableSettings.getInstance());
         model.addAttribute("selectedYear", executionYear);
         model.addAttribute("institutionGradeTable", InstitutionGradingTable.find(executionYear));
         model.addAttribute("degreeGradeTableHeaders", calculateHeaders(DegreeGradingTable.find(executionYear)));
@@ -90,6 +95,53 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         }
         loadModel(model, executionYear);
         return VIEW_URL + "search";
+    }
+
+    @RequestMapping(value = _SEARCH_URI + "{oid}", method = RequestMethod.GET)
+    public String backToSearch(@PathVariable(value = "oid") ExecutionYear executionYear, Model model) {
+        if (executionYear == null) {
+            executionYear = ExecutionYear.readCurrentExecutionYear();
+        }
+        loadModel(model, executionYear);
+        return VIEW_URL + "search";
+    }
+
+    private static final String _UPDATE_SETTINGS_URI = "/settings/update/";
+    public static final String UPDATE_SETTINGS_URL = CONTROLLER_URL + _UPDATE_SETTINGS_URI;
+
+    @RequestMapping(value = _UPDATE_SETTINGS_URI + "{oid}", method = RequestMethod.GET)
+    public String updateSettings(@PathVariable(value = "oid") ExecutionYear executionYear, Model model) {
+        loadModel(model, executionYear);
+        model.addAttribute("degreeTypeOptions", DegreeType.all().collect(Collectors.toList()));
+        return VIEW_URL + "updateSettings";
+    }
+
+    @RequestMapping(value = _UPDATE_SETTINGS_URI + "{oid}", method = RequestMethod.POST)
+    public String updateSettings(@PathVariable(value = "oid") ExecutionYear executionYear, @RequestParam(value = "minSampleSize",
+            required = false) Integer minSampleSize,
+            @RequestParam(value = "minPastYears", required = false) Integer minPastYears, @RequestParam(value = "degreeTypes",
+                    required = false) List<DegreeType> degreeTypes, Model model) {
+        try {
+            updateSettings(minSampleSize, minPastYears, degreeTypes);
+        } catch (Exception e) {
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                    "label.gradingTables.errorUpdatingSettings"), model);
+            return updateSettings(executionYear, model);
+        }
+        loadModel(model, executionYear);
+        return VIEW_URL + "search";
+    }
+
+    @Atomic
+    private void updateSettings(Integer minSampleSize, Integer minPastYears, List<DegreeType> degreeTypes) {
+        GradingTableSettings.getInstance().setMinSampleSize(minSampleSize);
+        GradingTableSettings.getInstance().setMinPastYears(minPastYears);
+        for (DegreeType degreeType : GradingTableSettings.getInstance().getApplicableDegreeTypesSet()) {
+            degreeType.setGradingTableSettings(null);
+        }
+        for (DegreeType degreeType : degreeTypes) {
+            GradingTableSettings.getInstance().addApplicableDegreeTypes(degreeType);
+        }
     }
 
     private static final String _CREATE_INSTITUTIONAL_URI = "/createinstitutional/";

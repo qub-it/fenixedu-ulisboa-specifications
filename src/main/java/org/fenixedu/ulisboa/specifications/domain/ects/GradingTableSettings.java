@@ -1,5 +1,9 @@
 package org.fenixedu.ulisboa.specifications.domain.ects;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 import pt.ist.fenixframework.Atomic;
@@ -21,7 +25,7 @@ public class GradingTableSettings extends GradingTableSettings_Base {
     }
 
     @Atomic
-    private static GradingTableSettings getInstance() {
+    public static GradingTableSettings getInstance() {
         GradingTableSettings settings = Bennu.getInstance().getGradingTableSettings();
         if (settings == null) {
             settings = new GradingTableSettings(MIN_SAMPLE_SIZE, MIN_PAST_YEARS);
@@ -33,16 +37,11 @@ public class GradingTableSettings extends GradingTableSettings_Base {
         return getInstance().getMinSampleSize() != null ? getInstance().getMinSampleSize() : MIN_SAMPLE_SIZE;
     }
 
-    public static void setMinimumSampleSize(int sampleSize) {
-        getInstance().setMinSampleSize(sampleSize);
-    }
-
     public static int getMinimumPastYears() {
         return getInstance().getMinPastYears() != null ? getInstance().getMinPastYears() : MIN_PAST_YEARS;
     }
 
-    public static void setMinimumPastYears(int pastYears) {
-        getInstance().setMinPastYears(pastYears);
+    public static Set<DegreeType> getApplicableDegreeTypes() {
+        return getInstance().getApplicableDegreeTypesSet();
     }
-
 }

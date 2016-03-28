@@ -301,6 +301,12 @@ ${portal.angularToolkit()}
                                element.value = element.domainObjectValue;
                            }
                        }
+                       // DropDown multiple is stored as object and not as a string
+                       if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_MULTIPLE%>') {
+                	       angular.forEach(element.domainObjectListValue, function (domainObject, i) {
+                		       element.domainObjectListValue[i] = { 'id' : domainObject };
+                	       });
+                       }
                        // Select unique value when it is required in Dropdown
                        if(!angular.isUndefinedOrNull(element.dataSource) && element.dataSource.length == 1 && element.required) {
                            if(element.uiComponentType == '<%= UIComponentType.DROP_DOWN_MULTIPLE %>') {

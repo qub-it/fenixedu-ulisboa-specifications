@@ -9,6 +9,9 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 
 import com.google.common.base.Strings;
 
+/**
+ * @see {@link com.qubit.qubEdu.module.base.util.IdentityCardUtil}
+ */
 public class IdentityCardUtils {
 
     public static String getDigitControlFromPerson(final Person person) {

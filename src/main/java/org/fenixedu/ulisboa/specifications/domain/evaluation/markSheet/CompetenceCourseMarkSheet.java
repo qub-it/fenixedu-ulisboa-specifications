@@ -31,7 +31,6 @@ import java.text.Collator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
@@ -178,12 +178,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         }
 
         for (final EvaluationSeasonPeriod iter : periods) {
-
-            if (!iter.isContainingDate(getEvaluationDate())) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
-                        getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            if (iter.isContainingDate(getEvaluationDate())) {
+                return;
             }
         }
+
+        throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInExamsPeriod",
+                getEvaluationDate().toString(), EvaluationSeasonPeriod.getIntervalsDescription(periods));
     }
 
     protected void checkIfIsGradeSubmissionAvailable() {
@@ -208,11 +209,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         for (final EvaluationSeasonPeriod iter : periods) {
 
-            if (!iter.isContainingDate(new LocalDate())) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
-                        EvaluationSeasonPeriod.getIntervalsDescription(periods));
+            if (iter.isContainingDate(new LocalDate())) {
+                return;
             }
         }
+
+        throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.notInGradeSubmissionPeriod",
+                EvaluationSeasonPeriod.getIntervalsDescription(periods));
     }
 
     private void checkIfEvaluationsDateIsEqualToMarkSheetEvaluationDate() {
@@ -417,11 +420,42 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return getShiftSet().stream().map(i -> i.getNome()).collect(Collectors.joining(", "));
     }
 
+    /**
+     * Does one final test for final vs temporary evaluations
+     * Possibly redundant with isEnrolmentCandidateForEvaluation
+     */
     private Set<Enrolment> getEnrolmentsNotInAnyMarkSheet() {
         final Set<Enrolment> result = Sets.newHashSet();
 
         final ExecutionSemester executionSemester = getExecutionSemester();
         final EvaluationSeason evaluationSeason = getEvaluationSeason();
+
+        for (final Enrolment enrolment : filterEnrolmentsForGradeSubmission(collectEnrolmentsForGradeSubmission())) {
+
+            final Optional<EnrolmentEvaluation> finalEvaluation =
+                    enrolment.getEnrolmentEvaluation(evaluationSeason, executionSemester, true);
+            if (finalEvaluation.isPresent()) {
+                continue;
+            }
+
+            final Optional<EnrolmentEvaluation> temporaryEvaluation =
+                    enrolment.getEnrolmentEvaluation(evaluationSeason, executionSemester, false);
+            if (temporaryEvaluation.isPresent() && temporaryEvaluation.get().getCompetenceCourseMarkSheet() != null) {
+                continue;
+            }
+
+            result.add(enrolment);
+        }
+
+        return result;
+    }
+
+    /**
+     * Collects enrolments based on mark sheet parameters (competence, semester, execution course)
+     * Does not deal with anual competence courses, this is done in getExecutionCourseEnrolmentsNotInAnyMarkSheet
+     */
+    private Set<Enrolment> collectEnrolmentsForGradeSubmission() {
+        final Set<Enrolment> result = Sets.newHashSet();
 
         for (final ExecutionCourse executionCourse : getCompetenceCourse()
                 .getExecutionCoursesByExecutionPeriod(getExecutionSemester())) {
@@ -430,22 +464,18 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
                 for (final CurricularCourse curricularCourse : executionCourse.getAssociatedCurricularCoursesSet()) {
 
-                    for (final Enrolment enrolment : getEnrolmentsForGradeSubmission(curricularCourse)) {
+                    for (final CurriculumModule curriculumModule : curricularCourse.getCurriculumModulesSet()) {
 
-                        final Optional<EnrolmentEvaluation> finalEvaluation =
-                                enrolment.getEnrolmentEvaluation(evaluationSeason, executionSemester, true);
-                        if (finalEvaluation.isPresent()) {
+                        if (!curriculumModule.isEnrolment()) {
                             continue;
                         }
 
-                        final Optional<EnrolmentEvaluation> temporaryEvaluation =
-                                enrolment.getEnrolmentEvaluation(evaluationSeason, executionSemester, false);
-                        if (temporaryEvaluation.isPresent() && temporaryEvaluation.get().getCompetenceCourseMarkSheet() != null) {
-                            continue;
-                        }
-
-                        result.add(enrolment);
+                        result.add((Enrolment) curriculumModule);
                     }
+                }
+
+                for (final Attends attends : executionCourse.getAttendsSet()) {
+                    result.add(attends.getEnrolment());
                 }
             }
         }
@@ -453,9 +483,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return result;
     }
 
+    /**
+     * Algorithm entry point
+     * Deals with anual competence courses
+     */
     public Set<Enrolment> getExecutionCourseEnrolmentsNotInAnyMarkSheet() {
-
         final Set<Enrolment> result = Sets.newHashSet();
+
         for (final Enrolment enrolment : getEnrolmentsNotInAnyMarkSheet()) {
 
             if (getCompetenceCourse().isAnual()
@@ -481,19 +515,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return result;
     }
 
-    private Set<Enrolment> getEnrolmentsForGradeSubmission(final CurricularCourse curricularCourse) {
-        final Set<Enrolment> result = new HashSet<Enrolment>();
+    private Set<Enrolment> filterEnrolmentsForGradeSubmission(final Set<Enrolment> input) {
+        final Set<Enrolment> result = Sets.newHashSet();
 
         final ExecutionSemester executionSemester = getExecutionSemester();
         final EvaluationSeason season = getEvaluationSeason();
 
-        for (final CurriculumModule curriculumModule : curricularCourse.getCurriculumModulesSet()) {
-
-            if (!curriculumModule.isEnrolment()) {
-                continue;
-            }
-
-            final Enrolment enrolment = (Enrolment) curriculumModule;
+        for (final Enrolment enrolment : input) {
 
             if (enrolment.isAnnulled()) {
                 continue;
@@ -524,6 +552,9 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return result;
     }
 
+    /**
+     * Filters according to evaluation season
+     */
     private boolean isEnrolmentCandidateForEvaluation(final Enrolment enrolment) {
         final ExecutionSemester executionSemester = getExecutionSemester();
         final EvaluationSeason season = getEvaluationSeason();

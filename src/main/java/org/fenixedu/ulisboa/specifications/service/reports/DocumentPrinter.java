@@ -213,7 +213,7 @@ public class DocumentPrinter {
             final StringBuilder result = new StringBuilder();
             result.append(serviceRequest.getPerson().getUsername());
             result.append("-");
-            result.append(new DateTime().toString("YYYYMMMDD", serviceRequest.getLanguage()));
+            result.append(new DateTime().toString("yyyMMMdd", serviceRequest.getLanguage()));
             result.append("-");
             result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
                     .replace(":", ""));
