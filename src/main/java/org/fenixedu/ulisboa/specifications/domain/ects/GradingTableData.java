@@ -1,10 +1,9 @@
 package org.fenixedu.ulisboa.specifications.domain.ects;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -18,33 +17,41 @@ public class GradingTableData {
      */
 
     private Gson gson = new Gson();
-    private List<GradeConversion> table = new ArrayList<GradeConversion>();
+    private Set<GradeConversion> table = new TreeSet<GradeConversion>(GradeConversion.COMPARE_BY_MARK);
 
     public String toJson() {
-        Type type = new TypeToken<List<GradeConversion>>() {
+        Type type = new TypeToken<Set<GradeConversion>>() {
         }.getType();
         return gson.toJson(table, type);
     }
 
     public static GradingTableData fromJson(String json) {
         GradingTableData data = new GradingTableData();
-        Type type = new TypeToken<List<GradeConversion>>() {
+        Type type = new TypeToken<Set<GradeConversion>>() {
         }.getType();
-        data.table = data.gson.fromJson(json, type);
+        Set<GradeConversion> table = data.gson.fromJson(json, type);
+        data.table.addAll(table);
         return data;
     }
 
-    public List<GradeConversion> getTable() {
+    public Set<GradeConversion> getTable() {
         return table;
     }
 
-    public void setTable(List<GradeConversion> table) {
+    public void setTable(Set<GradeConversion> table) {
         this.table = table;
     }
 
     static public class GradeConversion {
         private String mark;
         private String ectsGrade;
+
+        public static Comparator<GradeConversion> COMPARE_BY_MARK = new Comparator<GradeConversion>() {
+            @Override
+            public int compare(GradeConversion gc1, GradeConversion gc2) {
+                return gc1.getMark().compareTo(gc2.getMark());
+            }
+        };
 
         public GradeConversion(String mark, String ectsGrade) {
             this.mark = mark;
@@ -66,5 +73,15 @@ public class GradingTableData {
         public void setEctsGrade(final String ectsGrade) {
             this.ectsGrade = ectsGrade;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof GradeConversion) {
+                GradeConversion gc = (GradeConversion) obj;
+                return getMark().equals(gc.getMark());
+            }
+            return super.equals(obj);
+        }
     }
+
 }
