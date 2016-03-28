@@ -55,6 +55,7 @@ import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
+import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
@@ -147,6 +148,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         CourseGradingTable.registerProvider();
         DegreeGradingTable.registerProvider();
+
+        ExtendedDegreeInfo.setupDeleteListener();
+        ExtendedDegreeInfo.setupCreationListener();
 
         RegistrationObservations.setupDeleteListener();
 
