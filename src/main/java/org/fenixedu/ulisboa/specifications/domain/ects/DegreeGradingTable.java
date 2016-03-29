@@ -49,7 +49,12 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     public static Set<DegreeGradingTable> find(final ExecutionYear ey) {
-        return findAll().filter(dgt -> dgt.getExecutionYear() == ey).collect(Collectors.toSet());
+        return find(ey, false);
+    }
+
+    public static Set<DegreeGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
+        return findAll().filter(dgt -> (includeLegacy || dgt.getRegistration() == null))
+                .filter(dgt -> dgt.getExecutionYear() == ey).collect(Collectors.toSet());
     }
 
     public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Degree d) {
@@ -58,7 +63,8 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Registration reg) {
-        return findAll().filter(dgt -> dgt.getRegistration() == reg).findFirst().orElse(find(ey, pc, reg.getDegree()));
+        return reg.getDegreeGradingTablesSet().stream().filter(dgt -> dgt.getExecutionYear() == ey)
+                .filter(dgt -> dgt.getProgramConclusion() == pc).findFirst().orElse(find(ey, pc, reg.getDegree()));
     }
 
     public static String getEctsGrade(RegistrationConclusionBean registrationConclusionBean) {

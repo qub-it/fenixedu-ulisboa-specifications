@@ -342,7 +342,7 @@ function openDeletionModal (url, oids) {
 							<tbody>
 								<c:forEach var="degreeTable" items="${degreeGradeTable}" varStatus="loop_out">
 								<tr data-tableoid="${degreeTable.externalId}">
-									<td><c:out value="${degreeTable.degree.presentationNameI18N.content}" /></td>
+									<td><c:out value="${degreeTable.degree.code} - ${degreeTable.degree.presentationNameI18N.content}" /></td>
 									<td><c:out value="${degreeTable.programConclusion.name.content}" /></td>
 									<td><c:if test="${degreeTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not degreeTable.copied}"><spring:message code="label.false" /></c:if></td>
 									<c:forEach var="conversion" items="${degreeTable.data.table}" varStatus="loop">
@@ -410,7 +410,7 @@ function openDeletionModal (url, oids) {
 							<tbody>
 								<c:forEach var="courseTable" items="${courseGradeTable}" varStatus="loop_out">
 								<tr data-tableoid="${courseTable.externalId}">
-									<td><c:out value="${courseTable.competenceCourse.nameI18N.content}" /></td>
+									<td><c:out value="${courseTable.competenceCourse.code} - ${courseTable.competenceCourse.nameI18N.content}" /></td>
 									<td><c:if test="${courseTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not courseTable.copied}"><spring:message code="label.false" /></c:if></td>
 									<c:forEach var="conversion" items="${courseTable.data.table}" varStatus="loop">
 										<td><c:out value='${conversion.ectsGrade}'/></td>

@@ -40,7 +40,12 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     }
 
     public static Set<CourseGradingTable> find(final ExecutionYear ey) {
-        return findAll().filter(cgt -> cgt.getExecutionYear() == ey).collect(Collectors.toSet());
+        return find(ey, false);
+    }
+
+    public static Set<CourseGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
+        return findAll().filter(dgt -> (includeLegacy || dgt.getCurriculumLine() == null))
+                .filter(cgt -> cgt.getExecutionYear() == ey).collect(Collectors.toSet());
     }
 
     public static CourseGradingTable find(final ExecutionYear ey, final CompetenceCourse cc) {
@@ -49,8 +54,8 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     }
 
     public static CourseGradingTable find(CurriculumLine line) {
-        return findAll().filter(cgt -> cgt.getCurriculumLine() == line).findFirst()
-                .orElse(find(line.getExecutionYear(), line.getCurricularCourse().getCompetenceCourse()));
+        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(line.getExecutionYear(), line
+                .getCurricularCourse().getCompetenceCourse());
     }
 
     public static String getEctsGrade(ICurriculumEntry entry) {
