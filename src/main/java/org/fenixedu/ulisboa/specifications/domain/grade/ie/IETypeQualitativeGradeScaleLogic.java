@@ -13,7 +13,7 @@ import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeC
 
 public class IETypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
-    private static final String R = "R";
+    private static final String REC = "REC";
     private static final String A = "A";
     private static final String SU = "SU";
     private static final String B = "B";
@@ -25,13 +25,13 @@ public class IETypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String CRUL = "CRUL";
     private static final String MBDL = "MBDL";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(R, CRUL, SU, A, B, BD, MB, AD, ADL, MBDL, E);
+    private static final List<String> SORTED_GRADES = Arrays.asList(REC, CRUL, SU, A, B, BD, MB, AD, ADL, MBDL, E);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
     static {
-        CONFIGURATION.put(R, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
+        CONFIGURATION.put(REC, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
 
         CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
