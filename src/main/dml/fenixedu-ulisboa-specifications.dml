@@ -1255,7 +1255,7 @@ relation EnrolmentServiceRequestProperty {
         multiplicity 0..1;
     }
 
-    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+    public serviceRequests.ServiceRequestProperty playsRole enrolmentServiceRequestProperties {
         multiplicity *;
     }
 }
