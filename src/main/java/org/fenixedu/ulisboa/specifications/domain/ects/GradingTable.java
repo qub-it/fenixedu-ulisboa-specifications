@@ -106,13 +106,6 @@ abstract public class GradingTable extends GradingTable_Base {
         return new ArrayList<GradeConversion>(getData().getTable());
     }
 
-    // Public API - reorderTable
-    public void reorderTable(Comparator<GradeConversion> comparator) {
-        Set<GradeConversion> table = new TreeSet<GradeConversion>(comparator);
-        table.addAll(getData().getTable());
-        getData().setTable(table);
-    }
-
     public String printScale() {
         String scale = "";
         for (GradeConversion gc : getEctsGrades()) {
