@@ -252,12 +252,26 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
     }
 
+    /**
+     * @see {@link com.qubit.qubEdu.module.candidacies.domain.academicCandidacy.config.screen.validation.PreviousQualificationScreenValidator.validate(WorkflowInstanceState,
+     *      WorkflowScreen)}
+     */
     protected boolean validate(final Registration registration, PreviousDegreeInformationForm form, Model model) {
+
+        /* -------
+         * COUNTRY
+         * -------
+         */
 
         if (form.getPrecedentCountry() == null) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.requiredCountry"), model);
             return false;
         }
+
+        /* ------------
+         * SCHOOL LEVEL
+         * ------------
+         */
 
         if (form.getPrecedentSchoolLevel() == null) {
             addErrorMessage(
@@ -273,25 +287,41 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             return false;
         }
 
+        /* -----------
+         * INSTITUTION
+         * -----------
+         */
+
         if (StringUtils.isEmpty(StringUtils.trim(form.getPrecedentInstitutionOid()))) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.institution.must.be.filled"),
                     model);
             return false;
         }
 
-        /*
-        if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry() && form.getPrecedentSchoolLevel().isHigherEducation()) {
+        /* ------------------
+         * DEGREE DESIGNATION
+         * ------------------
+         */
+
+        if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry()
+                && form.getPrecedentSchoolLevel().isHigherEducation()) {
             if (form.getRaidesPrecedentDegreeDesignation() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;
             }
         } else {
-            if (StringUtils.isEmpty(form.getPrecedentDegreeDesignation())) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
-                return false;
+            if (isDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
+                if (StringUtils.isEmpty(form.getPrecedentDegreeDesignation())) {
+                    addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
+                    return false;
+                }
             }
         }
-        */
+
+        /* --------------------
+         * NUMBER OF ENROLMENTS
+         * --------------------
+         */
 
         if (form.getNumberOfEnrolmentsInPreviousDegrees() == 0) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
@@ -336,6 +366,10 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
 
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page;
+    }
+
+    protected boolean isDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() {
+        return true;
     }
 
     public static class PreviousDegreeInformationForm {

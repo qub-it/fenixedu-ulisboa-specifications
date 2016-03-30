@@ -72,6 +72,11 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
     }
     
     
+    @Override
+    protected boolean isDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() {
+        return false;
+    }
+
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page.substring(1, page.length());
     }
