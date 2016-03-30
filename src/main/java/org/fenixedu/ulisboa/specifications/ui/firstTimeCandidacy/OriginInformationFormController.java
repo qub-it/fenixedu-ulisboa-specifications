@@ -261,6 +261,10 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
                 redirectAttributes);
     }
 
+    /**
+     * @see {@link com.qubit.qubEdu.module.candidacies.domain.academicCandidacy.config.screen.validation.LastCompletedQualificationScreenValidator.validate(WorkflowInstanceState,
+     *      WorkflowScreen)}
+     */
     protected boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
 
         /* -------
@@ -288,8 +292,13 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
          * ------------
          */
 
-        if (form.getSchoolLevel() == null
-                || form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
+        if (form.getSchoolLevel() == null) {
+            addErrorMessage(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.OriginInformationForm.schoolLevel.must.be.filled"), model);
+            return false;
+        }
+
+        if (form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
             return false;
@@ -323,7 +332,8 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
          * ------------------
          */
 
-        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
+        if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
+                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
                 && form.getSchoolLevel().isHigherEducation()) {
             if (form.getRaidesDegreeDesignation() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
