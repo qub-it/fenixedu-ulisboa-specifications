@@ -277,6 +277,11 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             return false;
         }
 
+        /* ------------------------
+         * DISTRICT AND SUBDIVISION
+         * ------------------------
+         */
+
         if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && isDistrictAndSubdivisionRequired()) {
             if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
                     || form.getDistrictWhereFinishedPreviousCompleteDegree() == null) {
