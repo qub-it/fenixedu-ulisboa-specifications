@@ -162,6 +162,10 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                 sampleOK = true;
                 break;
             }
+
+            if (coveredYears == GradingTableSettings.getMaximumPastYears()) {
+                break;
+            }
         }
         return sampleOK ? sample : null;
     }

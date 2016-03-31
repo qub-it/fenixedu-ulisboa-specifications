@@ -12,23 +12,25 @@ public class GradingTableSettings extends GradingTableSettings_Base {
 
     private static Integer MIN_SAMPLE_SIZE = 30;
     private static Integer MIN_PAST_YEARS = 3;
+    private static Integer MAX_PAST_YEARS = 5;
 
     private GradingTableSettings() {
         super();
         setBennu(Bennu.getInstance());
     }
 
-    private GradingTableSettings(Integer minSampleSize, int minPastYears) {
+    private GradingTableSettings(Integer minSampleSize, int minPastYears, int maxPastYears) {
         this();
         setMinSampleSize(minSampleSize);
         setMinPastYears(minPastYears);
+        setMaxPastYears(maxPastYears);
     }
 
     @Atomic
     public static GradingTableSettings getInstance() {
         GradingTableSettings settings = Bennu.getInstance().getGradingTableSettings();
         if (settings == null) {
-            settings = new GradingTableSettings(MIN_SAMPLE_SIZE, MIN_PAST_YEARS);
+            settings = new GradingTableSettings(MIN_SAMPLE_SIZE, MIN_PAST_YEARS, MAX_PAST_YEARS);
         }
         return settings;
     }
@@ -39,6 +41,10 @@ public class GradingTableSettings extends GradingTableSettings_Base {
 
     public static int getMinimumPastYears() {
         return getInstance().getMinPastYears() != null ? getInstance().getMinPastYears() : MIN_PAST_YEARS;
+    }
+
+    public static int getMaximumPastYears() {
+        return getInstance().getMaxPastYears() != null ? getInstance().getMaxPastYears() : MAX_PAST_YEARS;
     }
 
     public static Set<DegreeType> getApplicableDegreeTypes() {

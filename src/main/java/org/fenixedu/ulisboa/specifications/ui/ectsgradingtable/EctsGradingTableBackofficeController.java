@@ -119,10 +119,11 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     @RequestMapping(value = _UPDATE_SETTINGS_URI + "{oid}", method = RequestMethod.POST)
     public String updateSettings(@PathVariable(value = "oid") ExecutionYear executionYear, @RequestParam(value = "minSampleSize",
             required = false) Integer minSampleSize,
-            @RequestParam(value = "minPastYears", required = false) Integer minPastYears, @RequestParam(value = "degreeTypes",
-                    required = false) List<DegreeType> degreeTypes, Model model) {
+            @RequestParam(value = "minPastYears", required = false) Integer minPastYears, @RequestParam(value = "maxPastYears",
+                    required = false) Integer maxPastYears,
+            @RequestParam(value = "degreeTypes", required = false) List<DegreeType> degreeTypes, Model model) {
         try {
-            updateSettings(minSampleSize, minPastYears, degreeTypes);
+            updateSettings(minSampleSize, minPastYears, maxPastYears, degreeTypes);
         } catch (Exception e) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
                     "label.gradingTables.errorUpdatingSettings"), model);
@@ -133,9 +134,10 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     }
 
     @Atomic
-    private void updateSettings(Integer minSampleSize, Integer minPastYears, List<DegreeType> degreeTypes) {
+    private void updateSettings(Integer minSampleSize, Integer minPastYears, Integer maxPastYears, List<DegreeType> degreeTypes) {
         GradingTableSettings.getInstance().setMinSampleSize(minSampleSize);
         GradingTableSettings.getInstance().setMinPastYears(minPastYears);
+        GradingTableSettings.getInstance().setMaxPastYears(maxPastYears);
         for (DegreeType degreeType : GradingTableSettings.getInstance().getApplicableDegreeTypesSet()) {
             degreeType.setGradingTableSettings(null);
         }

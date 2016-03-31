@@ -161,6 +161,10 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
                 sampleOK = true;
                 break;
             }
+
+            if (coveredYears == GradingTableSettings.getMaximumPastYears()) {
+                break;
+            }
         }
         return sampleOK ? sample : null;
     }

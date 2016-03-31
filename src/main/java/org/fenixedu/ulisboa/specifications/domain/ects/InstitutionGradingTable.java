@@ -100,6 +100,10 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
                 sampleOK = true;
                 break;
             }
+
+            if (coveredYears == GradingTableSettings.getMaximumPastYears()) {
+                break;
+            }
         }
         return sampleOK ? sample : null;
     }

@@ -1318,6 +1318,7 @@ class ects.GradingTable {
 class ects.GradingTableSettings {
 	Integer minSampleSize;
 	Integer minPastYears;
+	Integer maxPastYears;
 }
 
 
