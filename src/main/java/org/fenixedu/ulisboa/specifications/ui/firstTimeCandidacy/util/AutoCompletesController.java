@@ -36,8 +36,9 @@ public class AutoCompletesController {
     @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
         assureLoggedInUser();
-        Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        return UnitName.findExternalUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+        Function<Unit, UnitBean> createUnitBean = un -> new UnitBean(un.getExternalId(), un.getName());
+        return UnitName.findExternalUnit(namePart, 50).stream().map(i -> i.getUnit()).map(createUnitBean)
+                .collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/externalUnitFreeOption", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
@@ -118,16 +119,17 @@ public class AutoCompletesController {
     public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") String namePart, Model model) {
         assureLoggedInUser();
 
-        final Function<UnitName, UnitBean> createUnitBean = new Function<UnitName, UnitBean>() {
+        final Function<Unit, UnitBean> createUnitBean = new Function<Unit, UnitBean>() {
 
             @Override
-            public UnitBean apply(UnitName t) {
-                final String code = !Strings.isNullOrEmpty(t.getUnit().getCode()) ? "[" + t.getUnit().getCode() + "]" : "";
-                return new UnitBean(t.getUnit().getExternalId(), code + " " + t.getUnit().getName());
+            public UnitBean apply(Unit t) {
+                final String code = !Strings.isNullOrEmpty(t.getCode()) ? "[" + t.getCode() + "]" : "";
+                return new UnitBean(t.getExternalId(), code + " " + t.getName());
             }
         };
 
-        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(i -> i.getUnit())
+                .filter(i -> !i.getDegreeDesignationSet().isEmpty()).map(createUnitBean).collect(Collectors.toList());
     }
 
     private static String getFullDescription(DegreeDesignation designation) {
