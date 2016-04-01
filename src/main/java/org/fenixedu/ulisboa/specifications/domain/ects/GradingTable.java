@@ -2,10 +2,10 @@ package org.fenixedu.ulisboa.specifications.domain.ects;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
-import org.fenixedu.academic.domain.CompetenceCourse;
-import org.fenixedu.academic.domain.ExecutionYear;
+import java.util.Set;
+import java.util.TreeSet;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
 
@@ -84,29 +84,21 @@ abstract public class GradingTable extends GradingTable_Base {
     }
 
     // Public API - addMark
-    public void addMark(final String mark, final String ectsGrade, int order) {
+    public void addMark(final String mark, final String ectsGrade) {
         GradeConversion gc = new GradeConversion(mark, ectsGrade);
-        getData().getTable().add(order, gc);
-    }
-
-    public void addMark(final String mark, final String grade) {
-        addMark(mark, grade, getData().getTable().size());
-    }
-
-    public void addMark(final int mark, final String ectsGrade, int order) {
-        addMark(String.valueOf(mark), ectsGrade, order);
+        if (hasMark(mark)) {
+            setEctsGrade(mark, ectsGrade);
+        } else {
+            getData().getTable().add(gc);
+        }
     }
 
     public void addMark(final int mark, final String ectsGrade) {
-        addMark(mark, ectsGrade, getData().getTable().size());
-    }
-
-    public void addMark(final BigDecimal mark, final String ectsGrade, int order) {
-        addMark(mark.toString(), ectsGrade, order);
+        addMark(String.valueOf(mark), ectsGrade);
     }
 
     public void addMark(final BigDecimal mark, final String ectsGrade) {
-        addMark(mark, ectsGrade, getData().getTable().size());
+        addMark(mark.toString(), ectsGrade);
     }
 
     // Public API - getEctsGrades

@@ -48,12 +48,9 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
@@ -65,12 +62,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public abstract class OriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
@@ -264,6 +261,10 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
                 redirectAttributes);
     }
 
+    /**
+     * @see {@link com.qubit.qubEdu.module.candidacies.domain.academicCandidacy.config.screen.validation.LastCompletedQualificationScreenValidator.validate(WorkflowInstanceState,
+     *      WorkflowScreen)}
+     */
     protected boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
 
         /* -------
@@ -275,6 +276,11 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
             return false;
         }
+
+        /* ------------------------
+         * DISTRICT AND SUBDIVISION
+         * ------------------------
+         */
 
         if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && isDistrictAndSubdivisionRequired()) {
             if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
@@ -291,8 +297,13 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
          * ------------
          */
 
-        if (form.getSchoolLevel() == null
-                || form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
+        if (form.getSchoolLevel() == null) {
+            addErrorMessage(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.OriginInformationForm.schoolLevel.must.be.filled"), model);
+            return false;
+        }
+
+        if (form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
             addErrorMessage(BundleUtil.getString(BUNDLE,
                     "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
             return false;
@@ -320,19 +331,21 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
                 }
             }
         }
-        
+
         /* ------------------
          * DEGREE DESIGNATION
          * ------------------
          */
 
-        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && form.getSchoolLevel().isHigherEducation()) {
+        if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
+                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
+                && form.getSchoolLevel().isHigherEducation()) {
             if (form.getRaidesDegreeDesignation() == null) {
                 addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                 return false;
             }
         } else {
-            if(isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
+            if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
                 if (StringUtils.isEmpty(form.getDegreeDesignation())) {
                     addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
                     return false;
@@ -344,7 +357,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
          * CONCLUSION GRADE
          * ----------------
          */
-        
+
         if (!StringUtils.isEmpty(form.getConclusionGrade()) && !form.getConclusionGrade().matches(GRADE_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"), model);
             return false;
@@ -354,7 +367,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
          * CONCLUSION YEAR
          * ---------------
          */
-        
+
         if (form.getConclusionYear() == null || !form.getConclusionYear().toString().matches(YEAR_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"), model);
             return false;
@@ -395,7 +408,8 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
             precedentDegreeInformation.setOtherSchoolLevel(form.getOtherSchoolLevel());
         }
 
-        if(isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() || !Strings.isNullOrEmpty(form.getInstitutionOid())) {
+        if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()
+                || !Strings.isNullOrEmpty(form.getInstitutionOid())) {
             String institution = form.getInstitutionOid();
             DomainObject institutionObject = FenixFramework.getDomainObject(institution);
             if (!(institutionObject instanceof Unit) || !FenixFramework.isDomainObjectValid(institutionObject)) {
@@ -406,13 +420,13 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
                     Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
                     institutionObject = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
                             resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
-                            AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null, null,
-                            null);
+                            AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
+                            null, null);
                 }
             }
             precedentDegreeInformation.setInstitution((Unit) institutionObject);
         }
-        
+
         precedentDegreeInformation.setConclusionYear(form.getConclusionYear());
         Country country = form.getCountryWhereFinishedPreviousCompleteDegree();
         precedentDegreeInformation.setCountry(country);
@@ -427,7 +441,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
         personalData.setHighSchoolType(form.getHighSchoolType());
     }
 
-    private static String resolveAcronym(String acronym, String name) {
+    public static String resolveAcronym(String acronym, String name) {
         final Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
         final Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
         final List<String> takenAcronyms = new ArrayList<String>();

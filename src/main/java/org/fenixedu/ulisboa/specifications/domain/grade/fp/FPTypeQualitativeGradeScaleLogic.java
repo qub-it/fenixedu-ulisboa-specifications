@@ -13,7 +13,7 @@ import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeC
 
 public class FPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
-    private static final String REC = "REC";
+    private static final String R = "R";
     private static final String A = "A";
     private static final String SU = "SU";
     private static final String B = "B";
@@ -24,13 +24,13 @@ public class FPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String ADL = "ADL";
     private static final String MBDL = "MBDL";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(REC, SU, A, B, BD, MB, MBDL, AD, ADL, E);
+    private static final List<String> SORTED_GRADES = Arrays.asList(R, SU, A, B, BD, MB, MBDL, AD, ADL, E);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
     static {
-        CONFIGURATION.put(REC, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
+        CONFIGURATION.put(R, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
         CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
@@ -70,7 +70,7 @@ public class FPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public boolean isNotApproved(Grade grade) {
-        return REC.equals(grade.getValue());
+        return R.equals(grade.getValue());
     }
 
     @Override

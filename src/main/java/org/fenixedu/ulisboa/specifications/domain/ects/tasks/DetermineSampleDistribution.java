@@ -61,6 +61,10 @@ public class DetermineSampleDistribution extends CustomTask {
                 sampleOK = true;
                 break;
             }
+
+            if (coveredYears == GradingTableSettings.getMaximumPastYears()) {
+                break;
+            }
         }
         return sampleOK ? sample : null;
     }

@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
+
 import pt.ist.fenixframework.CallableWithoutException;
 
 public class CourseGradingTable extends CourseGradingTable_Base {
@@ -40,17 +41,22 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     }
 
     public static Set<CourseGradingTable> find(final ExecutionYear ey) {
-        return findAll().filter(cgt -> cgt.getExecutionYear() == ey).collect(Collectors.toSet());
+        return find(ey, false);
+    }
+
+    public static Set<CourseGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
+        return ey.getGradingTablesSet().stream().filter(CourseGradingTable.class::isInstance).map(CourseGradingTable.class::cast)
+                .filter(cgt -> (includeLegacy || cgt.getCurriculumLine() == null)).collect(Collectors.toSet());
     }
 
     public static CourseGradingTable find(final ExecutionYear ey, final CompetenceCourse cc) {
-        return findAll().filter(cgt -> cgt.getExecutionYear() == ey).filter(cgt -> cgt.getCompetenceCourse() == cc).findAny()
-                .orElse(null);
+        return cc.getCourseGradingTablesSet().stream().filter(cgt -> cgt.getCurriculumLine() == null)
+                .filter(cgt -> cgt.getExecutionYear() == ey).findAny().orElse(null);
     }
 
     public static CourseGradingTable find(CurriculumLine line) {
-        return findAll().filter(cgt -> cgt.getCurriculumLine() == line).findFirst()
-                .orElse(find(line.getExecutionYear(), line.getCurricularCourse().getCompetenceCourse()));
+        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(line.getExecutionYear(), line
+                .getCurricularCourse().getCompetenceCourse());
     }
 
     public static String getEctsGrade(ICurriculumEntry entry) {
@@ -155,6 +161,10 @@ public class CourseGradingTable extends CourseGradingTable_Base {
             if (++coveredYears >= GradingTableSettings.getMinimumPastYears()
                     && sample.size() >= GradingTableSettings.getMinimumSampleSize()) {
                 sampleOK = true;
+                break;
+            }
+
+            if (coveredYears == GradingTableSettings.getMaximumPastYears()) {
                 break;
             }
         }

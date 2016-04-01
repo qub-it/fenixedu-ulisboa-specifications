@@ -1255,7 +1255,7 @@ relation EnrolmentServiceRequestProperty {
         multiplicity 0..1;
     }
 
-    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+    public serviceRequests.ServiceRequestProperty playsRole enrolmentServiceRequestProperties {
         multiplicity *;
     }
 }
@@ -1318,6 +1318,7 @@ class ects.GradingTable {
 class ects.GradingTableSettings {
 	Integer minSampleSize;
 	Integer minPastYears;
+	Integer maxPastYears;
 }
 
 

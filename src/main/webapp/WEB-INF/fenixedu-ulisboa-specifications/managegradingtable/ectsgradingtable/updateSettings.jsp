@@ -113,7 +113,13 @@ ${portal.toolkit()}
 				<div class="col-sm-10">
 					<input id="gradingTableSettings_minPastYears" class="form-control" type="number" min="0" step="1" name="minPastYears" value='<c:out value="${not empty param.minPastYears ? param.minPastYears : gradingTableSettings.minPastYears }"/>' required /> 
 				</div>
-			</div>		
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label"><spring:message code="label.gradingTables.settings.maxPastYears"/></div>
+				<div class="col-sm-10">
+					<input id="gradingTableSettings_maxPastYears" class="form-control" type="number" min="0" step="1" name="maxPastYears" value='<c:out value="${not empty param.maxPastYears ? param.maxPastYears : gradingTableSettings.maxPastYears }"/>' required /> 
+				</div>
+			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.gradingTables.settings.degreeTypes" />

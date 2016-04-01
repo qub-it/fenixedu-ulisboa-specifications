@@ -49,16 +49,23 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     public static Set<DegreeGradingTable> find(final ExecutionYear ey) {
-        return findAll().filter(dgt -> dgt.getExecutionYear() == ey).collect(Collectors.toSet());
+        return find(ey, false);
+    }
+
+    public static Set<DegreeGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
+        return ey.getGradingTablesSet().stream().filter(DegreeGradingTable.class::isInstance).map(DegreeGradingTable.class::cast)
+                .filter(dgt -> (includeLegacy || dgt.getRegistration() == null)).collect(Collectors.toSet());
     }
 
     public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Degree d) {
-        return findAll().filter(dgt -> dgt.getExecutionYear() == ey).filter(dgt -> dgt.getProgramConclusion() == pc)
-                .filter(dgt -> dgt.getDegree() == d).findAny().orElse(null);
+        return d.getDegreeGradingTablesSet().stream().filter(dgt -> (dgt.getRegistration() == null))
+                .filter(dgt -> dgt.getProgramConclusion() == pc).filter(dgt -> dgt.getExecutionYear() == ey).findAny()
+                .orElse(null);
     }
 
     public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Registration reg) {
-        return findAll().filter(dgt -> dgt.getRegistration() == reg).findFirst().orElse(find(ey, pc, reg.getDegree()));
+        return reg.getDegreeGradingTablesSet().stream().filter(dgt -> dgt.getExecutionYear() == ey)
+                .filter(dgt -> dgt.getProgramConclusion() == pc).findFirst().orElse(find(ey, pc, reg.getDegree()));
     }
 
     public static String getEctsGrade(RegistrationConclusionBean registrationConclusionBean) {
@@ -153,6 +160,10 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
             if (++coveredYears >= GradingTableSettings.getMinimumPastYears()
                     && sample.size() >= GradingTableSettings.getMinimumSampleSize()) {
                 sampleOK = true;
+                break;
+            }
+
+            if (coveredYears == GradingTableSettings.getMaximumPastYears()) {
                 break;
             }
         }
