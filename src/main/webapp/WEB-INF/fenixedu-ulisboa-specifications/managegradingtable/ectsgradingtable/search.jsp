@@ -236,6 +236,12 @@ function openDeletionModal (url, oids) {
 								</td> 
 							</tr>
 							<tr>
+								<th scope="row" class="col-xs-4"><spring:message code="label.gradingTables.settings.maxPastYears"/></th> 
+								<td>
+									<c:out value='${gradingTableSettings.maxPastYears}'/>
+								</td> 
+							</tr>
+							<tr>
 								<th scope="row" class="col-xs-4"><spring:message code="label.gradingTables.settings.applicableDegreeTypes"/></th> 
 								<td>
 									<c:if test="${not empty gradingTableSettings.applicableDegreeTypesSet}">

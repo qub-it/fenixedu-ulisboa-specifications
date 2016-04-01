@@ -24,31 +24,21 @@ public class GradingTableGenerator {
         table.addMark("20.0", "A");
     }
 
-    public static Map<String, BigDecimal> getEctsAccumulativeDistro() {
-        Map<String, BigDecimal> distro = new LinkedHashMap<String, BigDecimal>();
-        distro.put("A", new BigDecimal("0.10"));
-        distro.put("B", new BigDecimal("0.35"));
-        distro.put("C", new BigDecimal("0.65"));
-        distro.put("D", new BigDecimal("0.90"));
-        distro.put("E", new BigDecimal("1.00"));
-        return distro;
-    }
-
     public static void generateTableData(GradingTable table, List<BigDecimal> sample) {
         Map<BigDecimal, Integer> gradeDistro = new LinkedHashMap<BigDecimal, Integer>();
         Map<BigDecimal, BigDecimal> heapedGradeDistro = new LinkedHashMap<BigDecimal, BigDecimal>();
         BigDecimal sampleSize = new BigDecimal(sample.size());
-        gradeDistro.put(new BigDecimal("20.0"), 0);
-        gradeDistro.put(new BigDecimal("19.0"), 0);
-        gradeDistro.put(new BigDecimal("18.0"), 0);
-        gradeDistro.put(new BigDecimal("17.0"), 0);
-        gradeDistro.put(new BigDecimal("16.0"), 0);
-        gradeDistro.put(new BigDecimal("15.0"), 0);
-        gradeDistro.put(new BigDecimal("14.0"), 0);
-        gradeDistro.put(new BigDecimal("13.0"), 0);
-        gradeDistro.put(new BigDecimal("12.0"), 0);
-        gradeDistro.put(new BigDecimal("11.0"), 0);
         gradeDistro.put(new BigDecimal("10.0"), 0);
+        gradeDistro.put(new BigDecimal("11.0"), 0);
+        gradeDistro.put(new BigDecimal("12.0"), 0);
+        gradeDistro.put(new BigDecimal("13.0"), 0);
+        gradeDistro.put(new BigDecimal("14.0"), 0);
+        gradeDistro.put(new BigDecimal("15.0"), 0);
+        gradeDistro.put(new BigDecimal("16.0"), 0);
+        gradeDistro.put(new BigDecimal("17.0"), 0);
+        gradeDistro.put(new BigDecimal("18.0"), 0);
+        gradeDistro.put(new BigDecimal("19.0"), 0);
+        gradeDistro.put(new BigDecimal("20.0"), 0);
 
         // 1. Grades distributions
         for (BigDecimal grade : sample) {
@@ -66,174 +56,67 @@ public class GradingTableGenerator {
             heapedGradeDistro.put(grade, heap.setScale(3, BigDecimal.ROUND_HALF_EVEN));
         }
 
-        // 3. Initial table fill ABCDEEEEEEE
-        Map<BigDecimal, String> tableMap = new LinkedHashMap<BigDecimal, String>();
-        tableMap.put(new BigDecimal("20.0"), "A");
-        tableMap.put(new BigDecimal("19.0"), "B");
-        tableMap.put(new BigDecimal("18.0"), "C");
-        tableMap.put(new BigDecimal("17.0"), "D");
-        tableMap.put(new BigDecimal("16.0"), "E");
-        tableMap.put(new BigDecimal("15.0"), "E");
-        tableMap.put(new BigDecimal("14.0"), "E");
-        tableMap.put(new BigDecimal("13.0"), "E");
-        tableMap.put(new BigDecimal("12.0"), "E");
-        tableMap.put(new BigDecimal("11.0"), "E");
-        tableMap.put(new BigDecimal("10.0"), "E");
-
-        // 4. Shift according to distribution
-        int gradesSize = tableMap.keySet().size();
-        int ectsGradesSize = tableMap.values().stream().distinct().mapToInt(s -> 1).sum();
-        int gradesCnt = 0;
-        for (Entry<BigDecimal, BigDecimal> step : heapedGradeDistro.entrySet()) {
-            BigDecimal grade = step.getKey();
-            BigDecimal heapedShare = step.getValue();
-            String ectsGrade = getEctsGrade(heapedShare);
-            String grantedValue = tableMap.get(grade);
-            gradesCnt++;
-
-            if (isStagnant(grade, heapedGradeDistro)) {
-                if (shouldIncrement(grade, grantedValue, heapedGradeDistro, tableMap)) {
-                    switch (grantedValue) {
-                    case "A":
-                        tableMap.put(grade, "B");
-                        break;
-                    case "B":
-                        tableMap.put(grade, "C");
-                        break;
-                    case "C":
-                        tableMap.put(grade, "D");
-                        break;
-                    case "D":
-                        tableMap.put(grade, "E");
-                        break;
-                    default:
-                        break;
-                    }
-                    ectsGradesSize--;
-                } else if (shouldNormalize(grade, grantedValue, heapedGradeDistro, tableMap)) {
-                    String prevEctsGrade = getPrevGrade(grade, tableMap);
-                    boolean found = false;
-                    String updateValue = "";
-                    for (Entry<BigDecimal, String> entry : tableMap.entrySet()) {
-                        if (entry.getKey().equals(grade)) {
-                            found = true;
-                            updateValue = entry.getValue();
-                            entry.setValue(prevEctsGrade);
-                        } else if (found) {
-                            String passValue = entry.getValue();
-                            entry.setValue(updateValue);
-                            updateValue = passValue;
-                        }
-                    }
-                }
-
-            } else {
-                // Inflate
-                if (ectsGrade.compareTo(grantedValue) < 0) {
-                    if (((gradesSize - gradesCnt) >= ectsGradesSize)) {
-                        boolean found = false;
-                        String updateValue = "";
-                        for (Entry<BigDecimal, String> entry : tableMap.entrySet()) {
-                            if (entry.getKey().equals(grade)) {
-                                found = true;
-                                updateValue = entry.getValue();
-                                entry.setValue(ectsGrade);
-                            } else if (found) {
-                                String passValue = entry.getValue();
-                                entry.setValue(updateValue);
-                                updateValue = passValue;
-                            }
-                        }
-                    }
-                } else {
-                    ectsGradesSize--;
-                }
-            }
-        }
-
-        // 5. Populate the table with final values
-        List<BigDecimal> reverseOrderedKeys = new ArrayList<BigDecimal>(tableMap.keySet());
-        Collections.reverse(reverseOrderedKeys);
-        for (BigDecimal mark : reverseOrderedKeys) {
+        // 3. Apply algorithm and return table
+        final Carla carla = new Carla();
+        final Map<BigDecimal, String> tableMap = carla.process(heapedGradeDistro);
+        for (BigDecimal mark : tableMap.keySet()) {
             table.addMark(mark, tableMap.get(mark));
         }
     }
 
-    private static String getEctsGrade(BigDecimal heapedDistro) {
-        for (Entry<String, BigDecimal> interval : getEctsAccumulativeDistro().entrySet()) {
-            if (heapedDistro.compareTo(interval.getValue()) < 1) {
-                return interval.getKey();
-            }
+    private static class Carla {
+        private Map<String, BigDecimal> distro = new LinkedHashMap<String, BigDecimal>();
+        private static String[] ectsGrades = { "E", "D", "C", "B", "A" };
+        private int gradePointer = 0;
+
+        Carla() {
+            distro.put("E", new BigDecimal("0.10"));
+            distro.put("D", new BigDecimal("0.35"));
+            distro.put("C", new BigDecimal("0.65"));
+            distro.put("B", new BigDecimal("0.90"));
+            distro.put("A", new BigDecimal("1.00"));
         }
-        return null;
-    }
 
-    private static boolean shouldIncrement(BigDecimal grade, String ectsGrade, Map<BigDecimal, BigDecimal> heapedGradeDistro,
-            Map<BigDecimal, String> tableMap) {
-        boolean isStagnant = isStagnant(grade, heapedGradeDistro);
-        BigDecimal nextHeap = nextIncrement(grade, heapedGradeDistro);
-        String nextEctsGrade = nextHeap != null ? getEctsGrade(nextHeap) : ectsGrade;
-
-        return isStagnant && !hasIncrementedEcts(grade, tableMap) && (compareEctsGrade(ectsGrade, nextEctsGrade) < 0);
-    }
-
-    private static boolean shouldNormalize(BigDecimal grade, String ectsGrade, Map<BigDecimal, BigDecimal> heapedGradeDistro,
-            Map<BigDecimal, String> tableMap) {
-        boolean isStagnant = isStagnant(grade, heapedGradeDistro);
-        BigDecimal nextHeap = nextIncrement(grade, heapedGradeDistro);
-        String nextEctsGrade = nextHeap != null ? getEctsGrade(nextHeap) : ectsGrade;
-
-        return isStagnant && (compareEctsGrade(ectsGrade, nextEctsGrade) > 0);
-    }
-
-    private static boolean isStagnant(BigDecimal grade, Map<BigDecimal, BigDecimal> heapedGradeDistro) {
-        BigDecimal prevHeap = null;
-        for (Entry<BigDecimal, BigDecimal> step : heapedGradeDistro.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                return prevHeap != null && prevHeap.equals(step.getValue());
+        Map<BigDecimal, String> process(Map<BigDecimal, BigDecimal> heapedGradeDistro) {
+            final Map<BigDecimal, String> tableMap = new LinkedHashMap<BigDecimal, String>();
+            boolean firstCycle = true;
+            BigDecimal previousHeap = BigDecimal.ZERO;
+            for (Entry<BigDecimal, BigDecimal> tuple : heapedGradeDistro.entrySet()) {
+                if (firstCycle) {
+                    if (tuple.getValue().compareTo(distro.get(ectsGrades[gradePointer]).multiply(new BigDecimal(2))) >= 0) {
+                        gradePointer++;
+                    }
+                    tableMap.put(tuple.getKey(), ectsGrades[gradePointer]);
+                    previousHeap = tuple.getValue();
+                    firstCycle = false;
+                } else if (gradePointer == 4) {
+                    tableMap.put(tuple.getKey(), ectsGrades[gradePointer]);
+                    previousHeap = tuple.getValue();
+                } else {
+                    BigDecimal threshold = distro.get(ectsGrades[gradePointer]);
+                    BigDecimal nextThreshold = distro.get(ectsGrades[gradePointer + 1]);
+                    if (tuple.getValue().compareTo(nextThreshold) >= 0) {
+                        while (tuple.getValue().compareTo(nextThreshold) >= 0 && gradePointer < (ectsGrades.length - 2)) {
+                            gradePointer++;
+                            nextThreshold = distro.get(ectsGrades[gradePointer + 1]);
+                        }
+                        tableMap.put(tuple.getKey(), ectsGrades[++gradePointer]);
+                    } else if (tuple.getValue().compareTo(threshold) >= 0) {
+                        BigDecimal lowerSeparation = threshold.subtract(previousHeap);
+                        BigDecimal higherSeparation = tuple.getValue().subtract(threshold);
+                        if (lowerSeparation.compareTo(higherSeparation) < 0) {
+                            tableMap.put(tuple.getKey(), ectsGrades[++gradePointer]);
+                        } else if (lowerSeparation.compareTo(higherSeparation) >= 0) {
+                            tableMap.put(tuple.getKey(), ectsGrades[gradePointer++]);
+                        }
+                    } else {
+                        tableMap.put(tuple.getKey(), ectsGrades[gradePointer]);
+                    }
+                    previousHeap = tuple.getValue();
+                }
             }
-            prevHeap = step.getValue();
+            return tableMap;
         }
-        return false;
-    }
-
-    private static BigDecimal nextIncrement(BigDecimal grade, Map<BigDecimal, BigDecimal> heapedGradeDistro) {
-        BigDecimal prevHeap = null;
-        for (Entry<BigDecimal, BigDecimal> step : heapedGradeDistro.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                prevHeap = step.getValue();
-            }
-            if (prevHeap != null && prevHeap.compareTo(step.getValue()) < 0) {
-                return step.getValue();
-            }
-        }
-        return null;
-    }
-
-    private static boolean hasIncrementedEcts(BigDecimal grade, Map<BigDecimal, String> tableMap) {
-        String prevEctsGrade = null;
-        for (Entry<BigDecimal, String> step : tableMap.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                return prevEctsGrade != null && !prevEctsGrade.equals(step.getValue());
-            }
-            prevEctsGrade = step.getValue();
-        }
-        return false;
-    }
-
-    private static String getPrevGrade(BigDecimal grade, Map<BigDecimal, String> tableMap) {
-        String prevEctsGrade = null;
-        for (Entry<BigDecimal, String> step : tableMap.entrySet()) {
-            if (step.getKey().equals(grade)) {
-                return prevEctsGrade;
-            }
-            prevEctsGrade = step.getValue();
-        }
-        return prevEctsGrade;
-    }
-
-    private static int compareEctsGrade(String ects0, String ects1) {
-        return ects0.charAt(0) - ects1.charAt(0);
     }
 
 }
