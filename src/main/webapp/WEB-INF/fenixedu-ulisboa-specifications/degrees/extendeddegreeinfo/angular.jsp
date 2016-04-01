@@ -430,6 +430,19 @@ ${portal.angularToolkit()}
 	            </div>
 	            
 	            <div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.studyProgrammeDuration" /></div>	
+	                <div class="col-sm-7">
+	                	<textarea id="extendedDegreeInformation_studyProgrammeDuration_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['studyProgrammeDuration']" ng-readonly="true" ng-model="studyProgrammeDuration" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_studyProgrammeDuration" rows="6" class="form-control" ng-show="editMode['studyProgrammeDuration']" ng-readonly="false" ng-localized-string="object.studyProgrammeDuration" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	                <div class="col-sm-3">
+		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['studyProgrammeDuration']" ng-click="toggleEditMode('studyProgrammeDuration')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+		        		<button class="btn btn-xs btn-primary" ng-show="editMode['studyProgrammeDuration']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+		        		<a href="" class="btn btn-xs btn-default" ng-show="!editMode['studyProgrammeDuration']" ng-click="toggleEditMode('studyProgrammeDuration')" data-toggle="tooltip" title="<spring:message code="label.edit" />"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+		        	</div>
+	            </div>
+	            
+	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.studyRegime" /></div>	
 	                <div class="col-sm-7">
 	                	<textarea id="extendedDegreeInformation_studyRegime_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['studyRegime']" ng-readonly="true" ng-model="studyRegime" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
@@ -551,6 +564,7 @@ ${portal.angularToolkit()}
                     "qualificationLevel",
                     "recognitions",
                     "scientificAreas",
+                    "studyProgrammeDuration",
                 	"studyRegime",
                 	"studyProgrammeRequirements",
                 	"higherEducationAccess",
@@ -586,9 +600,6 @@ ${portal.angularToolkit()}
                 for (var id = 0; id < $scope.fieldIds.length; id++) {
         			$scope[$scope.fieldIds[id]] = $scope.object[$scope.fieldIds[id]] ? $scope.object[$scope.fieldIds[id]][$scope.locale] : undefined;
         		}
-//              $scope.$watch('object.scientificAreas', function(value) {
-//              	$scope.object.scientificAreas[$scope.locale];
-//              });
                 
                 $scope.search = function () {
                 	$('form').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.SEARCH_URL %>');
@@ -597,51 +608,6 @@ ${portal.angularToolkit()}
                 $scope.edit = function () {
                 	$('form').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.UPDATE_URL %>');
                 }
-                <%--
-                $scope.addSlotEntry = function(model) {
-                    if (angular.isUndefinedOrNull($scope.serviceRequestSlot)) {
-                        return;
-                    }
-                    url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.ADD_PROPERTY_URL%>${serviceRequestType.externalId}';
-                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
-                    $('form[name="form"]').find('input[name="required"]').attr('value', false);
-                    $('form[name="form"]').find('input[name="orderNumber"]').attr('value', $scope.object.serviceRequestSlotEntries.length);
-                    $('form[name="form"]').find('input[name="serviceRequestSlot"]').attr('value', $scope.serviceRequestSlot);
-                    $scope.postBack(model);
-                    
-                    $scope.serviceRequestSlot = undefined;
-                };
-                $scope.addDefaultSlotEntries = function(model) {
-                    url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.ADD_DEFAULT_PROPERTIES_URL%>${serviceRequestType.externalId}';
-                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
-                    $scope.postBack(null);
-                }
-                $scope.deleteEntry = function(slotEntry, model) {
-                	url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.DELETE_PROPERTY_URL%>${serviceRequestType.externalId}/' + slotEntry.entry;
-                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
-                    $('#deleteModal').modal('toggle');
-                }
-                $scope.submitDeleteEntry = function() {
-                    $('#deleteModal').modal('toggle');                	
-                    $scope.postBack(null);                 
-                };
-                $scope.moveUp = function(slotEntry, model) {
-                    url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.MOVE_UP_PROPERTY_URL%>${serviceRequestType.externalId}/' + slotEntry.entry;
-                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
-                    $scope.postBack(model);                 
-                }
-                $scope.moveDown = function(slotEntry, model) {
-                    url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.MOVE_DOWN_PROPERTY_URL%>${serviceRequestType.externalId}/' + slotEntry.entry;
-                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
-                    $scope.postBack(model);                 
-                }
-                $scope.changeRequired = function(slotEntry, model) {
-                    url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.UPDATE_PROPERTY_URL%>${serviceRequestType.externalId}/' + slotEntry.entry;
-                    $('form[name="form"]').find('input[name="postback"]').attr('value', url);
-                    $('form[name="form"]').find('input[name="required"]').attr('value', slotEntry.required);
-                	$scope.postBack(model);
-                }
-                --%>
                 
                 $scope.onload = function () {
                 	$('.bennu-localized-string-textArea, .bennu-localized-string-input-group').hide();
