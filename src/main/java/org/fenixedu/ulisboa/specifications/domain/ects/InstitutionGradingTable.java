@@ -38,7 +38,8 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
     }
 
     public static InstitutionGradingTable find(final ExecutionYear ey) {
-        return findAll().filter(igt -> igt.getExecutionYear() == ey).findAny().orElse(null);
+        return ey.getGradingTablesSet().stream().filter(InstitutionGradingTable.class::isInstance)
+                .map(InstitutionGradingTable.class::cast).findAny().orElse(null);
     }
 
     public static InstitutionGradingTable generate(final ExecutionYear executionYear) {

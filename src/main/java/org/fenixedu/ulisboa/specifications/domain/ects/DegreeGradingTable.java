@@ -53,13 +53,14 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     public static Set<DegreeGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
-        return findAll().filter(dgt -> (includeLegacy || dgt.getRegistration() == null))
-                .filter(dgt -> dgt.getExecutionYear() == ey).collect(Collectors.toSet());
+        return ey.getGradingTablesSet().stream().filter(DegreeGradingTable.class::isInstance).map(DegreeGradingTable.class::cast)
+                .filter(dgt -> (includeLegacy || dgt.getRegistration() == null)).collect(Collectors.toSet());
     }
 
     public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Degree d) {
-        return findAll().filter(dgt -> dgt.getExecutionYear() == ey).filter(dgt -> dgt.getProgramConclusion() == pc)
-                .filter(dgt -> dgt.getDegree() == d).findAny().orElse(null);
+        return d.getDegreeGradingTablesSet().stream().filter(dgt -> (dgt.getRegistration() == null))
+                .filter(dgt -> dgt.getProgramConclusion() == pc).filter(dgt -> dgt.getExecutionYear() == ey).findAny()
+                .orElse(null);
     }
 
     public static DegreeGradingTable find(final ExecutionYear ey, final ProgramConclusion pc, final Registration reg) {
