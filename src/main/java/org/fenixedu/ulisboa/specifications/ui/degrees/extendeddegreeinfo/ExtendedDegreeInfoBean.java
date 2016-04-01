@@ -48,6 +48,7 @@ public class ExtendedDegreeInfoBean implements IBean {
 
     // ExtendedDegreeInfo fields
     private LocalizedString scientificAreas;
+    private LocalizedString studyProgrammeDuration;
     private LocalizedString studyRegime;
     private LocalizedString studyProgrammeRequirements;
     private LocalizedString higherEducationAccess;
@@ -305,6 +306,14 @@ public class ExtendedDegreeInfoBean implements IBean {
 
     public void setScientificAreas(LocalizedString scientificAreas) {
         this.scientificAreas = scientificAreas;
+    }
+
+    public LocalizedString getStudyProgrammeDuration() {
+        return studyProgrammeDuration;
+    }
+
+    public void setStudyProgrammeDuration(LocalizedString studyProgrammeDuration) {
+        this.studyProgrammeDuration = studyProgrammeDuration;
     }
 
     public LocalizedString getStudyRegime() {

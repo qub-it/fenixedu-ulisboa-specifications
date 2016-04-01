@@ -1409,6 +1409,7 @@ relation GradingTableSettingsDegreeType {
 
 class ExtendedDegreeInfo {
 	LocalizedString scientificAreas;
+	LocalizedString studyProgrammeDuration;
 	LocalizedString studyRegime;
 	LocalizedString studyProgrammeRequirements;
 	LocalizedString higherEducationAccess;
