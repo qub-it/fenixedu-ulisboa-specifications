@@ -211,6 +211,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
                 event.addProperty("end", endTime.toString());
                 event.addProperty("title", shift.getExecutionCourse().getName() + " (" + shift.getShiftTypesCodePrettyPrint()
                         + " - " + shift.getNome() + ")");
+                event.addProperty("shiftId", shift.getExternalId());
                 result.add(event);
             }
         }
