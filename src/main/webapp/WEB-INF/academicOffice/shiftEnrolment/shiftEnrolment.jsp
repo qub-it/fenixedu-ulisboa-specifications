@@ -95,6 +95,15 @@ ${portal.angularToolkit()}
 	@-webkit-keyframes spin2 {
 	    from { -webkit-transform: rotate(0deg); }
 	    to { -webkit-transform: rotate(360deg); }
+	}
+	
+	.calendarHoverIn {
+		background: #F00;
+		cursor:pointer;
+	}
+	.calendarHoverIn:after { 
+	    content: "[X] <bean:message bundle="APPLICATION_RESOURCES" key="label.remove" />";
+	    font-weight: bold;
 	}	
 </style>
 
@@ -129,7 +138,7 @@ ${portal.angularToolkit()}
 </c:if>
 
 <div ng-app="shiftEnrolmentApp">
-	<div ng-controller="ShiftEnrolmentCtrl">
+	<div id="ShiftEnrolmentCtrl" ng-controller="ShiftEnrolmentCtrl">
 
 	<c:if test="${empty enrolmentBeans}">
 		<div class="alert alert-warning" role="alert"><spring:message code="message.shiftEnrolment.noOpenPeriods"/></div>
@@ -376,6 +385,24 @@ ${portal.angularToolkit()}
 				</div>
 			</div>			
 			
+			<div id="removeShiftModalFromCalendar" class="modal fade bs-remove-shift-modal-from-calendar-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-from-calendar-sm" >
+					<div class="modal-content">
+						<div class="modal-header">
+						  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						  <h4 class="modal-title"><spring:message code="label.shiftEnrolment.removeShift"/></h4>
+						</div>
+						<div class="modal-body">
+							<spring:message code="label.shiftEnrolment.removeShift.confirmation"/>					
+						</div>					
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="button.cancel"/></button>	
+							<a class="btn btn-primary" id="removeShiftFromCalendarLink" href="" role="button"><spring:message code="button.confirm"/></a>
+						</div>
+					</div>
+				</div>
+			</div>				
+			
 			<p>&nbsp;</p>
 			<h3><spring:message code="label.shiftEnrolment.registrationSchedule"/>:</h3>
 			
@@ -403,6 +430,7 @@ ${portal.angularToolkit()}
 			<div id="calendar"></div>
 			
 			<spring:url var="eventsUrl" value="/academicAdministration/shiftEnrolment/currentSchedule.json/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.executionSemester.externalId}"/>
+			<spring:url var="removeShiftUrl" value="/academicAdministration/shiftEnrolment/removeShift/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.executionSemester.externalId}"/>
 			<script>
 			$(document).ready(function() {
 				$(function () {
@@ -435,6 +463,17 @@ ${portal.angularToolkit()}
 						editable: false,
 						eventLimit: true, // allow "more" link when too many events
 						events : "${eventsUrl}",
+						eventClick: function(calEvent, jsEvent, view) {
+							$('#removeShiftModalFromCalendar .modal-title').text(calEvent.title);
+							$('#removeShiftModalFromCalendar .modal-footer #removeShiftFromCalendarLink').attr('href','${removeShiftUrl}/' + calEvent.shiftId);
+							$('#removeShiftModalFromCalendar').modal({ });							        
+					    },
+					    eventMouseover: function(calEvent, jsEvent, view) {
+					     	$(this).addClass('calendarHoverIn');
+					    },
+					    eventMouseout: function(calEvent, jsEvent, view) {
+					     	$(this).removeClass('calendarHoverIn');
+					    },
 						height: "auto"
 					});
 				

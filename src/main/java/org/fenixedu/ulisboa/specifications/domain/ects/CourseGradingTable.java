@@ -55,8 +55,11 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     }
 
     public static CourseGradingTable find(CurriculumLine line) {
-        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(line.getExecutionYear(), line
-                .getCurricularCourse().getCompetenceCourse());
+        ExecutionYear year =
+                line instanceof Enrolment ? ((Enrolment) line).getFinalEnrolmentEvaluation().getExecutionPeriod()
+                        .getExecutionYear() : line.getExecutionYear();
+        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(year, line.getCurricularCourse()
+                .getCompetenceCourse());
     }
 
     public static String getEctsGrade(ICurriculumEntry entry) {

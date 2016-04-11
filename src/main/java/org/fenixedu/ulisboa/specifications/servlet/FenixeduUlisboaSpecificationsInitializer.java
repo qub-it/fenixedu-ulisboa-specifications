@@ -203,7 +203,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
             @Override
             public void beforeAdd(Dismissal dismissal, Credits credits) {
-                if (dismissal instanceof CreditsDismissal && credits.isEquivalence()) {
+                if (dismissal instanceof CreditsDismissal && credits != null && credits.isEquivalence()) {
                     throw new DomainException("error.curricularplan.equivalence.without.destination");
 
                 }
@@ -229,8 +229,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
-                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic =
+                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
+                        .typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);

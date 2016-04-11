@@ -281,6 +281,10 @@
 			<logic:notEqual name="numberOfLessons" value="0">
 	        	<td class="listClasses" rowspan="<%= pageContext.findAttribute("numberOfLessons") %>">
 			</logic:notEqual>
+             	<html:link target="_blank" page="<%= "/manageShiftProfessorships.do?method=prepare&shiftID=" + pageContext.findAttribute("infoShiftOID") %>">
+					<bean:message key="link.teachers" bundle="APPLICATION_RESOURCES"/>
+				</html:link>
+				 | 			
               		<html:link page="<%= "/deleteShifts.do?method=deleteShift&amp;page=0&amp;"
                							+ PresentationConstants.SHIFT_OID
 			  							+ "="

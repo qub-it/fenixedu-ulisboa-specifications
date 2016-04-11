@@ -1,0 +1,35 @@
+<schemas>
+
+	<schema name="ShowSummariesCalendarOverride" type="org.fenixedu.academic.dto.SummariesCalendarBean" bundle="DEFAULT">	
+		<slot name="calendarViewType" layout="radio-postback"  key="label.lessons">
+			<property name="classes" value="list2 liinline" />
+			<property name="destination" value="postBack"/>
+		</slot>
+		<slot name="shiftType" layout="menu-select-postback"  key="label.lessonPlanning.lessonType">
+			<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ExecutionCourseShiftTypesToShowSummariesProvider" />						
+			<property name="destination" value="postBack"/>
+			<property name="eachLayout" value=""/>		
+			<property name="defaultText" value="label.summaries.all" />
+			<property name="key" value="true"/>
+			<property name="bundle" value="DEFAULT"/>
+		</slot>
+		<slot name="shift" layout="menu-select-postback">
+			<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ListShiftsToShowSummariesProviderOverride" />				
+			<property name="eachLayout" value="shift-plain" />
+			<property name="destination" value="postBack"/>
+			<property name="defaultText" value="label.summaries.all" />
+			<property name="key" value="true"/>
+			<property name="bundle" value="DEFAULT"/>
+		</slot>	
+	</schema>
+
+	<schema name="ListShiftsToCreateSummaryOverride" type="org.fenixedu.academic.dto.SummariesManagementBean" bundle="DEFAULT">	
+		<slot name="shift" key="label.shift" layout="menu-select-postback" 
+			validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator">
+			<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ListShiftsToSummariesManagementProviderOverride" />				
+			<property name="format"	value="${presentationName}" />
+			<property name="destination" value="postBack"/>
+		</slot>	
+	</schema>
+
+</schemas>
