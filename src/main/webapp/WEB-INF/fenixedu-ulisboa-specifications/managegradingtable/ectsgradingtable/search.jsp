@@ -27,8 +27,11 @@
  */
  -->
 
+<%@page import="java.util.Set"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ectsgradingtable.EctsGradingTableBackofficeController"%>
 <%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -351,9 +354,11 @@ function openDeletionModal (url, oids) {
 									<td><c:out value="${degreeTable.degree.code} - ${degreeTable.degree.presentationNameI18N.content}" /></td>
 									<td><c:out value="${degreeTable.programConclusion.name.content}" /></td>
 									<td><c:if test="${degreeTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not degreeTable.copied}"><spring:message code="label.false" /></c:if></td>
-									<c:forEach var="conversion" items="${degreeTable.data.table}" varStatus="loop">
-										<td><c:out value='${conversion.ectsGrade}'/></td>
-									</c:forEach>
+									<% 	Set<String> headers = (Set<String>) request.getAttribute("degreeGradeTableHeaders");
+										DegreeGradingTable degreeGradingTable = (DegreeGradingTable) pageContext.getAttribute("degreeTable");
+										for (String dataHeader : headers) {%>
+										<td><c:out value='<%= degreeGradingTable.getEctsGrade(dataHeader) %>'/></td>
+									<%	} %>
 									<td>
 										<a class="btn btn-danger btn-xs" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/${degreeTable.externalId}/${sectoken}"><spring:message code='label.gradingTables.delete'/></a>
 									</td>
@@ -418,9 +423,11 @@ function openDeletionModal (url, oids) {
 								<tr data-tableoid="${courseTable.externalId}">
 									<td><c:out value="${courseTable.competenceCourse.code} - ${courseTable.competenceCourse.nameI18N.content}" /></td>
 									<td><c:if test="${courseTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not courseTable.copied}"><spring:message code="label.false" /></c:if></td>
-									<c:forEach var="conversion" items="${courseTable.data.table}" varStatus="loop">
-										<td><c:out value='${conversion.ectsGrade}'/></td>
-									</c:forEach>
+									<% 	Set<String> headers = (Set<String>) request.getAttribute("courseGradeTableHeaders");
+										CourseGradingTable courseGradingTable = (CourseGradingTable) pageContext.getAttribute("courseTable");
+										for (String dataHeader : headers) {%>
+										<td><c:out value='<%= courseGradingTable.getEctsGrade(dataHeader) %>'/></td>
+									<%	} %>
 									<td>
 										<a class="btn btn-danger btn-xs" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/${courseTable.externalId}/${sectoken}"><spring:message code='label.gradingTables.delete'/></a>
 									</td>
