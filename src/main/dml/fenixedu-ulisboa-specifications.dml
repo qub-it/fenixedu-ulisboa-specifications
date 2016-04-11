@@ -29,14 +29,16 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 
+enum org.fenixedu.academic.domain.GradeScale as GradeScaleSpecifications;
+enum org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel as CurricularRuleLevel;
 enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType as AcademicEnrolmentPeriodType;
-
-enum org.fenixedu.academic.domain.GradeScale                                                                           as GradeScaleSpecifications;
-
-enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum as CompetenceCourseMarkSheetChangeRequestStateEnum;
-enum org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel as CurricularRuleLevel;
+enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFileType as LegalReportResultFileType;
+enum org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType as RaidesPeriodInputType;
+enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption as IntegratedMasterFirstCycleGraduatedReportOption;
+enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
+
 
 valueType org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData as GradingTableData {
     externalizeWith {
@@ -46,41 +48,32 @@ valueType org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData as Gr
     internalizeWith fromJson();
 }
 
-external class .org.fenixedu.academic.domain.degree.DegreeType;
 
-enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFileType as LegalReportResultFileType;
-enum org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType as RaidesPeriodInputType;
-enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption as IntegratedMasterFirstCycleGraduatedReportOption;
-
-external class .org.fenixedu.academic.domain.degree.DegreeType;
-external class .org.fenixedu.academic.domain.ExecutionInterval;
-external class .org.fenixedu.academic.domain.EvaluationSeason;
-external class .org.fenixedu.academic.domain.CompetenceCourse;
-external class .org.fenixedu.academic.domain.EvaluationSeason;
-external class .org.fenixedu.academic.domain.ExecutionSemester;
-external class .org.fenixedu.academic.domain.Person;
-external class .org.fenixedu.academic.domain.OccupationPeriod;
-external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
-external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
-external class .org.fenixedu.academic.domain.student.StatuteType;
-external class .org.fenixedu.academic.domain.student.Registration;
-external class .org.fenixedu.academic.domain.SchoolClass;
-external class .org.fenixedu.academic.domain.Shift;
-external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
-external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
-external class .org.fenixedu.academic.domain.student.Registration;
-external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
-external class .org.fenixedu.academic.domain.ExecutionYear;
-external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-external class .org.fenixedu.academic.domain.StudentCurricularPlan;
-external class .org.fenixedu.academic.domain.ExecutionSemester;
 external class .org.fenixedu.bennu.core.domain.User;
 external class .org.fenixedu.bennu.io.domain.GenericFile;
-external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
-external class .org.fenixedu.academic.domain.student.StatuteType;
+external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.DegreeInfo;
-external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.Enrolment;
+external class .org.fenixedu.academic.domain.EvaluationSeason;
+external class .org.fenixedu.academic.domain.ExecutionInterval;
+external class .org.fenixedu.academic.domain.ExecutionSemester;
+external class .org.fenixedu.academic.domain.ExecutionYear;
+external class .org.fenixedu.academic.domain.OccupationPeriod;
+external class .org.fenixedu.academic.domain.SchoolClass;
+external class .org.fenixedu.academic.domain.Shift;
+external class .org.fenixedu.academic.domain.StudentCurricularPlan;
+external class .org.fenixedu.academic.domain.Person;
+external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
+external class .org.fenixedu.academic.domain.degree.DegreeType;
+external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
+external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
+external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
+external class .org.fenixedu.academic.domain.student.Registration;
+external class .org.fenixedu.academic.domain.student.StatuteType;
+external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
+
 
 class UsernameSequenceGenerator {
 	String prefix;
