@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -16,6 +19,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable;
+import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableSettings;
 import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
@@ -261,15 +265,12 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
         }
     }
 
-    private List<String> calculateHeaders(Collection<? extends GradingTable> tables) {
-        List<String> headers = new ArrayList<String>();
+    private Set<String> calculateHeaders(Collection<? extends GradingTable> tables) {
+        Set<String> headers = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         if (!tables.isEmpty()) {
             for (GradingTable gt : tables) {
                 for (GradeConversion gc : gt.getData().getTable()) {
                     headers.add(gc.getMark());
-                }
-                if (!headers.isEmpty()) {
-                    break;
                 }
             }
         }
