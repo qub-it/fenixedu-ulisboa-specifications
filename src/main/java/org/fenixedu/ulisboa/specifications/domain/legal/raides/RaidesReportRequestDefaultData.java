@@ -25,25 +25,24 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
 
     public RaidesReportRequestDefaultData() {
     }
-    
+
     @Override
     public void fill(final RaidesRequestParameter raidesRequestParameter) {
 
         // Enrolment periods
 
         raidesRequestParameter.addPeriod(RaidesPeriodInputType.ENROLLED, ExecutionYear.readExecutionYearByName("2015/2016"),
-                DATETIME_FORMATTER.parseDateTime("01/04/2015").toLocalDate(), DATETIME_FORMATTER.parseDateTime("31/12/2015")
-                        .toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO, false, 0, 0);
+                DATETIME_FORMATTER.parseDateTime("01/01/2016").toLocalDate(),
+                DATETIME_FORMATTER.parseDateTime("31/03/2016").toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO,
+                false, 0, 0);
 
         // Graduation periods
-        raidesRequestParameter.addPeriod(RaidesPeriodInputType.GRADUATED, ExecutionYear.readExecutionYearByName("2014/2015"),
-                DATETIME_FORMATTER.parseDateTime("01/01/2015").toLocalDate(), DATETIME_FORMATTER.parseDateTime("31/12/2015")
-                        .toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO, false, 0, 0);
 
         // International Mobility
         raidesRequestParameter.addPeriod(RaidesPeriodInputType.INTERNATIONAL_MOBILITY,
-                ExecutionYear.readExecutionYearByName("2015/2016"), DATETIME_FORMATTER.parseDateTime("01/04/2015").toLocalDate(),
-                DATETIME_FORMATTER.parseDateTime("31/12/2015").toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO, false, 0, 0);
+                ExecutionYear.readExecutionYearByName("2015/2016"), DATETIME_FORMATTER.parseDateTime("01/01/2016").toLocalDate(),
+                DATETIME_FORMATTER.parseDateTime("31/03/2016").toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO,
+                false, 0, 0);
 
         // Degrees
         raidesRequestParameter.getDegrees().addAll(RaidesInstance.getInstance().getDegreesToReportSet());
@@ -55,18 +54,22 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
         raidesRequestParameter.getAgreementsForMobility().addAll(RaidesInstance.getInstance().getMobilityAgreementsSet());
 
         // IngressionsForDegreeChange
-        raidesRequestParameter.getIngressionsForDegreeChange().addAll(RaidesInstance.getInstance().getDegreeChangeIngressionsSet());
+        raidesRequestParameter.getIngressionsForDegreeChange()
+                .addAll(RaidesInstance.getInstance().getDegreeChangeIngressionsSet());
 
         // IngressionsForDegreeTransfer
-        raidesRequestParameter.getIngressionsForDegreeTransfer().addAll(RaidesInstance.getInstance().getDegreeTransferIngressionsSet());
+        raidesRequestParameter.getIngressionsForDegreeTransfer()
+                .addAll(RaidesInstance.getInstance().getDegreeTransferIngressionsSet());
 
         // IngressionsForGeneralAccessRegime
-        raidesRequestParameter.getIngressionsForGeneralAccessRegime().addAll(RaidesInstance.getInstance().getGeneralAccessRegimeIngressionsSet());
+        raidesRequestParameter.getIngressionsForGeneralAccessRegime()
+                .addAll(RaidesInstance.getInstance().getGeneralAccessRegimeIngressionsSet());
 
         raidesRequestParameter.setInstitution(Bennu.getInstance().getInstitutionUnit());
-        raidesRequestParameter.setInstitutionCode(!Strings.isNullOrEmpty(RaidesInstance.getInstance().getInstitutionCode()) ? 
-                RaidesInstance.getInstance().getInstitutionCode() : Bennu.getInstance().getInstitutionUnit().getCode());
-        raidesRequestParameter.setMoment("1");
+        raidesRequestParameter
+                .setInstitutionCode(!Strings.isNullOrEmpty(RaidesInstance.getInstance().getInstitutionCode()) ? RaidesInstance
+                        .getInstance().getInstitutionCode() : Bennu.getInstance().getInstitutionUnit().getCode());
+        raidesRequestParameter.setMoment("2");
         raidesRequestParameter.setInterlocutorName(Authenticate.getUser().getPerson().getName());
         raidesRequestParameter.setInterlocutorEmail(Authenticate.getUser().getPerson().getDefaultEmailAddressValue());
         raidesRequestParameter.setInterlocutorPhone(RaidesInstance.getInstance().getInterlocutorPhone());
