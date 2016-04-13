@@ -3,6 +3,8 @@ package org.fenixedu.ulisboa.specifications.domain.services;
 import java.math.BigDecimal;
 
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 
 public class CurriculumLineServices {
@@ -22,6 +24,14 @@ public class CurriculumLineServices {
     static public Integer getCurricularYear(final CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation()
                 .getCurricularYear();
+    }
+
+    static public void updateAggregatorGrade(final CurriculumLine curriculumLine) {
+        final CurriculumAggregator aggregator =
+                CurriculumAggregatorServices.getAggregator(CurriculumAggregatorServices.getContext(curriculumLine));
+        if (aggregator != null) {
+            aggregator.updateGrade(curriculumLine.getStudentCurricularPlan());
+        }
     }
 
     static public void setExcludedFromAverage(CurriculumLine curriculumLine, Boolean excludedFromAverage) {

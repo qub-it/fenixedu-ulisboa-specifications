@@ -42,7 +42,7 @@ import pt.ist.fenixWebFramework.renderers.components.HtmlText;
 /**
  * Layout without curriculum group restrictions
  */
-public class ImprovementEnrolmentLayout extends BolonhaStudentEnrolmentLayout {
+public class ImprovementEnrolmentLayout extends EnrolmentLayout {
 
     @Override
     public HtmlComponent createComponent(Object object, Class type) {

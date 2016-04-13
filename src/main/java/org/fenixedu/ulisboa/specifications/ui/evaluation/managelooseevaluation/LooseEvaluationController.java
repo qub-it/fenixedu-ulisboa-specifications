@@ -48,6 +48,7 @@ import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -178,6 +179,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         evaluation.edit(Authenticate.getUser().getPerson(), grade, new Date(), examDate.toDateTimeAtStartOfDay().toDate());
         evaluation.confirmSubmission(Authenticate.getUser().getPerson(), "");
         EnrolmentServices.updateState(enrolment);
+        CurriculumLineServices.updateAggregatorGrade(enrolment);
     }
 
     private static final String _DELETE_URI = "/delete/";
@@ -190,7 +192,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
             final RedirectAttributes redirectAttributes) {
 
         try {
-            deleteEnrolment(enrolmentEvaluation);
+            deleteLooseEvaluation(enrolmentEvaluation);
         } catch (final DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
         }
@@ -200,8 +202,10 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
     }
 
     @Atomic
-    private void deleteEnrolment(EnrolmentEvaluation enrolmentEvaluation) {
+    private void deleteLooseEvaluation(EnrolmentEvaluation enrolmentEvaluation) {
         enrolmentEvaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+        EnrolmentServices.updateState(enrolmentEvaluation.getEnrolment());
+        CurriculumLineServices.updateAggregatorGrade(enrolmentEvaluation.getEnrolment());
         enrolmentEvaluation.delete();
     }
 

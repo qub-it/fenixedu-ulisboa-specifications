@@ -69,7 +69,9 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSe
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -614,6 +616,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             }
         }
 
+        if (!CurriculumAggregatorServices.isCandidateForEvaluation(enrolment)) {
+            return false;
+        }
+
         final Optional<EnrolmentEvaluation> temporaryEvaluation =
                 enrolment.getEnrolmentEvaluation(season, executionSemester, false);
 
@@ -712,6 +718,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
             evaluation.setPerson(Authenticate.getUser().getPerson());
             EnrolmentServices.updateState(evaluation.getEnrolment());
+            CurriculumLineServices.updateAggregatorGrade(evaluation.getEnrolment());
         }
 
         CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
@@ -754,6 +761,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
             EnrolmentServices.updateState(evaluation.getEnrolment());
+            CurriculumLineServices.updateAggregatorGrade(evaluation.getEnrolment());
         }
 
         CompetenceCourseMarkSheetStateChange.createEditionState(this, byTeacher, reason);
