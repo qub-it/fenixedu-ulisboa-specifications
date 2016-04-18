@@ -54,6 +54,7 @@ external class .org.fenixedu.bennu.io.domain.GenericFile;
 external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.DegreeInfo;
 external class .org.fenixedu.academic.domain.Enrolment;
+external class .org.fenixedu.academic.domain.EnrolmentEvaluation;
 external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.ExecutionInterval;
 external class .org.fenixedu.academic.domain.ExecutionSemester;
@@ -72,6 +73,7 @@ external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.Do
 external class .org.fenixedu.academic.domain.student.Registration;
 external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+external class .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
 
 
@@ -2091,4 +2093,55 @@ relation AcademicEnrolmentPeriodStatuteType {
 
 
 //======================= = END AcademicEnrolmentPeriod = =========================
+
+
+
+// ====================== = CurriculumLineExtendedInformation = ========================
+
+class studentCurriculum.CurriculumLineExtendedInformation {
+	String remarks;
+	Integer curricularYear;
+}
+
+relation BennuCurriculumLineExtendedInformation {
+	studentCurriculum.CurriculumLineExtendedInformation playsRole curriculumLineExtendedInformations {
+		multiplicity *;
+	}
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation CurriculumLineCurriculumLineExtendedInformation {
+    .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLine {
+    	multiplicity 1..1;
+    }
+    
+    studentCurriculum.CurriculumLineExtendedInformation playsRole extendedInformation;
+}
+
+
+// ====================== = EnrolmentEvaluationExtendedInformation = ========================
+
+class evaluation.EnrolmentEvaluationExtendedInformation {
+	String remarks;
+}
+
+relation BennuEnrolmentEvaluationExtendedInformation {
+	evaluation.EnrolmentEvaluationExtendedInformation playsRole enrolmentEvaluationExtendedInformations {
+		multiplicity *;
+	}
+	
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation EnrolmentEvaluationEnrolmentEvaluationExtendedInformation {
+    .org.fenixedu.academic.domain.EnrolmentEvaluation playsRole enrolmentEvaluation {
+    	multiplicity 1..1;
+    }
+    
+    evaluation.EnrolmentEvaluationExtendedInformation playsRole extendedInformation;
+}
 

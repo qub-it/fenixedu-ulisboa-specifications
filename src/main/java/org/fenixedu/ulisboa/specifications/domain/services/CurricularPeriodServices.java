@@ -72,6 +72,12 @@ public class CurricularPeriodServices {
     }
 
     static public int getCurricularYear(final CurriculumLine input) {
+
+        final Integer overridenCurricularYear = CurriculumLineServices.getCurricularYear(input);
+        if (overridenCurricularYear != null) {
+            return overridenCurricularYear.intValue();
+        }
+
         final String report = input.print(StringUtils.EMPTY).toString();
         if (input.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
             logger.debug("NoCourseGroupCurriculumGroup as parent for [{}], returning 1", report);

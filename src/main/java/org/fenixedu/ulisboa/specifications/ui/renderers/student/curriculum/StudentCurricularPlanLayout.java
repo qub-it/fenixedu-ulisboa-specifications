@@ -33,13 +33,14 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule.ConclusionValue;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -385,6 +386,7 @@ public class StudentCurricularPlanLayout extends Layout {
         generateSemesterCell(dismissalRow, dismissal);
         generateDismissalApprovementlDateIfRequired(dismissalRow, dismissal.getApprovementDate());
         generateCreatorIfRequired(dismissalRow, dismissal.getCreatedBy());
+        generateRemarksCell(dismissalRow, dismissal);
         generateSpacerCellsIfRequired(dismissalRow);
     }
 
@@ -595,6 +597,7 @@ public class StudentCurricularPlanLayout extends Layout {
             generateStatisticsLinkCell(enrolmentRow, enrolment);
             generateLastEnrolmentEvaluationExamDateCellIfRequired(enrolmentRow, enrolment);
             generateGradeResponsibleIfRequired(enrolmentRow, enrolment);
+            generateRemarksCell(enrolmentRow, enrolment);
             generateSpacerCellsIfRequired(enrolmentRow);
         }
 
@@ -606,6 +609,34 @@ public class StudentCurricularPlanLayout extends Layout {
             // qubExtension, show temporary evaluations for improvements and special seasons
             for (final EnrolmentEvaluation iter : getDetailedEvaluations(enrolment)) {
                 generateEnrolmentEvaluationRows(mainTable, iter, level + 1);
+            }
+        }
+    }
+
+    // qubExtension
+    private void generateRemarksCell(HtmlTableRow row, CurriculumLine curriculumLine) {
+        generateRemarksCell(row, CurriculumLineServices.getRemarks(curriculumLine));
+    }
+
+    // qubExtension
+    private void generateRemarksCell(HtmlTableRow row, EnrolmentEvaluation evaluation) {
+        generateRemarksCell(row, EnrolmentEvaluationServices.getRemarks(evaluation));
+    }
+
+    // qubExtension
+    private void generateRemarksCell(HtmlTableRow row, String remarks) {
+        if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
+
+            final String text;
+            if (StringUtils.isNotBlank(remarks)) {
+                text = remarks;
+            } else {
+                text = EMPTY_INFO;
+            }
+
+            final HtmlTableCell cell = generateCellWithText(row, text, "");
+            if (StringUtils.isNotBlank(remarks)) {
+                cell.setStyle("font-size: xx-small");
             }
         }
     }
@@ -715,7 +746,8 @@ public class StudentCurricularPlanLayout extends Layout {
             generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass());
         }
 
-        if (evaluation.getPersonResponsibleForGrade() != null) {
+        if (evaluation.getPersonResponsibleForGrade() != null
+                && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             final Person person = evaluation.getPersonResponsibleForGrade();
             final String username = person.getUsername();
             generateCellWithSpan(enrolmentRow, username,
@@ -723,6 +755,9 @@ public class StudentCurricularPlanLayout extends Layout {
         } else {
             generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreatorCellClass());
         }
+
+        generateRemarksCell(enrolmentRow, evaluation);
+        generateSpacerCellsIfRequired(enrolmentRow);
     }
 
     protected void generateEnrolmentWithStateEnroled(HtmlTableRow enrolmentRow, Enrolment enrolment, int level,
@@ -747,6 +782,7 @@ public class StudentCurricularPlanLayout extends Layout {
             // date
             generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreatorCellClass()); // grade
             // responsible
+            generateRemarksCell(enrolmentRow, enrolment);
         }
         generateSpacerCellsIfRequired(enrolmentRow);
     }
@@ -827,18 +863,19 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateStatisticsLinkCell(final HtmlTableRow row, final Enrolment enrolment) {
-        if (enrolment.getStudent() == AccessControl.getPerson().getStudent()
-                && enrolment.getStudent().hasAnyActiveRegistration()) {
-            ExecutionCourse executionCourse = enrolment.getExecutionCourseFor(enrolment.getExecutionPeriod());
-            if (executionCourse != null) {
-                final HtmlInlineContainer inlineContainer = new HtmlInlineContainer();
-                inlineContainer.addChild(createExecutionCourseStatisticsLink(
-                        BundleUtil.getString(Bundle.APPLICATION, "label.statistics"), executionCourse));
-                final HtmlTableCell cell = row.createCell();
-                cell.setClasses(renderer.getStatisticsLinkCellClass());
-                cell.setBody(inlineContainer);
-            }
-        }
+        //qubextension functionality not available
+//        if (enrolment.getStudent() == AccessControl.getPerson().getStudent()
+//                && enrolment.getStudent().hasAnyActiveRegistration()) {
+//            ExecutionCourse executionCourse = enrolment.getExecutionCourseFor(enrolment.getExecutionPeriod());
+//            if (executionCourse != null) {
+//                final HtmlInlineContainer inlineContainer = new HtmlInlineContainer();
+//                inlineContainer.addChild(createExecutionCourseStatisticsLink(
+//                        BundleUtil.getString(Bundle.APPLICATION, "label.statistics"), executionCourse));
+//                final HtmlTableCell cell = row.createCell();
+//                cell.setClasses(renderer.getStatisticsLinkCellClass());
+//                cell.setBody(inlineContainer);
+//            }
+//        }
     }
 
     protected void generateExecutionYearCell(HtmlTableRow row, final ICurriculumEntry entry) {
