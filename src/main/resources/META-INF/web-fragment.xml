@@ -10,7 +10,7 @@
 
     <filter>
         <filter-name>blueRecordFilter</filter-name>
-        <filter-class>org.fenixedu.ulisboa.specifications.ui.blue_record.filter.BlueRecordWebFilter</filter-class>
+        <filter-class>org.fenixedu.ulisboa.specifications.servlet.filters.ULisboaRedirectorWebFilter</filter-class>
     </filter>    
 
     <filter-mapping>

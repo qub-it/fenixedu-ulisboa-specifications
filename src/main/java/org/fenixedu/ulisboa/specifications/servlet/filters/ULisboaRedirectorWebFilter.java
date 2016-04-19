@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.ui.blue_record.filter;
+package org.fenixedu.ulisboa.specifications.servlet.filters;
 
 import java.io.IOException;
 
@@ -11,15 +11,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.fenixedu.academic.predicate.AccessControl;
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
-import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
+import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 
-public class BlueRecordWebFilter implements Filter {
-
-    private static final BlueRecordRedirector r = new BlueRecordRedirector();
+public class ULisboaRedirectorWebFilter implements Filter {
 
     @Override
     public void destroy() {
@@ -48,15 +45,18 @@ public class BlueRecordWebFilter implements Filter {
         }
 
         final User user = Authenticate.getUser();
-        if (user != null && r.isToRedirect(user, httpServletRequest)
-                && !path.contains(r.redirectionPath(user, httpServletRequest))) {
-            String contextPath = httpServletRequest.getContextPath();
-            if(contextPath.endsWith("/")) {
-                httpServletResponse.sendRedirect(r.redirectionPath(user, httpServletRequest).substring(1));                
-            } else {
-                httpServletResponse.sendRedirect(contextPath + r.redirectionPath(user, httpServletRequest));
+
+        if (user != null) {
+            final String redirectionPath = ULisboaAuthenticationRedirector.getRedirectionPath(user, httpServletRequest);
+            if (StringUtils.isNotBlank(redirectionPath) && !path.contains(redirectionPath)) {
+                String contextPath = httpServletRequest.getContextPath();
+                if (contextPath.endsWith("/")) {
+                    httpServletResponse.sendRedirect(redirectionPath.substring(1));
+                } else {
+                    httpServletResponse.sendRedirect(contextPath + redirectionPath);
+                }
+                return;
             }
-            return;
         }
 
         chain.doFilter(request, response);
