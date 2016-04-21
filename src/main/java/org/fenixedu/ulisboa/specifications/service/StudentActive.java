@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.ulisboa.specifications.domain.student.ActiveStudentOverride;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -45,6 +46,12 @@ public class StudentActive {
         boolean activeRegistrationCreatedInTheLastMonth = false;
         boolean isFirstYearFirstTime = false;
 //        boolean isOtherKindOfCandidate = false;
+
+        // Handling the override list, more info about what his hack is can be read in the 
+        // comments of ActiveStudentOverride class
+        if (student != null && student.getPerson() != null && ActiveStudentOverride.isOverrideAvailablefor(student.getPerson())) {
+            return true;
+        }
 
         if (student != null) {
             ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();

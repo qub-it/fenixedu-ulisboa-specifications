@@ -2095,7 +2095,6 @@ relation AcademicEnrolmentPeriodStatuteType {
 //======================= = END AcademicEnrolmentPeriod = =========================
 
 
-
 // ====================== = CurriculumLineExtendedInformation = ========================
 
 class studentCurriculum.CurriculumLineExtendedInformation {
@@ -2144,4 +2143,22 @@ relation EnrolmentEvaluationEnrolmentEvaluationExtendedInformation {
     
     evaluation.EnrolmentEvaluationExtendedInformation playsRole extendedInformation;
 }
+
+// ========================= Student active override ==============================
+
+class student.ActiveStudentOverride {
+	IDDocumentType idDocumentType;
+	String idDocumentNumber;
+}
+
+relation ActiveStudentOverrideBennu {
+    public student.ActiveStudentOverride playsRole activeStudentOverrides {
+        multiplicity *;
+    }
+
+    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+// ========================= End Student active override ==============================
 
