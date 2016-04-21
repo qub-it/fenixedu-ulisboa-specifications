@@ -32,7 +32,7 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
         // Enrolment periods
 
         raidesRequestParameter.addPeriod(RaidesPeriodInputType.ENROLLED, ExecutionYear.readExecutionYearByName("2015/2016"),
-                DATETIME_FORMATTER.parseDateTime("01/01/2016").toLocalDate(),
+                DATETIME_FORMATTER.parseDateTime("01/04/2015").toLocalDate(),
                 DATETIME_FORMATTER.parseDateTime("31/03/2016").toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO,
                 false, 0, 0);
 
@@ -40,7 +40,7 @@ public class RaidesReportRequestDefaultData implements IRaidesReportRequestDefau
 
         // International Mobility
         raidesRequestParameter.addPeriod(RaidesPeriodInputType.INTERNATIONAL_MOBILITY,
-                ExecutionYear.readExecutionYearByName("2015/2016"), DATETIME_FORMATTER.parseDateTime("01/01/2016").toLocalDate(),
+                ExecutionYear.readExecutionYearByName("2015/2016"), DATETIME_FORMATTER.parseDateTime("01/09/2015").toLocalDate(),
                 DATETIME_FORMATTER.parseDateTime("31/03/2016").toLocalDate(), true, false, BigDecimal.ZERO, BigDecimal.ZERO,
                 false, 0, 0);
 
