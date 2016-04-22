@@ -190,6 +190,11 @@ ${portal.angularToolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message
+                                code="label.ServiceRequestType.serviceRequestOutputType" /></th>
+                        <td><spring:message code="${ serviceRequestType.serviceRequestOutputType.label.content }" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message
                                 code="label.ServiceRequestType.uLisboaServiceRequestProcessors" /></th>
                         <td>
                             <c:forEach var="processor" items="${ serviceRequestType.ULisboaServiceRequestProcessorsSet }" >

@@ -52,6 +52,7 @@ import org.fenixedu.qubdocs.base.providers.UserReportDataProvider;
 import org.fenixedu.qubdocs.domain.DocumentPrinterConfiguration;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.joda.time.DateTime;
 
@@ -82,8 +83,9 @@ public class DocumentPrinter {
                     serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
+        final ServiceRequestOutputType outputType = serviceRequest.getServiceRequestType().getServiceRequestOutputType();
         final FenixEduDocumentGenerator generator =
-                FenixEduDocumentGenerator.create(academicServiceRequestTemplate, FenixEduDocumentGenerator.PDF);
+                FenixEduDocumentGenerator.create(academicServiceRequestTemplate, outputType.getCode());
 
         if (serviceRequest.getDocumentSigner() == null) {
             resetDocumentSigner(serviceRequest);
@@ -163,7 +165,7 @@ public class DocumentPrinter {
 
         final byte[] report = generator.generateReport();
 
-        return new PrintedDocument(serviceRequest, report, "application/pdf", "pdf");
+        return new PrintedDocument(serviceRequest, report, outputType.getCode(), outputType.getExtension());
     }
 
     @Atomic

@@ -178,6 +178,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         final ServiceRequestType serviceRequestType = ServiceRequestType.create(bean.getCode(), bean.getName(), bean.isActive(),
                 bean.isPayable(), bean.isNotifyUponConclusion(), bean.isPrintable(), bean.isRequestedOnline(),
                 bean.getServiceRequestCategory());
+        serviceRequestType.setServiceRequestOutputType(bean.getDocumentGeneratedOutputType());
         for (ULisboaServiceRequestProcessor processor : bean.getProcessors()) {
             serviceRequestType.addULisboaServiceRequestProcessors(processor);
         }
@@ -365,6 +366,7 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
     public void updateServiceRequestType(ServiceRequestType serviceRequestType, ServiceRequestTypeBean bean) {
         serviceRequestType.edit(bean.getCode(), bean.getName(), bean.isActive(), bean.isPayable(), bean.isNotifyUponConclusion(),
                 bean.isPrintable(), bean.isRequestedOnline(), bean.getServiceRequestCategory(), bean.getNumberOfUnitsLabel());
+        serviceRequestType.setServiceRequestOutputType(bean.getDocumentGeneratedOutputType());
         //Update the ULisboa Service Request Validators
         for (ULisboaServiceRequestProcessor processor : serviceRequestType.getULisboaServiceRequestProcessorsSet()) {
             if (!bean.getProcessors().contains(processor)) {

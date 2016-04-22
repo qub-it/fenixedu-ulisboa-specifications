@@ -1094,6 +1094,36 @@ relation ULisboaServiceRequestProcessorServiceRequestType {
     }
 }
 
+
+//======================= = ServiceRequestMimeType = =========================
+class serviceRequests.ServiceRequestOutputType {
+  String code;
+  LocalizedString label;
+  String extension;
+}
+
+relation ServiceRequestOutputTypeBennu {
+  protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+      multiplicity 1..1;
+  }
+
+  public serviceRequests.ServiceRequestOutputType playsRole serviceRequestOutputTypes {
+      multiplicity *;
+  }
+}
+
+relation ServiceRequestOutputTypeServiceRequestType {    
+    public .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType playsRole serviceRequestTypes {
+        multiplicity *;
+    }
+
+    public serviceRequests.ServiceRequestOutputType playsRole serviceRequestOutputType {
+        multiplicity 0..1;
+    }
+}
+
+
+
 //======================= = Service Request Slot= =========================
 class serviceRequests.ServiceRequestSlot {
     String code;

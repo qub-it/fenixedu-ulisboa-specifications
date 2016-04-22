@@ -9,7 +9,9 @@ import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 
@@ -28,6 +30,8 @@ public class ServiceRequestTypeBean implements IBean {
     private List<ULisboaServiceRequestProcessor> processors;
     private List<TupleDataSourceBean> processorsDataSource;
     private LocalizedString numberOfUnitsLabel;
+    private ServiceRequestOutputType documentGeneratedOutputType;
+    private List<TupleDataSourceBean> documentGeneratedOutputTypeDataSource;
 
     public String getCode() {
         return code;
@@ -148,10 +152,33 @@ public class ServiceRequestTypeBean implements IBean {
         this.numberOfUnitsLabel = numberOfUnitsLabel;
     }
 
+    public ServiceRequestOutputType getDocumentGeneratedOutputType() {
+        return documentGeneratedOutputType;
+    }
+
+    public void setDocumentGeneratedOutputType(ServiceRequestOutputType documentGeneratedOutputType) {
+        this.documentGeneratedOutputType = documentGeneratedOutputType;
+    }
+
+    public List<TupleDataSourceBean> getDocumentGeneratedOutputTypeDataSource() {
+        return documentGeneratedOutputTypeDataSource;
+    }
+
+    public void setDocumentGeneratedOutputTypeDataSource(List<ServiceRequestOutputType> documentGeneratedOutputTypes) {
+        this.documentGeneratedOutputTypeDataSource = documentGeneratedOutputTypes.stream().map(mimeT -> {
+            TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
+            tupleDataSourceBean.setId(mimeT.getExternalId());
+            tupleDataSourceBean.setText(mimeT.getLabel().getContent());
+            return tupleDataSourceBean;
+        }).collect(Collectors.toList());
+    }
+
     public ServiceRequestTypeBean() {
         setServiceRequestCategoryDataSource(Arrays.asList(ServiceRequestCategory.values()));
         setServiceRequestSlotsDataSource(ServiceRequestSlot.findAll().collect(Collectors.toList()));
         setProcessorsDataSource(ULisboaServiceRequestProcessor.findAll().collect(Collectors.toList()));
+        setDocumentGeneratedOutputTypeDataSource(
+                Bennu.getInstance().getServiceRequestOutputTypesSet().stream().collect(Collectors.toList()));
         processors = new ArrayList<ULisboaServiceRequestProcessor>();
     }
 
@@ -167,5 +194,6 @@ public class ServiceRequestTypeBean implements IBean {
         setServiceRequestCategory(serviceRequestType.getServiceRequestCategory());
         setProcessors(serviceRequestType.getULisboaServiceRequestProcessorsSet().stream().collect(Collectors.toList()));
         setNumberOfUnitsLabel(serviceRequestType.getNumberOfUnitsLabel());
+        setDocumentGeneratedOutputType(serviceRequestType.getServiceRequestOutputType());
     }
 }

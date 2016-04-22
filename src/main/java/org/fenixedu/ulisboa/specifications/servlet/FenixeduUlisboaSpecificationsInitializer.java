@@ -69,6 +69,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluation
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
@@ -142,6 +143,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
 
         ServiceRequestSlot.initStaticSlots();
+        ServiceRequestOutputType.initOutputTypes();
         ULisboaServiceRequestProcessor.initValidators();
 
         CourseGradingTable.registerProvider();
@@ -153,13 +155,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         RegistrationObservations.setupDeleteListener();
 
         CurriculumLineExtendedInformation.setupDeleteListener();
-        
+
         EnrolmentEvaluationExtendedInformation.setupDeleteListener();
-        
+
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
-
 
     }
 
