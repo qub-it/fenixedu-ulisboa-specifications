@@ -210,6 +210,8 @@ class PersonUlisboaSpecifications {
     String oldInformation;
     boolean disabilitiesFormAnswered;
     boolean motivationsExpectationsFormAnswered;
+    String personnelNumber;
+
 }
 
 relation PersonUlPerson {
@@ -2100,6 +2102,9 @@ relation AcademicEnrolmentPeriodStatuteType {
 class studentCurriculum.CurriculumLineExtendedInformation {
 	String remarks;
 	Integer curricularYear;
+	Boolean excludedFromAverage;
+	BigDecimal ectsCredits;
+	BigDecimal weight;
 }
 
 relation BennuCurriculumLineExtendedInformation {
