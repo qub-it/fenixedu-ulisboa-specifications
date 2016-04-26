@@ -131,7 +131,7 @@ public class ULisboaConstants {
 
     public static final List<ICurriculumEntry> getLastPlanStandaloneApprovements(Registration registration) {
         return registration.getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet().stream()
-                .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
+                .filter(e -> e.isApproved()).map(ICurriculumEntry.class::cast).collect(Collectors.toList());
     }
 
     public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(Registration registration) {

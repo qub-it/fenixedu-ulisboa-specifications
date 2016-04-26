@@ -47,12 +47,12 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsDataPr
 import org.fenixedu.qubdocs.academic.documentRequests.providers.LocalizedDatesProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.RegistrationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ServiceRequestDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.StandaloneCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.base.providers.PersonReportDataProvider;
 import org.fenixedu.qubdocs.base.providers.UserReportDataProvider;
 import org.fenixedu.qubdocs.domain.DocumentPrinterConfiguration;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.joda.time.DateTime;
 
@@ -83,9 +83,8 @@ public class DocumentPrinter {
                     serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
-        final ServiceRequestOutputType outputType = serviceRequest.getServiceRequestType().getServiceRequestOutputType();
         final FenixEduDocumentGenerator generator =
-                FenixEduDocumentGenerator.create(academicServiceRequestTemplate, outputType.getCode());
+                FenixEduDocumentGenerator.create(academicServiceRequestTemplate, FenixEduDocumentGenerator.PDF);
 
         if (serviceRequest.getDocumentSigner() == null) {
             resetDocumentSigner(serviceRequest);
@@ -111,6 +110,9 @@ public class DocumentPrinter {
         generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration,
                 serviceRequest.getApprovedEnrolments(), serviceRequest.getLanguage()));
 
+        generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration,
+                serviceRequest.getApprovedStandaloneCurriculum(), serviceRequest.getLanguage()));
+
         generator.registerDataProvider(new ConcludedCurriculumEntriesDataProvider(registration, serviceRequest.getCurriculum(),
                 serviceRequest.getLanguage()));
 
@@ -135,15 +137,6 @@ public class DocumentPrinter {
 //                    .getEnrolmentsSet(), documentRequest.getLanguage(), new CurriculumEntryRemarksDataProvider(registration)));
 //        }
 
-//        if (documentRequest instanceof StandaloneEnrolmentCertificateRequest) {
-//            final StandaloneEnrolmentCertificateRequest standaloneEnrolmentCertificateRequest =
-//                    (StandaloneEnrolmentCertificateRequest) documentRequest;
-//
-//            generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration,
-//                    standaloneEnrolmentCertificateRequest.getEnrolmentsSet(),
-//                    new CurriculumEntryRemarksDataProvider(registration), documentRequest.getLanguage(), new LocalDate()));
-//        }
-
 //        if (documentRequest instanceof ApprovementMobilityCertificateRequest) {
 //            final ApprovementMobilityCertificateRequest approvementRequest =
 //                    (ApprovementMobilityCertificateRequest) documentRequest;
@@ -165,7 +158,7 @@ public class DocumentPrinter {
 
         final byte[] report = generator.generateReport();
 
-        return new PrintedDocument(serviceRequest, report, outputType.getCode(), outputType.getExtension());
+        return new PrintedDocument(serviceRequest, report, "application/pdf", "pdf");
     }
 
     @Atomic

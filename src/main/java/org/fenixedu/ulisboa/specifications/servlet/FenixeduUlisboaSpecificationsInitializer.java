@@ -78,6 +78,8 @@ import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVeri
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
+import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
+import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
@@ -145,6 +147,14 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ServiceRequestSlot.initStaticSlots();
         ServiceRequestOutputType.initOutputTypes();
         ULisboaServiceRequestProcessor.initValidators();
+
+        try {
+            new UpdateServiceRequestType().runTask();
+            new FixBugProcessorTypeTask().runTask();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         CourseGradingTable.registerProvider();
         DegreeGradingTable.registerProvider();
