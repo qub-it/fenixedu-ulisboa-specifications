@@ -37,8 +37,8 @@ public class AutoCompletesController {
     public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
         assureLoggedInUser();
         Function<Unit, UnitBean> createUnitBean = un -> new UnitBean(un.getExternalId(), un.getName());
-        return UnitName.findExternalUnit(namePart, 50).stream().map(i -> i.getUnit()).map(createUnitBean)
-                .collect(Collectors.toList());
+        return UnitName.findExternalUnit(namePart, 50).stream().filter(i -> i.getUnit().isNoOfficialExternal())
+                .map(i -> i.getUnit()).map(createUnitBean).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/externalUnitFreeOption", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
