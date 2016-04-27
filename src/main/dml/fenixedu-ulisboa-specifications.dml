@@ -2184,6 +2184,7 @@ relation EnrolmentEvaluationEnrolmentEvaluationExtendedInformation {
 class student.ActiveStudentOverride {
 	IDDocumentType idDocumentType;
 	String idDocumentNumber;
+	String oldStudentNumber;
 }
 
 relation ActiveStudentOverrideBennu {

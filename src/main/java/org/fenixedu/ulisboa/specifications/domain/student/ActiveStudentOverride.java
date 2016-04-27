@@ -23,7 +23,7 @@ public class ActiveStudentOverride extends ActiveStudentOverride_Base {
         super.deleteDomainObject();
     }
 
-    public static boolean isOverrideAvailablefor(Person person) {
+    public static ActiveStudentOverride getOverrideFor(Person person) {
         return Bennu
                 .getInstance()
                 .getActiveStudentOverridesSet()
@@ -31,7 +31,11 @@ public class ActiveStudentOverride extends ActiveStudentOverride_Base {
                 .filter(override -> override.getIdDocumentNumber() != null
                         && override.getIdDocumentNumber().equals(person.getDocumentIdNumber())
                         && override.getIdDocumentType() != null
-                        && override.getIdDocumentType().equals(person.getIdDocumentType())).findAny().isPresent();
+                        && override.getIdDocumentType().equals(person.getIdDocumentType())).findAny().orElse(null);
+    }
+
+    public static boolean isOverrideAvailablefor(Person person) {
+        return getOverrideFor(person) != null;
     }
 
     @Atomic
