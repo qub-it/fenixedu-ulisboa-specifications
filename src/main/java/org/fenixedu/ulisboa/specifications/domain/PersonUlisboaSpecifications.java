@@ -26,9 +26,13 @@
  */
 package org.fenixedu.ulisboa.specifications.domain;
 
-import org.fenixedu.academic.domain.Person;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Strings;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
 
@@ -46,18 +50,17 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
             return new PersonUlisboaSpecifications(person);
         }
     }
-    
+
     public void delete() {
         setPerson(null);
-        
-        
+
         setDisabilityType(null);
         setDislocatedResidenceType(null);
         setFirstOptionInstitution(null);
         setHouseholdSalarySpan(null);
         setProfessionTimeType(null);
         setSecondNationality(null);
-        
+
         deleteDomainObject();
     }
 
@@ -65,5 +68,29 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
     private boolean checkHasPerson() {
         return getPerson() != null;
     }
-    
+
+    @Override
+    public void setPersonnelNumber(String personnelNumber) {
+
+        if (personnelNumber != null) {
+            
+            final boolean existingNumber = Bennu.getInstance().getPartysSet().stream()
+
+                    .filter(p -> p.isPerson() && p != getPerson())
+
+                    .map(Person.class::cast)
+
+                    .anyMatch(p -> p.getPersonUlisboaSpecifications() != null
+                            && Objects.equals(p.getPersonUlisboaSpecifications().getPersonnelNumber(), personnelNumber));
+
+            if (existingNumber) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.PersonUlisboaSpecifications.personnelNumber.already.exists");
+            }
+            
+        }
+
+        super.setPersonnelNumber(personnelNumber);
+    }
+
 }
