@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -31,10 +30,18 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
     @Override
     public void process(ULisboaServiceRequest request) {
         if (!request.hasApprovedStandaloneCurriculum()) {
+            if (request.getRegistration() == null) {
+                return;
+            }
+            if (request.getRegistration().getLastStudentCurricularPlan() == null) {
+                return;
+            }
+            if (request.getRegistration().getLastStudentCurricularPlan().getStandaloneCurriculumGroup() == null) {
+                return;
+            }
             List<ICurriculumEntry> enrolments = ULisboaConstants.getLastPlanStandaloneApprovements(request.getRegistration());
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM),
-                            enrolments);
+            ServiceRequestProperty property = ServiceRequestProperty
+                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM), enrolments);
             request.addServiceRequestProperties(property);
         }
     }
