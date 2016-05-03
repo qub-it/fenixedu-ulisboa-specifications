@@ -455,7 +455,7 @@ abstract public class EvaluationSeasonServices {
             return EnrolmentEvaluationType.SPECIAL_AUTHORIZATION;
         }
 
-        throw new ULisboaSpecificationsDomainException("");
+        throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.missing.type");
     }
 
     static private Integer getEnrolmentEvaluationTypePrecedence(final EvaluationSeason input) {
