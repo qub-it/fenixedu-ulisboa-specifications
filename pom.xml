@@ -139,7 +139,12 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
             <artifactId>fenixedu-commons</artifactId>

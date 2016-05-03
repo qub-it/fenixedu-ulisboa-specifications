@@ -75,7 +75,8 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurricularYearCalculatorInitializer;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorListeners;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
@@ -113,7 +114,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
         EnrolmentPeriodRestrictionsInitializer.init();
-        CurricularYearCalculatorInitializer.init();
+        CurriculumConfigurationInitializer.init();
+        CurriculumAggregatorListeners.register();
         CurricularPeriodConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
         RegistrationRegimeVerifierInitializer.init();

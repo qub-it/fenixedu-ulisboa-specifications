@@ -1,3 +1,28 @@
+/**
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * software development project between Quorum Born IT and Serviços Partilhados da
+ * Universidade de Lisboa:
+ *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *
+ *
+ * 
+ * This file is part of FenixEdu fenixedu-ulisboa-specifications.
+ *
+ * FenixEdu Specifications is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FenixEdu Specifications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
 import java.text.DecimalFormat;
@@ -34,6 +59,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule.Conclusio
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer;
+import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -41,6 +67,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServi
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -228,7 +255,13 @@ public class StudentCurricularPlanLayout extends Layout {
         } else {
             body = new HtmlText(createGroupName(text, curriculumGroup).toString(), false);
         }
-        cell.setBody(body);
+
+        // qubExtension, Aggregation Info
+        final HtmlInlineContainer container = new HtmlInlineContainer();
+        container.addChild(body);
+        container.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(curriculumGroup),
+                curriculumGroup.getStudentCurricularPlan(), (ExecutionSemester) null));
+        cell.setBody(container);
 
         if (!addHeaders) {
             cell.setColspan(MAX_LINE_SIZE - level);// - 2);
@@ -491,7 +524,9 @@ public class StudentCurricularPlanLayout extends Layout {
 
             container.addChild(new HtmlText(": "));
             container.addChild(executionCourseLink);
-
+            // qubExtension, Aggregation Info
+            container.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(dismissal),
+                    dismissal.getStudentCurricularPlan(), dismissal.getExecutionPeriod()));
         }
 
         // } else {
@@ -991,6 +1026,9 @@ public class StudentCurricularPlanLayout extends Layout {
         final HtmlComponent executionCourseLink = createExecutionCourseLink(getPresentationNameFor(enrolment), executionCourse);
 
         inlineContainer.addChild(executionCourseLink);
+        // qubExtension, Aggregation Info
+        inlineContainer.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(enrolment),
+                enrolment.getStudentCurricularPlan(), enrolment.getExecutionPeriod()));
 
         final HtmlTableCell cell = enrolmentRow.createCell();
         cell.setClasses(renderer.getLabelCellClass());

@@ -38,6 +38,9 @@ enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFi
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType as RaidesPeriodInputType;
 enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFirstCycleGraduatedReportOption as IntegratedMasterFirstCycleGraduatedReportOption;
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
+enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationEnrolmentType as AggregationEnrolmentType;
+enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationMemberEvaluationType as AggregationMemberEvaluationType;
+
 
 
 valueType org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData as GradingTableData {
@@ -67,6 +70,7 @@ external class .org.fenixedu.academic.domain.Person;
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
 external class .org.fenixedu.academic.domain.degree.DegreeType;
+external class .org.fenixedu.academic.domain.degreeStructure.Context;
 external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
@@ -1494,6 +1498,70 @@ relation CurriculumLineServiceRequestProperty {
  */
 
 //======================= = END all classes related to ULisboa Service Request = =========================
+
+
+// ==================== BEGIN: Curriculum Aggregator ====================
+
+    class studentCurriculum.CurriculumAggregator {
+    	AggregationMemberEvaluationType evaluationType;
+    	AggregationEnrolmentType enrolmentType;
+    }
+    
+	    relation CurriculumAggregatorContext {
+		    studentCurriculum.CurriculumAggregator playsRole curriculumAggregator {
+		        multiplicity 0..1;
+		    }
+		
+		    .org.fenixedu.academic.domain.degreeStructure.Context playsRole context {
+		        multiplicity 1;
+		    }
+		}
+
+	    relation CurriculumAggregatorEvaluationSeason {
+		    protected studentCurriculum.CurriculumAggregator playsRole curriculumAggregator {
+		        multiplicity 0..*;
+		    }
+		
+		    .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
+		        multiplicity 0..1;
+		    }
+		}
+
+		relation CurriculumAggregatorRoot {
+			ULisboaSpecificationsRoot playsRole root {
+				multiplicity 1..1;
+			}
+			studentCurriculum.CurriculumAggregator playsRole curriculumAggregator {
+				multiplicity 0..*;
+			}
+		}
+
+    class studentCurriculum.CurriculumAggregatorEntry {
+    	AggregationMemberEvaluationType evaluationType;
+    	BigDecimal weighing;
+    }
+    
+	    relation CurriculumAggregatorEntryContext {
+		    studentCurriculum.CurriculumAggregatorEntry playsRole curriculumAggregatorEntry {
+		        multiplicity 0..1;
+		    }
+		
+		    .org.fenixedu.academic.domain.degreeStructure.Context playsRole context {
+		        multiplicity 1;
+		    }
+		}
+
+	    relation CurriculumAggregatorEntries {
+		    studentCurriculum.CurriculumAggregator playsRole aggregator {
+		        multiplicity 1;
+		    }
+		
+		    studentCurriculum.CurriculumAggregatorEntry playsRole entries {
+		        multiplicity 0..*;
+		    }
+		}
+
+// ==================== END: Curriculum Aggregator ====================
 
 
 // ======================= Registration Observations =========================

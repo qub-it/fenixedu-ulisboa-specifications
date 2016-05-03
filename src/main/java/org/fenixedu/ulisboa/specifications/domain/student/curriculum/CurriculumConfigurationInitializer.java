@@ -33,12 +33,15 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurricularYearCalculator;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumEntryPredicate;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
@@ -47,27 +50,28 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract public class CurricularYearCalculatorInitializer {
+abstract public class CurriculumConfigurationInitializer {
 
-    static private final Logger logger = LoggerFactory.getLogger(CurricularYearCalculatorInitializer.class);
+    static private final Logger logger = LoggerFactory.getLogger(CurriculumConfigurationInitializer.class);
 
     static public void init() {
 
         if (ULisboaConfiguration.getConfiguration().getCurricularYearCalculatorOverride()) {
-
             Curriculum.setCurricularYearCalculator(CURRICULAR_YEAR_CALCULATOR);
-            logger.info("Overriding default");
-
+            logger.info("CurricularYearCalculator: Overriding default");
         } else {
-
-            logger.info("Using default");
+            logger.info("CurricularYearCalculator: Using default");
         }
+
+        Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
+        logger.info("CurriculumEntryPredicate: Overriding default");
     }
 
-    private static Supplier<CurricularYearCalculator> CURRICULAR_YEAR_CALCULATOR = () -> new CurricularYearCalculator() {
+    static private Supplier<CurricularYearCalculator> CURRICULAR_YEAR_CALCULATOR = () -> new CurricularYearCalculator() {
 
         private BigDecimal approvedCredits;
 
@@ -143,9 +147,8 @@ abstract public class CurricularYearCalculatorInitializer {
             if (curriculum.getStudentCurricularPlan().getCycleCurriculumGroups().isEmpty()) {
                 return;
             }
-            CycleCurriculumGroup sgroup =
-                    Collections.min(curriculum.getStudentCurricularPlan().getCycleCurriculumGroups(),
-                            CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID);
+            CycleCurriculumGroup sgroup = Collections.min(curriculum.getStudentCurricularPlan().getCycleCurriculumGroups(),
+                    CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID);
             CycleType cycleIter = sgroup.getCycleType().getPrevious();
             while (cycleIter != null) {
                 if (curriculum.getStudentCurricularPlan().getDegreeCurricularPlan().getCycleCourseGroup(cycleIter) != null) {
@@ -177,8 +180,8 @@ abstract public class CurricularYearCalculatorInitializer {
                         curricularPeriod == null ? null : curricularPeriod.getConfiguration();
 
                 if (configuration == null) {
-                    throw new DomainException("curricularRules.ruleExecutors.logic.unavailable", BundleUtil.getString(
-                            Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
+                    throw new DomainException("curricularRules.ruleExecutors.logic.unavailable",
+                            BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
                 }
 
                 final RuleResult ruleResult = configuration.verifyRulesForTransition(curriculum);
@@ -192,6 +195,23 @@ abstract public class CurricularYearCalculatorInitializer {
             return result;
         }
 
+    };
+
+    static private Supplier<CurriculumEntryPredicate> CURRICULUM_ENTRY_PREDICATE = () -> new CurriculumEntryPredicate() {
+
+        @Override
+        public boolean test(final ICurriculumEntry input) {
+
+            if (input instanceof CurriculumLine) {
+                final CurriculumLine line = (CurriculumLine) input;
+                final Context context = CurriculumAggregatorServices.getContext(line);
+                if (context != null && context.getCurriculumAggregatorEntry() != null) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     };
 
 }
