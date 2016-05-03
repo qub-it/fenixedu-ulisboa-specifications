@@ -477,7 +477,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 }
 
                 for (final Attends attends : executionCourse.getAttendsSet()) {
-                    result.add(attends.getEnrolment());
+                    final Enrolment enrolment = attends.getEnrolment();
+                    if (enrolment != null) {
+                        result.add(enrolment);
+                    }
                 }
             }
         }
