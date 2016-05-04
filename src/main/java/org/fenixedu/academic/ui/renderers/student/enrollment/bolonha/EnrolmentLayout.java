@@ -148,7 +148,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             final HtmlTableCell aggregationCell = htmlTableRow.createCell();
             aggregationCell.setClasses(" center ");
             aggregationCell.setBody(generateAggregationInfo(degreeModuleToEvaluate.getContext(),
-                    degreeModuleToEvaluate.getCurriculumGroup().getStudentCurricularPlan(), executionSemester));
+                    getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), executionSemester));
 
             // Year
             final HtmlTableCell yearCell = htmlTableRow.createCell();
@@ -301,7 +301,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         final HtmlTableCell aggregationCell = htmlTableRow.createCell();
         aggregationCell.setClasses(" center se_enrolled ");
         aggregationCell.setBody(generateAggregationInfo(CurriculumAggregatorServices.getContext(enrolment),
-                enrolment.getStudentCurricularPlan(), enrolment.getExecutionPeriod()));
+                getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), enrolment.getExecutionPeriod()));
 
         // qubExtension, Year and Semester
         final HtmlTableCell yearAndSemesterCell = htmlTableRow.createCell();
