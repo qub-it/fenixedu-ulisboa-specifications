@@ -6,7 +6,6 @@
  *  - Copyright Â© 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright Â© 2015 Universidade de Lisboa (after any Go-Live phase)
  *
- * Contributors: xpto@qub-it.com
  *
  * 
  * This file is part of FenixEdu Academic.
@@ -24,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.marksheet;
+package org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -44,6 +43,8 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
 import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.MarkSheetStatusReportService;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CurricularCourseSeasonReport;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;

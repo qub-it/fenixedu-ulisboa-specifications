@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.marksheet;
+package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +18,8 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.MarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CurricularCourseSeasonReport;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.ExecutionCourseSeasonReport;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.ArrayListMultimap;
