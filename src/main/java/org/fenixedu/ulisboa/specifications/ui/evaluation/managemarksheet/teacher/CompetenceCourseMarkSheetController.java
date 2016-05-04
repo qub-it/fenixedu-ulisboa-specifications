@@ -55,7 +55,6 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
-import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.ExecutionCourseSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -155,9 +154,15 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
 
-        //Add status report information
-        final MarkSheetStatusReportService service = new MarkSheetStatusReportService();
-        for (ExecutionCourseSeasonReport report : service.generateExecutionCourseReport(executionCourse)) {
+        addInfoMessage(generateExecutionCourseReport(executionCourse), model);
+
+        return jspPage("search");
+    }
+
+    private String generateExecutionCourseReport(final ExecutionCourse executionCourse) {
+
+        return new MarkSheetStatusReportService().generateExecutionCourseReport(executionCourse).stream().map(report -> {
+
             boolean withDate = report.getEvaluationDate() != null;
             String season = report.getSeason().getName().getContent();
             String totalStudents = String.valueOf(report.getTotalStudents());
@@ -165,7 +170,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             String evaluatedStudents = String.valueOf(report.getEvaluatedStudents());
             String evaluationDate = withDate ? report.getEvaluationDate().toString("yyyy-MM-dd") : "";
 
-            String message;
+            final String message;
             if (withDate) {
                 message = BundleUtil.getString(ULisboaConstants.BUNDLE,
                         "message.MarksheetReportEntry.reportEntry.description.with.evaluationDate", season, evaluationDate,
@@ -174,10 +179,10 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
                 message = BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description",
                         season, totalStudents, evaluatedStudents, notEvaluatedStudents);
             }
-            addInfoMessage(message, model);
-        }
 
-        return jspPage("search");
+            return message;
+
+        }).collect(Collectors.joining("/n"));
     }
 
     private static final String _SEARCHPOSTBACK_URI = "/searchpostback/";
