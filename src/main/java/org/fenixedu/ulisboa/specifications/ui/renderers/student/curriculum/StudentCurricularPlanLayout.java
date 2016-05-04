@@ -260,7 +260,7 @@ public class StudentCurricularPlanLayout extends Layout {
         final HtmlInlineContainer container = new HtmlInlineContainer();
         container.addChild(body);
         container.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(curriculumGroup),
-                curriculumGroup.getStudentCurricularPlan(), (ExecutionSemester) null));
+                this.studentCurricularPlan, (ExecutionSemester) null));
         cell.setBody(container);
 
         if (!addHeaders) {
@@ -526,7 +526,7 @@ public class StudentCurricularPlanLayout extends Layout {
             container.addChild(executionCourseLink);
             // qubExtension, Aggregation Info
             container.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(dismissal),
-                    dismissal.getStudentCurricularPlan(), dismissal.getExecutionPeriod()));
+                    this.studentCurricularPlan, dismissal.getExecutionPeriod()));
         }
 
         // } else {
@@ -1028,7 +1028,7 @@ public class StudentCurricularPlanLayout extends Layout {
         inlineContainer.addChild(executionCourseLink);
         // qubExtension, Aggregation Info
         inlineContainer.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(enrolment),
-                enrolment.getStudentCurricularPlan(), enrolment.getExecutionPeriod()));
+                this.studentCurricularPlan, enrolment.getExecutionPeriod()));
 
         final HtmlTableCell cell = enrolmentRow.createCell();
         cell.setClasses(renderer.getLabelCellClass());
