@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -121,16 +122,14 @@ public class MarkSheetStatusReportService {
             }
         }
 
-        //TODOJN: Egidio: passar para 0 novamente
-        int evaluatedStudents = 5;
+        int evaluatedStudents = 0;
         for (final Enrolment enrolment : enrolmentsToProcess) {
 
-            //TODOJN: Egidio -> metodo para ir buscar o getActiveEvaluationBySeason não existe
-//            final EnrolmentEvaluation activeEvaluation = EvaluationSeasonServices.getActiveEvaluationBySeason(enrolment, season,
-//                    evaluationDate, executionSemester, false);
-//            if (activeEvaluation != null && activeEvaluation.getMarkSheet() != null) {
-//                evaluatedStudents++;
-//            }
+            final Optional<EnrolmentEvaluation> activeEvaluation =
+                    enrolment.getEnrolmentEvaluation(season, executionSemester, false);
+            if (activeEvaluation.isPresent() && activeEvaluation.get().getCompetenceCourseMarkSheet() != null) {
+                evaluatedStudents++;
+            }
         }
 
         result.setEvaluatedStudents(evaluatedStudents);
