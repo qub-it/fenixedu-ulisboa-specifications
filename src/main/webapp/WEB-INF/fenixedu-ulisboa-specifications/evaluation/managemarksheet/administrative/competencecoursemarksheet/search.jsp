@@ -122,6 +122,12 @@ ${portal.angularToolkit()}
 				}
 				
 				$scope.search  = function() {
+				    $('#searchForm').attr('action', '${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_URL%>')
+					$('#searchForm').submit();
+				}
+
+				$scope.report  = function() {
+				    $('#searchForm').attr('action', '${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.REPORT_URL%>')
 					$('#searchForm').submit();
 				}
 
@@ -213,7 +219,10 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				</div>
 			</div>
 			<div class="panel-footer">
-				<button type="button" class="btn btn-primary" role="button" ng-click="search()"><spring:message code="label.search" /></button> 
+				<button type="button" class="btn btn-primary" ng-click="search()"><spring:message code="label.search" /></button> 
+				<button type="button" class="btn btn-primary" ng-click="report()">
+					<spring:message code="label.MarkSheetStatusReport.create" />
+				</button>
 			</div>
 	</div>
 	

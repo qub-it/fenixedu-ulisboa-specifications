@@ -26,6 +26,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,22 +36,31 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.commons.spreadsheet.SheetData;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
+import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CurricularCourseSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -61,6 +72,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Joiner;
 
 @Component("org.fenixedu.ulisboa.specifications.evaluation.manageMarkSheet.administrative")
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
@@ -547,6 +560,62 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
             return jspPage("searchchangerequests");
         }
+    }
+
+    private static final String _REPORT_URI = "/report/";
+    public static final String REPORT_URL = CONTROLLER_URL + _REPORT_URI;
+
+    @RequestMapping(value = _REPORT_URI, method = RequestMethod.POST)
+    public void report(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
+            final Model model, final HttpServletResponse response) {
+
+        setCompetenceCourseMarkSheetBean(bean, model);
+
+        final MarkSheetStatusReportService service = new MarkSheetStatusReportService();
+        final List<CurricularCourseSeasonReport> entries = service.generateCurricularCourseReport(bean.getExecutionSemester());
+
+        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CurricularCourseSeasonReport>(entries) {
+            @Override
+            protected void makeLine(CurricularCourseSeasonReport entry) {
+                addCell(reportLabelFor("period"), entry.getExecutionSemester().getQualifiedName());
+                addCell(reportLabelFor("season"), entry.getSeason().getName().getContent());
+                addCell(reportLabelFor("evaluationDate"), entry.getEvaluationDate());
+                addCell(reportLabelFor("curricularCourseCode"), entry.getCurricularCourse().getCode());
+                addCell(reportLabelFor("curricularCourseName"), entry.getCurricularCourse().getName());
+                addCell(reportLabelFor("degreeCode"), entry.getCurricularCourse().getDegree().getCode());
+                addCell(reportLabelFor("degreeName"), entry.getCurricularCourse().getDegree().getNameI18N().getContent());
+                addCell(reportLabelFor("degreeType"), entry.getCurricularCourse().getDegreeType().getName().getContent());
+                addCell(reportLabelFor("degreeCurricularPlan"), entry.getCurricularCourse().getDegreeCurricularPlan().getName());
+                addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
+                addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());
+                addCell(reportLabelFor("marksheetsToConfirm"), entry.getMarksheetsToConfirm());
+                addCell(reportLabelFor("responsibleName"), Joiner.on(';').join(entry.getResponsibleNames()));
+                addCell(reportLabelFor("responsibleContact"), Joiner.on(';').join(entry.getResponsibleEmails()));
+            }
+        });
+
+        BufferedOutputStream bufferedOutputStream = null;
+        try {
+            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+
+            builder.build(WorkbookExportFormat.EXCEL, bufferedOutputStream);
+
+            writeFile(response, "MarksheetStatusReport_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls",
+                    "application/octet-stream", byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (bufferedOutputStream != null) {
+                IOUtils.closeQuietly(bufferedOutputStream);
+            }
+        }
+        return;
+    }
+
+    private String reportLabelFor(final String field) {
+        return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field);
     }
 
 }
