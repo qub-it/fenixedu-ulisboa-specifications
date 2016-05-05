@@ -41,10 +41,10 @@ public class ExecutionCourseSeasonReport extends AbstractSeasonReport {
 
     private ExecutionCourse executionCourse;
 
-    private List<CurricularCourseSeasonReport> entries = new ArrayList<CurricularCourseSeasonReport>();
+    private List<CompetenceCourseSeasonReport> entries = new ArrayList<CompetenceCourseSeasonReport>();
 
     public ExecutionCourseSeasonReport(final ExecutionCourse executionCourse, final EvaluationSeason season,
-            final LocalDate evaluationDate, final Collection<CurricularCourseSeasonReport> entries) {
+            final LocalDate evaluationDate, final Collection<CompetenceCourseSeasonReport> entries) {
         super(season, evaluationDate);
         this.executionCourse = executionCourse;
         this.entries.addAll(entries);
@@ -67,7 +67,7 @@ public class ExecutionCourseSeasonReport extends AbstractSeasonReport {
     public Integer getNotEvaluatedStudents() {
         int result = 0;
 
-        for (final CurricularCourseSeasonReport entry : this.entries) {
+        for (final CompetenceCourseSeasonReport entry : this.entries) {
             result += entry.getNotEvaluatedStudents().intValue();
         }
 
@@ -78,7 +78,7 @@ public class ExecutionCourseSeasonReport extends AbstractSeasonReport {
     public Integer getEvaluatedStudents() {
         int result = 0;
 
-        for (final CurricularCourseSeasonReport entry : this.entries) {
+        for (final CompetenceCourseSeasonReport entry : this.entries) {
             result += entry.getEvaluatedStudents().intValue();
         }
 
@@ -89,7 +89,7 @@ public class ExecutionCourseSeasonReport extends AbstractSeasonReport {
     public Integer getMarksheetsToConfirm() {
         int result = 0;
 
-        for (final CurricularCourseSeasonReport entry : this.entries) {
+        for (final CompetenceCourseSeasonReport entry : this.entries) {
             result += entry.getMarksheetsToConfirm().intValue();
         }
 

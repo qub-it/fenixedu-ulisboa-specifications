@@ -28,7 +28,7 @@ package org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -36,9 +36,9 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.joda.time.LocalDate;
 
-public class CurricularCourseSeasonReport extends AbstractSeasonReport {
+public class CompetenceCourseSeasonReport extends AbstractSeasonReport {
 
-    private CurricularCourse curricularCourse;
+    private CompetenceCourse competenceCourse;
 
     private ExecutionSemester executionSemester;
 
@@ -48,22 +48,22 @@ public class CurricularCourseSeasonReport extends AbstractSeasonReport {
 
     private Integer marksheetsToConfirm = 0;
 
-    public CurricularCourseSeasonReport(final CurricularCourse curricularCourse, final EvaluationSeason season,
+    public CompetenceCourseSeasonReport(final CompetenceCourse competenceCourse, final EvaluationSeason season,
             final ExecutionSemester executionSemester, final LocalDate evaluationDate) {
         super(season, evaluationDate);
-        this.curricularCourse = curricularCourse;
+        this.competenceCourse = competenceCourse;
         this.executionSemester = executionSemester;
     }
 
-    public CurricularCourse getCurricularCourse() {
-        return curricularCourse;
+    public CompetenceCourse getCompetenceCourse() {
+        return competenceCourse;
     }
 
     @Override
     public Collection<Person> getResponsibles() {
         final Collection<Person> result = new HashSet<Person>();
 
-        for (final ExecutionCourse executionCourse : getCurricularCourse()
+        for (final ExecutionCourse executionCourse : getCompetenceCourse()
                 .getExecutionCoursesByExecutionPeriod(getExecutionSemester())) {
             for (final Professorship professorship : executionCourse.getProfessorshipsSet()) {
                 if (professorship.isResponsibleFor()) {

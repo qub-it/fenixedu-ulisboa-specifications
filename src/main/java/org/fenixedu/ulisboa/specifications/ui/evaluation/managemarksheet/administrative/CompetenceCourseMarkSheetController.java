@@ -51,11 +51,11 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
-import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CurricularCourseSeasonReport;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CompetenceCourseSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
+import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -572,21 +572,21 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheetBean(bean, model);
 
         final MarkSheetStatusReportService service = new MarkSheetStatusReportService();
-        final List<CurricularCourseSeasonReport> entries = service.generateCurricularCourseReport(bean.getExecutionSemester());
+        final List<CompetenceCourseSeasonReport> entries = service.generateCompetenceCourseReport(bean.getExecutionSemester());
 
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
-        builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CurricularCourseSeasonReport>(entries) {
+        builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CompetenceCourseSeasonReport>(entries) {
             @Override
-            protected void makeLine(CurricularCourseSeasonReport entry) {
+            protected void makeLine(CompetenceCourseSeasonReport entry) {
                 addCell(reportLabelFor("period"), entry.getExecutionSemester().getQualifiedName());
                 addCell(reportLabelFor("season"), entry.getSeason().getName().getContent());
-                addCell(reportLabelFor("evaluationDate"), entry.getEvaluationDate());
-                addCell(reportLabelFor("curricularCourseCode"), entry.getCurricularCourse().getCode());
-                addCell(reportLabelFor("curricularCourseName"), entry.getCurricularCourse().getName());
-                addCell(reportLabelFor("degreeCode"), entry.getCurricularCourse().getDegree().getCode());
-                addCell(reportLabelFor("degreeName"), entry.getCurricularCourse().getDegree().getNameI18N().getContent());
-                addCell(reportLabelFor("degreeType"), entry.getCurricularCourse().getDegreeType().getName().getContent());
-                addCell(reportLabelFor("degreeCurricularPlan"), entry.getCurricularCourse().getDegreeCurricularPlan().getName());
+                addCell(reportLabelFor("curricularCourseCode"), entry.getCompetenceCourse().getCode());
+                addCell(reportLabelFor("curricularCourseName"), entry.getCompetenceCourse().getName());
+//TODOJN
+//                addCell(reportLabelFor("degreeCode"), entry.getCompetenceCourse().getDegree().getCode());
+//                addCell(reportLabelFor("degreeName"), entry.getCompetenceCourse().getDegree().getNameI18N().getContent());
+//                addCell(reportLabelFor("degreeType"), entry.getCompetenceCourse().getDegreeType().getName().getContent());
+//                addCell(reportLabelFor("degreeCurricularPlan"), entry.getCompetenceCourse().getDegreeCurricularPlan().getName());
                 addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
                 addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());
                 addCell(reportLabelFor("marksheetsToConfirm"), entry.getMarksheetsToConfirm());
