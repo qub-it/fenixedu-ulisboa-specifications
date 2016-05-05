@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -133,10 +134,12 @@ abstract public class MarkSheetStatusReportService {
         final CompetenceCourseSeasonReport result = new CompetenceCourseSeasonReport(toProcess, season, semester, evaluationDate);
 
         // setNotEvaluatedStudents
-// TODOJN : -> Egidio getEnrolmentsForGradeSubmission não existe
-//      result.setNotEvaluatedStudents(EvaluationSeasonServices
-//              .getEnrolmentsForGradeSubmission(season, competenceCourse, evaluationDate, executionSemester).size());
-        result.setNotEvaluatedStudents(2);
+        final AtomicInteger notEvaluatedStudents = new AtomicInteger(0);
+        toProcess.getExecutionCoursesByExecutionPeriod(semester).stream()
+                .forEach(i -> notEvaluatedStudents
+                        .addAndGet(CompetenceCourseMarkSheet.getExecutionCourseEnrolmentsNotInAnyMarkSheet(semester, toProcess, i,
+                                season, (LocalDate) null, Sets.newHashSet()).size()));
+        result.setNotEvaluatedStudents(notEvaluatedStudents.get());
 
         final Set<Enrolment> enrolments = Sets.newHashSet();
         toProcess.getAssociatedCurricularCoursesSet().stream()

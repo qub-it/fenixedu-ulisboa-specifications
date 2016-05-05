@@ -157,7 +157,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         final String report = generateExecutionCourseReport(executionCourse);
         if (!Strings.isNullOrEmpty(report)) {
-            addInfoMessage(report, model);
+            addInfoMessage("<br/>" + report, model);
         }
 
         return jspPage("search");
@@ -174,7 +174,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             return BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description", season,
                     totalStudents, evaluatedStudents, notEvaluatedStudents);
 
-        }).collect(Collectors.joining("/n"));
+        }).collect(Collectors.joining("<br/>"));
     }
 
     private static final String _SEARCHPOSTBACK_URI = "/searchpostback/";

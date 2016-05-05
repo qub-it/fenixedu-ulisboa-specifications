@@ -587,12 +587,12 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
                 // report only one competence course
                 final String report = getCompetenceCourseReport(bean);
                 if (!Strings.isNullOrEmpty(report)) {
-                    addInfoMessage(report, model);
+                    addInfoMessage("<br/>" + report, model);
                 }
             }
         }
 
-        return response.isCommitted() ? "" : jspPage("search");
+        return response.isCommitted() ? null : jspPage("search");
     }
 
     private void getCompetenceCourseReports(final CompetenceCourseMarkSheetBean bean, final HttpServletResponse response) {
@@ -652,7 +652,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         return MarkSheetStatusReportService
                 .getCompetenceCourseReport(bean.getExecutionSemester(), bean.getCompetenceCourse(), reportEvaluationSeasons(bean))
-                .stream().sorted((x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.compare(x.getSeason(), y.getSeason()))
+                .stream().sorted((x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.reversed().compare(x.getSeason(),
+                        y.getSeason()))
                 .map(report -> {
 
                     final String season = report.getSeason().getName().getContent();
