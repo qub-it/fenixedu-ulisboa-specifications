@@ -73,6 +73,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 @Controller
@@ -154,33 +155,24 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
 
-        addInfoMessage(generateExecutionCourseReport(executionCourse), model);
+        final String report = generateExecutionCourseReport(executionCourse);
+        if (!Strings.isNullOrEmpty(report)) {
+            addInfoMessage(report, model);
+        }
 
         return jspPage("search");
     }
 
-    private String generateExecutionCourseReport(final ExecutionCourse executionCourse) {
+    static private String generateExecutionCourseReport(final ExecutionCourse executionCourse) {
 
-        return new MarkSheetStatusReportService().generateExecutionCourseReport(executionCourse).stream().map(report -> {
+        return MarkSheetStatusReportService.getExecutionCourseReports(executionCourse).stream().map(report -> {
+            final String season = report.getSeason().getName().getContent();
+            final String totalStudents = String.valueOf(report.getTotalStudents());
+            final String notEvaluatedStudents = String.valueOf(report.getNotEvaluatedStudents());
+            final String evaluatedStudents = String.valueOf(report.getEvaluatedStudents());
 
-            boolean withDate = report.getEvaluationDate() != null;
-            String season = report.getSeason().getName().getContent();
-            String totalStudents = String.valueOf(report.getTotalStudents());
-            String notEvaluatedStudents = String.valueOf(report.getNotEvaluatedStudents());
-            String evaluatedStudents = String.valueOf(report.getEvaluatedStudents());
-            String evaluationDate = withDate ? report.getEvaluationDate().toString("yyyy-MM-dd") : "";
-
-            final String message;
-            if (withDate) {
-                message = BundleUtil.getString(ULisboaConstants.BUNDLE,
-                        "message.MarksheetReportEntry.reportEntry.description.with.evaluationDate", season, evaluationDate,
-                        totalStudents, evaluatedStudents, notEvaluatedStudents);
-            } else {
-                message = BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description",
-                        season, totalStudents, evaluatedStudents, notEvaluatedStudents);
-            }
-
-            return message;
+            return BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description", season,
+                    totalStudents, evaluatedStudents, notEvaluatedStudents);
 
         }).collect(Collectors.joining("/n"));
     }

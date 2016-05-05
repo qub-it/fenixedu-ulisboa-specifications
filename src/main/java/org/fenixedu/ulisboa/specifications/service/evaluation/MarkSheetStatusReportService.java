@@ -1,8 +1,6 @@
 package org.fenixedu.ulisboa.specifications.service.evaluation;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,134 +23,150 @@ import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.Execu
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 /**
- * @see {@link com.qubit.qubEdu.module.academicOffice.domain.grade.marksheet.report.MarksheetStatusReportService}
+ * @see {@link com.qubit.qubEdu.module.academicOffice.domain.grade.marksheet.report.MarkSheetStatusReportService}
  */
-public class MarkSheetStatusReportService {
+abstract public class MarkSheetStatusReportService {
 
-    public List<ExecutionCourseSeasonReport> generateExecutionCourseReport(final ExecutionCourse executionCourse) {
-        final Collection<EvaluationSeason> seasons = EvaluationSeasonServices.findByActive(true).collect(Collectors.toList());
+    static public List<ExecutionCourseSeasonReport> getExecutionCourseReports(final ExecutionCourse executionCourse) {
 
-        final List<ExecutionCourseSeasonReport> result = new ArrayList<ExecutionCourseSeasonReport>();
-        for (final EvaluationSeason season : seasons) {
+        final List<ExecutionCourseSeasonReport> result = Lists.newArrayList();
+
+        for (final EvaluationSeason season : EvaluationSeasonServices.findByActive(true).collect(Collectors.toList())) {
 
             final Multimap<LocalDate, CompetenceCourseSeasonReport> reportsByEvaluationDate = ArrayListMultimap.create();
-            for (final CompetenceCourseSeasonReport competenceCourseReport : generateCompetenceCoursesReport(
-                    executionCourse.getCompetenceCourses(), season, executionCourse.getExecutionPeriod())) {
-                reportsByEvaluationDate.put(competenceCourseReport.getEvaluationDate(), competenceCourseReport);
+            for (final CompetenceCourseSeasonReport report : iterateCompetenceCourses(executionCourse.getExecutionPeriod(),
+                    executionCourse.getCompetenceCourses(), Sets.newHashSet(season))) {
+
+                reportsByEvaluationDate.put(report.getEvaluationDate(), report);
             }
 
             for (final Map.Entry<LocalDate, Collection<CompetenceCourseSeasonReport>> entry : reportsByEvaluationDate.asMap()
                     .entrySet()) {
-                result.add(new ExecutionCourseSeasonReport(executionCourse, season, entry.getKey(), entry.getValue()));
+
+                final ExecutionCourseSeasonReport report =
+                        new ExecutionCourseSeasonReport(executionCourse, season, entry.getKey(), entry.getValue());
+                if (report.getTotalStudents().intValue() > 0) {
+                    result.add(report);
+                }
             }
-
         }
 
         return result;
     }
 
-    public List<CompetenceCourseSeasonReport> generateCompetenceCourseReport(final ExecutionInterval executionInterval) {
-        final List<EvaluationSeason> activeSeasons = EvaluationSeasonServices.findByActive(true).collect(Collectors.toList());
-        return generateCompetenceCourseReport(executionInterval, activeSeasons);
+    static public List<CompetenceCourseSeasonReport> getCompetenceCourseReports(final ExecutionInterval executionInterval) {
+        return getCompetenceCourseReports(executionInterval,
+                EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()));
     }
 
-    public List<CompetenceCourseSeasonReport> generateCompetenceCourseReport(final ExecutionInterval executionInterval,
-            final Collection<EvaluationSeason> seasons) {
+    static public List<CompetenceCourseSeasonReport> getCompetenceCourseReports(final ExecutionInterval executionInterval,
+            final Set<EvaluationSeason> seasons) {
 
-        final List<CompetenceCourseSeasonReport> result = new ArrayList<CompetenceCourseSeasonReport>();
-        final ExecutionSemester executionSemester =
+        final List<CompetenceCourseSeasonReport> result = Lists.newArrayList();
+
+        final ExecutionSemester semester =
                 ExecutionInterval.assertExecutionIntervalType(ExecutionSemester.class, executionInterval);
-        final Set<CompetenceCourse> toProcess = collectCompetenceCoursesToProcess(executionSemester);
+        final Set<CompetenceCourse> toProcess = collectCompetenceCourses(semester);
 
-        for (final EvaluationSeason season : seasons) {
-            result.addAll(generateCompetenceCoursesReport(toProcess, season, executionSemester));
-        }
+        result.addAll(iterateCompetenceCourses(semester, toProcess, seasons));
 
         return result;
     }
 
-    private Set<CompetenceCourse> collectCompetenceCoursesToProcess(final ExecutionSemester executionSemester) {
+    static private Set<CompetenceCourse> collectCompetenceCourses(final ExecutionSemester semester) {
 
-        final Set<CompetenceCourse> result = new HashSet<CompetenceCourse>();
+        final Set<CompetenceCourse> result = Sets.newHashSet();
 
-        for (final ExecutionCourse executionCourse : executionSemester.getAssociatedExecutionCoursesSet()) {
+        for (final ExecutionCourse executionCourse : semester.getAssociatedExecutionCoursesSet()) {
             result.addAll(executionCourse.getCompetenceCourses());
         }
 
-        //improvement of evaluations approved in previous years
-        for (final EnrolmentEvaluation enrolmentEvaluation : executionSemester.getEnrolmentEvaluationsSet()) {
-            result.add(enrolmentEvaluation.getEnrolment().getCurricularCourse().getCompetenceCourse());
+        // improvement of evaluations approved in previous years
+        for (final EnrolmentEvaluation evaluation : semester.getEnrolmentEvaluationsSet()) {
+            result.add(evaluation.getEnrolment().getCurricularCourse().getCompetenceCourse());
         }
 
         return result;
     }
 
-    private List<CompetenceCourseSeasonReport> generateCompetenceCoursesReport(
-            final Collection<CompetenceCourse> competenceCourses, final EvaluationSeason season,
-            final ExecutionSemester executionSemester) {
+    static private List<CompetenceCourseSeasonReport> iterateCompetenceCourses(final ExecutionSemester semester,
+            final Set<CompetenceCourse> toProcess, final Set<EvaluationSeason> seasons) {
 
-        final List<CompetenceCourseSeasonReport> result = new ArrayList<CompetenceCourseSeasonReport>();
-        for (final CompetenceCourse competenceCourse : competenceCourses) {
+        final List<CompetenceCourseSeasonReport> result = Lists.newArrayList();
 
-            addNonEmptyCompetenceCourseReport(result,
-                    generateCompetenceCourseReport(competenceCourse, season, executionSemester, (LocalDate) null));
+        for (final CompetenceCourse iter : toProcess) {
+            result.addAll(getCompetenceCourseReport(semester, iter, seasons));
         }
 
         return result;
     }
 
-    protected void addNonEmptyCompetenceCourseReport(final List<CompetenceCourseSeasonReport> result,
-            final CompetenceCourseSeasonReport seasonReportEntry) {
+    static public List<CompetenceCourseSeasonReport> getCompetenceCourseReport(final ExecutionSemester semester,
+            final CompetenceCourse toProcess, final Set<EvaluationSeason> seasons) {
 
-        if (seasonReportEntry.getTotalStudents().intValue() > 0) {
-            result.add(seasonReportEntry);
+        final List<CompetenceCourseSeasonReport> result = Lists.newArrayList();
+
+        for (final EvaluationSeason season : seasons) {
+
+            addNonEmptyReport(result, generateReport(semester, toProcess, season, (LocalDate) null));
+        }
+
+        return result;
+    }
+
+    static private void addNonEmptyReport(final List<CompetenceCourseSeasonReport> result,
+            final CompetenceCourseSeasonReport report) {
+
+        if (report.getTotalStudents().intValue() > 0) {
+            result.add(report);
         }
     }
 
-    private CompetenceCourseSeasonReport generateCompetenceCourseReport(final CompetenceCourse competenceCourse,
-            final EvaluationSeason season, final ExecutionSemester executionSemester, final LocalDate evaluationDate) {
+    static private CompetenceCourseSeasonReport generateReport(final ExecutionSemester semester, final CompetenceCourse toProcess,
+            final EvaluationSeason season, final LocalDate evaluationDate) {
 
-        final CompetenceCourseSeasonReport result =
-                new CompetenceCourseSeasonReport(competenceCourse, season, executionSemester, evaluationDate);
+        final CompetenceCourseSeasonReport result = new CompetenceCourseSeasonReport(toProcess, season, semester, evaluationDate);
 
-        //TODOJN : -> Egidio getEnrolmentsForGradeSubmission não existe
-//        result.setNotEvaluatedStudents(EvaluationSeasonServices
-//                .getEnrolmentsForGradeSubmission(season, competenceCourse, evaluationDate, executionSemester).size());
+        // setNotEvaluatedStudents
+// TODOJN : -> Egidio getEnrolmentsForGradeSubmission não existe
+//      result.setNotEvaluatedStudents(EvaluationSeasonServices
+//              .getEnrolmentsForGradeSubmission(season, competenceCourse, evaluationDate, executionSemester).size());
         result.setNotEvaluatedStudents(2);
 
-        final Set<Enrolment> enrolmentsToProcess = new HashSet<Enrolment>();
-        competenceCourse.getAssociatedCurricularCoursesSet().stream().forEach(
-                i -> enrolmentsToProcess.addAll(i.getEnrolmentsByAcademicInterval(executionSemester.getAcademicInterval())));
+        final Set<Enrolment> enrolments = Sets.newHashSet();
+        toProcess.getAssociatedCurricularCoursesSet().stream()
+                .forEach(i -> enrolments.addAll(i.getEnrolmentsByAcademicInterval(semester.getAcademicInterval())));
 
-        for (final EnrolmentEvaluation enrolmentEvaluation : executionSemester.getEnrolmentEvaluationsSet()) {
-            if (enrolmentEvaluation.getEvaluationSeason() == season
-                    && enrolmentEvaluation.getEnrolment().getCurricularCourse().getCompetenceCourse() == competenceCourse) {
-                enrolmentsToProcess.add(enrolmentEvaluation.getEnrolment());
-
+        // improvement of evaluations approved in previous years
+        for (final EnrolmentEvaluation evaluation : semester.getEnrolmentEvaluationsSet()) {
+            if (evaluation.getEvaluationSeason() == season
+                    && evaluation.getEnrolment().getCurricularCourse().getCompetenceCourse() == toProcess) {
+                enrolments.add(evaluation.getEnrolment());
             }
         }
 
+        // setEvaluatedStudents
         int evaluatedStudents = 0;
-        for (final Enrolment enrolment : enrolmentsToProcess) {
+        for (final Enrolment enrolment : enrolments) {
 
-            final Optional<EnrolmentEvaluation> activeEvaluation =
-                    enrolment.getEnrolmentEvaluation(season, executionSemester, false);
-            if (activeEvaluation.isPresent() && activeEvaluation.get().getCompetenceCourseMarkSheet() != null) {
+            final Optional<EnrolmentEvaluation> evaluation = enrolment.getEnrolmentEvaluation(season, semester, false);
+            if (evaluation.isPresent() && evaluation.get().getCompetenceCourseMarkSheet() != null) {
                 evaluatedStudents++;
             }
         }
-
         result.setEvaluatedStudents(evaluatedStudents);
 
-        final long marksheetsToConfirm = CompetenceCourseMarkSheet
-                .findBy(executionSemester, competenceCourse, (CompetenceCourseMarkSheetStateEnum) null, season,
+        // setMarksheetsToConfirm
+        final long markSheetsToConfirm = CompetenceCourseMarkSheet
+                .findBy(semester, toProcess, (CompetenceCourseMarkSheetStateEnum) null, season,
                         (CompetenceCourseMarkSheetChangeRequestStateEnum) null)
                 .filter(markSheet -> !markSheet.isConfirmed()).count();
-
-        result.setMarksheetsToConfirm(Long.valueOf(marksheetsToConfirm).intValue());
+        result.setMarksheetsToConfirm(Long.valueOf(markSheetsToConfirm).intValue());
 
         return result;
     }
