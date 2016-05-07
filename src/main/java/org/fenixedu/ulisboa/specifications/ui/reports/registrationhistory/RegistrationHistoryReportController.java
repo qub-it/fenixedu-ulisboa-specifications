@@ -30,6 +30,8 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -39,6 +41,7 @@ import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
+import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.dto.report.registrationhistory.RegistrationHistoryReportParametersBean;
@@ -243,9 +246,12 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 booleanString(report.hasEnrolmentsWithoutShifts()));
                         addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
                                 booleanString(report.hasAnyInactiveRegistrationStateForYear()));
+
+                        final RegistrationState lastRegistrationState = report.getLastRegistrationState();
                         addData("RegistrationHistoryReport.lastRegistrationState",
-                                report.getLastRegistrationState() != null ? report.getLastRegistrationState()
-                                        .getDescription() : null);
+                                lastRegistrationState != null ? lastRegistrationState.getStateType().getDescription() : null);
+                        addData("RegistrationHistoryReport.lastRegistrationStateDate",
+                                lastRegistrationState != null ? lastRegistrationState.getStateDate().toLocalDate() : null);
                         addData("RegistrationHistoryReport.firstTime", booleanString(report.isFirstTime()));
                         addData("RegistrationHistoryReport.dismissals", booleanString(report.hasDismissals()));
                         addData("RegistrationHistoryReport.enroledInImprovement",
@@ -533,14 +539,43 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
                         addData("ICurriculumEntry.ectsCreditsForCurriculum", curriculumEntry.getEctsCreditsForCurriculum());
                         addData("ICurriculumEntry.executionPeriod", curriculumEntry.getExecutionPeriod().getQualifiedName());
-                        addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil.bundle(entry.getKey()
-                                .getDismissalRelatedEntries().contains(entry.getValue()) ? "label.yes" : "label.no"));
+                        addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil
+                                .bundle(isDismissal(entry.getKey(), entry.getValue()) ? "label.yes" : "label.no"));
+                        addData("ICurriculumEntry.curricularYear", getCurricularYear(entry.getKey(), curriculumEntry));
+                        addData("ICurriculumEntry.curricularSemester", getCurricularSemester(entry.getKey(), curriculumEntry));
+                        addData("ICurriculumEntry.groupPath", getGroupPath(entry.getKey(), curriculumEntry));
                         addData("Curriculum.totalApprovals", entry.getKey().getCurriculumEntries().size());
                         final OptionalDouble average =
                                 entry.getKey().getCurriculumEntries().stream().filter(e -> e.getGrade().isNumeric())
                                         .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average();
                         addData("Curriculum.simpleAverage", average.isPresent() ? average.getAsDouble() : null);
 
+                    }
+
+                    private boolean isDismissal(Curriculum curriculum, ICurriculumEntry entry) {
+                        return curriculum.getDismissalRelatedEntries().contains(entry);
+                    }
+
+                    private Integer getCurricularSemester(Curriculum curriculum, ICurriculumEntry entry) {
+                        return belongsToStudentCurricularPlan(curriculum, entry) ? entry.getExecutionPeriod()
+                                .getSemester() : null;
+
+                    }
+
+                    private Integer getCurricularYear(Curriculum curriculum, ICurriculumEntry entry) {
+                        return belongsToStudentCurricularPlan(curriculum, entry) ? CurricularPeriodServices
+                                .getCurricularYear((CurriculumLine) entry) : null;
+                    }
+
+                    private String getGroupPath(Curriculum curriculum, ICurriculumEntry entry) {
+                        return belongsToStudentCurricularPlan(curriculum, entry) ? ((CurriculumLine) entry).getCurriculumGroup()
+                                .getFullPath() : null;
+
+                    }
+
+                    protected boolean belongsToStudentCurricularPlan(Curriculum curriculum, ICurriculumEntry entry) {
+                        return entry instanceof Dismissal || (entry instanceof Enrolment
+                                && ((Enrolment) entry).getStudentCurricularPlan() == curriculum.getStudentCurricularPlan());
                     }
 
                     private void addData(String key, Object data) {
@@ -604,7 +639,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
                         final ExecutionSemester enrolmentPeriod =
                                 improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
-                                
+
                         final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
                         addData("Student.number", registration.getStudent().getNumber());
@@ -632,9 +667,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final List<EnrolmentEvaluation> evaluations =
                 enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
-                        .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason()))
-                        .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
-                        .collect(Collectors.toList());
+                        .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason())
+                                && bean.getExecutionYears().contains(e.getExecutionPeriod().getExecutionYear()))
+                .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                .collect(Collectors.toList());
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),
                 new SheetData<EnrolmentEvaluation>(evaluations) {
 

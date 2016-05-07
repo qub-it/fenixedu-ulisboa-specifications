@@ -178,10 +178,12 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                 .sorted((x, y) -> x.getName().getContent().compareTo(y.getName().getContent()))
                 .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getName().getContent())).collect(Collectors.toList());
 
-        this.degreesDataSource = Bennu.getInstance().getDegreesSet().stream()
-                .filter(d -> getDegreeTypes() == null || getDegreeTypes().contains(d.getDegreeType()))
-                .sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)
-                .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getPresentationNameI18N().getContent()))
+        this.degreesDataSource =
+                Bennu.getInstance().getDegreesSet().stream()
+                        .filter(d -> getDegreeTypes() == null || getDegreeTypes().contains(d.getDegreeType()))
+                        .sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)
+                        .map(x -> new TupleDataSourceBean(x.getExternalId(),
+                                "[" + x.getCode() + "] " + x.getPresentationNameI18N().getContent()))
                 .collect(Collectors.toList());
 
         this.regimeTypesDataSource = Arrays.asList(RegistrationRegimeType.values()).stream()
@@ -202,7 +204,8 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                 .map(x -> new TupleDataSourceBean(x.getName(), x.getDescription())).collect(Collectors.toList());
 
         this.statuteTypesDataSource = Bennu.getInstance().getStatuteTypesSet().stream().sorted(StatuteType.COMPARATOR_BY_NAME)
-                .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getName().getContent())).collect(Collectors.toList());
+                .map(x -> new TupleDataSourceBean(x.getExternalId(), "[" + x.getCode() + "] " + x.getName().getContent()))
+                .collect(Collectors.toList());
 
     }
 

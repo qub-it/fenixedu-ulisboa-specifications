@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.StudentDataShareAuthorization;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -138,9 +137,8 @@ public class RegistrationHistoryReport {
 
     }
 
-    public RegistrationStateType getLastRegistrationState() {
-        final RegistrationState lastRegistrationState = getRegistration().getLastRegistrationState(executionYear);
-        return lastRegistrationState != null ? lastRegistrationState.getStateType() : null;
+    public RegistrationState getLastRegistrationState() {
+        return getRegistration().getLastRegistrationState(executionYear);
     }
 
     public boolean hasAnyInactiveRegistrationStateForYear() {

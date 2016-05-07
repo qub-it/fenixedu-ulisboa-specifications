@@ -554,7 +554,7 @@ ${portal.angularToolkit()}
 							value="${result.registration.ingressionType.description.content}"></c:out></td>
 					<td><c:out
 							value="${result.registration.registrationProtocol.description.content}"></c:out></td>
-					<td><c:out value="${result.lastRegistrationState.description}"></c:out></td>
+					<td><c:out value="${not empty result.lastRegistrationState ? result.lastRegistrationState.stateType.description : ''}"></c:out></td>
 					<td>
 						<a  class="btn btn-default btn-xs" href="${fr:checksumLink(pageContext.request,'/academicAdministration/student.do?method=visualizeRegistration&registrationID='.concat(result.registration.externalId))}">
 							<spring:message code='label.view'/>
