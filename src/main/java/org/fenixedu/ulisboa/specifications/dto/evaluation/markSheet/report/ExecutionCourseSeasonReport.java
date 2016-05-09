@@ -86,6 +86,17 @@ public class ExecutionCourseSeasonReport extends AbstractSeasonReport {
     }
 
     @Override
+    public Integer getMarksheetsTotal() {
+        int result = 0;
+
+        for (final CompetenceCourseSeasonReport entry : this.entries) {
+            result += entry.getMarksheetsTotal().intValue();
+        }
+
+        return result;
+    }
+
+    @Override
     public Integer getMarksheetsToConfirm() {
         int result = 0;
 

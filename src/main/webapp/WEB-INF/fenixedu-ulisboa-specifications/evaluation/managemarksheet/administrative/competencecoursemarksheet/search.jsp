@@ -145,18 +145,10 @@ ${portal.angularToolkit()}
 
 				$scope.report  = function() {
 					
-				    if ($scope.object.competenceCourse.length != 0) {
-					    <%-- Report as info --%>
-					    $('#searchForm').attr('action', '${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.REPORT_URL%>')
-						$('#searchForm').submit();
-						
-				    } else {
-						<%-- Report as file --%>
-						$scope.exportReport(
-							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportreport', 
-							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportstatus/', 
-							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/downloadreport/')
-				    }
+					$scope.exportReport(
+						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportreport', 
+						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportstatus/', 
+						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/downloadreport/')
 				}
 
 				$scope.exportReport = function(reportUrl,reportStatusUrl,reportDownloadUrl) {
@@ -308,7 +300,9 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 			<div class="panel-footer">
 				<button type="button" class="btn btn-primary" ng-click="search()"><spring:message code="label.search" /></button> 
 				<button type="button" class="btn btn-primary" ng-click="report()">
-					<spring:message code="label.MarkSheetStatusReport.create" />
+					<span class="" data-toggle="tooltip" data-placement="top" translate="yes" title="<spring:message code=''/>">
+						<spring:message code="label.MarkSheetStatusReport.create" />
+					</span>
 				</button>
 			</div>
 	</div>
@@ -320,13 +314,13 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 					<div class="modal-header">
 						<h4 class="modal-title">
 							<spring:message
-								code="label.event.reports.registrationHistory.exportResult" />
+								code="label.event.evaluation.manageMarkSheet.exportReport" />
 						</h4>
 					</div>
 					<div class="modal-body">
 						<p>
 							<spring:message
-								code="label.event.reports.registrationHistory.exportResult.in.progress" />
+								code="label.event.evaluation.manageMarkSheet.exportReport.in.progress" />
 							<span class="glyphicon glyphicon-refresh spinning"></span>
 						</p>
 					</div>
@@ -344,6 +338,17 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 	</div>
 	<!-- /.modal -->
 	
+	<c:if test="${not empty competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}">
+		<div class="alert alert-info" role="alert">
+	
+			<c:forEach items="${competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}" var="reportSummary">
+				<p>
+					<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span> ${reportSummary}
+				</p>
+			</c:forEach>
+	
+		</div>
+	</c:if>
 	
 	<c:choose>
 		<c:when test="${not empty searchcompetencecoursemarksheetResultsDataSet}">

@@ -27,6 +27,8 @@ package org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -45,6 +47,8 @@ public class CompetenceCourseSeasonReport extends AbstractSeasonReport {
     private Integer notEvaluatedStudents = 0;
 
     private Integer evaluatedStudents = 0;
+
+    private Integer marksheetsTotal = 0;
 
     private Integer marksheetsToConfirm = 0;
 
@@ -94,6 +98,15 @@ public class CompetenceCourseSeasonReport extends AbstractSeasonReport {
     }
 
     @Override
+    public Integer getMarksheetsTotal() {
+        return marksheetsTotal;
+    }
+
+    public void setMarksheetsTotal(final Integer input) {
+        this.marksheetsTotal = input;
+    }
+
+    @Override
     public Integer getMarksheetsToConfirm() {
         return marksheetsToConfirm;
     }
@@ -105,6 +118,28 @@ public class CompetenceCourseSeasonReport extends AbstractSeasonReport {
     @Override
     public ExecutionSemester getExecutionSemester() {
         return executionSemester;
+    }
+
+    public String getExecutionCourses() {
+        String result = "";
+
+        if (getCompetenceCourse() != null && getExecutionSemester() != null) {
+            final List<ExecutionCourse> executions =
+                    getCompetenceCourse().getExecutionCoursesByExecutionPeriod(getExecutionSemester());
+
+            if (executions.size() == 1 && executions.iterator().next().getName().equals(getCompetenceCourse().getName())) {
+                result = getDegrees(executions.iterator().next());
+            } else {
+                result = executions.stream().map(i -> i.getNameI18N().getContent() + " [" + getDegrees(i) + "]")
+                        .collect(Collectors.joining("; "));
+            }
+        }
+
+        return result;
+    }
+
+    private String getDegrees(final ExecutionCourse i) {
+        return i.getAssociatedCurricularCoursesSet().stream().map(x -> x.getDegree().getCode()).collect(Collectors.joining("; "));
     }
 
 }

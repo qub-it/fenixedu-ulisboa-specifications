@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.Enrolment;
@@ -33,7 +35,7 @@ import com.google.common.collect.Sets;
  */
 abstract public class MarkSheetStatusReportService {
 
-    static public List<ExecutionCourseSeasonReport> getExecutionCourseReports(final ExecutionCourse executionCourse) {
+    static public List<ExecutionCourseSeasonReport> getReportsForExecutionCourse(final ExecutionCourse executionCourse) {
 
         final List<ExecutionCourseSeasonReport> result = Lists.newArrayList();
 
@@ -60,12 +62,12 @@ abstract public class MarkSheetStatusReportService {
         return result;
     }
 
-    static public List<CompetenceCourseSeasonReport> getCompetenceCourseReports(final ExecutionInterval executionInterval) {
-        return getCompetenceCourseReports(executionInterval,
+    static public List<CompetenceCourseSeasonReport> getReportsForCompetenceCourses(final ExecutionInterval executionInterval) {
+        return getReportsForCompetenceCourses(executionInterval,
                 EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()));
     }
 
-    static public List<CompetenceCourseSeasonReport> getCompetenceCourseReports(final ExecutionInterval executionInterval,
+    static public List<CompetenceCourseSeasonReport> getReportsForCompetenceCourses(final ExecutionInterval executionInterval,
             final Set<EvaluationSeason> seasons) {
 
         final List<CompetenceCourseSeasonReport> result = Lists.newArrayList();
@@ -101,13 +103,13 @@ abstract public class MarkSheetStatusReportService {
         final List<CompetenceCourseSeasonReport> result = Lists.newArrayList();
 
         for (final CompetenceCourse iter : toProcess) {
-            result.addAll(getCompetenceCourseReport(semester, iter, seasons));
+            result.addAll(getReportsForCompetenceCourse(semester, iter, seasons));
         }
 
         return result;
     }
 
-    static public List<CompetenceCourseSeasonReport> getCompetenceCourseReport(final ExecutionSemester semester,
+    static public List<CompetenceCourseSeasonReport> getReportsForCompetenceCourse(final ExecutionSemester semester,
             final CompetenceCourse toProcess, final Set<EvaluationSeason> seasons) {
 
         final List<CompetenceCourseSeasonReport> result = Lists.newArrayList();
@@ -164,11 +166,14 @@ abstract public class MarkSheetStatusReportService {
         }
         result.setEvaluatedStudents(evaluatedStudents);
 
+        // setMarksheetsTotal
+        final Supplier<Stream<CompetenceCourseMarkSheet>> supplier = () -> CompetenceCourseMarkSheet.findBy(semester, toProcess,
+                (CompetenceCourseMarkSheetStateEnum) null, season, (CompetenceCourseMarkSheetChangeRequestStateEnum) null);
+        final long markSheetsTotal = supplier.get().count();
+        result.setMarksheetsTotal(Long.valueOf(markSheetsTotal).intValue());
+
         // setMarksheetsToConfirm
-        final long markSheetsToConfirm = CompetenceCourseMarkSheet
-                .findBy(semester, toProcess, (CompetenceCourseMarkSheetStateEnum) null, season,
-                        (CompetenceCourseMarkSheetChangeRequestStateEnum) null)
-                .filter(markSheet -> !markSheet.isConfirmed()).count();
+        final long markSheetsToConfirm = supplier.get().filter(markSheet -> !markSheet.isConfirmed()).count();
         result.setMarksheetsToConfirm(Long.valueOf(markSheetsToConfirm).intValue());
 
         return result;

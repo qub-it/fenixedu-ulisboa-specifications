@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,7 +54,6 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
@@ -81,8 +79,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -574,58 +570,27 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         }
     }
 
-    private static final String _REPORT_URI = "/report/";
-    public static final String REPORT_URL = CONTROLLER_URL + _REPORT_URI;
-
-    @RequestMapping(value = _REPORT_URI, method = RequestMethod.POST)
-    public String report(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-            final Model model, final HttpServletResponse response) {
-
-        setCompetenceCourseMarkSheetBean(bean, model);
-
-        if (bean.getExecutionSemester() != null) {
-
-            if (bean.getCompetenceCourse() == null) {
-
-                // report all competence courses
-//                getCompetenceCourseReports(bean, response);
-
-            } else {
-
-                // report only one competence course
-                final String report = getCompetenceCourseReport(bean);
-                if (!Strings.isNullOrEmpty(report)) {
-                    addInfoMessage("<br/>" + report, model);
-                }
-            }
-        }
-
-        return response.isCommitted() ? null : jspPage("search");
-    }
-
     private byte[] exportReportToXLS(final CompetenceCourseMarkSheetBean bean) {
 
         final List<CompetenceCourseSeasonReport> entries = MarkSheetStatusReportService
-                .getCompetenceCourseReports(bean.getExecutionSemester(), reportEvaluationSeasons(bean));
+                .getReportsForCompetenceCourses(bean.getExecutionSemester(), bean.getEvaluationSeasonsToReport());
 
         final SpreadsheetBuilder builder = new SpreadsheetBuilder();
         builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CompetenceCourseSeasonReport>(entries) {
             @Override
             protected void makeLine(CompetenceCourseSeasonReport entry) {
                 addCell(reportLabelFor("period"), entry.getExecutionSemester().getQualifiedName());
-                addCell(reportLabelFor("season"), entry.getSeason().getName().getContent());
                 addCell(reportLabelFor("curricularCourseCode"), entry.getCompetenceCourse().getCode());
                 addCell(reportLabelFor("curricularCourseName"), entry.getCompetenceCourse().getName());
-//TODOJN
-//                addCell(reportLabelFor("degreeCode"), entry.getCompetenceCourse().getDegree().getCode());
-//                addCell(reportLabelFor("degreeName"), entry.getCompetenceCourse().getDegree().getNameI18N().getContent());
-//                addCell(reportLabelFor("degreeType"), entry.getCompetenceCourse().getDegreeType().getName().getContent());
-//                addCell(reportLabelFor("degreeCurricularPlan"), entry.getCompetenceCourse().getDegreeCurricularPlan().getName());
+                addCell(reportLabelFor("executionCourses"), entry.getExecutionCourses());
+                addCell(reportLabelFor("season"), entry.getSeason().getName().getContent());
+                addCell(reportLabelFor("totalStudents"), entry.getTotalStudents());
                 addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
                 addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());
+                addCell(reportLabelFor("marksheetsTotal"), entry.getMarksheetsTotal());
                 addCell(reportLabelFor("marksheetsToConfirm"), entry.getMarksheetsToConfirm());
-                addCell(reportLabelFor("responsibleName"), Joiner.on(';').join(entry.getResponsibleNames()));
-                addCell(reportLabelFor("responsibleContact"), Joiner.on(';').join(entry.getResponsibleEmails()));
+                addCell(reportLabelFor("responsibleName"), Joiner.on("; ").join(entry.getResponsibleNames()));
+                addCell(reportLabelFor("responsibleContact"), Joiner.on("; ").join(entry.getResponsibleEmails()));
             }
         });
 
@@ -639,32 +604,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         return byteArrayOutputStream.toByteArray();
     }
 
-    static private Set<EvaluationSeason> reportEvaluationSeasons(final CompetenceCourseMarkSheetBean bean) {
-        return bean.getEvaluationSeason() == null ? EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()) : Sets
-                .newHashSet(bean.getEvaluationSeason());
-    }
-
     static private String reportLabelFor(final String field) {
         return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field);
-    }
-
-    static private String getCompetenceCourseReport(final CompetenceCourseMarkSheetBean bean) {
-
-        return MarkSheetStatusReportService
-                .getCompetenceCourseReport(bean.getExecutionSemester(), bean.getCompetenceCourse(), reportEvaluationSeasons(bean))
-                .stream().sorted((x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.reversed().compare(x.getSeason(),
-                        y.getSeason()))
-                .map(report -> {
-
-                    final String season = report.getSeason().getName().getContent();
-                    final String totalStudents = String.valueOf(report.getTotalStudents());
-                    final String notEvaluatedStudents = String.valueOf(report.getNotEvaluatedStudents());
-                    final String evaluatedStudents = String.valueOf(report.getEvaluatedStudents());
-
-                    return BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description",
-                            season, totalStudents, evaluatedStudents, notEvaluatedStudents);
-
-                }).collect(Collectors.joining("<br/>"));
     }
 
     @RequestMapping(value = "/exportreport", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")

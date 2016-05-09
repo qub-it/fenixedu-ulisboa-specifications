@@ -84,6 +84,8 @@ public abstract class AbstractSeasonReport {
 
     abstract public Integer getEvaluatedStudents();
 
+    abstract public Integer getMarksheetsTotal();
+    
     abstract public Integer getMarksheetsToConfirm();
 
     abstract public Collection<Person> getResponsibles();

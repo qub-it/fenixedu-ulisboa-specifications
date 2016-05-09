@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.bennu.core.domain.exceptions.AuthorizationException;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.model.Functionality;
@@ -56,9 +55,7 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
-import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +70,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 @Controller
@@ -149,32 +145,13 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     public String search(@PathVariable("executionCourseId") final ExecutionCourse executionCourse, final Model model) {
         final List<CompetenceCourseMarkSheet> searchResultsDataSet = filterSearch(executionCourse);
 
-        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(executionCourse, Authenticate.getUser().getPerson());
         bean.update();
         setCompetenceCourseMarkSheetBean(bean, model);
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
 
-        final String report = generateExecutionCourseReport(executionCourse);
-        if (!Strings.isNullOrEmpty(report)) {
-            addInfoMessage("<br/>" + report, model);
-        }
-
         return jspPage("search");
-    }
-
-    static private String generateExecutionCourseReport(final ExecutionCourse executionCourse) {
-
-        return MarkSheetStatusReportService.getExecutionCourseReports(executionCourse).stream().map(report -> {
-            final String season = report.getSeason().getName().getContent();
-            final String totalStudents = String.valueOf(report.getTotalStudents());
-            final String notEvaluatedStudents = String.valueOf(report.getNotEvaluatedStudents());
-            final String evaluatedStudents = String.valueOf(report.getEvaluatedStudents());
-
-            return BundleUtil.getString(ULisboaConstants.BUNDLE, "message.MarksheetReportEntry.reportEntry.description", season,
-                    totalStudents, evaluatedStudents, notEvaluatedStudents);
-
-        }).collect(Collectors.joining("<br/>"));
     }
 
     private static final String _SEARCHPOSTBACK_URI = "/searchpostback/";
