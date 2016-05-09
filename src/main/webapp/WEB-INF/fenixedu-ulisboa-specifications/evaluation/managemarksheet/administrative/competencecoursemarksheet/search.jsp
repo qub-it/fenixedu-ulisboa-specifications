@@ -84,6 +84,23 @@ ${portal.angularToolkit()}
 </c:if>
 
 
+<style>
+	.glyphicon.spinning {
+	    animation: spin 1s infinite linear;
+	    -webkit-animation: spin2 1s infinite linear;
+	}
+	
+	@keyframes spin {
+	    from { transform: scale(1) rotate(0deg); }
+	    to { transform: scale(1) rotate(360deg); }
+	}
+	
+	@-webkit-keyframes spin2 {
+	    from { -webkit-transform: rotate(0deg); }
+	    to { -webkit-transform: rotate(360deg); }
+	}	
+</style>
+
 <script>
     angular
 	    .module('angularAppCompetenceCourseMarkSheet',
@@ -91,8 +108,8 @@ ${portal.angularToolkit()}
 	    .controller(
 		    'CompetenceCourseMarkSheetController',
 		    [
-			    '$scope',
-			    function($scope) {
+			    '$scope','$timeout', '$http',
+			    function($scope,$timeout,$http) {
 			    	
 			    	
 			    	
@@ -122,8 +139,76 @@ ${portal.angularToolkit()}
 				}
 				
 				$scope.search  = function() {
+				    $('#searchForm').attr('action', '${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_URL%>')
 					$('#searchForm').submit();
 				}
+
+				$scope.report  = function() {
+					
+					$scope.exportReport(
+						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportreport', 
+						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportstatus/', 
+						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/downloadreport/')
+				}
+
+				$scope.exportReport = function(reportUrl,reportStatusUrl,reportDownloadUrl) {
+					
+					$scope.exportAborted = false;
+					
+					$.ajax({
+						type : "POST",
+						url : reportUrl,
+						data : "bean=" + encodeURIComponent(JSON.stringify($scope.object)),
+						cache : false,
+						success : function(data, textStatus, jqXHR) {
+							$('#exportInProgress').modal({
+							    backdrop: 'static',
+							    keyboard: false
+							});
+							
+							$scope.exportReportPooling(reportStatusUrl,reportDownloadUrl,data);
+							
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert('<spring:message code="label.unexpected.error.occured" />');
+						},
+					});
+				}
+				
+				$scope.exportReportPooling = function(reportStatusUrl,reportDownloadUrl,reportId) {
+
+					$.ajax({
+						url : reportStatusUrl + reportId,
+						type : "GET",
+						cache : false,
+						success : function(data, textStatus, jqXHR) {
+							if (data == 'true'){								
+								$scope.hideProgressDialog();
+								$scope.downloadReport(reportDownloadUrl, reportId);
+							} else {
+								if (!$scope.exportAborted) {
+									$timeout(function() { 
+										$scope.exportReportPooling(reportStatusUrl,reportDownloadUrl, reportId); 
+										}, 3000);
+								}
+							}
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+									alert('<spring:message code="label.unexpected.error.occured" />');
+									$scope.hideProgressDialog();
+								},
+						});
+				}
+				
+				$scope.hideProgressDialog = function() {
+					$scope.exportAborted = true;
+					$('#exportInProgress').modal('hide');
+				}
+				
+				$scope.downloadReport = function(reportDownloadUrl, reportId) {
+					window.location.href = reportDownloadUrl + reportId;
+				}
+				
 
 			    } ]);
 </script>
@@ -213,10 +298,57 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 				</div>
 			</div>
 			<div class="panel-footer">
-				<button type="button" class="btn btn-primary" role="button" ng-click="search()"><spring:message code="label.search" /></button> 
+				<button type="button" class="btn btn-primary" ng-click="search()"><spring:message code="label.search" /></button> 
+				<button type="button" class="btn btn-primary" ng-click="report()">
+					<span class="" data-toggle="tooltip" data-placement="top" translate="yes" title="<spring:message code=''/>">
+						<spring:message code="label.MarkSheetStatusReport.create" />
+					</span>
+				</button>
 			</div>
 	</div>
 	
+	<div class="modal fade" id="exportInProgress">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="POST" action="target">
+					<div class="modal-header">
+						<h4 class="modal-title">
+							<spring:message
+								code="label.event.evaluation.manageMarkSheet.exportReport" />
+						</h4>
+					</div>
+					<div class="modal-body">
+						<p>
+							<spring:message
+								code="label.event.evaluation.manageMarkSheet.exportReport.in.progress" />
+							<span class="glyphicon glyphicon-refresh spinning"></span>
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default"
+							ng-click="hideProgressDialog()">
+							<spring:message code="label.cancel" />
+						</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+	
+	<c:if test="${not empty competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}">
+		<div class="alert alert-info" role="alert">
+	
+			<c:forEach items="${competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}" var="reportSummary">
+				<p>
+					<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span> ${reportSummary}
+				</p>
+			</c:forEach>
+	
+		</div>
+	</c:if>
 	
 	<c:choose>
 		<c:when test="${not empty searchcompetencecoursemarksheetResultsDataSet}">

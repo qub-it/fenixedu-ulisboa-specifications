@@ -26,30 +26,46 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.commons.spreadsheet.SheetData;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
+import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CompetenceCourseSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
+import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -61,6 +77,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Joiner;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 @Component("org.fenixedu.ulisboa.specifications.evaluation.manageMarkSheet.administrative")
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
@@ -547,6 +568,110 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
             return jspPage("searchchangerequests");
         }
+    }
+
+    private byte[] exportReportToXLS(final CompetenceCourseMarkSheetBean bean) {
+
+        final List<CompetenceCourseSeasonReport> entries = MarkSheetStatusReportService
+                .getReportsForCompetenceCourses(bean.getExecutionSemester(), bean.getEvaluationSeasonsToReport());
+
+        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CompetenceCourseSeasonReport>(entries) {
+            @Override
+            protected void makeLine(CompetenceCourseSeasonReport entry) {
+                addCell(reportLabelFor("period"), entry.getExecutionSemester().getQualifiedName());
+                addCell(reportLabelFor("curricularCourseCode"), entry.getCompetenceCourse().getCode());
+                addCell(reportLabelFor("curricularCourseName"), entry.getCompetenceCourse().getName());
+                addCell(reportLabelFor("executionCourses"), entry.getExecutionCourses());
+                addCell(reportLabelFor("season"), entry.getSeason().getName().getContent());
+                addCell(reportLabelFor("totalStudents"), entry.getTotalStudents());
+                addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
+                addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());
+                addCell(reportLabelFor("marksheetsTotal"), entry.getMarksheetsTotal());
+                addCell(reportLabelFor("marksheetsToConfirm"), entry.getMarksheetsToConfirm());
+                addCell(reportLabelFor("responsibleName"), Joiner.on("; ").join(entry.getResponsibleNames()));
+                addCell(reportLabelFor("responsibleContact"), Joiner.on("; ").join(entry.getResponsibleEmails()));
+            }
+        });
+
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            builder.build(WorkbookExportFormat.EXCEL, byteArrayOutputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    static private String reportLabelFor(final String field) {
+        return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field);
+    }
+
+    @RequestMapping(value = "/exportreport", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportReport(
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
+
+        final String reportId = UUID.randomUUID().toString();
+        new Thread(() -> processReport(this::exportReportToXLS, bean, reportId)).start();
+
+        return new ResponseEntity<String>(reportId, HttpStatus.OK);
+    }
+
+    @Atomic(mode = TxMode.READ)
+    protected void processReport(final Function<CompetenceCourseMarkSheetBean, byte[]> reportProcessor,
+            final CompetenceCourseMarkSheetBean bean, final String reportId) {
+
+        byte[] content = null;
+        try {
+            content = reportProcessor.apply(bean);
+        } catch (Throwable e) {
+            content = createXLSWithError(
+                    (e instanceof ULisboaSpecificationsDomainException) ? ((ULisboaSpecificationsDomainException) e)
+                            .getLocalizedMessage() : ExceptionUtils.getFullStackTrace(e));
+        }
+
+        ULisboaSpecificationsTemporaryFile.create(reportId, content, Authenticate.getUser());
+    }
+
+    private byte[] createXLSWithError(String error) {
+
+        try {
+
+            final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+            builder.addSheet("Registrations", new SheetData<String>(Collections.singleton(error)) {
+                @Override
+                protected void makeLine(String item) {
+                    addCell(ULisboaSpecificationsUtil.bundle("label.unexpected.error.occured"), item);
+                }
+            });
+
+            final ByteArrayOutputStream result = new ByteArrayOutputStream();
+            builder.build(WorkbookExportFormat.EXCEL, result);
+
+            return result.toByteArray();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @RequestMapping(value = "/exportstatus/{reportId}", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportStatus(@PathVariable(value = "reportId") final String reportId,
+            final Model model) {
+        return new ResponseEntity<String>(
+                String.valueOf(
+                        ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId).isPresent()),
+                HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/downloadreport/{reportId}", method = RequestMethod.GET)
+    public void downloadReport(@PathVariable("reportId") String reportId, final Model model,
+            RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
+        final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
+                ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
+        writeFile(response, "Report_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls", "application/vnd.ms-excel",
+                temporaryFile.get().getContent());
     }
 
 }

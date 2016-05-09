@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
@@ -52,8 +53,12 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
+import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.LocalDate;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -129,6 +134,62 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             tuple.setText(EvaluationSeasonServices.getDescriptionI18N(x).getContent());
             return tuple;
         }).collect(Collectors.toList());
+    }
+
+    public Set<EvaluationSeason> getEvaluationSeasonsToReport() {
+        return getEvaluationSeason() == null ? EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()) : Sets
+                .newHashSet(getEvaluationSeason());
+    }
+
+    public List<String> getReportsSummaryForCompetenceCourse() {
+        final List<String> result = Lists.newArrayList();
+
+        if (getCompetenceCourse() != null) {
+            result.addAll(getReportsSummary(MarkSheetStatusReportService.getReportsForCompetenceCourse(getExecutionSemester(),
+                    getCompetenceCourse(), getEvaluationSeasonsToReport())));
+        }
+
+        return result;
+    }
+
+    public List<String> getReportsSummaryForExecutionCourse() {
+        final List<String> result = Lists.newArrayList();
+
+        if (getExecutionCourse() != null) {
+            result.addAll(getReportsSummary(MarkSheetStatusReportService.getReportsForExecutionCourse(getExecutionCourse())));
+        }
+
+        return result;
+    }
+
+    public List<String> getReportsSummary(final List<? extends AbstractSeasonReport> input) {
+
+        return input.stream()
+                .sorted((x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.compare(x.getSeason(), y.getSeason()))
+                .map(report -> {
+
+                    return Joiner.on("; ").join(
+
+                            reportLabelFor("season", report.getSeason().getName().getContent()),
+
+                            reportLabelFor("totalStudents", String.valueOf(report.getTotalStudents())),
+
+                            reportLabelFor("notEvaluatedStudents", String.valueOf(report.getNotEvaluatedStudents())),
+
+                            reportLabelFor("evaluatedStudents", String.valueOf(report.getEvaluatedStudents())),
+
+                            reportLabelFor("marksheetsTotal", String.valueOf(report.getMarksheetsTotal())),
+
+                            reportLabelFor("marksheetsToConfirm", String.valueOf(report.getMarksheetsToConfirm()))
+
+                );
+
+                }).collect(Collectors.toList());
+    }
+
+    static private String reportLabelFor(final String field, final String value) {
+        return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field) + ": <strong>" + value
+                + "</strong>";
     }
 
     public LocalDate getEvaluationDate() {

@@ -86,8 +86,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     }
 
     @RequestMapping
-    public String home(final Model model) {
-        return "forward:" + CONTROLLER_URL + "/";
+    public String home(final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(SEARCH_URL, model, redirectAttributes);
     }
 
     private CompetenceCourseMarkSheetBean getCompetenceCourseMarkSheetBean(final Model model) {
@@ -145,11 +145,12 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     public String search(@PathVariable("executionCourseId") final ExecutionCourse executionCourse, final Model model) {
         final List<CompetenceCourseMarkSheet> searchResultsDataSet = filterSearch(executionCourse);
 
-        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(executionCourse, Authenticate.getUser().getPerson());
         bean.update();
         setCompetenceCourseMarkSheetBean(bean, model);
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
+
         return jspPage("search");
     }
 

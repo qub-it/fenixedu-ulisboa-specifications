@@ -110,12 +110,14 @@ abstract public class EvaluationSeasonServices {
         assert args.length > 0;
         int count = 0;
         for (boolean b : args) {
-            if (b)
+            if (b) {
                 count++;
-            if (count > n)
+            }
+            if (count > n) {
                 return false;
+            }
         }
-        return (count == n);
+        return count == n;
     }
 
     @Atomic

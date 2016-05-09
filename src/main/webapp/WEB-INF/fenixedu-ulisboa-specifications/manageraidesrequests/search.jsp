@@ -48,6 +48,38 @@ ${portal.angularToolkit()}
 	</a>
 </div>
 
+<c:if test="${not empty infoMessages}">
+    <div class="alert alert-info" role="alert">
+
+        <c:forEach items="${infoMessages}" var="message">
+            <p> <span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span>
+                ${message}
+            </p>
+        </c:forEach>
+    </div>
+</c:if>
+<c:if test="${not empty warningMessages}">
+    <div class="alert alert-warning" role="alert">
+
+        <c:forEach items="${warningMessages}" var="message">
+            <p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+                ${message}
+            </p>
+        </c:forEach>
+    </div>
+</c:if>
+<c:if test="${not empty errorMessages}">
+    <div class="alert alert-danger" role="alert">
+
+        <c:forEach items="${errorMessages}" var="message">
+            <p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+                ${message}
+            </p>
+        </c:forEach>
+    </div>
+</c:if>
+
+
 <c:choose>
 	<c:when test="${not empty reportRequests}">
 		<table id="simpletablename" class="table responsive table-bordered table-hover">

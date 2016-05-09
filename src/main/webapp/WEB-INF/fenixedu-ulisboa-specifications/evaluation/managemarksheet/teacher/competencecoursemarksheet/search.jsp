@@ -156,6 +156,18 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 		value='${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCHPOSTBACK_URL%>${executionCourse.externalId}' />
 
 	<input name="bean" type="hidden" value="{{ object }}" />
+
+	<c:if test="${not empty competenceCourseMarkSheetBean.reportsSummaryForExecutionCourse}">
+		<div class="alert alert-info" role="alert">
+	
+			<c:forEach items="${competenceCourseMarkSheetBean.reportsSummaryForExecutionCourse}" var="reportSummary">
+				<p>
+					<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span> ${reportSummary}
+				</p>
+			</c:forEach>
+	
+		</div>
+	</c:if>
 	
 	<c:choose>
 		<c:when test="${not empty searchcompetencecoursemarksheetResultsDataSet}">
