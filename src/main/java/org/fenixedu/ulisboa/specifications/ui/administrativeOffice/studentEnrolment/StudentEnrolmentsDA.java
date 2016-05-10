@@ -33,9 +33,13 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.dto.administrativeOffice.studentEnrolment.StudentEnrolmentBean;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
+import org.fenixedu.academic.ui.struts.action.exceptions.FenixActionException;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
@@ -47,6 +51,46 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
         @Forward(name = "visualizeRegistration", path = "/academicAdministration/student.do?method=visualizeRegistration") })
 public class StudentEnrolmentsDA
         extends org.fenixedu.academic.ui.struts.action.administrativeOffice.studentEnrolment.StudentEnrolmentsDA {
+
+    @Override
+    public ActionForward prepare(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) throws FenixActionException {
+
+        final StudentCurricularPlan plan = getDomainObject(request, "scpID");
+
+        if (plan != null) {
+            StudentEnrolmentBean studentEnrolmentBean = getBean(request);
+            if (studentEnrolmentBean == null) {
+                studentEnrolmentBean = new StudentEnrolmentBean();
+
+                // QubExtension
+                ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterID");
+                if (executionSemester == null) {
+                    final ExecutionYear lastExecutionYear = plan.getLastExecutionYear();
+                    final ExecutionSemester currentSemester = ExecutionSemester.readActualExecutionSemester();
+                    executionSemester = lastExecutionYear == null
+                            || currentSemester.getExecutionYear() == lastExecutionYear ? currentSemester : lastExecutionYear
+                                    .getFirstExecutionPeriod();
+                }
+                studentEnrolmentBean.setExecutionPeriod(executionSemester);
+            }
+            studentEnrolmentBean.setStudentCurricularPlan(plan);
+            return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, actionForm, request, response);
+        } else {
+            throw new FenixActionException();
+        }
+    }
+
+    // @QubExtension
+    private StudentEnrolmentBean getBean(final HttpServletRequest request) {
+        StudentEnrolmentBean result = (StudentEnrolmentBean) getRenderedObject("studentEnrolmentBean");
+
+        if (result == null) {
+            result = (StudentEnrolmentBean) getFromRequest(request, "studentEnrolmentBean");
+        }
+
+        return result;
+    }
 
     /*
      * Copy from super
