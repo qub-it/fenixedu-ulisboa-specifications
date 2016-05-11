@@ -137,6 +137,7 @@
 					<fr:property name="defaultLayout" value="<%=String.valueOf(request.getAttribute("enrolmentLayoutClassName"))%>"/>
 				</logic:present>
 				<logic:notPresent name="enrolmentLayoutClassName">
+					<%-- qubExtension --%>
 					<fr:property name="defaultLayout" value="<%=EnrolmentLayout.class.getName()%>"/>
 				</logic:notPresent>
 				<fr:property name="enrolmentClasses" value="se_enrolled smalltxt,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled aright" />
