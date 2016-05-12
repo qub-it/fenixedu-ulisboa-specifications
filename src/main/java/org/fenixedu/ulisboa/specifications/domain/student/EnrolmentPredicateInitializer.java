@@ -37,6 +37,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +106,12 @@ abstract public class EnrolmentPredicateInitializer {
                         enrolment.getName().getContent());
             }
 
+            if (!CurriculumAggregatorServices.isCandidateForEvaluation(enrolment)) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
+                        enrolment.getName().getContent());
+            }
+
             PREDICATE_SEASON.get().fill(getEvaluationSeason(), improvementSemester, getContext()).test(enrolment);
 
             return true;
@@ -125,6 +133,12 @@ abstract public class EnrolmentPredicateInitializer {
             if (enrolment.isApproved()) {
                 throw new DomainException(
                         "curricularRules.ruleExecutors.EnrolmentInSpecialSeasonEvaluationExecutor.degree.module.has.been.approved",
+                        enrolment.getName().getContent());
+            }
+
+            if (!CurriculumAggregatorServices.isCandidateForEvaluation(enrolment)) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
                         enrolment.getName().getContent());
             }
 
