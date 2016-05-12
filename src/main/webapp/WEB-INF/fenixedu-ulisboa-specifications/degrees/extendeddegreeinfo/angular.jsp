@@ -1,4 +1,6 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.degrees.extendeddegreeinfo.ExtendedDegreeInfoController"%>
+<%@page import="org.fenixedu.academic.domain.person.RoleType"%>
+<%@page import="org.fenixedu.bennu.core.security.Authenticate"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -142,11 +144,13 @@ ${portal.angularToolkit()}
 	                	<input type="text" id="extendedDegreeInformation_name_read" class="form-control form-control-read-only" ng-show="!editMode['name']" ng-readonly="true" ng-model="name" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />" />
 	                	<input type="text" id="extendedDegreeInformation_name" class="form-control" ng-show="editMode['name']" ng-readonly="false" ng-localized-string="object.name" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />" />
 	                </div>
-	                <div class="col-sm-3">
-		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['name']" ng-click="toggleEditMode('name')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-		        		<button class="btn btn-xs btn-primary" ng-show="editMode['name']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
-		        		<a href="" class="btn btn-xs btn-default" ng-show="!editMode['name']" ng-click="toggleEditMode('name')" data-toggle="tooltip" title="<spring:message code="label.edit" />"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
-		        	</div>
+	                <c:if test="<%= RoleType.MANAGER.isMember(Authenticate.getUser()) %>">
+		                <div class="col-sm-3">
+			        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['name']" ng-click="toggleEditMode('name')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+			        		<button class="btn btn-xs btn-primary" ng-show="editMode['name']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+			        		<a href="" class="btn btn-xs btn-default" ng-show="!editMode['name']" ng-click="toggleEditMode('name')" data-toggle="tooltip" title="<spring:message code="label.edit" />"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+			        	</div>
+		        	</c:if>
 	            </div>
 	            
 	            <div class="form-group row">
