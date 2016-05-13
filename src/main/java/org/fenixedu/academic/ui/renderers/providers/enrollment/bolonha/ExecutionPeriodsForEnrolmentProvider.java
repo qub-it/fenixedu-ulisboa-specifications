@@ -26,7 +26,6 @@
 package org.fenixedu.academic.ui.renderers.providers.enrollment.bolonha;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -73,11 +72,22 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
         return result;
     }
 
-    static private ExecutionYear getLastExecutionYear(final StudentCurricularPlan input) {
-        final DegreeCurricularPlan dcp = input.getDegreeCurricularPlan();
-        final Optional<ExecutionYear> max =
-                getEndContextExecutionYears(dcp.getRoot()).stream().max(ExecutionYear.COMPARATOR_BY_YEAR);
-        return max.isPresent() ? max.get() : dcp.getLastExecutionYear();
+    static private ExecutionYear getLastExecutionYear(final StudentCurricularPlan plan) {
+        final SortedSet<ExecutionYear> result = Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_YEAR);
+
+        final ExecutionYear lastScpExecutionYear = plan.getLastExecutionYear();
+        if (lastScpExecutionYear != null) {
+            result.add(lastScpExecutionYear);
+        }
+
+        final DegreeCurricularPlan dcp = plan.getDegreeCurricularPlan();
+        result.addAll(getEndContextExecutionYears(dcp.getRoot()));
+
+        if (result.isEmpty()) {
+            result.add(ExecutionYear.readCurrentExecutionYear());
+        }
+
+        return result.last();
     }
 
     static public Set<ExecutionYear> getEndContextExecutionYears(final CourseGroup input) {

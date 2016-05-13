@@ -66,10 +66,10 @@ public class StudentEnrolmentsDA
                 // QubExtension
                 ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterID");
                 if (executionSemester == null) {
-                    final ExecutionYear lastExecutionYear = plan.getLastExecutionYear();
+                    final ExecutionYear lastScpExecutionYear = plan.getLastExecutionYear();
                     final ExecutionSemester currentSemester = ExecutionSemester.readActualExecutionSemester();
-                    executionSemester = lastExecutionYear == null
-                            || currentSemester.getExecutionYear() == lastExecutionYear ? currentSemester : lastExecutionYear
+                    executionSemester = lastScpExecutionYear == null
+                            || currentSemester.getExecutionYear() == lastScpExecutionYear ? currentSemester : lastScpExecutionYear
                                     .getFirstExecutionPeriod();
                 }
                 studentEnrolmentBean.setExecutionPeriod(executionSemester);
