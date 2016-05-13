@@ -31,6 +31,13 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curricularYearConfiguration.initialize", defaultValue = "false")
         public Boolean getCurricularPeriodConfigurationInitialize();
 
+        @ConfigurationProperty(key = "domain.academic.curricularRules.ApprovalsAwareOfCompetenceCourse", defaultValue = "true")
+        public Boolean getCurricularRulesApprovalsAwareOfCompetenceCourse();
+
+        @ConfigurationProperty(key = "domain.academic.curricularRules.ApprovalsAwareOfCompetenceCourse.studentScope",
+                defaultValue = "true")
+        public Boolean getCurricularRulesApprovalsAwareOfCompetenceCourseAtStudentScope();
+
         @ConfigurationProperty(key = "quality.mode")
         public Boolean isQualityMode();
 

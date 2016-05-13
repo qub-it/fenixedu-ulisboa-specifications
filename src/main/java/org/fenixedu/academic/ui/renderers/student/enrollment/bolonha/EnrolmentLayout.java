@@ -25,6 +25,7 @@
  */
 package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -45,6 +47,8 @@ import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGro
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
@@ -116,7 +120,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     protected void generateCurricularCoursesToEnrol(final HtmlTable groupTable,
             final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester) {
 
-        final List<IDegreeModuleToEvaluate> coursesToEvaluate = studentCurriculumGroupBean.getSortedDegreeModulesToEvaluate();
+        final List<IDegreeModuleToEvaluate> coursesToEvaluate = filterCurricularCoursesToEvaluate(studentCurriculumGroupBean);
 
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : coursesToEvaluate) {
 
@@ -203,6 +207,40 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 encodeCurricularRules(groupTable, degreeModuleToEvaluate);
             }
         }
+    }
+
+    /**
+     * qubExtension, filter CurricularCourses with CompetenceCourse approved
+     * Ideally this should be done on a StudentCurriculumGroupBean.buildCurricularCoursesToEnrol level, but we're limited by the
+     * usual trunk constrains
+     */
+    private List<IDegreeModuleToEvaluate> filterCurricularCoursesToEvaluate(final StudentCurriculumGroupBean bean) {
+
+        final List<IDegreeModuleToEvaluate> result = bean.getSortedDegreeModulesToEvaluate();
+
+        if (isToFilterCurricularCoursesToEvaluate()) {
+
+            for (final Iterator<IDegreeModuleToEvaluate> iterator = result.iterator(); iterator.hasNext();) {
+                final DegreeModule degreeModule = iterator.next().getDegreeModule();
+                if (degreeModule.isLeaf()) {
+                    final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
+
+                    if (CompetenceCourseServices.isCompetenceCourseApproved(
+                            getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), curricularCourse)) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Necessary, we don't want this behaviour on subclasses of this layout
+     */
+    protected boolean isToFilterCurricularCoursesToEvaluate() {
+        return ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse();
     }
 
     private boolean isToDisableEnrolmentOption(final StudentCurriculumGroupBean input) {

@@ -44,6 +44,15 @@ import pt.ist.fenixWebFramework.renderers.components.HtmlText;
  */
 public class ImprovementEnrolmentLayout extends EnrolmentLayout {
 
+    /**
+     * False, since we defined our own AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA's
+     * StudentCurriculumGroupBean.buildCurricularCoursesToEnrol method
+     */
+    @Override
+    public boolean isToFilterCurricularCoursesToEvaluate() {
+        return false;
+    }
+
     @Override
     public HtmlComponent createComponent(Object object, Class type) {
         setBolonhaStudentEnrollmentBean((BolonhaStudentEnrollmentBean) object);
