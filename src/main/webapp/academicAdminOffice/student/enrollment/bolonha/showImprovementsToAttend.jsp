@@ -171,5 +171,3 @@
 	</c:forEach>
 
 </html:form>
-
-<script>$(function(){$('table').removeClass('table')})</script>
