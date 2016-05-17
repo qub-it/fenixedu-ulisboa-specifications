@@ -144,11 +144,13 @@ ${portal.angularToolkit()}
 				}
 
 				$scope.report  = function() {
-					
-					$scope.exportReport(
-						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportreport', 
-						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportstatus/', 
-						'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/downloadreport/')
+
+				    if ($scope.object.executionSemester.length != 0) {
+						$scope.exportReport(
+							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportreport', 
+							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportstatus/', 
+							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/downloadreport/')
+				    }
 				}
 
 				$scope.exportReport = function(reportUrl,reportStatusUrl,reportDownloadUrl) {
