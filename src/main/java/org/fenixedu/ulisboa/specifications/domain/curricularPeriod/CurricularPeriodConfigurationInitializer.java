@@ -120,6 +120,56 @@ public class CurricularPeriodConfigurationInitializer {
             initRuleTransitionRUL();
             break;
 
+        case "FBA":
+            initRuleEnrolmentFBA();
+            initRuleTransitionFBA();
+            break;
+
+        case "FCUL":
+            initRuleEnrolmentFCUL();
+            initRuleTransitionFCUL();
+            break;
+
+        case "FD":
+            initRuleEnrolmentFD();
+            initRuleTransitionFD();
+            break;
+
+        case "FM":
+            initRuleEnrolmentFM();
+            initRuleTransitionFM();
+            break;
+
+        case "FMH":
+            initRuleEnrolmentFMH();
+            initRuleTransitionFMH();
+            break;
+
+        case "FP":
+            initRuleEnrolmentFP();
+            initRuleTransitionFP();
+            break;
+
+        case "IE":
+            initRuleEnrolmentIE();
+            initRuleTransitionIE();
+            break;
+
+        case "ICS":
+            initRuleEnrolmentICS();
+            initRuleTransitionICS();
+            break;
+
+        case "IGOT":
+            initRuleEnrolmentIGOT();
+            initRuleTransitionIGOT();
+            break;
+
+        case "FA":
+            initRuleEnrolmentFA();
+            initRuleTransitionFA();
+            break;
+
         default:
             logger.info("Init not found for " + acronym);
             break;
@@ -736,6 +786,195 @@ public class CurricularPeriodConfigurationInitializer {
             createStudentStatuteExecutiveRuleFor(configYear6, "33");
 
         }
+    }
+
+    static private void initRuleEnrolmentSecondYear() {
+        for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
+            logger.debug("Init RuleEnrolment for {}", dcp.getPresentationName());
+
+            final DegreeType degreeType = dcp.getDegree().getDegreeType();
+            if (degreeType.isSecondCycle() && degreeType.hasExactlyOneCycleType()) {
+
+                final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
+                if (configYear1 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsInCurricularPeriod.createForYearInterval(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1, 2);
+
+                final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
+                if (configYear2 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84));
+                CreditsInCurricularPeriod.createForYear(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2);
+
+            } else {
+
+                final CurricularPeriodConfiguration configYear1 = findOrCreateConfig(dcp, 1);
+                if (configYear1 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR);
+                CreditsInCurricularPeriod.createForYearInterval(configYear1, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 1,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
+
+                final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
+                if (configYear2 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear2, BigDecimal.valueOf(84));
+                CreditsInCurricularPeriod.createForYearInterval(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 2,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
+
+                final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
+                if (configYear3 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear3, BigDecimal.valueOf(84));
+                CreditsInCurricularPeriod.createForYearInterval(configYear3, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 3,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
+
+                final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
+                if (configYear4 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear4, BigDecimal.valueOf(84));
+                CreditsInCurricularPeriod.createForYearInterval(configYear4, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR, 4,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
+
+                final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
+                if (configYear5 == null) {
+                    continue;
+                }
+                CreditsInEnrolmentPeriod.create(configYear5, BigDecimal.valueOf(84));
+                CreditsInCurricularPeriod.createForYear(configYear5, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR,
+                        Math.min(dcp.getDurationInYears(), 5)/* yearMax */);
+            }
+        }
+    }
+
+    static private void initRuleTransitionSecondYear() {
+        for (final DegreeCurricularPlan dcp : Bennu.getInstance().getDegreeCurricularPlansSet()) {
+            logger.debug("Init RuleTransition for {}", dcp.getPresentationName());
+
+            BigDecimal maxFlunked = BigDecimal.valueOf(24);
+
+            final CurricularPeriodConfiguration configYear2 = findOrCreateConfig(dcp, 2);
+            if (configYear2 == null) {
+                continue;
+            }
+
+            ApprovedCredits.create(configYear2, FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.subtract(maxFlunked));
+
+            final CurricularPeriodConfiguration configYear3 = findOrCreateConfig(dcp, 3);
+            if (configYear3 == null) {
+                continue;
+            }
+            ApprovedCredits.create(configYear3,
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(2)).subtract(maxFlunked));
+
+            final CurricularPeriodConfiguration configYear4 = findOrCreateConfig(dcp, 4);
+            if (configYear4 == null) {
+                continue;
+            }
+            ApprovedCredits.create(configYear4,
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(3)).subtract(maxFlunked));
+
+            final CurricularPeriodConfiguration configYear5 = findOrCreateConfig(dcp, 5);
+            if (configYear5 == null) {
+                continue;
+            }
+            ApprovedCredits.create(configYear5,
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(4)).subtract(maxFlunked));
+
+            final CurricularPeriodConfiguration configYear6 = findOrCreateConfig(dcp, 6);
+            if (configYear6 == null) {
+                continue;
+            }
+            ApprovedCredits.create(configYear6,
+                    FlunkedCredits.FLUNKED_CREDITS_BY_YEAR.multiply(BigDecimal.valueOf(5)).subtract(maxFlunked));
+        }
+    }
+
+    static private void initRuleEnrolmentFBA() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentFCUL() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentFD() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentFM() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentFMH() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentFP() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentIE() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentICS() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentIGOT() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleEnrolmentFA() {
+        initRuleEnrolmentSecondYear();
+    }
+
+    static private void initRuleTransitionFBA() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionFCUL() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionFD() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionFM() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionFMH() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionFP() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionIE() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionICS() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionIGOT() {
+        initRuleTransitionSecondYear();
+    }
+
+    static private void initRuleTransitionFA() {
+        initRuleTransitionSecondYear();
     }
 
 }
