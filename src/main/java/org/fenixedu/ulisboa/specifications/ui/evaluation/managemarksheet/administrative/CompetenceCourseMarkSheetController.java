@@ -43,6 +43,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -666,12 +667,27 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     }
 
     @RequestMapping(value = "/downloadreport/{reportId}", method = RequestMethod.GET)
-    public void downloadReport(@PathVariable("reportId") String reportId, final Model model,
-            RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
+    public void downloadReport(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
+            @PathVariable("reportId") String reportId, final Model model, RedirectAttributes redirectAttributes,
+            HttpServletResponse response) throws IOException {
         final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
                 ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
-        writeFile(response, "Report_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls", "application/vnd.ms-excel",
+        writeFile(response, getFileName(null/*TODO legidio bean.getExecutionSemester()*/), "application/vnd.ms-excel",
                 temporaryFile.get().getContent());
+    }
+
+    private String getFileName(final ExecutionSemester executionInterval) {
+        final org.fenixedu.academic.domain.organizationalStructure.Unit institutionUnit =
+                Bennu.getInstance().getInstitutionUnit();
+        final String acronym = institutionUnit.getAcronym();
+
+        final String title =
+                acronym + "_" + ULisboaSpecificationsUtil.bundle("label.MarkSheetStatusReport.create").replace(" ", "-") + "_";
+
+        final String period =
+                executionInterval == null ? "" : executionInterval.getQualifiedName().replace("/", "-").replace(" ", "-") + "_";
+
+        return title + period + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls";
     }
 
 }
