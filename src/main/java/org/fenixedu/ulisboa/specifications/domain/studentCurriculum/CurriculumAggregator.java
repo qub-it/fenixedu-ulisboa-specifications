@@ -137,7 +137,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     }
 
     public String getDescription() {
-        return isMaster() ? "Tronco" : "Módulo";
+        return isMaster() ? "Módulo" : "Tronco";
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlan() {
