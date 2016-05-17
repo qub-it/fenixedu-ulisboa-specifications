@@ -89,6 +89,13 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                     buildCurriculumGroupLabel(studentCurriculumGroupBean.getCurriculumModule(), executionSemester), false));
         }
 
+        // qubExtension, Aggregation Info
+        final HtmlTableCell aggregationCell = groupHeaderRow.createCell();
+        aggregationCell.setClasses(" aright  ");
+        aggregationCell.setBody(
+                generateAggregationInfo(CurriculumAggregatorServices.getContext(studentCurriculumGroupBean.getCurriculumModule()),
+                        getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), executionSemester));
+
         final HtmlTableCell checkBoxCell = groupHeaderRow.createCell();
         checkBoxCell.setClasses("aright");
 
