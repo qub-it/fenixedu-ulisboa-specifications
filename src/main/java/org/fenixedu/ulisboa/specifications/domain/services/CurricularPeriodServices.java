@@ -1,13 +1,16 @@
 package org.fenixedu.ulisboa.specifications.domain.services;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class CurricularPeriodServices {
 
@@ -155,6 +159,18 @@ public class CurricularPeriodServices {
 
         final BigDecimal creditsYear = result.get(curricularPeriod);
         result.put(curricularPeriod, creditsYear != null ? creditsYear.add(credits) : credits);
+    }
+
+    static public int getCurricularSemester(final CurriculumLine curriculumLine) {
+
+        if (curriculumLine.isEnrolment()) {
+            return curriculumLine.getExecutionPeriod().getSemester();
+        }
+
+        final Collection<Context> contexts = CurriculumLineServices.getParentContexts(curriculumLine);
+        return contexts.size() == 1 ? contexts.iterator().next().getCurricularPeriod().getChildOrder() : curriculumLine
+                .getExecutionPeriod().getSemester();
+
     }
 
 }

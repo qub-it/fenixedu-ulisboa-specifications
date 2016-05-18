@@ -874,13 +874,8 @@ public class StudentCurricularPlanLayout extends Layout {
         final String yearPart = curricularYear != null ? curricularYear + " "
                 + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year") + " " : "";
 
-        final String semester;
-        if (entry.hasExecutionPeriod()) {
-            semester = entry.getExecutionPeriod().getSemester().toString() + " "
-                    + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
-        } else {
-            semester = EMPTY_INFO;
-        }
+        final String semester = getCurricularSemesterFor(entry).toString() + " "
+                + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
 
         generateCellWithText(row, yearPart + semester, this.renderer.getEnrolmentSemesterCellClass())
                 .setStyle("font-size: xx-small");
@@ -895,6 +890,14 @@ public class StudentCurricularPlanLayout extends Layout {
             return null;
         }
         return CurricularPeriodServices.getCurricularYear((CurriculumLine) entry);
+    }
+
+    /**
+     * qubExtension, show curricularSemester
+     */
+    static private Integer getCurricularSemesterFor(final ICurriculumEntry entry) {
+        return (entry instanceof CurriculumLine) ? CurricularPeriodServices.getCurricularSemester((CurriculumLine) entry) : entry
+                .getExecutionPeriod().getSemester();
     }
 
     protected void generateStatisticsLinkCell(final HtmlTableRow row, final Enrolment enrolment) {

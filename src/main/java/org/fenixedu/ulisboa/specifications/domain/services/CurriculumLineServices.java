@@ -1,7 +1,13 @@
 package org.fenixedu.ulisboa.specifications.domain.services;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.OptionalEnrolment;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
@@ -58,6 +64,21 @@ public class CurriculumLineServices {
 
     static public BigDecimal getWeight(CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getWeight();
+    }
+
+    static public Collection<Context> getParentContexts(final CurriculumLine curriculumLine) {
+
+        if (curriculumLine.getDegreeModule() == null) {
+            return Collections.emptySet();
+        }
+
+        final CurricularCourse curricularCourse = curriculumLine.isOptional() ? ((OptionalEnrolment) curriculumLine)
+                .getOptionalCurricularCourse() : curriculumLine.getCurricularCourse();
+
+        return curricularCourse.getParentContextsByExecutionYear(curriculumLine.getExecutionYear()).stream()
+                .filter(c -> c.getParentCourseGroup() == curriculumLine.getCurriculumGroup().getDegreeModule())
+                .collect(Collectors.toSet());
+
     }
 
 }

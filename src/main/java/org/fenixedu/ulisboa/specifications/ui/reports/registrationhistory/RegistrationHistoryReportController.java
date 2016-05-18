@@ -557,9 +557,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     }
 
                     private Integer getCurricularSemester(Curriculum curriculum, ICurriculumEntry entry) {
-                        return belongsToStudentCurricularPlan(curriculum, entry) ? entry.getExecutionPeriod()
-                                .getSemester() : null;
-
+                        return belongsToStudentCurricularPlan(curriculum, entry) ? CurricularPeriodServices
+                                .getCurricularSemester((CurriculumLine) entry) : null;
                     }
 
                     private Integer getCurricularYear(Curriculum curriculum, ICurriculumEntry entry) {
