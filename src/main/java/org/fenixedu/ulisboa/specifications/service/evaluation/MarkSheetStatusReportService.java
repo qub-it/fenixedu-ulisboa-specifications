@@ -159,9 +159,9 @@ abstract public class MarkSheetStatusReportService {
         int evaluatedStudents = 0;
         for (final Enrolment enrolment : enrolments) {
 
-            final Optional<EnrolmentEvaluation> evaluation = enrolment.getEnrolmentEvaluation(season, semester, false);
+            final Optional<EnrolmentEvaluation> evaluation = enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
             if (evaluation.isPresent() && evaluation.get().getCompetenceCourseMarkSheet() != null) {
-                evaluatedStudents++;
+                evaluatedStudents = evaluatedStudents + 1;
             }
         }
         result.setEvaluatedStudents(evaluatedStudents);
