@@ -38,6 +38,8 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.Lists;
+
 public class CompetenceCourseSeasonReport extends AbstractSeasonReport {
 
     private CompetenceCourse competenceCourse;
@@ -121,18 +123,29 @@ public class CompetenceCourseSeasonReport extends AbstractSeasonReport {
     }
 
     public String getExecutionCourses() {
-        String result = "";
+
+        final List<String> nameSame = Lists.newLinkedList();
+        final List<String> nameDifferent = Lists.newLinkedList();
 
         if (getCompetenceCourse() != null && getExecutionSemester() != null) {
-            final List<ExecutionCourse> executions =
-                    getCompetenceCourse().getExecutionCoursesByExecutionPeriod(getExecutionSemester());
 
-            if (executions.size() == 1 && executions.iterator().next().getName().equals(getCompetenceCourse().getName())) {
-                result = getDegrees(executions.iterator().next());
-            } else {
-                result = executions.stream().map(i -> i.getNameI18N().getContent() + " [" + getDegrees(i) + "]")
-                        .collect(Collectors.joining("; "));
+            for (final ExecutionCourse iter : getCompetenceCourse()
+                    .getExecutionCoursesByExecutionPeriod(getExecutionSemester())) {
+
+                if (iter.getName().equals(getCompetenceCourse().getName())) {
+                    nameSame.add(getDegrees(iter));
+                } else {
+                    nameDifferent.add(getDegrees(iter) + " [" + iter.getName() + "]");
+                }
             }
+        }
+
+        String result = "";
+        if (!nameSame.isEmpty()) {
+            result += nameSame.stream().collect(Collectors.joining("; "));
+        }
+        if (!nameDifferent.isEmpty()) {
+            result += nameDifferent.stream().collect(Collectors.joining("; "));
         }
 
         return result;
