@@ -55,6 +55,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
@@ -584,7 +585,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
                 addCell(reportLabelFor("curricularCourseCode"), entry.getCompetenceCourse().getCode());
                 addCell(reportLabelFor("curricularCourseName"), entry.getCompetenceCourse().getName());
                 addCell(reportLabelFor("executionCourses"), entry.getExecutionCourses());
-                addCell(reportLabelFor("season"), entry.getSeason().getName().getContent());
+                addCell(reportLabelFor("season"), EvaluationSeasonServices.getDescriptionI18N(entry.getSeason()).getContent());
                 addCell(reportLabelFor("totalStudents"), entry.getTotalStudents());
                 addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
                 addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());

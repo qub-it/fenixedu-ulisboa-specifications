@@ -170,7 +170,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
                     return Joiner.on("; ").join(
 
-                            reportLabelFor("season", report.getSeason().getName().getContent()),
+                            "<strong>" + EvaluationSeasonServices.getDescriptionI18N(report.getSeason()).getContent()
+                                    + "</strong>: ",
 
                             reportLabelFor("totalStudents", String.valueOf(report.getTotalStudents())),
 
