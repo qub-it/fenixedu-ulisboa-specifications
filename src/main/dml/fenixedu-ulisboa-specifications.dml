@@ -69,6 +69,7 @@ external class .org.fenixedu.academic.domain.StudentCurricularPlan;
 external class .org.fenixedu.academic.domain.Person;
 external class .org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 external class .org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptions;
+external class .org.fenixedu.academic.domain.curricularRules.Rule;
 external class .org.fenixedu.academic.domain.degree.DegreeType;
 external class .org.fenixedu.academic.domain.degreeStructure.Context;
 external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
@@ -543,6 +544,13 @@ relation StatuteTypeRuleTransition {
 }
 
 // ==================== END: CurricularPeriodConfiguration ====================
+
+// ==================== BEGIN: CurricularRule ====================
+
+class curricularRules.CurriculumAggregatorApproval extends .org.fenixedu.academic.domain.curricularRules.Rule {
+}
+
+// ==================== END: CurricularRule ====================
 
 // ==================== BEGIN: CurricularRule Executor Logics ====================
 
