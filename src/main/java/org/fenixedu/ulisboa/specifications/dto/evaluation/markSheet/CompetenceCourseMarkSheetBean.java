@@ -168,22 +168,20 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 .sorted((x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.compare(x.getSeason(), y.getSeason()))
                 .map(report -> {
 
-                    return Joiner.on("; ").join(
+                    return "<strong>" + EvaluationSeasonServices.getDescriptionI18N(report.getSeason()).getContent()
+                            + "</strong>: " + Joiner.on("; ").join(
 
-                            "<strong>" + EvaluationSeasonServices.getDescriptionI18N(report.getSeason()).getContent()
-                                    + "</strong>: ",
+                                    reportLabelFor("totalStudents", String.valueOf(report.getTotalStudents())),
 
-                            reportLabelFor("totalStudents", String.valueOf(report.getTotalStudents())),
+                                    reportLabelFor("notEvaluatedStudents", String.valueOf(report.getNotEvaluatedStudents())),
 
-                            reportLabelFor("notEvaluatedStudents", String.valueOf(report.getNotEvaluatedStudents())),
+                                    reportLabelFor("evaluatedStudents", String.valueOf(report.getEvaluatedStudents())),
 
-                            reportLabelFor("evaluatedStudents", String.valueOf(report.getEvaluatedStudents())),
+                                    reportLabelFor("marksheetsTotal", String.valueOf(report.getMarksheetsTotal())),
 
-                            reportLabelFor("marksheetsTotal", String.valueOf(report.getMarksheetsTotal())),
+                                    reportLabelFor("marksheetsToConfirm", String.valueOf(report.getMarksheetsToConfirm()))
 
-                            reportLabelFor("marksheetsToConfirm", String.valueOf(report.getMarksheetsToConfirm()))
-
-                );
+                            );
 
                 }).collect(Collectors.toList());
     }
