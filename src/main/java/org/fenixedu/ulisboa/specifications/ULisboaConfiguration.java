@@ -52,6 +52,9 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "services.sas.activeStudents.threadNumber", defaultValue = "20")
         public Integer getActiveStudentsThreadNumber();
+        
+        @ConfigurationProperty(key = "cas.login.strategy", defaultValue = "org.fenixedu.ulisboa.specifications.service.cas.DefaultTicketValidationStrategy")
+        public String getCasLoginStrategy();
 
     }
 
