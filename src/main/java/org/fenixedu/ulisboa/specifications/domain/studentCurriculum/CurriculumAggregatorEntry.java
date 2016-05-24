@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -39,6 +40,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import com.google.common.collect.Sets;
@@ -51,13 +53,19 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         super();
     }
 
-    static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, Context context,
-            AggregationMemberEvaluationType evaluationType, BigDecimal weighing) {
+    static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, final Context context,
+            final AggregationMemberEvaluationType evaluationType, final BigDecimal weighing) {
 
         final CurriculumAggregatorEntry result = new CurriculumAggregatorEntry();
         result.setAggregator(aggregator);
         result.setContext(context);
         result.init(evaluationType, weighing);
+
+        final DegreeModule degreeModule = context.getChildDegreeModule();
+        if (degreeModule.isLeaf()) {
+            new CurriculumAggregatorApproval(degreeModule, context.getParentCourseGroup(), context.getBeginExecutionPeriod(),
+                    (ExecutionSemester) null);
+        }
 
         return result;
     }

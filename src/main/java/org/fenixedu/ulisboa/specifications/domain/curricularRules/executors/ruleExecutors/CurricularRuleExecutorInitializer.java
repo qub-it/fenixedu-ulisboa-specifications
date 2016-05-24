@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain.curricularRules;
+package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors;
 
 import java.util.function.Supplier;
 
