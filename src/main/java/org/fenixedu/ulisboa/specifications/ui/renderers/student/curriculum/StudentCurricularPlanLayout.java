@@ -88,6 +88,9 @@ import pt.ist.fenixWebFramework.renderers.components.HtmlText;
 import pt.ist.fenixWebFramework.renderers.contexts.InputContext;
 import pt.ist.fenixWebFramework.renderers.layouts.Layout;
 
+/**
+ * @see {@link org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.StudentCurricularPlanLayout}
+ */
 public class StudentCurricularPlanLayout extends Layout {
 
     protected static final String EMPTY_INFO = "-";
@@ -335,7 +338,7 @@ public class StudentCurricularPlanLayout extends Layout {
     /**
      * qubExtension, avoid strange "concluded" info when no credits are achived
      */
-    static private ConclusionValue isConcluded(final CurriculumGroup group, final ExecutionYear executionYear,
+    private ConclusionValue isConcluded(final CurriculumGroup group, final ExecutionYear executionYear,
             final CreditsLimit creditsRule) {
 
         final ConclusionValue concluded = group.isConcluded(executionYear);
@@ -343,8 +346,8 @@ public class StudentCurricularPlanLayout extends Layout {
             return concluded;
         }
 
-        if (!group.hasAnyApprovedCurriculumLines() && creditsRule != null
-                && creditsRule.getMinimumCredits().doubleValue() == 0d) {
+        if (creditsRule != null && creditsRule.getMinimumCredits().doubleValue() == 0d && creditsRule.getMaximumCredits()
+                .doubleValue() != group.getCreditsConcluded(executionYearContext).doubleValue()) {
             return ConclusionValue.NOT_CONCLUDED;
         }
 
@@ -415,7 +418,7 @@ public class StudentCurricularPlanLayout extends Layout {
         generateDismissalWeightCell(dismissalRow, dismissal);
         generateDismissalEctsCell(dismissalRow, dismissal);
         generateCellWithText(dismissalRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
-        generateExecutionYearCell(dismissalRow, dismissal);
+        // qubExtension, semester and year in one cell generateExecutionYearCell(dismissalRow, dismissal);
         generateSemesterCell(dismissalRow, dismissal);
         generateDismissalApprovementlDateIfRequired(dismissalRow, dismissal.getApprovementDate());
         generateCreatorIfRequired(dismissalRow, dismissal.getCreatedBy());
@@ -566,7 +569,7 @@ public class StudentCurricularPlanLayout extends Layout {
         generateEnrolmentWeightCell(externalEnrolmentRow, externalEnrolment, isFromDetail);
         generateExternalEnrolmentEctsCell(externalEnrolmentRow, externalEnrolment);
         generateCellWithText(externalEnrolmentRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
-        generateExecutionYearCell(externalEnrolmentRow, externalEnrolment);
+        // qubExtension, semester and year in one cell generateExecutionYearCell(externalEnrolmentRow, externalEnrolment);
         generateSemesterCell(externalEnrolmentRow, externalEnrolment);
         generateEvaluationDateIfRequired(externalEnrolmentRow, externalEnrolment.getEvaluationDate());
         generateCreatorIfRequired(externalEnrolmentRow, externalEnrolment.getCreatedBy());
@@ -627,7 +630,7 @@ public class StudentCurricularPlanLayout extends Layout {
             generateEnrolmentWeightCell(enrolmentRow, enrolment, isFromDetail);
             generateEnrolmentEctsCell(enrolmentRow, enrolment, isFromDetail);
             generateEnrolmentLastEnrolmentEvaluationTypeCell(enrolmentRow, enrolment);
-            generateExecutionYearCell(enrolmentRow, enrolment);
+            // qubExtension, semester and year in one cell generateExecutionYearCell(enrolmentRow, enrolment);
             generateSemesterCell(enrolmentRow, enrolment);
             generateStatisticsLinkCell(enrolmentRow, enrolment);
             generateLastEnrolmentEvaluationExamDateCellIfRequired(enrolmentRow, enrolment);
@@ -809,7 +812,7 @@ public class StudentCurricularPlanLayout extends Layout {
         generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getWeightCellClass()); // weight
         generateEnrolmentEctsCell(enrolmentRow, enrolment, false);
         generateEnrolmentEvaluationTypeCell(enrolmentRow, enrolment);
-        generateExecutionYearCell(enrolmentRow, enrolment);
+        // qubExtension, semester and year in one cell generateExecutionYearCell(enrolmentRow, enrolment);
         generateSemesterCell(enrolmentRow, enrolment);
         if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass()); // enrolment
@@ -872,13 +875,18 @@ public class StudentCurricularPlanLayout extends Layout {
         // qubExtension, show curricularYear
         final Integer curricularYear = getCurricularYearFor(entry);
         final String yearPart = curricularYear != null ? curricularYear + " "
-                + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year") + " " : "";
+                + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year") + ", " : "";
 
         final String semester = getCurricularSemesterFor(entry).toString() + " "
                 + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
 
-        generateCellWithText(row, yearPart + semester, this.renderer.getEnrolmentSemesterCellClass())
-                .setStyle("font-size: xx-small");
+        final String executionYear = entry.hasExecutionPeriod() ? " " + entry.getExecutionYear().getYear() : "";
+
+        final HtmlTableCell cell =
+                generateCellWithText(row, yearPart + semester + executionYear, this.renderer.getEnrolmentSemesterCellClass());
+        // qubExtension, semester and year in one cell 
+        cell.setColspan(2);
+        cell.setStyle("font-size: xx-small");
     }
 
     /**
@@ -916,6 +924,9 @@ public class StudentCurricularPlanLayout extends Layout {
 //        }
     }
 
+    /**
+     * qubExtension, semester and year in one cell, not being used
+     */
     protected void generateExecutionYearCell(HtmlTableRow row, final ICurriculumEntry entry) {
         generateCellWithText(row, entry.hasExecutionPeriod() ? entry.getExecutionYear().getYear() : EMPTY_INFO,
                 renderer.getEnrolmentExecutionYearCellClass());
