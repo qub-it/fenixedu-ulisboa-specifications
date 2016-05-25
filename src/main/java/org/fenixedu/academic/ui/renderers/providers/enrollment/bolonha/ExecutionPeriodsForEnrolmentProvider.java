@@ -81,11 +81,8 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
         }
 
         final DegreeCurricularPlan dcp = plan.getDegreeCurricularPlan();
+        result.add(dcp.getLastExecutionYear());
         result.addAll(getEndContextExecutionYears(dcp.getRoot()));
-
-        if (result.isEmpty()) {
-            result.add(ExecutionYear.readCurrentExecutionYear());
-        }
 
         return result.last();
     }
@@ -96,6 +93,8 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
             final ExecutionSemester endSemester = context.getEndExecutionPeriod();
             if (endSemester != null) {
                 result.add(endSemester.getExecutionYear());
+            } else {
+                result.add(ExecutionYear.readCurrentExecutionYear().getNextExecutionYear());
             }
             result.addAll(getEndContextExecutionYears((CourseGroup) context.getChildDegreeModule()));
         }
