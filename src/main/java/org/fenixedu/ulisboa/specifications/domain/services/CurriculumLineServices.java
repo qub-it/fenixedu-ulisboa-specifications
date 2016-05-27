@@ -34,7 +34,7 @@ public class CurriculumLineServices {
 
     static public void updateAggregatorEvaluation(final CurriculumLine curriculumLine) {
         final CurriculumAggregator aggregator =
-                CurriculumAggregatorServices.getRootAggregator(CurriculumAggregatorServices.getContext(curriculumLine));
+                CurriculumAggregatorServices.getAggregationRoot(CurriculumAggregatorServices.getContext(curriculumLine));
         if (aggregator != null) {
             aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
         }

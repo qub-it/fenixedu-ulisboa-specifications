@@ -52,7 +52,7 @@ abstract public class CurriculumAggregatorServices {
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumAggregatorServices.class);
 
-    static public CurriculumAggregator getRootAggregator(final Context input) {
+    static public CurriculumAggregator getAggregationRoot(final Context input) {
         CurriculumAggregator result = null;
 
         if (input != null) {
@@ -66,7 +66,7 @@ abstract public class CurriculumAggregatorServices {
 
             final CourseGroup parentGroup = input.getParentCourseGroup();
             if (result == null && !parentGroup.isRoot()) {
-                result = getRootAggregator(getContext(parentGroup, (ExecutionYear) null));
+                result = getAggregationRoot(getContext(parentGroup, (ExecutionYear) null));
             }
         }
 
@@ -114,7 +114,7 @@ abstract public class CurriculumAggregatorServices {
     static public Set<Context> getEnrolmentMasterContexts(final Context context) {
         final Set<Context> result = Sets.newHashSet();
 
-        final CurriculumAggregator aggregator = getRootAggregator(context);
+        final CurriculumAggregator aggregator = getAggregationRoot(context);
         if (aggregator != null) {
 
             result.addAll(aggregator.getEnrolmentMasterContexts());
@@ -126,7 +126,7 @@ abstract public class CurriculumAggregatorServices {
     static public Set<Context> getEnrolmentSlaveContexts(final Context context) {
         final Set<Context> result = Sets.newHashSet();
 
-        final CurriculumAggregator aggregator = getRootAggregator(context);
+        final CurriculumAggregator aggregator = getAggregationRoot(context);
         if (aggregator != null) {
 
             result.addAll(aggregator.getEnrolmentSlaveContexts());
@@ -138,7 +138,7 @@ abstract public class CurriculumAggregatorServices {
     static public boolean isAggregationEnroled(final Context context, final StudentCurricularPlan plan,
             final ExecutionSemester semester) {
 
-        if (getRootAggregator(context) == null) {
+        if (getAggregationRoot(context) == null) {
             return false;
         }
 

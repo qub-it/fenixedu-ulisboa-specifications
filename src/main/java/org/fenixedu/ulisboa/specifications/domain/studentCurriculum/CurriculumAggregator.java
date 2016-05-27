@@ -302,7 +302,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     /**
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
-    private boolean isConcluded(final StudentCurricularPlan plan) {
+    public boolean isConcluded(final StudentCurricularPlan plan) {
 
         if (!plan.hasDegreeModule(getCurricularCourse())) {
             return false;

@@ -28,9 +28,12 @@ package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ver
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 
 public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
 
@@ -46,7 +49,43 @@ public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
     protected RuleResult verifyEnrolmentWithRules(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
             DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {
 
-        return RuleResult.createFalse(degreeModuleToVerify);
+        final CurriculumAggregator aggregatorConcluded =
+                collectAggregatorConcluded(enrolmentContext, getContext(degreeModuleToVerify, parentCourseGroup));
+
+        if (aggregatorConcluded != null) {
+
+            // some Aggregator approval has freed degreeModuleToVerify from being enroled
+            return RuleResult.createFalse(degreeModuleToVerify);
+        } else {
+
+            // degreeModuleToVerify must be verified by PreviousYearsEnrolmentCurricularRule
+            return RuleResult.createTrue(degreeModuleToVerify);
+        }
+    }
+
+    /**
+     * TODO legidio, check this with nadir
+     */
+    static private Context getContext(final DegreeModule degreeModuleToVerify, final CourseGroup parentCourseGroup) {
+        for (final Context context : degreeModuleToVerify.getParentContextsSet()) {
+            if (context.getParentCourseGroup() == parentCourseGroup) {
+                return context;
+            }
+        }
+
+        return null;
+    }
+
+    static private CurriculumAggregator collectAggregatorConcluded(final EnrolmentContext enrolmentContext,
+            final Context context) {
+
+        CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context);
+
+        if (aggregator == null || aggregator.isConcluded(enrolmentContext.getStudentCurricularPlan())) {
+            return aggregator;
+        }
+
+        return collectAggregatorConcluded(enrolmentContext, aggregator.getContext());
     }
 
 }
