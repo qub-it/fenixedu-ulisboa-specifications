@@ -121,7 +121,7 @@ public class StudentEnrolmentsDA
                 enrolment.annul();
 
                 // qubExtension
-                CurriculumLineServices.updateAggregatorGrade(enrolment);
+                CurriculumLineServices.updateAggregatorEvaluation(enrolment);
             });
         } catch (DomainException e) {
             addActionMessage(request, e.getKey(), e.getArgs());
@@ -144,7 +144,7 @@ public class StudentEnrolmentsDA
                 enrolment.activate();
 
                 // qubExtension
-                CurriculumLineServices.updateAggregatorGrade(enrolment);
+                CurriculumLineServices.updateAggregatorEvaluation(enrolment);
             });
         } catch (DomainException e) {
             addActionMessage(request, e.getKey(), e.getArgs());

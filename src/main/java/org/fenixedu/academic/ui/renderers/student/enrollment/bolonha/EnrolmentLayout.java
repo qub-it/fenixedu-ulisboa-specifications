@@ -264,7 +264,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         final Context context = input.getContext();
-        if (CurriculumAggregatorServices.getSlaveContexts(context).contains(context)) {
+        if (CurriculumAggregatorServices.getEnrolmentSlaveContexts(context).contains(context)) {
             return true;
         }
 
@@ -412,15 +412,15 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
             if (aggregator != null) {
 
-                text = aggregator.getDescription();
+                text = aggregator.getDescription().getContent();
 
-                if (aggregator.isMaster()) {
+                if (aggregator.isEnrolmentMaster()) {
                     spanStyleClasses +=
                             CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "success" : "info";
 
-                } else if (aggregator.isSlave()) {
+                } else if (aggregator.isEnrolmentSlave()) {
 
-                    final Set<Context> masterContexts = aggregator.getMasterContexts();
+                    final Set<Context> masterContexts = aggregator.getEnrolmentMasterContexts();
                     final long count = masterContexts.stream()
                             .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
 
@@ -446,16 +446,16 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 text = aggregatorEntry.getDescription();
 
-                if (aggregator.isMaster()) {
+                if (aggregator.isEnrolmentMaster()) {
                     spanStyleClasses += "default";
 
 // TODO legidio, check with school the best view pattern
 //                    spanStyleClasses +=
 //                            CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "primary" : "default";
 
-                } else if (aggregator.isSlave()) {
+                } else if (aggregator.isEnrolmentSlave()) {
 
-                    final Set<Context> masterContexts = aggregator.getMasterContexts();
+                    final Set<Context> masterContexts = aggregator.getEnrolmentMasterContexts();
                     final long count = masterContexts.stream()
                             .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
 

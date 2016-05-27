@@ -40,6 +40,7 @@ enum org.fenixedu.ulisboa.specifications.domain.legal.raides.IntegratedMasterFir
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
 enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationEnrolmentType as AggregationEnrolmentType;
 enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationMemberEvaluationType as AggregationMemberEvaluationType;
+enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationGradeCalculator as AggregationGradeCalculator;
 
 
 
@@ -1511,8 +1512,10 @@ relation CurriculumLineServiceRequestProperty {
 // ==================== BEGIN: Curriculum Aggregator ====================
 
     class studentCurriculum.CurriculumAggregator {
-    	AggregationMemberEvaluationType evaluationType;
+    	LocalizedString description;
     	AggregationEnrolmentType enrolmentType;
+    	AggregationMemberEvaluationType evaluationType;
+    	AggregationGradeCalculator gradeCalculator;
     }
     
 	    relation CurriculumAggregatorContext {
@@ -1546,7 +1549,7 @@ relation CurriculumLineServiceRequestProperty {
 
     class studentCurriculum.CurriculumAggregatorEntry {
     	AggregationMemberEvaluationType evaluationType;
-    	BigDecimal weighing;
+    	BigDecimal gradeFactor;
     }
     
 	    relation CurriculumAggregatorEntryContext {

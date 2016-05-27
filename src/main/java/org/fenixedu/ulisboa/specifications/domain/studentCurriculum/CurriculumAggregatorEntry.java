@@ -28,7 +28,9 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -42,6 +44,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Sets;
 
@@ -54,12 +57,12 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, final Context context,
-            final AggregationMemberEvaluationType evaluationType, final BigDecimal weighing) {
+            final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor) {
 
         final CurriculumAggregatorEntry result = new CurriculumAggregatorEntry();
         result.setAggregator(aggregator);
         result.setContext(context);
-        result.init(evaluationType, weighing);
+        result.init(evaluationType, gradeFactor);
 
         final DegreeModule degreeModule = context.getChildDegreeModule();
         if (degreeModule.isLeaf()) {
@@ -71,16 +74,16 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     @Atomic
-    public CurriculumAggregatorEntry edit(final AggregationMemberEvaluationType evaluationType, final BigDecimal weighing) {
+    public CurriculumAggregatorEntry edit(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor) {
 
-        init(evaluationType, weighing);
+        init(evaluationType, gradeFactor);
 
         return this;
     }
 
-    private void init(final AggregationMemberEvaluationType evaluationType, final BigDecimal weighing) {
+    private void init(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor) {
         super.setEvaluationType(evaluationType);
-        super.setWeighing(weighing);
+        super.setGradeFactor(gradeFactor);
 
         checkRules();
     }
@@ -98,14 +101,8 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.required.EvaluationType");
         }
 
-        if (getWeighing() == null) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.required.Weighing");
-        }
-
-        final BigDecimal sum =
-                getAggregator().getEntriesSet().stream().map(e -> e.getWeighing()).reduce(BigDecimal.ZERO, BigDecimal::add);
-        if (sum.compareTo(BigDecimal.ONE) > 0) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.max.weight");
+        if (getGradeFactor() == null) {
+            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.required.GradeFactor");
         }
     }
 
@@ -150,7 +147,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         return result;
     }
 
-    public BigDecimal calculateGradeValue(final StudentCurricularPlan plan) {
+    protected BigDecimal calculateGradeValue(final StudentCurricularPlan plan) {
         BigDecimal result = BigDecimal.ZERO;
 
         if (isConcluded(plan)) {
@@ -159,18 +156,48 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
             if (approvals.size() == 1) {
                 final Grade grade = approvals.iterator().next().getGrade();
-                if (!grade.isEmpty()) {
+                if (grade.isNumeric()) {
                     result = new BigDecimal(grade.getValue());
                 }
-            } else {
-                final BigDecimal sumPi = approvals.stream().map(i -> new BigDecimal(i.getGrade().getValue()))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                final BigDecimal divisor = new BigDecimal(approvals.stream().filter(i -> !i.getGrade().isEmpty()).count());
 
-                final BigDecimal avg = sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPi.divide(divisor, 10,
-                        RoundingMode.UNNECESSARY);
+            } else {
+
+                final Supplier<Stream<ICurriculumEntry>> supplier =
+                        () -> approvals.stream().filter(i -> i.getGrade().isNumeric());
+
+                final BigDecimal sum =
+                        supplier.get().map(i -> new BigDecimal(i.getGrade().getValue())).reduce(BigDecimal.ZERO, BigDecimal::add);
+                final BigDecimal divisor = new BigDecimal(supplier.get().count());
+
+                final BigDecimal avg =
+                        sum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sum.divide(divisor, 10, RoundingMode.UNNECESSARY);
 
                 result = avg.setScale(10, RoundingMode.UNNECESSARY);
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    protected YearMonthDay calculateConclusionDate(final StudentCurricularPlan plan) {
+        YearMonthDay result = null;
+
+        if (isConcluded(plan)) {
+            final Set<ICurriculumEntry> approvals = getApprovedCurriculumLines(plan).stream()
+                    .filter(i -> i instanceof ICurriculumEntry).map(i -> ((ICurriculumEntry) i)).collect(Collectors.toSet());
+
+            if (approvals.size() == 1) {
+                result = approvals.iterator().next().getApprovementDate();
+
+            } else {
+
+                for (final ICurriculumEntry iter : approvals) {
+                    final YearMonthDay conclusionDate = iter.getApprovementDate();
+                    if (conclusionDate != null && (result == null || conclusionDate.isAfter(result))) {
+                        result = conclusionDate;
+                    }
+                }
             }
         }
 

@@ -67,7 +67,7 @@ abstract public class CurriculumAggregatorListeners {
 
     /**
      * Attention: Enrolments are dealt with explicitly upon their grade change, since (un)enrol doesn't change aggregator grade.
-     * See other usages of CurriculumLineServices.updateAggregatorGrade(CurriculumLine)
+     * See other usages of CurriculumLineServices.updateAggregatorEvaluation(CurriculumLine)
      */
     static private void registerDismissalListeners() {
 
@@ -84,7 +84,7 @@ abstract public class CurriculumAggregatorListeners {
                 }
 
                 checkToEnrol(dismissal);
-                CurriculumLineServices.updateAggregatorGrade(dismissal);
+                CurriculumLineServices.updateAggregatorEvaluation(dismissal);
             }
         });
 
@@ -101,7 +101,7 @@ abstract public class CurriculumAggregatorListeners {
                 }
 
                 checkToRemove(dismissal);
-                CurriculumLineServices.updateAggregatorGrade(dismissal);
+                CurriculumLineServices.updateAggregatorEvaluation(dismissal);
             }
         });
     }

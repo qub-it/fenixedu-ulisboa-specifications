@@ -43,6 +43,7 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.base.Strings;
 
@@ -235,12 +236,12 @@ public class OptionalEnrolmentLayout extends Layout {
         final StudentCurricularPlan scp = this.bolonhaStudentOptionalEnrollmentBean.getStudentCurricularPlan();
 
         if (AnyCurricularCourseExceptionsExecutorLogic.isException(course.getCompetenceCourse(), dcp, scp)) {
-            return BundleUtil.getString("resources/FenixeduUlisboaSpecificationsResources",
-                    "curricularRules.ruleExecutors.AnyCurricularCourseExceptions.not.offered.label");
+            return ULisboaSpecificationsUtil
+                    .bundle("curricularRules.ruleExecutors.AnyCurricularCourseExceptions.not.offered.label");
         }
 
-        if (CurriculumAggregatorServices.getSlaveContexts(input).contains(input)) {
-            return "Tronco/Módulo";
+        if (CurriculumAggregatorServices.getEnrolmentSlaveContexts(input).contains(input)) {
+            return ULisboaSpecificationsUtil.bundle("CurriculumAggregator");
         }
 
         if (CompetenceCourseServices.isCompetenceCourseApproved(scp, course)) {

@@ -26,11 +26,9 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.function.Function;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -40,16 +38,19 @@ import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.YearMonthDay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,31 +68,36 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     }
 
     @Atomic
-    static public CurriculumAggregator create(final Context context, final AggregationMemberEvaluationType evaluationType,
-            final EvaluationSeason evaluationSeason, final AggregationEnrolmentType enrolmentType) {
+    static public CurriculumAggregator create(final Context context, final LocalizedString description,
+            final AggregationEnrolmentType enrolmentType, final AggregationMemberEvaluationType evaluationType,
+            final AggregationGradeCalculator gradeCalculator, final EvaluationSeason evaluationSeason) {
 
         final CurriculumAggregator result = new CurriculumAggregator();
         result.setContext(context);
-        result.init(evaluationType, evaluationSeason, enrolmentType);
+        result.init(description, enrolmentType, evaluationType, gradeCalculator, evaluationSeason);
 
         return result;
     }
 
     @Atomic
-    public CurriculumAggregator edit(final AggregationMemberEvaluationType evaluationType,
-            final EvaluationSeason evaluationSeason, final AggregationEnrolmentType enrolmentType) {
+    public CurriculumAggregator edit(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
+            final AggregationMemberEvaluationType evaluationType, final AggregationGradeCalculator gradeCalculator,
+            final EvaluationSeason evaluationSeason) {
 
-        init(evaluationType, evaluationSeason, enrolmentType);
+        init(description, enrolmentType, evaluationType, gradeCalculator, evaluationSeason);
 
         return this;
     }
 
-    private void init(final AggregationMemberEvaluationType evaluationType, final EvaluationSeason evaluationSeason,
-            final AggregationEnrolmentType enrolmentType) {
+    private void init(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
+            final AggregationMemberEvaluationType evaluationType, final AggregationGradeCalculator gradeCalculator,
+            final EvaluationSeason evaluationSeason) {
 
-        super.setEvaluationType(evaluationType);
-        super.setEvaluationSeason(evaluationSeason);
+        super.setDescription(description);
         super.setEnrolmentType(enrolmentType);
+        super.setEvaluationType(evaluationType);
+        super.setGradeCalculator(gradeCalculator);
+        super.setEvaluationSeason(evaluationSeason);
 
         checkRules();
     }
@@ -101,16 +107,24 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             throw new DomainException("error.CurriculumAggregator.required.Context");
         }
 
-        if (getEvaluationType() == null) {
-            throw new DomainException("error.CurriculumAggregator.required.EvaluationType");
-        }
-
-        if (getEvaluationSeason() == null) {
-            throw new DomainException("error.CurriculumAggregator.required.EvaluationSeason");
+        if (getDescription() == null || getDescription().isEmpty()) {
+            throw new DomainException("error.CurriculumAggregator.required.Description");
         }
 
         if (getEnrolmentType() == null) {
             throw new DomainException("error.CurriculumAggregator.required.EnrolmentType");
+        }
+
+        if (getEvaluationType() == null) {
+            throw new DomainException("error.CurriculumAggregator.required.EvaluationType");
+        }
+
+        if (getGradeCalculator() == null) {
+            throw new DomainException("error.CurriculumAggregator.required.GradeCalculator");
+        }
+        
+        if (getEvaluationSeason() == null) {
+            throw new DomainException("error.CurriculumAggregator.required.EvaluationSeason");
         }
     }
 
@@ -128,16 +142,22 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
     @Atomic
     public CurriculumAggregatorEntry createEntry(final Context context, final AggregationMemberEvaluationType evaluationType,
-            final BigDecimal weighing) {
+            final BigDecimal gradeFactor) {
 
-        final CurriculumAggregatorEntry result = CurriculumAggregatorEntry.create(this, context, evaluationType, weighing);
+        final CurriculumAggregatorEntry result = CurriculumAggregatorEntry.create(this, context, evaluationType, gradeFactor);
 
         checkRules();
         return result;
     }
 
-    public String getDescription() {
-        return isMaster() ? "Módulo" : "Tronco";
+    @Override
+    public LocalizedString getDescription() {
+        if (super.getDescription() != null && !super.getDescription().isEmpty()) {
+            return super.getDescription();
+        }
+
+        return ULisboaSpecificationsUtil
+                .bundleI18N(isEnrolmentMaster() ? "CurriculumAggregator.master" : "CurriculumAggregator.slave");
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlan() {
@@ -148,32 +168,48 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
+    @Override
+    public EvaluationSeason getEvaluationSeason() {
+        return isWithoutMarkSheet() ? super.getEvaluationSeason() : null;
+    }
+
+    private boolean isWithMarkSheet() {
+        return getEvaluationType() == AggregationMemberEvaluationType.WITH_MARK_SHEET;
+    }
+
+    private boolean isWithoutMarkSheet() {
+        return getEvaluationType() == AggregationMemberEvaluationType.WITHOUT_MARK_SHEET;
+    }
+
     public boolean isCandidateForEvaluation() {
         return getEvaluationType().isCandidateForEvaluation();
     }
 
-    public boolean isEvaluatedByEntries() {
-        return getEvaluationType() == AggregationMemberEvaluationType.WITH_WEIGHING_GRADE;
-    }
-
-    public boolean isMaster() {
+    public boolean isEnrolmentMaster() {
         return getEnrolmentType() == AggregationEnrolmentType.ONLY_AGGREGATOR;
     }
 
-    public boolean isSlave() {
+    public boolean isEnrolmentSlave() {
         return getEnrolmentType() == AggregationEnrolmentType.ONLY_AGGREGATOR_ENTRIES;
     }
 
-    public void updateGrade(final StudentCurricularPlan plan) {
-
-        if (!isEvaluatedByEntries()) {
-            return;
-        }
+    public void updateEvaluation(final StudentCurricularPlan plan) {
 
         final Enrolment enrolment = getLastEnrolment(plan);
         if (enrolment == null) {
             return;
         }
+
+        if (isWithMarkSheet()) {
+            updateMarkSheets(enrolment);
+
+        } else if (isWithoutMarkSheet()) {
+            updateGrade(enrolment);
+        }
+    }
+
+    private void updateGrade(final Enrolment enrolment) {
+        final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
 
         // get EnrolmentEvaluation
         final EnrolmentEvaluation evaluation;
@@ -185,11 +221,13 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             evaluation = enrolment.getEvaluationsSet().iterator().next();
         }
 
-        if (isConcluded(plan)) {
+        final Grade conclusionGrade = calculateConclusionGrade(plan);
+        final Date conclusionDate = calculateConclusionDate(plan);
+        if (!conclusionGrade.isEmpty()) {
 
-            final Date now = new Date();
-            evaluation.edit(Authenticate.getUser().getPerson(), calculateGrade(plan), now, now);
-            evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescription());
+            final Date availableDate = new Date();
+            evaluation.edit(Authenticate.getUser().getPerson(), conclusionGrade, availableDate, conclusionDate);
+            evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescription().getContent());
 
         } else {
 
@@ -204,6 +242,26 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         EnrolmentServices.updateState(enrolment);
+    }
+
+    private void updateMarkSheets(final Enrolment enrolment) {
+        final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
+
+        final Grade conclusionGrade = calculateConclusionGrade(plan);
+        enrolment.getEvaluationsSet().stream().map(i -> i.getCompetenceCourseMarkSheet())
+                .forEach(i -> updateMarkSheet(i, enrolment, conclusionGrade));
+    }
+
+    private void updateMarkSheet(final CompetenceCourseMarkSheet markSheet, final Enrolment enrolment,
+            final Grade conclusionGrade) {
+
+        if (markSheet != null) {
+            final String reason =
+                    ULisboaSpecificationsUtil.bundle("CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason",
+                            getDescription().getContent(), enrolment.getFullPath(), conclusionGrade.getValue());
+
+            CompetenceCourseMarkSheetChangeRequest.create(markSheet, Authenticate.getUser().getPerson(), reason);
+        }
     }
 
     private Enrolment getLastEnrolment(final StudentCurricularPlan plan) {
@@ -267,34 +325,42 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     /**
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
-    private Grade calculateGrade(final StudentCurricularPlan plan) {
-        if (getEntriesSet().isEmpty()) {
+    public Grade calculateConclusionGrade(final StudentCurricularPlan plan) {
+        if (getEntriesSet().isEmpty() || !isConcluded(plan)) {
             return Grade.createEmptyGrade();
         }
 
-        final BigDecimal sum = getEntriesSet().stream().map(e -> e.getWeighing()).reduce(BigDecimal.ZERO, BigDecimal::add);
-        if (sum.compareTo(BigDecimal.ONE) != 0) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.unexpected.total.weight");
-        }
-
-        final Function<CurriculumAggregatorEntry, BigDecimal> mapper = i -> i.calculateGradeValue(plan).multiply(i.getWeighing());
-        final BigDecimal sumPiCi = getEntriesSet().stream().map(mapper).reduce(BigDecimal.ZERO, BigDecimal::add);
-        final BigDecimal divisor =
-                new BigDecimal(getEntriesSet().stream().filter(i -> i.calculateGradeValue(plan) != BigDecimal.ZERO).count());
-
-        final BigDecimal avg =
-                sumPiCi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(divisor, RoundingMode.HALF_UP);
-
-        return Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
+        return getGradeCalculator().calculate(this, plan);
     }
 
-    public Set<Context> getMasterContexts() {
+    /**
+     * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
+     */
+    @SuppressWarnings("deprecation")
+    private Date calculateConclusionDate(final StudentCurricularPlan plan) {
+        if (getEntriesSet().isEmpty() || !isConcluded(plan)) {
+            return null;
+        }
+
+        YearMonthDay result = null;
+
+        for (final CurriculumAggregatorEntry iter : getEntriesSet()) {
+            final YearMonthDay conclusionDate = iter.calculateConclusionDate(plan);
+            if (conclusionDate != null && (result == null || conclusionDate.isAfter(result))) {
+                result = conclusionDate;
+            }
+        }
+
+        return new Date(result.getYear(), result.getMonthOfYear(), result.getDayOfMonth());
+    }
+
+    public Set<Context> getEnrolmentMasterContexts() {
         final Set<Context> result = Sets.newHashSet();
 
-        if (isMaster()) {
+        if (isEnrolmentMaster()) {
             result.add(getContext());
 
-        } else if (isSlave()) {
+        } else if (isEnrolmentSlave()) {
             // Warning: must collect contexts from inner groups in order to know when this aggregator can be enroled
             getEntriesSet().stream().forEach(i -> result.add(i.getContext()));
         }
@@ -302,14 +368,14 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return result;
     }
 
-    public Set<Context> getSlaveContexts() {
+    public Set<Context> getEnrolmentSlaveContexts() {
         final Set<Context> result = Sets.newHashSet();
 
-        if (isMaster()) {
+        if (isEnrolmentMaster()) {
             // Warning: no need to collect contexts from inner groups since enroling in aggregator can never replace the human choice within those groups
             getEntriesSet().stream().forEach(i -> result.add(i.getContext()));
 
-        } else if (isSlave()) {
+        } else if (isEnrolmentSlave()) {
             result.add(getContext());
         }
 

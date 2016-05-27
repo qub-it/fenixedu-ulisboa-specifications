@@ -32,11 +32,11 @@ public class CurriculumLineServices {
                 .getCurricularYear();
     }
 
-    static public void updateAggregatorGrade(final CurriculumLine curriculumLine) {
+    static public void updateAggregatorEvaluation(final CurriculumLine curriculumLine) {
         final CurriculumAggregator aggregator =
-                CurriculumAggregatorServices.getAggregator(CurriculumAggregatorServices.getContext(curriculumLine));
+                CurriculumAggregatorServices.getRootAggregator(CurriculumAggregatorServices.getContext(curriculumLine));
         if (aggregator != null) {
-            aggregator.updateGrade(curriculumLine.getStudentCurricularPlan());
+            aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
         }
     }
 

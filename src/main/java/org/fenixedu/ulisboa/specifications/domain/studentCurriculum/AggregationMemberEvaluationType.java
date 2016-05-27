@@ -39,9 +39,9 @@ public enum AggregationMemberEvaluationType implements IPresentableEnum {
 
     WITHOUT_GRADE,
 
-    WITH_EXPLICIT_GRADE,
+    WITH_MARK_SHEET,
 
-    WITH_WEIGHING_GRADE;
+    WITHOUT_MARK_SHEET;
 
     @Override
     public String getLocalizedName() {
@@ -55,11 +55,11 @@ public enum AggregationMemberEvaluationType implements IPresentableEnum {
 
     static public Collection<AggregationMemberEvaluationType> valuesForAggregatorEntry() {
         return Lists.newArrayList(AggregationMemberEvaluationType.values()).stream()
-                .filter(i -> i != AggregationMemberEvaluationType.WITH_WEIGHING_GRADE).collect(Collectors.toList());
+                .filter(i -> i != AggregationMemberEvaluationType.WITHOUT_MARK_SHEET).collect(Collectors.toList());
     }
 
     public boolean isCandidateForEvaluation() {
-        return this == WITH_EXPLICIT_GRADE;
+        return this == WITH_MARK_SHEET;
     }
 
 }
