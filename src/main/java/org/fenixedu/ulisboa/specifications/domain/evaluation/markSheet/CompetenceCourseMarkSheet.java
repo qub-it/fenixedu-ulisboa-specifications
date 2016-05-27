@@ -635,7 +635,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             }
         }
 
-        if (!CurriculumAggregatorServices.isCandidateForEvaluation(enrolment)) {
+        if (!CurriculumAggregatorServices.isCandidateForEvaluation(season, enrolment)) {
             return false;
         }
 

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -297,14 +298,14 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static public boolean isCandidateForEvaluation(final Enrolment enrolment) {
+    static public boolean isCandidateForEvaluation(final EvaluationSeason season, final Enrolment enrolment) {
         boolean result = true;
 
         final Context context = getContext(enrolment);
         if (context != null) {
 
             final CurriculumAggregator aggregator = context.getCurriculumAggregator();
-            if (aggregator != null && !aggregator.isCandidateForEvaluation()) {
+            if (aggregator != null && !aggregator.isCandidateForEvaluation(season)) {
                 result = false;
             }
 

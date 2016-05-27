@@ -122,7 +122,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         if (getGradeCalculator() == null) {
             throw new DomainException("error.CurriculumAggregator.required.GradeCalculator");
         }
-        
+
         if (getEvaluationSeason() == null) {
             throw new DomainException("error.CurriculumAggregator.required.EvaluationSeason");
         }
@@ -168,11 +168,6 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
-    @Override
-    public EvaluationSeason getEvaluationSeason() {
-        return isWithoutMarkSheet() ? super.getEvaluationSeason() : null;
-    }
-
     private boolean isWithMarkSheet() {
         return getEvaluationType() == AggregationMemberEvaluationType.WITH_MARK_SHEET;
     }
@@ -181,8 +176,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getEvaluationType() == AggregationMemberEvaluationType.WITHOUT_MARK_SHEET;
     }
 
-    public boolean isCandidateForEvaluation() {
-        return getEvaluationType().isCandidateForEvaluation();
+    public boolean isCandidateForEvaluation(final EvaluationSeason season) {
+        return getEvaluationType().isCandidateForEvaluation() && (getEvaluationSeason() == season || season.isImprovement());
     }
 
     public boolean isEnrolmentMaster() {
