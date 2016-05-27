@@ -75,7 +75,8 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
 
     @Override
     public String getLocalizedName() {
-        return ULisboaSpecificationsUtil.bundleI18N(this.getClass().getSimpleName() + "." + name()).getContent(I18N.getLocale());
+        return ULisboaSpecificationsUtil.bundleI18N(AggregationGradeCalculator.class.getSimpleName() + "." + name())
+                .getContent(I18N.getLocale());
     }
 
     abstract public Grade calculate(final CurriculumAggregator aggregator, final StudentCurricularPlan plan);

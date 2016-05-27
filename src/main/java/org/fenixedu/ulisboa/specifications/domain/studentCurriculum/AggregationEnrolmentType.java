@@ -40,7 +40,8 @@ public enum AggregationEnrolmentType implements IPresentableEnum {
 
     @Override
     public String getLocalizedName() {
-        return ULisboaSpecificationsUtil.bundleI18N(this.getClass().getSimpleName() + "." + name()).getContent(I18N.getLocale());
+        return ULisboaSpecificationsUtil.bundleI18N(AggregationEnrolmentType.class.getSimpleName() + "." + name())
+                .getContent(I18N.getLocale());
     }
 
 }
