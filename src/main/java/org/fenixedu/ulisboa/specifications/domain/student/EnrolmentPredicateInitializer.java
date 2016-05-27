@@ -106,7 +106,7 @@ abstract public class EnrolmentPredicateInitializer {
                         enrolment.getName().getContent());
             }
 
-            if (!CurriculumAggregatorServices.isCandidateForEvaluation(enrolment)) {
+            if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
                         enrolment.getName().getContent());
@@ -136,7 +136,7 @@ abstract public class EnrolmentPredicateInitializer {
                         enrolment.getName().getContent());
             }
 
-            if (!CurriculumAggregatorServices.isCandidateForEvaluation(enrolment)) {
+            if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
                         enrolment.getName().getContent());

@@ -550,7 +550,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
                     final Context context = CurriculumAggregatorServices.getContext(e.getEnrolment());
                     final CurriculumAggregator aggregator = context.getCurriculumAggregator();
-                    if (aggregator != null && aggregator.isCandidateForEvaluation()) {
+                    if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
                         gradeSuggestion = aggregator.calculateConclusionGrade(e.getStudentCurricularPlan());
                     }
                 }
