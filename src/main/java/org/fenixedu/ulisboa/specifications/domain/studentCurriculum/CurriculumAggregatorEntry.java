@@ -40,7 +40,6 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -147,12 +146,23 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         return result;
     }
 
+    protected Set<ICurriculumEntry> getApprovedCurriculumEntries(final StudentCurricularPlan plan) {
+        final Set<ICurriculumEntry> result = Sets.newHashSet();
+
+        final CurriculumModule approval = getApprovedCurriculumModule(plan);
+        if (approval != null) {
+            result.addAll(approval.getApprovedCurriculumLines().stream().filter(i -> i instanceof ICurriculumEntry)
+                    .map(i -> ((ICurriculumEntry) i)).collect(Collectors.toSet()));
+        }
+
+        return result;
+    }
+
     protected BigDecimal calculateGradeValue(final StudentCurricularPlan plan) {
         BigDecimal result = BigDecimal.ZERO;
 
         if (isConcluded(plan)) {
-            final Set<ICurriculumEntry> approvals = getApprovedCurriculumLines(plan).stream()
-                    .filter(i -> i instanceof ICurriculumEntry).map(i -> ((ICurriculumEntry) i)).collect(Collectors.toSet());
+            final Set<ICurriculumEntry> approvals = getApprovedCurriculumEntries(plan);
 
             if (approvals.size() == 1) {
                 final Grade grade = approvals.iterator().next().getGrade();
@@ -184,8 +194,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         YearMonthDay result = null;
 
         if (isConcluded(plan)) {
-            final Set<ICurriculumEntry> approvals = getApprovedCurriculumLines(plan).stream()
-                    .filter(i -> i instanceof ICurriculumEntry).map(i -> ((ICurriculumEntry) i)).collect(Collectors.toSet());
+            final Set<ICurriculumEntry> approvals = getApprovedCurriculumEntries(plan);
 
             if (approvals.size() == 1) {
                 result = approvals.iterator().next().getApprovementDate();
@@ -199,17 +208,6 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                     }
                 }
             }
-        }
-
-        return result;
-    }
-
-    protected Set<CurriculumLine> getApprovedCurriculumLines(final StudentCurricularPlan plan) {
-        final Set<CurriculumLine> result = Sets.newHashSet();
-
-        final CurriculumModule approval = getApprovedCurriculumModule(plan);
-        if (approval != null) {
-            result.addAll(approval.getApprovedCurriculumLines());
         }
 
         return result;

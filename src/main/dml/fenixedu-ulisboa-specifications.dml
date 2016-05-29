@@ -1516,6 +1516,7 @@ relation CurriculumLineServiceRequestProperty {
     	AggregationEnrolmentType enrolmentType;
     	AggregationMemberEvaluationType evaluationType;
     	AggregationGradeCalculator gradeCalculator;
+    	int optionalConcluded;
     }
     
 	    relation CurriculumAggregatorContext {
@@ -1550,6 +1551,7 @@ relation CurriculumLineServiceRequestProperty {
     class studentCurriculum.CurriculumAggregatorEntry {
     	AggregationMemberEvaluationType evaluationType;
     	BigDecimal gradeFactor;
+    	boolean optional;
     }
     
 	    relation CurriculumAggregatorEntryContext {

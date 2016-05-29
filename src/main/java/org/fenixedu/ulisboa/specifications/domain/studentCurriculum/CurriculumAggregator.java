@@ -32,7 +32,6 @@ import java.util.SortedSet;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -41,7 +40,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -70,34 +69,36 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     @Atomic
     static public CurriculumAggregator create(final Context context, final LocalizedString description,
             final AggregationEnrolmentType enrolmentType, final AggregationMemberEvaluationType evaluationType,
-            final AggregationGradeCalculator gradeCalculator, final EvaluationSeason evaluationSeason) {
+            final EvaluationSeason evaluationSeason, final AggregationGradeCalculator gradeCalculator,
+            final int optionalConcluded) {
 
         final CurriculumAggregator result = new CurriculumAggregator();
         result.setContext(context);
-        result.init(description, enrolmentType, evaluationType, gradeCalculator, evaluationSeason);
+        result.init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, optionalConcluded);
 
         return result;
     }
 
     @Atomic
     public CurriculumAggregator edit(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
-            final AggregationMemberEvaluationType evaluationType, final AggregationGradeCalculator gradeCalculator,
-            final EvaluationSeason evaluationSeason) {
+            final AggregationMemberEvaluationType evaluationType, final EvaluationSeason evaluationSeason,
+            final AggregationGradeCalculator gradeCalculator, final int optionalConcluded) {
 
-        init(description, enrolmentType, evaluationType, gradeCalculator, evaluationSeason);
+        init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, optionalConcluded);
 
         return this;
     }
 
     private void init(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
-            final AggregationMemberEvaluationType evaluationType, final AggregationGradeCalculator gradeCalculator,
-            final EvaluationSeason evaluationSeason) {
+            final AggregationMemberEvaluationType evaluationType, final EvaluationSeason evaluationSeason,
+            final AggregationGradeCalculator gradeCalculator, final int optionalConcluded) {
 
         super.setDescription(description);
         super.setEnrolmentType(enrolmentType);
         super.setEvaluationType(evaluationType);
-        super.setGradeCalculator(gradeCalculator);
         super.setEvaluationSeason(evaluationSeason);
+        super.setGradeCalculator(gradeCalculator);
+        super.setOptionalConcluded(optionalConcluded);
 
         checkRules();
     }
@@ -283,12 +284,12 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         if (plan != null) {
 
-            final SortedSet<CurriculumLine> lines = Sets.newTreeSet((x, y) -> {
+            final SortedSet<ICurriculumEntry> lines = Sets.newTreeSet((x, y) -> {
                 final int c = x.getExecutionYear().compareTo(y.getExecutionYear());
-                return c == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(x, y) : c;
+                return c == 0 ? ICurriculumEntry.COMPARATOR_BY_ID.compare(x, y) : c;
             });
             for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-                lines.addAll(entry.getApprovedCurriculumLines(plan));
+                lines.addAll(entry.getApprovedCurriculumEntries(plan));
             }
 
             if (!lines.isEmpty()) {
@@ -308,10 +309,22 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             return false;
         }
 
+        int optionalConcludedEntries = 0;
+
         for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
+
             if (!entry.isConcluded(plan)) {
-                return false;
+                if (!entry.getOptional()) {
+                    return false;
+                }
+
+            } else if (entry.getOptional()) {
+                optionalConcludedEntries = optionalConcludedEntries + 1;
             }
+        }
+
+        if (optionalConcludedEntries < getOptionalConcluded()) {
+            return false;
         }
 
         return true;
