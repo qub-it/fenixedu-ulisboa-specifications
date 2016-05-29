@@ -56,12 +56,12 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, final Context context,
-            final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor) {
+            final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor, final boolean optional) {
 
         final CurriculumAggregatorEntry result = new CurriculumAggregatorEntry();
         result.setAggregator(aggregator);
         result.setContext(context);
-        result.init(evaluationType, gradeFactor);
+        result.init(evaluationType, gradeFactor, optional);
 
         final DegreeModule degreeModule = context.getChildDegreeModule();
         if (degreeModule.isLeaf()) {
@@ -73,16 +73,20 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     @Atomic
-    public CurriculumAggregatorEntry edit(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor) {
+    public CurriculumAggregatorEntry edit(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor,
+            final boolean optional) {
 
-        init(evaluationType, gradeFactor);
+        init(evaluationType, gradeFactor, optional);
 
         return this;
     }
 
-    private void init(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor) {
+    private void init(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor,
+            final boolean optional) {
+
         super.setEvaluationType(evaluationType);
         super.setGradeFactor(gradeFactor);
+        super.setOptional(optional);
 
         checkRules();
     }

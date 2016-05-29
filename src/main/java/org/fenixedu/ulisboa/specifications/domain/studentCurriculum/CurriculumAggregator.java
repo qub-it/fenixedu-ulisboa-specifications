@@ -143,9 +143,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
     @Atomic
     public CurriculumAggregatorEntry createEntry(final Context context, final AggregationMemberEvaluationType evaluationType,
-            final BigDecimal gradeFactor) {
+            final BigDecimal gradeFactor, final boolean optional) {
 
-        final CurriculumAggregatorEntry result = CurriculumAggregatorEntry.create(this, context, evaluationType, gradeFactor);
+        final CurriculumAggregatorEntry result =
+                CurriculumAggregatorEntry.create(this, context, evaluationType, gradeFactor, optional);
 
         checkRules();
         return result;
