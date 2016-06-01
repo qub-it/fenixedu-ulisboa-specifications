@@ -28,6 +28,8 @@ package org.fenixedu.ulisboa.specifications.ui;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
 import org.fenixedu.bennu.portal.domain.MenuItem;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.spring.FenixEDUBaseController;
@@ -47,8 +49,11 @@ public class StartPage extends FenixEDUBaseController {
 
     @RequestMapping("/")
     public String index(Model model, RedirectAttributes redirectAttributes) {
-        Optional<MenuItem> findFirst = PortalConfiguration.getInstance().getMenu().getUserMenuStream().findFirst();
-        String path = findFirst.isPresent() ? findFirst.get().getPath() : "/";
-        return redirect(path, model, redirectAttributes);
+        if (AccessControl.getPerson() != null) {
+            Optional<MenuItem> findFirst = PortalConfiguration.getInstance().getMenu().getUserMenuStream().findFirst();
+            String path = findFirst.isPresent() ? findFirst.get().getPath() : "/";
+            return redirect(path, model, redirectAttributes);
+        }
+        throw BennuCoreDomainException.resourceNotFound("startPage asked but no logged user");
     }
 }
