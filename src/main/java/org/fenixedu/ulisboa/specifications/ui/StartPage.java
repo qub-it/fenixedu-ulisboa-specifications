@@ -26,6 +26,9 @@
  */
 package org.fenixedu.ulisboa.specifications.ui;
 
+import java.util.Optional;
+
+import org.fenixedu.bennu.portal.domain.MenuItem;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.spring.FenixEDUBaseController;
 import org.springframework.stereotype.Controller;
@@ -44,7 +47,8 @@ public class StartPage extends FenixEDUBaseController {
 
     @RequestMapping("/")
     public String index(Model model, RedirectAttributes redirectAttributes) {
-        String path = PortalConfiguration.getInstance().getMenu().getUserMenuStream().findFirst().get().getPath();
+        Optional<MenuItem> findFirst = PortalConfiguration.getInstance().getMenu().getUserMenuStream().findFirst();
+        String path = findFirst.isPresent() ? findFirst.get().getPath() : "/";
         return redirect(path, model, redirectAttributes);
     }
 }
