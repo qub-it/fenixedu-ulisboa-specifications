@@ -82,8 +82,7 @@ public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_B
 
     @Override
     public boolean isVisible() {
-        // TODO legidio, set false after development closes 
-        return true;
+        return false;
     }
 
 }
