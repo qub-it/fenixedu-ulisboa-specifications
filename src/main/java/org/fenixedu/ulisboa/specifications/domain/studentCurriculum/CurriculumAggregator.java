@@ -71,12 +71,13 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     @Atomic
     static public CurriculumAggregator create(final Context context, final LocalizedString description,
             final AggregationEnrolmentType enrolmentType, final AggregationMemberEvaluationType evaluationType,
-            final EvaluationSeason evaluationSeason, final AggregationGradeCalculator gradeCalculator,
+            final EvaluationSeason evaluationSeason, final AggregationGradeCalculator gradeCalculator, final int gradeValueScale,
             final int optionalConcluded) {
 
         final CurriculumAggregator result = new CurriculumAggregator();
         result.setContext(context);
-        result.init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, optionalConcluded);
+        result.init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, gradeValueScale,
+                optionalConcluded);
 
         return result;
     }
@@ -84,22 +85,23 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     @Atomic
     public CurriculumAggregator edit(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
             final AggregationMemberEvaluationType evaluationType, final EvaluationSeason evaluationSeason,
-            final AggregationGradeCalculator gradeCalculator, final int optionalConcluded) {
+            final AggregationGradeCalculator gradeCalculator, final int gradeValueScale, final int optionalConcluded) {
 
-        init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, optionalConcluded);
+        init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, gradeValueScale, optionalConcluded);
 
         return this;
     }
 
     private void init(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
             final AggregationMemberEvaluationType evaluationType, final EvaluationSeason evaluationSeason,
-            final AggregationGradeCalculator gradeCalculator, final int optionalConcluded) {
+            final AggregationGradeCalculator gradeCalculator, final int gradeValueScale, final int optionalConcluded) {
 
         super.setDescription(description);
         super.setEnrolmentType(enrolmentType);
         super.setEvaluationType(evaluationType);
         super.setEvaluationSeason(evaluationSeason);
         super.setGradeCalculator(gradeCalculator);
+        super.setGradeValueScale(gradeValueScale);
         super.setOptionalConcluded(optionalConcluded);
 
         checkRules();
@@ -122,12 +124,20 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             throw new DomainException("error.CurriculumAggregator.required.EvaluationType");
         }
 
+        if (getEvaluationSeason() == null) {
+            throw new DomainException("error.CurriculumAggregator.required.EvaluationSeason");
+        }
+
         if (getGradeCalculator() == null) {
             throw new DomainException("error.CurriculumAggregator.required.GradeCalculator");
         }
 
-        if (getEvaluationSeason() == null) {
-            throw new DomainException("error.CurriculumAggregator.required.EvaluationSeason");
+        if (getGradeValueScale() < 0) {
+            throw new DomainException("error.CurriculumAggregator.required.GradeValueScale");
+        }
+
+        if (getOptionalConcluded() < 0) {
+            throw new DomainException("error.CurriculumAggregator.required.OptionalConcluded");
         }
     }
 
