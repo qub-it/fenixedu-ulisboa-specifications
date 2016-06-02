@@ -1516,6 +1516,7 @@ relation CurriculumLineServiceRequestProperty {
     	AggregationEnrolmentType enrolmentType;
     	AggregationMemberEvaluationType evaluationType;
     	AggregationGradeCalculator gradeCalculator;
+    	int gradeValueScale;
     	int optionalConcluded;
     }
     

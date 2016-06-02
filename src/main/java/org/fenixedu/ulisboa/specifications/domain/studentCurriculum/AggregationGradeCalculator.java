@@ -54,7 +54,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
             final BigDecimal value = sumEntriesInput.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumEntriesInput
                     .divide(sumEntriesFactor, RoundingMode.HALF_UP);
 
-            return createGrade(value, getGradeScale());
+            return createGrade(value, getGradeScale(), aggregator.getGradeValueScale());
         }
     },
 
@@ -68,7 +68,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
 
             final BigDecimal value = sumEntriesInput;
 
-            return createGrade(value, getGradeScale());
+            return createGrade(value, getGradeScale(), aggregator.getGradeValueScale());
         }
 
     };
@@ -89,12 +89,12 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
         return i -> i.calculateGradeValue(plan).multiply(i.getGradeFactor());
     }
 
-    static private Grade createGrade(final BigDecimal value, final GradeScale gradeScale) {
+    static private Grade createGrade(final BigDecimal value, final GradeScale gradeScale, final int gradeValueScale) {
         if (BigDecimal.valueOf(20d).compareTo(value) < 0) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade");
         }
 
-        return Grade.createGrade(value.setScale(0, RoundingMode.HALF_UP).toString(), gradeScale);
+        return Grade.createGrade(value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString(), gradeScale);
     }
 
 }
