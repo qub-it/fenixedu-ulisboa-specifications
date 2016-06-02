@@ -27,6 +27,7 @@ package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +51,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
@@ -325,6 +327,31 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         return false;
+    }
+
+    @Override
+    protected void generateEnrolments(final StudentCurriculumGroupBean studentCurriculumGroupBean, final HtmlTable groupTable) {
+
+        // qubExtension, show sorted enrolments
+        studentCurriculumGroupBean.getEnrolledCurriculumCourses().sort((o1, o2) -> {
+
+            final Optional<Context> c1 = CurriculumLineServices.getParentContexts(o1.getCurriculumModule()).stream()
+                    .sorted(Context::compareTo).findFirst();
+            final Optional<Context> c2 = CurriculumLineServices.getParentContexts(o2.getCurriculumModule()).stream()
+                    .sorted(Context::compareTo).findFirst();
+
+            if (c1.isPresent() && !c2.isPresent()) {
+                return -1;
+            }
+
+            if (!c1.isPresent() && c2.isPresent()) {
+                return 1;
+            }
+
+            return c1.get().compareTo(c2.get());
+        });
+
+        super.generateEnrolments(studentCurriculumGroupBean, groupTable);
     }
 
     @Override
