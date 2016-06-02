@@ -79,6 +79,10 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
                 .getContent(I18N.getLocale());
     }
 
+    public GradeScale getGradeScale() {
+        return GradeScale.TYPE20;
+    }
+
     abstract public Grade calculate(final CurriculumAggregator aggregator, final StudentCurricularPlan plan);
 
     static private Function<CurriculumAggregatorEntry, BigDecimal> calculateEntryInput(final StudentCurricularPlan plan) {
@@ -90,7 +94,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade");
         }
 
-        return Grade.createGrade(value.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
+        return Grade.createGrade(value.setScale(0, RoundingMode.HALF_UP).toString(), getGradeScale());
     }
 
 }
