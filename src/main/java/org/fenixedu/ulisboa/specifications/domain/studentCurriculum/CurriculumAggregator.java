@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -340,8 +341,12 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
     public Grade calculateConclusionGrade(final StudentCurricularPlan plan) {
-        if (getEntriesSet().isEmpty() || !isConcluded(plan)) {
+        if (getEntriesSet().isEmpty()) {
             return Grade.createEmptyGrade();
+        }
+
+        if (!isConcluded(plan)) {
+            return Grade.createGrade(GradeScale.RE, getGradeCalculator().getGradeScale());
         }
 
         return getGradeCalculator().calculate(this, plan);
