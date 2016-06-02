@@ -456,11 +456,9 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                     } else if (count != masterContexts.size()) {
                         text += " [!]";
-                        spanStyleClasses += "info";
-
-// TODO legidio, check with school the best view pattern
-//                        text += " Incompleto";
-//                        spanStyleClasses += "danger";
+                        // TODO legidio, check with school the best view pattern
+                        // spanStyleClasses += "info";
+                        spanStyleClasses += "danger";
 
                     } else {
                         spanStyleClasses += "success";
