@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -245,6 +246,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
 
         final Grade conclusionGrade = calculateConclusionGrade(plan);
+
+        // TODO legidio, does it make sense to create change requests for ALL mark sheets, regardless of the evaluation season?
         enrolment.getEvaluationsSet().stream().map(i -> i.getCompetenceCourseMarkSheet())
                 .forEach(i -> updateMarkSheet(i, enrolment, conclusionGrade));
     }
@@ -253,9 +256,11 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             final Grade conclusionGrade) {
 
         if (markSheet != null) {
-            final String reason =
-                    ULisboaSpecificationsUtil.bundle("CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason",
-                            getDescription().getContent(), enrolment.getFullPath(), conclusionGrade.getValue());
+            final Registration registration = enrolment.getRegistration();
+
+            final String reason = ULisboaSpecificationsUtil.bundle(
+                    "CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason", registration.getNumber().toString(),
+                    registration.getPerson().getFirstAndLastName(), getDescription().getContent(), conclusionGrade.getValue());
 
             CompetenceCourseMarkSheetChangeRequest.create(markSheet, Authenticate.getUser().getPerson(), reason);
         }
