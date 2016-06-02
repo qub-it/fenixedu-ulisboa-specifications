@@ -136,6 +136,12 @@ abstract public class CurriculumAggregatorListeners {
         final Context chosen = CurriculumAggregatorServices.getContext(input);
         final Set<Context> allChosen = Sets.newHashSet(chosen);
 
+        final CurriculumAggregator aggregator = chosen.getCurriculumAggregator();
+        if (aggregator != null && aggregator.isEnrolmentMaster()) {
+            // nothing to be done, no need to enrol in entries
+            return;
+        }
+
         for (final IDegreeModuleToEvaluate iter : CurriculumAggregatorServices.getAggregationParticipantsToEnrol(chosen, plan,
                 semester, allChosen)) {
 
