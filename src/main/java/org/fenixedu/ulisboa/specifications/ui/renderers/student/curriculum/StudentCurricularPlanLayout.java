@@ -338,7 +338,7 @@ public class StudentCurricularPlanLayout extends Layout {
     /**
      * qubExtension, avoid strange "concluded" info when no credits are achived
      */
-    private ConclusionValue isConcluded(final CurriculumGroup group, final ExecutionYear executionYear,
+    static public ConclusionValue isConcluded(final CurriculumGroup group, final ExecutionYear executionYear,
             final CreditsLimit creditsRule) {
 
         final ConclusionValue concluded = group.isConcluded(executionYear);
@@ -346,10 +346,18 @@ public class StudentCurricularPlanLayout extends Layout {
             return concluded;
         }
 
-        if (creditsRule != null && creditsRule.getMinimumCredits().doubleValue() == 0d && creditsRule.getMaximumCredits()
-                .doubleValue() != group.getCreditsConcluded(executionYearContext).doubleValue()) {
+        if (creditsRule != null && creditsRule.getMinimumCredits().doubleValue() == 0d
+                && creditsRule.getMaximumCredits().doubleValue() != group.getCreditsConcluded(executionYear).doubleValue()) {
             return ConclusionValue.NOT_CONCLUDED;
         }
+
+        /* TODO legidio
+        final DegreeModulesSelectionLimit limitRule = (DegreeModulesSelectionLimit) group
+                .getMostRecentActiveCurricularRule(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, executionYear);
+        if (limitRule != null && limitRule.getMinimumLimit().intValue() != limitRule.getMaximumLimit().intValue()) {
+            return ConclusionValue.NOT_CONCLUDED;
+        }
+        */
 
         return ConclusionValue.CONCLUDED;
     }
