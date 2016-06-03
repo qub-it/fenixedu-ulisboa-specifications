@@ -96,7 +96,7 @@ abstract public class CurriculumAggregatorServices {
     /**
      * Passing an execution year just to try to capture less possible contexts
      */
-    static private Context getContext(final DegreeModule input, final ExecutionYear executionYear) {
+    static public Context getContext(final DegreeModule input, final ExecutionYear executionYear) {
         Context result = null;
 
         if (input != null) {

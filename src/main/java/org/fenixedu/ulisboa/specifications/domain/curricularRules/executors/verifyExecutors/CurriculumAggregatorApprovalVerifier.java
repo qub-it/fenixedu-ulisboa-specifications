@@ -81,7 +81,7 @@ public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
 
         CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context);
 
-        if (aggregator == null || aggregator.isConcluded(enrolmentContext.getStudentCurricularPlan())) {
+        if (aggregator == null || aggregator.isAggregationConcluded(enrolmentContext.getStudentCurricularPlan())) {
             return aggregator;
         }
 

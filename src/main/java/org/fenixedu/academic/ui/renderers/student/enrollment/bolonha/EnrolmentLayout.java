@@ -34,8 +34,10 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -44,6 +46,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -55,8 +58,10 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 
 import pt.ist.fenixWebFramework.renderers.components.HtmlActionLink;
+import pt.ist.fenixWebFramework.renderers.components.HtmlBlockContainer;
 import pt.ist.fenixWebFramework.renderers.components.HtmlCheckBox;
 import pt.ist.fenixWebFramework.renderers.components.HtmlInlineContainer;
 import pt.ist.fenixWebFramework.renderers.components.HtmlTable;
@@ -68,6 +73,48 @@ import pt.ist.fenixWebFramework.renderers.model.MetaObjectFactory;
 import pt.ist.fenixWebFramework.renderers.schemas.Schema;
 
 public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
+
+    @Override
+    protected void generateGroup(final HtmlBlockContainer blockContainer, final StudentCurricularPlan studentCurricularPlan,
+            final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester,
+            final int depth) {
+
+        if (isCycleExternal(studentCurriculumGroupBean)) {
+
+            if (!getRenderer().isAllowedToEnrolInAffinityCycle()) {
+                return;
+            }
+
+        }
+
+        final HtmlTable groupTable = createGroupTable(blockContainer, depth);
+        addGroupHeaderRow(groupTable, studentCurriculumGroupBean, executionSemester);
+
+        // qubExtension, don't generate concluded groups
+        if (canPerformStudentEnrolments
+                || !isConcluded(studentCurriculumGroupBean.getCurriculumModule(), executionSemester.getExecutionYear())) {
+
+            if (getRenderer().isEncodeGroupRules()) {
+                encodeCurricularRules(groupTable, studentCurriculumGroupBean.getCurriculumModule());
+            }
+
+            final HtmlTable coursesTable = createCoursesTable(blockContainer, depth);
+            generateEnrolments(studentCurriculumGroupBean, coursesTable);
+            generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, executionSemester);
+
+            generateGroups(blockContainer, studentCurriculumGroupBean, studentCurricularPlan, executionSemester, depth);
+        }
+
+        if (studentCurriculumGroupBean.isRoot()) {
+            generateCycleCourseGroupsToEnrol(blockContainer, executionSemester, studentCurricularPlan, depth);
+        }
+    }
+
+    // copy from super class
+    static private boolean isCycleExternal(final StudentCurriculumGroupBean studentCurriculumGroupBean) {
+        final CurriculumGroup curriculumModule = studentCurriculumGroupBean.getCurriculumModule();
+        return curriculumModule.isCycleCurriculumGroup() && ((CycleCurriculumGroup) curriculumModule).isExternal();
+    }
 
     @Override
     protected void addGroupHeaderRow(final HtmlTable groupTable, final StudentCurriculumGroupBean studentCurriculumGroupBean,
@@ -123,6 +170,105 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         } else {
             getEnrollmentsController().addCheckBox(checkBox);
         }
+    }
+
+    // qubExtension, more credits info
+    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod) {
+        if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
+            return curriculumGroup.getName().getContent();
+        }
+        final StringBuilder result = new StringBuilder();
+        result.append("<span class=\"bold\">").append(curriculumGroup.getName().getContent()).append("</span>");
+        result.append(" [");
+        if (getRenderer().isEncodeGroupRules()) {
+            addCreditsConcluded(curriculumGroup, executionPeriod, result);
+            // TODO legidio addEnroledEcts(curriculumGroup, executionPeriod.getExecutionYear(), result);
+            // TODO legidio addSumEcts(curriculumGroup, executionPeriod, result);
+        } else {
+            final CreditsLimit creditsLimit = (CreditsLimit) curriculumGroup
+                    .getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionPeriod.getExecutionYear());
+            if (creditsLimit != null) {
+                result.append(" <span title=\"");
+                result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.minCredits"));
+                result.append(" \">m(");
+                result.append(creditsLimit.getMinimumCredits());
+                result.append(")</span>, ");
+            }
+            addCreditsConcluded(curriculumGroup, executionPeriod, result);
+            // TODO legidio addEnroledEcts(curriculumGroup, executionPeriod.getExecutionYear(), result);
+            // TODO legidio addSumEcts(curriculumGroup, executionPeriod, result);
+            if (creditsLimit != null) {
+                result.append(", <span title=\"");
+                result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.maxCredits"));
+                result.append(" \">M(");
+                result.append(creditsLimit.getMaximumCredits());
+                result.append(")</span>");
+            }
+        }
+        result.append(" ]");
+        if (isConcluded(curriculumGroup, executionPeriod.getExecutionYear())) {
+            result.append(" - <span class=\"curriculumGroupConcluded\">")
+                    .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.concluded")).append("</span>");
+        } else if (!isStudentLogged(curriculumGroup.getStudentCurricularPlan())
+                && hasMinimumCredits(curriculumGroup, executionPeriod.getExecutionYear())) {
+            result.append(" - <span class=\"minimumCreditsConcludedInCurriculumGroup\">")
+                    .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.minimumCreditsConcluded"))
+                    .append("</span>");
+        }
+        addCreditsDistributionMessage(curriculumGroup, executionPeriod.getExecutionYear(), result);
+        return result.toString();
+    }
+
+    private void addCreditsDistributionMessage(CurriculumGroup curriculumGroup, ExecutionYear executionYear,
+            StringBuilder result) {
+        if (curriculumGroup.getAprovedEctsCredits().doubleValue() != curriculumGroup.getCreditsConcluded(executionYear)
+                .doubleValue()) {
+            result.append(" <span class=\"wrongCreditsDistributionError\">")
+                    .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.wrongCreditsDistribution"))
+                    .append("</span>");
+        }
+    }
+
+    private boolean hasMinimumCredits(CurriculumGroup group, ExecutionYear executionYear) {
+        final CreditsLimit creditsRule =
+                (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionYear);
+        return creditsRule != null && creditsRule.getMinimumCredits().doubleValue() > 0d
+                && group.getCreditsConcluded(executionYear).doubleValue() >= creditsRule.getMinimumCredits().doubleValue();
+    }
+
+    private void addCreditsConcluded(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod,
+            final StringBuilder result) {
+        result.append(" <span title=\"");
+        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded"));
+        result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.concludedCredits") + " (");
+        result.append(curriculumGroup.getCreditsConcluded(executionPeriod.getExecutionYear()));
+        result.append(")</span>");
+    }
+
+    private void addEnroledEcts(final CurriculumGroup curriculumGroup, final ExecutionYear executionYear,
+            final StringBuilder result) {
+        result.append(", <span title=\"");
+        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.enroledCredits"));
+        result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.enroledCredits") + " (");
+        // TODO legidio result.append(curriculumGroup.getEnroledAndNotApprovedEctsCreditsFor(executionYear).toPlainString());
+        result.append(")</span>");
+    }
+
+    private void addSumEcts(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod,
+            final StringBuilder result) {
+
+        final Double total = curriculumGroup.getCreditsConcluded(executionPeriod.getExecutionYear()) + 0d; // TODO legidio  curriculumGroup.getEnroledAndNotApprovedEctsCreditsFor(executionPeriod.getExecutionYear()).longValue();
+        result.append(", <span title=\"");
+        result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.totalCredits") + " (");
+        result.append(total);
+        result.append(")</span>");
+    }
+
+    private boolean isConcluded(final CurriculumGroup group, final ExecutionYear executionYear) {
+        final CreditsLimit creditsRule =
+                (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionYear);
+
+        return StudentCurricularPlanLayout.isConcluded(group, executionYear, creditsRule).value();
     }
 
     @Override
@@ -234,8 +380,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 if (degreeModule.isLeaf()) {
                     final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
 
-                    if (CompetenceCourseServices.isCompetenceCourseApproved(
-                            getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), curricularCourse)) {
+                    if (filterByCompetenceCourse(curricularCourse) || filterByAggregationApproval(curricularCourse)) {
                         iterator.remove();
                     }
                 }
@@ -245,11 +390,26 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return result;
     }
 
+    private boolean filterByCompetenceCourse(final CurricularCourse curricularCourse) {
+        return ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()
+                && CompetenceCourseServices.isCompetenceCourseApproved(
+                        getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), curricularCourse);
+    }
+
+    private boolean filterByAggregationApproval(final CurricularCourse input) {
+        final ExecutionYear executionYear = getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear();
+        final CurriculumAggregator aggregator =
+                CurriculumAggregatorServices.getAggregationRoot(CurriculumAggregatorServices.getContext(input, executionYear));
+
+        return aggregator != null && getBolonhaStudentEnrollmentBean().getStudentCurricularPlan()
+                .isConcluded(aggregator.getContext().getChildDegreeModule(), (ExecutionYear) executionYear);
+    }
+
     /**
      * Necessary, we don't want this behaviour on subclasses of this layout
      */
     protected boolean isToFilterCurricularCoursesToEvaluate() {
-        return ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse();
+        return true;
     }
 
     private boolean isToDisableEnrolmentOption(final StudentCurriculumGroupBean input) {

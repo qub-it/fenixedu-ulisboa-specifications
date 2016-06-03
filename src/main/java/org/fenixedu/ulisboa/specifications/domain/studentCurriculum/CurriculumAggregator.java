@@ -36,6 +36,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -320,17 +321,21 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     /**
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
-    public boolean isConcluded(final StudentCurricularPlan plan) {
+    public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
 
         if (!plan.hasDegreeModule(getCurricularCourse())) {
             return false;
+        }
+
+        if (plan.isConcluded(getCurricularCourse(), (ExecutionYear) null)) {
+            return true;
         }
 
         int optionalConcludedEntries = 0;
 
         for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
 
-            if (!entry.isConcluded(plan)) {
+            if (!entry.isAggregationConcluded(plan)) {
                 if (!entry.getOptional()) {
                     return false;
                 }
@@ -355,7 +360,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             return Grade.createEmptyGrade();
         }
 
-        if (!isConcluded(plan)) {
+        if (!isAggregationConcluded(plan)) {
             return Grade.createGrade(GradeScale.RE, getGradeCalculator().getGradeScale());
         }
 
@@ -367,7 +372,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
      */
     @SuppressWarnings("deprecation")
     private Date calculateConclusionDate(final StudentCurricularPlan plan) {
-        if (getEntriesSet().isEmpty() || !isConcluded(plan)) {
+        if (getEntriesSet().isEmpty()) {
             return null;
         }
 
@@ -378,6 +383,14 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             if (conclusionDate != null && (result == null || conclusionDate.isAfter(result))) {
                 result = conclusionDate;
             }
+        }
+
+        if (result == null && isAggregationConcluded(plan)) {
+            result = plan.getApprovedCurriculumLine(getCurricularCourse()).calculateConclusionDate();
+        }
+
+        if (result == null) {
+            result = new YearMonthDay();
         }
 
         return new Date(result.getYear(), result.getMonthOfYear(), result.getDayOfMonth());

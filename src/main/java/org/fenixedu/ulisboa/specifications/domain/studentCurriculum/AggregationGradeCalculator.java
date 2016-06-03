@@ -79,7 +79,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
                 .getContent(I18N.getLocale());
     }
 
-    public GradeScale getGradeScale() {
+    protected GradeScale getGradeScale() {
         return GradeScale.TYPE20;
     }
 
@@ -90,11 +90,12 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
     }
 
     static private Grade createGrade(final BigDecimal value, final GradeScale gradeScale, final int gradeValueScale) {
-        if (BigDecimal.valueOf(20d).compareTo(value) < 0) {
+        final String grade = value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString();
+        if (!gradeScale.belongsTo(grade)) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade");
         }
 
-        return Grade.createGrade(value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString(), gradeScale);
+        return Grade.createGrade(grade, gradeScale);
     }
 
 }

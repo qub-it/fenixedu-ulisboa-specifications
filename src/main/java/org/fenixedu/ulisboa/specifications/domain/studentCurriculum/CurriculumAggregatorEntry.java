@@ -43,6 +43,7 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Sets;
@@ -118,19 +119,14 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     public String getDescription() {
-        return "Componente";
-
-// TODO legidio, check with school the best view pattern
-//        final String result = getAggregator().getCurricularCourse().getCodeAndName((ExecutionInterval) null);
-//        final int index = Math.min(result.length(), result.indexOf("- ") + 8);
-//        return result.substring(0, index) + (index == result.length() ? "" : "...");
+        return ULisboaSpecificationsUtil.bundle("CurriculumAggregatorEntry");
     }
 
     public boolean isCandidateForEvaluation() {
         return getEvaluationType().isCandidateForEvaluation();
     }
 
-    public boolean isConcluded(final StudentCurricularPlan plan) {
+    public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
         final CurriculumModule approval = getApprovedCurriculumModule(plan);
         return approval != null && approval.isConcluded();
     }
@@ -165,7 +161,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     protected BigDecimal calculateGradeValue(final StudentCurricularPlan plan) {
         BigDecimal result = BigDecimal.ZERO;
 
-        if (isConcluded(plan)) {
+        if (isAggregationConcluded(plan)) {
             final Set<ICurriculumEntry> approvals = getApprovedCurriculumEntries(plan);
 
             if (approvals.size() == 1) {
@@ -197,7 +193,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     protected YearMonthDay calculateConclusionDate(final StudentCurricularPlan plan) {
         YearMonthDay result = null;
 
-        if (isConcluded(plan)) {
+        if (isAggregationConcluded(plan)) {
             final Set<ICurriculumEntry> approvals = getApprovedCurriculumEntries(plan);
 
             if (approvals.size() == 1) {
