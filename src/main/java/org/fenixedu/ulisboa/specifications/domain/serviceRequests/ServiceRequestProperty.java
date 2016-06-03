@@ -81,6 +81,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         setULisboaServiceRequest(null);
         setDocumentPurposeTypeInstance(null);
         setExecutionInterval(null);
+        setProgramConclusion(null);
         setServiceRequestSlot(null);
         super.getCurriculumLinesSet().clear();
         super.getExternalEnrolmentsSet().clear();
