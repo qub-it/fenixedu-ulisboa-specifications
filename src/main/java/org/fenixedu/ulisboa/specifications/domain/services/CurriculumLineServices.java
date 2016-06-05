@@ -72,8 +72,9 @@ public class CurriculumLineServices {
             return Collections.emptySet();
         }
 
-        final CurricularCourse curricularCourse = curriculumLine.isOptional() ? ((OptionalEnrolment) curriculumLine)
-                .getOptionalCurricularCourse() : curriculumLine.getCurricularCourse();
+        final CurricularCourse curricularCourse =
+                curriculumLine instanceof OptionalEnrolment ? ((OptionalEnrolment) curriculumLine)
+                        .getOptionalCurricularCourse() : curriculumLine.getCurricularCourse();
 
         return curricularCourse.getParentContextsByExecutionYear(curriculumLine.getExecutionYear()).stream()
                 .filter(c -> c.getParentCourseGroup() == curriculumLine.getCurriculumGroup().getDegreeModule())
