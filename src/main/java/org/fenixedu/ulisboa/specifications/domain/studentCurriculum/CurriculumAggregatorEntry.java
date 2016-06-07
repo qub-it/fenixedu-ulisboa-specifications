@@ -105,7 +105,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.required.EvaluationType");
         }
 
-        if (getGradeFactor() == null) {
+        if (getGradeFactor() == null || getGradeFactor().compareTo(BigDecimal.ZERO) < 0) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.required.GradeFactor");
         }
     }
