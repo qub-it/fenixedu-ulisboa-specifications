@@ -171,8 +171,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             return super.getDescription();
         }
 
-        return ULisboaSpecificationsUtil
-                .bundleI18N(isEnrolmentMaster() ? "CurriculumAggregator.master" : "CurriculumAggregator.slave");
+        return getEnrolmentType().getAggregatorDefaultDescription();
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlan() {
@@ -196,7 +195,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     }
 
     public boolean isEnrolmentMaster() {
-        return getEnrolmentType() == AggregationEnrolmentType.ONLY_AGGREGATOR;
+        return getEnrolmentType().isEnrolmentMaster();
     }
 
     public boolean isEnrolmentSlave() {

@@ -26,6 +26,7 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import pt.ist.fenixWebFramework.rendererExtensions.util.IPresentableEnum;
@@ -42,6 +43,15 @@ public enum AggregationEnrolmentType implements IPresentableEnum {
     public String getLocalizedName() {
         return ULisboaSpecificationsUtil.bundleI18N(AggregationEnrolmentType.class.getSimpleName() + "." + name())
                 .getContent(I18N.getLocale());
+    }
+
+    public boolean isEnrolmentMaster() {
+        return this == AggregationEnrolmentType.ONLY_AGGREGATOR;
+    }
+
+    public LocalizedString getAggregatorDefaultDescription() {
+        return ULisboaSpecificationsUtil
+                .bundleI18N(isEnrolmentMaster() ? "CurriculumAggregator.master" : "CurriculumAggregator.slave");
     }
 
 }
