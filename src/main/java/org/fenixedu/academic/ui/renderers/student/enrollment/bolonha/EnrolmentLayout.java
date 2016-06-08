@@ -173,7 +173,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod) {
+    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup,
+            final ExecutionSemester executionPeriod) {
         if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
             return curriculumGroup.getName().getContent();
         }
@@ -594,12 +595,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
             CurriculumAggregator aggregator = context.getCurriculumAggregator();
 
-            String text = "";
-            String spanStyleClasses = "label label-";
-
             if (aggregator != null) {
+                final HtmlInlineContainer span = new HtmlInlineContainer();
 
-                text = aggregator.getDescription().getContent();
+                String text = aggregator.getDescription().getContent();
+                String spanStyleClasses = "label label-";
 
                 if (aggregator.isEnrolmentMaster()) {
                     spanStyleClasses +=
@@ -624,19 +624,28 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                         spanStyleClasses += "success";
                     }
                 }
+
+                span.addChild(new HtmlText(text));
+                span.setClasses(spanStyleClasses);
+                result.addChild(span);
             }
 
             if (aggregatorEntry != null) {
+                final HtmlInlineContainer span = new HtmlInlineContainer();
+
                 aggregator = aggregatorEntry.getAggregator();
 
-                text = aggregatorEntry.getDescription();
+                // TODO legidio, check with school the best view pattern                
+                // String text = aggregatorEntry.getDescription();
+                String text = aggregator.getContext().getChildDegreeModule().getCode();
+
+                String spanStyleClasses = "label label-";
 
                 if (aggregator.isEnrolmentMaster()) {
-                    spanStyleClasses += "default";
 
-// TODO legidio, check with school the best view pattern
-//                    spanStyleClasses +=
-//                            CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "primary" : "default";
+                    // TODO legidio, check with school the best view pattern
+                    // spanStyleClasses += CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "primary" : "default";
+                    spanStyleClasses += "default";
 
                 } else if (aggregator.isEnrolmentSlave()) {
 
@@ -651,16 +660,16 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                         spanStyleClasses += "warning";
 
                     } else {
+                        // TODO legidio, check with school the best view pattern
+                        // spanStyleClasses += "primary";
                         spanStyleClasses += "default";
-
-// TODO legidio, check with school the best view pattern
-//                        spanStyleClasses += "primary";
                     }
                 }
-            }
 
-            result.addChild(new HtmlText(text));
-            result.setClasses(spanStyleClasses);
+                span.addChild(new HtmlText(text));
+                span.setClasses(spanStyleClasses);
+                result.addChild(span);
+            }
         }
 
         return result;
