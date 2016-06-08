@@ -1552,6 +1552,7 @@ relation CurriculumLineServiceRequestProperty {
     class studentCurriculum.CurriculumAggregatorEntry {
     	AggregationMemberEvaluationType evaluationType;
     	BigDecimal gradeFactor;
+    	int gradeValueScale;
     	boolean optional;
     }
     

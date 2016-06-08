@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
@@ -57,12 +58,13 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, final Context context,
-            final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor, final boolean optional) {
+            final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor, final int gradeValueScale,
+            final boolean optional) {
 
         final CurriculumAggregatorEntry result = new CurriculumAggregatorEntry();
         result.setAggregator(aggregator);
         result.setContext(context);
-        result.init(evaluationType, gradeFactor, optional);
+        result.init(evaluationType, gradeFactor, gradeValueScale, optional);
 
         final DegreeModule degreeModule = context.getChildDegreeModule();
         if (degreeModule.isLeaf()) {
@@ -75,18 +77,19 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
     @Atomic
     public CurriculumAggregatorEntry edit(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor,
-            final boolean optional) {
+            final int gradeValueScale, final boolean optional) {
 
-        init(evaluationType, gradeFactor, optional);
+        init(evaluationType, gradeFactor, gradeValueScale, optional);
 
         return this;
     }
 
     private void init(final AggregationMemberEvaluationType evaluationType, final BigDecimal gradeFactor,
-            final boolean optional) {
+            final int gradeValueScale, final boolean optional) {
 
         super.setEvaluationType(evaluationType);
         super.setGradeFactor(gradeFactor);
+        super.setGradeValueScale(gradeValueScale);
         super.setOptional(optional);
 
         checkRules();
@@ -106,7 +109,11 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         }
 
         if (getGradeFactor() == null || getGradeFactor().compareTo(BigDecimal.ZERO) < 0) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.required.GradeFactor");
+            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.required.GradeFactor");
+        }
+
+        if (getGradeValueScale() < 0) {
+            throw new DomainException("error.CurriculumAggregatorEntry.required.GradeValueScale");
         }
     }
 
@@ -182,7 +189,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                 final BigDecimal avg =
                         sum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sum.divide(divisor, 10, RoundingMode.UNNECESSARY);
 
-                result = avg.setScale(10, RoundingMode.UNNECESSARY);
+                result = avg.setScale(getGradeValueScale(), RoundingMode.UNNECESSARY);
             }
         }
 
