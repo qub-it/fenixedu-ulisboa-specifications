@@ -38,6 +38,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
+import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -49,10 +50,13 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.util.CurricularRuleLabelFormatter;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
@@ -491,6 +495,30 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     @Override
+    protected void encodeCurricularRules(final HtmlTable groupTable, final List<CurricularRule> curricularRules) {
+        final HtmlTableRow htmlTableRow = groupTable.createRow();
+
+        final HtmlTable rulesTable = new HtmlTable();
+        final HtmlTableCell cellRules = htmlTableRow.createCell();
+
+        cellRules.setClasses(getRenderer().getCurricularCourseToEnrolNameClasses());
+        cellRules.setBody(rulesTable);
+        cellRules.setColspan(5);
+
+        rulesTable.setClasses("smalltxt noborder");
+        rulesTable.setStyle("width: 100%;");
+
+        for (final CurricularRule curricularRule : curricularRules) {
+            // qubExtension
+            if (!(curricularRule instanceof CurriculumAggregatorApproval)) {
+                final HtmlTableCell cellName = rulesTable.createRow().createCell();
+                cellName.setStyle("color: #888");
+                cellName.setBody(new HtmlText(CurricularRuleLabelFormatter.getLabel(curricularRule, I18N.getLocale())));
+            }
+        }
+    }
+
+    @Override
     protected void generateEnrolments(final StudentCurriculumGroupBean studentCurriculumGroupBean, final HtmlTable groupTable) {
 
         // qubExtension, show sorted enrolments
@@ -595,59 +623,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
             CurriculumAggregator aggregator = context.getCurriculumAggregator();
 
-            if (aggregator != null) {
-                final HtmlInlineContainer span = new HtmlInlineContainer();
-
-                String text = aggregator.getDescription().getContent();
-                String spanStyleClasses = "label label-";
-
-                if (aggregator.isEnrolmentMaster()) {
-
-                    if (CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester)) {
-
-                        final Set<Context> slaveContexts = aggregator.getEnrolmentSlaveContexts();
-                        final long count = slaveContexts.stream()
-                                .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
-                        
-                        if (count != slaveContexts.size()) {
-                            text += " [!]";
-                            // TODO legidio, check with school the best view pattern
-                            // spanStyleClasses += "info";
-                            spanStyleClasses += "danger";
-
-                        } else {
-                            spanStyleClasses += "success";
-                        }
-                    
-                    } else {
-                        spanStyleClasses += "info";
-                    }
-
-                } else if (aggregator.isEnrolmentSlave()) {
-
-                    final Set<Context> masterContexts = aggregator.getEnrolmentMasterContexts();
-                    final long count = masterContexts.stream()
-                            .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
-
-                    if (count == 0) {
-                        spanStyleClasses += "info";
-
-                    } else if (count != masterContexts.size()) {
-                        text += " [!]";
-                        // TODO legidio, check with school the best view pattern
-                        // spanStyleClasses += "info";
-                        spanStyleClasses += "danger";
-
-                    } else {
-                        spanStyleClasses += "success";
-                    }
-                }
-
-                span.addChild(new HtmlText(text));
-                span.setClasses(spanStyleClasses);
-                result.addChild(span);
-            }
-
             if (aggregatorEntry != null) {
                 final HtmlInlineContainer span = new HtmlInlineContainer();
 
@@ -681,6 +656,59 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                         // TODO legidio, check with school the best view pattern
                         // spanStyleClasses += "primary";
                         spanStyleClasses += "default";
+                    }
+                }
+
+                span.addChild(new HtmlText(text));
+                span.setClasses(spanStyleClasses);
+                result.addChild(span);
+            }
+
+            if (aggregator != null) {
+                final HtmlInlineContainer span = new HtmlInlineContainer();
+
+                String text = aggregator.getDescription().getContent();
+                String spanStyleClasses = "label label-";
+
+                if (aggregator.isEnrolmentMaster()) {
+
+                    if (CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester)) {
+
+                        final Set<Context> slaveContexts = aggregator.getEnrolmentSlaveContexts();
+                        final long count = slaveContexts.stream()
+                                .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
+
+                        if (count != slaveContexts.size()) {
+                            text += " [!]";
+                            // TODO legidio, check with school the best view pattern
+                            // spanStyleClasses += "info";
+                            spanStyleClasses += "danger";
+
+                        } else {
+                            spanStyleClasses += "success";
+                        }
+
+                    } else {
+                        spanStyleClasses += "info";
+                    }
+
+                } else if (aggregator.isEnrolmentSlave()) {
+
+                    final Set<Context> masterContexts = aggregator.getEnrolmentMasterContexts();
+                    final long count = masterContexts.stream()
+                            .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
+
+                    if (count == 0) {
+                        spanStyleClasses += "info";
+
+                    } else if (count != masterContexts.size()) {
+                        text += " [!]";
+                        // TODO legidio, check with school the best view pattern
+                        // spanStyleClasses += "info";
+                        spanStyleClasses += "danger";
+
+                    } else {
+                        spanStyleClasses += "success";
                     }
                 }
 
