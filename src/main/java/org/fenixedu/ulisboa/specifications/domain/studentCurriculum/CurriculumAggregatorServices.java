@@ -193,6 +193,11 @@ abstract public class CurriculumAggregatorServices {
             }
 
             toEnrol(iter, result, plan, semester);
+            
+            // must check if we must deal with an inner aggregation
+            if (!getEnrolmentSlaveContexts(iter).contains(iter)) {
+                result.addAll(getAggregationParticipantsToEnrol(iter, plan, semester, aboutToEnrol));
+            }
         }
 
         return result;
@@ -211,6 +216,11 @@ abstract public class CurriculumAggregatorServices {
             }
 
             toRemove(iter, result, plan, semester);
+            
+            // must check if we must deal with an inner aggregation
+            if (!getEnrolmentSlaveContexts(iter).contains(iter)) {
+                result.addAll(getAggregationParticipantsToRemove(iter, plan, semester));
+            }
         }
 
         return result;
