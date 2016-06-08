@@ -602,8 +602,21 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 String spanStyleClasses = "label label-";
 
                 if (aggregator.isEnrolmentMaster()) {
-                    spanStyleClasses +=
-                            CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "success" : "info";
+
+                    final Set<Context> slaveContexts = aggregator.getEnrolmentSlaveContexts();
+                    final long count = slaveContexts.stream()
+                            .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
+
+                    if (count != slaveContexts.size()) {
+                        text += " [!]";
+                        // TODO legidio, check with school the best view pattern
+                        // spanStyleClasses += "info";
+                        spanStyleClasses += "danger";
+                    } else {
+                        
+                        spanStyleClasses +=
+                                CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "success" : "info";
+                    }
 
                 } else if (aggregator.isEnrolmentSlave()) {
 
