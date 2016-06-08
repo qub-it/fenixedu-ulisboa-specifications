@@ -50,10 +50,8 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.CurricularRuleLabelFormatter;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
@@ -496,25 +494,15 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
     @Override
     protected void encodeCurricularRules(final HtmlTable groupTable, final List<CurricularRule> curricularRules) {
-        final HtmlTableRow htmlTableRow = groupTable.createRow();
-
-        final HtmlTable rulesTable = new HtmlTable();
-        final HtmlTableCell cellRules = htmlTableRow.createCell();
-
-        cellRules.setClasses(getRenderer().getCurricularCourseToEnrolNameClasses());
-        cellRules.setBody(rulesTable);
-        cellRules.setColspan(5);
-
-        rulesTable.setClasses("smalltxt noborder");
-        rulesTable.setStyle("width: 100%;");
-
-        for (final CurricularRule curricularRule : curricularRules) {
-            // qubExtension
-            if (!(curricularRule instanceof CurriculumAggregatorApproval)) {
-                final HtmlTableCell cellName = rulesTable.createRow().createCell();
-                cellName.setStyle("color: #888");
-                cellName.setBody(new HtmlText(CurricularRuleLabelFormatter.getLabel(curricularRule, I18N.getLocale())));
+        // qubExtension
+        for (final Iterator<CurricularRule> iterator = curricularRules.iterator(); iterator.hasNext();) {
+            if (iterator.next() instanceof CurriculumAggregatorApproval) {
+                iterator.remove();
             }
+        }
+
+        if (!curricularRules.isEmpty()) {
+            super.encodeCurricularRules(groupTable, curricularRules);
         }
     }
 
@@ -621,12 +609,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         if (context != null) {
 
             final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
-            CurriculumAggregator aggregator = context.getCurriculumAggregator();
 
             if (aggregatorEntry != null) {
                 final HtmlInlineContainer span = new HtmlInlineContainer();
 
-                aggregator = aggregatorEntry.getAggregator();
+                final CurriculumAggregator aggregator = aggregatorEntry.getAggregator();
 
                 // TODO legidio, check with school the best view pattern                
                 // String text = aggregatorEntry.getDescription();
@@ -664,6 +651,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 result.addChild(span);
             }
 
+            final CurriculumAggregator aggregator = context.getCurriculumAggregator();
             if (aggregator != null) {
                 final HtmlInlineContainer span = new HtmlInlineContainer();
 
