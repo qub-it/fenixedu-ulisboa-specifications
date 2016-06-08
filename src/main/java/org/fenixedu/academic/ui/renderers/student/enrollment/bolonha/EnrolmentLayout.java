@@ -603,19 +603,24 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 if (aggregator.isEnrolmentMaster()) {
 
-                    final Set<Context> slaveContexts = aggregator.getEnrolmentSlaveContexts();
-                    final long count = slaveContexts.stream()
-                            .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
+                    if (CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester)) {
 
-                    if (count != slaveContexts.size()) {
-                        text += " [!]";
-                        // TODO legidio, check with school the best view pattern
-                        // spanStyleClasses += "info";
-                        spanStyleClasses += "danger";
-                    } else {
+                        final Set<Context> slaveContexts = aggregator.getEnrolmentSlaveContexts();
+                        final long count = slaveContexts.stream()
+                                .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
                         
-                        spanStyleClasses +=
-                                CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "success" : "info";
+                        if (count != slaveContexts.size()) {
+                            text += " [!]";
+                            // TODO legidio, check with school the best view pattern
+                            // spanStyleClasses += "info";
+                            spanStyleClasses += "danger";
+
+                        } else {
+                            spanStyleClasses += "success";
+                        }
+                    
+                    } else {
+                        spanStyleClasses += "info";
                     }
 
                 } else if (aggregator.isEnrolmentSlave()) {
