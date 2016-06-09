@@ -240,7 +240,7 @@ public class OptionalEnrolmentLayout extends Layout {
                     .bundle("curricularRules.ruleExecutors.AnyCurricularCourseExceptions.not.offered.label");
         }
 
-        if (CurriculumAggregatorServices.collectEnrolmentSlaveContexts(input).contains(input)) {
+        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(input)) {
             return ULisboaSpecificationsUtil.bundle("CurriculumAggregator");
         }
 

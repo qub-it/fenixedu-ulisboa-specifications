@@ -435,7 +435,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         final Context context = input.getContext();
-        if (CurriculumAggregatorServices.collectEnrolmentSlaveContexts(context).contains(context)) {
+        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context)) {
             return true;
         }
 

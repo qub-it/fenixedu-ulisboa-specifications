@@ -26,6 +26,7 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -111,24 +112,37 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static public Set<Context> collectEnrolmentSlaveContexts(final Context context) {
+    static public Set<Context> collectEnrolmentMasterContexts(final Context context) {
         final Set<Context> result = Sets.newLinkedHashSet();
 
-        CurriculumAggregator aggregator = getAggregationRoot(context);
+        final CurriculumAggregator aggregator = getAggregationRoot(context);
         if (aggregator != null) {
 
-            result.addAll(collectEnrolmentSlaveContexts(aggregator));
+            result.addAll(collectEnrolmentContexts(aggregator, CurriculumAggregator::getEnrolmentMasterContexts));
         }
 
         return result;
     }
 
-    static private Set<Context> collectEnrolmentSlaveContexts(final CurriculumAggregator input) {
+    static public Set<Context> collectEnrolmentSlaveContexts(final Context context) {
+        final Set<Context> result = Sets.newLinkedHashSet();
+
+        final CurriculumAggregator aggregator = getAggregationRoot(context);
+        if (aggregator != null) {
+
+            result.addAll(collectEnrolmentContexts(aggregator, CurriculumAggregator::getEnrolmentSlaveContexts));
+        }
+
+        return result;
+    }
+
+    static private Set<Context> collectEnrolmentContexts(final CurriculumAggregator input,
+            final Function<CurriculumAggregator, Set<Context>> function) {
         final Set<Context> result = Sets.newLinkedHashSet();
 
         if (input != null) {
 
-            final Set<Context> slaveContexts = input.getEnrolmentSlaveContexts();
+            final Set<Context> slaveContexts = function.apply(input);
             result.addAll(slaveContexts);
 
             for (final Context iter : slaveContexts) {
@@ -143,7 +157,7 @@ abstract public class CurriculumAggregatorServices {
                 }
 
                 if (aggregator != input) {
-                    result.addAll(collectEnrolmentSlaveContexts(aggregator));
+                    result.addAll(collectEnrolmentContexts(aggregator, function));
                 }
             }
         }
@@ -289,6 +303,21 @@ abstract public class CurriculumAggregatorServices {
         }
 
         return result;
+    }
+
+    static public boolean isToDisableEnrolmentOption(final Context context) {
+        CurriculumAggregator aggregator = context.getCurriculumAggregator();
+        if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
+            return true;
+        }
+
+        aggregator =
+                context.getCurriculumAggregatorEntry() == null ? null : context.getCurriculumAggregatorEntry().getAggregator();
+        if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
+            return true;
+        }
+
+        return false;
     }
 
     static private boolean isCandidateForEnrolment(final Context context, final StudentCurricularPlan plan,
