@@ -416,8 +416,14 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean isToDisableEnrolmentOption(final StudentCurriculumGroupBean input) {
-        return input.isToBeDisabled() || (isStudentLogged()
-                && appliesAnyRules(input.getCurriculumModule(), CurricularRuleType.ENROLMENT_TO_BE_APPROVED_BY_COORDINATOR));
+        return input.isToBeDisabled()
+
+                // qubExtension
+                || input.getCurriculumModule().getDegreeModule().getChildContextsSet().stream()
+                        .anyMatch(i -> CurriculumAggregatorServices.getAggregationRoot(i) != null)
+
+                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(),
+                        CurricularRuleType.ENROLMENT_TO_BE_APPROVED_BY_COORDINATOR));
     }
 
     private boolean isToDisableEnrolmentOption(final IDegreeModuleToEvaluate input) {
@@ -429,7 +435,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         final Context context = input.getContext();
-        if (CurriculumAggregatorServices.getEnrolmentSlaveContexts(context).contains(context)) {
+        if (CurriculumAggregatorServices.collectEnrolmentSlaveContexts(context).contains(context)) {
             return true;
         }
 

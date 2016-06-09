@@ -111,25 +111,41 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static public Set<Context> getEnrolmentMasterContexts(final Context context) {
+    static public Set<Context> collectEnrolmentSlaveContexts(final Context context) {
         final Set<Context> result = Sets.newHashSet();
 
-        final CurriculumAggregator aggregator = getAggregationRoot(context);
+        CurriculumAggregator aggregator = getAggregationRoot(context);
         if (aggregator != null) {
 
-            result.addAll(aggregator.getEnrolmentMasterContexts());
+            result.addAll(collectEnrolmentSlaveContexts(aggregator));
         }
 
         return result;
     }
 
-    static public Set<Context> getEnrolmentSlaveContexts(final Context context) {
+    static private Set<Context> collectEnrolmentSlaveContexts(final CurriculumAggregator input) {
         final Set<Context> result = Sets.newHashSet();
 
-        final CurriculumAggregator aggregator = getAggregationRoot(context);
-        if (aggregator != null) {
+        if (input != null) {
 
-            result.addAll(aggregator.getEnrolmentSlaveContexts());
+            final Set<Context> slaveContexts = input.getEnrolmentSlaveContexts();
+            result.addAll(slaveContexts);
+
+            for (final Context iter : slaveContexts) {
+
+                // try to navigate to next aggregation
+                final CurriculumAggregatorEntry aggregatorEntry = iter.getCurriculumAggregatorEntry();
+                CurriculumAggregator aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
+
+                // let's try one last chance
+                if (aggregator == input) {
+                    aggregator = iter.getCurriculumAggregator();
+                }
+
+                if (aggregator != input) {
+                    result.addAll(collectEnrolmentSlaveContexts(aggregator));
+                }
+            }
         }
 
         return result;
@@ -181,22 +197,11 @@ abstract public class CurriculumAggregatorServices {
 
         final Set<IDegreeModuleToEvaluate> result = Sets.newHashSet();
 
-        for (final Context iter : getEnrolmentSlaveContexts(context)) {
+        for (final Context iter : collectEnrolmentSlaveContexts(context)) {
 
-            // must check if was enroled in other interaction
-            if (isAggregationEnroled(iter, plan, semester)) {
-                continue;
-            }
+            if (isCandidateForEnrolment(iter, plan, semester, aboutToEnrol)) {
 
-            if (!isCandidateForEnrolment(iter.getCurriculumAggregator(), plan, semester, aboutToEnrol)) {
-                continue;
-            }
-
-            toEnrol(iter, result, plan, semester);
-            
-            // must check if we must deal with an inner aggregation
-            if (!getEnrolmentSlaveContexts(iter).contains(iter)) {
-                result.addAll(getAggregationParticipantsToEnrol(iter, plan, semester, aboutToEnrol));
+                toEnrol(iter, result, plan, semester);
             }
         }
 
@@ -208,7 +213,7 @@ abstract public class CurriculumAggregatorServices {
 
         final Set<CurriculumModule> result = Sets.newHashSet();
 
-        for (final Context iter : getEnrolmentSlaveContexts(context)) {
+        for (final Context iter : collectEnrolmentSlaveContexts(context)) {
 
             // must check if is already approved (grade or dismissal)
             if (isApproved(iter, plan)) {
@@ -216,11 +221,6 @@ abstract public class CurriculumAggregatorServices {
             }
 
             toRemove(iter, result, plan, semester);
-            
-            // must check if we must deal with an inner aggregation
-            if (!getEnrolmentSlaveContexts(iter).contains(iter)) {
-                result.addAll(getAggregationParticipantsToRemove(iter, plan, semester));
-            }
         }
 
         return result;
@@ -290,19 +290,24 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static private boolean isCandidateForEnrolment(final CurriculumAggregator aggregator, final StudentCurricularPlan plan,
+    static private boolean isCandidateForEnrolment(final Context context, final StudentCurricularPlan plan,
             final ExecutionSemester semester, final Set<Context> aboutToEnrol) {
 
-        boolean result = true;
+        // must check if was enroled in other interaction
+        boolean result = !isAggregationEnroled(context, plan, semester);
 
-        if (aggregator != null && aggregator.isEnrolmentSlave()) {
+        if (result) {
 
             // game changer: if is a slave aggregator, must enrol only if all master are aggregation enroled or soon to be
-            final Set<Context> remaining = aggregator.getEnrolmentMasterContexts().stream()
-                    .filter(i -> !isAggregationEnroled(i, plan, semester)).collect(Collectors.toSet());
-            remaining.removeAll(aboutToEnrol);
+            final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
+            if (aggregator != null && aggregator.isEnrolmentSlave()) {
 
-            result = remaining.isEmpty();
+                final Set<Context> remaining = aggregator.getEnrolmentMasterContexts().stream()
+                        .filter(i -> !isAggregationEnroled(i, plan, semester)).collect(Collectors.toSet());
+                remaining.removeAll(aboutToEnrol);
+
+                result = remaining.isEmpty();
+            }
         }
 
         return result;
