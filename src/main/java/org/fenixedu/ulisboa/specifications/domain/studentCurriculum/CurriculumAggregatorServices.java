@@ -112,7 +112,7 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public Set<Context> collectEnrolmentSlaveContexts(final Context context) {
-        final Set<Context> result = Sets.newHashSet();
+        final Set<Context> result = Sets.newLinkedHashSet();
 
         CurriculumAggregator aggregator = getAggregationRoot(context);
         if (aggregator != null) {
@@ -124,7 +124,7 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static private Set<Context> collectEnrolmentSlaveContexts(final CurriculumAggregator input) {
-        final Set<Context> result = Sets.newHashSet();
+        final Set<Context> result = Sets.newLinkedHashSet();
 
         if (input != null) {
 
@@ -137,8 +137,8 @@ abstract public class CurriculumAggregatorServices {
                 final CurriculumAggregatorEntry aggregatorEntry = iter.getCurriculumAggregatorEntry();
                 CurriculumAggregator aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
 
-                // let's try one last chance
                 if (aggregator == input) {
+                    // let's try one last chance
                     aggregator = iter.getCurriculumAggregator();
                 }
 
@@ -201,7 +201,7 @@ abstract public class CurriculumAggregatorServices {
 
             if (isCandidateForEnrolment(iter, plan, semester, aboutToEnrol)) {
 
-                toEnrol(iter, result, plan, semester);
+                toEnrol(iter, plan, semester, aboutToEnrol, result);
             }
         }
 
@@ -226,8 +226,8 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static private DegreeModuleToEnrol toEnrol(final Context context, final Set<IDegreeModuleToEvaluate> collection,
-            final StudentCurricularPlan plan, final ExecutionSemester semester) {
+    static private DegreeModuleToEnrol toEnrol(final Context context, final StudentCurricularPlan plan,
+            final ExecutionSemester semester, final Set<Context> aboutToEnrol, final Set<IDegreeModuleToEvaluate> collection) {
 
         DegreeModuleToEnrol result = null;
 
@@ -236,6 +236,7 @@ abstract public class CurriculumAggregatorServices {
 
             result = new DegreeModuleToEnrol(curriculumGroup, context, semester);
             collection.add(result);
+            aboutToEnrol.add(context);
         }
 
         return result;
