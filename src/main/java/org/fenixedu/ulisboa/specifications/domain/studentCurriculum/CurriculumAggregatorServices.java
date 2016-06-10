@@ -213,7 +213,7 @@ abstract public class CurriculumAggregatorServices {
 
         for (final Context iter : collectEnrolmentSlaveContexts(context)) {
 
-            if (isCandidateForEnrolment(iter, plan, semester, aboutToEnrol)) {
+            if (isCandidateForEnrolmentAutomatically(iter, plan, semester, aboutToEnrol)) {
 
                 toEnrol(iter, plan, semester, aboutToEnrol, result);
             }
@@ -311,8 +311,8 @@ abstract public class CurriculumAggregatorServices {
             return true;
         }
 
-        aggregator =
-                context.getCurriculumAggregatorEntry() == null ? null : context.getCurriculumAggregatorEntry().getAggregator();
+        final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
+        aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
         if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
             return true;
         }
@@ -320,7 +320,7 @@ abstract public class CurriculumAggregatorServices {
         return false;
     }
 
-    static private boolean isCandidateForEnrolment(final Context context, final StudentCurricularPlan plan,
+    static private boolean isCandidateForEnrolmentAutomatically(final Context context, final StudentCurricularPlan plan,
             final ExecutionSemester semester, final Set<Context> aboutToEnrol) {
 
         // must check if was enroled in other interaction
@@ -328,7 +328,7 @@ abstract public class CurriculumAggregatorServices {
 
         if (result) {
 
-            // game changer: if is a slave aggregator, must enrol only if all master are aggregation enroled or soon to be
+            // if is a slave aggregator, must enrol only if all master are aggregation enroled or about to be
             final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
             if (aggregator != null && aggregator.isEnrolmentSlave()) {
 
@@ -338,6 +338,9 @@ abstract public class CurriculumAggregatorServices {
 
                 result = remaining.isEmpty();
             }
+
+            // if is a optional aggregator entry or slave of one, must be manually enroled
+            result = !isOptionalEntryRelated(context);
         }
 
         return result;
@@ -361,6 +364,21 @@ abstract public class CurriculumAggregatorServices {
         }
 
         return result;
+    }
+
+    static public boolean isOptionalEntryRelated(final Context context) {
+        if (context != null) {
+            CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
+            if (aggregatorEntry != null) {
+                if (aggregatorEntry.getOptional()) {
+                    return true;
+                }
+
+                return isOptionalEntryRelated(aggregatorEntry.getAggregator().getContext());
+            }
+        }
+
+        return false;
     }
 
 }

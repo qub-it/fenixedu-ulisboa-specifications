@@ -435,7 +435,9 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         final Context context = input.getContext();
-        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context)) {
+        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context)
+                // optional entries must be manually enroled
+                && !CurriculumAggregatorServices.isOptionalEntryRelated(context)) {
             return true;
         }
 
