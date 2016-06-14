@@ -40,7 +40,7 @@ import pt.ist.fenixWebFramework.rendererExtensions.util.IPresentableEnum;
 
 public enum AggregationGradeCalculator implements IPresentableEnum {
 
-    BY_COMPOSITION {
+    BY_WEIGHING {
 
         @Override
         public Grade calculate(final CurriculumAggregator aggregator, final StudentCurricularPlan plan) {
@@ -58,7 +58,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
         }
     },
 
-    BY_WEIGHING {
+    BY_COMPOSITION {
 
         @Override
         public Grade calculate(final CurriculumAggregator aggregator, final StudentCurricularPlan plan) {
