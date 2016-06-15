@@ -138,14 +138,15 @@ abstract public class CurriculumAggregatorServices {
 
     static private Set<Context> collectEnrolmentContexts(final CurriculumAggregator input,
             final Function<CurriculumAggregator, Set<Context>> function) {
+
         final Set<Context> result = Sets.newLinkedHashSet();
 
         if (input != null) {
 
-            final Set<Context> slaveContexts = function.apply(input);
-            result.addAll(slaveContexts);
+            final Set<Context> contexts = function.apply(input);
+            result.addAll(contexts);
 
-            for (final Context iter : slaveContexts) {
+            for (final Context iter : contexts) {
 
                 // try to navigate to next aggregation
                 final CurriculumAggregatorEntry aggregatorEntry = iter.getCurriculumAggregatorEntry();
@@ -339,7 +340,7 @@ abstract public class CurriculumAggregatorServices {
                 result = remaining.isEmpty();
             }
 
-            // if is a optional aggregator entry or slave of one, must be manually enroled
+            // if is a optional aggregator entry must be manually enroled
             result = !isOptionalEntryRelated(context);
         }
 
@@ -374,7 +375,9 @@ abstract public class CurriculumAggregatorServices {
                     return true;
                 }
 
-                return isOptionalEntryRelated(aggregatorEntry.getAggregator().getContext());
+                // TODO legidio, check if this recursive investigation is needed in some other way
+                // for now, we'll keep a more conservative approach
+                // return isOptionalEntryRelated(aggregatorEntry.getAggregator().getContext());
             }
         }
 
