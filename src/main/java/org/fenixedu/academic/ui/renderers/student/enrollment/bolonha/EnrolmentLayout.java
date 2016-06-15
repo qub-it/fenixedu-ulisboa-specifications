@@ -617,17 +617,18 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         if (context != null) {
 
             final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
-
             if (aggregatorEntry != null) {
-                final HtmlInlineContainer span = new HtmlInlineContainer();
-
                 final CurriculumAggregator aggregator = aggregatorEntry.getAggregator();
+                final HtmlInlineContainer span = new HtmlInlineContainer();
 
                 // TODO legidio, check with school the best view pattern                
                 // String text = aggregatorEntry.getDescription();
                 String text = aggregator.getContext().getChildDegreeModule().getCode();
-
                 String spanStyleClasses = "label label-";
+
+                if (aggregatorEntry.getOptional()) {
+                    text += " [O]";
+                }
 
                 if (aggregator.isEnrolmentMaster()) {
 
