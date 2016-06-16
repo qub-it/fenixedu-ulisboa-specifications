@@ -327,22 +327,46 @@ abstract public class CurriculumAggregatorServices {
             return false;
         }
 
+        // if is a optional aggregator entry must be manually enroled
+        if (isOptionalEntryRelated(context)) {
+            return false;
+        }
+
         // if is a slave aggregator, must enrol only if all master are aggregation enroled or about to be
         final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
         if (aggregator != null && aggregator.isEnrolmentSlave()) {
 
-            final Set<Context> remaining = aggregator.getEnrolmentMasterContexts().stream()
-                    .filter(i -> !isAggregationEnroled(i, plan, semester)).collect(Collectors.toSet());
-            remaining.removeAll(aboutToEnrol);
+            final int optionalConcluded = aggregator.getOptionalConcluded();
+            int optionalEnroled = 0;
 
-            if (!remaining.isEmpty()) {
+            for (final Context iter : aggregator.getEnrolmentMasterContexts()) {
+                final boolean optionalEntryRelated = isOptionalEntryRelated(iter);
+
+                if (isAggregationEnroled(iter, plan, semester)) {
+
+                    if (optionalEntryRelated) {
+                        optionalEnroled++;
+                    }
+
+                } else {
+
+                    if (aboutToEnrol.contains(iter)) {
+                        if (optionalEntryRelated) {
+                            optionalEnroled++;
+                        }
+
+                        continue;
+                    }
+
+                    if (!optionalEntryRelated) {
+                        return false;
+                    }
+                }
+            }
+
+            if (optionalConcluded > 0 && optionalEnroled < optionalConcluded) {
                 return false;
             }
-        }
-
-        // if is a optional aggregator entry must be manually enroled
-        if (isOptionalEntryRelated(context)) {
-            return false;
         }
 
         return true;
@@ -359,8 +383,8 @@ abstract public class CurriculumAggregatorServices {
                 result = false;
             }
 
-            final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
-            if (aggregatorEntry != null && !aggregatorEntry.isCandidateForEvaluation()) {
+            final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
+            if (entry != null && !entry.isCandidateForEvaluation()) {
                 result = false;
             }
         }
@@ -370,15 +394,15 @@ abstract public class CurriculumAggregatorServices {
 
     static public boolean isOptionalEntryRelated(final Context context) {
         if (context != null) {
-            CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
-            if (aggregatorEntry != null) {
-                if (aggregatorEntry.getOptional()) {
+            CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
+            if (entry != null) {
+                if (entry.getOptional()) {
                     return true;
                 }
 
                 // TODO legidio, check if this recursive investigation is needed in some other way
                 // for now, we'll keep a more conservative approach
-                // return isOptionalEntryRelated(aggregatorEntry.getAggregator().getContext());
+                // return isOptionalEntryRelated(entry.getAggregator().getContext());
             }
         }
 
