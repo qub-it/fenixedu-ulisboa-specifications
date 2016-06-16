@@ -621,8 +621,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 final CurriculumAggregator aggregator = aggregatorEntry.getAggregator();
                 final HtmlInlineContainer span = new HtmlInlineContainer();
 
-                // TODO legidio, check with school the best view pattern                
-                // String text = aggregatorEntry.getDescription();
                 String text = aggregator.getContext().getChildDegreeModule().getCode();
                 String spanStyleClasses = "label label-";
 
@@ -632,8 +630,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 if (aggregator.isEnrolmentMaster()) {
 
-                    // TODO legidio, check with school the best view pattern
-                    // spanStyleClasses += CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester) ? "primary" : "default";
                     spanStyleClasses += "default";
 
                 } else if (aggregator.isEnrolmentSlave()) {
@@ -642,16 +638,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                     final long count = masterContexts.stream()
                             .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
 
-                    if (count == 0) {
+                    if (count == 0 || CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, semester)) {
                         spanStyleClasses += "default";
-
-                    } else if (count != masterContexts.size()) {
-                        spanStyleClasses += "warning";
 
                     } else {
-                        // TODO legidio, check with school the best view pattern
-                        // spanStyleClasses += "primary";
-                        spanStyleClasses += "default";
+                        spanStyleClasses += "warning";
                     }
                 }
 
@@ -682,8 +673,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                         if (count != slaveContexts.size()) {
                             text += " [!]";
-                            // TODO legidio, check with school the best view pattern
-                            // spanStyleClasses += "info";
                             spanStyleClasses += "danger";
 
                         } else {
@@ -705,8 +694,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                     } else if (count != masterContexts.size()) {
                         text += " [!]";
-                        // TODO legidio, check with school the best view pattern
-                        // spanStyleClasses += "info";
                         spanStyleClasses += "danger";
 
                     } else {
