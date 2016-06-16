@@ -667,6 +667,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 String text = aggregator.getDescription().getContent();
                 String spanStyleClasses = "label label-";
 
+                final int optionalConcluded = aggregator.getOptionalConcluded();
+                if (optionalConcluded != 0) {
+                    text += " [" + optionalConcluded + " O]";
+                }
+
                 if (aggregator.isEnrolmentMaster()) {
 
                     if (CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester)) {
