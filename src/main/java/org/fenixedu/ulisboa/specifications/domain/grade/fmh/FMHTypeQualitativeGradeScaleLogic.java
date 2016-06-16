@@ -21,6 +21,8 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String MB = "MB";
     private static final String BD = "BD";
     private static final String AB = "AB";
+    private static final String AD = "AD";
+    private static final String ADL = "ADL";
     private static final String AM = "AM";
     private static final String AMB = "AMB";
     private static final String AMBD = "AMBD";
@@ -29,7 +31,8 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String MBDL = "MBDL";
     private static final String U = "U";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(RE, SU, A, M, U, AM, AB, B, BD, AMB, AMBD, MB, MBD, MBDL, E);
+    private static final List<String> SORTED_GRADES = Arrays.asList(RE, SU, A, M, U, AM, AB, B, BD, AD, ADL, AMB, AMBD, MB, MBD,
+            MBDL, E);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
@@ -48,6 +51,10 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(BD,
                 new LocalizedString(Locale.getDefault(), "Bom com distinção").with(Locale.ENGLISH, "Good with distinction"));
         CONFIGURATION.put(MB, new LocalizedString(Locale.getDefault(), "Muito Bom").with(Locale.ENGLISH, "Very good"));
+        CONFIGURATION.put(AD, new LocalizedString(Locale.getDefault(), "Aprovado com Distinção").with(Locale.ENGLISH,
+                "Approved with Distinction"));
+        CONFIGURATION.put(ADL, new LocalizedString(Locale.getDefault(), "Aprovado com Distinção e Louvor").with(Locale.ENGLISH,
+                "Approved with Distinction and Honors"));
         CONFIGURATION.put(AMB, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom").with(Locale.ENGLISH,
                 "Approved with Very good"));
         CONFIGURATION.put(MBD,
