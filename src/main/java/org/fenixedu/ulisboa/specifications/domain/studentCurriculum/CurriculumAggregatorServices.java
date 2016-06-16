@@ -53,27 +53,47 @@ abstract public class CurriculumAggregatorServices {
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumAggregatorServices.class);
 
+    /**
+     * Tries to find a Aggregator in the following order:
+     * 
+     * 1) if Context has a Aggregator, return it;
+     * 2) if Context has an Entry, return it's Aggregator
+     */
     static public CurriculumAggregator getAggregationRoot(final Context input) {
-        CurriculumAggregator result = null;
+        final Set<CurriculumAggregator> aggregationRoots = getAggregationRoots(input);
+        return aggregationRoots.isEmpty() ? null : aggregationRoots.iterator().next();
+    }
+
+    /**
+     * Collects all Aggregators related with the input:
+     * 1) if Context has a Aggregator, return it;
+     * 2) if Context has an Entry, return it's Aggregator
+     */
+    static public Set<CurriculumAggregator> getAggregationRoots(final Context input) {
+        // essential to be a linked set, order matters!!
+        final Set<CurriculumAggregator> result = Sets.newLinkedHashSet();
 
         if (input != null) {
 
-            result = input.getCurriculumAggregator();
-
-            if (result == null) {
-                final CurriculumAggregatorEntry entry = input.getCurriculumAggregatorEntry();
-                result = entry == null ? null : entry.getAggregator();
+            CurriculumAggregator aggregator = input.getCurriculumAggregator();
+            if (aggregator != null) {
+                result.add(aggregator);
             }
 
-            final CourseGroup parentGroup = input.getParentCourseGroup();
-            if (result == null && !parentGroup.isRoot()) {
-                result = getAggregationRoot(getContext(parentGroup, (ExecutionYear) null));
+            final CurriculumAggregatorEntry entry = input.getCurriculumAggregatorEntry();
+            aggregator = entry == null ? null : entry.getAggregator();
+            if (aggregator != null) {
+                result.add(aggregator);
             }
         }
 
         return result;
     }
 
+    /**
+     * WARNING: CurriculumAggregator specific implementation,
+     * makes no sense to pull this method to a ContextService or any other Service
+     */
     static public Context getContext(final CurriculumModule input) {
         Context result = null;
 
@@ -112,24 +132,20 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static public Set<Context> collectEnrolmentMasterContexts(final Context context) {
+    static private Set<Context> collectEnrolmentMasterContexts(final Context context) {
         final Set<Context> result = Sets.newLinkedHashSet();
 
-        final CurriculumAggregator aggregator = getAggregationRoot(context);
-        if (aggregator != null) {
-
+        for (final CurriculumAggregator aggregator : getAggregationRoots(context)) {
             result.addAll(collectEnrolmentContexts(aggregator, CurriculumAggregator::getEnrolmentMasterContexts));
         }
 
         return result;
     }
 
-    static public Set<Context> collectEnrolmentSlaveContexts(final Context context) {
+    static private Set<Context> collectEnrolmentSlaveContexts(final Context context) {
         final Set<Context> result = Sets.newLinkedHashSet();
 
-        final CurriculumAggregator aggregator = getAggregationRoot(context);
-        if (aggregator != null) {
-
+        for (final CurriculumAggregator aggregator : getAggregationRoots(context)) {
             result.addAll(collectEnrolmentContexts(aggregator, CurriculumAggregator::getEnrolmentSlaveContexts));
         }
 
@@ -146,19 +162,12 @@ abstract public class CurriculumAggregatorServices {
             final Set<Context> contexts = function.apply(input);
             result.addAll(contexts);
 
-            for (final Context iter : contexts) {
+            for (final Context context : contexts) {
+                for (final CurriculumAggregator aggregator : getAggregationRoots(context)) {
 
-                // try to navigate to next aggregation
-                final CurriculumAggregatorEntry aggregatorEntry = iter.getCurriculumAggregatorEntry();
-                CurriculumAggregator aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
-
-                if (aggregator == input) {
-                    // let's try one last chance
-                    aggregator = iter.getCurriculumAggregator();
-                }
-
-                if (aggregator != input) {
-                    result.addAll(collectEnrolmentContexts(aggregator, function));
+                    if (aggregator != input) {
+                        result.addAll(collectEnrolmentContexts(aggregator, function));
+                    }
                 }
             }
         }
@@ -307,21 +316,7 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public boolean isToDisableEnrolmentOption(final Context context) {
-        if (context != null) {
-
-            CurriculumAggregator aggregator = context.getCurriculumAggregator();
-            if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
-                return true;
-            }
-
-            final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
-            aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
-            if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
-                return true;
-            }
-        }
-
-        return false;
+        return getAggregationRoots(context).stream().anyMatch(i -> i.getEnrolmentSlaveContexts().contains(context));
     }
 
     static private boolean isCandidateForEnrolmentAutomatically(final Context context, final StudentCurricularPlan plan,
