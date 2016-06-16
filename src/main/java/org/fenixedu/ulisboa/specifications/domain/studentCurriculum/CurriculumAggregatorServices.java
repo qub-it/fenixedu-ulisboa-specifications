@@ -307,15 +307,18 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public boolean isToDisableEnrolmentOption(final Context context) {
-        CurriculumAggregator aggregator = context.getCurriculumAggregator();
-        if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
-            return true;
-        }
+        if (context != null) {
 
-        final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
-        aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
-        if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
-            return true;
+            CurriculumAggregator aggregator = context.getCurriculumAggregator();
+            if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
+                return true;
+            }
+
+            final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
+            aggregator = aggregatorEntry == null ? null : aggregatorEntry.getAggregator();
+            if (aggregator != null && aggregator.getEnrolmentSlaveContexts().contains(context)) {
+                return true;
+            }
         }
 
         return false;
@@ -325,26 +328,29 @@ abstract public class CurriculumAggregatorServices {
             final ExecutionSemester semester, final Set<Context> aboutToEnrol) {
 
         // must check if was enroled in other interaction
-        boolean result = !isAggregationEnroled(context, plan, semester);
-
-        if (result) {
-
-            // if is a slave aggregator, must enrol only if all master are aggregation enroled or about to be
-            final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
-            if (aggregator != null && aggregator.isEnrolmentSlave()) {
-
-                final Set<Context> remaining = aggregator.getEnrolmentMasterContexts().stream()
-                        .filter(i -> !isAggregationEnroled(i, plan, semester)).collect(Collectors.toSet());
-                remaining.removeAll(aboutToEnrol);
-
-                result = remaining.isEmpty();
-            }
-
-            // if is a optional aggregator entry must be manually enroled
-            result = !isOptionalEntryRelated(context);
+        if (isAggregationEnroled(context, plan, semester)) {
+            return false;
         }
 
-        return result;
+        // if is a slave aggregator, must enrol only if all master are aggregation enroled or about to be
+        final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
+        if (aggregator != null && aggregator.isEnrolmentSlave()) {
+
+            final Set<Context> remaining = aggregator.getEnrolmentMasterContexts().stream()
+                    .filter(i -> !isAggregationEnroled(i, plan, semester)).collect(Collectors.toSet());
+            remaining.removeAll(aboutToEnrol);
+
+            if (!remaining.isEmpty()) {
+                return false;
+            }
+        }
+
+        // if is a optional aggregator entry must be manually enroled
+        if (isOptionalEntryRelated(context)) {
+            return false;
+        }
+
+        return true;
     }
 
     static public boolean isCandidateForEvaluation(final EvaluationSeason season, final Enrolment enrolment) {
