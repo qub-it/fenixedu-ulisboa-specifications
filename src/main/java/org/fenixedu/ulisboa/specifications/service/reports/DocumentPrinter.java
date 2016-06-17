@@ -44,6 +44,7 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumInform
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DegreeCurricularPlanInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentSignerDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.ExtraCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.LocalizedDatesProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.RegistrationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ServiceRequestDataProvider;
@@ -80,8 +81,9 @@ public class DocumentPrinter {
 
         AcademicServiceRequestTemplate academicServiceRequestTemplate = serviceRequest.getAcademicServiceRequestTemplate();
         if (academicServiceRequestTemplate == null) {
-            academicServiceRequestTemplate = AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
-                    serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
+            academicServiceRequestTemplate =
+                    AcademicServiceRequestTemplate.findTemplateFor(serviceRequest.getLanguage(),
+                            serviceRequest.getServiceRequestType(), degreeType, programConclusion, degree);
         }
 
         final ServiceRequestOutputType outputType = serviceRequest.getServiceRequestType().getServiceRequestOutputType();
@@ -96,8 +98,8 @@ public class DocumentPrinter {
         generator.registerDataProvider(new RegistrationDataProvider(registration, serviceRequest.getLanguage()));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
-        generator.registerDataProvider(
-                new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
+        generator.registerDataProvider(new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle,
+                executionYear));
         if (serviceRequest.hasEnrolmentsByYear() || serviceRequest.hasStandaloneEnrolmentsByYear()
                 || serviceRequest.hasExtracurricularEnrolmentsByYear()) {
             generator.registerDataProvider(new EnrolmentsDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
@@ -109,11 +111,14 @@ public class DocumentPrinter {
 
         generator.registerDataProvider(new ConclusionInformationDataProvider(registration, programConclusion));
 
-        generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration,
-                serviceRequest.getApprovedEnrolments(), serviceRequest.getLanguage()));
+        generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration, serviceRequest
+                .getApprovedEnrolments(), serviceRequest.getLanguage()));
 
-        generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration,
-                serviceRequest.getApprovedStandaloneCurriculum(), serviceRequest.getLanguage()));
+        generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration, serviceRequest
+                .getApprovedStandaloneCurriculum(), serviceRequest.getLanguage()));
+
+        generator.registerDataProvider(new ExtraCurriculumEntriesDataProvider(registration, serviceRequest
+                .getApprovedExtraCurriculum(), serviceRequest.getLanguage()));
 
         generator.registerDataProvider(new ConcludedCurriculumEntriesDataProvider(registration, serviceRequest.getCurriculum(),
                 serviceRequest.getLanguage()));
@@ -211,8 +216,8 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("yyyMMMdd", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(
-                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
+            result.append(serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage())
+                    .replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 
