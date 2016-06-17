@@ -81,10 +81,10 @@ public class ULisboaConstants {
     /*Slots used as default */
     public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
     /*Subset of AcademicServiceRequestSituationType. This are the valid states for the ULisboa Service Request */
-    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES =
-            Arrays.asList(AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
-                    AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
-                    AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
+    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES = Arrays.asList(
+            AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
+            AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
+            AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
     /*Label for each ULisboa Service Request Processor */
     public static final String STATE_LOGGER_PROCESSOR = "label.StateLoggerProcessor.name";
     public static final String FILL_ENROLMENTS_BY_YEAR_PROPERTY_PROCESSOR =
@@ -93,6 +93,8 @@ public class ULisboaConstants {
             "label.FillRequestPropertyProcessor.StandaloneEnrolmentsByYear.name";
     public static final String FILL_EXTRACURRICULAR_ENROLMENTS_BY_YEAR_PROPERTY_PROCESSOR =
             "label.FillRequestPropertyProcessor.ExtracurricularEnrolmentsByYear.name";
+    public static final String FILL_EXTRA_CURRICULUM_PROPERTY_PROCESSOR =
+            "label.FillRequestPropertyProcessor.ExtraCurriculum.name";
     public static final String FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR =
             "label.FillRequestPropertyProcessor.StandAloneCurriculum.name";
     public static final String FILL_APPROVED_ENROLMENTS_PROPERTY_PROCESSOR =
@@ -110,8 +112,8 @@ public class ULisboaConstants {
     public static final Predicate<Enrolment> isExtraCurricular = e -> !e.isAnnulled() && e.isExtraCurricular();
     public static final Predicate<Enrolment> isNormalEnrolment =
             e -> !e.isAnnulled()
-                    && (e.getCurriculumGroup().isInternalCreditsSourceGroup()
-                            || !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
+                    && (e.getCurriculumGroup().isInternalCreditsSourceGroup() || !e.getCurriculumGroup()
+                            .isNoCourseGroupCurriculumGroup())
                     && (e.getParentCycleCurriculumGroup() == null || !e.getParentCycleCurriculumGroup().isExternal());
 
     public static final List<ICurriculumEntry> getLastPlanApprovements(Registration registration) {
@@ -120,11 +122,12 @@ public class ULisboaConstants {
     }
 
     public static final List<ICurriculumEntry> getAllPlansApprovements(Registration registration) {
-        Curriculum mergedCurricula = registration.getStudentCurricularPlansSet().stream()
-                .map(scp -> scp.getCurriculum(new DateTime(), null)).reduce((c1, c2) -> {
-                    c1.add(c2);
-                    return c1;
-                }).orElse(null);
+        Curriculum mergedCurricula =
+                registration.getStudentCurricularPlansSet().stream().map(scp -> scp.getCurriculum(new DateTime(), null))
+                        .reduce((c1, c2) -> {
+                            c1.add(c2);
+                            return c1;
+                        }).orElse(null);
         return mergedCurricula == null ? new ArrayList<ICurriculumEntry>() : mergedCurricula.getCurriculumEntries().stream()
                 .collect(Collectors.toList());
     }
@@ -135,13 +138,8 @@ public class ULisboaConstants {
     }
 
     public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(Registration registration) {
-        Curriculum mergedCurricula = registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getCurriculumLines()
-                .stream().map(cl -> cl.getCurriculum(new DateTime(), null)).reduce((c1, c2) -> {
-                    c1.add(c2);
-                    return c1;
-                }).orElse(null);
-        return mergedCurricula == null ? new ArrayList<ICurriculumEntry>() : mergedCurricula.getCurriculumEntries().stream()
-                .collect(Collectors.toList());
+        return registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getEnrolmentsSet().stream()
+                .filter(e -> e.isApproved()).map(ICurriculumEntry.class::cast).collect(Collectors.toList());
     }
 
     public static final List<ICurriculumEntry> getConclusionCurriculum(Registration registration,
@@ -153,7 +151,7 @@ public class ULisboaConstants {
 
     public static final Locale DEFAULT_LOCALE = new Locale("PT");
 
-    public static final TupleDataSourceBean SELECT_OPTION =
-            new TupleDataSourceBean("", BundleUtil.getString(Constants.BUNDLE, "label.TupleDataSourceBean.select.description"));
+    public static final TupleDataSourceBean SELECT_OPTION = new TupleDataSourceBean("", BundleUtil.getString(Constants.BUNDLE,
+            "label.TupleDataSourceBean.select.description"));
 
 }
