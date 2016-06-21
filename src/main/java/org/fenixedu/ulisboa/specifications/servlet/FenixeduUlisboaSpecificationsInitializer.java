@@ -52,6 +52,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
+import org.fenixedu.learning.domain.degree.DegreeSite;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
@@ -191,6 +192,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 if (firstYearRegistrationConfiguration != null) {
                     firstYearRegistrationConfiguration.delete();
                 }
+
+                DegreeSite site = degree.getSite();
+                site.delete();
             }
         });
     }
@@ -247,8 +251,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
-                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic =
+                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
+                        .typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);
