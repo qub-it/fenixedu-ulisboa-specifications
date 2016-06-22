@@ -33,12 +33,13 @@ import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
 import org.fenixedu.bennu.portal.domain.MenuItem;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.spring.FenixEDUBaseController;
-import org.springframework.stereotype.Controller;
+import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.startPageRedirector",
+        accessGroup = "logged")
 @RequestMapping("/startPage")
 public class StartPage extends FenixEDUBaseController {
 
