@@ -194,7 +194,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 }
 
                 DegreeSite site = degree.getSite();
-                site.delete();
+                if (site != null) {
+                    site.delete();
+                }
             }
         });
     }

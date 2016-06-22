@@ -1,8 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Objects;
-import java.util.function.Predicate;
-
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -19,7 +17,9 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
         FenixFramework.getDomainModel().registerDeletionListener(DegreeInfo.class, degreeInfo -> {
             ExtendedDegreeInfo edi = degreeInfo.getExtendedDegreeInfo();
             degreeInfo.setExtendedDegreeInfo(null);
-            edi.delete();
+            if (edi != null) {
+                edi.delete();
+            }
         });
     }
 
