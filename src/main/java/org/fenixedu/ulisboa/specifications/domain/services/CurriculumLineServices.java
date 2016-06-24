@@ -3,11 +3,15 @@ package org.fenixedu.ulisboa.specifications.domain.services;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.comparators.ComparatorChain;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
@@ -65,6 +69,33 @@ public class CurriculumLineServices {
     static public BigDecimal getWeight(CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getWeight();
     }
+
+    static private Comparator<CurriculumLine> COMPARATOR_CONTEXT = (o1, o2) -> {
+        final Optional<Context> c1 = CurriculumLineServices.getParentContexts(o1).stream().sorted(Context::compareTo).findFirst();
+        final Optional<Context> c2 = CurriculumLineServices.getParentContexts(o2).stream().sorted(Context::compareTo).findFirst();
+
+        if (c1.isPresent() && !c2.isPresent()) {
+            return -1;
+        }
+
+        if (!c1.isPresent() && c2.isPresent()) {
+            return 1;
+        }
+
+        if (c1.get().getParentCourseGroup() != c2.get().getParentCourseGroup()) {
+            return c1.get().getParentCourseGroup().getOneFullName().compareTo(c2.get().getParentCourseGroup().getOneFullName());
+        }
+
+        return c1.get().compareTo(c2.get());
+    };
+
+    static public Comparator<CurriculumLine> COMPARATOR = (o1, o2) -> {
+        final ComparatorChain comparatorChain = new ComparatorChain();
+        comparatorChain.addComparator(COMPARATOR_CONTEXT);
+        comparatorChain.addComparator(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
+
+        return comparatorChain.compare(o1, o2);
+    };
 
     static public Collection<Context> getParentContexts(final CurriculumLine curriculumLine) {
 

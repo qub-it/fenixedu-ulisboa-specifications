@@ -47,6 +47,8 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
@@ -178,7 +180,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getContext().getParentCourseGroup().getParentDegreeCurricularPlan();
     }
 
-    protected CurricularCourse getCurricularCourse() {
+    public CurricularCourse getCurricularCourse() {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
@@ -322,24 +324,32 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
      */
     public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
 
-        if (!plan.hasDegreeModule(getCurricularCourse())) {
-            return false;
+        if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
+            // approval may be in previous plan
+            if (CompetenceCourseServices.isCompetenceCourseApproved(plan, getCurricularCourse())) {
+                return true;
+            }
+
+        } else if (plan.isConcluded(getCurricularCourse(), (ExecutionYear) null)) {
+            return true;
         }
 
-        if (plan.isConcluded(getCurricularCourse(), (ExecutionYear) null)) {
+        // may be concluded by approval of another aggregator on which aggregation it participates
+        final CurriculumAggregatorEntry entry = getContext().getCurriculumAggregatorEntry();
+        if (entry != null && entry.getAggregator().isAggregationConcluded(plan)) {
             return true;
         }
 
         int optionalConcludedEntries = 0;
 
-        for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
+        for (final CurriculumAggregatorEntry iter : getEntriesSet()) {
 
-            if (!entry.isAggregationConcluded(plan)) {
-                if (!entry.getOptional()) {
+            if (!iter.isAggregationConcluded(plan)) {
+                if (!iter.getOptional()) {
                     return false;
                 }
 
-            } else if (entry.getOptional()) {
+            } else if (iter.getOptional()) {
                 optionalConcludedEntries = optionalConcludedEntries + 1;
             }
         }

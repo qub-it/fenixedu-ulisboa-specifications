@@ -189,7 +189,10 @@ abstract public class CurriculumAggregatorServices {
 
     static private boolean isAggregationEnroled(final CurricularCourse curricularCourse, final StudentCurricularPlan plan,
             final ExecutionSemester semester) {
-        return plan.isApproved(curricularCourse) || plan.isEnroledInExecutionPeriod(curricularCourse, semester);
+
+        // WARNING! at this leve this CAN NOT be competence course approval aware, since this method is used for evaluating if a given CurricularCourse is candidate for enrolment on THIS scp
+        return plan.isApproved(curricularCourse) || (semester == null ? !plan.getEnrolments(curricularCourse).isEmpty() : plan
+                .isEnroledInExecutionPeriod(curricularCourse, semester));
     }
 
     static private boolean isAggregationEnroled(final CourseGroup courseGroup, final StudentCurricularPlan plan,

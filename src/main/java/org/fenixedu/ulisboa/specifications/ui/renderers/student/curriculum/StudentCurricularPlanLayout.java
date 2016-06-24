@@ -209,13 +209,21 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateGroupRowWithText(mainTable,
                         enrolmentsExecutionPeriod.getYear() + ", " + enrolmentsExecutionPeriod.getName(), true, 0,
                         (CurriculumGroup) null);
-                generateEnrolmentRows(mainTable,
-                        this.studentCurricularPlan.getEnrolmentsByExecutionPeriod(enrolmentsExecutionPeriod), 0);
+
+                final List<Enrolment> enrolments =
+                        this.studentCurricularPlan.getEnrolmentsByExecutionPeriod(enrolmentsExecutionPeriod);
+                // qubExtension
+                enrolments.sort(CurriculumLineServices.COMPARATOR);
+
+                generateEnrolmentRows(mainTable, enrolments, 0);
             }
         }
 
         if (renderer.isToShowDismissals()) {
             final List<Dismissal> dismissals = this.studentCurricularPlan.getDismissals();
+            // qubExtension
+            dismissals.sort(CurriculumLineServices.COMPARATOR);
+
             if (!dismissals.isEmpty()) {
                 generateGroupRowWithText(mainTable, BundleUtil.getString(Bundle.STUDENT, "label.dismissals"), true, 0,
                         (CurriculumGroup) null);
@@ -396,18 +404,28 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateCurriculumLineRows(HtmlTable mainTable, CurriculumGroup curriculumGroup, int level) {
 
-        if (renderer.isToShowDismissals()) {
-            generateDismissalRows(mainTable, curriculumGroup.getChildDismissals(), level);
-        }
+        // qubExtension, mingle dismissals and enrolments
+        final List<CurriculumLine> lines = curriculumGroup.getCurriculumModulesSet().stream().filter(i -> i.isLeaf())
+                .map(i -> (CurriculumLine) i).sorted(CurriculumLineServices.COMPARATOR).collect(Collectors.toList());
 
-        if (renderer.isToShowEnrolments()) {
-            generateEnrolmentRows(mainTable, curriculumGroup.getChildEnrolments(), level);
+        for (final CurriculumLine iter : lines) {
+
+            if (renderer.isToShowDismissals() && iter.isDismissal()) {
+                final Dismissal dismissal = (Dismissal) iter;
+
+                generateDismissalRow(mainTable, dismissal, level);
+            }
+
+            if (renderer.isToShowEnrolments() && iter.isEnrolment()) {
+                final Enrolment enrolment = (Enrolment) iter;
+
+                // from generateEnrolmentRows
+                generateEnrolmentRowConditionally(mainTable, enrolment, level);
+            }
         }
     }
 
-    protected void generateDismissalRows(HtmlTable mainTable, List<Dismissal> dismissals, int level) {
-        final Set<Dismissal> sortedDismissals = new TreeSet<Dismissal>(Dismissal.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        sortedDismissals.addAll(dismissals);
+    protected void generateDismissalRows(HtmlTable mainTable, List<Dismissal> sortedDismissals, int level) {
 
         for (final Dismissal dismissal : sortedDismissals) {
             generateDismissalRow(mainTable, dismissal, level);
@@ -596,24 +614,28 @@ public class StudentCurricularPlanLayout extends Layout {
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
     }
 
-    protected void generateEnrolmentRows(HtmlTable mainTable, List<Enrolment> childEnrolments, int level) {
-        final Set<Enrolment> sortedEnrolments = new TreeSet<Enrolment>(Enrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        sortedEnrolments.addAll(childEnrolments);
+    protected void generateEnrolmentRows(HtmlTable mainTable, List<Enrolment> sortedEnrolments, int level) {
 
         for (final Enrolment enrolment : sortedEnrolments) {
-            if (renderer.isToShowAllEnrolmentStates()) {
+            generateEnrolmentRowConditionally(mainTable, enrolment, level);
+        }
+    }
+
+    // qubExtension
+    private void generateEnrolmentRowConditionally(final HtmlTable mainTable, final Enrolment enrolment, final int level) {
+
+        if (renderer.isToShowAllEnrolmentStates()) {
+            generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
+        } else if (renderer.isToShowApprovedOnly()) {
+            if (enrolment.isApproved()) {
                 generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
-            } else if (renderer.isToShowApprovedOnly()) {
-                if (enrolment.isApproved()) {
-                    generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
-                }
-            } else if (renderer.isToShowApprovedOrEnroledStatesOnly()) {
-                if (enrolment.isApproved() || enrolment.isEnroled()) {
-                    generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
-                }
-            } else {
-                throw new RuntimeException("Unexpected enrolment state filter type");
             }
+        } else if (renderer.isToShowApprovedOrEnroledStatesOnly()) {
+            if (enrolment.isApproved() || enrolment.isEnroled()) {
+                generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
+            }
+        } else {
+            throw new RuntimeException("Unexpected enrolment state filter type");
         }
     }
 

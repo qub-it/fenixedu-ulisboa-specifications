@@ -27,8 +27,6 @@ package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -400,12 +398,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean filterByAggregationApproval(final CurricularCourse input) {
+        final StudentCurricularPlan scp = getBolonhaStudentEnrollmentBean().getStudentCurricularPlan();
         final ExecutionYear executionYear = getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear();
-        final CurriculumAggregator aggregator =
-                CurriculumAggregatorServices.getAggregationRoot(CurriculumAggregatorServices.getContext(input, executionYear));
+        final Context context = CurriculumAggregatorServices.getContext(input, executionYear);
 
-        return aggregator != null && getBolonhaStudentEnrollmentBean().getStudentCurricularPlan()
-                .isConcluded(aggregator.getContext().getChildDegreeModule(), (ExecutionYear) executionYear);
+        final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context);
+        return aggregator != null && aggregator.isAggregationConcluded(scp);
     }
 
     /**
@@ -519,21 +517,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         // qubExtension, show sorted enrolments
         studentCurriculumGroupBean.getEnrolledCurriculumCourses().sort((o1, o2) -> {
-
-            final Optional<Context> c1 = CurriculumLineServices.getParentContexts(o1.getCurriculumModule()).stream()
-                    .sorted(Context::compareTo).findFirst();
-            final Optional<Context> c2 = CurriculumLineServices.getParentContexts(o2.getCurriculumModule()).stream()
-                    .sorted(Context::compareTo).findFirst();
-
-            if (c1.isPresent() && !c2.isPresent()) {
-                return -1;
-            }
-
-            if (!c1.isPresent() && c2.isPresent()) {
-                return 1;
-            }
-
-            return c1.get().compareTo(c2.get());
+            return CurriculumLineServices.COMPARATOR.compare(o1.getCurriculumModule(), o2.getCurriculumModule());
         });
 
         super.generateEnrolments(studentCurriculumGroupBean, groupTable);
@@ -625,24 +609,25 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 String spanStyleClasses = "label label-";
 
                 if (aggregatorEntry.getOptional()) {
-                    text += " [O]";
+                    text += " [Op]";
                 }
 
-                if (aggregator.isEnrolmentMaster()) {
+                // we test for aggregator enrolment in order to avoid counting optionals on a UI method
+                // notice we check for any execution semester enrolment at this point (several enrolments may have occured in many different semesters and that is not releavant for the warning colour
+                if (aggregator.isEnrolmentMaster() || CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(),
+                        scp, (ExecutionSemester) null)) {
 
                     spanStyleClasses += "default";
 
                 } else if (aggregator.isEnrolmentSlave()) {
 
-                    final Set<Context> masterContexts = aggregator.getEnrolmentMasterContexts();
-                    final long count = masterContexts.stream()
-                            .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
+                    if (aggregator.getEnrolmentMasterContexts().stream()
+                            .anyMatch(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester))) {
 
-                    if (count == 0 || CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, semester)) {
-                        spanStyleClasses += "default";
+                        spanStyleClasses += "warning";
 
                     } else {
-                        spanStyleClasses += "warning";
+                        spanStyleClasses += "default";
                     }
                 }
 
@@ -660,44 +645,30 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 final int optionalConcluded = aggregator.getOptionalConcluded();
                 if (optionalConcluded != 0) {
-                    text += " [" + optionalConcluded + " O]";
+                    text += " [" + optionalConcluded + " Op]";
                 }
 
-                if (aggregator.isEnrolmentMaster()) {
+                // we test for aggregator enrolment in order to avoid counting optionals on a UI method
+                if (CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, semester)) {
+                    spanStyleClasses += "success";
 
-                    if (CurriculumAggregatorServices.isAggregationEnroled(context, scp, semester)) {
+                } else {
 
-                        final Set<Context> slaveContexts = aggregator.getEnrolmentSlaveContexts();
-                        final long count = slaveContexts.stream()
-                                .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
+                    if (aggregator.isEnrolmentMaster()) {
 
-                        if (count != slaveContexts.size()) {
+                        spanStyleClasses += "info";
+
+                    } else if (aggregator.isEnrolmentSlave()) {
+
+                        if (aggregator.getEnrolmentMasterContexts().stream()
+                                .anyMatch(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester))) {
+
                             text += " [!]";
                             spanStyleClasses += "danger";
-
                         } else {
-                            spanStyleClasses += "success";
+
+                            spanStyleClasses += "info";
                         }
-
-                    } else {
-                        spanStyleClasses += "info";
-                    }
-
-                } else if (aggregator.isEnrolmentSlave()) {
-
-                    final Set<Context> masterContexts = aggregator.getEnrolmentMasterContexts();
-                    final long count = masterContexts.stream()
-                            .filter(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester)).count();
-
-                    if (count == 0) {
-                        spanStyleClasses += "info";
-
-                    } else if (count != masterContexts.size()) {
-                        text += " [!]";
-                        spanStyleClasses += "danger";
-
-                    } else {
-                        spanStyleClasses += "success";
                     }
                 }
 
