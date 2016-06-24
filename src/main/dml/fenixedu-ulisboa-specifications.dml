@@ -1034,6 +1034,10 @@ class serviceRequests.processors.FillStandAlonePropertyProcessor extends service
 
 }
 
+class serviceRequests.processors.ValidateEnrolmentsExistenceByYearProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
 class serviceRequests.processors.FillEnrolmentsByYearPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
 
 }

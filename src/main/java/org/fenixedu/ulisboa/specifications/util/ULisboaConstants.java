@@ -103,6 +103,8 @@ public class ULisboaConstants {
             "label.FillRequestPropertyProcessor.AllPlansApprovements.name";
     public static final String FILL_CURRICULUM_PROPERTY_PROCESSOR = "label.FillRequestPropertyProcessor.Curriculum.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
+    public static final String VALIDATE_ENROLMENTS_EXISTENCE_BY_YEAR_PROCESSOR =
+            "label.ValidateEnrolmentsExistenceByYearProcessor.name";
     public static final String VALIDATE_PROGRAM_CONCLUSION_PROCESSOR = "label.ValidateProgramConclusionProcessor.name";
     public static final String VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR = "label.ValidateImprovementEnrolmentProcessor.name";
     public static final String VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR = "label.ValidateSpecialSeasonEnrolmentProcessor.name";

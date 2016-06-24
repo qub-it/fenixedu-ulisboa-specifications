@@ -141,6 +141,12 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
             ValidateProgramConclusionProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.VALIDATE_PROGRAM_CONCLUSION_PROCESSOR));
         }
+        if (findByName(
+                BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_ENROLMENTS_EXISTENCE_BY_YEAR_PROCESSOR))
+                .count() == 0) {
+            ValidateProgramConclusionProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                    ULisboaConstants.VALIDATE_ENROLMENTS_EXISTENCE_BY_YEAR_PROCESSOR));
+        }
         //TODOJN : Test validators
 //        if (findByName(
 //                BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR))
