@@ -82,6 +82,10 @@ public class CurriculumLineServices {
             return 1;
         }
 
+        if (!c1.isPresent() && !c2.isPresent()) {
+            return 0;
+        }
+        
         if (c1.get().getParentCourseGroup() != c2.get().getParentCourseGroup()) {
             return c1.get().getParentCourseGroup().getOneFullName().compareTo(c2.get().getParentCourseGroup().getOneFullName());
         }
