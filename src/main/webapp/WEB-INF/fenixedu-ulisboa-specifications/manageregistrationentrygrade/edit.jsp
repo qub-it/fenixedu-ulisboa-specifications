@@ -112,10 +112,50 @@ ${portal.toolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3">
+							<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeA" />
+						</th>
+						<td>
+							<c:out value='${registration.extendedInformation == null ? "" : registration.extendedInformation.ingressionGradeA}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeB" />
+						</th>
+						<td>
+							<c:out value='${registration.extendedInformation == null ? "" : registration.extendedInformation.ingressionGradeB}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeC" />
+						</th>
+						<td>
+							<c:out value='${registration.extendedInformation == null ? "" : registration.extendedInformation.ingressionGradeC}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeD" />
+						</th>
+						<td>
+							<c:out value='${registration.extendedInformation == null ? "" : registration.extendedInformation.ingressionGradeD}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
 							<spring:message code="label.ManageRegistrationEntryGrade.placingOption" />
 						</th>
 						<td>
 							<c:out value='${registration.studentCandidacy.placingOption}' />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.ManageRegistrationEntryGrade.numberOfCandidaciesToHigherSchool" />
+						</th>
+						<td>
+							<c:out value='${registration.studentCandidacy.numberOfCandidaciesToHigherSchool}' />
 						</td>
 					</tr>
 				</tbody>
@@ -133,7 +173,47 @@ ${portal.toolkit()}
 		</label>
 
 		<div class="col-sm-6">
-			<input class="form-control" type="text" name="entryGrade" value="${not empty param.entryGrade ? param.entryGrade : entryGrade}" />
+			<input class="form-control" type="number" min="0" step="0.01" name="entryGrade" value="${not empty param.entryGrade ? param.entryGrade : entryGrade}" />
+		</div>
+	</div>
+	
+	<div class="form-group row">
+		<label for="ingressionGradeA" class="col-sm-2 control-label required-field">
+			<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeA" />
+		</label>
+
+		<div class="col-sm-6">
+			<input class="form-control" type="number" min="0" step="0.01" name="ingressionGradeA" value="${not empty param.ingressionGradeA ? param.ingressionGradeA : ingressionGradeA}" />
+		</div>
+	</div>
+	
+	<div class="form-group row">
+		<label for="ingressionGradeB" class="col-sm-2 control-label required-field">
+			<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeB" />
+		</label>
+
+		<div class="col-sm-6">
+			<input class="form-control" type="number" min="0" step="0.01" name="ingressionGradeB" value="${not empty param.ingressionGradeB ? param.ingressionGradeB : ingressionGradeB}" />
+		</div>
+	</div>
+	
+	<div class="form-group row">
+		<label for="ingressionGradeC" class="col-sm-2 control-label required-field">
+			<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeC" />
+		</label>
+
+		<div class="col-sm-6">
+			<input class="form-control" type="number" min="0" step="0.01" name="ingressionGradeC" value="${not empty param.ingressionGradeC ? param.ingressionGradeC : ingressionGradeC}" />
+		</div>
+	</div>
+	
+	<div class="form-group row">
+		<label for="ingressionGradeD" class="col-sm-2 control-label required-field">
+			<spring:message code="label.ManageRegistrationEntryGrade.ingressionGradeD" />
+		</label>
+
+		<div class="col-sm-6">
+			<input class="form-control" type="number" min="0" step="0.01" name="ingressionGradeD" value="${not empty param.ingressionGradeD ? param.ingressionGradeD : ingressionGradeD}" />
 		</div>
 	</div>
 
@@ -143,7 +223,17 @@ ${portal.toolkit()}
 		</label>
 
 		<div class="col-sm-6">
-			<input class="form-control" type="text" name="placingOption" value="${not empty param.placingOption ? param.placingOption : placingOption}" />
+			<input class="form-control" type="number" min="0" step="1" name="placingOption" value="${not empty param.placingOption ? param.placingOption : placingOption}" />
+		</div>
+	</div>
+	
+	<div class="form-group row">
+		<label for="numberOfCandidaciesToHigherSchool" class="col-sm-2 control-label required-field">
+			<spring:message code="label.ManageRegistrationEntryGrade.numberOfCandidaciesToHigherSchool" />
+		</label>
+
+		<div class="col-sm-6">
+			<input class="form-control" type="number" min="0" step="1" name="numberOfCandidaciesToHigherSchool" value="${not empty param.numberOfCandidaciesToHigherSchool ? param.numberOfCandidaciesToHigherSchool : numberOfCandidaciesToHigherSchool}" />
 		</div>
 	</div>
 

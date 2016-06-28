@@ -76,6 +76,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInitializer;
+import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorListeners;
@@ -173,6 +174,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         EnrolmentEvaluationExtendedInformation.setupDeleteListener();
 
+        RegistrationExtendedInformation.setupDeleteListener();
+
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());
 
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
@@ -253,9 +256,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic =
-                loadClass("gradescale.typequalitative.logic.class", ULisboaConfiguration.getConfiguration()
-                        .typeQualitativeGradeScaleLogic());
+        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
+                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);

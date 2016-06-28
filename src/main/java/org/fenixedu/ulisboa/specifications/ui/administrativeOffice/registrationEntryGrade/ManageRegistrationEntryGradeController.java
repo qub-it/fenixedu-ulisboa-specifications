@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -36,32 +37,32 @@ public class ManageRegistrationEntryGradeController extends FenixeduUlisboaSpeci
 
         model.addAttribute("registration", registration);
         model.addAttribute("entryGrade", registration.getStudentCandidacy().getEntryGrade());
+        model.addAttribute("ingressionGradeA", RegistrationServices.getIngressionGradeA(registration));
+        model.addAttribute("ingressionGradeB", RegistrationServices.getIngressionGradeB(registration));
+        model.addAttribute("ingressionGradeC", RegistrationServices.getIngressionGradeC(registration));
+        model.addAttribute("ingressionGradeD", RegistrationServices.getIngressionGradeD(registration));
         model.addAttribute("placingOption", registration.getStudentCandidacy().getPlacingOption());
+        model.addAttribute("numberOfCandidaciesToHigherSchool",
+                registration.getStudentCandidacy().getNumberOfCandidaciesToHigherSchool());
 
         return jspPage(EDIT_URI);
     }
 
     @RequestMapping(value = EDIT_URI + "/{registrationId}", method = RequestMethod.POST)
     public String edit(@PathVariable("registrationId") final Registration registration,
-            @RequestParam("entryGrade") final String entryGrade, @RequestParam("placingOption") final String placingOption,
-            final Model model) {
+            @RequestParam("entryGrade") final BigDecimal entryGrade,
+            @RequestParam("ingressionGradeA") BigDecimal ingressionGradeA,
+            @RequestParam("ingressionGradeB") BigDecimal ingressionGradeB,
+            @RequestParam("ingressionGradeC") BigDecimal ingressionGradeC,
+            @RequestParam("ingressionGradeD") BigDecimal ingressionGradeD,
+            @RequestParam("placingOption") final Integer placingOption,
+            @RequestParam("numberOfCandidaciesToHigherSchool") Integer numberOfCandidaciesToHigherSchool, final Model model) {
         try {
 
-            try {
-                new BigDecimal(entryGrade);
-            } catch (NumberFormatException e) {
-                addErrorMessage(ULisboaSpecificationsUtil.bundle("error.ManageRegistrationEntryGrade.entryGrade.format"), model);
-                return _edit(registration, model);
-            }
-            
-            try {
-                Integer.parseInt(placingOption);
-            } catch(final NumberFormatException e) {
-                addErrorMessage(ULisboaSpecificationsUtil.bundle("error.ManageRegistrationEntryGrade.placingOption.format"), model);
-                return _edit(registration, model);                
-            }
+            editInformation(registration, entryGrade != null ? entryGrade.doubleValue() : null, ingressionGradeA,
+                    ingressionGradeB, ingressionGradeC, ingressionGradeD, placingOption, numberOfCandidaciesToHigherSchool);
 
-            editInformation(registration, new BigDecimal(entryGrade).doubleValue(), Integer.parseInt(placingOption));
+            addInfoMessage(ULisboaSpecificationsUtil.bundle("label.success.update"), model);
 
             return String.format("redirect:%s/%s", EDIT_URL, registration.getExternalId());
         } catch (final ULisboaSpecificationsDomainException e) {
@@ -72,9 +73,19 @@ public class ManageRegistrationEntryGradeController extends FenixeduUlisboaSpeci
     }
 
     @Atomic
-    private void editInformation(final Registration registration, final Double entryGrade, final Integer placingOption) {
+    private void editInformation(final Registration registration, final Double entryGrade, BigDecimal ingressionGradeA,
+            BigDecimal ingressionGradeB, BigDecimal ingressionGradeC, BigDecimal ingressionGradeD, final Integer placingOption,
+            Integer numberOfCandidaciesToHigherSchool) {
+
         registration.getStudentCandidacy().setEntryGrade(entryGrade);
         registration.getStudentCandidacy().setPlacingOption(placingOption);
+        registration.getStudentCandidacy().setNumberOfCandidaciesToHigherSchool(numberOfCandidaciesToHigherSchool);
+
+        RegistrationServices.setIngressionGradeA(registration, ingressionGradeA);
+        RegistrationServices.setIngressionGradeB(registration, ingressionGradeB);
+        RegistrationServices.setIngressionGradeC(registration, ingressionGradeC);
+        RegistrationServices.setIngressionGradeD(registration, ingressionGradeD);
+
     }
 
     private String jspPage(final String page) {

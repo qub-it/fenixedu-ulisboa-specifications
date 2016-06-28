@@ -21,6 +21,8 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
+import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
+import org.joda.time.LocalDate;
 
 import com.google.common.collect.Sets;
 
@@ -96,19 +98,67 @@ public class RegistrationServices {
 
         return false;
     }
-    
+
     public static final boolean canCollectAllPlansForCurriculum(final Registration registration) {
         return registration.getStudentCurricularPlansSet().size() > 1 && !hasCreditsBetweenPlans(registration);
     }
-    
-    
+
     public static Curriculum getAllPlansCurriculum(final Registration registration, final ExecutionYear executionYear) {
         Curriculum curriculumSum = Curriculum.createEmpty(executionYear);
         for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
             curriculumSum.add(studentCurricularPlan.getRoot().getCurriculum(executionYear));
         }
-        
+
         return curriculumSum;
-    }    
-    
+    }
+
+    public static void setIngressionGradeA(Registration registration, BigDecimal grade) {
+        RegistrationExtendedInformation.findOrCreate(registration).setIngressionGradeA(grade);
+    }
+
+    public static BigDecimal getIngressionGradeA(Registration registration) {
+        return registration.getExtendedInformation() != null ? registration.getExtendedInformation().getIngressionGradeA() : null;
+    }
+
+    public static void setIngressionGradeB(Registration registration, BigDecimal grade) {
+        RegistrationExtendedInformation.findOrCreate(registration).setIngressionGradeB(grade);
+    }
+
+    public static BigDecimal getIngressionGradeB(Registration registration) {
+        return registration.getExtendedInformation() != null ? registration.getExtendedInformation().getIngressionGradeB() : null;
+    }
+
+    public static void setIngressionGradeC(Registration registration, BigDecimal grade) {
+        RegistrationExtendedInformation.findOrCreate(registration).setIngressionGradeC(grade);
+    }
+
+    public static BigDecimal getIngressionGradeC(Registration registration) {
+        return registration.getExtendedInformation() != null ? registration.getExtendedInformation().getIngressionGradeC() : null;
+    }
+
+    public static void setIngressionGradeD(Registration registration, BigDecimal grade) {
+        RegistrationExtendedInformation.findOrCreate(registration).setIngressionGradeD(grade);
+    }
+
+    public static BigDecimal getIngressionGradeD(Registration registration) {
+        return registration.getExtendedInformation() != null ? registration.getExtendedInformation().getIngressionGradeD() : null;
+    }
+
+    public static void setInternshipGrade(Registration registration, BigDecimal grade) {
+        RegistrationExtendedInformation.findOrCreate(registration).setInternshipGrade(grade);
+    }
+
+    public static BigDecimal getInternshipGrade(Registration registration) {
+        return registration.getExtendedInformation() != null ? registration.getExtendedInformation().getInternshipGrade() : null;
+    }
+
+    public static void setInternshipConclusionDate(Registration registration, LocalDate conclusionDate) {
+        RegistrationExtendedInformation.findOrCreate(registration).setInternshipConclusionDate(conclusionDate);
+    }
+
+    public static LocalDate getInternshipConclusionDate(Registration registration) {
+        return registration.getExtendedInformation() != null ? registration.getExtendedInformation()
+                .getInternshipConclusionDate() : null;
+    }
+
 }
