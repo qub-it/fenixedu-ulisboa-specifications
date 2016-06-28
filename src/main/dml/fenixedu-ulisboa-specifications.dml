@@ -551,6 +551,9 @@ relation StatuteTypeRuleTransition {
 class curricularRules.CurriculumAggregatorApproval extends .org.fenixedu.academic.domain.curricularRules.Rule {
 }
 
+class curricularRules.ConditionedRoute extends .org.fenixedu.academic.domain.curricularRules.Rule {
+}
+
 // ==================== END: CurricularRule ====================
 
 // ==================== BEGIN: CurricularRule Executor Logics ====================

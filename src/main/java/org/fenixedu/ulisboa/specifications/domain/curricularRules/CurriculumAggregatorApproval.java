@@ -45,10 +45,14 @@ import com.google.common.collect.Lists;
 
 public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_Base {
 
+    protected CurriculumAggregatorApproval() {
+        super();
+    }
+
     public CurriculumAggregatorApproval(final DegreeModule toApplyRule, final CourseGroup contextCourseGroup,
             final ExecutionSemester begin, final ExecutionSemester end) {
 
-        super();
+        this();
         init(toApplyRule, contextCourseGroup, begin, end, CurricularRuleType.CUSTOM);
     }
 
@@ -71,18 +75,12 @@ public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_B
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<GenericPair<Object, Boolean>> getLabel() {
-        final List<GenericPair<Object, Boolean>> result = Lists.newArrayList();
+        final StringBuilder label = new StringBuilder();
+        label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.CurriculumAggregatorApproval"));
 
-        final String label = BundleUtil.getString(ULisboaConstants.BUNDLE, "label.CurriculumAggregatorApproval");
-
-        result.add(new GenericPair<Object, Boolean>(label, false));
-        return result;
-    }
-
-    @Override
-    public boolean isVisible() {
-        return false;
+        return Lists.newArrayList(new GenericPair<Object, Boolean>(label, false));
     }
 
 }

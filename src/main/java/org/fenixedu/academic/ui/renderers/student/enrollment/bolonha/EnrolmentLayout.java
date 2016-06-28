@@ -38,6 +38,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
+import org.fenixedu.academic.domain.curricularRules.EnrolmentToBeApprovedByCoordinator;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -52,6 +53,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.ConditionedRoute;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
@@ -417,21 +420,25 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return input.isToBeDisabled()
 
                 // qubExtension
+                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(), EnrolmentToBeApprovedByCoordinator.class,
+                        ConditionedRoute.class))
+
+                // qubExtension
                 || input.getCurriculumModule().getDegreeModule().getChildContextsSet().stream()
                         .anyMatch(i -> CurriculumAggregatorServices.getAggregationRoot(i) != null)
 
-                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(),
-                        CurricularRuleType.ENROLMENT_TO_BE_APPROVED_BY_COORDINATOR));
+        ;
     }
 
     private boolean isToDisableEnrolmentOption(final IDegreeModuleToEvaluate input) {
         if (isStudentLogged()) {
 
-            if (appliesAnyRules(input, CurricularRuleType.ENROLMENT_TO_BE_APPROVED_BY_COORDINATOR)) {
+            if (appliesAnyRules(input, EnrolmentToBeApprovedByCoordinator.class)) {
                 return true;
             }
         }
 
+        // qubExtension
         final Context context = input.getContext();
         if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context)
                 // optional entries must be manually enroled
@@ -442,25 +449,27 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return false;
     }
 
-    private boolean appliesAnyRules(final IDegreeModuleToEvaluate input, final CurricularRuleType... curricularRuleTypes) {
+    @SafeVarargs
+    final private boolean appliesAnyRules(final IDegreeModuleToEvaluate input,
+            final Class<? extends CurricularRule>... curricularRuleClasses) {
 
-        if (input != null && input.getContext() != null && curricularRuleTypes != null) {
+        if (input != null && input.getContext() != null && curricularRuleClasses != null) {
 
-            for (final CurricularRuleType curricularRuleType : curricularRuleTypes) {
+            for (final Class<? extends CurricularRule> curricularRuleClass : curricularRuleClasses) {
 
                 final CourseGroup parentCourseGroup = input.getCurriculumGroup().getDegreeModule();
 
                 // check self rules
                 final ExecutionSemester executionInterval = this.getBolonhaStudentEnrollmentBean().getExecutionPeriod();
-                List<? extends ICurricularRule> rules =
-                        input.getDegreeModule().getCurricularRules(curricularRuleType, parentCourseGroup, executionInterval);
+                List<? extends ICurricularRule> rules = CurricularRuleServices.getCurricularRules(input.getDegreeModule(),
+                        parentCourseGroup, curricularRuleClass, executionInterval);
 
                 if (!rules.isEmpty() && rules.iterator().next().appliesToContext(input.getContext())) {
                     return true;
                 }
 
                 // check parent group rules
-                rules = parentCourseGroup.getCurricularRules(curricularRuleType, executionInterval);
+                rules = CurricularRuleServices.getCurricularRules(parentCourseGroup, curricularRuleClass, executionInterval);
                 if (!rules.isEmpty() && rules.iterator().next().appliesToContext(input.getContext())) {
                     return true;
                 }
@@ -470,26 +479,26 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return false;
     }
 
-    private boolean appliesAnyRules(final CurriculumGroup input, final CurricularRuleType... curricularRuleTypes) {
+    private boolean appliesAnyRules(final CurriculumGroup input, final Class<? extends CurricularRule>... curricularRuleClasses) {
 
-        if (input != null && curricularRuleTypes != null) {
+        if (input != null && curricularRuleClasses != null) {
 
-            for (final CurricularRuleType curricularRuleType : curricularRuleTypes) {
+            for (final Class<? extends CurricularRule> curricularRuleClass : curricularRuleClasses) {
 
                 final CurriculumGroup parentCurriculumGroup = input.getCurriculumGroup();
                 final CourseGroup parentCourseGroup = parentCurriculumGroup.getDegreeModule();
 
                 // check self rules
                 final ExecutionSemester executionInterval = this.getBolonhaStudentEnrollmentBean().getExecutionPeriod();
-                List<? extends ICurricularRule> rules =
-                        input.getDegreeModule().getCurricularRules(curricularRuleType, parentCourseGroup, executionInterval);
+                List<? extends ICurricularRule> rules = CurricularRuleServices.getCurricularRules(input.getDegreeModule(),
+                        parentCourseGroup, curricularRuleClass, executionInterval);
 
                 if (!rules.isEmpty()) {
                     return true;
                 }
 
                 // check parent group rules, recursively until root
-                if (!parentCurriculumGroup.isRoot() && appliesAnyRules(parentCurriculumGroup, curricularRuleTypes)) {
+                if (!parentCurriculumGroup.isRoot() && appliesAnyRules(parentCurriculumGroup, curricularRuleClasses)) {
                     return true;
                 }
             }
