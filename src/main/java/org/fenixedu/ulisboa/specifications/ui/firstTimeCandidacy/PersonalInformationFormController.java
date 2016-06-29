@@ -71,6 +71,7 @@ import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -91,14 +92,14 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
     private static final String SOCIAL_SECURITY_NUMBER_FORMAT = "\\d{9}";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/personalinformationform";
 
     protected static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
     public static final String FILLPERSONALINFORMATION_URL = CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;
 
     @RequestMapping
-    public String home(Model model) {
-        return "forward:" + getControllerURL() + _FILLPERSONALINFORMATION_URI;
+    public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model) {
+        return "forward:" + getControllerURLWithExecutionYear(executionYear) + _FILLPERSONALINFORMATION_URI;
     }
 
     @Override
@@ -112,12 +113,12 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
-    public String fillpersonalinformation(final Model model, final RedirectAttributes redirectAttributes) {
-        if (isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
+    public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        if (isFormIsFilled(executionYear, model)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
 
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
@@ -133,7 +134,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             model.addAttribute("placingOption", candidacy.getPlacingOption());
         }
 
-        PersonalInformationForm form = fillFormIfRequired(model);
+        PersonalInformationForm form = fillFormIfRequired(executionYear, model);
         model.addAttribute("personalInformationForm", form);
 
         List<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
@@ -145,7 +146,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
     }
 
-    public PersonalInformationForm fillFormIfRequired(Model model) {
+    public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, Model model) {
         Person person = getStudent(model).getPerson();
 
         model.addAttribute("identityCardExtraDigitRequired", person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
@@ -160,16 +161,16 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
             }
 
-            fillstaticformdata(getStudent(model), form);
+            fillstaticformdata(executionYear, getStudent(model), form);
 
             model.addAttribute("personalInformationForm", form);
             return form;
         }
 
-        return createPersonalInformationForm(getStudent(model));
+        return createPersonalInformationForm(executionYear, getStudent(model));
     }
 
-    protected PersonalInformationForm createPersonalInformationForm(final Student student) {
+    protected PersonalInformationForm createPersonalInformationForm(final ExecutionYear executionYear, final Student student) {
         final Person person = student.getPerson();
         PersonalInformationForm form;
         form = new PersonalInformationForm();
@@ -207,19 +208,19 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         form.setGender(student.getPerson().getGender());
 
-        fillstaticformdata(student, form);
+        fillstaticformdata(executionYear, student, form);
 
         return form;
     }
 
-    private void fillstaticformdata(final Student student, final PersonalInformationForm form) {
+    private void fillstaticformdata(final ExecutionYear executionYear, final Student student, final PersonalInformationForm form) {
         form.setFirstYearRegistration(false);
         for (final Registration registration : student.getRegistrationsSet()) {
             if (!registration.isActive()) {
                 continue;
             }
 
-            if (registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+            if (registration.getRegistrationYear() != executionYear) {
                 continue;
             }
 
@@ -231,30 +232,30 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
-    public String fillpersonalinformation(PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+    public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
         if (!validate(form, model)) {
-            return fillpersonalinformation(model, redirectAttributes);
+            return fillpersonalinformation(executionYear, model, redirectAttributes);
         }
 
         try {
-            writeData(form, model);
+            writeData(executionYear, form, model);
             model.addAttribute("personalInformationForm", form);
-            return nextScreen(model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             de.printStackTrace();
 
-            return fillpersonalinformation(model, redirectAttributes);
+            return fillpersonalinformation(executionYear, model, redirectAttributes);
         }
     }
 
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(FiliationFormController.FILLFILIATION_URL, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        return redirect(FiliationFormController.FILLFILIATION_URL + "/" + executionYear.getExternalId(), model, redirectAttributes);
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
@@ -354,10 +355,10 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     @Atomic
-    private void writeData(PersonalInformationForm form, final Model model) {
+    private void writeData(final ExecutionYear executionYear, final PersonalInformationForm form, final Model model) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(getStudent(model));
+        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(executionYear, getStudent(model));
         if (!isPartialUpdate()) {
             person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
             LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();

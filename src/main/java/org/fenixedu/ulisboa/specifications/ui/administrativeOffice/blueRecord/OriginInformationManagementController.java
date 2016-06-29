@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -96,12 +97,12 @@ public class OriginInformationManagementController extends OriginInformationForm
      */
     
     @Override
-    public boolean isFormIsFilled(Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, Student student) {
         throw new RuntimeException("not applied in this controller");
     }
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 
@@ -111,7 +112,7 @@ public class OriginInformationManagementController extends OriginInformationForm
     }
 
     @Override
-    public String back(final Model model, final RedirectAttributes redirectAttributes) {
+    public String back(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 

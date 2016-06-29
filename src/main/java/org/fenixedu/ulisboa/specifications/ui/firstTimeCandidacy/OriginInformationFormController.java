@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
@@ -75,14 +76,14 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
 
     private static final String YEAR_FORMAT = "\\d{4}";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/origininformationform";
 
     public static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
     public static final String FILLORIGININFORMATION_URL = CONTROLLER_URL + _FILLORIGININFORMATION_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(ContactsFormController.FILLCONTACTS_URL, model, redirectAttributes);
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(ContactsFormController.FILLCONTACTS_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
@@ -91,23 +92,24 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
-    public String fillorigininformation(final Model model, final RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+    public String fillorigininformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
 
-        if (isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
+        if (isFormIsFilled(executionYear, model)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
 
-        return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+        String url = getControllerURL() + _FILLORIGININFORMATION_URI;
+        return redirect(urlWithExecutionYear(url, executionYear) + "/" 
+                + findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration().getExternalId(),
                 model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
-    public String fillorigininformation(@PathVariable("registrationId") final Registration registration, final Model model,
+    public String fillorigininformation(@PathVariable("executionYearId") final ExecutionYear executionYear, @PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
@@ -223,42 +225,44 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
     public String fillorigininformation(OriginInformationForm form,
+            @PathVariable("executionYearId") final ExecutionYear executionYear,
             @PathVariable("registrationId") final Registration registration, Model model, RedirectAttributes redirectAttributes) {
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
 
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
 
         if (!validate(registration, form, model)) {
-            return fillorigininformation(registration, model, redirectAttributes);
+            return fillorigininformation(executionYear, registration, model, redirectAttributes);
         }
 
         try {
             writeData(registration, form);
 
-            if (findCompletePrecedentDegreeInformationsToFill(getStudent(model)).isEmpty()) {
-                return nextScreen(model, redirectAttributes);
+            if (findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).isEmpty()) {
+                return nextScreen(executionYear, model, redirectAttributes);
             }
 
-            return redirect(getControllerURL() + _FILLORIGININFORMATION_URI + "/"
-                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+            final String url = getControllerURL() + _FILLORIGININFORMATION_URI;
+            return redirect(urlWithExecutionYear(url, executionYear)
+                    + "/" + findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration().getExternalId(),
                     model, redirectAttributes);
 
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
-            return fillorigininformation(model, redirectAttributes);
+            return fillorigininformation(executionYear, model, redirectAttributes);
         }
     }
 
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PreviousDegreeOriginInformationFormController.FILLPREVIOUSDEGREEINFORMATION_URL, model,
-                redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormController.FILLPREVIOUSDEGREEINFORMATION_URL, executionYear), 
+                model, redirectAttributes);
     }
 
     /**

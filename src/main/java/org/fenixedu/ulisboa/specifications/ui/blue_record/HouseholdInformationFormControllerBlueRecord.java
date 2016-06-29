@@ -53,6 +53,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInform
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController.HouseholdInformationForm;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -63,44 +64,44 @@ import pt.ist.fenixframework.Atomic;
 @RequestMapping(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL)
 public class HouseholdInformationFormControllerBlueRecord extends HouseholdInformationFormController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/householdinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/{executionYearId}/householdinformationform";
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(OriginInformationFormControllerBlueRecord.CONTROLLER_URL
-                + OriginInformationFormControllerBlueRecord._FILLORIGININFORMATION_URI, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        final String url = OriginInformationFormControllerBlueRecord.CONTROLLER_URL + OriginInformationFormControllerBlueRecord._FILLORIGININFORMATION_URI;
+        return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
     @Override
-    public Optional<String> accessControlRedirect(Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
 
     @Override
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PersonalInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
+    public String back(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(PersonalInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
     }
 
     private static final String _INVOKE_BACK_URI = "/invokeback";
     public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
 
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
-    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
-        if (isFormIsFilled(model)) {
-            return back(model, redirectAttributes);
+    public String invokeBack(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        if (isFormIsFilled(executionYear, model)) {
+            return back(executionYear, model, redirectAttributes);
         }
 
-        return redirect(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL
-                + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI, model, redirectAttributes);
+        String url = HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI;
+        return redirect(urlWithExecutionYear(url , executionYear), model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
-    public String fillhouseholdinformation(Model model, RedirectAttributes redirectAttributes) {
-        if (isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
+    public String fillhouseholdinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        if (isFormIsFilled(executionYear, model)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
 
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
@@ -121,46 +122,46 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
 
         model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
         
-        fillFormIfRequired(model);
+        fillFormIfRequired(executionYear, model);
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
     }
 
-    protected void fillFormIfRequired(Model model) {
+    protected void fillFormIfRequired(final ExecutionYear executionYear, Model model) {
         if (!model.containsAttribute("householdInformationForm")) {
-            HouseholdInformationForm form = createHouseholdInformationForm(getStudent(model));
+            HouseholdInformationForm form = createHouseholdInformationForm(executionYear, getStudent(model));
 
             model.addAttribute("householdInformationForm", form);
         }
     }
     
     @Atomic
-    protected HouseholdInformationForm createHouseholdInformationForm(final Student student) {
-        return createHouseholdInformationForm(student, ExecutionYear.readCurrentExecutionYear(), true);
+    protected HouseholdInformationForm createHouseholdInformationForm(final ExecutionYear executionYear, final Student student) {
+        return createHouseholdInformationForm(student, executionYear, true);
     }
     
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
-    public String fillhouseholdinformation(HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+    public String fillhouseholdinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
         if (!validate(form, model)) {
             model.addAttribute("householdInformationForm", form);
-            return fillhouseholdinformation(model, redirectAttributes);
+            return fillhouseholdinformation(executionYear, model, redirectAttributes);
         }
 
         try {
-            writeData(getStudent(model), ExecutionYear.readCurrentExecutionYear(), form, model);
+            writeData(getStudent(model), executionYear, form, model);
             model.addAttribute("householdInformationForm", form);
-            return nextScreen(model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes);
         } catch (Exception de) {
 
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
-            return fillhouseholdinformation(model, redirectAttributes);
+            return fillhouseholdinformation(executionYear, model, redirectAttributes);
         }
     }
 
@@ -170,8 +171,8 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     }
 
     @Override
-    public boolean isFormIsFilled(final Student student) {
-        return validateHouseholdInformationForm(createHouseholdInformationForm(student)).isEmpty();
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        return validateHouseholdInformationForm(createHouseholdInformationForm(executionYear, student)).isEmpty();
     }
 
     @Override

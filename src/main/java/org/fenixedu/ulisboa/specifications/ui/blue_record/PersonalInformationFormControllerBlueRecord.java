@@ -29,11 +29,13 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -42,16 +44,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping(PersonalInformationFormControllerBlueRecord.CONTROLLER_URL)
 public class PersonalInformationFormControllerBlueRecord extends PersonalInformationFormController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/personalinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/{executionYearId}/personalinformationform";
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL
-                + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        final String url = HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL + HouseholdInformationFormControllerBlueRecord._FILLHOUSEHOLDINFORMATION_URI;
+        return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
     @Override
-    public Optional<String> accessControlRedirect(Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
 
@@ -64,12 +66,12 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
     
     @RequestMapping(value=_INVOKE_BACK_URI, method=RequestMethod.GET)
-    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
+    public String invokeBack(@PathVariable("executionYearId") final ExecutionYear executionYear,  final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(executionYear, model)) {
             return back(model, redirectAttributes);
         }
         
-        return redirect(PersonalInformationFormControllerBlueRecord.CONTROLLER_URL, model, redirectAttributes);
+        return redirect(getControllerURLWithExecutionYear(executionYear), model, redirectAttributes);
     }
     
     @Override
@@ -83,8 +85,8 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     }
     
     @Override
-    public boolean isFormIsFilled(final Student student) {
-        final PersonalInformationForm personalInformationForm = createPersonalInformationForm(student);
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        final PersonalInformationForm personalInformationForm = createPersonalInformationForm(executionYear, student);
         
         if(!personalInformationForm.isFirstYearRegistration()) {
             return true;
@@ -94,8 +96,8 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     }
     
     @Override
-    protected boolean isFormIsFilled(Model model) {
-        final PersonalInformationForm personalInformationForm = fillFormIfRequired(model);
+    protected boolean isFormIsFilled(final ExecutionYear executionYear, final Model model) {
+        final PersonalInformationForm personalInformationForm = fillFormIfRequired(executionYear, model);
         
         if(!personalInformationForm.isFirstYearRegistration()) {
             return true;

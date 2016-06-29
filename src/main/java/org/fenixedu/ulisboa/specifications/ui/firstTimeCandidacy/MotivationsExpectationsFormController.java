@@ -48,6 +48,7 @@ import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -59,14 +60,14 @@ import edu.emory.mathcs.backport.java.util.Collections;
 @RequestMapping(MotivationsExpectationsFormController.CONTROLLER_URL)
 public abstract class MotivationsExpectationsFormController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/motivationsexpectationsform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/motivationsexpectationsform";
 
     public static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
     public static final String FILLMOTIVATIONSEXPECTATIONS_URL = CONTROLLER_URL + _FILLMOTIVATIONSEXPECTATIONS_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(DisabilitiesFormController.FILLDISABILITIES_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
@@ -75,12 +76,12 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
     }
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
-    public String fillmotivationsexpectations(Model model, RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
+    public String fillmotivationsexpectations(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(executionYear, model)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
         
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
@@ -94,15 +95,15 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
         Collections.sort(allChoiceMotivations);
         model.addAttribute("universityChoiceMotivationAnswers", allChoiceMotivations);
 
-        fillFormIfRequired(model);
+        fillFormIfRequired(executionYear, model);
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillMotivationsExpectations.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/motivationsexpectationsform/fillmotivationsexpectations";
     }
 
-    private void fillFormIfRequired(Model model) {
+    private void fillFormIfRequired(final ExecutionYear executionYear, final Model model) {
         MotivationsExpectationsForm form;
         if (!model.containsAttribute("motivationsexpectationsform")) {
-            form = createMotivationsExpectationsForm(getStudent(model));
+            form = createMotivationsExpectationsForm(executionYear, getStudent(model));
 
             model.addAttribute("motivationsexpectationsform", form);
         } else {
@@ -115,7 +116,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
                 continue;
             }
             
-            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+            if(registration.getRegistrationYear() != executionYear) {
                 continue;
             }
             
@@ -125,7 +126,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
         form.populateRequestCheckboxes(request);
     }
 
-    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final Student student) {
+    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final ExecutionYear executionYear, final Student student) {
         MotivationsExpectationsForm form = new MotivationsExpectationsForm();
         PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
@@ -142,7 +143,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
                 continue;
             }
             
-            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+            if(registration.getRegistrationYear() != executionYear) {
                 continue;
             }
             
@@ -155,32 +156,32 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
     }
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.POST)
-    public String fillmotivationsexpectations(MotivationsExpectationsForm form, Model model, RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+    public String fillmotivationsexpectations(@PathVariable("executionYearId") final ExecutionYear executionYear, final MotivationsExpectationsForm form, Model model, RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
         form.populateFormValues(request);
         if (!validate(form, model)) {
             model.addAttribute("motivationsexpectationsform", form);
-            return fillmotivationsexpectations(model, redirectAttributes);
+            return fillmotivationsexpectations(executionYear, model, redirectAttributes);
         }
 
         try {
             writeData(form, model);
             model.addAttribute("motivationsexpectationsform", form);
-            return nextScreen(model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
-            return fillmotivationsexpectations(model, redirectAttributes);
+            return fillmotivationsexpectations(executionYear, model, redirectAttributes);
         }
     }
 
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(SchoolSpecificDataController.CREATE_URL, executionYear), model, redirectAttributes);
     }
 
     private boolean validate(MotivationsExpectationsForm form, Model model) {

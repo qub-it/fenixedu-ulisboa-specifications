@@ -231,12 +231,12 @@ public class HouseholdInformationManagementController extends HouseholdInformati
      */
     
     @Override
-    public boolean isFormIsFilled(Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, Student student) {
         throw new RuntimeException("not applied in this controller");
     }
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
     
@@ -246,7 +246,7 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     }
 
     @Override
-    public String back(final Model model, final RedirectAttributes redirectAttributes) {
+    public String back(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 

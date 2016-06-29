@@ -19,9 +19,9 @@
 <div>
 <%
 		if(request.getContextPath().endsWith("/")) {
-		    request.setAttribute("path", "student");
+		    request.setAttribute("path", "");
 		} else {
-		    request.setAttribute("path", "/student");		    
+		    request.setAttribute("path", "/");		    
 		}
 %>
 

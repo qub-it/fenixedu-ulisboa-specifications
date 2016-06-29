@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -27,7 +28,7 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
 
     @RequestMapping(_READ_URI + "/{registrationId}")
     public String read(@PathVariable("registrationId") final Registration registration, final Model model) {
-        final PreviousDegreeInformationForm form = createPreviousDegreeInformationForm(registration);
+        final PreviousDegreeInformationForm form = createPreviousDegreeInformationForm(registration.getRegistrationYear(), registration);
         
         model.addAttribute("registration", registration);
         model.addAttribute("previousDegreeInformationForm", form);
@@ -40,7 +41,7 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
 
     @RequestMapping(value = _UPDATE_URI + "/{registrationId}", method = RequestMethod.GET)
     public String update(@PathVariable("registrationId") final Registration registration, final Model model) {
-        return _update(registration, createPreviousDegreeInformationForm(registration), model);
+        return _update(registration, createPreviousDegreeInformationForm(registration.getRegistrationYear(), registration), model);
     }
     
     private String _update(final Registration registration, final PreviousDegreeInformationForm form, final Model model) {
@@ -48,16 +49,16 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
 
-        fillFormIfRequired(registration, model);
+        fillFormIfRequired(registration.getRegistrationYear(), registration, model);
         
         return jspPage(_UPDATE_URI);
     }    
     
-    @RequestMapping(value = _UPDATE_URI + "/{registrationId}", method = RequestMethod.POST)
+    @RequestMapping(value = _UPDATE_URI + "/{executionYearId}/{registrationId}", method = RequestMethod.POST)
     public String update(@PathVariable("registrationId") final Registration registration, final PreviousDegreeInformationForm form,
             final Model model) {
         try {
-            if (!validate(registration, form, model)) {
+            if (!validate(registration.getRegistrationYear(), registration, form, model)) {
                 return _update(registration, form, model);
             }
             
@@ -87,12 +88,12 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
      */
 
     @Override
-    public boolean isFormIsFilled(Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, Student student) {
         throw new RuntimeException("not applied in this controller");
     }
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 
@@ -102,7 +103,7 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
     }
 
     @Override
-    public String back(final Model model, final RedirectAttributes redirectAttributes) {
+    public String back(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 

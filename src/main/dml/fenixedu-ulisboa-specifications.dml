@@ -2120,7 +2120,31 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 			multiplicity 0..1;
 		}
 	}
-	
+
+class legal.raides.RaidesFormPeriod {
+	boolean active;
+}
+
+	relation RaidesFormPeriodBennu {
+		legal.raides.RaidesFormPeriod playsRole raidesFormPeriods {
+			multiplicity *;
+		}
+
+		.org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+			multiplicity 1..1;
+		}
+	}
+
+	relation RaidesFormPeriodExecutionYear {
+		legal.raides.RaidesFormPeriod playsRole raidesFormPeriods {
+			multiplicity *;
+		}
+
+		.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
+	        multiplicity 1..1;
+	    }
+	}
+
 /* Legal Settings */
 
 class legal.settings.LegalSettings {

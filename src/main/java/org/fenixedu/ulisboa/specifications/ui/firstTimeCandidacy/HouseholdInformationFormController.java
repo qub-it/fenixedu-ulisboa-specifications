@@ -57,6 +57,7 @@ import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -68,14 +69,14 @@ import pt.ist.fenixframework.FenixFramework;
 
 public abstract class HouseholdInformationFormController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/householdinformationform";
 
     public static final String _FILLHOUSEHOLDINFORMATION_URI = "/fillhouseholdinformation";
     public static final String FILLHOUSEHOLDINFORMATION_URL = CONTROLLER_URL + _FILLHOUSEHOLDINFORMATION_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(FiliationFormController.FILLFILIATION_URL, model, redirectAttributes);
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(FiliationFormController.FILLFILIATION_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
@@ -152,8 +153,8 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
         return form;
     }
 
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(ResidenceInformationFormController.FILLRESIDENCEINFORMATION_URL, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(ResidenceInformationFormController.FILLRESIDENCEINFORMATION_URL, executionYear), model, redirectAttributes);
     }
 
     protected boolean validate(HouseholdInformationForm form, Model model) {

@@ -35,6 +35,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
@@ -65,14 +66,14 @@ import pt.ist.fenixframework.FenixFramework;
 public abstract class PreviousDegreeOriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL =
-            "/fenixedu-ulisboa-specifications/firsttimecandidacy/previousdegreeorigininformationform";
+            "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/previousdegreeorigininformationform";
 
     public static final String _FILLPREVIOUSDEGREEINFORMATION_URI = "/fillpreviousdegreeinformation";
     public static final String FILLPREVIOUSDEGREEINFORMATION_URL = CONTROLLER_URL + _FILLPREVIOUSDEGREEINFORMATION_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(ContactsFormController.FILLCONTACTS_URL, model, redirectAttributes);
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(ContactsFormController.FILLCONTACTS_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
@@ -81,18 +82,19 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
     }
 
     @RequestMapping(value = _FILLPREVIOUSDEGREEINFORMATION_URI, method = RequestMethod.GET)
-    public String fillpreviousdegreeinformation(final Model model, final RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+    public String fillpreviousdegreeinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
 
-        if (isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
+        if (isFormIsFilled(executionYear, model)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
 
-        return redirect(getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                + findPreviousDegreePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+        String url = getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI;
+        return redirect(urlWithExecutionYear(url, executionYear)
+                + "/" + findPreviousDegreePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration().getExternalId(),
                 model, redirectAttributes);
     }
 
@@ -100,7 +102,9 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             "fenixedu-ulisboa-specifications/firsttimecandidacy/previousdegreeorigininformationform";
 
     @RequestMapping(value = _FILLPREVIOUSDEGREEINFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
-    public String fillpreviousdegreeinformation(@PathVariable("registrationId") final Registration registration,
+    public String fillpreviousdegreeinformation(
+            @PathVariable("executionYearId") final ExecutionYear executionYear,
+            @PathVariable("registrationId") final Registration registration,
             final Model model, final RedirectAttributes redirectAttributes) {
 
         if (registration.getPerson() != getStudent(model).getPerson()) {
@@ -110,7 +114,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         model.addAttribute("schoolLevelValues", schoolLevelTypeValues());
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
 
-        fillFormIfRequired(registration, model);
+        fillFormIfRequired(executionYear, registration, model);
 
         addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillPreviousDegreeInformation.info"), model);
 
@@ -134,13 +138,13 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         return result;
     }
 
-    protected void fillFormIfRequired(final Registration registration, Model model) {
+    protected void fillFormIfRequired(final ExecutionYear executionYear, final Registration registration, Model model) {
         model.addAttribute("registration", registration);
 
         PreviousDegreeInformationForm form = (PreviousDegreeInformationForm) model.asMap().get("previousDegreeInformationForm");
 
         if (form == null) {
-            form = createPreviousDegreeInformationForm(registration);
+            form = createPreviousDegreeInformationForm(executionYear, registration);
         }
 
         if (!StringUtils.isEmpty(form.getPrecedentInstitutionOid())) {
@@ -155,7 +159,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
         model.addAttribute("previousDegreeInformationForm", form);
     }
 
-    protected PreviousDegreeInformationForm createPreviousDegreeInformationForm(final Registration registration) {
+    protected PreviousDegreeInformationForm createPreviousDegreeInformationForm(final ExecutionYear executionYear, final Registration registration) {
         final PreviousDegreeInformationForm form = new PreviousDegreeInformationForm();
 
         final PrecedentDegreeInformation precedentDegreeInformation =
@@ -214,49 +218,51 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
 
     @RequestMapping(value = _FILLPREVIOUSDEGREEINFORMATION_URI + "/{registrationId}", method = RequestMethod.POST)
     public String fillpreviousinformation(PreviousDegreeInformationForm form,
+            @PathVariable("executionYearId") final ExecutionYear executionYear,
             @PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
 
-        final Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        final Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
 
-        if (!validate(registration, form, model)) {
-            return fillpreviousdegreeinformation(registration, model, redirectAttributes);
+        if (!validate(executionYear, registration, form, model)) {
+            return fillpreviousdegreeinformation(executionYear, registration, model, redirectAttributes);
         }
 
         try {
             writeData(registration, form);
 
-            if (findCompletePrecedentDegreeInformationsToFill(getStudent(model)).isEmpty()) {
-                return nextScreen(model, redirectAttributes);
+            if (findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).isEmpty()) {
+                return nextScreen(executionYear, model, redirectAttributes);
             }
 
-            return redirect(getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI + "/"
-                    + findCompletePrecedentDegreeInformationsToFill(getStudent(model)).get(0).getRegistration().getExternalId(),
+            String url = getControllerURL() + _FILLPREVIOUSDEGREEINFORMATION_URI;
+            return redirect(urlWithExecutionYear(url, executionYear)
+                    + "/" + findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration().getExternalId(),
                     model, redirectAttributes);
 
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + getStudent(model).getPerson().getUsername());
             de.printStackTrace();
-            return fillpreviousdegreeinformation(model, redirectAttributes);
+            return fillpreviousdegreeinformation(executionYear, model, redirectAttributes);
         }
     }
 
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(DisabilitiesFormController.FILLDISABILITIES_URL, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(DisabilitiesFormController.FILLDISABILITIES_URL, executionYear), model, redirectAttributes);
     }
 
     /**
      * @see {@link com.qubit.qubEdu.module.candidacies.domain.academicCandidacy.config.screen.validation.PreviousQualificationScreenValidator.validate(WorkflowInstanceState,
      *      WorkflowScreen)}
      */
-    protected boolean validate(final Registration registration, PreviousDegreeInformationForm form, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final Registration registration, PreviousDegreeInformationForm form, Model model) {
 
         /* -------
          * COUNTRY

@@ -46,6 +46,7 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.PreviousDegreeOriginInformationFormControllerBlueRecord;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -57,23 +58,23 @@ import pt.ist.fenixframework.Atomic;
 @RequestMapping(DisabilitiesFormController.CONTROLLER_URL)
 public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/disabilitiesform";
 
     public static final String _FILLDISABILITIES_URI = "/filldisabilities";
     public static final String FILLDISABILITIES_URL = CONTROLLER_URL + _FILLDISABILITIES_URI;
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
-    public String filldisabilities(Model model, RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
-            return nextScreen(model, redirectAttributes);
+    public String filldisabilities(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(executionYear, model)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
         
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
@@ -82,14 +83,14 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
         Collections.sort(allDisabilities);
         model.addAttribute("disabilityTypeValues", allDisabilities);
 
-        fillFormIfRequired(model);
+        fillFormIfRequired(executionYear, model);
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillDisabilities.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/disabilitiesform/filldisabilities";
     }
 
-    private void fillFormIfRequired(final Model model) {
+    private void fillFormIfRequired(final ExecutionYear executionYear, final Model model) {
         if (!model.containsAttribute("disabilitiesForm")) {
-            model.addAttribute("disabilitiesForm", createDisabilitiesForm(getStudent(model)));
+            model.addAttribute("disabilitiesForm", createDisabilitiesForm(executionYear, getStudent(model)));
         }
         
         final DisabilitiesForm form = (DisabilitiesForm) model.asMap().get("disabilitiesForm");
@@ -99,7 +100,7 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
                 continue;
             }
             
-            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+            if(registration.getRegistrationYear() != executionYear) {
                 continue;
             }
             
@@ -108,7 +109,7 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
         
     }
 
-    protected DisabilitiesForm createDisabilitiesForm(final Student student) {
+    protected DisabilitiesForm createDisabilitiesForm(final ExecutionYear executionYear, final Student student) {
         DisabilitiesForm form = new DisabilitiesForm();
         PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
@@ -127,7 +128,7 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
                 continue;
             }
             
-            if(registration.getRegistrationYear() != ExecutionYear.readCurrentExecutionYear()) {
+            if(registration.getRegistrationYear() != executionYear) {
                 continue;
             }
             
@@ -140,33 +141,33 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
     }
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.POST)
-    public String filldisabilities(DisabilitiesForm form, Model model, RedirectAttributes redirectAttributes) {
-        Optional<String> accessControlRedirect = accessControlRedirect(model, redirectAttributes);
+    public String filldisabilities(@PathVariable("executionYearId") final ExecutionYear executionYear, final DisabilitiesForm form, final Model model, final RedirectAttributes redirectAttributes) {
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
-        if (!validate(form, model)) {
-            return filldisabilities(model, redirectAttributes);
+        if (!validate(executionYear, form, model)) {
+            return filldisabilities(executionYear, model, redirectAttributes);
         }
 
         try {
             writeData(form, model);
             model.addAttribute("disabilitiesForm", form);
-            return nextScreen(model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes);
         } catch (Exception de) {
             addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.create")
                     + de.getLocalizedMessage(), model);
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             de.printStackTrace();
-            return filldisabilities(model, redirectAttributes);
+            return filldisabilities(executionYear, model, redirectAttributes);
         }
     }
 
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, executionYear), model, redirectAttributes);
     }
 
-    protected boolean validate(DisabilitiesForm form, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final DisabilitiesForm form, Model model) {
         if (form.getHasDisabilities()) {
             if ((form.getDisabilityType() == null) || form.getDisabilityType().isOther()
                     && StringUtils.isEmpty(form.getOtherDisabilityType())) {

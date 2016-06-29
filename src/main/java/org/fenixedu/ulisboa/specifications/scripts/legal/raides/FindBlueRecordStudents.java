@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.scripts.legal.raides;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -42,15 +43,15 @@ public class FindBlueRecordStudents extends CustomTask {
                     continue;
                 }
                 
-                if(!hasSomeBlueRecordFormToFill(user.getPerson().getStudent())) {
+                if(!hasSomeBlueRecordFormToFill(ExecutionYear.readCurrentExecutionYear(), user.getPerson().getStudent())) {
                     continue;
                 }
                 
-                if(Raides.findActiveRegistrationsWithEnrolments(user.getPerson().getStudent()).isEmpty()) {
+                if(Raides.findActiveRegistrationsWithEnrolments(ExecutionYear.readCurrentExecutionYear(), user.getPerson().getStudent()).isEmpty()) {
                     continue;
                 }
                 
-                printFillFormForStudent(user.getPerson().getStudent());
+                printFillFormForStudent(ExecutionYear.readCurrentExecutionYear(), user.getPerson().getStudent());
             } catch(NullPointerException e) {
                 p++;
             }
@@ -59,28 +60,28 @@ public class FindBlueRecordStudents extends CustomTask {
         taskLog("P: %s\n", p);
     }
 
-    private boolean hasSomeBlueRecordFormToFill(final Student student) {
+    private boolean hasSomeBlueRecordFormToFill(final ExecutionYear executionYear, final Student student) {
         boolean result = false;
-        result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(student);
+        result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
 
         return result;
     }
 
-    private void printFillFormForStudent(final Student student) {
+    private void printFillFormForStudent(final ExecutionYear executionYear, final Student student) {
         final Integer studentNumber = student.getNumber();
         final String username = student.getPerson().getUser().getUsername();
 
-        final boolean D = !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(student);
-        final boolean H = !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(student);
-        final boolean M = !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(student);
-        final boolean O = !new OriginInformationFormControllerBlueRecord().isFormIsFilled(student);
-        final boolean Pers = !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(student);
-        final boolean Prev = !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(student);
+        final boolean D = !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        final boolean H = !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        final boolean M = !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        final boolean O = !new OriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        final boolean Pers = !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        final boolean Prev = !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
 
         taskLog("%s;%s;D:%s;H:%s;M:%s;O:%s;Pers:%s;Prev:%s\n", studentNumber, username, D, H, M, O, Pers, Prev);
     }

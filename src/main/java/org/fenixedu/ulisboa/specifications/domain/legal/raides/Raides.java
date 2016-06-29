@@ -414,7 +414,7 @@ public class Raides {
                         }
 
                         if (!academicPeriod.isCurrent() && isEnrolledInDissertation(registration, academicPeriod)
-                                && isEnrolled(registration, ExecutionYear.readCurrentExecutionYear())) {
+                                && isEnrolled(registration, academicPeriod)) {
                             continue;
                         }
 
@@ -1073,7 +1073,7 @@ public class Raides {
         return result;
     }
 
-    public static List<Registration> findActiveRegistrationsWithEnrolments(final Student student) {
+    public static List<Registration> findActiveRegistrationsWithEnrolments(final ExecutionYear executionYear, final Student student) {
         final List<Registration> result = Lists.newArrayList();
 
         for (final Registration registration : student.getRegistrationsSet()) {
@@ -1081,7 +1081,7 @@ public class Raides {
                 continue;
             }
 
-            if (registration.getEnrolments(ExecutionYear.readCurrentExecutionYear()).isEmpty()) {
+            if (registration.getEnrolments(executionYear).isEmpty() && registration.getRegistrationYear() != executionYear) {
                 continue;
             }
 

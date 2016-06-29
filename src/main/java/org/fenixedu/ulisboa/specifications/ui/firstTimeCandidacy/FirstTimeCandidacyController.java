@@ -121,17 +121,17 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     @Atomic
-    public static PersonalIngressionData getOrCreatePersonalIngressionData(PrecedentDegreeInformation precedentInformation) {
+    public static PersonalIngressionData getOrCreatePersonalIngressionData(final ExecutionYear executionYear, PrecedentDegreeInformation precedentInformation) {
         PersonalIngressionData personalData = null;
         personalData = precedentInformation.getPersonalIngressionData();
         Student student = AccessControl.getPerson().getStudent();
         if (personalData == null) {
-            personalData = student.getPersonalIngressionDataByExecutionYear(ExecutionYear.readCurrentExecutionYear());
+            personalData = student.getPersonalIngressionDataByExecutionYear(executionYear);
             if (personalData != null) {
                 //if the student already has a PID it will have another PDI associated, it's necessary to add the new PDI
                 personalData.addPrecedentDegreesInformations(precedentInformation);
             } else {
-                personalData = new PersonalIngressionData(ExecutionYear.readCurrentExecutionYear(), precedentInformation);
+                personalData = new PersonalIngressionData(executionYear, precedentInformation);
             }
         }
 

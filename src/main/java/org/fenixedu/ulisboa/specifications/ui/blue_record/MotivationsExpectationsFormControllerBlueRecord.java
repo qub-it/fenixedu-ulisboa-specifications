@@ -29,12 +29,14 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.MotivationsExpectationsFormController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -43,29 +45,32 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping(MotivationsExpectationsFormControllerBlueRecord.CONTROLLER_URL)
 public class MotivationsExpectationsFormControllerBlueRecord extends MotivationsExpectationsFormController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/motivationsexpectationsform";
+    public static final String CONTROLLER_URL =
+            "/fenixedu-ulisboa-specifications/blueRecord/{executionYearId}/motivationsexpectationsform";
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(BlueRecordEnd.CONTROLLER_URL, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(BlueRecordEnd.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(DisabilitiesFormControllerBlueRecord.CONTROLLER_URL + DisabilitiesFormController._FILLDISABILITIES_URI,
-                model, redirectAttributes);
+    public String back(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        String url = DisabilitiesFormControllerBlueRecord.CONTROLLER_URL + DisabilitiesFormController._FILLDISABILITIES_URI;
+        return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
     private static final String _INVOKE_BACK_URI = "/invokeback";
     public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
 
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
-    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
-            return back(model, redirectAttributes);
+    public String invokeBack(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        if (isFormIsFilled(executionYear, model)) {
+            return back(executionYear, model, redirectAttributes);
         }
-        
-        return redirect(CONTROLLER_URL, model, redirectAttributes);
+
+        return redirect(urlWithExecutionYear(CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
@@ -74,21 +79,22 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     }
 
     @Override
-    public Optional<String> accessControlRedirect(Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
-    
+
     @Override
-    public boolean isFormIsFilled(final Student student) {
-        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(student);
-        
-        if(!form.isFirstYearRegistration()) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(executionYear, student);
+
+        if (!form.isFirstYearRegistration()) {
             return true;
         }
-        
+
         return form.isAnswered();
     }
-    
+
     @Override
     protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();

@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
 import java.util.Optional;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
@@ -42,34 +43,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping(DisabilitiesFormControllerBlueRecord.CONTROLLER_URL)
 public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/disabilitiesform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/{executionYearId}/disabilitiesform";
 
     @Override
-    public Optional<String> accessControlRedirect(Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
 
     @Override
-    public String back(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, model, redirectAttributes);
+    public String back(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(Model model, RedirectAttributes redirectAttributes) {
-        return redirect(MotivationsExpectationsFormControllerBlueRecord.CONTROLLER_URL
-                + MotivationsExpectationsFormControllerBlueRecord._FILLMOTIVATIONSEXPECTATIONS_URI, model, redirectAttributes);
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        final String url = MotivationsExpectationsFormControllerBlueRecord.CONTROLLER_URL + MotivationsExpectationsFormControllerBlueRecord._FILLMOTIVATIONSEXPECTATIONS_URI;
+        return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
     private static final String _INVOKE_BACK_URI = "/invokeback";
     public static final String INVOKE_BACK_URL = CONTROLLER_URL + _INVOKE_BACK_URI;
 
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
-    public String invokeBack(final Model model, final RedirectAttributes redirectAttributes) {
-        if(isFormIsFilled(model)) {
-            return back(model, redirectAttributes);
+    public String invokeBack(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        if(isFormIsFilled(executionYear, model)) {
+            return back(executionYear, model, redirectAttributes);
         }
         
-        return redirect(CONTROLLER_URL, model, redirectAttributes);
+        return redirect(urlWithExecutionYear(CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
     
     @Override
@@ -78,8 +79,8 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
     }
     
     @Override
-    public boolean isFormIsFilled(final Student student) {
-        final DisabilitiesForm form = createDisabilitiesForm(student);
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        final DisabilitiesForm form = createDisabilitiesForm(executionYear, student);
         
         if(!form.isFirstYearRegistration()) {
             return true;

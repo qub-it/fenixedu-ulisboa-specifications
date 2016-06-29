@@ -1,12 +1,16 @@
 package org.fenixedu.ulisboa.specifications.ui.blue_record.authentication;
 
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.ulisboa.specifications.authentication.IULisboaRedirectionHandler;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesFormPeriod;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.DisabilitiesFormControllerBlueRecord;
@@ -40,28 +44,44 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
             return false;
         }
         
-        if(!hasSomeBlueRecordFormToFill(user.getPerson().getStudent())) {
-            return false;
+        for(final RaidesFormPeriod period : RaidesFormPeriod.findActive().collect(Collectors.toSet())) {
+            if(!hasSomeBlueRecordFormToFill(period.getExecutionYear(), user.getPerson().getStudent())) {
+                continue;
+            }
+            
+            if(!Raides.findActiveRegistrationsWithEnrolments(period.getExecutionYear(), AccessControl.getPerson().getStudent()).isEmpty()) {
+                return true;
+            }
         }
         
-        return !Raides.findActiveRegistrationsWithEnrolments(AccessControl.getPerson().getStudent()).isEmpty();
+        return false;
     }
 
-    private boolean hasSomeBlueRecordFormToFill(final Student student) {
+    private boolean hasSomeBlueRecordFormToFill(final ExecutionYear executionYear, final Student student) {
         boolean result = false;
-        result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(student);
-        result |= !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(student);
+        result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         
         return result;
     }
 
     @Override
     public String redirectionPath(final User user, final HttpServletRequest request) {
-        return BlueRecordEntryPoint.CONTROLLER_URL;
+        for(final RaidesFormPeriod period : RaidesFormPeriod.findActive().collect(Collectors.toSet())) {
+            if(!hasSomeBlueRecordFormToFill(period.getExecutionYear(), user.getPerson().getStudent())) {
+                continue;
+            }
+            
+            if(!Raides.findActiveRegistrationsWithEnrolments(period.getExecutionYear(), AccessControl.getPerson().getStudent()).isEmpty()) {
+                return BlueRecordEntryPoint.CONTROLLER_URL + "/" + period.getExecutionYear().getExternalId();
+            }
+        }
+        
+        throw new RuntimeException("error");
     }
 
 }

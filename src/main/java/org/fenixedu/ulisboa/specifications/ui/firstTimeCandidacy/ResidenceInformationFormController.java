@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.DomainObjectUtil;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PartyContact;
@@ -106,7 +107,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         if (!model.containsAttribute("residenceInformationForm")) {
             StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
             PersonalIngressionData personalData =
-                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
+                    FirstTimeCandidacyController.getOrCreatePersonalIngressionData(ExecutionYear.readCurrentExecutionYear(), candidacy.getPrecedentDegreeInformation());
             Person person = AccessControl.getPerson();
             PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
 
@@ -245,7 +246,7 @@ public class ResidenceInformationFormController extends FenixeduUlisboaSpecifica
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         PersonalIngressionData personalData =
-                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(candidacy.getPrecedentDegreeInformation());
+                FirstTimeCandidacyController.getOrCreatePersonalIngressionData(ExecutionYear.readCurrentExecutionYear(), candidacy.getPrecedentDegreeInformation());
         personalData.setCountryOfResidence(form.getCountryOfResidence());
         personalData.setDistrictSubdivisionOfResidence(form.getDistrictSubdivisionOfResidence());
         personalData.setDislocatedFromPermanentResidence(form.getDislocatedFromPermanentResidence());
