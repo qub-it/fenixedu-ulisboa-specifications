@@ -44,6 +44,7 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -63,6 +64,15 @@ import com.google.common.collect.Sets;
 import pt.ist.fenixframework.Atomic;
 
 public class CurriculumAggregator extends CurriculumAggregator_Base {
+    
+    /**
+     * Attention: Enrolments are dealt with explicitly upon their grade change, since (un)enrol doesn't change aggregator grade.
+     * See other usages of CurriculumLineServices.updateAggregatorEvaluation(CurriculumLine)
+     */
+    static {
+        Dismissal.getRelationDegreeModuleCurriculumModule().addListener(CurriculumAggregatorListeners.ON_CREATION);
+        Dismissal.getRelationCreditsDismissalEquivalence().addListener(CurriculumAggregatorListeners.ON_DELETION);
+    }
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumAggregator.class);
 

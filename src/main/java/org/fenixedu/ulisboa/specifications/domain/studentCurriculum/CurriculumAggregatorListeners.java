@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -60,51 +61,38 @@ abstract public class CurriculumAggregatorListeners {
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumAggregatorListeners.class);
 
-    static public void register() {
+    static protected RelationAdapter<DegreeModule, CurriculumModule> ON_CREATION =
+            new RelationAdapter<DegreeModule, CurriculumModule>() {
 
-        registerDismissalListeners();
-    }
+                @Override
+                public void afterAdd(final DegreeModule degreeModule, final CurriculumModule curriculumModule) {
+                    final Dismissal dismissal = getDismissalToInspect(curriculumModule);
 
-    /**
-     * Attention: Enrolments are dealt with explicitly upon their grade change, since (un)enrol doesn't change aggregator grade.
-     * See other usages of CurriculumLineServices.updateAggregatorEvaluation(CurriculumLine)
-     */
-    static private void registerDismissalListeners() {
+                    // avoid internal invocation with null 
+                    if (dismissal == null || degreeModule == null) {
+                        return;
+                    }
 
-        // Relation upon creation
-        Dismissal.getRelationDegreeModuleCurriculumModule().addListener(new RelationAdapter<DegreeModule, CurriculumModule>() {
-
-            @Override
-            public void afterAdd(final DegreeModule degreeModule, final CurriculumModule curriculumModule) {
-                final Dismissal dismissal = getDismissalToInspect(curriculumModule);
-
-                // avoid internal invocation with null 
-                if (dismissal == null || degreeModule == null) {
-                    return;
+                    checkToEnrol(dismissal);
+                    CurriculumLineServices.updateAggregatorEvaluation(dismissal);
                 }
+            };
 
-                checkToEnrol(dismissal);
-                CurriculumLineServices.updateAggregatorEvaluation(dismissal);
+    static protected RelationAdapter<Dismissal, Credits> ON_DELETION = new RelationAdapter<Dismissal, Credits>() {
+
+        @Override
+        public void beforeRemove(Dismissal dismissal, final Credits credits) {
+            dismissal = getDismissalToInspect(dismissal);
+
+            // avoid internal invocation with null 
+            if (dismissal == null || credits == null) {
+                return;
             }
-        });
 
-        // Relation upon deletion
-        Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
-
-            @Override
-            public void beforeRemove(Dismissal dismissal, final Credits credits) {
-                dismissal = getDismissalToInspect(dismissal);
-
-                // avoid internal invocation with null 
-                if (dismissal == null || credits == null) {
-                    return;
-                }
-
-                checkToRemove(dismissal);
-                CurriculumLineServices.updateAggregatorEvaluation(dismissal);
-            }
-        });
-    }
+            checkToRemove(dismissal);
+            CurriculumLineServices.updateAggregatorEvaluation(dismissal);
+        }
+    };
 
     static private Dismissal getDismissalToInspect(final CurriculumModule curriculumModule) {
         if (curriculumModule == null) {
@@ -136,14 +124,17 @@ abstract public class CurriculumAggregatorListeners {
         final Context chosen = CurriculumAggregatorServices.getContext(input);
         final Set<Context> allChosen = Sets.newHashSet(chosen);
 
-        final CurriculumAggregator aggregator = chosen.getCurriculumAggregator();
-        if (aggregator != null && aggregator.isEnrolmentMaster()) {
-            // nothing to be done, no need to enrol in entries
-            return;
-        }
-
         for (final IDegreeModuleToEvaluate iter : CurriculumAggregatorServices.getAggregationParticipantsToEnrol(chosen, plan,
                 semester, allChosen)) {
+
+            if (iter.getContext().getChildDegreeModule().isLeaf()) {
+                final CurricularCourse curricularCourse = ((CurricularCourse) iter.getContext().getChildDegreeModule());
+                if (curricularCourse.getEctsCredits().equals(0d)) {
+
+                    // nothing to be done, no need to enrol in participants that won't contribute with ECTS 
+                    continue;
+                }
+            }
 
             toChange.add(iter);
         }

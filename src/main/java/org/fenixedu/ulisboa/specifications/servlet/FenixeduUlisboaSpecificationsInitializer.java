@@ -79,7 +79,6 @@ import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInit
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorListeners;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
@@ -118,7 +117,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
         EnrolmentPeriodRestrictionsInitializer.init();
         CurriculumConfigurationInitializer.init();
-        CurriculumAggregatorListeners.register();
         CurricularPeriodConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
         CurricularRuleExecutorInitializer.init();
