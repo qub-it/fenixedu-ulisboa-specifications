@@ -35,15 +35,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -55,8 +54,6 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -538,27 +535,17 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         if (getCompetenceCourseMarkSheet() != null) {
 
-            getCompetenceCourseMarkSheet().getExecutionCourseEnrolmentsNotInAnyMarkSheet()
-                    .forEach(e -> result.add(new MarkBean(getCompetenceCourseMarkSheet(), e)));
-
-            getCompetenceCourseMarkSheet().getEnrolmentEvaluationSet().forEach(e -> {
-
-                final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), e.getEnrolment());
-
-                Grade gradeSuggestion = e.getGrade();
-                if (gradeSuggestion.isEmpty()) {
-
-                    final Context context = CurriculumAggregatorServices.getContext(e.getEnrolment());
-                    final CurriculumAggregator aggregator = context.getCurriculumAggregator();
-                    if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
-                        gradeSuggestion = aggregator.calculateConclusionGrade(e.getStudentCurricularPlan());
-                    }
-                }
-
-                markBean.setGradeValue(gradeSuggestion.getValue());
+            getCompetenceCourseMarkSheet().getExecutionCourseEnrolmentsNotInAnyMarkSheet().forEach(e -> {
+                final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), e);
+                markBean.setGradeValueSuggested((EnrolmentEvaluation) null);
                 result.add(markBean);
             });
 
+            getCompetenceCourseMarkSheet().getEnrolmentEvaluationSet().forEach(e -> {
+                final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), e.getEnrolment());
+                markBean.setGradeValueSuggested(e);
+                result.add(markBean);
+            });
         }
 
         Collections.sort(result);

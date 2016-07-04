@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.IBean;
@@ -44,6 +45,8 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -108,6 +111,23 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     public void setStudentName(String studentName) {
         this.studentName = studentName;
+    }
+
+    public void setGradeValueSuggested(final EnrolmentEvaluation evaluation) {
+
+        Grade suggestion = evaluation == null ? null : evaluation.getGrade();
+        if (suggestion == null || suggestion.isEmpty()) {
+
+            final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
+            final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
+            if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
+                suggestion = aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
+            }
+        }
+
+        if (suggestion != null) {
+            setGradeValue(suggestion.getValue());
+        }
     }
 
     public String getGradeValue() {
