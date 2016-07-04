@@ -71,6 +71,10 @@ abstract public class CurriculumAggregatorListeners {
                     if (dismissal == null || degreeModule == null) {
                         return;
                     }
+                    
+                    if (!CurriculumAggregatorServices.isAggregationsActive(dismissal.getExecutionYear())) {
+                        return;
+                    }
 
                     checkToEnrol(dismissal);
                     CurriculumLineServices.updateAggregatorEvaluation(dismissal);
@@ -85,6 +89,10 @@ abstract public class CurriculumAggregatorListeners {
 
             // avoid internal invocation with null 
             if (dismissal == null || credits == null) {
+                return;
+            }
+            
+            if (!CurriculumAggregatorServices.isAggregationsActive(dismissal.getExecutionYear())) {
                 return;
             }
 
@@ -103,12 +111,7 @@ abstract public class CurriculumAggregatorListeners {
             return null;
         }
 
-        final Dismissal result = (Dismissal) curriculumModule;
-        if (!CurriculumAggregatorServices.isAggregationsActive(result.getExecutionYear())) {
-            return null;
-        }
-
-        return result;
+        return (Dismissal) curriculumModule;
     }
 
     /**
