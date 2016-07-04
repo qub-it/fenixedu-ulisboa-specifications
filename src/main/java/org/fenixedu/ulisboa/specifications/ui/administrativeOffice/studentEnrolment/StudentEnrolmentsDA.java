@@ -26,6 +26,9 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment;
 
+import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,6 +36,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -44,6 +48,8 @@ import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+
+import com.google.common.collect.Lists;
 
 @Mapping(path = "/studentEnrolmentsExtended", module = "academicAdministration", functionality = SearchForStudentsDA.class)
 @Forwards({
@@ -100,12 +106,21 @@ public class StudentEnrolmentsDA
         request.setAttribute("studentEnrolmentBean", studentEnrolmentBean);
 
         if (studentEnrolmentBean.getExecutionPeriod() != null) {
-            request.setAttribute("studentEnrolments", studentEnrolmentBean.getStudentCurricularPlan()
-                    .getEnrolmentsByExecutionPeriod(studentEnrolmentBean.getExecutionPeriod()));
-            request.setAttribute("studentImprovementEnrolments", studentEnrolmentBean.getStudentCurricularPlan()
-                    .getEnroledImprovements(studentEnrolmentBean.getExecutionPeriod()));
-            request.setAttribute("studentSpecialSeasonEnrolments", studentEnrolmentBean.getStudentCurricularPlan()
-                    .getEnroledSpecialSeasons(studentEnrolmentBean.getExecutionPeriod()));
+            // qubExtension, sort
+            final StudentCurricularPlan scp = studentEnrolmentBean.getStudentCurricularPlan();
+            final ExecutionSemester semester = studentEnrolmentBean.getExecutionPeriod();
+
+            final List<Enrolment> enrolments = scp.getEnrolmentsByExecutionPeriod(semester);
+            enrolments.sort(CurriculumLineServices.COMPARATOR);
+            request.setAttribute("studentEnrolments", enrolments);
+
+            final List<EnrolmentEvaluation> improvements = Lists.newArrayList(scp.getEnroledImprovements(semester));
+            improvements.sort((o1, o2) -> CurriculumLineServices.COMPARATOR.compare(o1.getEnrolment(), o2.getEnrolment()));
+            request.setAttribute("studentImprovementEnrolments", improvements);
+
+            final List<EnrolmentEvaluation> specialSeasons = Lists.newArrayList(scp.getEnroledImprovements(semester));
+            specialSeasons.sort((o1, o2) -> CurriculumLineServices.COMPARATOR.compare(o1.getEnrolment(), o2.getEnrolment()));
+            request.setAttribute("studentSpecialSeasonEnrolments", specialSeasons);
         }
 
         return mapping.findForward("prepareChooseExecutionPeriod");
