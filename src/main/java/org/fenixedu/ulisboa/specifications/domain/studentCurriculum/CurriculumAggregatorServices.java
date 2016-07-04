@@ -44,6 +44,8 @@ import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,22 @@ import com.google.common.collect.Sets;
 abstract public class CurriculumAggregatorServices {
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumAggregatorServices.class);
+
+    static private ExecutionYear firstExecutionYear = null;
+
+    static private ExecutionYear getCurriculumAggregatorFirstExecutionYear() {
+        if (firstExecutionYear == null) {
+            firstExecutionYear = ExecutionYear.readExecutionYearByName(
+                    ULisboaConfiguration.getConfiguration().getCurriculumAggregatorFirstExecutionYearName());
+        }
+
+        return firstExecutionYear;
+    }
+
+    static public boolean isAggregationsActive(final ExecutionYear year) {
+        return !ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().isEmpty()
+                && getCurriculumAggregatorFirstExecutionYear().isBeforeOrEquals(year);
+    }
 
     /**
      * Tries to find a Aggregator in the following order:
@@ -318,8 +336,9 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static public boolean isToDisableEnrolmentOption(final Context context) {
-        return getAggregationRoots(context).stream().anyMatch(i -> i.getEnrolmentSlaveContexts().contains(context));
+    static public boolean isToDisableEnrolmentOption(final Context context, final ExecutionYear year) {
+        return isAggregationsActive(year)
+                && getAggregationRoots(context).stream().anyMatch(i -> i.getEnrolmentSlaveContexts().contains(context));
     }
 
     static private boolean isCandidateForEnrolmentAutomatically(final Context context, final StudentCurricularPlan plan,
@@ -376,23 +395,24 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public boolean isCandidateForEvaluation(final EvaluationSeason season, final Enrolment enrolment) {
-        boolean result = true;
+        if (isAggregationsActive(enrolment.getExecutionYear())) {
 
-        final Context context = getContext(enrolment);
-        if (context != null) {
+            final Context context = getContext(enrolment);
+            if (context != null) {
 
-            final CurriculumAggregator aggregator = context.getCurriculumAggregator();
-            if (aggregator != null && !aggregator.isCandidateForEvaluation(season)) {
-                result = false;
-            }
+                final CurriculumAggregator aggregator = context.getCurriculumAggregator();
+                if (aggregator != null && !aggregator.isCandidateForEvaluation(season)) {
+                    return false;
+                }
 
-            final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
-            if (entry != null && !entry.isCandidateForEvaluation()) {
-                result = false;
+                final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
+                if (entry != null && !entry.isCandidateForEvaluation()) {
+                    return false;
+                }
             }
         }
 
-        return result;
+        return true;
     }
 
     static public boolean isOptionalEntryRelated(final Context context) {

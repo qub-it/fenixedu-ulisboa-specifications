@@ -401,11 +401,15 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean filterByAggregationApproval(final CurricularCourse input) {
-        final StudentCurricularPlan scp = getBolonhaStudentEnrollmentBean().getStudentCurricularPlan();
         final ExecutionYear executionYear = getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear();
-        final Context context = CurriculumAggregatorServices.getContext(input, executionYear);
+        if (!CurriculumAggregatorServices.isAggregationsActive(executionYear)) {
+            return false;
+        }
 
+        final StudentCurricularPlan scp = getBolonhaStudentEnrollmentBean().getStudentCurricularPlan();
+        final Context context = CurriculumAggregatorServices.getContext(input, executionYear);
         final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context);
+
         return aggregator != null && aggregator.isAggregationConcluded(scp);
     }
 
@@ -440,7 +444,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         // qubExtension
         final Context context = input.getContext();
-        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context)
+        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context,
+                getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear())
                 // optional entries must be manually enroled
                 && !CurriculumAggregatorServices.isOptionalEntryRelated(context)) {
             return true;

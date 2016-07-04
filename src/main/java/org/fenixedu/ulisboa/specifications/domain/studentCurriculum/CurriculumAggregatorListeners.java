@@ -46,7 +46,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,13 +103,12 @@ abstract public class CurriculumAggregatorListeners {
             return null;
         }
 
-        // avoid computation on installations without aggregators
-        // TODO legidio, consider creating explicit relation with student curricular plan if performance is an issue even in installations with aggregators
-        if (ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().isEmpty()) {
+        final Dismissal result = (Dismissal) curriculumModule;
+        if (!CurriculumAggregatorServices.isAggregationsActive(result.getExecutionYear())) {
             return null;
         }
 
-        return (Dismissal) curriculumModule;
+        return result;
     }
 
     /**
@@ -163,18 +161,22 @@ abstract public class CurriculumAggregatorListeners {
     static private void enrolmentManage(final Set<IDegreeModuleToEvaluate> toEnrol, List<CurriculumModule> toRemove,
             final StudentCurricularPlan plan, final ExecutionSemester semester) {
 
-        RuleResult ruleResult;
-        try {
-            ruleResult = new StudentCurricularPlanEnrolmentManager(
-                    new EnrolmentContext(plan, semester, toEnrol, toRemove, CurricularRuleLevel.ENROLMENT_WITH_RULES)).manage();
-        } catch (final EnrollmentDomainException e) {
-            ruleResult = e.getFalseResult();
-        }
+        if (!toEnrol.isEmpty() || !toRemove.isEmpty()) {
 
-        // TODO legidio, best way to deal with rule results in this case?
-        final String ruleResultString = convertToString(ruleResult);
-        if (!Strings.isNullOrEmpty(ruleResultString)) {
-            logger.warn(ruleResultString);
+            RuleResult ruleResult;
+            try {
+                ruleResult = new StudentCurricularPlanEnrolmentManager(
+                        new EnrolmentContext(plan, semester, toEnrol, toRemove, CurricularRuleLevel.ENROLMENT_WITH_RULES))
+                                .manage();
+            } catch (final EnrollmentDomainException e) {
+                ruleResult = e.getFalseResult();
+            }
+
+            // TODO legidio, best way to deal with rule results in this case?
+            final String ruleResultString = convertToString(ruleResult);
+            if (!Strings.isNullOrEmpty(ruleResultString)) {
+                logger.warn(ruleResultString);
+            }
         }
     }
 

@@ -38,6 +38,9 @@ public class ULisboaConfiguration {
                 defaultValue = "true")
         public Boolean getCurricularRulesApprovalsAwareOfCompetenceCourseAtStudentScope();
 
+        @ConfigurationProperty(key = "domain.academic.curriculumAggregator.firstExecutionYearName", defaultValue = "2016/2017")
+        public String getCurriculumAggregatorFirstExecutionYearName();
+
         @ConfigurationProperty(key = "quality.mode")
         public Boolean isQualityMode();
 
@@ -52,8 +55,9 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "services.sas.activeStudents.threadNumber", defaultValue = "20")
         public Integer getActiveStudentsThreadNumber();
-        
-        @ConfigurationProperty(key = "cas.login.strategy", defaultValue = "org.fenixedu.ulisboa.specifications.service.cas.DefaultTicketValidationStrategy")
+
+        @ConfigurationProperty(key = "cas.login.strategy",
+                defaultValue = "org.fenixedu.ulisboa.specifications.service.cas.DefaultTicketValidationStrategy")
         public String getCasLoginStrategy();
 
     }

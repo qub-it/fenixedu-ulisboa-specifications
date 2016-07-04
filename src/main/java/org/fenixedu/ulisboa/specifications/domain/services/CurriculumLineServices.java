@@ -41,10 +41,13 @@ public class CurriculumLineServices {
     }
 
     static public void updateAggregatorEvaluation(final CurriculumLine curriculumLine) {
-        final CurriculumAggregator aggregator =
-                CurriculumAggregatorServices.getAggregationRoot(CurriculumAggregatorServices.getContext(curriculumLine));
-        if (aggregator != null) {
-            aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
+        if (CurriculumAggregatorServices.isAggregationsActive(curriculumLine.getExecutionYear())) {
+
+            final CurriculumAggregator aggregator =
+                    CurriculumAggregatorServices.getAggregationRoot(CurriculumAggregatorServices.getContext(curriculumLine));
+            if (aggregator != null) {
+                aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
+            }
         }
     }
 

@@ -46,8 +46,11 @@ public class StudentCurricularPlanEnrolmentManager
     }
 
     private void checkCurriculumAggregatorParticipants() {
-        checkToEnrol();
-        checkToRemove();
+        if (CurriculumAggregatorServices.isAggregationsActive(enrolmentContext.getExecutionYear())) {
+
+            checkToEnrol();
+            checkToRemove();
+        }
     }
 
     /**
