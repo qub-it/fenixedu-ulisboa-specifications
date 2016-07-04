@@ -27,7 +27,6 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +49,8 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 
 import com.google.common.collect.Lists;
+
+import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
 
 @Mapping(path = "/studentEnrolmentsExtended", module = "academicAdministration", functionality = SearchForStudentsDA.class)
 @Forwards({
@@ -99,7 +100,29 @@ public class StudentEnrolmentsDA
     }
 
     /*
-     * Copy from super
+     * Copy from super, because showExecutionPeriodEnrolments is private
+     */
+    @Override
+    public ActionForward prepareFromExtraEnrolment(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) {
+        StudentEnrolmentBean studentEnrolmentBean = (StudentEnrolmentBean) request.getAttribute("studentEnrolmentBean");
+        return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, actionForm, request, response);
+    }
+
+    /*
+     * Copy from super, because showExecutionPeriodEnrolments is private
+     */
+    @Override
+    public ActionForward prepareFromStudentEnrollmentWithRules(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+        final StudentEnrolmentBean studentEnrolmentBean = new StudentEnrolmentBean();
+        studentEnrolmentBean.setExecutionPeriod((ExecutionSemester) request.getAttribute("executionPeriod"));
+        studentEnrolmentBean.setStudentCurricularPlan((StudentCurricularPlan) request.getAttribute("studentCurricularPlan"));
+        return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, form, request, response);
+    }
+
+    /*
+     * Copy from super, because showExecutionPeriodEnrolments is private
      */
     private ActionForward showExecutionPeriodEnrolments(StudentEnrolmentBean studentEnrolmentBean, ActionMapping mapping,
             ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
@@ -126,6 +149,19 @@ public class StudentEnrolmentsDA
         return mapping.findForward("prepareChooseExecutionPeriod");
     }
 
+    /*
+     * Copy from super, because showExecutionPeriodEnrolments is private
+     */
+    @Override
+    public ActionForward postBack(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        StudentEnrolmentBean enrolmentBean = getRenderedObject();
+        RenderUtils.invalidateViewState();
+
+        return showExecutionPeriodEnrolments(enrolmentBean, mapping, actionForm, request, response);
+    }
+
     @Override
     public ActionForward annulEnrolment(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
             final HttpServletResponse response) {
@@ -146,7 +182,6 @@ public class StudentEnrolmentsDA
         studentEnrolmentBean.setExecutionPeriod(getDomainObject(request, "executionPeriodId"));
         studentEnrolmentBean.setStudentCurricularPlan(getDomainObject(request, "scpID"));
         return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, form, request, response);
-
     }
 
     @Override
@@ -169,7 +204,6 @@ public class StudentEnrolmentsDA
         studentEnrolmentBean.setExecutionPeriod(getDomainObject(request, "executionPeriodId"));
         studentEnrolmentBean.setStudentCurricularPlan(getDomainObject(request, "scpID"));
         return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, form, request, response);
-
     }
 
 }
