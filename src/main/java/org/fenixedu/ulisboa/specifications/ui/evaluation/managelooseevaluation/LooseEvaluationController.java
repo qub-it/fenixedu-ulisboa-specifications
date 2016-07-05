@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -101,8 +102,13 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
                         .sorted((x, y) -> x.getName().getContent().compareTo(y.getName().getContent()))
                         .collect(Collectors.toList()));
-        model.addAttribute("typeValues", EvaluationSeasonServices.findAll()
-                .sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).collect(Collectors.toList()));
+
+        final boolean possibleOldData = executionSemester.getExecutionYear().getEndCivilYear() < 2016;
+        final Stream<EvaluationSeason> evaluationSeasons =
+                possibleOldData ? EvaluationSeasonServices.findAll() : EvaluationSeasonServices.findByActive(true);
+        model.addAttribute("typeValues",
+                evaluationSeasons.sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).collect(Collectors.toList()));
+
         model.addAttribute("gradeScaleValues",
                 Arrays.<GradeScale> asList(GradeScale.values()).stream()
                         .map(l -> new TupleDataSourceBean(((GradeScale) l).name(), ((GradeScale) l).getDescription()))
@@ -121,8 +127,10 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         final List<EnrolmentEvaluation> evaluations =
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
-                        .map(l -> l.getEvaluationsSet()).reduce((a, c) -> Sets.union(a, c)).orElse(Sets.newHashSet()).stream()
-                        .filter(l -> l.getMarkSheet() == null).collect(Collectors.toList());
+                        .map(l -> l.getEvaluationsSet()).reduce((a, c) -> Sets.union(a, c))
+                        .orElse(Sets.newHashSet()).stream().filter(l -> l.getMarkSheet() == null
+                                && l.getCompetenceCourseMarkSheet() == null && l.getGrade() != null && !l.getGrade().isEmpty())
+                        .collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
 
