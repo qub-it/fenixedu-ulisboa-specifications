@@ -26,6 +26,8 @@
  --%>
 
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation.LooseEvaluationController"%>
+<%@page import="org.fenixedu.academic.domain.EvaluationSeason"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -240,7 +242,9 @@ ${portal.toolkit()}
 						<%-- empty option remove it if you don't want to have it or give it a label --%>
 						<c:forEach items="${typeValues}" var="field">
 							<option value="${field.externalId}"
-								ng-improvement="${field.improvement}">${field.name.content}</option>
+								ng-improvement="${field.improvement}"><%=EvaluationSeasonServices
+									.getDescriptionI18N((EvaluationSeason) pageContext.getAttribute("field"))
+									.getContent()%></option>
 						</c:forEach>
 					</select>
 					<script>
