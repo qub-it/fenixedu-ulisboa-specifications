@@ -81,7 +81,9 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
         }
 
         final DegreeCurricularPlan dcp = plan.getDegreeCurricularPlan();
-        result.add(dcp.getLastExecutionYear());
+        if (!dcp.getExecutionDegreesSet().isEmpty()) {
+            result.add(dcp.getLastExecutionYear());
+        }
         result.addAll(getEndContextExecutionYears(dcp.getRoot()));
 
         return result.last();
