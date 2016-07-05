@@ -64,7 +64,7 @@ import com.google.common.collect.Sets;
 import pt.ist.fenixframework.Atomic;
 
 public class CurriculumAggregator extends CurriculumAggregator_Base {
-    
+
     /**
      * Attention: Enrolments are dealt with explicitly upon their grade change, since (un)enrol doesn't change aggregator grade.
      * See other usages of CurriculumLineServices.updateAggregatorEvaluation(CurriculumLine)
@@ -183,6 +183,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             return super.getDescription();
         }
 
+        return getDescriptionDefault();
+    }
+
+    private LocalizedString getDescriptionDefault() {
         return getEnrolmentType().getAggregatorDefaultDescription();
     }
 
@@ -248,7 +252,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
             final Date availableDate = new Date();
             evaluation.edit(Authenticate.getUser().getPerson(), conclusionGrade, availableDate, conclusionDate);
-            evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescription().getContent());
+            evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescriptionDefault().getContent());
 
         } else {
 
@@ -281,9 +285,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         if (markSheet != null) {
             final Registration registration = enrolment.getRegistration();
 
-            final String reason = ULisboaSpecificationsUtil.bundle(
-                    "CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason", registration.getNumber().toString(),
-                    registration.getPerson().getFirstAndLastName(), getDescription().getContent(), conclusionGrade.getValue());
+            final String reason =
+                    ULisboaSpecificationsUtil.bundle("CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason",
+                            registration.getNumber().toString(), registration.getPerson().getFirstAndLastName(),
+                            getDescriptionDefault().getContent(), conclusionGrade.getValue());
 
             CompetenceCourseMarkSheetChangeRequest.create(markSheet, Authenticate.getUser().getPerson(), reason);
         }
