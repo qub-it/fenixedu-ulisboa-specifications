@@ -99,6 +99,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
     @RequestMapping
     public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model) {
+        addControllerURLToModel(executionYear, model);
         return "forward:" + getControllerURLWithExecutionYear(executionYear) + _FILLPERSONALINFORMATION_URI;
     }
 
@@ -108,12 +109,14 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
     public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
             return nextScreen(executionYear, model, redirectAttributes);
         }
@@ -233,6 +236,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
     public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();

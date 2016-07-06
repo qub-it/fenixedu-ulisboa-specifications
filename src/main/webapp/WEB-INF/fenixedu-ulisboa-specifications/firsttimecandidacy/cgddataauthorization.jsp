@@ -34,7 +34,7 @@ ${portal.toolkit()}
 </div>
 
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/back"><spring:message code="label.back"/></a>	
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
 </div>
 
 <c:if test="${not empty infoMessages}">
@@ -90,7 +90,7 @@ ${portal.toolkit()}
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div>
-				<a class="btn btn-primary panel-heading btn-panel-heading cgd-accept-panel-heading" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/authorize" >
+				<a class="btn btn-primary panel-heading btn-panel-heading cgd-accept-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/authorize" >
 					<span class="cgd-accept-title"><spring:message code="label.CgdDataAuthorization.accept" htmlEscape="false"/></span>
 					<span class="cgd-accept-icon glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
 					<span class="cgd-accept-action glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
@@ -106,7 +106,7 @@ ${portal.toolkit()}
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div>
-				<a class="btn btn-default panel-heading btn-panel-heading cgd-decline-panel-heading" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/unauthorize" >
+				<a class="btn btn-default panel-heading btn-panel-heading cgd-decline-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/unauthorize" >
 					<span class="cgd-decline-title"><spring:message code="label.CgdDataAuthorization.refuse" htmlEscape="false"/></span>
 					<span class="cgd-decline-icon glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
 					<span class="cgd-decline-action glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>

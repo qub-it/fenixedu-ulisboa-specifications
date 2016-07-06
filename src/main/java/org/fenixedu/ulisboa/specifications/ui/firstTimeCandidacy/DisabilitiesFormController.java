@@ -65,11 +65,13 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.GET)
     public String filldisabilities(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if(isFormIsFilled(executionYear, model)) {
             return nextScreen(executionYear, model, redirectAttributes);
         }
@@ -142,6 +144,7 @@ public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstr
 
     @RequestMapping(value = _FILLDISABILITIES_URI, method = RequestMethod.POST)
     public String filldisabilities(@PathVariable("executionYearId") final ExecutionYear executionYear, final DisabilitiesForm form, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();

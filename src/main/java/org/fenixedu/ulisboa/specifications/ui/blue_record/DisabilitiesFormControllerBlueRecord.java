@@ -35,6 +35,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFormController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -51,7 +52,8 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
     }
 
     @Override
-    public String back(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
     }
 
@@ -66,6 +68,7 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
 
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
     public String invokeBack(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if(isFormIsFilled(executionYear, model)) {
             return back(executionYear, model, redirectAttributes);
         }

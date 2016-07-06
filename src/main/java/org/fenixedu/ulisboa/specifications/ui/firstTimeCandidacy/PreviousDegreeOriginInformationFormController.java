@@ -73,6 +73,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(ContactsFormController.FILLCONTACTS_URL, executionYear), model, redirectAttributes);
     }
 
@@ -83,6 +84,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
 
     @RequestMapping(value = _FILLPREVIOUSDEGREEINFORMATION_URI, method = RequestMethod.GET)
     public String fillpreviousdegreeinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -106,6 +108,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             @PathVariable("executionYearId") final ExecutionYear executionYear,
             @PathVariable("registrationId") final Registration registration,
             final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
 
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
@@ -221,6 +224,7 @@ public abstract class PreviousDegreeOriginInformationFormController extends Firs
             @PathVariable("executionYearId") final ExecutionYear executionYear,
             @PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }

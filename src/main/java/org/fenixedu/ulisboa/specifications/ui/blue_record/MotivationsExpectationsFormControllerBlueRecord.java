@@ -51,11 +51,12 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(BlueRecordEnd.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        return redirect(urlWithExecutionYear(CgdDataAuthorizationControllerBlueRecord.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    public String back(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         String url = DisabilitiesFormControllerBlueRecord.CONTROLLER_URL + DisabilitiesFormController._FILLDISABILITIES_URI;
         return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
@@ -66,6 +67,7 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
     public String invokeBack(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
             return back(executionYear, model, redirectAttributes);
         }

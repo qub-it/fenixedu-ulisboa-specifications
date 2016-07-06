@@ -14,6 +14,7 @@ public class BlueRecordEnd extends FenixeduUlisboaSpecificationsBaseController {
 
     @RequestMapping
     public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model) {
+        model.addAttribute("controllerURL", CONTROLLER_URL + "/" + executionYear.getExternalId());
         return "fenixedu-ulisboa-specifications/blueRecord/end";
     }
 

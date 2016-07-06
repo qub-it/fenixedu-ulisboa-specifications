@@ -13,6 +13,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesFormPeriod;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.CgdDataAuthorizationControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.DisabilitiesFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.HouseholdInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.MotivationsExpectationsFormControllerBlueRecord;
@@ -49,7 +50,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
                 continue;
             }
             
-            if(!Raides.findActiveRegistrationsWithEnrolments(period.getExecutionYear(), AccessControl.getPerson().getStudent()).isEmpty()) {
+            if(!Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(period.getExecutionYear(), AccessControl.getPerson().getStudent()).isEmpty()) {
                 return true;
             }
         }
@@ -65,6 +66,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new CgdDataAuthorizationControllerBlueRecord().isFormIsFilled(executionYear, student);
         
         return result;
     }
@@ -76,7 +78,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
                 continue;
             }
             
-            if(!Raides.findActiveRegistrationsWithEnrolments(period.getExecutionYear(), AccessControl.getPerson().getStudent()).isEmpty()) {
+            if(!Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(period.getExecutionYear(), AccessControl.getPerson().getStudent()).isEmpty()) {
                 return BlueRecordEntryPoint.CONTROLLER_URL + "/" + period.getExecutionYear().getExternalId();
             }
         }

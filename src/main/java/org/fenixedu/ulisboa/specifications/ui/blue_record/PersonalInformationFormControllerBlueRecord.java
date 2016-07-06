@@ -58,7 +58,8 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     }
 
     @Override
-    public String back(Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(BlueRecordEntryPoint.CONTROLLER_URL, model, redirectAttributes);
     }
 
@@ -67,8 +68,9 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
     
     @RequestMapping(value=_INVOKE_BACK_URI, method=RequestMethod.GET)
     public String invokeBack(@PathVariable("executionYearId") final ExecutionYear executionYear,  final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if(isFormIsFilled(executionYear, model)) {
-            return back(model, redirectAttributes);
+            return back(executionYear, model, redirectAttributes);
         }
         
         return redirect(getControllerURLWithExecutionYear(executionYear), model, redirectAttributes);

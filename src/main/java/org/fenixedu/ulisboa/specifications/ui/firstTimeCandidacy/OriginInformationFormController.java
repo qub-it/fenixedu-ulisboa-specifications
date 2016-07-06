@@ -83,6 +83,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(ContactsFormController.FILLCONTACTS_URL, executionYear), model, redirectAttributes);
     }
 
@@ -93,6 +94,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
 
     @RequestMapping(value = _FILLORIGININFORMATION_URI, method = RequestMethod.GET)
     public String fillorigininformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
@@ -111,6 +113,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
     @RequestMapping(value = _FILLORIGININFORMATION_URI + "/{registrationId}", method = RequestMethod.GET)
     public String fillorigininformation(@PathVariable("executionYearId") final ExecutionYear executionYear, @PathVariable("registrationId") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }
@@ -227,6 +230,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
     public String fillorigininformation(OriginInformationForm form,
             @PathVariable("executionYearId") final ExecutionYear executionYear,
             @PathVariable("registrationId") final Registration registration, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("invalid request");
         }

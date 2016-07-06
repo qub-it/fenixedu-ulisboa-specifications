@@ -47,7 +47,7 @@ public class FindBlueRecordStudents extends CustomTask {
                     continue;
                 }
                 
-                if(Raides.findActiveRegistrationsWithEnrolments(ExecutionYear.readCurrentExecutionYear(), user.getPerson().getStudent()).isEmpty()) {
+                if(Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(ExecutionYear.readCurrentExecutionYear(), user.getPerson().getStudent()).isEmpty()) {
                     continue;
                 }
                 

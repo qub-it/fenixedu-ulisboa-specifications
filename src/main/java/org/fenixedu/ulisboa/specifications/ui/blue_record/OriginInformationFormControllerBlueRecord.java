@@ -61,7 +61,8 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
     }
 
     @Override
-    public String back(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(HouseholdInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model,
                 redirectAttributes);
     }
@@ -72,6 +73,7 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
     public String invokeback(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
             return back(executionYear, model, redirectAttributes);
         }

@@ -1073,7 +1073,7 @@ public class Raides {
         return result;
     }
 
-    public static List<Registration> findActiveRegistrationsWithEnrolments(final ExecutionYear executionYear, final Student student) {
+    public static List<Registration> findActiveFirstTimeRegistrationsOrWithEnrolments(final ExecutionYear executionYear, final Student student) {
         final List<Registration> result = Lists.newArrayList();
 
         for (final Registration registration : student.getRegistrationsSet()) {

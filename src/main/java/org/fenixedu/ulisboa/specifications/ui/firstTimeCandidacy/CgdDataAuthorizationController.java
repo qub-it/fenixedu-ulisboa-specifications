@@ -27,13 +27,16 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -42,17 +45,21 @@ import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(CgdDataAuthorizationController.CONTROLLER_URL)
-public class CgdDataAuthorizationController extends FenixeduUlisboaSpecificationsBaseController {
+public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization";
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(ShowTuitionController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @RequestMapping
-    public String cgddataauthorization(Model model, RedirectAttributes redirectAttributes) {
+    public String cgddataauthorization(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
@@ -60,7 +67,9 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
     }
 
     @RequestMapping(value = "/authorize")
-    public String cgddataauthorizationToAuthorize(Model model, RedirectAttributes redirectAttributes) {
+    public String cgddataauthorizationToAuthorize(@PathVariable("executionYearId") final ExecutionYear executionYear,
+            final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
@@ -75,8 +84,11 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
     }
 
     @RequestMapping(value = "/unauthorize")
-    public String cgddataauthorizationToUnauthorize(Model model, RedirectAttributes redirectAttributes) {
+    public String cgddataauthorizationToUnauthorize(@PathVariable("executionYearId") final ExecutionYear executionYear,
+            final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
+            addControllerURLToModel(executionYear, model);
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
         authorizeSharingDataWithCGD(false);
@@ -84,7 +96,23 @@ public class CgdDataAuthorizationController extends FenixeduUlisboaSpecification
     }
 
     @Atomic
-    private void authorizeSharingDataWithCGD(boolean authorize) {
+    protected void authorizeSharingDataWithCGD(boolean authorize) {
+        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setSharingDataWithCGDAnswered(true);
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setAuthorizeSharingDataWithCGD(authorize);
+    }
+
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
+    }
+
+    @Override
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        return false;
+    }
+
+    @Override
+    protected Student getStudent(Model model) {
+        return FirstTimeCandidacyController.getCandidacy().getRegistration().getStudent();
     }
 }

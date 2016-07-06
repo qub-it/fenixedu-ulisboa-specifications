@@ -86,7 +86,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
 
     protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final ExecutionYear executionYear, final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Lists.newArrayList(Raides.findActiveRegistrationsWithEnrolments(executionYear, student));
+                Lists.newArrayList(Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student));
 
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
         for (final Registration registration : activeRegistrationsWithEnrolments) {
@@ -100,7 +100,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
 
     protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(final ExecutionYear executionYear, final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Raides.findActiveRegistrationsWithEnrolments(executionYear, student);
+                Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student);
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
 
         for (final Registration registration : activeRegistrationsWithEnrolments) {
@@ -120,7 +120,10 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     @Override
     protected void addModelProperties(Model model) {
         super.addModelProperties(model);
-        model.addAttribute("controllerURL", getControllerURL());
+    }
+
+    protected void addControllerURLToModel(final ExecutionYear executionYear, final Model model) {
+        model.addAttribute("controllerURL", getControllerURLWithExecutionYear(executionYear));
     }
     
     public static final String urlWithExecutionYear(final String url, final ExecutionYear executionYear) {

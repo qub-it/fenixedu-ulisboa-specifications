@@ -67,6 +67,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(DisabilitiesFormController.FILLDISABILITIES_URL, executionYear), model, redirectAttributes);
     }
 
@@ -77,6 +78,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.GET)
     public String fillmotivationsexpectations(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if(isFormIsFilled(executionYear, model)) {
             return nextScreen(executionYear, model, redirectAttributes);
         }
@@ -157,6 +159,7 @@ public abstract class MotivationsExpectationsFormController extends FirstTimeCan
 
     @RequestMapping(value = _FILLMOTIVATIONSEXPECTATIONS_URI, method = RequestMethod.POST)
     public String fillmotivationsexpectations(@PathVariable("executionYearId") final ExecutionYear executionYear, final MotivationsExpectationsForm form, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();

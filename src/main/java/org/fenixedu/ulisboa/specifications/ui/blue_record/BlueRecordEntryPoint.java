@@ -15,6 +15,7 @@ public class BlueRecordEntryPoint extends FenixeduUlisboaSpecificationsBaseContr
 
     @RequestMapping(value= "/{executionYearId}")
     public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model) {
+        model.addAttribute("controllerURL", CONTROLLER_URL + "/" + executionYear.getExternalId());
         model.addAttribute("nextURL", PersonalInformationFormControllerBlueRecord.CONTROLLER_URL.replace("{executionYearId}", executionYear.getExternalId()));
         
         return "fenixedu-ulisboa-specifications/blueRecord/home";

@@ -50,7 +50,6 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController.HouseholdInformationForm;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,7 +77,8 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     }
 
     @Override
-    public String back(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(PersonalInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
     }
 
@@ -87,6 +87,7 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
 
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
     public String invokeBack(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
             return back(executionYear, model, redirectAttributes);
         }
@@ -97,6 +98,7 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
 
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.GET)
     public String fillhouseholdinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
             return nextScreen(executionYear, model, redirectAttributes);
         }
@@ -142,6 +144,7 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     
     @RequestMapping(value = _FILLHOUSEHOLDINFORMATION_URI, method = RequestMethod.POST)
     public String fillhouseholdinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final HouseholdInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();

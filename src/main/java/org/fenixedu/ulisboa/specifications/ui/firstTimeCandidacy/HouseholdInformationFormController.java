@@ -76,6 +76,7 @@ public abstract class HouseholdInformationFormController extends FirstTimeCandid
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(FiliationFormController.FILLFILIATION_URL, executionYear), model, redirectAttributes);
     }
 
