@@ -116,6 +116,18 @@ public class CurriculumLineServices {
                 continue;
             }
 
+            if (group1.getDegreeModule() == null && group2.getDegreeModule() != null) {
+                return 1;
+            }
+
+            if (group1.getDegreeModule() != null && group2.getDegreeModule() == null) {
+                return -1;
+            }
+
+            if (group1.getDegreeModule() == null && group2.getDegreeModule() == null) {
+                return 0;
+            }
+
             final Context context1 = group1.getDegreeModule().getParentContextsSet().iterator().next();
             final Context context2 = group2.getDegreeModule().getParentContextsSet().iterator().next();
             return context1.compareTo(context2);
