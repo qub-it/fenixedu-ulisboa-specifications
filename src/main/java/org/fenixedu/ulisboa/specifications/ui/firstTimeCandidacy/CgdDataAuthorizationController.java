@@ -97,7 +97,6 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @Atomic
     protected void authorizeSharingDataWithCGD(boolean authorize) {
-        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setSharingDataWithCGDAnswered(true);
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setAuthorizeSharingDataWithCGD(authorize);
     }
 

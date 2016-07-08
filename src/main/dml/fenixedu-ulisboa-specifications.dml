@@ -217,7 +217,6 @@ class PersonUlisboaSpecifications {
     boolean disabilitiesFormAnswered;
     boolean motivationsExpectationsFormAnswered;
     String personnelNumber;
-    boolean sharingDataWithCGDAnswered;
 }
 
 relation PersonUlPerson {

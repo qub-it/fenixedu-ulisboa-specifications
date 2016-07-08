@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 import java.util.List;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -97,7 +98,11 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
             return true;
         }
         
-        return firstTimeRegistration.getPerson().getPersonUlisboaSpecifications().getSharingDataWithCGDAnswered();
+        return !hasCgdCard(firstTimeRegistration.getPerson());
+    }
+
+    private boolean hasCgdCard(final Person person) {
+        return !person.getCgdCardsSet().isEmpty();
     }
 
     @Override
