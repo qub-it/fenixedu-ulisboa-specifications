@@ -141,7 +141,7 @@ public class StudentEnrolmentsDA
             improvements.sort((o1, o2) -> CurriculumLineServices.COMPARATOR.compare(o1.getEnrolment(), o2.getEnrolment()));
             request.setAttribute("studentImprovementEnrolments", improvements);
 
-            final List<EnrolmentEvaluation> specialSeasons = Lists.newArrayList(scp.getEnroledImprovements(semester));
+            final List<EnrolmentEvaluation> specialSeasons = Lists.newArrayList(scp.getEnroledSpecialSeasons(semester));
             specialSeasons.sort((o1, o2) -> CurriculumLineServices.COMPARATOR.compare(o1.getEnrolment(), o2.getEnrolment()));
             request.setAttribute("studentSpecialSeasonEnrolments", specialSeasons);
         }
