@@ -27,6 +27,7 @@ package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -63,6 +64,8 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAg
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
 
+import com.google.common.collect.Maps;
+
 import pt.ist.fenixWebFramework.renderers.components.HtmlActionLink;
 import pt.ist.fenixWebFramework.renderers.components.HtmlBlockContainer;
 import pt.ist.fenixWebFramework.renderers.components.HtmlCheckBox;
@@ -76,6 +79,10 @@ import pt.ist.fenixWebFramework.renderers.model.MetaObjectFactory;
 import pt.ist.fenixWebFramework.renderers.schemas.Schema;
 
 public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
+
+    // qubExtension, don't SHOW empty groups
+    private Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
+    private boolean emptyGroupsCollapsible = false;
 
     @Override
     protected void generateGroup(final HtmlBlockContainer blockContainer, final StudentCurricularPlan studentCurricularPlan,
@@ -93,7 +100,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         final HtmlTable groupTable = createGroupTable(blockContainer, depth);
         addGroupHeaderRow(groupTable, studentCurriculumGroupBean, executionSemester);
 
-        // qubExtension, don't generate concluded groups
+        // init
+        setEmptyGroup(studentCurriculumGroupBean, emptyGroupsCollapsible);
+
+        // qubExtension, don't GENERATE concluded groups
         if (canPerformStudentEnrolments
                 || !isConcluded(studentCurriculumGroupBean.getCurriculumModule(), executionSemester.getExecutionYear())) {
 
@@ -108,9 +118,33 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             generateGroups(blockContainer, studentCurriculumGroupBean, studentCurricularPlan, executionSemester, depth);
         }
 
+        // qubExtension, don't SHOW empty groups
+        if (isEmptyGroup(studentCurriculumGroupBean)) {
+            groupTable.setStyle("display: none");
+        }
+
         if (studentCurriculumGroupBean.isRoot()) {
             generateCycleCourseGroupsToEnrol(blockContainer, executionSemester, studentCurricularPlan, depth);
         }
+    }
+
+    private void setEmptyGroup(final StudentCurriculumGroupBean bean, final boolean value) {
+        final CurriculumGroup key = bean.getCurriculumModule();
+
+        if (!emptyGroups.containsKey(key)) {
+            emptyGroups.put(key, emptyGroupsCollapsible);
+
+        } else {
+
+            // must check already previously calculated value 
+            emptyGroups.put(key, isEmptyGroup(bean) && value);
+        }
+    }
+
+    // qubExtension, don't SHOW empty groups
+    private Boolean isEmptyGroup(final StudentCurriculumGroupBean bean) {
+        final Boolean value = emptyGroups.get(bean.getCurriculumModule());
+        return value != null && value;
     }
 
     // copy from super class
@@ -280,6 +314,9 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester) {
 
         final List<IDegreeModuleToEvaluate> coursesToEvaluate = filterCurricularCoursesToEvaluate(studentCurriculumGroupBean);
+
+        // qubExtension, don't SHOW empty groups
+        setEmptyGroup(studentCurriculumGroupBean, coursesToEvaluate.isEmpty());
 
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : coursesToEvaluate) {
 
@@ -529,6 +566,9 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     @Override
     protected void generateEnrolments(final StudentCurriculumGroupBean studentCurriculumGroupBean, final HtmlTable groupTable) {
 
+        // qubExtension, don't SHOW empty groups
+        setEmptyGroup(studentCurriculumGroupBean, studentCurriculumGroupBean.getEnrolledCurriculumCourses().isEmpty());
+
         // qubExtension, show sorted enrolments
         studentCurriculumGroupBean.getEnrolledCurriculumCourses().sort((o1, o2) -> {
             return CurriculumLineServices.COMPARATOR.compare(o1.getCurriculumModule(), o2.getCurriculumModule());
@@ -594,6 +634,28 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         HtmlTableCell cellCheckBox = htmlTableRow.createCell();
         cellCheckBox.setClasses(enrolmentCheckBoxClasses);
         cellCheckBox.setBody(checkBox);
+    }
+
+    @Override
+    protected void generateGroups(final HtmlBlockContainer container, final StudentCurriculumGroupBean bean,
+            final StudentCurricularPlan plan, final ExecutionSemester executionSemester, final int depth) {
+
+        // first enroled
+        final List<StudentCurriculumGroupBean> enroledGroups = bean.getEnrolledCurriculumGroupsSortedByOrder(executionSemester);
+        for (final StudentCurriculumGroupBean iter : enroledGroups) {
+            generateGroup(container, plan, iter, executionSemester, depth + getRenderer().getWidthDecreasePerLevel());
+        }
+
+        // then available to enrol
+        final List<IDegreeModuleToEvaluate> availableToEnrol = bean.getCourseGroupsToEnrolSortedByContext();
+        for (final IDegreeModuleToEvaluate iter : availableToEnrol) {
+            generateCourseGroupToEnroll(container, iter, plan, depth + getRenderer().getWidthDecreasePerLevel());
+        }
+
+        // qubExtension, don't SHOW empty groups
+        // notice this must be tested after group generation
+        setEmptyGroup(bean, enroledGroups.isEmpty() || enroledGroups.stream().allMatch(i -> isEmptyGroup(i)));
+        setEmptyGroup(bean, availableToEnrol.isEmpty());
     }
 
     private boolean isStudentLogged() {
