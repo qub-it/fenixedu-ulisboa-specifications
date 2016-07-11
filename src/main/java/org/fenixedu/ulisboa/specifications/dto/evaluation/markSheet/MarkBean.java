@@ -118,17 +118,23 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         Grade suggestion = evaluation == null ? null : evaluation.getGrade();
         if (suggestion == null || suggestion.isEmpty()) {
 
-            if (CurriculumAggregatorServices.isAggregationsActive(getEnrolment().getExecutionYear())) {
-
-                final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
-                final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
-                if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
-                    suggestion = aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
-                }
-            }
+            suggestion = getGradeSuggestedByAggregation();
         }
 
         setGradeValue(suggestion == null ? null : suggestion.getValue());
+    }
+
+    public Grade getGradeSuggestedByAggregation() {
+        if (CurriculumAggregatorServices.isAggregationsActive(getEnrolment().getExecutionYear())) {
+
+            final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
+            final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
+            if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
+                return aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
+            }
+        }
+
+        return null;
     }
 
     public String getGradeValue() {
