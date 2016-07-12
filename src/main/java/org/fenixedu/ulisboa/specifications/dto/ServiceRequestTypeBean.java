@@ -33,6 +33,31 @@ public class ServiceRequestTypeBean implements IBean {
     private ServiceRequestOutputType documentGeneratedOutputType;
     private List<TupleDataSourceBean> documentGeneratedOutputTypeDataSource;
 
+    // The following class is used for importation
+    
+    public static class SlotRequestBean {
+        private ServiceRequestSlot slot;
+        private boolean required;
+        
+        public ServiceRequestSlot getSlot() {
+            return slot;
+        }
+        
+        public void setSlot(ServiceRequestSlot slot) {
+            this.slot = slot;
+        }
+        
+        public boolean isRequired() {
+            return required;
+        }
+        
+        public void setRequired(boolean required) {
+            this.required = required;
+        }
+    }
+    
+    private List<SlotRequestBean> requestSlotsBeans;
+
     public String getCode() {
         return code;
     }
@@ -172,7 +197,15 @@ public class ServiceRequestTypeBean implements IBean {
             return tupleDataSourceBean;
         }).collect(Collectors.toList());
     }
-
+    
+    public List<SlotRequestBean> getRequestSlotsBeans() {
+        return requestSlotsBeans;
+    }
+    
+    public void setRequestSlotsBeans(final List<SlotRequestBean> requestSlotsBeans) {
+        this.requestSlotsBeans = requestSlotsBeans;
+    }
+    
     public ServiceRequestTypeBean() {
         setServiceRequestCategoryDataSource(Arrays.asList(ServiceRequestCategory.values()));
         setServiceRequestSlotsDataSource(ServiceRequestSlot.findAll().collect(Collectors.toList()));
