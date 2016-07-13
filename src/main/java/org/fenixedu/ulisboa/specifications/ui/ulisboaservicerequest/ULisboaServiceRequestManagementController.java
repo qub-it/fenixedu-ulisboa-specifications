@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -192,15 +193,32 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     private void addDocumentTemplatesToModel(ULisboaServiceRequest serviceRequest, Model model) {
         Locale language = serviceRequest.getLanguage();
 
+        Set<AcademicServiceRequestTemplate> templates =
+                new TreeSet<AcademicServiceRequestTemplate>(new Comparator<AcademicServiceRequestTemplate>() {
+
+                    @Override
+                    public int compare(AcademicServiceRequestTemplate t1, AcademicServiceRequestTemplate t2) {
+                        if (!t1.getCustom() && t2.getCustom()) {
+                            return -1;
+                        } else if (t1.getCustom() && !t2.getCustom()) {
+                            return 1;
+                        } else {
+                            return t1.getName().getContent().compareTo(t2.getName().getContent());
+                        }
+                    }
+                });
+
         AcademicServiceRequestTemplate standardTemplate =
                 AcademicServiceRequestTemplate.findTemplateFor(language, serviceRequest.getServiceRequestType(), serviceRequest
                         .getRegistration().getDegree().getDegreeType(), serviceRequest.getProgramConclusion(), serviceRequest
                         .getRegistration().getDegree());
-        Set<AcademicServiceRequestTemplate> templates =
+        Set<AcademicServiceRequestTemplate> cutomTemplates =
                 AcademicServiceRequestTemplate.readCustomTemplatesFor(language, serviceRequest.getServiceRequestType());
+
         if (standardTemplate != null) {
             templates.add(standardTemplate);
         }
+        templates.addAll(cutomTemplates);
         model.addAttribute("templates", templates);
     }
 
