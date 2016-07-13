@@ -507,6 +507,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		
 		class curricularPeriod.rule.transition.ApprovedCredits extends curricularPeriod.rule.RuleTransition {
 			boolean allowToCollectAllCurricularPlans;
+			Integer semester;
 		}
 		
 		class curricularPeriod.rule.transition.FlunkedCurricularCourses extends curricularPeriod.rule.RuleTransition {
