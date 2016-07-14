@@ -191,10 +191,13 @@ public class OptionalEnrolmentLayout extends Layout {
 
             String description = "";
             if (curricularCourse.getCompetenceCourse() != null) {
-                final DepartmentUnit unit = curricularCourse.getCompetenceCourse().getDepartmentUnit();
-                if (unit != null) {
-                    description = unit.getName();
-                }
+
+// TODO legidio, add scientific area after migration
+//
+//                final DepartmentUnit unit = curricularCourse.getCompetenceCourse().getDepartmentUnit();
+//                if (unit != null) {
+//                    description = unit.getName();
+//                }
             }
 
             if (StringUtils.isNotBlank(description)) {
