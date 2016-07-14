@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,7 +15,6 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
-import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -74,11 +74,7 @@ public class CurricularPeriodServices {
 
     static public int getCurricularYear(final CurriculumLine input) {
 
-        final Integer overridenCurricularYear = CurriculumLineServices.getCurricularYear(input);
-        if (overridenCurricularYear != null) {
-            return overridenCurricularYear.intValue();
-        }
-
+        // no course group placeholder takes precedence over everything else
         final String report = input.print(StringUtils.EMPTY).toString();
         if (input.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
             logger.debug("NoCourseGroupCurriculumGroup as parent for [{}], returning 1", report);
@@ -90,40 +86,61 @@ public class CurricularPeriodServices {
         final ExecutionYear executionYear = input.getExecutionYear();
         final Set<Context> contexts = input.getCurriculumGroup().getDegreeModule().getChildContextsSet();
 
-        return getCurricularYear(report, degreeModule, executionYear, contexts);
+        final Optional<Integer> calculated = getCurricularYearCalculated(report, degreeModule, executionYear, contexts);
+        if (calculated.isPresent()) {
+            return calculated.get();
+
+        } else {
+
+            // migrated overriden value must only be used as a last resort
+            final Integer overridenCurricularYear = CurriculumLineServices.getCurricularYear(input);
+            if (overridenCurricularYear == null) {
+                logger.warn("Unable to guess curricular year for [{}], returning 1", report.toString().replace("\n", ""));
+                return 1;
+                
+            } else {
+                return overridenCurricularYear.intValue();
+            }
+        }
     }
 
-    static public int getCurricularYear(final IDegreeModuleToEvaluate input) {
-        final DegreeModule degreeModule = input.getDegreeModule();
-        final ExecutionYear executionYear = input.getExecutionPeriod().getExecutionYear();
-        final Set<Context> contexts = input.getCurriculumGroup().getDegreeModule().getChildContextsSet();
+    /**
+     * Assume lowest curricular year of the degree module's contexts on the parent group
+     */
+    static private Optional<Integer> getCurricularYearCalculated(final String report, final DegreeModule degreeModule,
+            final ExecutionYear executionYear, final Set<Context> contexts) {
 
-        final StringBuilder report = new StringBuilder();
-        input.getDegreeModule().print(report, StringUtils.EMPTY, input.getContext());
+        // best scenario, we want to assert execution year on context
+        final List<Integer> curricularYearsValids = Lists.newArrayList();
 
-        return getCurricularYear(report.toString(), degreeModule, executionYear, contexts);
-    }
-
-    static private int getCurricularYear(final String report, final DegreeModule degreeModule, final ExecutionYear executionYear,
-            final Set<Context> contexts) {
-
+        // last resort, we'll forget execution year on checking contexts
         final List<Integer> curricularYears = Lists.newArrayList();
+
         for (final Context context : contexts) {
 
             if (!context.getChildDegreeModule().isLeaf()) {
                 continue;
             }
 
-            if (context.isValid(executionYear) && (degreeModule == null || context.getChildDegreeModule() == degreeModule)) {
-                curricularYears.add(context.getCurricularYear());
+            final Integer curricularYear = context.getCurricularYear();
+
+            if (degreeModule == null || context.getChildDegreeModule() == degreeModule) {
+                curricularYears.add(curricularYear);
+
+                if (context.isValid(executionYear)) {
+                    curricularYearsValids.add(curricularYear);
+                }
             }
         }
 
-        if (!curricularYears.isEmpty()) {
-            return Collections.min(curricularYears);
+        if (!curricularYearsValids.isEmpty()) {
+            return Optional.of(Collections.min(curricularYearsValids));
+
+        } else if (!curricularYears.isEmpty()) {
+            return Optional.of(Collections.min(curricularYears));
+
         } else {
-            logger.warn("Unable to guess curricular year for [{}], returning 1", report.replace("\n", ""));
-            return 1;
+            return Optional.empty();
         }
     }
 
