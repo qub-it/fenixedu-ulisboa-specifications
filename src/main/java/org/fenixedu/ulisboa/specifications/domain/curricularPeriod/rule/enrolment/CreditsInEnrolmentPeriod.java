@@ -80,8 +80,8 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     @Override
     public String getLabel() {
         if (getSemester() != null) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester", getCredits()
-                    .toString(), getSemester().toString());
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester",
+                    getCredits().toString(), getSemester().toString());
 
         } else {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
@@ -107,8 +107,8 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
 
         final Set<DegreeModule> processedDegreeModules = Sets.newHashSet();
 
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext, i -> i
-                .getExecutionPeriod().getExecutionYear() == enrolmentContext.getExecutionPeriod().getExecutionYear())) {
+        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext,
+                i -> i.getExecutionPeriod().getExecutionYear() == enrolmentContext.getExecutionPeriod().getExecutionYear())) {
 
             processedDegreeModules.add(degreeModuleToEvaluate.getDegreeModule());
 
@@ -117,9 +117,12 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
         }
 
         if (getIncludeEnrolments()) {
+
+            // must include approved and flunked enrolments from the other semester 
+
             for (final Enrolment enrolment : enrolmentContext.getStudentCurricularPlan().getEnrolmentsSet()) {
 
-                if (processedDegreeModules.contains(enrolment.getCurricularCourse())) {
+                if (enrolment.isAnnulled() || processedDegreeModules.contains(enrolment.getCurricularCourse())) {
                     continue;
                 }
 
@@ -136,8 +139,8 @@ public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
     private RuleResult executeBySemester(final EnrolmentContext enrolmentContext) {
         BigDecimal total = BigDecimal.ZERO;
 
-        final Predicate<IDegreeModuleToEvaluate> filter =
-                i -> i.isAnnualCurricularCourse(enrolmentContext.getExecutionYear()) ? i.getExecutionPeriod().getExecutionYear() == enrolmentContext
+        final Predicate<IDegreeModuleToEvaluate> filter = i -> i.isAnnualCurricularCourse(
+                enrolmentContext.getExecutionYear()) ? i.getExecutionPeriod().getExecutionYear() == enrolmentContext
                         .getExecutionYear() : i.getExecutionPeriod() == enrolmentContext.getExecutionPeriod();
 
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getEnroledAndEnroling(enrolmentContext, filter)) {
