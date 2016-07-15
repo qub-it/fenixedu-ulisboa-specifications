@@ -57,8 +57,8 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         setHideMessagePrefix(false);
     }
 
-    public void init(final BigDecimal credits) {
-        setCredits(credits);
+    public void init(final BigDecimal value) {
+        setValue(value);
         checkRules();
     }
 
@@ -66,7 +66,7 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         //
         //CHANGE_ME add more busines validations
         //
-        if (getCredits() == null) {
+        if (getValue() == null) {
             throw new DomainException("error." + this.getClass().getSimpleName() + ".credits.required");
         }
     }
@@ -140,8 +140,8 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     static private String getMessagesSuffix(final BigDecimal total) {
-        return total == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix",
-                total.toString()));
+        return total == null ? "" : (" "
+                + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString()));
     }
 
 }

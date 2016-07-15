@@ -472,12 +472,12 @@ relation CurricularPeriodConfigurations {
 }
 
 class curricularPeriod.rule.CurricularPeriodRule {
-	BigDecimal credits;
+	BigDecimal value;
 	boolean hideMessagePrefix;
+	Integer semester;
 }
 
 	class curricularPeriod.rule.RuleEnrolment extends curricularPeriod.rule.CurricularPeriodRule {
-		Integer semester;
 	}
 	
 		class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod extends curricularPeriod.rule.RuleEnrolment {
@@ -500,14 +500,19 @@ class curricularPeriod.rule.CurricularPeriodRule {
 	class curricularPeriod.rule.RuleTransition extends curricularPeriod.rule.CurricularPeriodRule {
 		Integer yearMin;
 		Integer yearMax;
+		boolean allowToCollectAllCurricularPlans;
 	}
 
+		class curricularPeriod.rule.transition.RuleTransitionOr extends curricularPeriod.rule.RuleTransition {
+		}
+		
 		class curricularPeriod.rule.transition.FlunkedCredits extends curricularPeriod.rule.RuleTransition {
 		}
 		
 		class curricularPeriod.rule.transition.ApprovedCredits extends curricularPeriod.rule.RuleTransition {
-			boolean allowToCollectAllCurricularPlans;
-			Integer semester;
+		}
+		
+		class curricularPeriod.rule.transition.ApprovedCourses extends curricularPeriod.rule.RuleTransition {
 		}
 		
 		class curricularPeriod.rule.transition.FlunkedCurricularCourses extends curricularPeriod.rule.RuleTransition {
@@ -535,11 +540,29 @@ relation CurricularPeriodConfigurationRuleTransition {
 	}
 }
 
-relation StatuteTypeRuleTransition {
-	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
+relation RuleTransitionOrChildren {
+	curricularPeriod.rule.transition.RuleTransitionOr playsRole parentRuleTransition {
+		multiplicity 0..1;
+	}
+	curricularPeriod.rule.RuleTransition playsRole children {
+		multiplicity *;
+	}
+}
+
+relation StatuteTypeStudentStatuteExecutiveRule {
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypeForStudentStatuteExecutiveRule {
 		multiplicity 1..1;
 	}
-	curricularPeriod.rule.transition.StudentStatuteExecutiveRule playsRole ruleTransition {
+	curricularPeriod.rule.transition.StudentStatuteExecutiveRule playsRole studentStatuteExecutiveRule {
+		multiplicity *;
+	}
+}
+
+relation StatuteTypeFlunkedCredits {
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypeForFlunkedCredits {
+		multiplicity 1..1;
+	}
+	curricularPeriod.rule.transition.FlunkedCredits playsRole flunkedCredits {
 		multiplicity *;
 	}
 }
