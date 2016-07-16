@@ -10,9 +10,13 @@ import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.dto.GenericPair;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.StudentStatuteCurricularRuleExecutor;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.verifyExecutors.StudentStatuteCurricularRuleVerifier;
+import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import com.google.common.collect.Lists;
@@ -24,14 +28,23 @@ public class StudentStatuteCurricularRule extends StudentStatuteCurricularRule_B
     }
 
     public StudentStatuteCurricularRule(final DegreeModule toApplyRule, final CourseGroup contextCourseGroup,
-            final ExecutionSemester begin, final ExecutionSemester end) {
+            final ExecutionSemester begin, final ExecutionSemester end, StatuteType statuteType) {
 
         this();
         init(toApplyRule, contextCourseGroup, begin, end, CurricularRuleType.CUSTOM);
+        edit(contextCourseGroup, statuteType);
     }
 
-    public void edit(CourseGroup contextCourseGroup) {
+    public void edit(CourseGroup contextCourseGroup, StatuteType statuteType) {
         setContextCourseGroup(contextCourseGroup);
+        super.setStatuteType(statuteType);
+        checkRules();
+    }
+
+    private void checkRules() {
+        if (getStatuteType() == null) {
+            throw new DomainException("error.StudentStatuteCurricularRule.statuteType.cannot.be.null");
+        }
     }
 
     @Override
@@ -41,18 +54,20 @@ public class StudentStatuteCurricularRule extends StudentStatuteCurricularRule_B
 
     @Override
     public VerifyRuleExecutor createVerifyRuleExecutor() {
-        return VerifyRuleExecutor.NULL_VERIFY_EXECUTOR;
+        return new StudentStatuteCurricularRuleVerifier();
     }
 
     @Override
     protected void removeOwnParameters() {
+        super.setStatuteType(null);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<GenericPair<Object, Boolean>> getLabel() {
         final StringBuilder label = new StringBuilder();
-        label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentStatuteCurricularRule"));
+        label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentStatuteCurricularRule")).append(": ")
+                .append(StatuteServices.getCodeAndName(getStatuteType()));
         if (getContextCourseGroup() != null) {
             label.append(", ");
             label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.inGroup"));

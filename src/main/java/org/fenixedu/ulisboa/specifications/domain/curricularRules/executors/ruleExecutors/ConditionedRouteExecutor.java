@@ -9,6 +9,7 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class ConditionedRouteExecutor extends CurricularRuleExecutor {
 
@@ -64,9 +65,10 @@ public class ConditionedRouteExecutor extends CurricularRuleExecutor {
 
     private RuleResult createFalseResult(final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,
             final IDegreeModuleToEvaluate degreeModuleToEvaluate) {
-        return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(),
-                "curricularRules.ruleExecutors.ConditionedRouteExecutor.route.choice.must.be.performed.by.academic.office",
-                degreeModuleToEvaluate.getDegreeModule().getName());
+        return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
+                ULisboaSpecificationsUtil.bundle(
+                        "curricularRules.ruleExecutors.ConditionedRouteExecutor.route.choice.must.be.performed.by.academic.office",
+                        degreeModuleToEvaluate.getDegreeModule().getName()));
     }
 
     private boolean isPersonAuthorized(final Person person) {

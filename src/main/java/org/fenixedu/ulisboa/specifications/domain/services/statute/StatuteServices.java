@@ -8,6 +8,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
+import org.fenixedu.academic.domain.student.StudentStatute;
 
 import com.google.common.collect.Sets;
 
@@ -49,6 +50,10 @@ public class StatuteServices {
         return findVisibleStatuteTypes(registration, executionSemester).stream().map(s -> s.getName().getContent())
                 .collect(Collectors.joining(", "));
 
+    }
+
+    static public String getCodeAndName(StatuteType statuteType) {
+        return statuteType.getCode() + " - " + statuteType.getName().getContent();
     }
 
 }
