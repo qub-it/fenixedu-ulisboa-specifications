@@ -68,6 +68,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -453,7 +454,8 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateDismissalWeightCell(HtmlTableRow dismissalRow, Dismissal dismissal) {
-        generateCellWithText(dismissalRow, EMPTY_INFO, renderer.getWeightCellClass());
+        generateCellWithText(dismissalRow, dismissal.getWeigth() != null ? dismissal.getWeigth().toString() : EMPTY_INFO,
+                renderer.getWeightCellClass());
 
     }
 
@@ -978,21 +980,14 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateEnrolmentEctsCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment,
             final boolean isFromDetail) {
-        final String ectsCredits =
-                String.valueOf(isFromDetail ? enrolment.getEctsCreditsForCurriculum() : enrolment.getEctsCredits());
+        final String ectsCredits = String.valueOf(enrolment.getEctsCredits());
         generateCellWithText(enrolmentRow, ectsCredits, renderer.getEctsCreditsCellClass());
     }
 
     protected void generateEnrolmentWeightCell(HtmlTableRow enrolmentRow, IEnrolment enrolment, boolean isFromDetail) {
-        // Weight is only relevant to show when enrolment has numeric value
-        final String weight;
-        if (enrolment.getGrade() != null && !enrolment.getGrade().isEmpty()) {
-            weight = String.valueOf(isFromDetail ? enrolment.getWeigthForCurriculum() : enrolment.getWeigth());
-        } else {
-            weight = EMPTY_INFO;
-        }
-
-        generateCellWithText(enrolmentRow, weight, renderer.getWeightCellClass());
+        // qubExtension
+        generateCellWithText(enrolmentRow, enrolment.getWeigth() != null ? String.valueOf(enrolment.getWeigth()) : EMPTY_INFO,
+                renderer.getWeightCellClass());
     }
 
     protected void generateEnrolmentGradeCell(HtmlTableRow enrolmentRow, IEnrolment enrolment) {

@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsI
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
-import org.fenixedu.academic.domain.studentCurriculum.CreditsDismissal;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.bennu.core.domain.User;
@@ -80,6 +79,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedIn
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EctsAndWeightProviders;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
 import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
@@ -115,6 +115,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configurePortal();
         configureGradeScaleLogics();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
+        EctsAndWeightProviders.init();
         EnrolmentPeriodRestrictionsInitializer.init();
         CurriculumConfigurationInitializer.init();
         CurricularPeriodConfigurationInitializer.init();
@@ -228,8 +229,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
             @Override
             public void beforeAdd(Dismissal dismissal, Credits credits) {
-                if (dismissal instanceof CreditsDismissal && credits != null && credits.isEquivalence()) {
-                    throw new DomainException("error.curricularplan.equivalence.without.destination");
+                if (credits != null && dismissal != null && (dismissal.isCreditsDismissal() || dismissal.isOptional())
+                        && credits.isEquivalence()) {
+                    throw new DomainException("error.Equivalence.can.only.be.applied.to.curricular.courses");
 
                 }
             }
