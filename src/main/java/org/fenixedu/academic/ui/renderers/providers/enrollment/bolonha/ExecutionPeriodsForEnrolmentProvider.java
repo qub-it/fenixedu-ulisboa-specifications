@@ -96,7 +96,10 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
             if (endSemester != null) {
                 result.add(endSemester.getExecutionYear());
             } else {
-                final ExecutionYear nextExecutionYear = ExecutionYear.readCurrentExecutionYear().getNextExecutionYear();
+                final ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+                result.add(currentExecutionYear);
+
+                final ExecutionYear nextExecutionYear = currentExecutionYear.getNextExecutionYear();
                 if (nextExecutionYear != null) {
                     result.add(nextExecutionYear);
                 }
