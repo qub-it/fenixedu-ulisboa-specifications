@@ -130,7 +130,7 @@ public class CurricularPeriodConfigurationInitializer {
             initRuleTransitionFCUL();
             break;
 
-        case "FD":
+        case "FDUL":
             initRuleEnrolmentFD();
             initRuleTransitionFD();
             break;
