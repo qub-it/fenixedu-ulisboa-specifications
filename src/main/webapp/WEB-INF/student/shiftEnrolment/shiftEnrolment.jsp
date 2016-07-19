@@ -28,6 +28,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib uri="http://jakarta.apache.org/taglibs/datetime-1.0" prefix="dt" %>
+<%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <html:xhtml/>
 ${portal.angularToolkit()}
 
@@ -116,6 +118,13 @@ ${portal.angularToolkit()}
     </div>
 </c:if>
 
+<c:if test="${not empty enrolmentProcess}">
+	<p class="mtop015 mbottom15">
+		<a class="btn btn-default" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}"><strong><spring:message code="label.event.back" /></strong></a>
+		<a class="btn btn-default" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}"><strong><spring:message code="label.continue" /></strong></a>
+	</p>
+</c:if>
+
 <div ng-app="shiftEnrolmentApp">
 	<div ng-controller="ShiftEnrolmentCtrl">
 
@@ -128,18 +137,12 @@ ${portal.angularToolkit()}
 			<c:forEach items="${enrolmentBeans}" var="enrolmentBean">
 				<li role="presentation" class="<c:out value="${enrolmentBean.selected ? 'active' : ' '}" />">
 					<a href="${pageContext.request.contextPath}/student/shiftEnrolment/switchEnrolmentPeriod/${enrolmentBean.registration.externalId}/${enrolmentBean.enrolmentPeriod.externalId}">
-						<c:out value="${enrolmentBean.enrolmentPeriod.executionPeriod.qualifiedName}" /> 
+						<c:out value="${enrolmentBean.enrolmentPeriod.executionSemester.qualifiedName}" /> 
 						<br/><span class="small text-muted"><c:out value="${enrolmentBean.registration.degree.sigla}" /></span>
 					</a>
 				</li>
 				<c:if test="${enrolmentBean.selected}"><c:set var="selectedEnrolmentBean" value="${enrolmentBean}" /></c:if>
 			</c:forEach>
-			<c:if test="${not empty returnURL }">
-			<a href="${returnURL}" class="btn btn-default btn-finish" >
-					 	<spring:message code="message.shiftEnrolment.finishEnrolment"/>
-						<br/><span class="small text-muted"></span>
-					</a>
-    		</c:if>
 		</ul>	
 		<p>&nbsp;</p>
 	
@@ -395,7 +398,7 @@ ${portal.angularToolkit()}
 			
 			<div id="calendar"></div>
 			
-			<spring:url var="eventsUrl" value="/student/shiftEnrolment/currentSchedule.json/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.enrolmentPeriod.executionPeriod.externalId}"/>
+			<spring:url var="eventsUrl" value="/student/shiftEnrolment/currentSchedule.json/${selectedEnrolmentBean.registration.externalId}/${selectedEnrolmentBean.enrolmentPeriod.executionSemester.externalId}"/>
 			<script>
 			$(document).ready(function() {
 				$(function () {
@@ -440,5 +443,11 @@ ${portal.angularToolkit()}
     </div>
 </div>
 
-
-
+<c:if test="${not empty shiftsToEnrol}">
+	<c:if test="${not empty enrolmentProcess}">
+		<p class="mtop25 mbottom1">
+			<a class="btn btn-default" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}"><strong><spring:message code="label.event.back" /></strong></a>
+			<a class="btn btn-default" href="${enrolmentProcess.getContinueURL(pageContext.request)}"><strong><spring:message code="label.continue" /></strong></a>
+		</p>
+	</c:if>
+</c:if>

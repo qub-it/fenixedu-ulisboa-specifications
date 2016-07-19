@@ -66,6 +66,7 @@ abstract public class EnrolmentManagerFactoryInitializer {
                 return new StudentCurricularPlanImprovementOfApprovedEnrolmentManager(enrolmentContext);
 
             } else if (enrolmentContext.isSpecialSeason()) {
+                // qubExtension
                 return new StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager(enrolmentContext);
 
             } else if (enrolmentContext.isExtra()) {

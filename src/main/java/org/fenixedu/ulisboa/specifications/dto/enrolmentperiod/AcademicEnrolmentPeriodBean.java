@@ -3,25 +3,36 @@ package org.fenixedu.ulisboa.specifications.dto.enrolmentperiod;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
 import org.joda.time.DateTime;
+
+import com.google.common.collect.Lists;
 
 public class AcademicEnrolmentPeriodBean implements IBean {
 
     private DateTime startDate;
     private DateTime endDate;
-    private Boolean specialSeason = Boolean.FALSE;
-    private Boolean firstTimeRegistration = Boolean.FALSE;
+    private Boolean firstTimeRegistration = null;
     private Boolean restrictToSelectedStatutes = Boolean.FALSE;
     private Integer minStudentNumber;
     private Integer maxStudentNumber;
@@ -34,6 +45,11 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     private List<TupleDataSourceBean> degreeCurricularPlanDataSource;
     private List<StatuteType> statutesTypes;
     private List<TupleDataSourceBean> statuteTypeDataSource;
+
+    // slots for collecting periods of students
+    private AcademicEnrolmentPeriod enrolmentPeriod;
+    private StudentCurricularPlan studentCurricularPlan;
+    private Set<StatuteType> studentStatuteTypes;
 
     public DateTime getStartDate() {
         return startDate;
@@ -49,14 +65,6 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
     public void setEndDate(DateTime endDate) {
         this.endDate = endDate;
-    }
-
-    public Boolean getSpecialSeason() {
-        return specialSeason;
-    }
-
-    public void setSpecialSeason(Boolean specialSeason) {
-        this.specialSeason = specialSeason;
     }
 
     public Boolean getFirstTimeRegistration() {
@@ -118,6 +126,10 @@ public class AcademicEnrolmentPeriodBean implements IBean {
             tuple.setText(t.getDescriptionI18N().getContent());
             return tuple;
         }).collect(Collectors.toList());
+    }
+
+    public ExecutionYear getExecutionYear() {
+        return getExecutionSemester().getExecutionYear();
     }
 
     public ExecutionSemester getExecutionSemester() {
@@ -184,12 +196,60 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
+    public boolean isForCurricularCourses() {
+        return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.CURRICULAR_COURSE;
+    }
+
+    public boolean isForClasses() {
+        return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.SCHOOL_CLASS;
+    }
+
+    public boolean isForShift() {
+        return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.SHIFT;
+    }
+
+    public boolean isOpen() {
+        return getEnrolmentPeriod() == null ? false : getEnrolmentPeriod().isOpen();
+    }
+
+    public boolean isUpcoming() {
+        return getEnrolmentPeriod() == null ? false : getEnrolmentPeriod().isUpcoming();
+    }
+
+    public AcademicEnrolmentPeriod getEnrolmentPeriod() {
+        return enrolmentPeriod;
+    }
+
+    public void setEnrolmentPeriod(final AcademicEnrolmentPeriod input) {
+        this.enrolmentPeriod = input;
+    }
+
+    public Registration getRegistration() {
+        return getStudentCurricularPlan().getRegistration();
+    }
+
+    public StudentCurricularPlan getStudentCurricularPlan() {
+        return studentCurricularPlan;
+    }
+
+    public StudentCurricularPlan setStudentCurricularPlan(final StudentCurricularPlan input) {
+        return this.studentCurricularPlan = input;
+    }
+
+    public Set<StatuteType> getStudentStatuteTypes() {
+        return studentStatuteTypes;
+    }
+
+    public void setStudentStatuteTypes(final Set<StatuteType> input) {
+        this.studentStatuteTypes = input;
+    }
+
     public AcademicEnrolmentPeriodBean() {
         setEnrolmentPeriodTypeDataSource(Arrays.asList(AcademicEnrolmentPeriodType.values()));
         setExecutionSemesterDataSource(ExecutionSemester.readNotClosedExecutionPeriods());
 
         setDegreeCurricularPlans(Collections.emptyList());
-        setStatuteTypes(Collections.emptyList());
+        setStatuteTypes(Lists.newArrayList());
         if (executionSemester != null) {
             setDegreeCurricularPlanDataSource(DegreeCurricularPlan.readByDegreeTypesAndStateWithExecutionDegreeForYear(dt -> true,
                     DegreeCurricularPlanState.ACTIVE, executionSemester.getExecutionYear()));
@@ -201,9 +261,9 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
     public AcademicEnrolmentPeriodBean(AcademicEnrolmentPeriod academicEnrolmentPeriod) {
         this();
+        setEnrolmentPeriod(academicEnrolmentPeriod);
         setStartDate(academicEnrolmentPeriod.getStartDate());
         setEndDate(academicEnrolmentPeriod.getEndDate());
-        setSpecialSeason(academicEnrolmentPeriod.getSpecialSeason());
         setFirstTimeRegistration(academicEnrolmentPeriod.getFirstTimeRegistration());
         setRestrictToSelectedStatutes(academicEnrolmentPeriod.getRestrictToSelectedStatutes());
         setMinStudentNumber(academicEnrolmentPeriod.getMinStudentNumber());
@@ -223,6 +283,32 @@ public class AcademicEnrolmentPeriodBean implements IBean {
             setDegreeCurricularPlanDataSource(Collections.emptyList());
         }
         setStatuteTypeDataSource(Bennu.getInstance().getStatuteTypesSet().stream().collect(Collectors.toList()));
+    }
+
+    public String getEntryPointURL() {
+        String result = "";
+
+        final String argsStruts = EnrolmentManagementDA.buildArgsStruts(getExecutionSemester(), getStudentCurricularPlan());
+
+        switch (getEnrolmentPeriodType()) {
+        case CURRICULAR_COURSE:
+            result = CourseEnrolmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
+            break;
+
+        case SCHOOL_CLASS:
+            result = SchoolClassStudentEnrollmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
+            break;
+
+        case SHIFT:
+            result = ShiftEnrolmentController.getEntryPointURL() + getRegistration().getExternalId() + "/"
+                    + getEnrolmentPeriod().getExternalId();
+            break;
+
+        default:
+            break;
+        }
+
+        return result;
     }
 
 }

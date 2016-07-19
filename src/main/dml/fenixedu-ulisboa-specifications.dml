@@ -2231,7 +2231,6 @@ relation PersonCountryHighSchool {
 class enrolmentPeriod.AcademicEnrolmentPeriod {
     DateTime startDate;
     DateTime endDate;
-    Boolean specialSeason;
     Boolean firstTimeRegistration;
     Boolean restrictToSelectedStatutes;
     Integer minStudentNumber;

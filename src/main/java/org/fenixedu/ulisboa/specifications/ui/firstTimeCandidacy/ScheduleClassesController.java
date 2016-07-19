@@ -32,11 +32,8 @@ import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguratio
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.EnrolmentPeriod;
-import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -46,10 +43,10 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.Logger;
@@ -59,9 +56,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.Sets;
+
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
-import edu.emory.mathcs.backport.java.util.Collections;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ScheduleClassesController.CONTROLLER_URL)
@@ -127,23 +125,20 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
             return redirect(injectChecksumInUrl, model, redirectAttributes);
         }
         if (firstYearRegistrationConfiguration.getRequiresShiftsEnrolment()) {
-            return redirect("/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
-                    + getEnrolmentPeriodForSemester(executionSemester, registration).getExternalId(), model, redirectAttributes);
+            return redirect(
+                    "/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
+                            + getEnrolmentPeriodForSemester(executionSemester, registration).getExternalId(),
+                    model, redirectAttributes);
         }
         throw new RuntimeException("No classes or course enrolment for current degree");
     }
 
-    private EnrolmentPeriod getEnrolmentPeriodForSemester(ExecutionSemester executionSemester, Registration registration) {
-        return registration
-                .getDegree()
-                .getMostRecentDegreeCurricularPlan()
-                .getEnrolmentPeriodsSet()
-                .stream()
-                .filter(ep -> ep instanceof EnrolmentPeriodInClassesCandidate && ep.getExecutionPeriod() == executionSemester)
-                .findAny()
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "You need an open period for classes/shifts for candidates to enable shift enrolmentstude"));
+    private AcademicEnrolmentPeriod getEnrolmentPeriodForSemester(ExecutionSemester executionSemester,
+            Registration registration) {
+        return registration.getDegree().getMostRecentDegreeCurricularPlan().getAcademicEnrolmentPeriodsSet().stream()
+                .filter(ep -> ep.getFirstTimeRegistration() && ep.getExecutionSemester() == executionSemester).findAny()
+                .orElseThrow(() -> new RuntimeException(
+                        "You need an open period for classes/shifts for candidates to enable shift enrolmentstude"));
     }
 
     @RequestMapping(value = "/continue")
@@ -156,13 +151,13 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     public void associateShiftsFor(final StudentCurricularPlan studentCurricularPlan) {
         Collection<ExecutionSemester> executionSemesters = null;
-        if (!studentCurricularPlan.getStudent().getShiftsFor(ExecutionSemester.readActualExecutionSemester()).isEmpty()) {
+        if (!studentCurricularPlan.getRegistration().getShiftsFor(ExecutionSemester.readActualExecutionSemester()).isEmpty()) {
             return;
         }
         if (hasAnnualShifts(studentCurricularPlan)) {
             executionSemesters = ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet();
         } else {
-            executionSemesters = Collections.singleton(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
+            executionSemesters = Sets.newHashSet(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
         }
         Optional<SchoolClass> firstUnfilledClass =
                 readFirstUnfilledClass(studentCurricularPlan.getRegistration(), executionSemesters);
@@ -178,20 +173,17 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     private Optional<SchoolClass> readFirstUnfilledClass(Registration registration,
             final Collection<ExecutionSemester> executionSemesters) {
-        ExecutionDegree executionDegree =
-                registration.getDegree().getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator()
-                        .next();
+        ExecutionDegree executionDegree = registration.getDegree()
+                .getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator().next();
         return executionDegree
-                .getSchoolClassesSet()
-                .stream()
-                .filter(sc -> sc.getAnoCurricular().equals(1) && executionSemesters.contains(sc.getExecutionPeriod())
-                        && getFreeVacancies(sc) > 0).sorted(new MostFilledFreeClass()).findFirst();
+                .getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
+                        && executionSemesters.contains(sc.getExecutionPeriod()) && getFreeVacancies(sc) > 0)
+                .sorted(new MostFilledFreeClass()).findFirst();
     }
 
     private Integer getFreeVacancies(SchoolClass schoolClass) {
-        final Optional<Shift> minShift =
-                schoolClass.getAssociatedShiftsSet().stream()
-                        .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
+        final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
+                .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
         return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
     }
 
@@ -217,19 +209,20 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
             Integer sc1Vacancies = getFreeVacancies(sc1);
             Integer sc2Vacancies = getFreeVacancies(sc2);
 
-            return sc1Vacancies.compareTo(sc2Vacancies) != 0 ? sc1Vacancies.compareTo(sc2Vacancies) : SchoolClass.COMPARATOR_BY_NAME
-                    .compare(sc1, sc2);
+            return sc1Vacancies.compareTo(sc2Vacancies) != 0 ? sc1Vacancies
+                    .compareTo(sc2Vacancies) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
         }
 
     }
 
     boolean hasAnnualShifts(StudentCurricularPlan studentCurricularPlan) {
-        return studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
+        return studentCurricularPlan.getDegreeCurricularPlan()
+                .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
     }
 
     boolean hasAnnualShifts(Registration registration) {
-        return hasAnnualShifts(registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear()
-                .getFirstExecutionPeriod()));
+        return hasAnnualShifts(
+                registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod()));
     }
 
 }

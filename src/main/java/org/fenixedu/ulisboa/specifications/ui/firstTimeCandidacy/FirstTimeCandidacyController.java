@@ -33,7 +33,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
@@ -52,6 +51,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -121,7 +121,8 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     @Atomic
-    public static PersonalIngressionData getOrCreatePersonalIngressionData(final ExecutionYear executionYear, PrecedentDegreeInformation precedentInformation) {
+    public static PersonalIngressionData getOrCreatePersonalIngressionData(final ExecutionYear executionYear,
+            PrecedentDegreeInformation precedentInformation) {
         PersonalIngressionData personalData = null;
         personalData = precedentInformation.getPersonalIngressionData();
         Student student = AccessControl.getPerson().getStudent();
@@ -167,10 +168,11 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     public static boolean isPeriodOpen() {
-        EnrolmentPeriodInCurricularCoursesCandidate period = getCandidacy().findCandidacyPeriod();
+        AcademicEnrolmentPeriod period = getCandidacy().findCandidacyPeriod();
         if (period == null) {
             return false;
         }
-        return period.isValid();
+        return period.isOpen();
     }
+    
 }

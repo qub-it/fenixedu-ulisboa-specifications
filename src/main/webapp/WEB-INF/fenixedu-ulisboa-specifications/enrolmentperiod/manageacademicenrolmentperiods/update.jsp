@@ -87,6 +87,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             { name : '<spring:message code="label.no"/>', value : false },
             { name : '<spring:message code="label.yes"/>', value : true } 
     ];
+
+    $scope.booleanvalues_restrictToSelectedStatutes = [
+            { name : '<spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.false"/>', value : false },
+            { name : '<spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.true"/>', value : true } 
+    ];
     
 }]);
 </script>
@@ -151,24 +156,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
-                    <spring:message code="label.AcademicEnrolmentPeriod.specialSeason" />
-                </div>
-
-                <div class="col-sm-10">
-                    <ui-select id="academicEnrolmentPeriod_specialSeason" name="specialSeason"
-                        ng-model="$parent.object.specialSeason"
-                        theme="bootstrap"> 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
                     <spring:message code="label.AcademicEnrolmentPeriod.firstTimeRegistration" />
                 </div>
 
@@ -176,7 +163,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <ui-select id="academicEnrolmentPeriod_firstTimeRegistration" name="firstTimeRegistration"
                         ng-model="$parent.object.firstTimeRegistration"
                         theme="bootstrap"> 
-                        <ui-select-match>
+                        <ui-select-match allow-clear="true">
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
@@ -197,7 +184,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues_restrictToSelectedStatutes | filter: $select.search">
                             <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
                         </ui-select-choices>
                     </ui-select>
@@ -215,7 +202,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         />
                 </div>
             </div>
-                        <div class="form-group row">
+            <div class="form-group row">
                 <div class="col-sm-2 control-label">
                     <spring:message code="label.AcademicEnrolmentPeriod.maxStudentNumber" />
                 </div>

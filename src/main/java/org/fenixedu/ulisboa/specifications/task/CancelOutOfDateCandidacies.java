@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.EnrolmentPeriod;
-import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.bennu.core.domain.User;
@@ -18,6 +16,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.scheduler.CronTask;
 import org.fenixedu.bennu.scheduler.annotation.Task;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -33,16 +32,16 @@ public class CancelOutOfDateCandidacies extends CronTask {
 
     private void cancelAllCandidaciesPastPeriods() {
         for (DegreeCurricularPlan dcp : DegreeCurricularPlan.readBolonhaDegreeCurricularPlans()) {
-            Set<EnrolmentPeriod> pastPeriods = getPastCandidacyPeriods(dcp);
+            Set<AcademicEnrolmentPeriod> pastPeriods = getPastCandidacyPeriods(dcp);
             if (pastPeriods.isEmpty()) {
                 continue;
             }
             DateTime mostRecentEndDate = null;
-            for (EnrolmentPeriod period : pastPeriods) {
+            for (AcademicEnrolmentPeriod period : pastPeriods) {
                 if (mostRecentEndDate == null) {
-                    mostRecentEndDate = period.getEndDateDateTime();
-                } else if (mostRecentEndDate.isBefore(period.getEndDateDateTime())) {
-                    mostRecentEndDate = period.getEndDateDateTime();
+                    mostRecentEndDate = period.getEndDate();
+                } else if (mostRecentEndDate.isBefore(period.getEndDate())) {
+                    mostRecentEndDate = period.getEndDate();
                 }
             }
 
@@ -50,15 +49,16 @@ public class CancelOutOfDateCandidacies extends CronTask {
         }
     }
 
-    private static Set<EnrolmentPeriod> getPastCandidacyPeriods(DegreeCurricularPlan dcp) {
-        Predicate<EnrolmentPeriod> isForCandidates = ep -> ep instanceof EnrolmentPeriodInCurricularCoursesCandidate;
-        Predicate<EnrolmentPeriod> isPast = ep -> ep.getEndDateDateTime().isBefore(new DateTime());
-        Stream<EnrolmentPeriod> periods = dcp.getEnrolmentPeriodsSet().stream().filter(isForCandidates).filter(isPast);
+    private static Set<AcademicEnrolmentPeriod> getPastCandidacyPeriods(DegreeCurricularPlan dcp) {
+        Predicate<AcademicEnrolmentPeriod> isForCandidates = ep -> ep.getFirstTimeRegistration();
+        Predicate<AcademicEnrolmentPeriod> isPast = ep -> ep.getEndDate().isBefore(new DateTime());
+        Stream<AcademicEnrolmentPeriod> periods =
+                dcp.getAcademicEnrolmentPeriodsSet().stream().filter(isForCandidates).filter(isPast);
         return periods.collect(Collectors.toSet());
     }
 
-    private static final List<String> possibleManagers = Arrays.asList("manager", "admin", "qubit_admin", "qubIT_admin",
-            "qubIt_admin");
+    private static final List<String> possibleManagers =
+            Arrays.asList("manager", "admin", "qubit_admin", "qubIT_admin", "qubIt_admin");
 
     private User getPossibleManager() {
         for (String possibleManager : possibleManagers) {
