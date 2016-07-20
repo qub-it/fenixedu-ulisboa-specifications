@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.services;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,7 +20,9 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.joda.time.LocalDate;
@@ -110,6 +113,18 @@ public class RegistrationServices {
         }
 
         return curriculumSum;
+    }
+
+    static public void filterCurricularYearEntries(final Curriculum input, final Integer semester) {
+        if (semester != null) {
+
+            for (final Iterator<ICurriculumEntry> iterator = input.getCurricularYearEntries().iterator(); iterator.hasNext();) {
+                final ICurriculumEntry iter = iterator.next();
+                if (semester.intValue() != CurricularPeriodServices.getCurricularSemester((CurriculumLine) iter)) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     public static void setIngressionGradeA(Registration registration, BigDecimal grade) {

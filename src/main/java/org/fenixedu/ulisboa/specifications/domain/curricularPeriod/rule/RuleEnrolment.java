@@ -47,6 +47,10 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
     protected RuleEnrolment() {
         super();
     }
+    
+    public BigDecimal getCredits() {
+        return super.getValue();
+    }
 
     protected void init(final CurricularPeriodConfiguration configuration, final BigDecimal credits, final Integer semester) {
         super.init(credits);
@@ -80,6 +84,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
         }
     }
 
+    @Override
     @Atomic
     public void delete() {
         super.setConfigurationEnrolment(null);

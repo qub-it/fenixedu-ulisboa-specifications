@@ -31,10 +31,12 @@ import java.util.Collection;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -51,7 +53,11 @@ abstract public class RuleTransition extends RuleTransition_Base {
         setYearMax(yearMax);
         checkRules();
     }
-
+    
+    public BigDecimal getCredits() {
+        return super.getValue();
+    }
+    
     private void checkRules() {
         //
         //CHANGE_ME add more busines validations
@@ -81,6 +87,7 @@ abstract public class RuleTransition extends RuleTransition_Base {
         }
     }
 
+    @Override
     @Atomic
     public void delete() {
         super.setConfigurationTransition(null);
@@ -98,5 +105,18 @@ abstract public class RuleTransition extends RuleTransition_Base {
     }
 
     abstract public RuleResult execute(final Curriculum curriculum);
+    
+    protected Curriculum prepareCurriculum(final Curriculum input) {
+        Curriculum result = input;
+
+        final Registration registration = input.getStudentCurricularPlan().getRegistration();
+
+        if (getAllowToCollectAllCurricularPlans() && RegistrationServices.canCollectAllPlansForCurriculum(registration)) {
+            result = RegistrationServices.getAllPlansCurriculum(registration, input.getExecutionYear());
+        }
+
+        RegistrationServices.filterCurricularYearEntries(result, getSemester());
+        return result;
+    }
 
 }

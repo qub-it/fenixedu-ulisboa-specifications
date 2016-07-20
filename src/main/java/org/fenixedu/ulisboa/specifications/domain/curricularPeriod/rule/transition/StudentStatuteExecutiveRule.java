@@ -7,7 +7,6 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
-import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
@@ -39,8 +38,12 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
         super.init(configuration,
                 (BigDecimal) BigDecimal.ZERO/* credits; 0 hack, this rule does not need ects, but its a superclass requirement  */,
                 (Integer) null /* yearMin */, (Integer) null /* yearMax */);
-        super.setStatuteType(statuteType);
+        super.setStatuteTypeForStudentStatuteExecutiveRule(statuteType);
         checkRules();
+    }
+
+    public StatuteType getStatuteType() {
+        return super.getStatuteTypeForStudentStatuteExecutiveRule();
     }
 
     private void checkRules() {
@@ -77,7 +80,7 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
     @Override
     public void delete() {
 
-        super.setStatuteType(null);
+        super.setStatuteTypeForStudentStatuteExecutiveRule(null);
 
         super.delete();
     }

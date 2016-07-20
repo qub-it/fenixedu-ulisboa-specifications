@@ -5,16 +5,20 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-
-import pt.ist.fenixframework.Atomic;
+import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 
 import com.google.common.collect.Sets;
+
+import pt.ist.fenixframework.Atomic;
 
 public class FlunkedCredits extends FlunkedCredits_Base {
 
@@ -44,15 +48,26 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         return result;
     }
 
+    @Atomic
+    @Override
+    public void delete() {
+        super.setStatuteTypeForFlunkedCredits(null);
+        super.delete();
+    }
+
+    public StatuteType getStatuteType() {
+        return super.getStatuteTypeForFlunkedCredits();
+    }
+
     @Override
     public String getLabel() {
         if (getYearMin() == null) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".total", getCredits()
-                    .toString());
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".total",
+                    getCredits().toString());
 
         } else if (isForYear()) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year", getCredits()
-                    .toString(), getYearMin().toString());
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year",
+                    getCredits().toString(), getYearMin().toString());
 
         } else {
             return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
@@ -61,12 +76,25 @@ public class FlunkedCredits extends FlunkedCredits_Base {
     }
 
     @Override
-    public RuleResult execute(final Curriculum curriculum) {
+    public RuleResult execute(final Curriculum input) {
+        if (getStatuteType() != null) {
+            final Registration registration = input.getStudentCurricularPlan().getRegistration();
+            final ExecutionYear executionYear =
+                    input.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : input.getExecutionYear();
+            if (StatuteServices.findStatuteTypes(registration, executionYear).stream().noneMatch(i -> getStatuteType() == i)) {
+                // TODO legidio
+                return createFalseLabelled("");
+            }
+        }
+
+        final Curriculum curriculum = prepareCurriculum(input);
+
         final Set<CurricularPeriod> configured = Sets.newHashSet();
 
         final int minYear;
         final int maxYear;
 
+        // convert min max to curricular periods
         if (getYearMin() != null) {
             minYear = getYearMin();
             maxYear = getYearMax();
@@ -74,13 +102,12 @@ public class FlunkedCredits extends FlunkedCredits_Base {
             minYear = 1;
             maxYear = Math.max(1, getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1);
         }
-
         final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
-
         for (int i = minYear; i <= maxYear; i++) {
             final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
 
             if (curricularPeriod == null) {
+                // if even one is not found, return false
                 return createFalseConfiguration();
             } else {
                 configured.add(curricularPeriod);
@@ -99,8 +126,8 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         final Set<CurricularPeriod> toInspect = configured.isEmpty() ? curricularPeriodCredits.keySet() : configured;
 
         for (final CurricularPeriod curricularPeriod : toInspect) {
-            final BigDecimal approved =
-                    curricularPeriodCredits.get(curricularPeriod) != null ? curricularPeriodCredits.get(curricularPeriod) : BigDecimal.ZERO;
+            final BigDecimal approved = curricularPeriodCredits.get(curricularPeriod) != null ? curricularPeriodCredits
+                    .get(curricularPeriod) : BigDecimal.ZERO;
             final BigDecimal approvedWithLimit = FLUNKED_CREDITS_BY_YEAR.min(approved);
             final BigDecimal flunked = FLUNKED_CREDITS_BY_YEAR.subtract(approvedWithLimit);
 
@@ -108,7 +135,6 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         }
 
         return result;
-
     }
 
 }
