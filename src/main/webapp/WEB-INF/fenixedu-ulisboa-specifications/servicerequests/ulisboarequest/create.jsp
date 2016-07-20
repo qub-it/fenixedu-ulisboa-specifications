@@ -251,7 +251,7 @@ ${portal.angularToolkit()}
                };
                $scope.transformDataToSubmit = function () {
                    // ULisboaServiceRequestBean is expecting a DateTime 
-                   if($scope.object.requestDate.match("[0-9]{4}-[0-9]{2}-[0-9]{2}") !== null) {
+                   if($scope.object.requestDate.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}$") !== null) {
                        $scope.object.requestDate = $scope.object.requestDate + "T00:00:00.000Z";
                    }
                    if($scope.object.requestDate.length === 0) {
@@ -262,7 +262,7 @@ ${portal.angularToolkit()}
                        element.dataSource= undefined;
                        // ServiceRequestPropertyBean is expecting a DateTime
                        if (element.uiComponentType == '<%= UIComponentType.DATE %>') {
-                           if(element.dateTimeValue.match("[0-9]{4}-[0-9]{2}-[0-9]{2}") !== null) {
+                           if(element.dateTimeValue.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}$") !== null) {
                                element.dateTimeValue = element.dateTimeValue + "T00:00:00.000Z";
                            }
                            if(element.dateTimeValue.length === 0) {
@@ -357,8 +357,15 @@ ${portal.angularToolkit()}
                     <spring:message code="label.ULisboaServiceRequest.requestDate" />
                 </div>
                 <div class="col-sm-7">
-                    <input id="requestDate" class="form-control" type="text" bennu-date="object.requestDate" 
-                        name="field" ng-required="true" />  
+                    <academic:allowed operation="SERVICE_REQUESTS">                      
+                        <input id="requestDate" class="form-control" type="text" bennu-date="object.requestDate"
+                            name="field" ng-required="true" />  
+                    </academic:allowed>
+                    <academic:notAllowed operation="SERVICE_REQUESTS">     
+                            <div class="form-control-static">
+                            <c:out  value="{{ object.requestDate | date:'dd-MM-yyyy' }}" />                 
+                            </div>
+                    </academic:notAllowed>
                 </div>
             </div>
             <div class="form-group row">
