@@ -30,10 +30,13 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 
 import com.google.common.collect.Sets;
 
@@ -43,6 +46,24 @@ public class StudentCurricularPlanEnrolmentManager
     public StudentCurricularPlanEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
         checkCurriculumAggregatorParticipants();
+    }
+
+    @Override
+    protected void assertStudentEnrolmentPreConditions() {
+
+        if (!getResponsiblePerson().getStudent().getRegistrationsToEnrolByStudent().contains(getRegistration())) {
+            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
+        }
+
+        if (getCurricularRuleLevel() != CurricularRuleLevel.ENROLMENT_WITH_RULES) {
+            throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
+        }
+
+        if (AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(getStudent()).stream()
+                .noneMatch(i -> i.isOpen() && i.getStudentCurricularPlan() == getStudentCurricularPlan()
+                        && i.getExecutionSemester() == getExecutionSemester())) {
+            throw new DomainException("message.out.curricular.course.enrolment.period.default");
+        }
     }
 
     private void checkCurriculumAggregatorParticipants() {

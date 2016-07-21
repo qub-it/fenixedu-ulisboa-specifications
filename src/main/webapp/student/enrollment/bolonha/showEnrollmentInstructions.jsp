@@ -26,37 +26,37 @@
 
 <logic:present role="role(STUDENT)">
 
-<h2><bean:message key="label.enrollment.courses.instructions"/></h2>
+<h2><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.courses.instructions"/></h2>
 
-<h3 class="mtop15 separator2"><bean:message key="label.introduction"/></h3>
+<h3 class="mtop15 separator2"><bean:message bundle="STUDENT_RESOURCES" key="label.introduction"/></h3>
 
-<p><bean:message key="message.instructions.introduction" bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES"/></p>
+<p><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.instructions.introduction"/></p>
 
-<h3 class="mtop15 separator2"><bean:message key="label.instructions.proceed"/></h3>
+<h3 class="mtop15 separator2"><bean:message bundle="STUDENT_RESOURCES" key="label.instructions.proceed"/></h3>
 
-<p><b><bean:message key="label.attention.nonCaps"/>:</b> <bean:message key="message.instructions.proceed"/></p>
-
-<ul class="list4">
-<li><bean:message key="label.instructions.proceed.register"/></li>
-<li><bean:message key="label.instructions.proceed.unsubscribe"/></li>
-<li><bean:message key="label.instructions.proceed.chooseGroup"/></li>
-<li><bean:message key="label.instructions.proceed.chooseDisciplines"/></li>
-<li><bean:message key="label.instructions.proceed.endProcess"/></li>
-</ul>
-
-
-<h3 class="mtop15 separator2"><bean:message key="label.instructions.enrollmentType"/></h3>
+<p><b><bean:message bundle="STUDENT_RESOURCES" key="label.attention.nonCaps"/>:</b> <bean:message bundle="STUDENT_RESOURCES" key="message.instructions.proceed"/></p>
 
 <ul class="list4">
-	<li><strong><bean:message key="label.instructions.enrollmentType.confirmation"/>:</strong> <span class="se_enrolled"><bean:message key="label.greenLines"/></span></li>
-	<li><strong><bean:message key="label.instructions.enrollmentType.impossible"/>:</strong> <span class="se_impossible"><bean:message key="label.redLines"/></span><br/><bean:message key="message.instructions.enrollmentType.impossible"/></li>
+<li><bean:message bundle="STUDENT_RESOURCES" key="label.instructions.proceed.register"/></li>
+<li><bean:message bundle="STUDENT_RESOURCES" key="label.instructions.proceed.unsubscribe"/></li>
+<li><bean:message bundle="STUDENT_RESOURCES" key="label.instructions.proceed.chooseGroup"/></li>
+<li><bean:message bundle="STUDENT_RESOURCES" key="label.instructions.proceed.chooseDisciplines"/></li>
+<li><bean:message bundle="STUDENT_RESOURCES" key="label.instructions.proceed.endProcess"/></li>
 </ul>
 
+<%-- qubExtension, EnrolmentProcess --%>
+<logic:present name="enrolmentProcess">
+	<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
 
-<h3 class="mtop15 separator2"><bean:message key="label.instructions.registrations"/></h3>
+	<logic:present name="enrolmentProcess" property="executionSemester.enrolmentInstructions">
+		<h3 class="mtop15 separator2"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.additional.instructions"/></h3>
+	    <bean:write name="enrolmentProcess" property="executionSemester.enrolmentInstructions.tempInstructions.content" filter="false"/>
+	</logic:present>
 
-<p class="mbottom05"><bean:message key="message.instructions.registrations"/></p>
-<p class="mbottom05"><bean:message key="message.instructions.registrations.change"/></p>
-
+	<p class="mtop25 mbottom1">
+		<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getReturnURL(request)%>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" /></strong></html:link>
+		<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getContinueURL(request) %>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" /></strong></html:link>
+	</p>
 </logic:present>
 
+</logic:present>

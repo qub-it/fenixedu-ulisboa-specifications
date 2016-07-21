@@ -64,11 +64,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import pt.ist.fenixframework.Atomic;
 
 /**
  * 
@@ -84,7 +84,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     public String home(@PathVariable("registrationOid") Registration registration,
             @PathVariable("semesterOid") ExecutionSemester executionSemester, Model model) {
 
-        checkUserIfAcademicOfficeStaff();
+        checkUser();
 
         final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
         for (final ExecutionSemester otherExecutionSemester : executionSemester.getExecutionYear().getExecutionPeriodsSet()) {
@@ -119,7 +119,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     public @ResponseBody String getPossibleShiftsToEnrol(@PathVariable("registrationOid") Registration registration,
             @PathVariable("executionCourseOid") ExecutionCourse executionCourse, @PathVariable("shiftType") ShiftType shiftType) {
 
-        checkUserIfAcademicOfficeStaff();
+        checkUser();
 
         final Set<Shift> shifts = executionCourse.getShiftsByTypeOrderedByShiftName(shiftType);
 
@@ -143,7 +143,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
             @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
             Model model) {
 
-        checkUserIfAcademicOfficeStaff();
+        checkUser();
 
         try {
             addShiftService(registration, shift);
@@ -169,7 +169,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
             @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
             Model model) {
 
-        checkUserIfAcademicOfficeStaff();
+        checkUser();
 
         try {
             removeShiftService(registration, shift);
@@ -192,7 +192,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     public @ResponseBody String schedule(@PathVariable("registrationOid") Registration registration,
             @PathVariable("executionSemesterOid") ExecutionSemester executionSemester) {
 
-        checkUserIfAcademicOfficeStaff();
+        checkUser();
 
         final JsonArray result = new JsonArray();
 
@@ -219,7 +219,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
         return result.toString();
     }
 
-    protected void checkUserIfAcademicOfficeStaff() {
+    static private void checkUser() {
         if (!AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())) {
             throw new SecurityException("error.authorization.notGranted");
         }

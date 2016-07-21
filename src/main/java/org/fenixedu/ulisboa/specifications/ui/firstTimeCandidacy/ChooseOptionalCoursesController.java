@@ -47,13 +47,14 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.joda.time.DateTime;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -99,16 +100,15 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
             return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
         }
+
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
-        String link = "/student/bolonhaStudentEnrollment.do?method=prepare&executionSemesterID=%s&registrationOid=%s";
-        String format = String.format(link, executionSemester.getExternalId(), registration.getExternalId());
 
-        //request
-        String injectChecksumInUrl =
-                GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
-        return redirect(injectChecksumInUrl, model, redirectAttributes);
+        final String url = EnrolmentManagementApp.getStrutsEntryPointURL(request, CourseEnrolmentDA.getEntryPointURL(request))
+                + "&executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID="
+                + registration.getLastStudentCurricularPlan().getExternalId();
 
+        return redirect(url, model, redirectAttributes);
     }
 
     @RequestMapping(value = "/continue")
@@ -132,14 +132,14 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
     public void createAutomaticEnrolments(Registration registration, ExecutionSemester executionSemester) {
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionSemester);
         if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {
-            createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(), studentCurricularPlan
-                    .getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester, AccessControl.getPerson()
-                    .getUsername());
+            createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
+                    studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester,
+                    AccessControl.getPerson().getUsername());
             registration.updateEnrolmentDate(executionSemester.getExecutionYear());
             if (hasAnnualEnrollments(studentCurricularPlan)) {
-                createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(), studentCurricularPlan
-                        .getDegreeCurricularPlan().getCurricularPeriodFor(1, 2), executionSemester.getNextExecutionPeriod(),
-                        AccessControl.getPerson().getUsername());
+                createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
+                        studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 2),
+                        executionSemester.getNextExecutionPeriod(), AccessControl.getPerson().getUsername());
             }
         }
     }
@@ -148,8 +148,8 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
             CurricularPeriod curricularPeriod, ExecutionSemester executionSemester, String createdBy) {
 
         if (curriculumGroup.getDegreeModule() != null) {
-            for (final Context context : curriculumGroup.getDegreeModule().getContextsWithCurricularCourseByCurricularPeriod(
-                    curricularPeriod, executionSemester)) {
+            for (final Context context : curriculumGroup.getDegreeModule()
+                    .getContextsWithCurricularCourseByCurricularPeriod(curricularPeriod, executionSemester)) {
                 new Enrolment(studentCurricularPlan, curriculumGroup, (CurricularCourse) context.getChildDegreeModule(),
                         executionSemester, EnrollmentCondition.FINAL, createdBy);
             }
@@ -166,11 +166,12 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
     }
 
     boolean hasAnnualEnrollments(StudentCurricularPlan studentCurricularPlan) {
-        return studentCurricularPlan.getDegreeCurricularPlan().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
+        return studentCurricularPlan.getDegreeCurricularPlan()
+                .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
     }
 
     boolean hasAnnualEnrollments(Registration registration) {
-        return hasAnnualEnrollments(registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear()
-                .getFirstExecutionPeriod()));
+        return hasAnnualEnrollments(
+                registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod()));
     }
 }

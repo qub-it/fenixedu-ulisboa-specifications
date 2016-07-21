@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
@@ -99,25 +98,19 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
     private boolean registrationRequiresManualClassEnrolment(Registration registration) {
         FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
                 registration.getDegree().getFirstYearRegistrationConfiguration();
-        return firstYearRegistrationConfiguration != null
-                && (firstYearRegistrationConfiguration.getRequiresClassesEnrolment() || firstYearRegistrationConfiguration
-                        .getRequiresShiftsEnrolment());
+        return firstYearRegistrationConfiguration != null && (firstYearRegistrationConfiguration.getRequiresClassesEnrolment()
+                || firstYearRegistrationConfiguration.getRequiresShiftsEnrolment());
     }
 
     private boolean checkClassEnrolments(Registration registration, ExecutionYear currentExecutionYear) {
         //Compare the number of semesters for which the student has enrolments with the number os expected semesters (1 ou 2 depending if it has opened periods)
         Set<ExecutionSemester> executionPeriodsSet = currentExecutionYear.getExecutionPeriodsSet();
-        int numberOfExpectedSemestersToBeEnroled =
-                registration
-                        .getStudentCurricularPlan(currentExecutionYear)
-                        .getDegreeCurricularPlan()
-                        .getEnrolmentPeriodsSet()
-                        .stream()
-                        .filter(ep -> executionPeriodsSet.contains(ep.getExecutionPeriod())
-                                && ep instanceof EnrolmentPeriodInClassesCandidate).collect(Collectors.toSet()).size();
-        int numberOfEnroledSemesters =
-                registration.getShiftsSet().stream().map(shift -> shift.getExecutionPeriod())
-                        .filter(ep -> executionPeriodsSet.contains(ep)).collect(Collectors.toSet()).size();
+        int numberOfExpectedSemestersToBeEnroled = registration.getStudentCurricularPlan(currentExecutionYear)
+                .getDegreeCurricularPlan().getAcademicEnrolmentPeriodsSet().stream()
+                .filter(ep -> executionPeriodsSet.contains(ep.getExecutionSemester()) && ep.getFirstTimeRegistration())
+                .collect(Collectors.toSet()).size();
+        int numberOfEnroledSemesters = registration.getShiftsSet().stream().map(shift -> shift.getExecutionPeriod())
+                .filter(ep -> executionPeriodsSet.contains(ep)).collect(Collectors.toSet()).size();
         return numberOfEnroledSemesters == numberOfExpectedSemestersToBeEnroled;
     }
 
@@ -131,9 +124,8 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
     public static boolean isManualEnrolments() {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
         FirstYearRegistrationConfiguration registrationConfiguration = degree.getFirstYearRegistrationConfiguration();
-        return registrationConfiguration != null
-                && (degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment() || degree
-                        .getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment());
+        return registrationConfiguration != null && (degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()
+                || degree.getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment());
     }
 
     public static boolean currentPersonHasEnrolments() {

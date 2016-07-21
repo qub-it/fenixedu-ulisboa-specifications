@@ -27,110 +27,128 @@
 <%@page import="org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout"%>
 <html:xhtml />
 
-	<h2><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h2>
+<h2><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h2>
 
+<%-- qubExtension, dynamic and moved up --%>
+<bean:define id="action" name="action"/>
+<fr:form action="<%=action.toString()%>">
+	<input type="hidden" name="method" />
+
+	<p class="mtop025 mbottom1">
+		<%-- qubExtension, EnrolmentProcess --%>
+		<logic:present name="enrolmentProcess">
+			<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
+			<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getReturnURL(request)%>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" /></strong></html:link>
+			<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getContinueURL(request) %>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" /></strong></html:link>
+		</logic:present>
+	</p>
 
 	<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
 	<bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
+	<bean:define id="studentCurricularPlan" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan" type="org.fenixedu.academic.domain.StudentCurricularPlan" />
 
+	<%-- qubExtension, blocking debts message --%>
+	<logic:present name="debtsMessage">
+	    <div class="alert alert-danger">
+            ${fr:message('resources.ApplicationResources', debtsMessage)}
+	    </div>
+	</logic:present>
+	<logic:notPresent name="debtsMessage">
 
-	<p class="mtop15 mbottom025">
-		<strong><bean:message bundle="STUDENT_RESOURCES"  key="label.executionPeriod"/>:</strong> <bean:message bundle="STUDENT_RESOURCES"  key="label.periodDescription" arg0="<%=periodSemester.toString()%>" arg1="<%=executionYearName.toString()%>" />
-	</p>
-	<p class="mtop0 mbottom15">
-		<strong><bean:message bundle="STUDENT_RESOURCES"  key="label.registration.basic"/>:</strong> <bean:write name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.degreeCurricularPlan.presentationName"/> 
-	</p>
-
-	
-	
-	<ul class="mbottom15">
-		<li>
-			<html:link action="/bolonhaStudentEnrollment.do?method=showEnrollmentInstructions" styleClass="externallink" target="_blank"><bean:message bundle="STUDENT_RESOURCES"  key="label.viewInstructions"/></html:link>
-		</li>
-		<li>
-			<bean:define id="studentCurricularPlan" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan" type="org.fenixedu.academic.domain.StudentCurricularPlan" />
-			
-			
-		</li>
-		<li>
-			<html:link action="/viewStudentCurriculum.do?method=prepare" paramId="registrationOID" paramName="studentCurricularPlan" paramProperty="registration.externalId" styleClass="externallink" target="_blank"><bean:message bundle="STUDENT_RESOURCES"  key="label.viewStudentCurricularPlan"/></html:link>
-		</li>
-		<li>			
-			
-			<% request.setAttribute("academicSupportAddress", org.fenixedu.academic.domain.Installation.getInstance().getAcademicEmailAddress()); %>
-			<html:link href="mailto:${academicSupportAddress}" styleClass="externallink">
-				<bean:message key="link.academicSupport" bundle="GLOBAL_RESOURCES"/>
-			</html:link>
-		</li>
-	</ul>
-
-<div class="infoop2 mtop05 mbottom15">
-	<p><span><bean:message bundle="APPLICATION_RESOURCES" key="label.warning.coursesAndGroupsSimultaneousEnrolment"/></span></p>
-</div>
-
-	<logic:messagesPresent message="true" property="success">
-		<p>
-		<span class="success0" style="padding: 0.25em;">
-			<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="success">
-				<span><bean:write name="messages" /></span>
-			</html:messages>
-		</span>
+		<p class="mtop15 mbottom025">
+			<strong><bean:message bundle="STUDENT_RESOURCES"  key="label.executionPeriod"/>:</strong> <bean:message bundle="STUDENT_RESOURCES"  key="label.periodDescription" arg0="<%=periodSemester.toString()%>" arg1="<%=executionYearName.toString()%>" />
 		</p>
-	</logic:messagesPresent>
+		<p class="mtop0 mbottom15">
+			<strong><bean:message bundle="STUDENT_RESOURCES"  key="label.registration.basic"/>:</strong> <bean:write name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.degreeCurricularPlan.presentationName"/> 
+		</p>
 	
-	<logic:messagesPresent message="true" property="warning" >
-		<div class="warning0" style="padding: 0.5em;">
-		<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.warnings.in.enrolment" />:</strong></p>
-		<ul class="mvert05">
-			<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="warning">
-				<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
-				<li><span><bean:write name="messages" /></span></li>
-			</html:messages>
+		
+		<%-- qubExtension, remove
+		<ul class="mbottom15">
+			<li>
+				<html:link action='<%= action.toString() + "?method=showEnrollmentInstructions" %>' styleClass="externallink" target="_blank"><bean:message bundle="STUDENT_RESOURCES"  key="label.viewInstructions"/></html:link>
+			</li>
+			<li>
+				
+				
+			</li>
+			<li>
+				<html:link action="/viewStudentCurriculum.do?method=prepare" paramId="registrationOID" paramName="studentCurricularPlan" paramProperty="registration.externalId" styleClass="externallink" target="_blank"><bean:message bundle="STUDENT_RESOURCES"  key="label.viewStudentCurricularPlan"/></html:link>
+			</li>
+			<li>			
+				
+				<% request.setAttribute("academicSupportAddress", org.fenixedu.academic.domain.Installation.getInstance().getAcademicEmailAddress()); %>
+				<html:link href="mailto:${academicSupportAddress}" styleClass="externallink">
+					<bean:message key="link.academicSupport" bundle="GLOBAL_RESOURCES"/>
+				</html:link>
+			</li>
 		</ul>
+		--%>
+	
+		<div class="infoop2 mtop05 mbottom15">
+			<p><span><bean:message bundle="APPLICATION_RESOURCES" key="label.warning.coursesAndGroupsSimultaneousEnrolment"/></span></p>
 		</div>
-	</logic:messagesPresent>
-
-	<logic:messagesPresent message="true" property="error">
-		<div class="error0 mvert1" style="padding: 0.5em;">
-			<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.errors.in.enrolment" />:</strong></p>
+	
+		<logic:messagesPresent message="true" property="success">
+			<p>
+			<span class="success0" style="padding: 0.25em;">
+				<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="success">
+					<span><bean:write name="messages" /></span>
+				</html:messages>
+			</span>
+			</p>
+		</logic:messagesPresent>
+		
+		<logic:messagesPresent message="true" property="warning" >
+			<div class="warning0" style="padding: 0.5em;">
+			<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.warnings.in.enrolment" />:</strong></p>
 			<ul class="mvert05">
-				<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="error">
+				<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="warning">
 					<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
 					<li><span><bean:write name="messages" /></span></li>
 				</html:messages>
 			</ul>
-		</div>
-	</logic:messagesPresent>
+			</div>
+		</logic:messagesPresent>
 	
-	<fr:form action="/bolonhaStudentEnrollment.do">
-		<input type="hidden" name="method" />
+		<logic:messagesPresent message="true" property="error">
+			<div class="error0 mvert1" style="padding: 0.5em;">
+				<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.errors.in.enrolment" />:</strong></p>
+				<ul class="mvert05">
+					<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="error">
+						<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
+						<li><span><bean:write name="messages" /></span></li>
+					</html:messages>
+				</ul>
+			</div>
+		</logic:messagesPresent>
 		
+		<%-- qubExtension, remove
 		<p class="mtop15 mbottom025">
 			<bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:
 		</p>
+		--%>
+		
 		<p class="mtop025 mbottom1">
 			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
-			<logic:present name="returnURL">
-					<html:link styleClass="btn btn-default" href="${returnURL}"><strong><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></strong></html:link>
-			</logic:present>
 		</p>
-		<logic:present name="openedEnrolmentPeriodsSemesters">		
+		<logic:present name="openedEnrolmentPeriods">		
 			<ul class="nav nav-tabs">
-				<logic:iterate id="period" name="openedEnrolmentPeriodsSemesters">				
-					<logic:equal name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.externalId}">
-						<li role="presentation" class="active"><a href="#">${period.qualifiedName}</a></li>
+				<logic:iterate id="period" name="openedEnrolmentPeriods">				
+					<logic:equal name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.executionSemester.externalId}">
+						<li role="presentation" class="active"><a href="#">${period.executionSemester.qualifiedName}</a></li>
 					</logic:equal>
-					<logic:notEqual name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.externalId}">
+					<logic:notEqual name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.executionSemester.externalId}">
 						<li role="presentation">							
-							<html:link onclick="return checkState()" action="/bolonhaStudentEnrollment.do?method=prepare&registrationOid=${bolonhaStudentEnrollmentBean.registration.externalId}&executionSemesterID=${period.externalId}">
-								${period.qualifiedName}
+							<html:link onclick="return checkState()" action="/student/courseEnrolment.do?method=prepare&executionSemesterOID=${period.executionSemester.externalId}&studentCurricularPlanOID=${bolonhaStudentEnrollmentBean.studentCurricularPlan.externalId}">
+								${period.executionSemester.qualifiedName}
 							</html:link>
 						</li>
 					</logic:notEqual>
 				</logic:iterate>	
 			</ul>			
 		</logic:present>
-
+	
 		<fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
 			<fr:layout name="bolonha-student-enrolment">
 				<logic:present name="enrolmentLayoutClassName">
@@ -145,7 +163,7 @@
 				<fr:property name="impossibleEnrolmentClasses" value="se_impossible smalltxt,se_impossible smalltxt aright,se_impossible smalltxt aright,se_impossible smalltxt aright,se_impossible aright" />
 				<fr:property name="curricularCourseToEnrolClasses" value="smalltxt, smalltxt aright, smalltxt aright, aright" />				
 				<fr:property name="groupRowClasses" value="se_groups" />
-
+	
 				<fr:property name="encodeGroupRules" value="true" />
 				<fr:property name="encodeCurricularRules" value="true" />
 				
@@ -155,42 +173,43 @@
 			</fr:layout>
 		</fr:edit>
 		
-		
+		<%-- qubExtension, remove
 		<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
+		--%>
 		<p class="mtop05 mbottom1">
 			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
 		</p>
 	
-	</fr:form>
+		<p class="mtop15">
+			<em><bean:message bundle="STUDENT_RESOURCES"  key="message.enrollment.terminated"/> <html:link action="/viewStudentCurriculum.do?method=prepare" paramId="registrationOID" paramName="studentCurricularPlan" paramProperty="registration.externalId"><bean:message bundle="STUDENT_RESOURCES"  key="message.student.curriculum"/></html:link>.</em> <br/>
+		</p>
+	
+		<p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES"  key="label.legend"/>:</em></p>
+		
+		<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.minCredits" bundle="APPLICATION_RESOURCES"/></em></p>
+		<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.creditsConcluded" bundle="APPLICATION_RESOURCES"/></em></p>
+		<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.maxCredits" bundle="APPLICATION_RESOURCES"/></em></p>
+		
+		<table class="mtop0">
+		<tr>
+			<td><div style="width: 10px; height: 10px; border: 1px solid #84b181; background: #eff9ee; float:left;"></div></td>
+			<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.confirmedEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.greenLines"/>)</span></td>
+		</tr>
+		<tr>
+			<td><div style="width: 10px; height: 10px; border: 1px solid #b9b983; background: #fafce6; float:left;"></div></td>
+			<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.temporaryEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.yellowLines"/>)</span></td>
+		</tr>
+		<%-- qubExtension, remove
+		<tr>
+			<td><div style="width: 10px; height: 10px; border: 1px solid #be5a39; background: #ffe9e2; float:left;"></div></td>
+			<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.impossibleEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.redLines"/>)</span></td>
+		</tr>
+		 --%>
+		</table>
 
-
-
-<p class="mtop15">
-<em><bean:message bundle="STUDENT_RESOURCES"  key="message.enrollment.terminated"/> <html:link action="/viewStudentCurriculum.do?method=prepare" paramId="registrationOID" paramName="studentCurricularPlan" paramProperty="registration.externalId"><bean:message bundle="STUDENT_RESOURCES"  key="message.student.curriculum"/></html:link>.</em> <br/>
-
-</p>
-
-
-<p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES"  key="label.legend"/>:</em></p>
-
-<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.minCredits" bundle="APPLICATION_RESOURCES"/></em></p>
-<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.creditsConcluded" bundle="APPLICATION_RESOURCES"/></em></p>
-<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.maxCredits" bundle="APPLICATION_RESOURCES"/></em></p>
-
-<table class="mtop0">
-<tr>
-	<td><div style="width: 10px; height: 10px; border: 1px solid #84b181; background: #eff9ee; float:left;"></div></td>
-	<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.confirmedEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.greenLines"/>)</span></td>
-</tr>
-<tr>
-	<td><div style="width: 10px; height: 10px; border: 1px solid #b9b983; background: #fafce6; float:left;"></div></td>
-	<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.temporaryEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.yellowLines"/>)</span></td>
-</tr>
-<tr>
-	<td><div style="width: 10px; height: 10px; border: 1px solid #be5a39; background: #ffe9e2; float:left;"></div></td>
-	<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.impossibleEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.redLines"/>)</span></td>
-</tr>
-</table>
+	<%-- qubExtension, blocking debts message --%>
+	</logic:notPresent>
+</fr:form>
 
 <script>
 function submitForm(btn) {

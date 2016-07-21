@@ -87,6 +87,7 @@ import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRec
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +118,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
         EctsAndWeightProviders.init();
         EnrolmentPeriodRestrictionsInitializer.init();
+        EnrolmentProcess.init();
         CurriculumConfigurationInitializer.init();
         CurricularPeriodConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
@@ -318,4 +320,5 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                         servletContext) : new PortalExceptionHandler(servletContext);
         ExceptionHandlerFilter.setExceptionHandler(new FenixEduUlisboaExceptionHandler(exceptionHandler));
     }
+
 }

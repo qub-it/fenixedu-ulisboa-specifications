@@ -38,16 +38,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.EnrolmentPeriod;
-import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -57,11 +53,13 @@ import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.shift.ReadShiftsToEnroll;
+import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.UlisboaEnrolmentContextHandler;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -70,11 +68,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import pt.ist.fenixframework.Atomic;
 
 /**
  * @author shezad - Aug 11, 2015
@@ -85,39 +83,35 @@ import com.google.gson.JsonObject;
 @RequestMapping("/student/shiftEnrolment")
 public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseController {
 
+    public static final String CONTROLLER_URL = "/student/shiftEnrolment";
+
+    private static final String JSP_PATH = CONTROLLER_URL.substring(1);
+
+    private String jspPage(final String page) {
+        return JSP_PATH + "/" + page;
+    }
+
+    static public String getEntryPointURL() {
+        return SWITCHENROLMENTPERIOD_URL;
+    }
+
     @RequestMapping
     public String home(Model model) {
 
         Registration selectedRegistration = (Registration) model.asMap().get("registration");
-        EnrolmentPeriod selectedEnrolmentPeriod = (EnrolmentPeriod) model.asMap().get("enrolmentPeriod");
+        AcademicEnrolmentPeriod selectedEnrolmentPeriod = (AcademicEnrolmentPeriod) model.asMap().get("enrolmentPeriod");
 
-        UlisboaEnrolmentContextHandler ulisboaEnrolmentContextHandler = new UlisboaEnrolmentContextHandler();
-        Optional<String> returnURL = ulisboaEnrolmentContextHandler.getReturnURLForStudentInShifts(request, selectedRegistration);
-        if (returnURL.isPresent()) {
-            request.setAttribute("returnURL", returnURL.get());
-        }
-
-        checkUserIfStudentAndOwnRegistration(selectedRegistration);
+        checkUser(selectedRegistration);
 
         final Student student = Authenticate.getUser().getPerson().getStudent();
         final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
-        for (Registration registration : student.getRegistrationsToEnrolInShiftByStudent()) {
-            for (EnrolmentPeriod enrolmentPeriod : registration.getActiveDegreeCurricularPlan().getEnrolmentPeriodsSet()) {
-                ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
-                if (isValidPeriodForUser(enrolmentPeriod, registration.getStudentCurricularPlan(currentExecutionYear),
-                        currentExecutionYear)) {
-                    if (ulisboaEnrolmentContextHandler.getReturnURLForStudentInShifts(request, registration).isPresent()
-                            && registration != selectedRegistration) {
-                        //If the registration has a returnURL (makes part of a workflow) and it is not the selected registration, skip it
-                        continue;
-                    }
-                    if (returnURL.isPresent() && registration != selectedRegistration) {
-                        //If we currently have a returnURL and the registration is not the selected registration, skip it
-                        continue;
-                    }
-                    boolean selected = selectedRegistration == registration && selectedEnrolmentPeriod == enrolmentPeriod;
-                    enrolmentBeans.add(new EnrolmentPeriodDTO(registration, enrolmentPeriod, selected));
-                }
+
+        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
+            if (isValidPeriodForUser(iter)) {
+
+                boolean selected =
+                        selectedRegistration == iter.getRegistration() && selectedEnrolmentPeriod == iter.getEnrolmentPeriod();
+                enrolmentBeans.add(new EnrolmentPeriodDTO(iter, selected));
             }
         }
 
@@ -130,34 +124,37 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
                 selectedEnrolmentPeriod = selectedEnrolmentBean.getEnrolmentPeriod();
             }
 
-            final ExecutionSemester executionSemester = selectedEnrolmentPeriod.getExecutionPeriod();
+            final ExecutionSemester executionSemester = selectedEnrolmentPeriod.getExecutionSemester();
 
             try {
                 final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll
                         .readWithStudentRestrictionsForShiftsEnrolments(selectedRegistration, executionSemester);
                 shiftsToEnrol.sort((s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
                 model.addAttribute("shiftsToEnrol", shiftsToEnrol);
-//                model.addAttribute("numberOfExecutionCoursesHavingNotEnroledShifts",
-//                        getNumberOfExecutionCoursesHavingNotEnroledShiftsFor(selectedRegistration, executionSemester));
             } catch (NotAuthorizedException e) {
                 addErrorMessage(e.getLocalizedMessage(), model);
             } catch (FenixServiceException e) {
                 addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
-//            addActionMessage(request, "error.enrollment.period.closed", exception.getArgs());
             } catch (DomainException e) {
                 addErrorMessage(e.getLocalizedMessage(), model);
             }
-
         }
 
         model.addAttribute("enrolmentBeans", enrolmentBeans);
+        if (selectedRegistration != null && selectedEnrolmentPeriod != null) {
+            model.addAttribute("enrolmentProcess", EnrolmentProcess.find(selectedEnrolmentPeriod.getExecutionSemester(),
+                    selectedRegistration.getStudentCurricularPlan(selectedEnrolmentPeriod.getExecutionYear())));
+        }
 
-        return "student/shiftEnrolment/shiftEnrolment";
+        return jspPage("shiftEnrolment");
     }
 
-    @RequestMapping(value = "/switchEnrolmentPeriod/{registrationOid}/{periodOid}")
+    private static final String _SWITCHENROLMENTPERIOD_URI = "/switchEnrolmentPeriod/";
+    public static final String SWITCHENROLMENTPERIOD_URL = CONTROLLER_URL + _SWITCHENROLMENTPERIOD_URI;
+
+    @RequestMapping(value = _SWITCHENROLMENTPERIOD_URI + "{registrationOid}/{periodOid}")
     public String switchEnrolmentPeriod(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("periodOid") EnrolmentPeriod enrolmentPeriod, Model model) {
+            @PathVariable("periodOid") AcademicEnrolmentPeriod enrolmentPeriod, Model model) {
 
         model.addAttribute("registration", registration);
         model.addAttribute("enrolmentPeriod", enrolmentPeriod);
@@ -169,7 +166,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
     public @ResponseBody String getPossibleShiftsToEnrol(@PathVariable("registrationOid") Registration registration,
             @PathVariable("executionCourseOid") ExecutionCourse executionCourse, @PathVariable("shiftType") ShiftType shiftType) {
 
-        checkUserIfStudentAndOwnRegistration(registration);
+        checkUser(registration);
 
         final Set<Shift> shifts = new HashSet<>();
 
@@ -204,9 +201,10 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     @RequestMapping(value = "/addShift/{registrationOid}/{periodOid}/{shiftOid}")
     public String addShift(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("periodOid") EnrolmentPeriod enrolmentPeriod, @PathVariable("shiftOid") Shift shift, Model model) {
+            @PathVariable("periodOid") AcademicEnrolmentPeriod enrolmentPeriod, @PathVariable("shiftOid") Shift shift,
+            Model model) {
 
-        checkUserIfStudentAndOwnRegistration(registration);
+        checkUser(registration);
 
         try {
             addShiftService(registration, shift);
@@ -225,16 +223,17 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
     @Atomic
     protected void addShiftService(Registration registration, Shift shift) {
         if (!shift.reserveForStudent(registration)) {
-            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(), shift
-                    .getExecutionCourse().getName());
+            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(),
+                    shift.getExecutionCourse().getName());
         }
     }
 
     @RequestMapping(value = "/removeShift/{registrationOid}/{periodOid}/{shiftOid}")
     public String removeShift(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("periodOid") EnrolmentPeriod enrolmentPeriod, @PathVariable("shiftOid") Shift shift, Model model) {
+            @PathVariable("periodOid") AcademicEnrolmentPeriod enrolmentPeriod, @PathVariable("shiftOid") Shift shift,
+            Model model) {
 
-        checkUserIfStudentAndOwnRegistration(registration);
+        checkUser(registration);
 
         try {
             removeShiftService(registration, shift);
@@ -255,30 +254,12 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         registration.removeShifts(shift);
     }
 
-    //copied from Registration, but assuming all shiftTypes
-//    private Integer getNumberOfExecutionCoursesHavingNotEnroledShiftsFor(final Registration registration,
-//            final ExecutionSemester executionSemester) {
-//        int result = 0;
-//        final List<Shift> enroledShifts = registration.getShiftsFor(executionSemester);
-//        for (final ExecutionCourse executionCourse : registration.getAttendingExecutionCoursesFor(executionSemester)) {
-//            for (final ShiftType shiftType : executionCourse.getShiftTypes()) {
-//                if (!enroledShifts.stream().anyMatch(
-//                        enroledShift -> enroledShift.getExecutionCourse() == executionCourse
-//                                && enroledShift.containsType(shiftType))) {
-//                    result++;
-//                    break;
-//                }
-//            }
-//        }
-//        return result;
-//    }
-
     @RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}",
             produces = "application/json; charset=utf-8")
     public @ResponseBody String schedule(@PathVariable("registrationOid") Registration registration,
             @PathVariable("executionSemesterOid") ExecutionSemester executionSemester) {
 
-        checkUserIfStudentAndOwnRegistration(registration);
+        checkUser(registration);
 
         final JsonArray result = new JsonArray();
 
@@ -286,12 +267,10 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             for (Lesson lesson : shift.getAssociatedLessonsSet()) {
                 final DateTime now = new DateTime();
                 final DateTime weekDay = now.withDayOfWeek(lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat());
-                final DateTime startTime =
-                        weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(), lesson.getBeginHourMinuteSecond()
-                                .getMinuteOfHour(), 0, 0);
-                final DateTime endTime =
-                        weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(), lesson.getEndHourMinuteSecond()
-                                .getMinuteOfHour(), 0, 0);
+                final DateTime startTime = weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(),
+                        lesson.getBeginHourMinuteSecond().getMinuteOfHour(), 0, 0);
+                final DateTime endTime = weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(),
+                        lesson.getEndHourMinuteSecond().getMinuteOfHour(), 0, 0);
 
                 final JsonObject event = new JsonObject();
                 event.addProperty("id", lesson.getExternalId());
@@ -306,32 +285,35 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         return result.toString();
     }
 
-    protected void checkUserIfStudentAndOwnRegistration(Registration registration) {
+    static private void checkUser(final Registration input) {
         final Student student = Authenticate.getUser().getPerson().getStudent();
-        if (student == null || registration != null && registration.getStudent() != student) {
-            throw new SecurityException("error.authorization.notOwnRegistration");
+        if (student == null || (input != null && input.getStudent() != student)) {
+            throw new SecurityException("error.authorization.notGranted");
         }
     }
 
+    @SuppressWarnings("serial")
     public static class EnrolmentPeriodDTO implements Serializable, Comparable<EnrolmentPeriodDTO> {
 
-        private final Registration registration;
-        private final EnrolmentPeriod enrolmentPeriod;
+        private final AcademicEnrolmentPeriodBean enrolmentPeriod;
         private Boolean selected;
 
-        public EnrolmentPeriodDTO(Registration registration, EnrolmentPeriod enrolmentPeriod, Boolean selected) {
+        public EnrolmentPeriodDTO(final AcademicEnrolmentPeriodBean enrolmentPeriod, final Boolean selected) {
             super();
-            this.registration = registration;
             this.enrolmentPeriod = enrolmentPeriod;
             this.selected = selected;
         }
 
         public Registration getRegistration() {
-            return registration;
+            return enrolmentPeriod.getRegistration();
         }
 
-        public EnrolmentPeriod getEnrolmentPeriod() {
-            return enrolmentPeriod;
+        public AcademicEnrolmentPeriod getEnrolmentPeriod() {
+            return enrolmentPeriod.getEnrolmentPeriod();
+        }
+
+        public ExecutionSemester getExecutionSemester() {
+            return enrolmentPeriod.getExecutionSemester();
         }
 
         public Boolean getSelected() {
@@ -345,16 +327,15 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         @Override
         public int compareTo(EnrolmentPeriodDTO o) {
             int result = Degree.COMPARATOR_BY_NAME_AND_ID.compare(getRegistration().getDegree(), o.getRegistration().getDegree());
-            return result == 0 ? getEnrolmentPeriod().getExecutionPeriod().compareTo(o.getEnrolmentPeriod().getExecutionPeriod()) : result;
+            return result == 0 ? getExecutionSemester().compareTo(o.getExecutionSemester()) : result;
         }
 
         public Map<Lesson, Collection<Lesson>> getLessonsOverlaps() {
             final Map<Lesson, Collection<Lesson>> overlapsMap = new HashMap<Lesson, Collection<Lesson>>();
 
             try {
-                final List<Lesson> allLessons =
-                        registration.getShiftsFor(getEnrolmentPeriod().getExecutionPeriod()).stream()
-                                .flatMap(s -> s.getAssociatedLessonsSet().stream()).collect(Collectors.toList());
+                final List<Lesson> allLessons = getRegistration().getShiftsFor(getExecutionSemester()).stream()
+                        .flatMap(s -> s.getAssociatedLessonsSet().stream()).collect(Collectors.toList());
                 while (!allLessons.isEmpty()) {
                     final Lesson lesson = allLessons.remove(0);
                     final Set<Lesson> overlappingLessons =
@@ -377,28 +358,14 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
          */
         private static Interval getLessonIntervalHack(final Lesson lesson) {
             final int weekDay = lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat();
-            return new Interval(new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime())
-                    .withDayOfWeek(weekDay), new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime())
-                    .withDayOfWeek(weekDay));
+            return new Interval(
+                    new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay),
+                    new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay));
         }
     }
 
-    private boolean isValidPeriodForUser(EnrolmentPeriod ep, StudentCurricularPlan studentCurricularPlan,
-            ExecutionYear currentExecutionYear) {
-        // Coditions to be valid:
-        // 1 - period has to be valid
-        //     AND
-        //          a - Student is candidate AND period is for candidate
-        //            OR
-        //          b - Period is for curricular courses (implicitly assuming student is not candidate)
-
-        if (ep.isValid()) {
-            if (studentCurricularPlan.isInCandidateEnrolmentProcess(currentExecutionYear)) {
-                return ep instanceof EnrolmentPeriodInClassesCandidate;
-            } else {
-                return ep.isForClasses();
-            }
-        }
-        return false;
+    static private boolean isValidPeriodForUser(final AcademicEnrolmentPeriodBean ep) {
+        return ep.isOpen() && ep.isForShift();
     }
+
 }

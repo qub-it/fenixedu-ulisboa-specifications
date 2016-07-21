@@ -248,8 +248,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                     </c:if>
                                 </td>
                                 <td>
+				                    <c:set var="statuteMeaning">
+				                    	<c:if test="${ bean.restrictToSelectedStatutes }">
+				                    		<spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.true" />
+				                    	</c:if>
+				                    	<c:if test="${ !bean.restrictToSelectedStatutes }">
+				                    		<spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.false" />
+				                    	</c:if>
+				                    </c:set>
                                     <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() > 5 }">
                                         <c:set var="statuteMessage">
+                                        	<c:out value="${ statuteMeaning }"/>:
                                             <c:forEach var="element" items="${ academicEnrolmentPeriod.statuteTypesSet }">
                                                 <li><c:out value="${ element.name.content }"/> </li>
                                             </c:forEach>
@@ -258,21 +267,18 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                             <spring:message code="message.AcademicEnrolmentPeriod.has.x.statuteTypes" arguments="${ academicEnrolmentPeriod.statuteTypesSet.size() }" />
                                         </div>
                                     </c:if>
-                                    <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() <= 5 }">
+                                    <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() <= 5 && academicEnrolmentPeriod.statuteTypesSet.size() > 0 }">
+                                    	<c:out value="${ statuteMeaning }"/>:
                                         <c:forEach var="element" items="${ academicEnrolmentPeriod.statuteTypesSet }">
                                             <li><c:out value="${ element.name.content }"/> </li>
                                         </c:forEach>
                                     </c:if>
+                                    <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() == 0 }">-</c:if>
                                 </td>
                                 <td>
-                                    <c:if test="${ academicEnrolmentPeriod.specialSeason }">
-                                        <li> <spring:message code="label.AcademicEnrolmentPeriod.specialSeason"/> </li>
-                                    </c:if>
+                                	<li><c:out value="${ academicEnrolmentPeriod.executionSemester.qualifiedName }"/></li>
                                     <c:if test="${ academicEnrolmentPeriod.firstTimeRegistration }">
                                         <li> <spring:message code="label.AcademicEnrolmentPeriod.firstTimeRegistration"/> </li>
-                                    </c:if>
-                                    <c:if test="${ academicEnrolmentPeriod.restrictToSelectedStatutes }">
-                                        <li> <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes"/> </li>
                                     </c:if>
                                     <c:if test="${ academicEnrolmentPeriod.minStudentNumber != null }">
                                         <li> <spring:message code="label.AcademicEnrolmentPeriod.minStudentNumber"/> - ${ academicEnrolmentPeriod.minStudentNumber } </li>

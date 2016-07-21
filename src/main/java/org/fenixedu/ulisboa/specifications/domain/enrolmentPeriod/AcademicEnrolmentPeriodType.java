@@ -5,7 +5,7 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public enum AcademicEnrolmentPeriodType {
 
-    CURRICULAR_COURSE, SHIFT, SCHOOL_CLASS;
+    CURRICULAR_COURSE, SCHOOL_CLASS, SHIFT;
 
     public boolean isCurricularCourses() {
         return this == CURRICULAR_COURSE;

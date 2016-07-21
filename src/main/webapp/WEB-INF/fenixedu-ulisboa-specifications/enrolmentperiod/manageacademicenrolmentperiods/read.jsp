@@ -374,16 +374,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                         <td><joda:format value='${academicEnrolmentPeriod.endDate}' style='SM' /></td>
                     </tr>                    
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.specialSeason" /></th>
-                        <td>
-                            <c:if test="${academicEnrolmentPeriod.specialSeason}">
-                                <spring:message code="label.true" />
-                            </c:if> <c:if test="${not academicEnrolmentPeriod.specialSeason}">
-                                <spring:message code="label.false" />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.firstTimeRegistration" /></th>
                         <td>
                             <c:if test="${academicEnrolmentPeriod.firstTimeRegistration}">
@@ -397,9 +387,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                         <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes" /></th>
                         <td>
                             <c:if test="${academicEnrolmentPeriod.restrictToSelectedStatutes}">
-                                <spring:message code="label.true" />
+                                <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.true" />
                             </c:if> <c:if test="${not academicEnrolmentPeriod.restrictToSelectedStatutes}">
-                                <spring:message code="label.false" />
+                                <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.false" />
                             </c:if>
                         </td>
                     </tr>                                       
@@ -444,7 +434,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                 </div>
                 <div class="col-sm-3">
                     <button type="button" class="btn btn-default" ng-click="addDegreeCurricularPlan($model)" ng-disabled="plansToAdd.length === 0">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add.all" />
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
                     </button>
                 </div>               
             </div>
@@ -547,7 +537,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                 </div>
                 <div class="col-sm-5">
                     <button type="button" class="btn btn-default" ng-click="addStatuteType($model)" ng-disabled="statutesToAdd.length === 0">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add.all" />
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
                     </button>
                 </div>               
             </div>

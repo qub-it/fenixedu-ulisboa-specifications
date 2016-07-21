@@ -10,8 +10,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.EnrolmentPeriod;
-import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.Person;
@@ -29,6 +27,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.util.workflow.Operation;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -42,8 +41,8 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
         }
     };
 
-    public FirstTimeCandidacy(Person person, ExecutionDegree executionDegree, Person creator, Double entryGrade,
-            String contigent, IngressionType ingressionType, EntryPhase entryPhase, Integer placingOption) {
+    public FirstTimeCandidacy(Person person, ExecutionDegree executionDegree, Person creator, Double entryGrade, String contigent,
+            IngressionType ingressionType, EntryPhase entryPhase, Integer placingOption) {
         super();
         init(person, executionDegree, creator, entryGrade, contigent, ingressionType, entryPhase, placingOption);
     }
@@ -79,19 +78,20 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
         return true;
     }
 
-    public EnrolmentPeriodInCurricularCoursesCandidate findCandidacyPeriod() {
-        Predicate<EnrolmentPeriod> isForCandidates = ep -> ep instanceof EnrolmentPeriodInCurricularCoursesCandidate;
-        Predicate<EnrolmentPeriod> endsAfterThisCandidacy = ep -> ep.getEndDateDateTime().isAfter(getCandidacyDate());
-        Comparator<EnrolmentPeriod> periodComparatorByEndDate = new Comparator<EnrolmentPeriod>() {
+    public AcademicEnrolmentPeriod findCandidacyPeriod() {
+        Predicate<AcademicEnrolmentPeriod> isForCandidates = ep -> ep.getFirstTimeRegistration();
+        Predicate<AcademicEnrolmentPeriod> endsAfterThisCandidacy = ep -> ep.getEndDate().isAfter(getCandidacyDate());
+        Comparator<AcademicEnrolmentPeriod> periodComparatorByEndDate = new Comparator<AcademicEnrolmentPeriod>() {
             @Override
-            public int compare(EnrolmentPeriod period1, EnrolmentPeriod period2) {
-                return period1.getEndDateDateTime().compareTo(period2.getEndDateDateTime());
+            public int compare(AcademicEnrolmentPeriod period1, AcademicEnrolmentPeriod period2) {
+                return period1.getEndDate().compareTo(period2.getEndDate());
             }
         };
 
-        Stream<EnrolmentPeriod> periods = getExecutionDegree().getDegreeCurricularPlan().getEnrolmentPeriodsSet().stream();
+        Stream<AcademicEnrolmentPeriod> periods =
+                getExecutionDegree().getDegreeCurricularPlan().getAcademicEnrolmentPeriodsSet().stream();
         periods = periods.filter(isForCandidates).filter(endsAfterThisCandidacy).sorted(periodComparatorByEndDate);
-        return (EnrolmentPeriodInCurricularCoursesCandidate) periods.findFirst().orElse(null);
+        return (AcademicEnrolmentPeriod) periods.findFirst().orElse(null);
     }
 
     @Override
@@ -112,9 +112,8 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
             registration.getShiftsSet().clear();
 
             if (registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
-                RegistrationState registeredState =
-                        RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                                RegistrationStateType.REGISTERED);
+                RegistrationState registeredState = RegistrationState.createRegistrationState(registration,
+                        AccessControl.getPerson(), new DateTime(), RegistrationStateType.REGISTERED);
                 registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
             }
             if (!registration.getActiveState().getStateType().equals(RegistrationStateType.CANCELED)) {
