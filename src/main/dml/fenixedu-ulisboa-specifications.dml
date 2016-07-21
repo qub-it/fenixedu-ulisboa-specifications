@@ -560,7 +560,7 @@ relation StatuteTypeStudentStatuteExecutiveRule {
 
 relation StatuteTypeFlunkedCredits {
 	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypeForFlunkedCredits {
-		multiplicity 1..1;
+		multiplicity 0..1;
 	}
 	curricularPeriod.rule.transition.FlunkedCredits playsRole flunkedCredits {
 		multiplicity *;
