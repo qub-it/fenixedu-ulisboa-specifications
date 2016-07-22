@@ -98,7 +98,7 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
             return true;
         }
         
-        return !hasCgdCard(firstTimeRegistration.getPerson());
+        return hasCgdCard(firstTimeRegistration.getPerson());
     }
 
     private boolean hasCgdCard(final Person person) {
