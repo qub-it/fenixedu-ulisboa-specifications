@@ -170,7 +170,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         this.degreeCurricularPlanDataSource = degreeCurricularPlans.stream().map(plan -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(plan.getExternalId());
-            tuple.setText(plan.getPresentationName());
+            tuple.setText("[" + plan.getDegree().getCode() + "] " + plan.getPresentationName());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
@@ -191,7 +191,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         this.statuteTypeDataSource = statuteTypes.stream().map(statute -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(statute.getExternalId());
-            tuple.setText(statute.getName().getContent());
+            tuple.setText("[" + statute.getCode() + "] " + statute.getName().getContent());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
