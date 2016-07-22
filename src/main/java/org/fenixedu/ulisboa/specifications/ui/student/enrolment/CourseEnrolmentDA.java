@@ -25,6 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +51,7 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
+import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.dto.student.enrollment.bolonha.CycleEnrolmentBean;
 import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
@@ -180,8 +182,9 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
         final EnrolmentProcess process = EnrolmentProcess.find(executionSemester, scp);
 
         if (process != null) {
-            request.setAttribute("openedEnrolmentPeriods",
-                    process.getEnrolmentPeriods().stream().filter(i -> i.isForCurricularCourses()).collect(Collectors.toList()));
+            final List<AcademicEnrolmentPeriodBean> periods =
+                    process.getEnrolmentPeriods().stream().filter(i -> i.isForCurricularCourses()).collect(Collectors.toList());
+            request.setAttribute("openedEnrolmentPeriods", periods);
         }
 
         if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(scp.getPerson(), new LocalDate())) {
