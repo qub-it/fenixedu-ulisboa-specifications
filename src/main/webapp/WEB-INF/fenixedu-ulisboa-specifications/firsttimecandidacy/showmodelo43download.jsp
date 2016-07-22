@@ -42,7 +42,6 @@ Commented due to blue record
 
 --%>
 
-
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
 		
@@ -80,62 +79,27 @@ Commented due to blue record
 <div class="jumbotron minitron">
 	<img src="${pageContext.request.contextPath}/static/img/CartaoCaixaIU.png" />
 	<h3><spring:message code="label.CgdDataAuthorization.title" /></h3>	
-	<p><spring:message code="label.CgdDataAuthorization.firstParagraph" htmlEscape="false"/></p>
-	<p><spring:message code="label.CgdDataAuthorization.secondParagraph" htmlEscape="false"/></p>
-	<p><spring:message code="label.CgdDataAuthorization.thirdParagraph" htmlEscape="false"/></p>
-	<ul>
-		<li><p><spring:message code="label.CgdDataAuthorization.benefits.firstItem" htmlEscape="false"/></p></li>
-		<li><p><spring:message code="label.CgdDataAuthorization.benefits.secondItem" htmlEscape="false"/></p></li>
-		<li><p><spring:message code="label.CgdDataAuthorization.benefits.thirdItem" htmlEscape="false"/></p></li>
-		<li><p><spring:message code="label.CgdDataAuthorization.benefits.fourthItem" htmlEscape="false"/></p></li>
-	</ul>
-	<p><spring:message code="label.CgdDataAuthorization.fourthParagraph" arguments='<%= Unit.getInstitutionName().getContent()  %>' htmlEscape="false"/></p>
-</div>
 
-<div class="row">
-	<div class="col-md-6">
-		<div class="panel panel-default">
-			<div>
-				<a class="btn btn-primary panel-heading btn-panel-heading cgd-accept-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/authorize" >
-					<span class="cgd-accept-title"><spring:message code="label.CgdDataAuthorization.accept" htmlEscape="false"/></span>
-					<span class="cgd-accept-icon glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
-					<span class="cgd-accept-action glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
-					<span class="cgd-accept-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
-				</a>
-			</div>
-			<div class="panel-body cgd-accept-panel-body">
-				<spring:message code="label.CgdDataAuthorization.acceptanceConditions" htmlEscape="false"/>
-			</div>
-		</div>
-	</div>
 	
-	<div class="col-md-6">
-		<div class="panel panel-default">
-			<div>
-				<a class="btn btn-default panel-heading btn-panel-heading cgd-decline-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/unauthorize" >
-					<span class="cgd-decline-title"><spring:message code="label.CgdDataAuthorization.refuse" htmlEscape="false"/></span>
-					<span class="cgd-decline-icon glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
-					<span class="cgd-decline-action glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
-					<span class="cgd-decline-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
-				</a>
-			</div>
-			<div class="panel-body cgd-decline-panel-body">
-				<spring:message code="label.CgdDataAuthorization.refusalConditions" htmlEscape="false"/>
-			</div>
-		</div>
-	</div>
+	<p>&nbsp;</p>
+	
+	<c:if test="${dueToError}">
+		<p><spring:message code="label.CgdDataAuthorization.error" /></p>
+	</c:if>
+	<c:if test="${not dueToError}">
+	<p><spring:message code="label.CgdDataAuthorization.byChoice" /></p>
+	</c:if>
+	<p>
+		<a class="btn btn-primary" href="<%= request.getContextPath() %>${printURL}" target="_blank">
+			<span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>&nbsp;
+			<spring:message code="label.CgdDataAuthorization.print" />
+		</a>
+	</p>
 </div>
 
-<div class="row">
-	<div class="col-md-12">
-		<div class="panel panel-default">
-			<div class="panel-body furtherInfo">
-				<spring:message code="label.CgdDataAuthorization.furtherInfo" htmlEscape="false"/>
-			</div>
-		</div>
-	</div>
-</div>
-
+<form method="post" class="form-horizontal">
+	<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.continue" />" />
+</form>
 
 <style>
 	.minitron {
@@ -243,64 +207,3 @@ Commented due to blue record
 	}
 </style>
 
-<script>
-$(document).ready( function () {
-	var acceptHeaderColor = $('.cgd-accept-panel-heading').css('background-color');
-	var acceptBodyColor = $('.cgd-accept-panel-body').css('background-color');
-	$('.cgd-accept-panel-heading').hover( function () {
-		$('.cgd-accept-action').finish();
-		$('.cgd-decline-action').finish();
-		$('.cgd-accept-title,.cgd-accept-icon').hide();
-		$('.cgd-accept-action').fadeIn("200");			
-		$('.cgd-accept-panel-heading').css('background-color','#179b43');			
-		$('.cgd-accept-panel-body').css('background-color','#e6ffee');
-	}, function () {
-		$('.cgd-accept-action').hide();
-		$('.cgd-accept-title,.cgd-accept-icon').show();
-		$('.cgd-accept-panel-heading').css('background-color', acceptHeaderColor);
-		$('.cgd-accept-panel-body').css('background-color', acceptBodyColor);
-	});
-	$('.cgd-accept-panel-heading').click( function () {
-		$('.cgd-accept-action').finish();
-		$('.cgd-decline-action').finish();
-		$('.cgd-accept-panel-heading').unbind();
-		$('.cgd-decline-panel-heading').unbind();
-		$('.cgd-accept-title,.cgd-accept-icon,.cgd-accept-action').hide();
-		$('.cgd-accept-loader').show();
-		$('.cgd-accept-panel-heading').css('background-color','#179b43');			
-		$('.cgd-accept-panel-body').css('background-color','#e6ffee');
-		$('.cgd-accept-panel-heading').css('cursor','progress');
-		$('.cgd-decline-panel-heading').css('cursor','progress');
-		$('html').css('cursor','progress');
-	});
-	
-	var declineHeaderColor = $('.cgd-decline-panel-heading').css('background-color');
-	var declineBodyColor = $('.cgd-decline-panel-body').css('background-color');
-	$('.cgd-decline-panel-heading').hover( function () {
-		$('.cgd-accept-action').finish();
-		$('.cgd-decline-action').finish();
-		$('.cgd-decline-title,.cgd-decline-icon').hide();
-		$('.cgd-decline-action').fadeIn("200");			
-		$('.cgd-decline-panel-heading').css('background-color','#898989');			
-		$('.cgd-decline-panel-body').css('background-color','#f2f2f2');
-	}, function () {
-		$('.cgd-decline-action').hide();
-		$('.cgd-decline-title,.cgd-decline-icon').show();
-		$('.cgd-decline-panel-heading').css('background-color', declineHeaderColor);
-		$('.cgd-decline-panel-body').css('background-color', declineBodyColor);
-	});
-	$('.cgd-decline-panel-heading').click( function () {
-		$('.cgd-accept-action').finish();
-		$('.cgd-decline-action').finish();
-		$('.cgd-accept-panel-heading').unbind();
-		$('.cgd-decline-panel-heading').unbind();
-		$('.cgd-decline-title,.cgd-decline-icon,.cgd-decline-action').hide();
-		$('.cgd-decline-loader').show()
-		$('.cgd-decline-panel-heading').css('background-color','#898989');			
-		$('.cgd-decline-panel-body').css('background-color','#f2f2f2');
-		$('.cgd-accept-panel-heading').css('cursor','progress');
-		$('.cgd-decline-panel-heading').css('cursor','progress');
-		$('html').css('cursor','progress');
-	});
-});
-</script>
