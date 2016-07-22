@@ -174,6 +174,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     private boolean isValidRegistration(final Registration input) {
+        if (!input.isActive()) {
+            return false;
+        }
+
         if (isForCurricularCourses() && !input.getStudent().getRegistrationsToEnrolByStudent().contains(input)) {
             return false;
         }
@@ -223,8 +227,11 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
 
     private boolean isValidFirstTimeStatus(final StudentCurricularPlan input) {
         return getFirstTimeRegistration() == null
-                || (getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear())
-                        && input.isInCandidateEnrolmentProcess(getExecutionYear())));
+                || (getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear())));
+    }
+
+    private boolean isValidStudentCurricularPlan(final StudentCurricularPlan input) {
+        return getDegreeCurricularPlansSet().contains(input.getDegreeCurricularPlan());
     }
 
     static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student) {
@@ -246,7 +253,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
 
         final List<AcademicEnrolmentPeriodBean> result = Lists.newLinkedList();
 
-        for (DegreeCurricularPlan degreeCurricularPlan : degreeCurricularPlans) {
+        for (final DegreeCurricularPlan degreeCurricularPlan : degreeCurricularPlans) {
             for (final AcademicEnrolmentPeriod iter : degreeCurricularPlan.getAcademicEnrolmentPeriodsSet()) {
                 if (iter.isOpen() || iter.isUpcoming()) {
                     result.addAll(iter.collectFor(student));
@@ -290,6 +297,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
 
         final StudentCurricularPlan studentCurricularPlan = input.getLastStudentCurricularPlan();
         if (!isValidFirstTimeStatus(studentCurricularPlan)) {
+            return result;
+        }
+
+        if (!isValidStudentCurricularPlan(studentCurricularPlan)) {
             return result;
         }
 
