@@ -234,7 +234,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                     <c:if test="${ academicEnrolmentPeriod.degreeCurricularPlansSet.size() > 5 }">
                                         <c:set var="planMessage">
                                             <c:forEach var="element" items="${ academicEnrolmentPeriod.degreeCurricularPlansSet }">
-                                                <li><c:out value="${ element.presentationName }"/> </li>
+                                                <li><c:out value="[${ element.degree.code }] ${ element.presentationName }"/> </li>
                                             </c:forEach>
                                         </c:set>
                                         <div data-toggle="tooltip" data-html="true" title="${ planMessage }" >
@@ -243,7 +243,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                     </c:if>
                                     <c:if test="${ academicEnrolmentPeriod.degreeCurricularPlansSet.size() <= 5 }">
                                         <c:forEach var="element" items="${ academicEnrolmentPeriod.degreeCurricularPlansSet }">
-                                            <li><c:out value="${ element.presentationName }"/> </li>
+                                            <li><c:out value="[${ element.degree.code }] ${ element.presentationName }"/> </li>
                                         </c:forEach>
                                     </c:if>
                                 </td>
@@ -260,7 +260,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                         <c:set var="statuteMessage">
                                         	<c:out value="${ statuteMeaning }"/>:
                                             <c:forEach var="element" items="${ academicEnrolmentPeriod.statuteTypesSet }">
-                                                <li><c:out value="${ element.name.content }"/> </li>
+                                                <li><c:out value="[${ element.code }] ${ element.name.content }"/> </li>
                                             </c:forEach>
                                         </c:set>
                                         <div data-toggle="tooltip" data-html="true" title="${ statuteMessage }" >
@@ -270,7 +270,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                     <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() <= 5 && academicEnrolmentPeriod.statuteTypesSet.size() > 0 }">
                                     	<c:out value="${ statuteMeaning }"/>:
                                         <c:forEach var="element" items="${ academicEnrolmentPeriod.statuteTypesSet }">
-                                            <li><c:out value="${ element.name.content }"/> </li>
+                                            <li><c:out value="[${ element.code }] ${ element.name.content }"/> </li>
                                         </c:forEach>
                                     </c:if>
                                     <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() == 0 }">-</c:if>
