@@ -1431,6 +1431,11 @@ public class CurricularPeriodConfigurationInitializer {
                 ApprovedCourses.createForSemester(configYear2, _8 /* approvals */, 1 /* semester */);
                 ApprovedCourses.createForSemester(configYear2, _8 /* approvals */, 2 /* semester */);
             }
+            
+            
+            for (int i = dcp.getDurationInYears(); i > 1; i--) {
+                findOrCreateConfig(dcp, i);
+            }
         }
     }
 
