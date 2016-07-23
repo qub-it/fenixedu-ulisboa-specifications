@@ -461,8 +461,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return input.isToBeDisabled()
 
                 // qubExtension
-                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(), EnrolmentToBeApprovedByCoordinator.class,
-                        ConditionedRoute.class))
+                || (isStudentLogged()
+
+                        && appliesAnyRules(input.getCurriculumModule(), true /* recursive */,
+                                EnrolmentToBeApprovedByCoordinator.class)
+
+                        && appliesAnyRules(input.getCurriculumModule(), false /* recursive */, ConditionedRoute.class))
 
                 // qubExtension
                 || input.getCurriculumModule().getDegreeModule().getChildContextsSet().stream()
@@ -521,7 +525,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return false;
     }
 
-    private boolean appliesAnyRules(final CurriculumGroup input, final Class<? extends CurricularRule>... curricularRuleClasses) {
+    private boolean appliesAnyRules(final CurriculumGroup input, final boolean recursive,
+            final Class<? extends CurricularRule>... curricularRuleClasses) {
 
         if (input != null && curricularRuleClasses != null) {
 
@@ -539,9 +544,14 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                     return true;
                 }
 
-                // check parent group rules, recursively until root
-                if (!parentCurriculumGroup.isRoot() && appliesAnyRules(parentCurriculumGroup, curricularRuleClasses)) {
-                    return true;
+                // recursion is configured by rule class
+                if (recursive) {
+
+                    // check parent group rules, recursively until root
+                    if (!parentCurriculumGroup.isRoot()
+                            && appliesAnyRules(parentCurriculumGroup, recursive, curricularRuleClasses)) {
+                        return true;
+                    }
                 }
             }
         }
