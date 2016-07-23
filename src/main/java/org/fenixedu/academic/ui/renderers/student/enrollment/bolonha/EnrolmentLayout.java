@@ -28,6 +28,7 @@ package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -458,11 +459,15 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean isToDisableEnrolmentOption(final StudentCurriculumGroupBean input) {
+
+        final Map<Class<? extends CurricularRule>, Boolean> rulesAndRecursion = Maps.newHashMap();
+        rulesAndRecursion.put(EnrolmentToBeApprovedByCoordinator.class, Boolean.TRUE);
+        rulesAndRecursion.put(ConditionedRoute.class, Boolean.FALSE);
+
         return input.isToBeDisabled()
 
                 // qubExtension
-                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(), EnrolmentToBeApprovedByCoordinator.class,
-                        ConditionedRoute.class))
+                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(), rulesAndRecursion))
 
                 // qubExtension
                 || input.getCurriculumModule().getDegreeModule().getChildContextsSet().stream()
@@ -521,11 +526,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return false;
     }
 
-    private boolean appliesAnyRules(final CurriculumGroup input, final Class<? extends CurricularRule>... curricularRuleClasses) {
+    private boolean appliesAnyRules(final CurriculumGroup input,
+            final Map<Class<? extends CurricularRule>, Boolean> rulesAndRecursion) {
 
-        if (input != null && curricularRuleClasses != null) {
+        if (input != null && rulesAndRecursion != null) {
 
-            for (final Class<? extends CurricularRule> curricularRuleClass : curricularRuleClasses) {
+            for (final Entry<Class<? extends CurricularRule>, Boolean> iter : rulesAndRecursion.entrySet()) {
 
                 final CurriculumGroup parentCurriculumGroup = input.getCurriculumGroup();
                 final CourseGroup parentCourseGroup = parentCurriculumGroup.getDegreeModule();
@@ -533,15 +539,19 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 // check self rules
                 final ExecutionSemester executionInterval = this.getBolonhaStudentEnrollmentBean().getExecutionPeriod();
                 List<? extends ICurricularRule> rules = CurricularRuleServices.getCurricularRules(input.getDegreeModule(),
-                        parentCourseGroup, curricularRuleClass, executionInterval);
+                        parentCourseGroup, iter.getKey(), executionInterval);
 
                 if (!rules.isEmpty()) {
                     return true;
                 }
 
-                // check parent group rules, recursively until root
-                if (!parentCurriculumGroup.isRoot() && appliesAnyRules(parentCurriculumGroup, curricularRuleClasses)) {
-                    return true;
+                // recursion is configured by rule class
+                if (iter.getValue()) {
+
+                    // check parent group rules, recursively until root
+                    if (!parentCurriculumGroup.isRoot() && appliesAnyRules(parentCurriculumGroup, rulesAndRecursion)) {
+                        return true;
+                    }
                 }
             }
         }
