@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.ui.student.enrolment.process;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.bennu.IBean;
@@ -94,25 +95,31 @@ public class EnrolmentStep implements IBean {
         this.previous = input;
     }
 
+    /**
+     * Call the paramedics before looking into this.
+     */
     public boolean isEntryPointURL(final HttpServletRequest request) {
-        // helper to determine if is a struts request
-        final ActionMapping actionMapping = (ActionMapping) request.getAttribute(Globals.MAPPING_KEY);
 
-        if (actionMapping == null) {
-            // spring
+        // 1. the hacking goal
+        final String secret;
 
-            final String secret = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-            return secret != null && secret.contains(getEntryPointURL());
+        // 2. the hacking sources
+        final ActionMapping mappingStruts = (ActionMapping) request.getAttribute(Globals.MAPPING_KEY);
+        final String mappingSpring = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        // TODO legidio, ui layer major hacking....
 
-        } else {
+        // 3. the hacking parsing
+        if (mappingStruts != null) {
             // struts
 
             String method = "";
             if (getEntryPointURL().contains("method")) {
-                String queryString = request.getQueryString();
+                final String queryString = request.getQueryString();
+
                 if (Strings.isNullOrEmpty(queryString)) {
                     // these are desperate times.
                     method = ".do?method=prepare";
+
                 } else {
                     final int beginIndex = queryString.indexOf("method=");
                     final int end = queryString.contains("&") ? queryString.indexOf("&") : queryString.length();
@@ -120,9 +127,34 @@ public class EnrolmentStep implements IBean {
                 }
             }
 
-            final String secret = actionMapping.getPath() + method;
-            return getEntryPointURL().contains(secret);
+            secret = mappingStruts.getPath() + method;
+
+        } else if (!Strings.isNullOrEmpty(mappingSpring)) {
+            // spring
+
+            String aux = mappingSpring;
+            
+            if (mappingSpring.contains("{")) {
+                aux = aux.substring(0, aux.indexOf("/{"));
+            }
+
+            if (StringUtils.countMatches(aux, "/") > 1) {
+                // these are desperate times.
+                // trying to remove the method name
+                aux = aux.substring(0, aux.lastIndexOf("/"));
+            }
+
+            secret = aux;
+
+        } else if (true) {
+            // ui layer
+
+            // TODO legidio
+            secret = "";
         }
+
+        // 4. "it's the final count down..."
+        return !Strings.isNullOrEmpty(secret) && getEntryPointURL().contains(secret);
     }
 
     public String getEntryPointURL() {

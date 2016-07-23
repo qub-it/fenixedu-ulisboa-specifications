@@ -17,6 +17,7 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
+import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.StudentPortalRedirectController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 
@@ -192,7 +193,8 @@ public class EnrolmentProcess implements IBean {
                 result += currentStep.getNext().getEntryPointURL();
 
             } else {
-                result += EnrolmentManagementDA.getExitURL(request);
+                // not the proper end
+                result += StudentPortalRedirectController.getEntryPointURL(request);
             }
         }
 
@@ -309,6 +311,12 @@ public class EnrolmentProcess implements IBean {
     }
 
     static final public List<EnrolmentStepTemplate> getEndEnrolmentSteps() {
+        final EnrolmentStepTemplate end = EnrolmentManagementDA.createEnrolmentStepEndProcess();
+        if (endEnrolmentSteps.contains(end)) {
+            endEnrolmentSteps.remove(end);
+        }
+        endEnrolmentSteps.add(end);
+
         return endEnrolmentSteps;
     }
 

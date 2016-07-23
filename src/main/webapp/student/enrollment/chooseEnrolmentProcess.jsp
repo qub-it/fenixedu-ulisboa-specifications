@@ -37,9 +37,7 @@
 
 <html:xhtml />
 
-<h2>
-	<bean:message key="label.title.enrolmentManagement" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/>
-</h2>
+<h1><bean:message key="label.title.enrolmentManagement" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/></h1>
 
 <logic:empty name="enrolmentProcesses">
 	<em><bean:message key="label.EnrolmentProcess.noResults" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/></em>
@@ -93,11 +91,12 @@
 						</ol>
 					</td>
 					<td class="acenter">
-						<span>
-							<a href="<%= enrolmentProcess.getContinueURL(request) %>">
-						        <bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.begin" />
-						    </a>
-						</span>
+						<div class="well well-sm" style="display: inline-block">
+							<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+								<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.begin" />
+							</a>
+							&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+						</div>
 					</td>
 				</tr>
 			</c:forEach>

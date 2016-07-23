@@ -49,8 +49,9 @@ import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.StudentPortalRedirectController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStepTemplate;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 @StrutsFunctionality(app = StudentEnrollApp.class, path = "student-enrolment-management",
         titleKey = "label.title.enrolmentManagement", bundle = "FenixeduUlisboaSpecificationsResources")
@@ -62,6 +63,8 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.Enrolmen
 
         @Forward(name = "chooseEnrolmentProcess", path = "/student/enrollment/chooseEnrolmentProcess.jsp"),
 
+        @Forward(name = "endEnrolmentProcess", path = "/student/enrollment/endEnrolmentProcess.jsp"),
+
 })
 public class EnrolmentManagementDA extends FenixDispatchAction {
 
@@ -70,10 +73,6 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
 
     static public String getEntryPointURL(final HttpServletRequest request) {
         return EnrolmentManagementApp.getStrutsEntryPointURL(request, ACTION);
-    }
-
-    static public String getExitURL(final HttpServletRequest request) {
-        return StudentPortalRedirectController.getEntryPointURL(request);
     }
 
     @EntryPoint
@@ -105,6 +104,38 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
 
     static public String buildArgsStruts(final ExecutionSemester executionSemester, final StudentCurricularPlan scp) {
         return "&executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID=" + scp.getExternalId();
+    }
+
+    static public EnrolmentStepTemplate createEnrolmentStepEndProcess() {
+        return new EnrolmentStepTemplate(
+
+                ULisboaSpecificationsUtil.bundleI18N("label.EnrolmentProcess.end"),
+
+                getEndURL(null),
+
+                (enrolmentProcess) -> {
+                    return EnrolmentManagementDA.buildArgsStruts(enrolmentProcess.getExecutionSemester(),
+                            enrolmentProcess.getStudentCurricularPlan());
+                },
+
+                (enrolmentProcess) -> {
+                    return true;
+                });
+    }
+
+    static public String getEndURL(final HttpServletRequest request) {
+        return EnrolmentManagementApp.getStrutsURL(request, ACTION, "endEnrolmentProcess");
+    }
+
+    public ActionForward endEnrolmentProcess(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
+            final HttpServletResponse response) {
+
+        final ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterOID");
+        final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
+        final EnrolmentProcess process = EnrolmentProcess.find(executionSemester, scp);
+
+        request.setAttribute("enrolmentProcess", process);
+        return mapping.findForward("endEnrolmentProcess");
     }
 
 }

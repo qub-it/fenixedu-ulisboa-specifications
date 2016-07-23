@@ -26,7 +26,7 @@
 
 <logic:present role="role(STUDENT)">
 
-<h2><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.courses.instructions"/></h2>
+<h1><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.courses.instructions"/></h1>
 
 <h3 class="mtop15 separator2"><bean:message bundle="STUDENT_RESOURCES" key="label.introduction"/></h3>
 
@@ -54,8 +54,18 @@
 	</logic:present>
 
 	<p class="mtop25 mbottom1">
-		<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getReturnURL(request)%>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" /></strong></html:link>
-		<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getContinueURL(request) %>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" /></strong></html:link>
+		<div class="well well-sm" style="display: inline-block">
+			<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
+			<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
+			</a>
+		</div>
+		<div class="well well-sm" style="display: inline-block">
+			<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
+			</a>
+			&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+		</div>
 	</p>
 </logic:present>
 

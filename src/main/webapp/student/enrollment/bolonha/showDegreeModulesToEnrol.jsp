@@ -27,21 +27,30 @@
 <%@page import="org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout"%>
 <html:xhtml />
 
-<h2><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h2>
+<h1><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h1>
+<%-- qubExtension, EnrolmentProcess --%>
+<logic:present name="enrolmentProcess">
+	<p class="mbottom15">
+		<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
+		<div class="well well-sm" style="display: inline-block">
+			<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
+			<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
+			</a>
+		</div>
+		<div class="well well-sm" style="display: inline-block">
+			<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
+			</a>
+			&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+		</div>
+	</p>
+</logic:present>
 
 <%-- qubExtension, dynamic and moved up --%>
 <bean:define id="action" name="action"/>
 <fr:form action="<%=action.toString()%>">
 	<input type="hidden" name="method" />
-
-	<p class="mtop025 mbottom1">
-		<%-- qubExtension, EnrolmentProcess --%>
-		<logic:present name="enrolmentProcess">
-			<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
-			<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getReturnURL(request)%>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" /></strong></html:link>
-			<html:link styleClass="btn btn-default" href="<%= enrolmentProcess.getContinueURL(request) %>"><strong><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" /></strong></html:link>
-		</logic:present>
-	</p>
 
 	<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
 	<bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
@@ -55,12 +64,12 @@
 	</logic:present>
 	<logic:notPresent name="debtsMessage">
 
+		<%-- qubExtension, remove
 		<p class="mtop0 mbottom15">
 			<strong><bean:message bundle="STUDENT_RESOURCES"  key="label.registration.basic"/>:</strong> <bean:write name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.degreeCurricularPlan.presentationName"/> 
 		</p>
 	
 		
-		<%-- qubExtension, remove
 		<ul class="mbottom15">
 			<li>
 				<html:link action='<%= action.toString() + "?method=showEnrollmentInstructions" %>' styleClass="externallink" target="_blank"><bean:message bundle="STUDENT_RESOURCES"  key="label.viewInstructions"/></html:link>
@@ -81,10 +90,6 @@
 			</li>
 		</ul>
 		--%>
-	
-		<div class="infoop2 mtop05 mbottom15">
-			<p><span><bean:message bundle="APPLICATION_RESOURCES" key="label.warning.coursesAndGroupsSimultaneousEnrolment"/></span></p>
-		</div>
 	
 		<logic:messagesPresent message="true" property="success">
 			<p>
@@ -126,14 +131,22 @@
 		</p>
 		--%>
 		
-		<p class="mtop025 mbottom1">
-			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
-		</p>
+		<div style="display: inline-block;" class="mtop05 mbottom15">
+				<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+			<span class="infoop2">
+				<bean:message bundle="APPLICATION_RESOURCES" key="label.warning.coursesAndGroupsSimultaneousEnrolment"/>
+			</span>
+		</div>
+
 		<logic:present name="openedEnrolmentPeriods">		
 			<ul class="nav nav-tabs">
 				<logic:iterate id="period" name="openedEnrolmentPeriods">				
 					<logic:equal name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.executionSemester.externalId}">
-						<li role="presentation" class="active"><a href="#">${period.executionSemester.qualifiedName}</a></li>
+						<li role="presentation" class="active">
+							<a href="#">${period.executionSemester.qualifiedName}
+							<br/><span class="small text-muted">${bolonhaStudentEnrollmentBean.registration.degree.sigla}</span>
+							</a>
+						</li>
 					</logic:equal>
 					<logic:notEqual name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.executionSemester.externalId}">
 						<li role="presentation">							
