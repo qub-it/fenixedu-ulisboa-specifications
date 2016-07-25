@@ -341,7 +341,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
             // approval may be in previous plan
-            if (CompetenceCourseServices.isCompetenceCourseApproved(plan, getCurricularCourse())) {
+            if (CompetenceCourseServices.isCompetenceCourseApproved(plan, getCurricularCourse(), (ExecutionSemester) null)) {
                 return true;
             }
 

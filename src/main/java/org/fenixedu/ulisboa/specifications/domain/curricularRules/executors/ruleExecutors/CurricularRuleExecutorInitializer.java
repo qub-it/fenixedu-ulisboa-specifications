@@ -53,15 +53,7 @@ abstract public class CurricularRuleExecutorInitializer {
 
                 @Override
                 public boolean isApproved(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse) {
-
-                    final StudentCurricularPlan plan = enrolmentContext.getStudentCurricularPlan();
-                    if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
-
-                        return CompetenceCourseServices.isCompetenceCourseApproved(plan, curricularCourse);
-
-                    } else {
-                        return plan.isApproved(curricularCourse);
-                    }
+                    return isApproved(enrolmentContext, curricularCourse, (ExecutionSemester) null);
                 }
 
                 @Override

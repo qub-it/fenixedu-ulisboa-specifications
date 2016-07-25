@@ -25,7 +25,9 @@
  */
 package org.fenixedu.ulisboa.specifications.domain;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -33,25 +35,15 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 abstract public class CompetenceCourseServices {
 
-    static public boolean isCompetenceCourseApproved(final StudentCurricularPlan plan, final CurricularCourse course) {
-
-        final Registration registration = plan.getRegistration();
-        final CompetenceCourse competence = course.getCompetenceCourse();
-
-        // optional curricular course
-        if (competence == null) {
-            return plan.isApproved(course);
-        }
-
-        return getScpsToCheck(registration).stream()
-                .anyMatch(i -> competence.getAssociatedCurricularCoursesSet().stream().anyMatch(j -> i.isApproved(j)));
-    }
+    static private final Map<CompetenceCourse, Set<CurricularCourse>> cache = new ConcurrentHashMap<>();
 
     static public boolean isCompetenceCourseApproved(final StudentCurricularPlan plan, final CurricularCourse course,
             final ExecutionSemester semester) {
@@ -64,8 +56,7 @@ abstract public class CompetenceCourseServices {
             return plan.isApproved(course, semester);
         }
 
-        return getScpsToCheck(registration).stream()
-                .anyMatch(i -> competence.getAssociatedCurricularCoursesSet().stream().anyMatch(j -> i.isApproved(j, semester)));
+        return getScpsToCheck(registration).stream().anyMatch(i -> isApproved(i, competence, semester));
     }
 
     static private Set<StudentCurricularPlan> getScpsToCheck(final Registration registration) {
@@ -81,6 +72,46 @@ abstract public class CompetenceCourseServices {
         }
 
         return result;
+    }
+
+    static public boolean isApproved(final StudentCurricularPlan plan, final CompetenceCourse competence,
+            final ExecutionSemester semester) {
+
+        return getExpandedCurricularCourses(competence).stream().anyMatch(curricular -> plan.isApproved(curricular, semester));
+    }
+
+    static public Set<CurricularCourse> getExpandedCurricularCourses(final CompetenceCourse competence) {
+        final Set<CurricularCourse> result;
+        final String code = competence.getCode();
+
+        if (!isExpandedCode(code)) {
+            result = competence.getAssociatedCurricularCoursesSet();
+
+        } else if (cache.containsKey(competence)) {
+
+            result = cache.get(competence);
+
+        } else {
+
+            result = Sets.newHashSet();
+            for (final CompetenceCourse iter : Bennu.getInstance().getCompetenceCoursesSet()) {
+                if (filterCode(competence.getCode()).equals(filterCode(iter.getCode()))) {
+                    result.addAll(iter.getAssociatedCurricularCoursesSet());
+                }
+            }
+
+            cache.put(competence, result);
+        }
+
+        return result;
+    }
+
+    static private boolean isExpandedCode(final String input) {
+        return !Strings.isNullOrEmpty(input) && input.endsWith("ects") && input.contains("_");
+    }
+
+    static private String filterCode(final String input) {
+        return !isExpandedCode(input) ? input : input.substring(0, input.lastIndexOf("_"));
     }
 
 }

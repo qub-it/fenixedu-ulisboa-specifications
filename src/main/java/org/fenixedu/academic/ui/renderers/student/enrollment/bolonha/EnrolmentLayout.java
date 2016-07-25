@@ -434,7 +434,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     private boolean filterByCompetenceCourse(final CurricularCourse curricularCourse) {
         return ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()
                 && CompetenceCourseServices.isCompetenceCourseApproved(
-                        getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), curricularCourse);
+                        getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), curricularCourse, (ExecutionSemester) null);
     }
 
     private boolean filterByAggregationApproval(final CurricularCourse input) {

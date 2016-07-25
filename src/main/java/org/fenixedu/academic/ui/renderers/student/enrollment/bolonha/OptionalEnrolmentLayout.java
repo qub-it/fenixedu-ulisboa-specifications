@@ -37,7 +37,6 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AnyCurricularCourseExceptionsExecutorLogic;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.organizationalStructure.DepartmentUnit;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentBean;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -248,7 +247,7 @@ public class OptionalEnrolmentLayout extends Layout {
             return ULisboaSpecificationsUtil.bundle("CurriculumAggregator");
         }
 
-        if (CompetenceCourseServices.isCompetenceCourseApproved(scp, course)) {
+        if (CompetenceCourseServices.isCompetenceCourseApproved(scp, course, (ExecutionSemester) null)) {
             return BundleUtil.getString(Bundle.ENUMERATION, "approved");
         }
 
