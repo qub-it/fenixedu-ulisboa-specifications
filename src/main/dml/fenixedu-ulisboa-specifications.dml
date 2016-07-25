@@ -476,32 +476,29 @@ class curricularPeriod.rule.CurricularPeriodRule {
 	BigDecimal value;
 	boolean hideMessagePrefix;
 	Integer semester;
+	Integer yearMin;
+	Integer yearMax;
 }
 
 	class curricularPeriod.rule.RuleEnrolment extends curricularPeriod.rule.CurricularPeriodRule {
+		boolean includeEnrolments;
 	}
 	
 		class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod extends curricularPeriod.rule.RuleEnrolment {
-			boolean includeEnrolments;
 		}
 		
 		class curricularPeriod.rule.enrolment.CreditsInCurricularPeriod extends curricularPeriod.rule.RuleEnrolment {
-			Integer yearMin;
-			Integer yearMax;
 		}
 		
 		class curricularPeriod.rule.enrolment.CreditsNotEnroled extends curricularPeriod.rule.RuleEnrolment {
-			Integer yearMin;
 		}
 		
 		class curricularPeriod.rule.enrolment.CreditsEnroledAsFirstTime extends curricularPeriod.rule.RuleEnrolment {
-		
 		}
 
 	class curricularPeriod.rule.RuleTransition extends curricularPeriod.rule.CurricularPeriodRule {
-		Integer yearMin;
-		Integer yearMax;
 		boolean allowToCollectAllCurricularPlans;
+		String codesCSV;
 	}
 
 		class curricularPeriod.rule.transition.RuleTransitionOr extends curricularPeriod.rule.RuleTransition {
@@ -517,7 +514,6 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		}
 		
 		class curricularPeriod.rule.transition.FlunkedCurricularCourses extends curricularPeriod.rule.RuleTransition {
-			String codesCSV;
 		}
 		
 		class curricularPeriod.rule.transition.StudentStatuteExecutiveRule extends curricularPeriod.rule.RuleTransition {
