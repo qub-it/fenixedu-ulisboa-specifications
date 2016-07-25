@@ -30,6 +30,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Set<RegistrationStateType> registrationStateTypes = Sets.newHashSet();
     private Set<StatuteType> statuteTypes = Sets.newHashSet();
     private Boolean firstTimeOnly;
+    private Boolean withEnrolments;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
 
@@ -142,6 +143,10 @@ public class RegistrationHistoryReportParametersBean implements IBean {
         return firstTimeOnly;
     }
 
+    public Boolean getFilterWithEnrolments() {
+        return withEnrolments;
+    }
+
     public Boolean getDismissalsOnly() {
         return dismissalsOnly;
     }
@@ -184,7 +189,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                         .sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)
                         .map(x -> new TupleDataSourceBean(x.getExternalId(),
                                 "[" + x.getCode() + "] " + x.getPresentationNameI18N().getContent()))
-                .collect(Collectors.toList());
+                        .collect(Collectors.toList());
 
         this.regimeTypesDataSource = Arrays.asList(RegistrationRegimeType.values()).stream()
                 .map(x -> new TupleDataSourceBean(x.getName(), x.getLocalizedName())).collect(Collectors.toList());

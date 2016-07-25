@@ -37,6 +37,7 @@ public class RegistrationHistoryReportService {
     private Set<RegistrationStateType> registrationStateTypes = Sets.newHashSet();
     private Set<StatuteType> statuteTypes = Sets.newHashSet();
     private Boolean firstTimeOnly;
+    private Boolean withEnrolments;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
 
@@ -82,6 +83,10 @@ public class RegistrationHistoryReportService {
 
     public void filterFirstTimeOnly(Boolean firstTime) {
         this.firstTimeOnly = firstTime;
+    }
+
+    public void filterWithEnrolments(final Boolean input) {
+        this.withEnrolments = input;
     }
 
     public void filterDismissalsOnly(Boolean dismissalsOnly) {
@@ -187,7 +192,10 @@ public class RegistrationHistoryReportService {
                     .collect(Collectors.toSet()));
         }
 
-        result.addAll(executionYear.getStudentsSet());
+        if (this.withEnrolments == null || !this.withEnrolments.booleanValue()) {
+            // registration/start execution year relation
+            result.addAll(executionYear.getStudentsSet());
+        }
 
         result.addAll(executionYear.getRegistrationDataByExecutionYearSet().stream()
                 .filter(r -> !r.getRegistration().getEnrolments(executionYear).isEmpty()).map(r -> r.getRegistration())
@@ -262,7 +270,7 @@ public class RegistrationHistoryReportService {
                 .filter(e -> e.isApproved() && e.getGrade().isNumeric()).collect(Collectors.toSet())) {
             gradesSum = gradesSum.add(enrolment.getGrade().getNumericValue().multiply(enrolment.getEctsCreditsForCurriculum()));
             creditsSum = creditsSum.add(enrolment.getEctsCreditsForCurriculum());
-        };
+        } ;
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum.divide(creditsSum, MathContext.DECIMAL128)
                 .setScale(3, RoundingMode.HALF_UP);
@@ -275,7 +283,7 @@ public class RegistrationHistoryReportService {
                 .filter(e -> e.isApproved() && e.getGrade().isNumeric()).collect(Collectors.toSet())) {
             gradesSum = gradesSum.add(enrolment.getGrade().getNumericValue());
             total++;
-        };
+        } ;
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum
                 .divide(BigDecimal.valueOf(total), MathContext.DECIMAL128).setScale(3, RoundingMode.HALF_UP);

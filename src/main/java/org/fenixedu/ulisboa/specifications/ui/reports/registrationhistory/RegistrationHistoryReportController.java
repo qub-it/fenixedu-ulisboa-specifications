@@ -169,6 +169,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterRegistrationStateTypes(bean.getRegistrationStateTypes());
         service.filterStatuteTypes(bean.getStatuteTypes());
         service.filterFirstTimeOnly(bean.getFirstTimeOnly());
+        service.filterWithEnrolments(bean.getFilterWithEnrolments());
         service.filterDismissalsOnly(bean.getDismissalsOnly());
         service.filterImprovementEnrolmentsOnly(bean.getImprovementEnrolmentsOnly());
         service.setDetailed(detailed);
@@ -305,9 +306,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                     bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
                             addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
 
-                            final String descriptiveGrade = bean == null
-                                    || bean.getDescriptiveGrade() == null ? null : bean.getDescriptiveGradeExtendedValue() + " ("
-                                            + bean.getDescriptiveGrade().getValue() + ")";
+                            final String descriptiveGrade = bean == null || bean.getDescriptiveGrade() == null ? null : bean
+                                    .getDescriptiveGradeExtendedValue() + " (" + bean.getDescriptiveGrade().getValue() + ")";
                             addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
 
                             final YearMonthDay conclusionDate =
@@ -611,10 +611,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
-        reports.stream().forEach(r ->
-        {
-            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev ->
-            {
+        reports.stream().forEach(r -> {
+            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev -> {
                 enrolments.put(r, ev.getEnrolment());
 
                 if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
@@ -668,8 +666,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
                         .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason())
                                 && bean.getExecutionYears().contains(e.getExecutionPeriod().getExecutionYear()))
-                .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
-                .collect(Collectors.toList());
+                        .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                        .collect(Collectors.toList());
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),
                 new SheetData<EnrolmentEvaluation>(evaluations) {
 
