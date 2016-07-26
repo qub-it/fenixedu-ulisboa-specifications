@@ -79,7 +79,7 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
     }
 
     public AcademicEnrolmentPeriod findCandidacyPeriod() {
-        Predicate<AcademicEnrolmentPeriod> isForCandidates = ep -> ep.getFirstTimeRegistration();
+        Predicate<AcademicEnrolmentPeriod> isForCandidates = ep -> ep.getFirstTimeRegistration() != null && ep.getFirstTimeRegistration();
         Predicate<AcademicEnrolmentPeriod> endsAfterThisCandidacy = ep -> ep.getEndDate().isAfter(getCandidacyDate());
         Comparator<AcademicEnrolmentPeriod> periodComparatorByEndDate = new Comparator<AcademicEnrolmentPeriod>() {
             @Override
