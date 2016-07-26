@@ -256,7 +256,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         for (final DegreeCurricularPlan degreeCurricularPlan : degreeCurricularPlans) {
             for (final AcademicEnrolmentPeriod iter : degreeCurricularPlan.getAcademicEnrolmentPeriodsSet()) {
                 if (iter.isOpen() || iter.isUpcoming()) {
-                    result.addAll(iter.collectFor(student));
+                    result.addAll(iter.collectFor(degreeCurricularPlan, student));
                 }
             }
         }
@@ -266,10 +266,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return result;
     }
 
-    private Set<AcademicEnrolmentPeriodBean> collectFor(final Student input) {
+    private Set<AcademicEnrolmentPeriodBean> collectFor(final DegreeCurricularPlan degreeCurricularPlan, final Student input) {
         final Set<AcademicEnrolmentPeriodBean> result = Sets.newHashSet();
 
-        input.getRegistrationsSet().stream().forEach(i -> result.addAll(collectFor(i)));
+        input.getRegistrationsFor(degreeCurricularPlan).stream().forEach(i -> result.addAll(collectFor(i)));
 
         return result;
     }
