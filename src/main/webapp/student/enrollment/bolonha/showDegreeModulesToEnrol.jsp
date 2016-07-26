@@ -27,24 +27,31 @@
 <%@page import="org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout"%>
 <html:xhtml />
 
-<h1><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h1>
-<%-- qubExtension, EnrolmentProcess --%>
+<%-- TITLE --%>
+<div class="page-header">
+	<h1>
+		<bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" />
+		<small></small>
+	</h1>
+</div>
+
+<%-- NAVIGATION --%>
 <logic:present name="enrolmentProcess">
-	<p class="mbottom15">
-		<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
-		<div class="well well-sm" style="display: inline-block">
-			<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
-			<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
-				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
-			</a>
-		</div>
-		<div class="well well-sm" style="display: inline-block">
-			<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
-				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
-			</a>
-			&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-		</div>
-	</p>
+	<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
+	
+	<div class="well well-sm" style="display: inline-block">
+	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	    &nbsp;
+		<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
+		</a>
+	    &nbsp;|&nbsp;
+		<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
+		</a>
+		&nbsp;
+		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+	</div>
 </logic:present>
 
 <%-- qubExtension, dynamic and moved up --%>
@@ -212,6 +219,26 @@
 		</tr>
 		 --%>
 		</table>
+
+
+	<%-- NAVIGATION --%>
+	<logic:present name="enrolmentProcess">
+		<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
+		
+		<div class="well well-sm mtop15" style="display: inline-block">
+		    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+		    &nbsp;
+			<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+				<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
+			</a>
+		    &nbsp;|&nbsp;
+			<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+				<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
+			</a>
+			&nbsp;
+			<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+		</div>
+	</logic:present>
 
 	<%-- qubExtension, blocking debts message --%>
 	</logic:notPresent>

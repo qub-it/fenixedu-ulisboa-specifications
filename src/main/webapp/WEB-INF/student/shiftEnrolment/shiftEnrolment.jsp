@@ -100,23 +100,29 @@ ${portal.angularToolkit()}
 	}	
 </style>
 
-<h1><spring:message code="label.title.shiftEnrolment"/></h1>
+<%-- TITLE --%>
+<div class="page-header">
+	<h1>
+		<spring:message code="label.title.shiftEnrolment"/>
+		<small></small>
+	</h1>
+</div>
 
+<%-- NAVIGATION --%>	
 <c:if test="${not empty enrolmentProcess}">
-	<p class="mtop015 mbottom15">
-		<div class="well well-sm" style="display: inline-block">
-			<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
-			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
-				<spring:message code="label.event.back" />
-			</a>
-		</div>
-		<div class="well well-sm" style="display: inline-block">
-			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
-				<spring:message code="label.continue" />
-			</a>
-			&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-		</div>
-	</p>
+	<div class="well well-sm" style="display: inline-block">
+	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	    &nbsp;
+		<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
+			<spring:message code="label.event.back" />
+		</a>
+	    &nbsp;|&nbsp;
+		<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
+			<spring:message code="label.continue" />
+		</a>
+		&nbsp;
+		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+	</div>
 </c:if>
 
 <c:if test="${not empty infoMessages}">
@@ -451,11 +457,21 @@ ${portal.angularToolkit()}
     </div>
 </div>
 
+<%-- NAVIGATION --%>	
 <c:if test="${not empty shiftsToEnrol}">
 	<c:if test="${not empty enrolmentProcess}">
-		<p class="mtop25 mbottom1">
-			<a class="btn btn-default" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}"><strong><spring:message code="label.event.back" /></strong></a>
-			<a class="btn btn-default" href="${enrolmentProcess.getContinueURL(pageContext.request)}"><strong><spring:message code="label.continue" /></strong></a>
-		</p>
+		<div class="well well-sm mtop15" style="display: inline-block">
+		    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+		    &nbsp;
+			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
+				<spring:message code="label.event.back" />
+			</a>
+		    &nbsp;|&nbsp;
+			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
+				<spring:message code="label.continue" />
+			</a>
+			&nbsp;
+			<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+		</div>
 	</c:if>
 </c:if>

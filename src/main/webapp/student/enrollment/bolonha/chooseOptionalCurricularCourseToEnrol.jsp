@@ -25,7 +25,13 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 
-<h2><bean:message key="label.enrollment.optional.course" bundle="STUDENT_RESOURCES" /></h2>
+<%-- TITLE --%>
+<div class="page-header">
+	<h1>
+		<bean:message key="label.enrollment.optional.course" bundle="STUDENT_RESOURCES" />
+		<small></small>
+	</h1>
+</div>
 
 <%-- qubExtension --%>
 <bean:define id="action" value="/student/courseEnrolment.do" />

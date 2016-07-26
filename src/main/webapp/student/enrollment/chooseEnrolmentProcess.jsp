@@ -37,7 +37,13 @@
 
 <html:xhtml />
 
-<h1><bean:message key="label.title.enrolmentManagement" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/></h1>
+<%-- TITLE --%>
+<div class="page-header">
+	<h1>
+		<bean:message key="label.title.enrolmentManagement" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/>
+		<small></small>
+	</h1>
+</div>
 
 <logic:empty name="enrolmentProcesses">
 	<em><bean:message key="label.EnrolmentProcess.noResults" bundle="ULISBOA_SPECIFICATIONS_RESOURCES"/></em>
@@ -83,7 +89,7 @@
 				<tr>
 					<td class="acenter"><c:out value="${ bean.executionYear.qualifiedName }" /></td>
 					<td class="aleft"><c:out value="${ bean.studentCurricularPlan.presentationName }" /></td>
-					<td class="acenter">
+					<td>
 						<ol>
 							<c:forEach var="stepDescription" items="${bean.stepsDescriptions}">
 								<li><c:out value="${ stepDescription }" /></li>

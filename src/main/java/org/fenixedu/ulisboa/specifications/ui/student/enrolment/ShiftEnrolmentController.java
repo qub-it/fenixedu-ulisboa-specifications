@@ -101,9 +101,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         Registration selectedRegistration = (Registration) model.asMap().get("registration");
         AcademicEnrolmentPeriod selectedEnrolmentPeriod = (AcademicEnrolmentPeriod) model.asMap().get("enrolmentPeriod");
 
-        checkUser(selectedRegistration);
-
-        final Student student = Authenticate.getUser().getPerson().getStudent();
+        final Student student = checkUser(selectedRegistration);
         final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
 
         for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
@@ -285,11 +283,14 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         return result.toString();
     }
 
-    static private void checkUser(final Registration input) {
+    static private Student checkUser(final Registration input) {
         final Student student = Authenticate.getUser().getPerson().getStudent();
+        
         if (student == null || (input != null && input.getStudent() != student)) {
             throw new SecurityException("error.authorization.notGranted");
         }
+        
+        return student;
     }
 
     @SuppressWarnings("serial")

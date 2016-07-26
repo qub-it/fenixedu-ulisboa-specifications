@@ -28,7 +28,6 @@ package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,12 +45,13 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
-import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
@@ -61,12 +61,11 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import pt.ist.fenixframework.FenixFramework;
 
 /**
  * @author shezad - Jul 9, 2015
@@ -78,8 +77,13 @@ import pt.ist.fenixframework.FenixFramework;
 @Forwards(@Forward(name = "showSchoolClasses", path = "/student/enrollment/schoolClass/schoolClassesSelection.jsp"))
 public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
-    static final private String MAPPING = "/student/schoolClassStudentEnrollment";
+    static final private String MAPPING_MODULE = "/student";
+    static final private String MAPPING = MAPPING_MODULE + "/schoolClassStudentEnrollment";
     static final private String ACTION = MAPPING + ".do";
+
+    protected String getAction() {
+        return ACTION.replace(MAPPING_MODULE, "");
+    }
 
     static public String getEntryPointURL(final HttpServletRequest request) {
         return EnrolmentManagementApp.getStrutsEntryPointURL(request, ACTION);
@@ -89,50 +93,33 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
     public ActionForward prepare(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
 
-        final Student student = getUserView(request).getPerson().getStudent();
-
         final SchoolClass selectedSchoolClass = (SchoolClass) request.getAttribute("selectedSchoolClass");
         final AcademicEnrolmentPeriod selectedEnrolmentPeriod =
                 (AcademicEnrolmentPeriod) request.getAttribute("selectedEnrolmentPeriod");
+        final ExecutionSemester executionSemester = selectedEnrolmentPeriod == null ? getDomainObject(request,
+                "executionSemesterOID") : selectedEnrolmentPeriod.getExecutionSemester();
+        final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
 
-        final List<SchoolClassStudentEnrollmentDTO> enrollmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
+        final Student student = Authenticate.getUser().getPerson().getStudent();
+        final List<SchoolClassStudentEnrollmentDTO> enrolmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
-        Collection<Registration> registrationsToShow = null;
+        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
+            if (isValidPeriodForUser(iter)) {
 
-        //This variable will be present if we are in the middle of a workflow. The registrations being listed should be limited to this registration
-        String workflowRegistrationOid = request.getParameter("workflowRegistrationOid");
-
-        if (workflowRegistrationOid != null) {
-            final Registration workflowRegistation = FenixFramework.getDomainObject(workflowRegistrationOid);
-            registrationsToShow = Collections.singleton(workflowRegistation);
-            request.setAttribute("workflowRegistrationOid", workflowRegistrationOid);
-
-            // TODO legidio, replace with enrolmentProcess attribute (which will provide return and continue URLs
-            request.setAttribute("returnURL", null);
-        } else {
-            registrationsToShow = student.getRegistrationsToEnrolInShiftByStudent();
-        }
-
-        for (final Registration registration : registrationsToShow) {
-
-            // TODO legidio, ask Shezad for help on interpreting this
-            if (EnrolmentContextHandler.getRegisteredEnrolmentContextHandler()
-                    .getReturnURLForStudentInFullClasses(request, registration).isPresent()
-                    && !registration.getExternalId().equals(workflowRegistrationOid)) {
-                //Skip workflow based functionalities when we are not on that workflow
-                continue;
-            }
-
-            for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
-                if (isValidPeriodForUser(iter)) {
-                    enrollmentBeans.add(new SchoolClassStudentEnrollmentDTO(registration, iter,
-                            selectedEnrolmentPeriod == iter.getEnrolmentPeriod() ? selectedSchoolClass : null));
-                }
+                enrolmentBeans.add(new SchoolClassStudentEnrollmentDTO(iter,
+                        executionSemester == iter.getExecutionSemester() ? selectedSchoolClass : null));
             }
         }
 
-        enrollmentBeans.sort(Comparator.naturalOrder());
-        request.setAttribute("enrollmentBeans", enrollmentBeans);
+        if (!enrolmentBeans.isEmpty()) {
+            enrolmentBeans.sort(Comparator.naturalOrder());
+        }
+
+        request.setAttribute("enrolmentBeans", enrolmentBeans);
+        request.setAttribute("action", getAction());
+        if (executionSemester != null && scp != null) {
+            request.setAttribute("enrolmentProcess", EnrolmentProcess.find(executionSemester, scp));
+        }
 
         return mapping.findForward("showSchoolClasses");
     }
@@ -153,8 +140,9 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             HttpServletResponse response) {
 
         final SchoolClass schoolClass = getDomainObject(request, "schoolClassID");
-        final Registration registration = getDomainObject(request, "registrationID");
         final AcademicEnrolmentPeriod enrolmentPeriod = getDomainObject(request, "enrolmentPeriodID");
+        final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
+        final Registration registration = scp.getRegistration();
 
         try {
             atomic(() -> RegistrationServices.replaceSchoolClass(registration, schoolClass,
@@ -175,10 +163,11 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
     public ActionForward removeShift(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
 
-        final SchoolClass schoolClass = getDomainObject(request, "schoolClassID");
-        final Registration registration = getDomainObject(request, "registrationID");
-        final AcademicEnrolmentPeriod enrolmentPeriod = getDomainObject(request, "enrolmentPeriodID");
         final Shift shift = getDomainObject(request, "shiftID");
+        final SchoolClass schoolClass = getDomainObject(request, "schoolClassID");
+        final AcademicEnrolmentPeriod enrolmentPeriod = getDomainObject(request, "enrolmentPeriodID");
+        final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
+        final Registration registration = scp.getRegistration();
 
         try {
             atomic(() -> registration.removeShifts(shift));
@@ -200,20 +189,23 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
     @SuppressWarnings("serial")
     public static class SchoolClassStudentEnrollmentDTO implements Serializable, Comparable<SchoolClassStudentEnrollmentDTO> {
 
-        private final Registration registration;
         private final AcademicEnrolmentPeriodBean enrolmentPeriod;
         private final SchoolClass schoolClassToDisplay;
 
-        public SchoolClassStudentEnrollmentDTO(final Registration registration, final AcademicEnrolmentPeriodBean enrolmentPeriod,
-                SchoolClass schoolClassToDisplay) {
+        public SchoolClassStudentEnrollmentDTO(final AcademicEnrolmentPeriodBean enrolmentPeriod,
+                final SchoolClass schoolClassToDisplay) {
+
             super();
-            this.registration = registration;
             this.enrolmentPeriod = enrolmentPeriod;
             this.schoolClassToDisplay = schoolClassToDisplay;
         }
 
         public Registration getRegistration() {
-            return registration;
+            return enrolmentPeriod.getRegistration();
+        }
+
+        public StudentCurricularPlan getStudentCurricularPlan() {
+            return enrolmentPeriod.getStudentCurricularPlan();
         }
 
         public AcademicEnrolmentPeriod getEnrolmentPeriod() {
@@ -326,6 +318,6 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             int result = Degree.COMPARATOR_BY_NAME_AND_ID.compare(getRegistration().getDegree(), o.getRegistration().getDegree());
             return result == 0 ? getExecutionSemester().compareTo(o.getExecutionSemester()) : result;
         }
-
     }
+
 }

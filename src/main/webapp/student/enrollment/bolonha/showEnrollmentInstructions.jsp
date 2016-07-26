@@ -26,7 +26,13 @@
 
 <logic:present role="role(STUDENT)">
 
-<h1><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.courses.instructions"/></h1>
+<%-- TITLE --%>
+<div class="page-header">
+	<h1>
+		<bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.courses.instructions"/>
+		<small></small>
+	</h1>
+</div>
 
 <h3 class="mtop15 separator2"><bean:message bundle="STUDENT_RESOURCES" key="label.introduction"/></h3>
 
@@ -49,24 +55,27 @@
 	<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
 
 	<logic:present name="enrolmentProcess" property="executionSemester.enrolmentInstructions">
-		<h3 class="mtop15 separator2"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.additional.instructions"/></h3>
-	    <bean:write name="enrolmentProcess" property="executionSemester.enrolmentInstructions.tempInstructions.content" filter="false"/>
+		<logic:present name="enrolmentProcess" property="executionSemester.enrolmentInstructions.tempInstructions.content">
+			<h3 class="mtop15 separator2"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.additional.instructions"/></h3>
+		    <bean:write name="enrolmentProcess" property="executionSemester.enrolmentInstructions.tempInstructions.content" filter="false"/>
+	    </logic:present>
 	</logic:present>
 
-	<p class="mtop25 mbottom1">
-		<div class="well well-sm" style="display: inline-block">
-			<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
-			<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
-				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
-			</a>
-		</div>
-		<div class="well well-sm" style="display: inline-block">
-			<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
-				<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
-			</a>
-			&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-		</div>
-	</p>
+	<%-- NAVIGATION --%>
+	<div class="well well-sm" style="display: inline-block">
+	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	    &nbsp;
+		<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
+		</a>
+	    &nbsp;|&nbsp;
+		<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
+		</a>
+		&nbsp;
+		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+	</div>
+
 </logic:present>
 
 </logic:present>

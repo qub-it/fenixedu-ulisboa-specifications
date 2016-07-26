@@ -25,9 +25,15 @@
 <html:xhtml />
 
 <logic:present role="role(STUDENT)">
-	<em><bean:message bundle="STUDENT_RESOURCES"  key="title.student.portalTitle" /></em>
-	<bean:define id="cycleTypeToEnrolQualifiedName" name="cycleEnrolmentBean" property="cycleTypeToEnrol.qualifiedName" />
-	<h2><bean:message key="label.enrollment.enrolIn" bundle="STUDENT_RESOURCES" /> <bean:message  key="<%=cycleTypeToEnrolQualifiedName.toString()%>" bundle="ENUMERATION_RESOURCES"/></h2>
+
+	<%-- TITLE --%>
+	<div class="page-header">
+		<h1>
+			<bean:define id="cycleTypeToEnrolQualifiedName" name="cycleEnrolmentBean" property="cycleTypeToEnrol.qualifiedName" />
+			<bean:message key="label.enrollment.enrolIn" bundle="STUDENT_RESOURCES" /> <bean:message  key="<%=cycleTypeToEnrolQualifiedName.toString()%>" bundle="ENUMERATION_RESOURCES"/>
+			<small></small>
+		</h1>
+	</div>
 	
 	<bean:define id="executionSemesterOID" name="cycleEnrolmentBean" property="executionPeriod.externalId" />
 	<bean:define id="studentCurricularPlanOID" name="cycleEnrolmentBean" property="studentCurricularPlan.externalId" />
