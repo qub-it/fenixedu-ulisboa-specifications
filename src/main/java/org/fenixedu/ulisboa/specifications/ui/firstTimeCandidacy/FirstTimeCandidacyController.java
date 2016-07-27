@@ -97,7 +97,9 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         Person person = AccessControl.getPerson();
         StudentAccessServices.requestSyncPersonFromExternal(person);
 
-        return redirect(PersonalInformationFormController.CONTROLLER_URL, model, redirectAttributes);
+        final ExecutionYear executionYear = getCandidacy(person).getExecutionYear();
+        return redirect(FirstTimeCandidacyAbstractController.urlWithExecutionYear(
+                PersonalInformationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     private static Predicate<Candidacy> isFirstTime = c -> (c instanceof FirstTimeCandidacy);
@@ -174,5 +176,5 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         }
         return period.isOpen();
     }
-    
+
 }
