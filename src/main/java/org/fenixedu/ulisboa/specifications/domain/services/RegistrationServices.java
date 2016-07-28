@@ -179,8 +179,16 @@ public class RegistrationServices {
                 .getInternshipConclusionDate() : null;
     }
 
+    static public void setCurriculumAccumulated(final Registration input, final boolean value) {
+        RegistrationExtendedInformation.findOrCreate(input).setCurriculumAccumulated(value);
+    }
+
+    static public boolean isCurriculumAccumulated(final Registration input) {
+        return input.getExtendedInformation() != null && input.getExtendedInformation().getCurriculumAccumulated();
+    }
+
     public static Collection<ExecutionYear> getEnrolmentYears(Registration registration, boolean includeDismissals) {
-        
+
         final Set<ExecutionYear> result = Sets.newHashSet();
 
         for (final ExecutionYear executionYear : registration.getSortedEnrolmentsExecutionYears()) {
@@ -199,7 +207,6 @@ public class RegistrationServices {
         }
 
         return result;
-
     }
 
 }

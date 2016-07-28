@@ -55,10 +55,18 @@ public class CurriculumLineServices {
         CurriculumLineExtendedInformation.findOrCreate(curriculumLine).setExcludedFromAverage(excludedFromAverage);
     }
 
-    static public Boolean isExcludedFromAverage(CurriculumLine curriculumLine) {
+    static public boolean isExcludedFromAverage(CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() != null
                 && curriculumLine.getExtendedInformation().getExcludedFromAverage() != null
                 && curriculumLine.getExtendedInformation().getExcludedFromAverage().booleanValue();
+    }
+
+    static public void setExcludedFromCurriculum(final CurriculumLine input, final boolean value) {
+        CurriculumLineExtendedInformation.findOrCreate(input).setExcludedFromCurriculum(value);
+    }
+
+    static public boolean isExcludedFromCurriculum(final CurriculumLine input) {
+        return input.getExtendedInformation() != null && input.getExtendedInformation().getExcludedFromCurriculum();
     }
 
     static public void setEctsCredits(CurriculumLine curriculumLine, BigDecimal ectsCredits) {
