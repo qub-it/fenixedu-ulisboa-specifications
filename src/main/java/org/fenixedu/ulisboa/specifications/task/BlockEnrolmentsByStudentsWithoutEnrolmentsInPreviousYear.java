@@ -15,10 +15,10 @@ import org.fenixedu.bennu.scheduler.CronTask;
 import org.fenixedu.bennu.scheduler.annotation.Task;
 import org.joda.time.DateTime;
 
+import com.google.common.collect.Sets;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
-
-import com.google.common.collect.Sets;
 
 @Task(englishTitle = "Block Enrolments By Students Without Enrolments In Previous Year", readOnly = true)
 public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends CronTask {
@@ -67,6 +67,13 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
                 continue;
             }
 
+            if (registration.getRegistrationDataByExecutionYearSet().size() == 1
+                    && registration.getStartDate().isBefore(currentExecutionYear.getBeginDateYearMonthDay())) {
+
+                getLogger().warn("Ignoring Registration [{}]: start date before the only year in historic", registrationInfo);
+                continue;
+            }
+
             final RegistrationState state = getActiveStateCreatedInExecutionYear(registration, currentExecutionYear);
             if (state != null) {
 
@@ -98,9 +105,8 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
             if (registration.getEnrolments(previousExecutionYear).isEmpty()) {
                 block = true;
 
-                final String reason =
-                        BundleUtil.getString(BUNDLE, "label.blockEnrolments.noEnrolmentsFound",
-                                previousExecutionYear.getQualifiedName());
+                final String reason = BundleUtil.getString(BUNDLE, "label.blockEnrolments.noEnrolmentsFound",
+                        previousExecutionYear.getQualifiedName());
 
                 reasons += "\n" + reason;
                 getLogger().debug("Will block Registration [{}]: {}", registrationInfo, reason);
@@ -131,9 +137,8 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
 
     @Atomic(mode = TxMode.WRITE)
     protected void blockRegistration(final Registration registration, String reasons) {
-        final RegistrationState createdState =
-                RegistrationState.createRegistrationState(registration, (Person) null, new DateTime(),
-                        RegistrationStateType.INTERRUPTED);
+        final RegistrationState createdState = RegistrationState.createRegistrationState(registration, (Person) null,
+                new DateTime(), RegistrationStateType.INTERRUPTED);
         createdState.setRemarks(String.format("Estado criado automaticamente. %s", reasons));
     }
 
