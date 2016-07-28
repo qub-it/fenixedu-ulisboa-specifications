@@ -86,6 +86,7 @@ public class CurricularPeriodConfigurationInitializer {
     static final private BigDecimal _180 = BigDecimal.valueOf(180);
 
     static public void init() {
+        //TODO: delete
         if (ULisboaConfiguration.getConfiguration().getCurricularPeriodConfigurationInitialize()) {
             reset();
             create();
@@ -1428,11 +1429,10 @@ public class CurricularPeriodConfigurationInitializer {
                 if (configYear3 == null) {
                     continue;
                 }
-                ApprovedCourses.createForSemester(configYear2, _8 /* approvals */, 1 /* semester */);
-                ApprovedCourses.createForSemester(configYear2, _8 /* approvals */, 2 /* semester */);
+                ApprovedCourses.createForSemester(configYear3, _8 /* approvals */, 1 /* semester */);
+                ApprovedCourses.createForSemester(configYear3, _8 /* approvals */, 2 /* semester */);
             }
-            
-            
+
             for (int i = dcp.getDurationInYears(); i > 1; i--) {
                 findOrCreateConfig(dcp, i);
             }

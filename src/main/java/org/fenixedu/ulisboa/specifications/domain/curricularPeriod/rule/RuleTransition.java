@@ -46,27 +46,28 @@ abstract public class RuleTransition extends RuleTransition_Base {
         super();
     }
 
-    protected void init(final CurricularPeriodConfiguration configuration, final BigDecimal credits, final Integer yearMin, final Integer yearMax) {
-        super.init(credits);
+    protected void init(final CurricularPeriodConfiguration configuration, final BigDecimal value, final Integer yearMin,
+            final Integer yearMax) {
+        super.init(value);
         setConfigurationTransition(configuration);
         setYearMin(yearMin);
         setYearMax(yearMax);
         checkRules();
     }
-    
+
     public BigDecimal getCredits() {
         return super.getValue();
     }
-    
+
     private void checkRules() {
         //
         //CHANGE_ME add more busines validations
         //
-        if (getConfigurationTransition() == null) {
-            throw new DomainException("error." + this.getClass().getSimpleName() + ".configuration.required");
+        if (getConfigurationTransition() == null && getParentRuleTransition() == null) {
+            throw new DomainException("error." + this.getClass().getSimpleName() + ".configuration.or.parent.rule.is.required");
         }
     }
-    
+
     protected boolean isForYear() {
         return getYearMin() != null && getYearMax() != null && getYearMin().intValue() == getYearMax().intValue();
     }
@@ -82,8 +83,8 @@ abstract public class RuleTransition extends RuleTransition_Base {
         //}
 
         if (getConfigurationTransition() != null) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error." + this.getClass().getSimpleName()
-                    + ".cannot.be.deleted"));
+            blockers.add(
+                    BundleUtil.getString(Bundle.APPLICATION, "error." + this.getClass().getSimpleName() + ".cannot.be.deleted"));
         }
     }
 
@@ -91,9 +92,15 @@ abstract public class RuleTransition extends RuleTransition_Base {
     @Atomic
     public void delete() {
         super.setConfigurationTransition(null);
+        super.setParentRuleTransition(null);
+
+        while (!getChildrenSet().isEmpty()) {
+            getChildrenSet().iterator().next().delete();
+        }
+
         super.delete();
     }
-    
+
     @Override
     protected CurricularPeriodConfiguration getConfiguration() {
         return getConfigurationTransition();
@@ -104,8 +111,14 @@ abstract public class RuleTransition extends RuleTransition_Base {
         return getConfigurationTransition().getDegreeCurricularPlan();
     }
 
+    public void addChildRule(RuleTransition ruleTransition) {
+        getChildrenSet().add(ruleTransition);
+        ruleTransition.setConfigurationTransition(null);
+        ruleTransition.checkRules();
+    }
+
     abstract public RuleResult execute(final Curriculum curriculum);
-    
+
     protected Curriculum prepareCurriculum(final Curriculum input) {
         Curriculum result = input;
 
@@ -117,6 +130,20 @@ abstract public class RuleTransition extends RuleTransition_Base {
 
         RegistrationServices.filterCurricularYearEntries(result, getSemester());
         return result;
+    }
+
+    @Override
+    public void copyConfigurationTo(CurricularPeriodRule target) {
+        super.copyConfigurationTo(target);
+
+        final RuleTransition ruleTransition = (RuleTransition) target;
+        ruleTransition.setAllowToCollectAllCurricularPlans(getAllowToCollectAllCurricularPlans());
+        ruleTransition.setCodesCSV(getCodesCSV());
+        ruleTransition.setStatuteTypeForRuleTransition(getStatuteTypeForRuleTransition());
+
+        for (final RuleTransition child : getChildrenSet()) {
+            ruleTransition.addChildRule((RuleTransition) child.cloneRule());
+        }
     }
 
 }

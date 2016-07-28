@@ -120,7 +120,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentPeriodRestrictionsInitializer.init();
         EnrolmentProcess.init();
         CurriculumConfigurationInitializer.init();
-        CurricularPeriodConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
         CurricularRuleExecutorInitializer.init();
         RegistrationRegimeVerifierInitializer.init();

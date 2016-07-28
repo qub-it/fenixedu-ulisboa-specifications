@@ -47,7 +47,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
     protected RuleEnrolment() {
         super();
     }
-    
+
     public BigDecimal getCredits() {
         return super.getValue();
     }
@@ -64,7 +64,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
         //CHANGE_ME add more busines validations
         //
         if (getConfigurationEnrolment() == null) {
-            throw new DomainException("error." + this.getClass().getSimpleName() + ".configuration.required");
+            throw new DomainException("error." + this.getClass().getSimpleName() + ".configuration.is.required");
         }
     }
 
@@ -79,8 +79,8 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
         //}
 
         if (getConfigurationEnrolment() != null) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error." + this.getClass().getSimpleName()
-                    + ".cannot.be.deleted"));
+            blockers.add(
+                    BundleUtil.getString(Bundle.APPLICATION, "error." + this.getClass().getSimpleName() + ".cannot.be.deleted"));
         }
     }
 
@@ -101,11 +101,18 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
         return getConfigurationEnrolment().getDegreeCurricularPlan();
     }
 
+    @Override
+    public void copyConfigurationTo(CurricularPeriodRule target) {
+        super.copyConfigurationTo(target);
+        final RuleEnrolment ruleEnrolment = (RuleEnrolment) target;
+        ruleEnrolment.setIncludeEnrolments(getIncludeEnrolments());
+    }
+
     abstract public RuleResult execute(final EnrolmentContext enrolmentContext);
 
     static protected Set<IDegreeModuleToEvaluate> getEnroledAndEnroling(final EnrolmentContext enrolmentContext) {
-        return enrolmentContext.getDegreeModulesToEvaluate().stream()
-                .filter(i -> i.isLeaf() && (i.isEnroled() || i.isEnroling())).collect(Collectors.toSet());
+        return enrolmentContext.getDegreeModulesToEvaluate().stream().filter(i -> i.isLeaf() && (i.isEnroled() || i.isEnroling()))
+                .collect(Collectors.toSet());
     }
 
     static protected Set<IDegreeModuleToEvaluate> getEnroledAndEnroling(final EnrolmentContext enrolmentContext,
