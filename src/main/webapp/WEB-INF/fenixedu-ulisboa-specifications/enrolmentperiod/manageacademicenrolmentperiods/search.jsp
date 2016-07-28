@@ -249,10 +249,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                 </td>
                                 <td>
 				                    <c:set var="statuteMeaning">
-				                    	<c:if test="${ bean.restrictToSelectedStatutes }">
+				                    	<c:if test="${ academicEnrolmentPeriod.restrictToSelectedStatutes }">
 				                    		<spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.true" />
 				                    	</c:if>
-				                    	<c:if test="${ !bean.restrictToSelectedStatutes }">
+				                    	<c:if test="${ !academicEnrolmentPeriod.restrictToSelectedStatutes }">
 				                    		<spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.false" />
 				                    	</c:if>
 				                    </c:set>
