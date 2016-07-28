@@ -147,7 +147,7 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
                 });
     }
 
-    static private String getInstructionsEntryPointURL(final HttpServletRequest request) {
+    static public String getInstructionsEntryPointURL(final HttpServletRequest request) {
         return EnrolmentManagementApp.getStrutsURL(request, ACTION, "showEnrollmentInstructions");
     }
 
