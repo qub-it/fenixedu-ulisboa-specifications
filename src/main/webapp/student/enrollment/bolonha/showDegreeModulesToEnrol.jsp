@@ -151,7 +151,7 @@
 					<logic:equal name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.executionSemester.externalId}">
 						<li role="presentation" class="active">
 							<a href="#">${period.executionSemester.qualifiedName}
-							<br/><span class="small text-muted">${bolonhaStudentEnrollmentBean.registration.degree.sigla}</span>
+							<br/><span class="small text-muted">${bolonhaStudentEnrollmentBean.registration.degree.presentationName}</span>
 							</a>
 						</li>
 					</logic:equal>

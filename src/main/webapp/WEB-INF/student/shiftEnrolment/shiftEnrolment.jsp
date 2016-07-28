@@ -153,7 +153,7 @@ ${portal.angularToolkit()}
 				<li role="presentation" class="<c:out value="${enrolmentBean.selected ? 'active' : ' '}" />">
 					<a href="${pageContext.request.contextPath}/student/shiftEnrolment/switchEnrolmentPeriod/${enrolmentBean.registration.externalId}/${enrolmentBean.enrolmentPeriod.externalId}">
 						<c:out value="${enrolmentBean.enrolmentPeriod.executionSemester.qualifiedName}" /> 
-						<br/><span class="small text-muted"><c:out value="${enrolmentBean.registration.degree.sigla}" /></span>
+						<br/><span class="small text-muted"><c:out value="${enrolmentBean.registration.degree.presentationName}" /></span>
 					</a>
 				</li>
 				<c:if test="${enrolmentBean.selected}"><c:set var="selectedEnrolmentBean" value="${enrolmentBean}" /></c:if>
