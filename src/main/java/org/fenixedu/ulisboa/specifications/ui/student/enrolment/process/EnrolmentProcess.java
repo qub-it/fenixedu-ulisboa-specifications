@@ -218,11 +218,14 @@ public class EnrolmentProcess implements IBean {
     static public EnrolmentProcess find(final ExecutionSemester semester, final StudentCurricularPlan scp) {
         EnrolmentProcess result = null;
 
-        final EnrolmentProcess indexer = new EnrolmentProcess(semester, scp);
-        for (final EnrolmentProcess iter : buildProcesses(scp.getRegistration().getStudent())) {
-            if (iter.equals(indexer)) {
-                result = iter;
-                break;
+        if (semester != null && scp != null) {
+            
+            final EnrolmentProcess indexer = new EnrolmentProcess(semester, scp);
+            for (final EnrolmentProcess iter : buildProcesses(scp.getRegistration().getStudent())) {
+                if (iter.equals(indexer)) {
+                    result = iter;
+                    break;
+                }
             }
         }
 
@@ -240,7 +243,6 @@ public class EnrolmentProcess implements IBean {
         final Set<EnrolmentProcess> builder = Sets.newHashSet();
 
         // essential sort
-        periods.removeIf(i -> !i.isOpen());
         periods.sort(Comparator.comparing(AcademicEnrolmentPeriodBean::getEnrolmentPeriodType)
                 .thenComparing(AcademicEnrolmentPeriodBean::getExecutionSemester)
                 .thenComparing(AcademicEnrolmentPeriodBean::getStartDate));
