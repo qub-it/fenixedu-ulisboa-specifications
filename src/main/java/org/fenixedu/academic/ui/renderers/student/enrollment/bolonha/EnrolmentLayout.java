@@ -461,12 +461,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return input.isToBeDisabled()
 
                 // qubExtension
-                || (isStudentLogged()
+                || (isStudentLogged() &&
 
-                        && appliesAnyRules(input.getCurriculumModule(), true /* recursive */,
+                        (appliesAnyRules(input.getCurriculumModule(), true /* recursive */,
                                 EnrolmentToBeApprovedByCoordinator.class)
 
-                        && appliesAnyRules(input.getCurriculumModule(), false /* recursive */, ConditionedRoute.class))
+                                || appliesAnyRules(input.getCurriculumModule(), false /* recursive */, ConditionedRoute.class)))
 
                 // qubExtension
                 || input.getCurriculumModule().getDegreeModule().getChildContextsSet().stream()
