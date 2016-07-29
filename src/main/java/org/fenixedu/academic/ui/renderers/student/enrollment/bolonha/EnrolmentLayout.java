@@ -56,7 +56,6 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.ConditionedRoute;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
@@ -563,7 +562,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     protected void encodeCurricularRules(final HtmlTable groupTable, final List<CurricularRule> curricularRules) {
         // qubExtension
         for (final Iterator<CurricularRule> iterator = curricularRules.iterator(); iterator.hasNext();) {
-            if (iterator.next() instanceof CurriculumAggregatorApproval) {
+            final CurricularRule iter = iterator.next();
+            if (!iter.isVisible()) {
                 iterator.remove();
             }
         }

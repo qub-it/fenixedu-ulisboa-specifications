@@ -83,4 +83,9 @@ public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_B
         return Lists.newArrayList(new GenericPair<Object, Boolean>(label, false));
     }
 
+    @Override
+    public boolean isVisible() {
+        return false;
+    }
+
 }
