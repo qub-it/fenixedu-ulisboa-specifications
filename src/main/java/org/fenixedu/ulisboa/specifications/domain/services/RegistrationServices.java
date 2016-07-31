@@ -115,16 +115,19 @@ public class RegistrationServices {
         return curriculumSum;
     }
 
-    static public void filterCurricularYearEntries(final Curriculum input, final Integer semester) {
-        if (semester != null) {
+    static public Curriculum filterCurricularYearEntriesBySemester(final Curriculum input, final Integer semester) {
 
-            for (final Iterator<ICurriculumEntry> iterator = input.getCurricularYearEntries().iterator(); iterator.hasNext();) {
-                final ICurriculumEntry iter = iterator.next();
-                if (semester.intValue() != CurricularPeriodServices.getCurricularSemester((CurriculumLine) iter)) {
-                    iterator.remove();
-                }
+        final Curriculum result = Curriculum.createEmpty(input.getCurriculumModule(), input.getExecutionYear());
+        result.add(input);
+
+        for (final Iterator<ICurriculumEntry> iterator = result.getCurricularYearEntries().iterator(); iterator.hasNext();) {
+            final ICurriculumEntry iter = iterator.next();
+            if (semester.intValue() != CurricularPeriodServices.getCurricularSemester((CurriculumLine) iter)) {
+                iterator.remove();
             }
         }
+
+        return result;
     }
 
     public static void setIngressionGradeA(Registration registration, BigDecimal grade) {

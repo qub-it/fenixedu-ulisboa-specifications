@@ -103,12 +103,12 @@ abstract public class RuleTransition extends RuleTransition_Base {
 
     @Override
     protected CurricularPeriodConfiguration getConfiguration() {
-        return getConfigurationTransition();
+        return getParentRuleTransition() != null ? getParentRuleTransition().getConfiguration() : getConfigurationTransition();
     }
 
     @Override
     protected DegreeCurricularPlan getDegreeCurricularPlan() {
-        return getConfigurationTransition().getDegreeCurricularPlan();
+        return getConfiguration().getDegreeCurricularPlan();
     }
 
     public void addChildRule(RuleTransition ruleTransition) {
@@ -128,7 +128,10 @@ abstract public class RuleTransition extends RuleTransition_Base {
             result = RegistrationServices.getAllPlansCurriculum(registration, input.getExecutionYear());
         }
 
-        RegistrationServices.filterCurricularYearEntries(result, getSemester());
+        if (getSemester() != null) {
+            result = RegistrationServices.filterCurricularYearEntriesBySemester(result, getSemester());
+        }
+
         return result;
     }
 
