@@ -519,6 +519,9 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		class curricularPeriod.rule.transition.StudentStatuteExecutiveRule extends curricularPeriod.rule.RuleTransition {
 		}
 		
+		class curricularPeriod.rule.transition.EnrolmentYears extends curricularPeriod.rule.RuleTransition {
+		}
+		
 relation CurricularPeriodConfigurationRuleEnrolment {
 	curricularPeriod.CurricularPeriodConfiguration playsRole configurationEnrolment {
 		multiplicity 0..1;

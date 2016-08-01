@@ -179,4 +179,27 @@ public class RegistrationServices {
                 .getInternshipConclusionDate() : null;
     }
 
+    public static Collection<ExecutionYear> getEnrolmentYears(Registration registration, boolean includeDismissals) {
+        
+        final Set<ExecutionYear> result = Sets.newHashSet();
+
+        for (final ExecutionYear executionYear : registration.getSortedEnrolmentsExecutionYears()) {
+            if (registration.getEnrolments(executionYear).stream().anyMatch(x -> !x.isAnnulled())) {
+                result.add(executionYear);
+            }
+        }
+
+        if (includeDismissals) {
+
+            for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
+                for (final Credits credits : studentCurricularPlan.getCreditsSet()) {
+                    result.add(credits.getExecutionPeriod().getExecutionYear());
+                }
+            }
+        }
+
+        return result;
+
+    }
+
 }
