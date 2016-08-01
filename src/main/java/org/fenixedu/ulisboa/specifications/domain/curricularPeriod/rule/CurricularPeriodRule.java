@@ -25,6 +25,8 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collections;
 
@@ -67,7 +69,7 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         //CHANGE_ME add more busines validations
         //
         if (getValue() == null) {
-            throw new DomainException("error." + this.getClass().getSimpleName() + ".credits.required");
+            throw new DomainException("error." + this.getClass().getSimpleName() + ".value.required");
         }
     }
 
@@ -130,6 +132,14 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         return RuleResult.createNA(getDegreeModule());
     }
 
+    public void copyConfigurationTo(CurricularPeriodRule target) {
+        target.setValue(getValue());
+        target.setHideMessagePrefix(getHideMessagePrefix());
+        target.setSemester(getSemester());
+        target.setYearMin(getYearMin());
+        target.setYearMax(getYearMax());;
+    }
+
     private String getMessagesPrefix() {
         return getMessagesPrefix(getConfiguration(), getHideMessagePrefix());
     }
@@ -142,6 +152,26 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     static private String getMessagesSuffix(final BigDecimal total) {
         return total == null ? "" : (" "
                 + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString()));
+    }
+
+    public CurricularPeriodRule cloneRule() {
+
+        try {
+            
+            final Constructor<? extends CurricularPeriodRule> constructor = getClass().getDeclaredConstructor();
+            constructor.setAccessible(true);
+
+            final CurricularPeriodRule newInstance = constructor.newInstance();
+
+            copyConfigurationTo(newInstance);
+
+            return newInstance;
+
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

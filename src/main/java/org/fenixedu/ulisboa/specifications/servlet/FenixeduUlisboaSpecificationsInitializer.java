@@ -61,7 +61,6 @@ import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutorInitializer;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
@@ -120,7 +119,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentPeriodRestrictionsInitializer.init();
         EnrolmentProcess.init();
         CurriculumConfigurationInitializer.init();
-        CurricularPeriodConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
         CurricularRuleExecutorInitializer.init();
         RegistrationRegimeVerifierInitializer.init();

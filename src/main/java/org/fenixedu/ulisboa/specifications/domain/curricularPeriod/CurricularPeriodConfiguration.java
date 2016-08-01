@@ -107,7 +107,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
         if (getRuleEnrolmentSet().isEmpty()) {
             final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
             logger.debug("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
-            
+
             return falseResult;
         }
 
@@ -119,7 +119,8 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
                 return ruleResult;
             }
 
-            logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+            logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
+                    rule.getLabel());
 
         }
 
@@ -154,11 +155,19 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
                 return ruleResult;
             }
 
-            logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+            logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
+                    rule.getLabel());
+        }
+
+        final Collection<RuleTransition> otherRules = getFilteredRuleTransition(false);
+        if (otherRules.isEmpty()) {
+            final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
+            logger.debug("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
+            return falseResult;
         }
 
         RuleResult result = RuleResult.createTrue(degreeModule);
-        for (final RuleTransition rule : getFilteredRuleTransition(false)) {
+        for (final RuleTransition rule : otherRules) {
 
             final RuleResult ruleResult = rule.execute(curriculum);
             if (!ruleResult.isTrue()) {

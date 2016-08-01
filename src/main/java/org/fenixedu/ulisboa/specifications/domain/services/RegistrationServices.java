@@ -115,16 +115,19 @@ public class RegistrationServices {
         return curriculumSum;
     }
 
-    static public void filterCurricularYearEntries(final Curriculum input, final Integer semester) {
-        if (semester != null) {
+    static public Curriculum filterCurricularYearEntriesBySemester(final Curriculum input, final Integer semester) {
 
-            for (final Iterator<ICurriculumEntry> iterator = input.getCurricularYearEntries().iterator(); iterator.hasNext();) {
-                final ICurriculumEntry iter = iterator.next();
-                if (semester.intValue() != CurricularPeriodServices.getCurricularSemester((CurriculumLine) iter)) {
-                    iterator.remove();
-                }
+        final Curriculum result = Curriculum.createEmpty(input.getCurriculumModule(), input.getExecutionYear());
+        result.add(input);
+
+        for (final Iterator<ICurriculumEntry> iterator = result.getCurricularYearEntries().iterator(); iterator.hasNext();) {
+            final ICurriculumEntry iter = iterator.next();
+            if (semester.intValue() != CurricularPeriodServices.getCurricularSemester((CurriculumLine) iter)) {
+                iterator.remove();
             }
         }
+
+        return result;
     }
 
     public static void setIngressionGradeA(Registration registration, BigDecimal grade) {
@@ -174,6 +177,29 @@ public class RegistrationServices {
     public static LocalDate getInternshipConclusionDate(Registration registration) {
         return registration.getExtendedInformation() != null ? registration.getExtendedInformation()
                 .getInternshipConclusionDate() : null;
+    }
+
+    public static Collection<ExecutionYear> getEnrolmentYears(Registration registration, boolean includeDismissals) {
+        
+        final Set<ExecutionYear> result = Sets.newHashSet();
+
+        for (final ExecutionYear executionYear : registration.getSortedEnrolmentsExecutionYears()) {
+            if (registration.getEnrolments(executionYear).stream().anyMatch(x -> !x.isAnnulled())) {
+                result.add(executionYear);
+            }
+        }
+
+        if (includeDismissals) {
+
+            for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
+                for (final Credits credits : studentCurricularPlan.getCreditsSet()) {
+                    result.add(credits.getExecutionPeriod().getExecutionYear());
+                }
+            }
+        }
+
+        return result;
+
     }
 
 }

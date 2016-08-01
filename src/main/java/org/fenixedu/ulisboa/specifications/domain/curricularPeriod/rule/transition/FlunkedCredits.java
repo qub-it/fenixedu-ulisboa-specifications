@@ -48,15 +48,8 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         return result;
     }
 
-    @Atomic
-    @Override
-    public void delete() {
-        super.setStatuteTypeForFlunkedCredits(null);
-        super.delete();
-    }
-
     public StatuteType getStatuteType() {
-        return super.getStatuteTypeForFlunkedCredits();
+        return super.getStatuteTypeForRuleTransition();
     }
 
     @Override

@@ -19,14 +19,15 @@ public class RuleTransitionOr extends RuleTransitionOr_Base {
     }
 
     protected void init(final CurricularPeriodConfiguration configuration, final List<RuleTransition> children) {
-        super.init(configuration, null, null, null);
-        super.getChildrenSet().addAll(children);
+        super.init(configuration, BigDecimal.valueOf(children.size()), null, null);
+        children.forEach(x -> addChildRule(x));
         checkRules();
     }
 
     private void checkRules() {
-        if (getChildrenSet().isEmpty())
+        if (getChildrenSet().isEmpty()) {
             throw new DomainException("error.RuleTransitionOr.at.least.one.child.is.required");
+        }
     }
 
     @Atomic
