@@ -140,7 +140,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 						<ui-select-match>{{$item.text}}</ui-select-match> 
 						<ui-select-choices repeat="registrationProtocol.id as registrationProtocol in object.registrationProtocolsDataSource | filter: $select.search">
 							<span ng-bind-html="registrationProtocol.text | highlight: $select.search"></span>
-						</ui-select-choices>interstellar streaming
+						</ui-select-choices>
 					</ui-select>
 				</div>
 			</div>

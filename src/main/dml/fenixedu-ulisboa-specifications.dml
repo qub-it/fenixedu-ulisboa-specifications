@@ -2374,3 +2374,36 @@ relation ActiveStudentOverrideBennu {
 }
 // ========================= End Student active override ==============================
 
+
+class tuitionpenalty.TuitionPenaltyConfiguration {
+}
+
+	relation TuitionPenaltyConfigurationBennu {
+	    .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+	        multiplicity 1..1;
+	    }
+		
+		tuitionpenalty.TuitionPenaltyConfiguration playsRole tuitionPenaltyConfigurations {
+			multiplicity *;
+		}
+	}
+
+	relation TuitionPenaltyConfigurationServiceRequestType {
+		tuitionpenalty.TuitionPenaltyConfiguration playsRole tuitionPenaltyConfiguration {
+			multiplicity 0..1;
+		}
+	
+		.org.fenixedu.academic.domain.serviceRequests.ServiceRequestType playsRole tuitionPenaltyServiceRequestType {
+			multiplicity 0..1;
+		}
+	}
+
+	relation TuitionPenaltyConfigurationServiceRequestSlot {
+		tuitionpenalty.TuitionPenaltyConfiguration playsRole tuitionPenaltyConfiguration {
+			multiplicity 0..1;
+		}
+
+		serviceRequests.ServiceRequestSlot playsRole tuitionInstallmentOrderSlot {
+			multiplicity 0..1;
+		}
+	}

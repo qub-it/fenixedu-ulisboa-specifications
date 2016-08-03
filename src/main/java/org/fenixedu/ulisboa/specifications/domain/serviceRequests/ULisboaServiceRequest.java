@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,6 +83,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qubit.terra.docs.util.ReportGenerationException;
 
 import pt.ist.fenixframework.Atomic;
@@ -513,6 +515,33 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             return property.get();
         }
         return null;
+    }
+    
+    public Map<String, String> getPropertyValuesMap() {
+        final Map<String, String> result = Maps.newHashMap();
+        
+        for (final ServiceRequestSlotEntry slotEntry : getServiceRequestType().getServiceRequestSlotEntriesSet()) {
+            final ServiceRequestSlot slot = slotEntry.getServiceRequestSlot();
+            Optional<ServiceRequestProperty> propertyOpt = ServiceRequestProperty.find(this, slot).findFirst();
+            if(propertyOpt.isPresent() && propertyOpt.get().getValue() != null) {
+                String value = null;
+                if(slot.getUiComponentType().isBooleanDropDown()) {
+                    value = propertyOpt.get().getValue().toString();
+                } else if(slot.getUiComponentType().isDateBox()) {
+                    // TODO: Implement
+                } else if(slot.getUiComponentType().isNumberBox()) {
+                    value = propertyOpt.get().getValue().toString();
+                } else if(slot.getUiComponentType().isTextBox()) {
+                    value = propertyOpt.get().getValue().toString();
+                }
+                
+                if(!Strings.isNullOrEmpty(value)) {
+                    result.put(slot.getCode(), value);
+                }
+            }
+        }
+        
+        return result;
     }
 
     public boolean hasProperty(String slotCode) {

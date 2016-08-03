@@ -185,6 +185,10 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     public static Stream<ServiceRequestProperty> findByCode(String code) {
         return ServiceRequestProperty.findAll().filter(prop -> prop.getServiceRequestSlot().getCode().equals(code));
     }
+    
+    public static Stream<ServiceRequestProperty> find(final ULisboaServiceRequest request, final ServiceRequestSlot slot) {
+        return request.getServiceRequestPropertiesSet().stream().filter(p -> p.getServiceRequestSlot() == slot);
+    }
 
     @Atomic
     public static ServiceRequestProperty create(ServiceRequestSlot slot) {
@@ -192,12 +196,27 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     }
 
     @Atomic
+    @Deprecated
+    // This method should receive the service request
     public static ServiceRequestProperty create(ServiceRequestSlot slot, Object value) {
         if (value == null) {
             return create(slot);
         }
         ServiceRequestProperty property = new ServiceRequestProperty(slot);
         property.setValue(value);
+        return property;
+    }
+    
+    // This method should receive the service request
+    public static ServiceRequestProperty create(ULisboaServiceRequest request, ServiceRequestSlot slot, Object value) {
+        if (value == null) {
+            return create(slot);
+        }
+        ServiceRequestProperty property = new ServiceRequestProperty(slot);
+        property.setValue(value);
+        
+        property.setULisboaServiceRequest(request);
+        
         return property;
     }
 
