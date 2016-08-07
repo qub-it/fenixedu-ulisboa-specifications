@@ -74,7 +74,8 @@
 			<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
 		</a>
 	    &nbsp;|&nbsp;
-		<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+		<bean:define id="continueHACKLink"><%= request.getContextPath() + org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA.createEnrolmentStepEndProcess().getEntryPointURL()  %>&studentCurricularPlanOID=<c:out value="${enrolmentProcess.studentCurricularPlan.externalId}" />&executionSemesterOID=<c:out value="${enrolmentProcess.executionSemester.externalId}" /></bean:define>
+		<a class="" href="<%= continueHACKLink %>">
 			<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
 		</a>
 		&nbsp;
