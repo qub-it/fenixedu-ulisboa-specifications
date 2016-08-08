@@ -571,16 +571,26 @@ class curricularRules.ConditionedRoute extends .org.fenixedu.academic.domain.cur
 class curricularRules.StudentStatuteCurricularRule extends .org.fenixedu.academic.domain.curricularRules.Rule {
 }
 
-relation StudentStatuteCurricularRuleStatuteType {
-	curricularRules.StudentStatuteCurricularRule playsRole studentStatuteCurricularRules {
-		multiplicity *;
+	relation StudentStatuteCurricularRuleStatuteType {
+		curricularRules.StudentStatuteCurricularRule playsRole studentStatuteCurricularRules {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
+			multiplicity 1..1;
+		}
 	}
 	
-	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
-		multiplicity 1..1;
+	relation StudentStatuteCurricularRuleCurricularPeriod {
+		curricularRules.StudentStatuteCurricularRule playsRole studentStatuteCurricularRules {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod playsRole curricularPeriod {
+			multiplicity 0..1;
+		}
 	}
-}
-
+	
 class curricularRules.StudentSchoolClassCurricularRule extends .org.fenixedu.academic.domain.curricularRules.Rule {
 }
 

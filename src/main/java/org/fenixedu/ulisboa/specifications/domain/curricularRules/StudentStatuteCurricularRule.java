@@ -3,9 +3,11 @@ package org.fenixedu.ulisboa.specifications.domain.curricularRules;
 import java.util.List;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
@@ -13,6 +15,7 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.dto.GenericPair;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.StudentStatuteCurricularRuleExecutor;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.verifyExecutors.StudentStatuteCurricularRuleVerifier;
@@ -28,16 +31,19 @@ public class StudentStatuteCurricularRule extends StudentStatuteCurricularRule_B
     }
 
     public StudentStatuteCurricularRule(final DegreeModule toApplyRule, final CourseGroup contextCourseGroup,
-            final ExecutionSemester begin, final ExecutionSemester end, StatuteType statuteType) {
+            final ExecutionSemester begin, final ExecutionSemester end, final StatuteType statuteType,
+            final CurricularPeriod curricularPeriod) {
 
         this();
         init(toApplyRule, contextCourseGroup, begin, end, CurricularRuleType.CUSTOM);
-        edit(contextCourseGroup, statuteType);
+        edit(contextCourseGroup, statuteType, curricularPeriod);
     }
 
-    public void edit(CourseGroup contextCourseGroup, StatuteType statuteType) {
+    public void edit(final CourseGroup contextCourseGroup, final StatuteType statuteType,
+            final CurricularPeriod curricularPeriod) {
         setContextCourseGroup(contextCourseGroup);
         super.setStatuteType(statuteType);
+        super.setCurricularPeriod(curricularPeriod);
         checkRules();
     }
 
@@ -70,12 +76,22 @@ public class StudentStatuteCurricularRule extends StudentStatuteCurricularRule_B
                 .append(StatuteServices.getCodeAndName(getStatuteType()));
         if (getContextCourseGroup() != null) {
             label.append(", ");
-            label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.inGroup"));
+            label.append(BundleUtil.getString(Bundle.BOLONHA, "label.inGroup"));
             label.append(" ");
             label.append(getContextCourseGroup().getOneFullName());
         }
 
         return Lists.newArrayList(new GenericPair<Object, Boolean>(label, false));
+    }
+
+    @Override
+    public boolean isVisible() {
+        return false;
+    }
+
+    @Override
+    public boolean appliesToContext(final Context context) {
+        return super.appliesToContext(context) && CurricularRuleServices.appliesToPeriod(context, getCurricularPeriod());
     }
 
 }
