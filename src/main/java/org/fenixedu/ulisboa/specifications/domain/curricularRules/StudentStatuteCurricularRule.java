@@ -66,6 +66,7 @@ public class StudentStatuteCurricularRule extends StudentStatuteCurricularRule_B
     @Override
     protected void removeOwnParameters() {
         super.setStatuteType(null);
+        super.setCurricularPeriod(null);
     }
 
     @Override
