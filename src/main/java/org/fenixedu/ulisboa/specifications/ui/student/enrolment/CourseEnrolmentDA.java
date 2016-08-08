@@ -178,10 +178,10 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
     private EnrolmentProcess setContext(final HttpServletRequest request, final ExecutionSemester executionSemester,
             final StudentCurricularPlan scp) {
 
-        checkUser(scp.getRegistration());
         final EnrolmentProcess process = EnrolmentProcess.find(executionSemester, scp);
 
         if (process != null) {
+            checkUser(scp.getRegistration());
             final List<AcademicEnrolmentPeriodBean> periods =
                     process.getEnrolmentPeriods().stream().filter(i -> i.isForCurricularCourses()).collect(Collectors.toList());
             request.setAttribute("openedEnrolmentPeriods", periods);
