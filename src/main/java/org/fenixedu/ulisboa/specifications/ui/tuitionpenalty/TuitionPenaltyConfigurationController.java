@@ -12,7 +12,6 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsContr
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.TuitionPenaltyConfiguration.title",
         accessGroup = "treasuryManagers")
@@ -57,7 +56,7 @@ public class TuitionPenaltyConfigurationController extends FenixeduUlisboaSpecif
     public String editpost(TuitionPenaltyConfigurationBean bean, final Model model) {
         try {
             TuitionPenaltyConfiguration.getInstance().edit(bean.getTuitionPenaltyServiceRequestType(),
-                    bean.getTuitionInstallmentOrderSlot());
+                    bean.getTuitionInstallmentOrderSlot(), bean.getExecutionYearSlot());
             
             return "redirect:" + READ_URL;
         } catch (final DomainException e) {

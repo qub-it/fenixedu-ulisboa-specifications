@@ -533,6 +533,14 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     value = propertyOpt.get().getValue().toString();
                 } else if(slot.getUiComponentType().isTextBox()) {
                     value = propertyOpt.get().getValue().toString();
+                } else if(slot.getUiComponentType().isSingleDropDown()) {
+                    if(ServiceRequestProperty.find(this, slot).count() > 0) {
+                        ServiceRequestProperty prop = ServiceRequestProperty.find(this, slot).iterator().next();
+                        
+                        if(prop.getExecutionYear() != null) {
+                            value = prop.getExecutionYear().getQualifiedName();
+                        }
+                    }
                 }
                 
                 if(!Strings.isNullOrEmpty(value)) {

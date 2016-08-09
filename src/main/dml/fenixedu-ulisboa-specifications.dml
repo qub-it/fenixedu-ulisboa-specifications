@@ -2409,11 +2409,21 @@ class tuitionpenalty.TuitionPenaltyConfiguration {
 	}
 
 	relation TuitionPenaltyConfigurationServiceRequestSlot {
-		tuitionpenalty.TuitionPenaltyConfiguration playsRole tuitionPenaltyConfiguration {
+		tuitionpenalty.TuitionPenaltyConfiguration playsRole tuitionPenaltyConfigurationForTuitionInstallmentOrder {
 			multiplicity 0..1;
 		}
 
 		serviceRequests.ServiceRequestSlot playsRole tuitionInstallmentOrderSlot {
+			multiplicity 0..1;
+		}
+	}
+	
+	relation TuitionPenaltyConfigurationExecutionYearServiceRequestSlot {
+		tuitionpenalty.TuitionPenaltyConfiguration playsRole tuitionPenaltyConfigurationForExecutionYear {
+			multiplicity 0..1;
+		}
+
+		serviceRequests.ServiceRequestSlot playsRole executionYearSlot {
 			multiplicity 0..1;
 		}
 	}

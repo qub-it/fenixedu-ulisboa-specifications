@@ -15,9 +15,11 @@ public class TuitionPenaltyConfiguration extends TuitionPenaltyConfiguration_Bas
 
     @Atomic
     public void edit(final ServiceRequestType tuitionPenaltyServiceRequestType,
-            final ServiceRequestSlot tuitionInstallmentOrderSlot) {
+            final ServiceRequestSlot tuitionInstallmentOrderSlot,
+            final ServiceRequestSlot executionYearSlot) {
         setTuitionPenaltyServiceRequestType(tuitionPenaltyServiceRequestType);
         setTuitionInstallmentOrderSlot(tuitionInstallmentOrderSlot);
+        setExecutionYearSlot(executionYearSlot);
     }
 
     @Atomic

@@ -8,6 +8,7 @@ public class TuitionPenaltyConfigurationBean {
 
     private ServiceRequestType tuitionPenaltyServiceRequestType;
     private ServiceRequestSlot tuitionInstallmentOrderSlot;
+    private ServiceRequestSlot executionYearSlot;
     
     public TuitionPenaltyConfigurationBean() {
     }
@@ -15,6 +16,7 @@ public class TuitionPenaltyConfigurationBean {
     public TuitionPenaltyConfigurationBean(final TuitionPenaltyConfiguration configuration) {
         setTuitionPenaltyServiceRequestType(configuration.getTuitionPenaltyServiceRequestType());
         setTuitionInstallmentOrderSlot(configuration.getTuitionInstallmentOrderSlot());
+        setExecutionYearSlot(configuration.getExecutionYearSlot());
     }
     
     // @formatter:off
@@ -38,6 +40,14 @@ public class TuitionPenaltyConfigurationBean {
     
     public void setTuitionInstallmentOrderSlot(ServiceRequestSlot tuitionInstallmentOrderSlot) {
         this.tuitionInstallmentOrderSlot = tuitionInstallmentOrderSlot;
+    }
+    
+    public ServiceRequestSlot getExecutionYearSlot() {
+        return executionYearSlot;
+    }
+    
+    public void setExecutionYearSlot(ServiceRequestSlot executionYearSlot) {
+        this.executionYearSlot = executionYearSlot;
     }
     
 }

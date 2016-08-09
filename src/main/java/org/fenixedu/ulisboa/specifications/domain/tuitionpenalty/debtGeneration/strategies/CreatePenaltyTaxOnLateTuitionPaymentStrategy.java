@@ -66,7 +66,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
     public boolean isEntriesRequired() {
         return false;
     }
-    
+
     @Override
     public void process(AcademicDebtGenerationRule rule) {
 
@@ -81,7 +81,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
         if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
             return;
         }
-        
+
         for (final DegreeCurricularPlan degreeCurricularPlan : rule.getDegreeCurricularPlansSet()) {
             for (final Registration registration : degreeCurricularPlan.getRegistrations()) {
 
@@ -124,6 +124,10 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
             return;
         }
 
+        if (TuitionPenaltyConfiguration.getInstance().getExecutionYearSlot() == null) {
+            return;
+        }
+
         if (registration.getStudentCurricularPlan(rule.getExecutionYear()) == null) {
             return;
         }
@@ -151,10 +155,10 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
         final AcademicTreasuryEvent tuitionEvent = tuitionEventOptional.get();
 
-        if(!tuitionEvent.isCharged()) {
+        if (!tuitionEvent.isCharged()) {
             return;
         }
-        
+
         outer: for (final DebitEntry debitEntry : DebitEntry.find(tuitionEvent).collect(Collectors.<DebitEntry> toSet())) {
             if (debitEntry.getProduct().getProductGroup() != AcademicTreasurySettings.getInstance().getTuitionProductGroup()) {
                 continue;
@@ -180,43 +184,60 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
             // Find academic service request for 
             final ServiceRequestType type = TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType();
-            final ServiceRequestSlot slot =
+            final ServiceRequestSlot installmentOrderSlot =
                     TuitionPenaltyConfiguration.getInstance().getTuitionInstallmentOrderSlot();
+            final ServiceRequestSlot executionYearSlot = TuitionPenaltyConfiguration.getInstance().getExecutionYearSlot();
 
-            if (type == null || slot == null) {
+            if (type == null || installmentOrderSlot == null || executionYearSlot == null) {
                 throw new RuntimeException("error");
             }
 
             final Set<ULisboaServiceRequest> tuitionPenaltyRequests = ULisboaServiceRequest.findByRegistration(registration)
-                    .filter(s -> s.getServiceRequestType() == type).collect(Collectors.toSet());
+                    .filter(s -> s.getServiceRequestType() == type && s.getExecutionYear() == rule.getExecutionYear())
+                    .collect(Collectors.toSet());
 
             boolean isToCreateServiceRequest = false;
-            for(final ULisboaServiceRequest request: tuitionPenaltyRequests) {
-                for(final ServiceRequestProperty property : ServiceRequestProperty.find(request, slot).collect(Collectors.toSet())) {
-                    if(property.getInteger() == null) {
+            for (final ULisboaServiceRequest request : tuitionPenaltyRequests) {
+                for (final ServiceRequestProperty property : ServiceRequestProperty.find(request, installmentOrderSlot)
+                        .collect(Collectors.toSet())) {
+                    if (property.getInteger() == null) {
                         continue;
                     }
-                    
-                    if(!property.getInteger().equals(debitEntry.getProduct().getTuitionInstallmentOrder())) {
+
+                    if (!property.getInteger().equals(debitEntry.getProduct().getTuitionInstallmentOrder())) {
                         continue;
                     }
-                    
+
                     // Found! Get academic treasury event to check if it is charged
                     Optional<? extends AcademicTreasuryEvent> academicServiceRequest = AcademicTreasuryEvent.findUnique(request);
-                    
-                    if(!academicServiceRequest.isPresent() || !academicServiceRequest.get().isCharged() ) {
+
+                    if (!academicServiceRequest.isPresent() || !academicServiceRequest.get().isCharged()) {
                         // Charge
                         EmolumentServices.createAcademicServiceRequestEmolument(request);
                     }
-                    
+
                     continue outer;
                 }
             }
-            
-            final ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(type, registration, false, new DateTime());
-            ServiceRequestProperty.create(serviceRequest, slot, debitEntry.getProduct().getTuitionInstallmentOrder());
+
+            createPenaltyRule(rule, registration, debitEntry, type, installmentOrderSlot, executionYearSlot);
+        }
+    }
+
+    private ULisboaServiceRequest createPenaltyRule(final AcademicDebtGenerationRule rule, final Registration registration,
+            final DebitEntry debitEntry, final ServiceRequestType type, final ServiceRequestSlot installmentOrderSlot,
+            final ServiceRequestSlot executionYearSlot) {
+        final ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(type, registration, false, new DateTime());
+        ServiceRequestProperty.create(serviceRequest, installmentOrderSlot, debitEntry.getProduct().getTuitionInstallmentOrder());
+
+        if (ServiceRequestProperty.find(serviceRequest, executionYearSlot).count() > 0) {
+            ServiceRequestProperty.find(serviceRequest, executionYearSlot).iterator().next()
+                    .setExecutionYear(rule.getExecutionYear());
+        } else {
+            ServiceRequestProperty.create(serviceRequest, executionYearSlot, rule.getExecutionYear());
         }
 
+        return serviceRequest;
     }
 
 }

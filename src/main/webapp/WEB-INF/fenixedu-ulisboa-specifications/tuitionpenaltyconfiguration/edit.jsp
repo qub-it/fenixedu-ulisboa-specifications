@@ -117,6 +117,28 @@ ${portal.toolkit()}
 				});
 			</script>
 
+
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.TuitionPenaltyConfiguration.executionYearSlot" />
+				</div>
+
+				<div class="col-sm-10">
+					<select id="executionYearSlot" class="js-example-basic-single" name="executionYearSlot" required>
+						<option value="-1"></option>
+						<c:forEach var="s" items="${serviceRequestSlots}">
+							<option value="${s.externalId}"><c:out value="${s.label.content}" /></option>
+						</c:forEach>
+					</select>
+				</div>
+			</div>
+			<script>
+				$(document).ready(function() {
+				    $("#executionYearSlot").select2()
+				    .select2('val', '<c:out value="${param.executionYearSlot != null ? param.executionYearSlot.externalId : bean.executionYearSlot.externalId}"/>');
+				});
+			</script>
+
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.submit" />" />

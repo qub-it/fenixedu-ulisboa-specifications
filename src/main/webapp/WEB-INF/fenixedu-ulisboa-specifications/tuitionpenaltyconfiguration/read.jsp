@@ -110,6 +110,14 @@ ${portal.angularToolkit()}
 							<c:out value='${tuitionPenaltyConfiguration.tuitionInstallmentOrderSlot.label.content}' />
 						</td>
 					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.TuitionPenaltyConfiguration.executionYearSlot" />
+						</th>
+						<td>
+							<c:out value='${tuitionPenaltyConfiguration.executionYearSlot.label.content}' />
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</form>
