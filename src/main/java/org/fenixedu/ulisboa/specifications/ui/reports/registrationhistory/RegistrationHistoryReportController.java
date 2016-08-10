@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -65,6 +67,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import fr.opensagres.xdocreport.core.io.internal.ByteArrayOutputStream;
 import pt.ist.fenixframework.Atomic;
@@ -306,8 +309,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                     bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
                             addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
 
-                            final String descriptiveGrade = bean == null || bean.getDescriptiveGrade() == null ? null : bean
-                                    .getDescriptiveGradeExtendedValue() + " (" + bean.getDescriptiveGrade().getValue() + ")";
+                            final String descriptiveGrade = bean == null
+                                    || bean.getDescriptiveGrade() == null ? null : bean.getDescriptiveGradeExtendedValue() + " ("
+                                            + bean.getDescriptiveGrade().getValue() + ")";
                             addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
 
                             final YearMonthDay conclusionDate =
@@ -611,8 +615,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
-        reports.stream().forEach(r -> {
-            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev -> {
+        reports.stream().forEach(r ->
+        {
+            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev ->
+            {
                 enrolments.put(r, ev.getEnrolment());
 
                 if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
@@ -666,8 +672,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
                         .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason())
                                 && bean.getExecutionYears().contains(e.getExecutionPeriod().getExecutionYear()))
-                        .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
-                        .collect(Collectors.toList());
+                .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                .collect(Collectors.toList());
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),
                 new SheetData<EnrolmentEvaluation>(evaluations) {
 
@@ -703,6 +709,84 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         }
 
         return result.toByteArray();
+    }
+
+    @RequestMapping(value = "/exportregistrationsbystatute", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportRegistrationsByStatute(
+            @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
+            final Model model) {
+
+        final String reportId = UUID.randomUUID().toString();
+        new Thread(() -> processReport(this::exportRegistrationsByStatuteToXLS, bean, reportId)).start();
+
+        return new ResponseEntity<String>(reportId, HttpStatus.OK);
+    }
+
+    private byte[] exportRegistrationsByStatuteToXLS(RegistrationHistoryReportParametersBean bean) {
+
+        if (bean.getExecutionYears().size() != 1) {
+            return createXLSWithError(ULisboaSpecificationsUtil.bundle(
+                    "error.reports.registrationHistory.to.export.registrations.by.statute.choose.a.single.execution.year"));
+        }
+
+        final ExecutionYear executionYear = bean.getExecutionYears().iterator().next();
+        
+        final Collection<StudentStatute> studentStatutes = Sets.newHashSet();
+        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
+            studentStatutes.addAll(executionSemester.getBeginningStudentStatutesSet().stream()
+                    .filter(x -> bean.getStatuteTypes().contains(x.getType())).collect(Collectors.toSet()));
+            studentStatutes.addAll(executionSemester.getEndingStudentStatutesSet().stream()
+                    .filter(x -> bean.getStatuteTypes().contains(x.getType())).collect(Collectors.toSet()));
+        }
+
+        final Set<RegistrationHistoryReport> registrations = Sets.newHashSet();
+        for (final StudentStatute studentStatute : studentStatutes) {
+
+            if (studentStatute.getRegistration() != null) {
+                registrations.add(new RegistrationHistoryReport(studentStatute.getRegistration(), executionYear));
+                continue;
+            }
+
+            for (final Registration registration : studentStatute.getStudent().getRegistrationsSet()) {
+                if (registration.getRegistrationStatesTypes(executionYear).stream().anyMatch(x -> x.isActive())) {
+                    registrations.add(new RegistrationHistoryReport(registration, executionYear));
+                }
+            }
+
+        }
+
+        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.statutes"),
+                new SheetData<RegistrationHistoryReport>(registrations) {
+
+                    @Override
+                    protected void makeLine(RegistrationHistoryReport entry) {
+                        final Registration registration = entry.getRegistration();
+                        addData("RegistrationHistoryReport.executionYear", entry.getExecutionYear().getQualifiedName());
+                        addData("Student.number", registration.getStudent().getNumber());
+                        addData("Registration.number", registration.getNumber().toString());
+                        addData("Person.name", registration.getStudent().getPerson().getName());
+                        addData("Degree.code", registration.getDegree().getCode());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("RegistrationHistoryReport.statutes", entry.getStatuteTypes().stream()
+                                .map(s -> s.getName().getContent()).collect(Collectors.joining(", ")));
+                    }
+
+                    private void addData(String key, Object data) {
+                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    }
+
+                });
+
+        final ByteArrayOutputStream result = new ByteArrayOutputStream();
+        try {
+            builder.build(WorkbookExportFormat.EXCEL, result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result.toByteArray();
+
     }
 
 }

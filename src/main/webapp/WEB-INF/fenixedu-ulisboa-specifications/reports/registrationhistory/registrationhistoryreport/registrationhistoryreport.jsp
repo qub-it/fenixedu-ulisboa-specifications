@@ -186,6 +186,13 @@ ${portal.angularToolkit()}
 							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
 				}
 				
+				$scope.exportRegistrationsByStatute = function() {
+					$scope.exportResult(
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportregistrationsbystatute', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/', 
+							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
+				}
+				
 				$scope.exportResult = function(reportUrl,reportStatusUrl,reportDownloadUrl) {
 					
 					$scope.exportAborted = false;
@@ -480,6 +487,11 @@ ${portal.angularToolkit()}
 				ng-click="exportApprovals()">
 				<spring:message
 					code="label.event.reports.registrationHistory.exportApprovals" />
+			</button>
+			<button type="button" class="btn btn-primary"
+				ng-click="exportRegistrationsByStatute()">
+				<spring:message
+					code="label.event.reports.registrationHistory.exportRegistrationsByStatute" />
 			</button>
 		</div>
 	</div>
