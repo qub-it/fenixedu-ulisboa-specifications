@@ -68,6 +68,11 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
     }
 
     @Override
+    public boolean isToAlignAcademicTaxesDueDate() {
+        return false;
+    }
+
+    @Override
     public void process(AcademicDebtGenerationRule rule) {
 
         if (!rule.isActive()) {
