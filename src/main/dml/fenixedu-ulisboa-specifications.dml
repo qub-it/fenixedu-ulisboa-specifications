@@ -81,6 +81,7 @@ external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 external class .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
+external class .org.fenixedu.academic.domain.EvaluationConfiguration;
 
 
 class UsernameSequenceGenerator {
@@ -2431,3 +2432,9 @@ class tuitionpenalty.TuitionPenaltyConfiguration {
 			multiplicity 0..1;
 		}
 	}
+
+	
+/* Evaluation Configuration */
+class evaluation.CustomEvaluationConfiguration extends .org.fenixedu.academic.domain.EvaluationConfiguration {
+
+}
