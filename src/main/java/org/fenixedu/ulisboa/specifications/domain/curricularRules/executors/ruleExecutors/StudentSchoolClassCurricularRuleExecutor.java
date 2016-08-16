@@ -1,10 +1,23 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.SchoolClass;
+import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExecutor {
 
@@ -32,15 +45,81 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
     protected RuleResult executeEnrolmentVerificationWithRules(ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
 
-        if (!canApplyRule(enrolmentContext, curricularRule)) {
+        if (!canApplyRule(enrolmentContext, curricularRule) || !sourceDegreeModuleToEvaluate.isLeaf()) {
             return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
-        final IDegreeModuleToEvaluate degreeModuleToEvaluate = searchDegreeModuleToEvaluate(enrolmentContext, curricularRule);
+        final StudentSchoolClassCurricularRule schoolClassCurricularRule = (StudentSchoolClassCurricularRule) curricularRule;
+        final Registration registration = enrolmentContext.getRegistration();
+        final ExecutionSemester executionSemester = enrolmentContext.getExecutionPeriod();
+        final CurricularCourse curricularCourse = (CurricularCourse) sourceDegreeModuleToEvaluate.getDegreeModule();
 
-        // TODO N+L
-        return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(),
-                "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.example");
+        if (schoolClassCurricularRule.getSchoolClassMustContainCourse()) {
+
+            int curricularYear = registration.getCurricularYear(executionSemester.getExecutionYear());
+            if (sourceDegreeModuleToEvaluate.getContext().getCurricularYear().equals(curricularYear)) {
+
+                if (registration.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionPeriod() == executionSemester)
+                        .flatMap(sc -> sc.getAssociatedShiftsSet().stream().map(s -> s.getExecutionCourse())
+                                .flatMap(ec -> ec.getAssociatedCurricularCoursesSet().stream()))
+                        .noneMatch(cc -> cc == curricularCourse)) {
+
+                    return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
+                            ULisboaSpecificationsUtil.bundle(
+                                    "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.schoolClassMustContainCourse"));
+                }
+            }
+        }
+
+        if (schoolClassCurricularRule.getCourseMustHaveFreeShifts()) {
+
+            final Set<SchoolClass> registrationSchoolClasses = registration.getSchoolClassesSet().stream()
+                    .filter(sc -> sc.getExecutionPeriod() == executionSemester).collect(Collectors.toSet());
+            if (!registrationSchoolClasses.isEmpty()) {
+                for (final SchoolClass schoolClass : registrationSchoolClasses) {
+                    final DegreeCurricularPlan degreeCurricularPlan = schoolClass.getExecutionDegree().getDegreeCurricularPlan();
+                    final Set<Shift> shifts =
+                            schoolClass.getAssociatedShiftsSet().stream()
+                                    .filter(s -> s.getExecutionCourse()
+                                            .getCurricularCourseFor(degreeCurricularPlan) == curricularCourse)
+                            .collect(Collectors.toSet());
+                    if (shifts.stream().anyMatch(s -> !isFree(s))) {
+                        return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
+                                ULisboaSpecificationsUtil.bundle(
+                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShiftsInSchoolClass"));
+                    }
+
+                }
+            } else {
+                final Set<Shift> allShifts = curricularCourse.getExecutionCoursesByExecutionPeriod(executionSemester).stream()
+                        .flatMap(ec -> ec.getAssociatedShifts().stream()).collect(Collectors.toSet());
+                final Set<ShiftType> allShiftsTypes =
+                        allShifts.stream().flatMap(s -> s.getTypes().stream()).collect(Collectors.toSet());
+                for (final ShiftType shiftType : allShiftsTypes) {
+                    if (allShifts.stream().filter(s -> s.getTypes().contains(shiftType)).noneMatch(s -> isFree(s))) {
+                        return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
+                                ULisboaSpecificationsUtil.bundle(
+                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShifts"));
+                    }
+                }
+            }
+
+        }
+
+        if (StringUtils.isNotBlank(schoolClassCurricularRule.getSchoolClassNames()) && schoolClassCurricularRule
+                .getSchoolClasses(executionSemester).stream().noneMatch(sc -> sc.getRegistrationsSet().contains(registration))) {
+
+            return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
+                    ULisboaSpecificationsUtil.bundle(
+                            "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.registrationNotForSchoolClass"));
+        }
+
+        return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+
+    }
+
+    private static boolean isFree(final Shift shift) {
+        return (shift.getLotacao() - shift.getStudentsSet().size()) > 0;
     }
 
 }

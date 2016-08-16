@@ -592,6 +592,10 @@ class curricularRules.StudentStatuteCurricularRule extends .org.fenixedu.academi
 	}
 	
 class curricularRules.StudentSchoolClassCurricularRule extends .org.fenixedu.academic.domain.curricularRules.Rule {
+	String schoolClassNames;
+	Boolean schoolClassMustContainCourse;
+	Boolean courseMustHaveFreeShifts;
+	Boolean enrolInShiftIfUnique;
 }
 
 // ==================== END: CurricularRule ====================

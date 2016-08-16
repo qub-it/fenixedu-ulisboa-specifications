@@ -1,8 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularRules;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
@@ -24,14 +31,24 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
     }
 
     public StudentSchoolClassCurricularRule(final DegreeModule toApplyRule, final CourseGroup contextCourseGroup,
-            final ExecutionSemester begin, final ExecutionSemester end) {
+            final ExecutionSemester begin, final ExecutionSemester end, final Boolean schoolClassMustContainCourse,
+            final Boolean courseMustHaveFreeShifts, final Boolean enrolInShiftIfUnique, final String schoolClassNames) {
 
         this();
         init(toApplyRule, contextCourseGroup, begin, end, CurricularRuleType.CUSTOM);
+        setSchoolClassMustContainCourse(schoolClassMustContainCourse);
+        setCourseMustHaveFreeShifts(courseMustHaveFreeShifts);
+        setEnrolInShiftIfUnique(enrolInShiftIfUnique);
+        setSchoolClassNames(schoolClassNames);
     }
 
-    public void edit(CourseGroup contextCourseGroup) {
+    public void edit(CourseGroup contextCourseGroup, final Boolean schoolClassMustContainCourse,
+            final Boolean courseMustHaveFreeShifts, final Boolean enrolInShiftIfUnique, final String schoolClassNames) {
         setContextCourseGroup(contextCourseGroup);
+        setSchoolClassMustContainCourse(schoolClassMustContainCourse);
+        setCourseMustHaveFreeShifts(courseMustHaveFreeShifts);
+        setEnrolInShiftIfUnique(enrolInShiftIfUnique);
+        setSchoolClassNames(schoolClassNames);
     }
 
     @Override
@@ -52,7 +69,32 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
     @SuppressWarnings("unchecked")
     public List<GenericPair<Object, Boolean>> getLabel() {
         final StringBuilder label = new StringBuilder();
-        label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentSchoolClassCurricularRule"));
+        if (getSchoolClassMustContainCourse()) {
+            label.append(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "label.StudentSchoolClassCurricularRule.schoolClassMustContainCourse"));
+        }
+        if (getCourseMustHaveFreeShifts()) {
+            if (label.length() > 0) {
+                label.append(", ");
+            }
+            label.append(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "label.StudentSchoolClassCurricularRule.courseMustHaveFreeShifts"));
+        }
+        if (getEnrolInShiftIfUnique()) {
+            if (label.length() > 0) {
+                label.append(", ");
+            }
+            label.append(
+                    BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentSchoolClassCurricularRule.enrolInShiftIfUnique"));
+        }
+        if (StringUtils.isNotBlank(getSchoolClassNames())) {
+            if (label.length() > 0) {
+                label.append(", ");
+            }
+            label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentSchoolClassCurricularRule.schoolClassNames",
+                    getSchoolClassNames()));
+        }
+
         if (getContextCourseGroup() != null) {
             label.append(", ");
             label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.inGroup"));
@@ -61,6 +103,46 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
         }
 
         return Lists.newArrayList(new GenericPair<Object, Boolean>(label, false));
+    }
+
+    public Collection<SchoolClass> getSchoolClasses(final ExecutionSemester executionSemester) {
+
+        if (StringUtils.isNotBlank(getSchoolClassNames())) {
+
+            final ExecutionDegree executionDegree = getDegreeModuleToApplyRule().getParentDegreeCurricularPlan()
+                    .getExecutionDegreeByYear(executionSemester.getExecutionYear());
+
+            if (executionDegree != null) {
+                final Collection<SchoolClass> result = new HashSet<>();
+                final String[] schoolClassNamesSplitted =
+                        getSchoolClassNames().trim().replace(';', '/').replace(',', '/').split("/");
+                for (final String schoolClassName : schoolClassNamesSplitted) {
+                    result.addAll(executionDegree.getSchoolClassesSet().stream()
+                            .filter(sc -> sc.getExecutionPeriod() == executionSemester
+                                    && schoolClassName.trim().equalsIgnoreCase((String) sc.getEditablePartOfName()))
+                            .collect(Collectors.toSet()));
+                }
+                return result;
+            }
+
+        }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Boolean getSchoolClassMustContainCourse() {
+        return super.getSchoolClassMustContainCourse() != null && super.getSchoolClassMustContainCourse();
+    }
+
+    @Override
+    public Boolean getCourseMustHaveFreeShifts() {
+        return super.getCourseMustHaveFreeShifts() != null && super.getCourseMustHaveFreeShifts();
+    }
+
+    @Override
+    public Boolean getEnrolInShiftIfUnique() {
+        return super.getEnrolInShiftIfUnique() != null && super.getEnrolInShiftIfUnique();
     }
 
 }
