@@ -45,13 +45,14 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
     protected RuleResult executeEnrolmentVerificationWithRules(ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
 
-        if (!canApplyRule(enrolmentContext, curricularRule) || !sourceDegreeModuleToEvaluate.isLeaf()) {
+        if (!canApplyRule(enrolmentContext, curricularRule) || !sourceDegreeModuleToEvaluate.isLeaf()
+                || sourceDegreeModuleToEvaluate.getExecutionPeriod() != enrolmentContext.getExecutionPeriod()) {
             return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
         final StudentSchoolClassCurricularRule schoolClassCurricularRule = (StudentSchoolClassCurricularRule) curricularRule;
         final Registration registration = enrolmentContext.getRegistration();
-        final ExecutionSemester executionSemester = enrolmentContext.getExecutionPeriod();
+        final ExecutionSemester executionSemester = sourceDegreeModuleToEvaluate.getExecutionPeriod();
         final CurricularCourse curricularCourse = (CurricularCourse) sourceDegreeModuleToEvaluate.getDegreeModule();
 
         if (schoolClassCurricularRule.getSchoolClassMustContainCourse()) {
@@ -66,7 +67,8 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
 
                     return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
                             ULisboaSpecificationsUtil.bundle(
-                                    "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.schoolClassMustContainCourse"));
+                                    "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.schoolClassMustContainCourse",
+                                    executionSemester.getName(), curricularCourse.getCode(), curricularCourse.getName()));
                 }
             }
         }
@@ -86,7 +88,8 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
                     if (shifts.stream().anyMatch(s -> !isFree(s))) {
                         return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
                                 ULisboaSpecificationsUtil.bundle(
-                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShiftsInSchoolClass"));
+                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShiftsInSchoolClass",
+                                        curricularCourse.getCode(), curricularCourse.getName()));
                     }
 
                 }
@@ -99,7 +102,8 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
                     if (allShifts.stream().filter(s -> s.getTypes().contains(shiftType)).noneMatch(s -> isFree(s))) {
                         return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
                                 ULisboaSpecificationsUtil.bundle(
-                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShifts"));
+                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShifts",
+                                        curricularCourse.getCode(), curricularCourse.getName()));
                     }
                 }
             }
@@ -111,7 +115,8 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
 
             return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
                     ULisboaSpecificationsUtil.bundle(
-                            "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.registrationNotForSchoolClass"));
+                            "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.registrationNotForSchoolClass",
+                            curricularCourse.getCode(), curricularCourse.getName()));
         }
 
         return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
