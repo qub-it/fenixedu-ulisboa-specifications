@@ -40,8 +40,13 @@ public class CustomEvaluationConfiguration extends CustomEvaluationConfiguration
     }
 
     private Predicate<EnrolmentEvaluation> getSpecialAuthorizationFilter(Enrolment enrolment) {
-        return enrolment.getStudentCurricularPlan()
-                .isFirstCycle() ? x -> x.getEvaluationSeason().getSpecialAuthorization() : x -> true;
+        return isToApplySpecialAuthorization(enrolment) ? x -> x.getEvaluationSeason().getSpecialAuthorization() : x -> true;
+    }
+
+    protected boolean isToApplySpecialAuthorization(Enrolment enrolment) {
+        //TODO: change to configuration
+        final String degreeTypeCode = enrolment.getRegistration().getDegreeType().getCode();
+        return degreeTypeCode != null && (degreeTypeCode.equals("BOLONHA_DEGREE") || degreeTypeCode.equals("DEGREE"));
     }
 
     public Optional<EnrolmentEvaluation> getCurrentEnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season) {
