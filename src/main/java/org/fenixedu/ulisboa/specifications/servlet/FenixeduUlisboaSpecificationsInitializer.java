@@ -51,6 +51,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
+import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.learning.domain.degree.DegreeSite;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
@@ -80,6 +81,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumC
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EctsAndWeightProviders;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.StudentScheduleListeners;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
 import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
@@ -145,6 +147,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         setupListenerForDegreeDelete();
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
+        setupListenersForStudentSchedule();
         setupListenerForInvalidEquivalences();
         ULisboaServiceRequest.setupListenerForPropertiesDeletion();
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
@@ -236,6 +239,10 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 }
             }
         });
+    }
+
+    private void setupListenersForStudentSchedule() {
+        Signal.register(Enrolment.SIGNAL_CREATED, StudentScheduleListeners.SHIFTS_ENROLLER);
     }
 
     static private void configureEnrolmentEvaluationComparator() {
