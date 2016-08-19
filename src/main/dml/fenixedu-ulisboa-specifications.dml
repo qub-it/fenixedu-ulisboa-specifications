@@ -597,6 +597,7 @@ class curricularRules.StudentSchoolClassCurricularRule extends .org.fenixedu.aca
 	Boolean schoolClassMustContainCourse;
 	Boolean courseMustHaveFreeShifts;
 	Boolean enrolInShiftIfUnique;
+	Boolean allAvailableShiftsMustBeEnrolled;
 }
 
 // ==================== END: CurricularRule ====================

@@ -108,6 +108,8 @@ ${portal.angularToolkit()}
 	</h1>
 </div>
 
+<c:set var="canContinueProcess" value="${mandatoryShiftsEnrolled}" />
+
 <%-- NAVIGATION --%>	
 <c:if test="${not empty enrolmentProcess}">
 	<div class="well well-sm" style="display: inline-block">
@@ -116,12 +118,14 @@ ${portal.angularToolkit()}
 		<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
 			<spring:message code="label.event.back" />
 		</a>
-	    &nbsp;|&nbsp;
-		<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
-			<spring:message code="label.continue" />
-		</a>
-		&nbsp;
-		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+		<c:if test="${canContinueProcess}">
+		    &nbsp;|&nbsp;
+			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
+				<spring:message code="label.continue" />
+			</a>
+			&nbsp;
+			<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+		</c:if>
 	</div>
 </c:if>
 
@@ -466,12 +470,14 @@ ${portal.angularToolkit()}
 			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
 				<spring:message code="label.event.back" />
 			</a>
-		    &nbsp;|&nbsp;
-			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
-				<spring:message code="label.continue" />
-			</a>
-			&nbsp;
-			<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+			<c:if test="${canContinueProcess}">
+			    &nbsp;|&nbsp;
+				<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
+					<spring:message code="label.continue" />
+				</a>
+				&nbsp;
+				<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+			</c:if>
 		</div>
 	</c:if>
 </c:if>

@@ -37,7 +37,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Lesson;
@@ -53,6 +55,7 @@ import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.shift.ReadShiftsToEnroll;
@@ -144,7 +147,40 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
                     selectedRegistration.getStudentCurricularPlan(selectedEnrolmentPeriod.getExecutionYear())));
         }
 
+        checkIfMandatoryShiftsAreEnrolled(enrolmentBeans, model);
+
         return jspPage("shiftEnrolment");
+    }
+
+    private void checkIfMandatoryShiftsAreEnrolled(final List<EnrolmentPeriodDTO> enrolmentBeans, Model model) {
+        for (final EnrolmentPeriodDTO enrolmentBean : enrolmentBeans) {
+            final ExecutionSemester executionSemester = enrolmentBean.getExecutionSemester();
+            final Registration registration = enrolmentBean.getRegistration();
+            for (Enrolment enrolment : registration.getEnrolments(executionSemester)) {
+                boolean allAvailableShiftsMustBeEnrolled = enrolment.getCurricularRules(executionSemester).stream()
+                        .filter(cr -> cr instanceof StudentSchoolClassCurricularRule)
+                        .map(cr -> (StudentSchoolClassCurricularRule) cr)
+                        .anyMatch(ssccr -> ssccr.getAllAvailableShiftsMustBeEnrolled());
+
+                if (allAvailableShiftsMustBeEnrolled) {
+                    final Attends attends = enrolment.getAttendsFor(executionSemester);
+                    if (attends != null) {
+                        final ExecutionCourse executionCourse = attends.getExecutionCourse();
+                        if (executionCourse.getAssociatedShifts().stream().flatMap(s -> s.getSortedTypes().stream()).distinct()
+                                .anyMatch(st -> registration.getShiftFor(executionCourse, st) == null)) {
+                            model.addAttribute("mandatoryShiftsEnrolled", false);
+                            addErrorMessage(
+                                    BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
+                                            "message.StudentSchoolClassCurricularRule.allAvailableShiftsMustBeEnrolled.error"),
+                                    model);
+                            return;
+                        }
+                    }
+
+                }
+            }
+        }
+        model.addAttribute("mandatoryShiftsEnrolled", true);
     }
 
     private static final String _SWITCHENROLMENTPERIOD_URI = "/switchEnrolmentPeriod/";
@@ -285,11 +321,11 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     static private Student checkUser(final Registration input) {
         final Student student = Authenticate.getUser().getPerson().getStudent();
-        
+
         if (student == null || (input != null && input.getStudent() != student)) {
             throw new SecurityException("error.authorization.notGranted");
         }
-        
+
         return student;
     }
 

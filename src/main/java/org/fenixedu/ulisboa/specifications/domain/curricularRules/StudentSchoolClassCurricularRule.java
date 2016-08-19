@@ -32,22 +32,26 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
 
     public StudentSchoolClassCurricularRule(final DegreeModule toApplyRule, final CourseGroup contextCourseGroup,
             final ExecutionSemester begin, final ExecutionSemester end, final Boolean schoolClassMustContainCourse,
-            final Boolean courseMustHaveFreeShifts, final Boolean enrolInShiftIfUnique, final String schoolClassNames) {
+            final Boolean courseMustHaveFreeShifts, final Boolean enrolInShiftIfUnique,
+            final Boolean allAvailableShiftsMustBeEnrolled, final String schoolClassNames) {
 
         this();
         init(toApplyRule, contextCourseGroup, begin, end, CurricularRuleType.CUSTOM);
         setSchoolClassMustContainCourse(schoolClassMustContainCourse);
         setCourseMustHaveFreeShifts(courseMustHaveFreeShifts);
         setEnrolInShiftIfUnique(enrolInShiftIfUnique);
+        setAllAvailableShiftsMustBeEnrolled(allAvailableShiftsMustBeEnrolled);
         setSchoolClassNames(schoolClassNames);
     }
 
     public void edit(CourseGroup contextCourseGroup, final Boolean schoolClassMustContainCourse,
-            final Boolean courseMustHaveFreeShifts, final Boolean enrolInShiftIfUnique, final String schoolClassNames) {
+            final Boolean courseMustHaveFreeShifts, final Boolean enrolInShiftIfUnique,
+            final Boolean allAvailableShiftsMustBeEnrolled, final String schoolClassNames) {
         setContextCourseGroup(contextCourseGroup);
         setSchoolClassMustContainCourse(schoolClassMustContainCourse);
         setCourseMustHaveFreeShifts(courseMustHaveFreeShifts);
         setEnrolInShiftIfUnique(enrolInShiftIfUnique);
+        setAllAvailableShiftsMustBeEnrolled(allAvailableShiftsMustBeEnrolled);
         setSchoolClassNames(schoolClassNames);
     }
 
@@ -59,6 +63,11 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
     @Override
     public VerifyRuleExecutor createVerifyRuleExecutor() {
         return VerifyRuleExecutor.NULL_VERIFY_EXECUTOR;
+    }
+
+    @Override
+    public boolean isVisible() {
+        return false;
     }
 
     @Override
@@ -86,6 +95,13 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
             }
             label.append(
                     BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentSchoolClassCurricularRule.enrolInShiftIfUnique"));
+        }
+        if (getAllAvailableShiftsMustBeEnrolled()) {
+            if (label.length() > 0) {
+                label.append(", ");
+            }
+            label.append(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "label.StudentSchoolClassCurricularRule.allAvailableShiftsMustBeEnrolled"));
         }
         if (StringUtils.isNotBlank(getSchoolClassNames())) {
             if (label.length() > 0) {
@@ -143,6 +159,11 @@ public class StudentSchoolClassCurricularRule extends StudentSchoolClassCurricul
     @Override
     public Boolean getEnrolInShiftIfUnique() {
         return super.getEnrolInShiftIfUnique() != null && super.getEnrolInShiftIfUnique();
+    }
+
+    @Override
+    public Boolean getAllAvailableShiftsMustBeEnrolled() {
+        return super.getAllAvailableShiftsMustBeEnrolled() != null && super.getAllAvailableShiftsMustBeEnrolled();
     }
 
 }
