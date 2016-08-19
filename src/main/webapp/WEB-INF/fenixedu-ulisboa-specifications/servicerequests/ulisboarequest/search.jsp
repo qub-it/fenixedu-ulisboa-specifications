@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent"%>
+<%@page import="org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -275,6 +277,27 @@ function submit(url) {
             </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
+                    <spring:message code="label.academicRequest.payed" />
+                </div>
+
+                <div class="col-sm-6">
+                    <%-- Relation to side 1 drop down rendered in input --%>
+                    <select id="academicRequest_payed"
+                        class="js-example-basic-single" name="payed">
+                        <option value="">&nbsp;</option>
+                        <option value="false"><spring:message code="label.no" /></option>
+                        <option value="true"><spring:message code="label.yes" /></option>
+                    </select>
+                </div>
+                
+                <script>
+                	$(document).ready(function() {
+                	     $("#academicRequest_payed").select2().select2('val', '<c:out value='${param.payed}'/>');
+                	});
+                </script>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
                     <spring:message code="label.academicRequest.requestNumber" />
                 </div>
 
@@ -337,7 +360,18 @@ TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
 					            <c:set var="nextStepLabel" value="label.event.deliver" />
 				         	</c:when>
 					   	</c:choose>
-						<td><c:out value='${serviceRequest.serviceRequestNumberYear}'/></td>
+						<td>
+							<p><c:out value='${serviceRequest.serviceRequestNumberYear}'/></p>
+							<%
+								final ITreasuryServiceRequest serviceRequest = (ITreasuryServiceRequest) pageContext.getAttribute("serviceRequest");
+								
+								if(AcademicTreasuryEvent.findUnique(serviceRequest).isPresent() && AcademicTreasuryEvent.findUnique(serviceRequest).get().isInDebt()) {
+							%>
+								<p><span class="label label-warning" ><spring:message code="label.academicRequest.in.debt" /></span></p>
+							<%
+								}
+							%>
+						</td>
 						<td><c:out value='${requestDate}'/></td>
 						<td><c:out value='${serviceRequest.description }' /></td>
 						<td><c:out value='${serviceRequest.registration.student.number }' /></td>
