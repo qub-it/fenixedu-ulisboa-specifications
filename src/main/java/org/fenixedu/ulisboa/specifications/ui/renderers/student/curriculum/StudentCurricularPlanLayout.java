@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -124,6 +125,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected static final int GRADE_NEXT_COLUMN_SPAN = 3;
 
+    private static Function<Enrolment, String> ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER = (x) -> "";
+
     protected StudentCurricularPlan studentCurricularPlan;
 
     protected ExecutionYear executionYearContext;
@@ -144,6 +147,11 @@ public class StudentCurricularPlanLayout extends Layout {
     // qubExtension
     private static boolean isViewerAllowedToViewFullStudentCurriculum(final StudentCurricularPlan studentCurricularPlan) {
         return StudentCurricularPlanRenderer.isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan);
+    }
+
+    // qubExtension
+    public static void setEnrolmentSeasonExtraInformationProvider(Function<Enrolment, String> provider) {
+        ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER = provider;
     }
 
     @Override
@@ -956,25 +964,33 @@ public class StudentCurricularPlanLayout extends Layout {
                 renderer.getEnrolmentExecutionYearCellClass());
     }
 
+    // qubExtension
     protected void generateEnrolmentLastEnrolmentEvaluationTypeCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
         final EnrolmentEvaluation lastEnrolmentEvaluation = enrolment.getFinalEnrolmentEvaluation();
         if (lastEnrolmentEvaluation != null && lastEnrolmentEvaluation.getEvaluationSeason() != null) {
-            generateCellWithSpan(enrolmentRow, lastEnrolmentEvaluation.getEvaluationSeason().getAcronym().getContent(),
+            generateCellWithSpan(enrolmentRow,
+                    lastEnrolmentEvaluation.getEvaluationSeason().getAcronym().getContent()
+                            + ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER.apply(enrolment),
                     renderer.getLastEnrolmentEvaluationTypeCellClass());
         } else {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
+            generateCellWithText(enrolmentRow, EMPTY_INFO + ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER.apply(enrolment),
+                    renderer.getLastEnrolmentEvaluationTypeCellClass());
         }
 
     }
 
+    // qubExtension
     protected void generateEnrolmentEvaluationTypeCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
-        final EvaluationSeason season = enrolment.getEvaluationSeason();
-        if (season != null) {
-            generateCellWithSpan(enrolmentRow, season.getAcronym().getContent(),
-                    renderer.getLastEnrolmentEvaluationTypeCellClass());
-        } else {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
-        }
+//        final EvaluationSeason season = enrolment.getEvaluationSeason();
+//        if (season != null) {
+//            generateCellWithSpan(enrolmentRow, season.getAcronym().getContent(),
+//                    renderer.getLastEnrolmentEvaluationTypeCellClass());
+//        } else {
+//            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
+//        }
+
+        generateCellWithText(enrolmentRow, EMPTY_INFO + ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER.apply(enrolment),
+                renderer.getLastEnrolmentEvaluationTypeCellClass());
 
     }
 
