@@ -67,13 +67,6 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
                 continue;
             }
 
-            if (registration.getRegistrationDataByExecutionYearSet().size() == 1
-                    && registration.getStartDate().isBefore(currentExecutionYear.getBeginDateYearMonthDay())) {
-
-                getLogger().warn("Ignoring Registration [{}]: start date before the only year in historic", registrationInfo);
-                continue;
-            }
-
             final RegistrationState state = getActiveStateCreatedInExecutionYear(registration, currentExecutionYear);
             if (state != null) {
 
