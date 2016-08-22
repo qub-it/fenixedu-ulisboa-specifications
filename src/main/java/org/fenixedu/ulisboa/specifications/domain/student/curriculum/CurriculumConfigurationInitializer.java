@@ -28,7 +28,9 @@ package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -253,20 +255,15 @@ abstract public class CurriculumConfigurationInitializer {
                 }
             }
 
-            final StudentCurricularPlan current = curriculumGroup.getStudentCurricularPlan();
-            final Registration registration = current.getRegistration();
-            final ProgramConclusion programConclusion = curriculumGroup.getDegreeModule().getProgramConclusion();
-            if (RegistrationServices.isCurriculumAccumulated(registration) && programConclusion != null) {
+            final StudentCurricularPlan scp = curriculumGroup.getStudentCurricularPlan();
+            final Registration registration = scp.getRegistration();
+            if (RegistrationServices.isCurriculumAccumulated(registration)) {
 
-                for (final StudentCurricularPlan scp : registration.getSortedStudentCurricularPlans()) {
-                    if (scp.getStartDateYearMonthDay().isBefore(current.getStartDateYearMonthDay())) {
+                for (final StudentCurricularPlan otherScp : registration.getSortedStudentCurricularPlans()) {
+                    if (otherScp.getStartDateYearMonthDay().isBefore(scp.getStartDateYearMonthDay())) {
 
-                        for (final CurriculumGroup group : curriculumGroups(scp)) {
-                            if (group.getDegreeModule() != null
-                                    && group.getDegreeModule().getProgramConclusion() == programConclusion) {
-
-                                result.add(group.getCurriculum(when, executionYear));
-                            }
+                        for (final CurriculumGroup otherGroup : otherGroups(otherScp, curriculumGroup)) {
+                            result.add(otherGroup.getCurriculum(when, executionYear));
                         }
                     }
                 }
@@ -275,11 +272,27 @@ abstract public class CurriculumConfigurationInitializer {
             return result;
         }
 
-        private List<CurriculumGroup> curriculumGroups(StudentCurricularPlan input) {
+        private List<CurriculumGroup> otherGroups(final StudentCurricularPlan otherScp, final CurriculumGroup originalGroup) {
+
             final List<CurriculumGroup> result = Lists.newArrayList();
-            result.add(input.getRoot());
-            result.addAll(input.getAllCurriculumGroups());
-            return result;
+            result.add(otherScp.getRoot());
+            result.addAll(otherScp.getAllCurriculumGroups());
+
+            final Predicate<CurriculumGroup> predicate;
+            final ProgramConclusion programConclusion = originalGroup.getDegreeModule().getProgramConclusion();
+            if (programConclusion == null) {
+
+                // take into account this special case: we might be dealing with all of curriculum, not a specific program conclusion
+                // eg: integrated master in IST
+                predicate = otherGroup -> originalGroup.isRoot() && otherGroup.isRoot();
+
+            } else {
+
+                predicate = otherGroup -> otherGroup.getDegreeModule() != null
+                        && otherGroup.getDegreeModule().getProgramConclusion() == programConclusion;
+            }
+
+            return result.stream().filter(predicate).collect(Collectors.toList());
         }
 
     };
