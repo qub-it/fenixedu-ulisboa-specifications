@@ -27,20 +27,25 @@ package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurricularYearCalculator;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumEntryPredicate;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup.CurriculumSupplier;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
@@ -50,9 +55,15 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataByExecutionYearServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 abstract public class CurriculumConfigurationInitializer {
 
@@ -69,6 +80,9 @@ abstract public class CurriculumConfigurationInitializer {
 
         Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
         logger.info("CurriculumEntryPredicate: Overriding default");
+
+        CurriculumGroup.setCurriculumSupplier(CURRICULUM_SUPPLIER);
+        logger.info("CurriculumSuppliers: Overriding default");
     }
 
     static private Supplier<CurricularYearCalculator> CURRICULAR_YEAR_CALCULATOR = () -> new CurricularYearCalculator() {
@@ -172,6 +186,13 @@ abstract public class CurriculumConfigurationInitializer {
             Integer result = 1;
 
             final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
+
+            final Integer curricularYear = RegistrationDataByExecutionYearServices.getOverridenCurricularYear(registration,
+                    curriculum.getExecutionYear());
+            if (curricularYear != null) {
+                return curricularYear;
+            }
+
             final DegreeCurricularPlan dcp = curriculum.getStudentCurricularPlan().getDegreeCurricularPlan();
             for (int i = totalCurricularYears(curriculum); i > 1; i--) {
 
@@ -204,6 +225,11 @@ abstract public class CurriculumConfigurationInitializer {
 
             if (input instanceof CurriculumLine) {
                 final CurriculumLine line = (CurriculumLine) input;
+
+                if (CurriculumLineServices.isExcludedFromCurriculum(line)) {
+                    return false;
+                }
+
                 final Context context = CurriculumAggregatorServices.getContext(line);
                 if (context != null && context.getCurriculumAggregatorEntry() != null) {
                     return false;
@@ -212,6 +238,50 @@ abstract public class CurriculumConfigurationInitializer {
 
             return true;
         }
+    };
+
+    static private Supplier<CurriculumSupplier> CURRICULUM_SUPPLIER = () -> new CurriculumSupplier() {
+
+        @Override
+        public Curriculum get(final CurriculumGroup curriculumGroup, final DateTime when, final ExecutionYear executionYear) {
+
+            final Curriculum result = Curriculum.createEmpty(curriculumGroup, executionYear);
+
+            if (curriculumGroup.wasCreated(when)) {
+                for (final CurriculumModule curriculumModule : curriculumGroup.getCurriculumModulesSet()) {
+                    result.add(curriculumModule.getCurriculum(when, executionYear));
+                }
+            }
+
+            final StudentCurricularPlan current = curriculumGroup.getStudentCurricularPlan();
+            final Registration registration = current.getRegistration();
+            final ProgramConclusion programConclusion = curriculumGroup.getDegreeModule().getProgramConclusion();
+            if (RegistrationServices.isCurriculumAccumulated(registration) && programConclusion != null) {
+
+                for (final StudentCurricularPlan scp : registration.getSortedStudentCurricularPlans()) {
+                    if (scp.getStartDateYearMonthDay().isBefore(current.getStartDateYearMonthDay())) {
+
+                        for (final CurriculumGroup group : curriculumGroups(scp)) {
+                            if (group.getDegreeModule() != null
+                                    && group.getDegreeModule().getProgramConclusion() == programConclusion) {
+
+                                result.add(group.getCurriculum(when, executionYear));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private List<CurriculumGroup> curriculumGroups(StudentCurricularPlan input) {
+            final List<CurriculumGroup> result = Lists.newArrayList();
+            result.add(input.getRoot());
+            result.addAll(input.getAllCurriculumGroups());
+            return result;
+        }
+
     };
 
 }

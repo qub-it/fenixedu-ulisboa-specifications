@@ -77,6 +77,7 @@ external class .org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequ
 external class .org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 external class .org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 external class .org.fenixedu.academic.domain.student.Registration;
+external class .org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 external class .org.fenixedu.academic.domain.student.StatuteType;
 external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 external class .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -2296,6 +2297,7 @@ class studentCurriculum.CurriculumLineExtendedInformation {
 	String remarks;
 	Integer curricularYear;
 	Boolean excludedFromAverage;
+	boolean excludedFromCurriculum;
 	BigDecimal ectsCredits;
 	BigDecimal weight;
 }
@@ -2342,7 +2344,8 @@ relation EnrolmentEvaluationEnrolmentEvaluationExtendedInformation {
     evaluation.EnrolmentEvaluationExtendedInformation playsRole extendedInformation;
 }
 
-// ====================== = RegistrationExtendedInformation = ========================
+// ======================= BEGIN: RegistrationExtendedInformation =========================
+
 class student.RegistrationExtendedInformation {
 	BigDecimal ingressionGradeA;
 	BigDecimal ingressionGradeB;
@@ -2351,6 +2354,8 @@ class student.RegistrationExtendedInformation {
 	
 	BigDecimal internshipGrade;
 	LocalDate internshipConclusionDate;
+	
+	boolean curriculumAccumulated;
 }
 
 relation BennuRegistrationExtendedInformation {
@@ -2371,6 +2376,35 @@ relation RegistrationRegistrationExtendedInformation {
     student.RegistrationExtendedInformation playsRole extendedInformation;
 }
 
+// ======================= END: RegistrationExtendedInformation =========================
+
+
+// ======================= BEGIN: RegistrationDataByExecutionYearExtendedInformation =========================
+
+class student.RegistrationDataByExecutionYearExtendedInformation {
+	Integer curricularYear;
+}
+
+relation BennuRegistrationDataByExecutionYearExtendedInformation {
+	student.RegistrationDataByExecutionYearExtendedInformation playsRole registrationDataByExecutionYearExtendedInformations {
+		multiplicity *;
+	}
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation RegistrationDataByExecutionYearWithExtendedInformation {
+    .org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear playsRole dataByExecutionYear {
+    	multiplicity 1..1;
+    }
+    
+    student.RegistrationDataByExecutionYearExtendedInformation playsRole extendedInformation;
+}
+
+// ======================= END: RegistrationDataByExecutionYearExtendedInformation =========================
+
+
 // ========================= Student active override ==============================
 
 class student.ActiveStudentOverride {
@@ -2389,7 +2423,6 @@ relation ActiveStudentOverrideBennu {
     }
 }
 // ========================= End Student active override ==============================
-
 
 class tuitionpenalty.TuitionPenaltyConfiguration {
 }
