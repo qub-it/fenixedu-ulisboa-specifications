@@ -160,7 +160,7 @@ ${portal.angularToolkit()}
 		<form method="post" class="form-horizontal" id="addCompetenceCourseForm"
 			ng-app="angularAppAnyCurricularCourseExceptionsConfiguration"
 			ng-controller="AnyCurricularCourseExceptionsConfigurationController"
-			action='${pageContext.request.contextPath}/<%=AnyCurricularCourseExceptionsConfigurationController.READ_URL%>${anyCurricularCourseExceptionsConfiguration.externalId}/addcompetencecourse'>
+			action='${pageContext.request.contextPath}<%=AnyCurricularCourseExceptionsConfigurationController.READ_URL%>${anyCurricularCourseExceptionsConfiguration.externalId}/addcompetencecourse'>
 
 			<input name="bean" type="hidden" value="{{ object }}" />
 
@@ -276,12 +276,12 @@ ${portal.angularToolkit()}
 <script>
 
 function showRemoveCompetenceCourseConfirmModal(externalId) {
-	   url = '${pageContext.request.contextPath}/<%=AnyCurricularCourseExceptionsConfigurationController.READ_URL%>${anyCurricularCourseExceptionsConfiguration.externalId}/removecompetencecourse/' + externalId;
+	   url = '${pageContext.request.contextPath}<%=AnyCurricularCourseExceptionsConfigurationController.READ_URL%>${anyCurricularCourseExceptionsConfiguration.externalId}/removecompetencecourse/' + externalId;
 	   showConfirmationModal(url,'<spring:message code="label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.removeCompetenceCourse.confirm" />');
 }
 	 
 function showClearCompetenceCoursesConfirmModal() {
-	   url = '${pageContext.request.contextPath}/<%=AnyCurricularCourseExceptionsConfigurationController.READ_URL%>${anyCurricularCourseExceptionsConfiguration.externalId}/clearcompetencecourses/';
+	   url = '${pageContext.request.contextPath}<%=AnyCurricularCourseExceptionsConfigurationController.READ_URL%>${anyCurricularCourseExceptionsConfiguration.externalId}/clearcompetencecourses/';
 	   showConfirmationModal(url,'<spring:message code="label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.clearCompetenceCourses.confirm" />');
 }
 	 
