@@ -491,6 +491,106 @@ ${portal.toolkit()}
     </div>
 </c:if>
 
+<c:forEach var="activeDebitEntry" items="${ activeDebitEntries }">
+    <c:forEach var="paymentCode" items="${ activeDebitEntry.paymentCodesSet }">
+        <c:set var="paymentReferenceCode" value="${ paymentCode.paymentReferenceCode }" />
+        <c:if test="${paymentReferenceCode.state=='USED'}">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <spring:message code="label.serviceRequests.ULisboaServiceRequest.finantialDetails" />
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form method="post" class="form-horizontal">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentCodePool.finantialInstitution" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.finantialInstitution.name}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.paymentCodePool" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.name}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentCodePool.entityReferenceCode" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.entityReferenceCode}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.referenceCode" /></th>
+                                <td><c:out value='${paymentReferenceCode.formattedCode}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.payableAmount" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.finantialInstitution.currency.getValueFor(paymentReferenceCode.payableAmount)}' /></td>
+                            </tr>
+                            <c:if test='${not paymentReferenceCode.paymentCodePool.useCheckDigit }'>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.beginDate" /></th>
+                                    <td><c:out value='${paymentReferenceCode.beginDate}' /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.endDate" /></th>
+                                    <td><c:out value='${paymentReferenceCode.endDate}' /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.minAmount" /></th>
+                                    <td><c:out value='${paymentReferenceCode.minAmount}' /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.maxAmount" /></th>
+                                    <td><c:out value='${paymentReferenceCode.maxAmount}' /></td>
+                                </tr>
+                            </c:if>
+        
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.state" /></th>
+                                <td><c:if test="${paymentReferenceCode.state=='USED'}">
+                                        <span class="label label-primary">
+                                    </c:if> <c:if test="${paymentReferenceCode.state=='ANNULLED'}">
+                                        <span class="label label-danger">
+                                    </c:if> <c:if test="${paymentReferenceCode.state=='UNUSED'}">
+                                        <span class="label label-default">
+                                    </c:if> <c:if test="${paymentReferenceCode.state=='PROCESSED'}">
+                                        <span class="label label-success">
+                                    </c:if> <c:out value="${paymentReferenceCode.state.descriptionI18N.content}" /> </span></td>
+        
+                            </tr>
+                            <c:if test='${not empty paymentReferenceCode.targetPayment }'>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.targetPayment" /></th>
+                                    <td>
+                                        <c:if test='${paymentReferenceCode.targetPayment.isFinantialDocumentPaymentCode() }'>
+                                            <ul>
+                                                <li><c:out
+                                                            value='${paymentReferenceCode.targetPayment.finantialDocument.uiDocumentNumber}' /></li>
+                                                <li><c:out
+                                                        value='${paymentReferenceCode.targetPayment.finantialDocument.currency.getValueFor(paymentReferenceCode.targetPayment.finantialDocument.openAmountWithInterests)}' />
+                                                </li>
+                                            </ul>
+                                        </c:if>
+                                        <c:if test='${paymentReferenceCode.targetPayment.isMultipleEntriesPaymentCode() }'>
+                                            <ul>
+                                                <c:forEach items="${paymentReferenceCode.targetPayment.getOrderedInvoiceEntries()}" var="invoiceEntry">
+                                                <li>
+                                                    <c:out value='${invoiceEntry.finantialDocument.uiDocumentNumber}' /> - <c:out value='${invoiceEntry.description}' /> [<c:out value='${invoiceEntry.debtAccount.finantialInstitution.currency.getValueFor(invoiceEntry.openAmount)}' />]
+                                                </li>
+                                                </c:forEach>
+                                            </ul>
+                                        </c:if></td>
+                                </tr>
+                            </c:if>
+        
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+        </c:if>
+    </c:forEach>
+</c:forEach>
+
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">
@@ -639,105 +739,107 @@ ${portal.toolkit()}
     </div>
 </div>
 
-
-<c:set var="activeDebitEntry" value="${ serviceRequest.academicTreasuryEvent.findActiveAcademicServiceRequestDebitEntry() }" />
-<c:if test="${ activeDebitEntry.present && not empty activeDebitEntry.get().finantialDocument.paymentCodesSet }">
-    <c:forEach var="paymentCode" items="${ activeDebitEntry.get().finantialDocument.paymentCodesSet }">
-    <c:set var="paymentReferenceCode" value="${ paymentCode.paymentReferenceCode }" />
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                <spring:message code="label.serviceRequests.ULisboaServiceRequest.finantialDetails" />
-            </h3>
+<academic:allowed operation="SERVICE_REQUESTS">
+<c:forEach var="activeDebitEntry" items="${ activeDebitEntries }">
+    <c:forEach var="paymentCode" items="${ activeDebitEntry.paymentCodesSet }">
+        <c:set var="paymentReferenceCode" value="${ paymentCode.paymentReferenceCode }" />
+        <c:if test="${not (paymentReferenceCode.state == 'USED')}">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <spring:message code="label.serviceRequests.ULisboaServiceRequest.finantialDetails" />
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form method="post" class="form-horizontal">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentCodePool.finantialInstitution" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.finantialInstitution.name}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.paymentCodePool" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.name}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentCodePool.entityReferenceCode" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.entityReferenceCode}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.referenceCode" /></th>
+                                <td><c:out value='${paymentReferenceCode.formattedCode}' /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.payableAmount" /></th>
+                                <td><c:out value='${paymentReferenceCode.paymentCodePool.finantialInstitution.currency.getValueFor(paymentReferenceCode.payableAmount)}' /></td>
+                            </tr>
+                            <c:if test='${not paymentReferenceCode.paymentCodePool.useCheckDigit }'>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.beginDate" /></th>
+                                    <td><c:out value='${paymentReferenceCode.beginDate}' /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.endDate" /></th>
+                                    <td><c:out value='${paymentReferenceCode.endDate}' /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.minAmount" /></th>
+                                    <td><c:out value='${paymentReferenceCode.minAmount}' /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.maxAmount" /></th>
+                                    <td><c:out value='${paymentReferenceCode.maxAmount}' /></td>
+                                </tr>
+                            </c:if>
+        
+                            <tr>
+                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.state" /></th>
+                                <td><c:if test="${paymentReferenceCode.state=='USED'}">
+                                        <span class="label label-primary">
+                                    </c:if> <c:if test="${paymentReferenceCode.state=='ANNULLED'}">
+                                        <span class="label label-danger">
+                                    </c:if> <c:if test="${paymentReferenceCode.state=='UNUSED'}">
+                                        <span class="label label-default">
+                                    </c:if> <c:if test="${paymentReferenceCode.state=='PROCESSED'}">
+                                        <span class="label label-success">
+                                    </c:if> <c:out value="${paymentReferenceCode.state.descriptionI18N.content}" /> </span></td>
+        
+                            </tr>
+                            <c:if test='${not empty paymentReferenceCode.targetPayment }'>
+                                <tr>
+                                    <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.targetPayment" /></th>
+                                    <td>
+                                        <c:if test='${paymentReferenceCode.targetPayment.isFinantialDocumentPaymentCode() }'>
+                                            <ul>
+                                                <li><c:out
+                                                            value='${paymentReferenceCode.targetPayment.finantialDocument.uiDocumentNumber}' /></li>
+                                                <li><c:out
+                                                        value='${paymentReferenceCode.targetPayment.finantialDocument.currency.getValueFor(paymentReferenceCode.targetPayment.finantialDocument.openAmountWithInterests)}' />
+                                                </li>
+                                            </ul>
+                                        </c:if>
+                                        <c:if test='${paymentReferenceCode.targetPayment.isMultipleEntriesPaymentCode() }'>
+                                            <ul>
+                                                <c:forEach items="${paymentReferenceCode.targetPayment.getOrderedInvoiceEntries()}" var="invoiceEntry">
+                                                <li>
+                                                    <c:out value='${invoiceEntry.finantialDocument.uiDocumentNumber}' /> - <c:out value='${invoiceEntry.description}' /> [<c:out value='${invoiceEntry.debtAccount.finantialInstitution.currency.getValueFor(invoiceEntry.openAmount)}' />]
+                                                </li>
+                                                </c:forEach>
+                                            </ul>
+                                        </c:if></td>
+                                </tr>
+                            </c:if>
+        
+                        </tbody>
+                    </table>
+                </form>
+            </div>
         </div>
-        <div class="panel-body">
-            <form method="post" class="form-horizontal">
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.PaymentCodePool.finantialInstitution" /></th>
-                            <td><c:out value='${paymentReferenceCode.paymentCodePool.finantialInstitution.name}' /></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.paymentCodePool" /></th>
-                            <td><c:out value='${paymentReferenceCode.paymentCodePool.name}' /></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.PaymentCodePool.entityReferenceCode" /></th>
-                            <td><c:out value='${paymentReferenceCode.paymentCodePool.entityReferenceCode}' /></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.referenceCode" /></th>
-                            <td><c:out value='${paymentReferenceCode.formattedCode}' /></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.payableAmount" /></th>
-                            <td><c:out value='${paymentReferenceCode.paymentCodePool.finantialInstitution.currency.getValueFor(paymentReferenceCode.payableAmount)}' /></td>
-                        </tr>
-                        <c:if test='${not paymentReferenceCode.paymentCodePool.useCheckDigit }'>
-                            <tr>
-                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.beginDate" /></th>
-                                <td><c:out value='${paymentReferenceCode.beginDate}' /></td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.endDate" /></th>
-                                <td><c:out value='${paymentReferenceCode.endDate}' /></td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.minAmount" /></th>
-                                <td><c:out value='${paymentReferenceCode.minAmount}' /></td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.maxAmount" /></th>
-                                <td><c:out value='${paymentReferenceCode.maxAmount}' /></td>
-                            </tr>
-                        </c:if>
-    
-                        <tr>
-                            <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.state" /></th>
-                            <td><c:if test="${paymentReferenceCode.state=='USED'}">
-                                    <span class="label label-primary">
-                                </c:if> <c:if test="${paymentReferenceCode.state=='ANNULLED'}">
-                                    <span class="label label-danger">
-                                </c:if> <c:if test="${paymentReferenceCode.state=='UNUSED'}">
-                                    <span class="label label-default">
-                                </c:if> <c:if test="${paymentReferenceCode.state=='PROCESSED'}">
-                                    <span class="label label-success">
-                                </c:if> <c:out value="${paymentReferenceCode.state.descriptionI18N.content}" /> </span></td>
-    
-                        </tr>
-                        <c:if test='${not empty paymentReferenceCode.targetPayment }'>
-                            <tr>
-                                <th scope="row" class="col-xs-3"><spring:message code="label.PaymentReferenceCode.targetPayment" /></th>
-                                <td>
-                                    <c:if test='${paymentReferenceCode.targetPayment.isFinantialDocumentPaymentCode() }'>
-                                        <ul>
-                                            <li><c:out
-                                                        value='${paymentReferenceCode.targetPayment.finantialDocument.uiDocumentNumber}' /></li>
-                                            <li><c:out
-                                                    value='${paymentReferenceCode.targetPayment.finantialDocument.currency.getValueFor(paymentReferenceCode.targetPayment.finantialDocument.openAmountWithInterests)}' />
-                                            </li>
-                                        </ul>
-                                    </c:if>
-                                    <c:if test='${paymentReferenceCode.targetPayment.isMultipleEntriesPaymentCode() }'>
-                                        <ul>
-                                            <c:forEach items="${paymentReferenceCode.targetPayment.getOrderedInvoiceEntries()}" var="invoiceEntry">
-                                            <li>
-                                                <c:out value='${invoiceEntry.finantialDocument.uiDocumentNumber}' /> - <c:out value='${invoiceEntry.description}' /> [<c:out value='${invoiceEntry.debtAccount.finantialInstitution.currency.getValueFor(invoiceEntry.openAmount)}' />]
-                                            </li>
-                                            </c:forEach>
-                                        </ul>
-                                    </c:if></td>
-                            </tr>
-                        </c:if>
-    
-                    </tbody>
-                </table>
-            </form>
-        </div>
-    </div>
+        </c:if>
     </c:forEach>
-</c:if>
+</c:forEach>
+</academic:allowed>
 
 <script type="text/javascript">
     $(document).ready(function() {

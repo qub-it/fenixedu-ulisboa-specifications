@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
@@ -25,6 +24,8 @@ import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
+import org.fenixedu.treasury.domain.document.DebitEntry;
+import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
@@ -182,6 +183,20 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 DocumentSigner.findAll().filter(ds -> ds.getAdministrativeOffice() == serviceRequest.getAdministrativeOffice())
                         .sorted(DocumentSigner.DEFAULT_COMPARATOR).collect(Collectors.toList()));
         addDocumentTemplatesToModel(serviceRequest, model);
+
+        if (serviceRequest.getAcademicTreasuryEvent() != null) {
+            List<DebitEntry> activeDebitEntries =
+                    DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.toList());
+            model.addAttribute("activeDebitEntries", activeDebitEntries);
+            if (isAnyPaymentCodeInUsedState(activeDebitEntries)) {
+                addWarningMessage(
+                        BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.need.to.do.the.payment"),
+                        model);
+            }
+        } else {
+            model.addAttribute("activeDebitEntries", Collections.emptyList());
+        }
+
         if (!serviceRequest.getIsValid() && (serviceRequest.isNewRequest() || serviceRequest.isProcessing())) {
             addWarningMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.is.invalid.warning"),
                     model);
@@ -191,6 +206,12 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                     BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.invalid.instruction.two"), model);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
+    }
+
+    private boolean isAnyPaymentCodeInUsedState(List<DebitEntry> activeDebitEntries) {
+        List<PaymentReferenceCode> paymentReferenceCodes = activeDebitEntries.stream().map(e -> e.getPaymentCodesSet())
+                .flatMap(x -> x.stream()).map(pc -> pc.getPaymentReferenceCode()).collect(Collectors.toList());
+        return paymentReferenceCodes.stream().filter(p -> p.getState().isUsed()).count() > 0;
     }
 
     private void addDocumentTemplatesToModel(ULisboaServiceRequest serviceRequest, Model model) {

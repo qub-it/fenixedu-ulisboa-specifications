@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,8 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.treasury.domain.document.DebitEntry;
+import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
@@ -90,8 +93,9 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     }
 
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration, @RequestParam(value = "bean",
-            required = true) ULisboaServiceRequestBean bean, Model model, RedirectAttributes redirectAttributes) {
+    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration,
+            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
         try {
             if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
@@ -124,7 +128,27 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public String readServiceRequest(@PathVariable("oid") ULisboaServiceRequest serviceRequest, Model model) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
+
+        if (serviceRequest.getAcademicTreasuryEvent() != null) {
+            List<DebitEntry> activeDebitEntries =
+                    DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.toList());
+            model.addAttribute("activeDebitEntries", activeDebitEntries);
+            if (isAnyPaymentCodeInUsedState(activeDebitEntries)) {
+                addWarningMessage(
+                        BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.need.to.do.the.payment"),
+                        model);
+            }
+        } else {
+            model.addAttribute("activeDebitEntries", Collections.emptyList());
+        }
+
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
+    }
+
+    private boolean isAnyPaymentCodeInUsedState(List<DebitEntry> activeDebitEntries) {
+        List<PaymentReferenceCode> paymentReferenceCodes = activeDebitEntries.stream().map(e -> e.getPaymentCodesSet())
+                .flatMap(x -> x.stream()).map(pc -> pc.getPaymentReferenceCode()).collect(Collectors.toList());
+        return paymentReferenceCodes.stream().filter(p -> p.getState().isUsed()).count() > 0;
     }
 
     private static final String _HISTORY_SERVICE_REQUEST_URI = "/history/";
