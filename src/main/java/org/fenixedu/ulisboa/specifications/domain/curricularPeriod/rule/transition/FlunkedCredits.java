@@ -121,13 +121,17 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         for (final CurricularPeriod curricularPeriod : toInspect) {
             final BigDecimal approved = curricularPeriodCredits.get(curricularPeriod) != null ? curricularPeriodCredits
                     .get(curricularPeriod) : BigDecimal.ZERO;
-            final BigDecimal approvedWithLimit = FLUNKED_CREDITS_BY_YEAR.min(approved);
-            final BigDecimal flunked = FLUNKED_CREDITS_BY_YEAR.subtract(approvedWithLimit);
+            final BigDecimal approvedWithLimit = getFlunkedCreditsBaseline().min(approved);
+            final BigDecimal flunked = getFlunkedCreditsBaseline().subtract(approvedWithLimit);
 
             result = result.add(flunked);
         }
 
         return result;
+    }
+
+    private BigDecimal getFlunkedCreditsBaseline() {
+        return FLUNKED_CREDITS_BY_YEAR.divide(BigDecimal.valueOf(getSemester() == null ? 1 : 2));
     }
 
 }
