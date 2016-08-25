@@ -242,7 +242,7 @@ abstract public class CurriculumConfigurationInitializer {
         }
     };
 
-    static private Supplier<CurriculumSupplier> CURRICULUM_SUPPLIER = () -> new CurriculumSupplier() {
+    static public Supplier<CurriculumSupplier> CURRICULUM_SUPPLIER = () -> new CurriculumSupplier() {
 
         @Override
         public Curriculum get(final CurriculumGroup curriculumGroup, final DateTime when, final ExecutionYear executionYear) {
