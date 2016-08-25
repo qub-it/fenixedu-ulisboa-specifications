@@ -41,7 +41,6 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
@@ -64,7 +63,7 @@ import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutorInitializer;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluationExtendedInformation;
@@ -124,7 +123,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentProcess.init();
         CurriculumConfigurationInitializer.init();
         AnyCurricularCourseExceptionsInitializer.init();
-        CurricularRuleExecutorInitializer.init();
+        CurricularRuleConfigurationInitializer.init();
         RegistrationRegimeVerifierInitializer.init();
         EnrolmentPredicateInitializer.init();
         EnrolmentManagerFactoryInitializer.init();
@@ -179,7 +178,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentEvaluationExtendedInformation.setupDeleteListener();
 
         RegistrationExtendedInformation.setupDeleteListener();
-        
+
         RegistrationDataByExecutionYearExtendedInformation.setupDeleteListener();
 
         EnrolmentContextHandler.registerEnrolmentContextHandler(new UlisboaEnrolmentContextHandler());

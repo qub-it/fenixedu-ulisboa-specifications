@@ -3,14 +3,19 @@ package org.fenixedu.ulisboa.specifications.domain.curricularRules;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 
 abstract public class CurricularRuleServices {
 
@@ -19,9 +24,9 @@ abstract public class CurricularRuleServices {
      *      ExecutionSemester)}
      */
     static public List<? extends ICurricularRule> getCurricularRules(final DegreeModule source,
-            final Class<? extends ICurricularRule> ruleClass, final ExecutionInterval executionInterval) {
+            final Class<? extends ICurricularRule> ruleClass, final ExecutionInterval interval) {
 
-        return getCurricularRules(source, (CourseGroup) null, ruleClass, executionInterval);
+        return getCurricularRules(source, (CourseGroup) null, ruleClass, interval);
     }
 
     /**
@@ -53,6 +58,53 @@ abstract public class CurricularRuleServices {
 
     static protected boolean appliesToPeriod(final Context context, final CurricularPeriod period) {
         return period == null || period == context.getCurricularPeriod();
+    }
+
+    static public double calculateTotalEctsInGroup(final EnrolmentContext enrolmentContext,
+            final CurriculumGroup curriculumGroup) {
+        double result = calculateCreditsConcluded(enrolmentContext, curriculumGroup);
+        result += calculateEnroledEctsCredits(enrolmentContext, curriculumGroup);
+
+        return result;
+    }
+
+    static public Double calculateCreditsConcluded(EnrolmentContext enrolmentContext, final CurriculumModule curriculumModule) {
+        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumModule
+                .getCreditsConcluded(enrolmentContext.getExecutionYear()) : curriculumModule
+                        .getCreditsConcluded(enrolmentContext.getExecutionPeriod().getExecutionYear());
+    }
+
+    /**
+     * @see CreditsLimitExecutor.calculateEnroledEctsCredits(EnrolmentContext, CurriculumModule)
+     */
+    static public Double calculateEnroledEctsCredits(EnrolmentContext enrolmentContext, final CurriculumModule curriculumModule) {
+        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumModule.getEnroledEctsCredits(enrolmentContext
+                .getExecutionYear()) : curriculumModule.getEnroledEctsCredits(enrolmentContext.getExecutionPeriod());
+    }
+
+    static public double calculateEctsCreditsFromPreviousGroups(final EnrolmentContext enrolmentContext,
+            final CreditsLimitWithPreviousApprovals rule) {
+
+        double result = 0;
+
+        if (rule != null) {
+            final ExecutionYear executionYear = enrolmentContext.isToEvaluateRulesByYear() ? enrolmentContext
+                    .getExecutionYear() : enrolmentContext.getExecutionPeriod().getExecutionYear();
+
+            for (final CourseGroup group : rule.getPreviousGroupsSet()) {
+                final DegreeCurricularPlan dcp = group.getParentDegreeCurricularPlan();
+                final StudentCurricularPlan scp = enrolmentContext.getRegistration().getStudentCurricularPlan(dcp);
+
+                if (scp != null) {
+                    final CurriculumGroup otherGroup = scp.findCurriculumGroupFor(group);
+                    if (otherGroup != null) {
+                        result += otherGroup.getCreditsConcluded(executionYear);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
 }

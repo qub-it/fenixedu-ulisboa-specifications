@@ -25,27 +25,40 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor.CurricularRuleApprovalExecutor;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentBySemesterExecutor;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentByYearExecutor;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentByYearExecutor.SkipCollectCurricularCoursesPredicate;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.CreditsLimitWithPreviousApprovals;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract public class CurricularRuleExecutorInitializer {
+abstract public class CurricularRuleConfigurationInitializer {
 
-    static private final Logger logger = LoggerFactory.getLogger(CurricularRuleExecutorInitializer.class);
+    static private final Logger logger = LoggerFactory.getLogger(CurricularRuleConfigurationInitializer.class);
 
     static public void init() {
 
         CurricularRuleExecutor.setCurricularRuleApprovalExecutor(CURRICULAR_RULE_APPROVAL_EXECUTOR);
         logger.info("CurricularRuleApprovalExecutor: Overriding default");
+
+        PreviousYearsEnrolmentBySemesterExecutor
+                .setSkipCollectCurricularCoursesPredicate(SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE);
+        PreviousYearsEnrolmentByYearExecutor.setSkipCollectCurricularCoursesPredicate(SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE);
     }
 
     static private Supplier<CurricularRuleApprovalExecutor> CURRICULAR_RULE_APPROVAL_EXECUTOR =
@@ -71,5 +84,36 @@ abstract public class CurricularRuleExecutorInitializer {
                     }
                 }
             };
+
+    static private SkipCollectCurricularCoursesPredicate SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE =
+            (courseGroup, enrolmentContext) -> {
+
+                return skipByCreditsLimitWithPreviousApprovals(courseGroup, enrolmentContext);
+            };
+
+    static private boolean skipByCreditsLimitWithPreviousApprovals(final CourseGroup courseGroup,
+            final EnrolmentContext enrolmentContext) {
+
+        final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
+        
+        if (curriculumGroup == null) {
+            return false;
+        }
+
+        final List<? extends ICurricularRule> rules = CurricularRuleServices.getCurricularRules(curriculumGroup.getDegreeModule(),
+                CreditsLimitWithPreviousApprovals.class, enrolmentContext.getExecutionPeriod());
+        if (rules.isEmpty()) {
+            return false;
+        }
+
+        final double ectsFromPrevious = CurricularRuleServices.calculateEctsCreditsFromPreviousGroups(enrolmentContext,
+                (CreditsLimitWithPreviousApprovals) rules.iterator().next());
+
+        final double minEctsToApprove = curriculumGroup.getDegreeModule().getMinEctsCredits();
+        final double totalEcts =
+                CurricularRuleServices.calculateTotalEctsInGroup(enrolmentContext, curriculumGroup) + ectsFromPrevious;
+
+        return totalEcts >= minEctsToApprove;
+    }
 
 }
