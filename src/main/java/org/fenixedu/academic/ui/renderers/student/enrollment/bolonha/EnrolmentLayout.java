@@ -58,6 +58,7 @@ import org.fenixedu.ulisboa.specifications.domain.curricularRules.ConditionedRou
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
@@ -209,21 +210,23 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup,
-            final ExecutionSemester executionPeriod) {
+    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup, final ExecutionSemester executionSemester) {
         if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
             return curriculumGroup.getName().getContent();
         }
+
         final StringBuilder result = new StringBuilder();
         result.append("<span class=\"bold\">").append(curriculumGroup.getName().getContent()).append("</span>");
         result.append(" [");
+
         if (getRenderer().isEncodeGroupRules()) {
-            addCreditsConcluded(curriculumGroup, executionPeriod, result);
-            // TODO legidio addEnroledEcts(curriculumGroup, executionPeriod.getExecutionYear(), result);
-            // TODO legidio addSumEcts(curriculumGroup, executionPeriod, result);
+            addCreditsConcluded(curriculumGroup, executionSemester, result);
+            addEnroledEcts(curriculumGroup, executionSemester.getExecutionYear(), result);
+            addSumEcts(curriculumGroup, executionSemester, result);
         } else {
             final CreditsLimit creditsLimit = (CreditsLimit) curriculumGroup
-                    .getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionPeriod.getExecutionYear());
+                    .getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionSemester);
+
             if (creditsLimit != null) {
                 result.append(" <span title=\"");
                 result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.minCredits"));
@@ -231,9 +234,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 result.append(creditsLimit.getMinimumCredits());
                 result.append(")</span>, ");
             }
-            addCreditsConcluded(curriculumGroup, executionPeriod, result);
-            // TODO legidio addEnroledEcts(curriculumGroup, executionPeriod.getExecutionYear(), result);
-            // TODO legidio addSumEcts(curriculumGroup, executionPeriod, result);
+
+            addCreditsConcluded(curriculumGroup, executionSemester, result);
+            addEnroledEcts(curriculumGroup, executionSemester.getExecutionYear(), result);
+            addSumEcts(curriculumGroup, executionSemester, result);
             if (creditsLimit != null) {
                 result.append(", <span title=\"");
                 result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.maxCredits"));
@@ -243,16 +247,16 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             }
         }
         result.append(" ]");
-        if (isConcluded(curriculumGroup, executionPeriod.getExecutionYear())) {
+        if (isConcluded(curriculumGroup, executionSemester.getExecutionYear())) {
             result.append(" - <span class=\"curriculumGroupConcluded\">")
                     .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.concluded")).append("</span>");
         } else if (!isStudentLogged(curriculumGroup.getStudentCurricularPlan())
-                && hasMinimumCredits(curriculumGroup, executionPeriod.getExecutionYear())) {
+                && hasMinimumCredits(curriculumGroup, executionSemester.getExecutionYear())) {
             result.append(" - <span class=\"minimumCreditsConcludedInCurriculumGroup\">")
                     .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.minimumCreditsConcluded"))
                     .append("</span>");
         }
-        addCreditsDistributionMessage(curriculumGroup, executionPeriod.getExecutionYear(), result);
+        addCreditsDistributionMessage(curriculumGroup, executionSemester.getExecutionYear(), result);
         return result.toString();
     }
 
@@ -287,14 +291,16 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         result.append(", <span title=\"");
         result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.enroledCredits"));
         result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.enroledCredits") + " (");
-        // TODO legidio result.append(curriculumGroup.getEnroledAndNotApprovedEctsCreditsFor(executionYear).toPlainString());
+        result.append(
+                CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(executionYear, curriculumGroup).toPlainString());
         result.append(")</span>");
     }
 
     private void addSumEcts(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod,
             final StringBuilder result) {
 
-        final Double total = curriculumGroup.getCreditsConcluded(executionPeriod.getExecutionYear()) + 0d; // TODO legidio  curriculumGroup.getEnroledAndNotApprovedEctsCreditsFor(executionPeriod.getExecutionYear()).longValue();
+        final Double total = curriculumGroup.getCreditsConcluded(executionPeriod.getExecutionYear()) + CurriculumModuleServices
+                .getEnroledAndNotApprovedEctsCreditsFor(executionPeriod.getExecutionYear(), curriculumGroup).longValue();
         result.append(", <span title=\"");
         result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.totalCredits") + " (");
         result.append(total);
