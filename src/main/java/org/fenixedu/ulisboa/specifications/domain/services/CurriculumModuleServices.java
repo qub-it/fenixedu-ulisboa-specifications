@@ -22,17 +22,10 @@ public class CurriculumModuleServices {
     static public BigDecimal getEnroledAndNotApprovedEctsCreditsFor(final ExecutionYear executionYear,
             final CurriculumModule toInspect) {
         BigDecimal result = BigDecimal.ZERO;
-        if (toInspect.getClass().isAssignableFrom(Dismissal.class)) {
-            result = getEnroledAndNotApprovedEctsCreditsFor(executionYear, (Dismissal) toInspect);
-        } else if (toInspect.getClass().isAssignableFrom(Enrolment.class)) {
+        if (toInspect.getClass().isAssignableFrom(Enrolment.class)) {
             result = getEnroledAndNotApprovedEctsCreditsFor(executionYear, (Enrolment) toInspect);
         }
         return result;
-    }
-
-    static public BigDecimal getEnroledAndNotApprovedEctsCreditsFor(final ExecutionYear executionYear,
-            final Dismissal toInspect) {
-        return BigDecimal.ZERO;
     }
 
     static public BigDecimal getEnroledAndNotApprovedEctsCreditsFor(final ExecutionYear executionYear,
