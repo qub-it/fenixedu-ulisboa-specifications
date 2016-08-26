@@ -39,11 +39,13 @@ import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.Prev
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentByYearExecutor.SkipCollectCurricularCoursesPredicate;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CreditsLimitWithPreviousApprovals;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,8 +97,13 @@ abstract public class CurricularRuleConfigurationInitializer {
             final EnrolmentContext enrolmentContext) {
 
         final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
-        
+
         if (curriculumGroup == null) {
+            return false;
+        }
+
+        final Registration registration = enrolmentContext.getRegistration();
+        if (!RegistrationServices.isCurriculumAccumulated(registration)) {
             return false;
         }
 
