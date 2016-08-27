@@ -147,6 +147,11 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
                 bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(),
                 bean.getExecutionSemester());
     }
+    
+    @Override
+    public Boolean getSchoolClassSelectionMandatory() {
+        return super.getSchoolClassSelectionMandatory() != null && super.getSchoolClassSelectionMandatory();
+    }
 
     public ExecutionYear getExecutionYear() {
         return getExecutionSemester().getExecutionYear();

@@ -103,13 +103,21 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         final Student student = Authenticate.getUser().getPerson().getStudent();
         final List<SchoolClassStudentEnrollmentDTO> enrolmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
+        boolean schoolClassEmptyButSelectionMandatory = false;
         for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
 
-                enrolmentBeans.add(new SchoolClassStudentEnrollmentDTO(iter,
-                        executionSemester == iter.getExecutionSemester() ? selectedSchoolClass : null));
+                final SchoolClassStudentEnrollmentDTO schoolClassStudentEnrollmentBean = new SchoolClassStudentEnrollmentDTO(iter,
+                        executionSemester == iter.getExecutionSemester() ? selectedSchoolClass : null);
+                enrolmentBeans.add(schoolClassStudentEnrollmentBean);
+
+                if (iter.getSchoolClassSelectionMandatory() && schoolClassStudentEnrollmentBean.getCurrentSchoolClass() == null
+                        && !schoolClassStudentEnrollmentBean.getSchoolClassesToEnrol().isEmpty()) {
+                    schoolClassEmptyButSelectionMandatory = true;
+                }
             }
         }
+        request.setAttribute("schoolClassEmptyButSelectionMandatory", schoolClassEmptyButSelectionMandatory);
 
         if (!enrolmentBeans.isEmpty()) {
             enrolmentBeans.sort(Comparator.naturalOrder());

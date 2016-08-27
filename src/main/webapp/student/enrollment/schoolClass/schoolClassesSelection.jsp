@@ -63,6 +63,8 @@
 	</h1>
 </div>
 
+<c:set var="canContinueProcess" value="${not schoolClassEmptyButSelectionMandatory}" />
+
 <%-- NAVIGATION --%>
 <logic:present name="enrolmentProcess">
 	<bean:define id="enrolmentProcess" name="enrolmentProcess" type="org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess"/>
@@ -74,10 +76,15 @@
 			<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
 		</a>
 	    &nbsp;|&nbsp;
-		<bean:define id="continueHACKLink"><%= request.getContextPath() + org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA.createEnrolmentStepEndProcess().getEntryPointURL()  %>&studentCurricularPlanOID=<c:out value="${enrolmentProcess.studentCurricularPlan.externalId}" />&executionSemesterOID=<c:out value="${enrolmentProcess.executionSemester.externalId}" /></bean:define>
-		<a class="" href="<%= continueHACKLink %>">
-			<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
-		</a>
+	    <c:if test="${canContinueProcess}">
+			<bean:define id="continueHACKLink"><%= request.getContextPath() + org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA.createEnrolmentStepEndProcess().getEntryPointURL()  %>&studentCurricularPlanOID=<c:out value="${enrolmentProcess.studentCurricularPlan.externalId}" />&executionSemesterOID=<c:out value="${enrolmentProcess.executionSemester.externalId}" /></bean:define>
+			<a class="" href="<%= continueHACKLink %>">
+				<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
+			</a>
+		</c:if>
+		<c:if test="${not canContinueProcess}">
+			<span class="text-muted"><bean:message bundle="APPLICATION_RESOURCES" key="button.continue" /></span>
+		</c:if>		
 		&nbsp;
 		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
 	</div>
