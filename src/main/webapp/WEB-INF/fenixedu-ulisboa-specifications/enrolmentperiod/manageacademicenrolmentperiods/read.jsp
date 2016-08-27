@@ -405,6 +405,16 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                         <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.curricularYear" /></th>
                         <td><c:out value='${ academicEnrolmentPeriod.curricularYear }' /></td>
                     </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.schoolClassSelectionMandatory" /></th>
+                        <td>
+                            <c:if test="${academicEnrolmentPeriod.schoolClassSelectionMandatory}">
+                                <spring:message code="label.true" />
+                            </c:if> <c:if test="${not academicEnrolmentPeriod.schoolClassSelectionMandatory}">
+                                <spring:message code="label.false" />
+                            </c:if>
+                        </td>
+                    </tr>                     
                 </tbody>
             </table>
         </form>

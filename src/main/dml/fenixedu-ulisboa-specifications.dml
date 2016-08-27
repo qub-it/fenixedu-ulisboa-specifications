@@ -2258,6 +2258,7 @@ class enrolmentPeriod.AcademicEnrolmentPeriod {
     Integer maxStudentNumber;
     Integer curricularYear;
     AcademicEnrolmentPeriodType enrolmentPeriodType;
+    Boolean schoolClassSelectionMandatory;
 }
 
 relation AcademicEnrolmentPeriodBennu {

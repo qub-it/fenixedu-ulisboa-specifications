@@ -37,6 +37,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     private Integer minStudentNumber;
     private Integer maxStudentNumber;
     private Integer curricularYear;
+    private Boolean schoolClassSelectionMandatory = Boolean.FALSE;
     private AcademicEnrolmentPeriodType enrolmentPeriodType;
     private List<TupleDataSourceBean> enrolmentPeriodTypeDataSource;
     private ExecutionSemester executionSemester;
@@ -105,6 +106,14 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
     public void setCurricularYear(Integer curricularYear) {
         this.curricularYear = curricularYear;
+    }
+
+    public Boolean getSchoolClassSelectionMandatory() {
+        return schoolClassSelectionMandatory;
+    }
+
+    public void setSchoolClassSelectionMandatory(Boolean schoolClassSelectionMandatory) {
+        this.schoolClassSelectionMandatory = schoolClassSelectionMandatory;
     }
 
     public AcademicEnrolmentPeriodType getEnrolmentPeriodType() {
@@ -269,6 +278,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         setMinStudentNumber(academicEnrolmentPeriod.getMinStudentNumber());
         setMaxStudentNumber(academicEnrolmentPeriod.getMaxStudentNumber());
         setCurricularYear(academicEnrolmentPeriod.getCurricularYear());
+        setSchoolClassSelectionMandatory(academicEnrolmentPeriod.getSchoolClassSelectionMandatory());
         setEnrolmentPeriodType(academicEnrolmentPeriod.getEnrolmentPeriodType());
         setExecutionSemester(academicEnrolmentPeriod.getExecutionSemester());
         setDegreeCurricularPlans(academicEnrolmentPeriod.getDegreeCurricularPlansSet().stream().collect(Collectors.toList()));
