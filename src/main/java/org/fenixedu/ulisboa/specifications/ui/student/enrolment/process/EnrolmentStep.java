@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.student.enrolment.process;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +14,7 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.web.servlet.HandlerMapping;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 public class EnrolmentStep implements IBean {
 
@@ -101,7 +104,7 @@ public class EnrolmentStep implements IBean {
     public boolean isEntryPointURL(final HttpServletRequest request) {
 
         // 1. the hacking goal
-        final String secret;
+        final List<String> secrets = Lists.newArrayList();
 
         // 2. the hacking sources
         final ActionMapping mappingStruts = (ActionMapping) request.getAttribute(Globals.MAPPING_KEY);
@@ -127,13 +130,17 @@ public class EnrolmentStep implements IBean {
                 }
             }
 
-            secret = mappingStruts.getPath() + method;
+            secrets.add(mappingStruts.getPath() + method);
+            if (!method.equals(".do?method=prepare")) {
+                // one last try, without method...but only when we aren't invoking a prepare method
+                secrets.add(mappingStruts.getPath());
+            }
 
         } else if (!Strings.isNullOrEmpty(mappingSpring)) {
             // spring
 
             String aux = mappingSpring;
-            
+
             if (mappingSpring.contains("{")) {
                 aux = aux.substring(0, aux.indexOf("/{"));
             }
@@ -144,17 +151,17 @@ public class EnrolmentStep implements IBean {
                 aux = aux.substring(0, aux.lastIndexOf("/"));
             }
 
-            secret = aux;
+            secrets.add(aux);
 
         } else if (true) {
             // ui layer
 
             // TODO legidio
-            secret = "";
+            // secrets.add("");
         }
 
         // 4. "it's the final count down..."
-        return !Strings.isNullOrEmpty(secret) && getEntryPointURL().contains(secret);
+        return !secrets.isEmpty() && secrets.stream().anyMatch(i -> getEntryPointURL().contains(i));
     }
 
     public String getEntryPointURL() {
