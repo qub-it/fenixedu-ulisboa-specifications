@@ -13,7 +13,6 @@ import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.academictreasury.domain.exceptions.AcademicTreasuryDomainException;
 import org.fenixedu.academictreasury.domain.settings.AcademicTreasurySettings;
 import org.fenixedu.academictreasury.services.EmolumentServices;
-import org.fenixedu.academictreasury.services.TuitionServices;
 import org.fenixedu.treasury.domain.document.DebitEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
@@ -22,6 +21,9 @@ import org.fenixedu.ulisboa.specifications.domain.tuitionpenalty.TuitionPenaltyC
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDebtGenerationRuleStrategy {
 
@@ -73,6 +75,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
     }
 
     @Override
+    @Atomic(mode = TxMode.READ)
     public void process(AcademicDebtGenerationRule rule) {
 
         if (!rule.isActive()) {
@@ -116,6 +119,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
     }
 
     @Override
+    @Atomic(mode = TxMode.READ)
     public void process(final AcademicDebtGenerationRule rule, final Registration registration) {
         if (!rule.isActive()) {
             throw new AcademicTreasuryDomainException("error.AcademicDebtGenerationRule.not.active.to.process");
@@ -150,6 +154,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
         processPenaltiesForRegistration(rule, registration);
     }
 
+    @Atomic(mode = TxMode.WRITE)
     private void processPenaltiesForRegistration(final AcademicDebtGenerationRule rule, final Registration registration) {
         Optional<? extends AcademicTreasuryEvent> tuitionEventOptional =
                 AcademicTreasuryEvent.findUniqueForRegistrationTuition(registration, rule.getExecutionYear());
