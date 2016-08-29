@@ -316,6 +316,11 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                     .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
         }
 
+        public List<SchoolClass> getInitialSchoolClassesToEnrol() {
+            return RegistrationServices.getInitialSchoolClassesToEnrolBy(getRegistration(), getExecutionSemester()).stream()
+                    .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
+        }
+
         public int getCurricularYear() {
             final ExecutionSemester executionSemester = getExecutionSemester();
             return getRegistration().getCurricularYear(executionSemester.getExecutionYear());

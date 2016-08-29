@@ -2,16 +2,19 @@ package org.fenixedu.ulisboa.specifications.domain.services;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
@@ -31,6 +34,9 @@ import com.google.common.collect.Sets;
 
 public class RegistrationServices {
 
+    private static BiFunction<Registration, ExecutionSemester, Collection<SchoolClass>> initialSchoolClassesService =
+            defaultInitialSchoolClassesService();
+
     public static Set<SchoolClass> getSchoolClassesToEnrolBy(final Registration registration,
             final DegreeCurricularPlan degreeCurricularPlan, final ExecutionSemester executionSemester) {
 
@@ -38,6 +44,29 @@ public class RegistrationServices {
                 .filter(attends -> attends.getExecutionPeriod() == executionSemester)
                 .flatMap(attends -> attends.getExecutionCourse().getSchoolClassesBy(degreeCurricularPlan).stream())
                 .collect(Collectors.toSet());
+    }
+
+    public static void registerInitialSchoolClassesService(
+            final BiFunction<Registration, ExecutionSemester, Collection<SchoolClass>> service) {
+        initialSchoolClassesService = service;
+    }
+
+    public static Collection<SchoolClass> getInitialSchoolClassesToEnrolBy(final Registration registration,
+            final ExecutionSemester executionSemester) {
+        return initialSchoolClassesService.apply(registration, executionSemester);
+    }
+
+    private static BiFunction<Registration, ExecutionSemester, Collection<SchoolClass>> defaultInitialSchoolClassesService() {
+        return (r, es) -> {
+            final ExecutionDegree executionDegree =
+                    r.getActiveDegreeCurricularPlan().getExecutionDegreeByYear(es.getExecutionYear());
+            if (executionDegree != null) {
+                int curricularYear = r.getCurricularYear(es.getExecutionYear());
+                return executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getCurricularYear().equals(curricularYear))
+                        .collect(Collectors.toSet());
+            }
+            return Collections.emptyList();
+        };
     }
 
     public static Optional<SchoolClass> getSchoolClassBy(final Registration registration,

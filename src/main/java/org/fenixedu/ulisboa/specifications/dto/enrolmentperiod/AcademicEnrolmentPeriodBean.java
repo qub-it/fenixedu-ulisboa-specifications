@@ -22,6 +22,7 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.InitialSchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
 import org.joda.time.DateTime;
@@ -213,6 +214,10 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.SCHOOL_CLASS;
     }
 
+    public boolean isForInitialClasses() {
+        return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.INITIAL_SCHOOL_CLASS;
+    }
+
     public boolean isForShift() {
         return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.SHIFT;
     }
@@ -301,6 +306,10 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         final String argsStruts = EnrolmentManagementDA.buildArgsStruts(getExecutionSemester(), getStudentCurricularPlan());
 
         switch (getEnrolmentPeriodType()) {
+        case INITIAL_SCHOOL_CLASS:
+            result = InitialSchoolClassStudentEnrollmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
+            break;
+
         case CURRICULAR_COURSE:
             result = CourseEnrolmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
             break;
