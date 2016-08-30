@@ -210,7 +210,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup, final ExecutionSemester executionSemester) {
+    @Override
+    protected String buildCurriculumGroupLabel(final CurriculumGroup curriculumGroup, final ExecutionSemester executionSemester) {
         if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
             return curriculumGroup.getName().getContent();
         }
@@ -260,6 +261,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return result.toString();
     }
 
+    // qubExtension, more credits info
     private void addCreditsDistributionMessage(CurriculumGroup curriculumGroup, ExecutionYear executionYear,
             StringBuilder result) {
         if (curriculumGroup.getAprovedEctsCredits().doubleValue() != curriculumGroup.getCreditsConcluded(executionYear)
@@ -270,6 +272,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
     }
 
+    // qubExtension, more credits info
     private boolean hasMinimumCredits(CurriculumGroup group, ExecutionYear executionYear) {
         final CreditsLimit creditsRule =
                 (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionYear);
@@ -277,6 +280,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 && group.getCreditsConcluded(executionYear).doubleValue() >= creditsRule.getMinimumCredits().doubleValue();
     }
 
+    // qubExtension, more credits info
     private void addCreditsConcluded(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod,
             final StringBuilder result) {
         result.append(" <span title=\"");
@@ -286,6 +290,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         result.append(")</span>");
     }
 
+    // qubExtension, more credits info
     private void addEnroledEcts(final CurriculumGroup curriculumGroup, final ExecutionYear executionYear,
             final StringBuilder result) {
         result.append(", <span title=\"");
@@ -296,6 +301,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         result.append(")</span>");
     }
 
+    // qubExtension, more credits info
     private void addSumEcts(final CurriculumGroup curriculumGroup, final ExecutionSemester executionPeriod,
             final StringBuilder result) {
 
@@ -307,6 +313,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         result.append(")</span>");
     }
 
+    // qubExtension, more credits info
     private boolean isConcluded(final CurriculumGroup group, final ExecutionYear executionYear) {
         final CreditsLimit creditsRule =
                 (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionYear);

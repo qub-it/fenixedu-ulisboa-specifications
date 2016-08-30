@@ -155,6 +155,7 @@
 </tr>
 </table>
 
+<%-- qubExtension, academic bug fix --%>
 <script type="text/javascript">
     $(function() {
 		$('.showinfo3.mvert0').removeClass('table');
@@ -162,3 +163,9 @@
     });
 </script>
 
+<%-- qubExtension, more credits info --%>
+<style type="text/css">
+	.curriculumGroupConcluded { margin: 1em 0; padding: 0.2em 0.5em 0.2em 0.5em; background-color: #e2f5e2; color: #146e14; }
+	.minimumCreditsConcludedInCurriculumGroup { margin: 1em 0; padding: 0.2em 0.5em 0.2em 0.5em; background-color: #fbf8cc; color: #805500; }
+	.wrongCreditsDistributionError {margin: 1em 0; padding: 0.2em 0.5em 0.2em 0.5em; background-color: #A60000; color: #ffffff; }
+</style>
