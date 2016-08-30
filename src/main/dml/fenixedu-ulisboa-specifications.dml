@@ -489,6 +489,9 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod extends curricularPeriod.rule.RuleEnrolment {
 		}
 		
+			class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriodForHighestCurricularYear extends curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod {
+			}
+		
 		class curricularPeriod.rule.enrolment.CreditsInCurricularPeriod extends curricularPeriod.rule.RuleEnrolment {
 		}
 		
@@ -497,7 +500,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		
 		class curricularPeriod.rule.enrolment.CreditsEnroledAsFirstTime extends curricularPeriod.rule.RuleEnrolment {
 		}
-
+		
 	class curricularPeriod.rule.RuleTransition extends curricularPeriod.rule.CurricularPeriodRule {
 		boolean allowToCollectAllCurricularPlans;
 		String codesCSV;
@@ -522,6 +525,12 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		}
 		
 		class curricularPeriod.rule.transition.EnrolmentYears extends curricularPeriod.rule.RuleTransition {
+		}
+		
+		class curricularPeriod.rule.transition.EnrolmentsInCurricularYear extends curricularPeriod.rule.RuleTransition {
+		}
+		
+		class curricularPeriod.rule.transition.MinimumPartialAverage extends curricularPeriod.rule.RuleTransition {
 		}
 		
 relation CurricularPeriodConfigurationRuleEnrolment {
