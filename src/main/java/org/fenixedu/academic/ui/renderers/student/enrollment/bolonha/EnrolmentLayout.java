@@ -38,6 +38,8 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
@@ -271,7 +273,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                     .append("</span>");
         }
 
-        if (!isStudentLogged(curriculumGroup.getStudentCurricularPlan())) {
+        if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
+                curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
             addCreditsDistributionMessage(curriculumGroup, executionSemester, result);
         }
 
