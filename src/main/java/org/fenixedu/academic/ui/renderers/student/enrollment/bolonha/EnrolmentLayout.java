@@ -25,6 +25,7 @@
  */
 package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
@@ -84,6 +86,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     // qubExtension, don't SHOW empty groups
     private Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
     private boolean emptyGroupsCollapsible = false;
+
+    // qubExtension
+    static private ExecutionInterval getExecutionInterval(final StudentCurricularPlan input, final ExecutionSemester semester) {
+        return isToEvaluateRulesByYear(input) ? semester.getExecutionYear() : semester;
+    }
 
     // qubExtension
     static private boolean isToEvaluateRulesByYear(final StudentCurricularPlan input) {
@@ -216,8 +223,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    protected String buildCurriculumGroupLabel_TODOlegidio(final CurriculumGroup curriculumGroup,
-            final ExecutionSemester executionSemester) {
+    @Override
+    protected String buildCurriculumGroupLabel(final CurriculumGroup curriculumGroup, final ExecutionSemester executionSemester) {
         if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
             return curriculumGroup.getName().getContent();
         }
@@ -263,17 +270,26 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                     .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.minimumCreditsConcluded"))
                     .append("</span>");
         }
-        addCreditsDistributionMessage(curriculumGroup, executionSemester, result);
+
+        if (!isStudentLogged(curriculumGroup.getStudentCurricularPlan())) {
+            addCreditsDistributionMessage(curriculumGroup, executionSemester, result);
+        }
+
         return result.toString();
     }
 
     // qubExtension, more credits info
     private void addCreditsDistributionMessage(final CurriculumGroup group, final ExecutionSemester semester,
             final StringBuilder result) {
-        if (group.getAprovedEctsCredits().doubleValue() != group.getCreditsConcluded(semester.getExecutionYear()).doubleValue()) {
-            result.append(" <span class=\"wrongCreditsDistributionError\">")
-                    .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.wrongCreditsDistribution"))
-                    .append("</span>");
+
+        final Double approved = group.getAprovedEctsCredits();
+        final Double concluded = CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()).doubleValue();
+
+        if (approved.doubleValue() != concluded.doubleValue()) {
+            result.append(" <span class=\"wrongCreditsDistributionError\" title=\"");
+            result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.wrongCreditsDistribution",
+                    approved.toString(), concluded.toString()));
+            result.append(" \"> ! </span>");
         }
     }
 
@@ -281,34 +297,45 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     private boolean hasMinimumCredits(final CurriculumGroup group, final ExecutionSemester semester) {
         final CreditsLimit creditsRule =
                 (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, semester);
-        return creditsRule != null && creditsRule.getMinimumCredits().doubleValue() > 0d && group
-                .getCreditsConcluded(semester.getExecutionYear()).doubleValue() >= creditsRule.getMinimumCredits().doubleValue();
+        return creditsRule != null && creditsRule.getMinimumCredits().doubleValue() > 0d
+                && CurriculumModuleServices
+                        .getCreditsConcluded(group, getExecutionInterval(group.getStudentCurricularPlan(), semester))
+                        .doubleValue() >= creditsRule.getMinimumCredits().doubleValue();
     }
 
     // qubExtension, more credits info
     private void addCreditsConcluded(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
+        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
+
         result.append(" <span title=\"");
-        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded"));
+        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded",
+                interval.getQualifiedName()));
         result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.concludedCredits") + " (");
-        result.append(group.getCreditsConcluded(semester.getExecutionYear()));
+        result.append(CurriculumModuleServices.getCreditsConcluded(group, interval));
         result.append(")</span>");
     }
 
     // qubExtension, more credits info
     private void addEnroledEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
+        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
+
         result.append(", <span title=\"");
-        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.enroledCredits"));
+        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.enroledCredits",
+                interval.getQualifiedName()));
         result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.enroledCredits") + " (");
-        result.append(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(semester, group).toPlainString());
+        result.append(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(group, interval).toPlainString());
         result.append(")</span>");
     }
 
     // qubExtension, more credits info
     private void addSumEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
+        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
 
-        final Double total = group.getCreditsConcluded(semester.getExecutionYear())
-                + CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(semester, group).longValue();
+        final BigDecimal total = CurriculumModuleServices.getCreditsConcluded(group, interval)
+                .add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(group, interval));
         result.append(", <span title=\"");
+        result.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.totalCredits",
+                interval.getQualifiedName()));
         result.append(" \"> " + BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.totalCredits") + " (");
         result.append(total);
         result.append(")</span>");
