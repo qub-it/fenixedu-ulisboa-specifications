@@ -96,7 +96,7 @@
 		<bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:
 	</p>
 	<p class="mtop025 mbottom1">
-		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>			
 	</p>
 	
@@ -126,7 +126,7 @@
 	
 	<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
 	<p class="mtop05 mbottom1">
-		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
 	</p>
 
@@ -157,11 +157,18 @@
 
 <%-- qubExtension, academic bug fix --%>
 <script type="text/javascript">
-    $(function() {
-		$('.showinfo3.mvert0').removeClass('table');
-		$('.smalltxt.noborder.table').removeClass('table');
-    });
+function submitForm(btn) {
+	btn.form.method.value = 'enrolInDegreeModules';
+	$(btn).addClass('disabled');
+	$(btn).html('A Guardar...'); // TODO legidio, $(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}');
+}
+
+(function () {
+    $('.showinfo3.mvert0').removeClass('table');
+	$('.smalltxt.noborder.table').removeClass('table');
+})();
 </script>
+
 
 <%-- qubExtension, more credits info --%>
 <style type="text/css">

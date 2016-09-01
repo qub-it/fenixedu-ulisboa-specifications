@@ -139,7 +139,7 @@
 		--%>
 		
 		<div style="display: inline-block;" class="mtop05 mbottom15">
-				<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+			<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 			<span class="infoop2">
 				<bean:message bundle="APPLICATION_RESOURCES" key="label.warning.coursesAndGroupsSimultaneousEnrolment"/>
 			</span>
@@ -194,7 +194,7 @@
 		<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
 		--%>
 		<p class="mtop05 mbottom1">
-			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+			<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		</p>
 	
 		<p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES"  key="label.legend"/>:</em></p>
@@ -244,11 +244,11 @@
 	</logic:notPresent>
 </fr:form>
 
-<script>
+<script type="text/javascript">
 function submitForm(btn) {
 	btn.form.method.value = 'enrolInDegreeModules';
 	$(btn).addClass('disabled');
-	$(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}');
+	$(btn).html('A Guardar...'); // TODO legidio, $(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}'); 
 }
 
 (function () {
