@@ -25,6 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.domain;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,11 +40,15 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 abstract public class CompetenceCourseServices {
 
-    static private final Map<CompetenceCourse, Set<CurricularCourse>> cache = new ConcurrentHashMap<>();
+    static private final Map<CompetenceCourse, Set<CurricularCourse>> CACHE_COMPETENCE_CURRICULARS = new ConcurrentHashMap<>();
+
+    static private WeakReference<Map<String, Boolean>> CACHE_APPROVALS =
+            new WeakReference<Map<String, Boolean>>(Maps.newConcurrentMap());
 
     static public boolean isCompetenceCourseApproved(final StudentCurricularPlan plan, final CurricularCourse course,
             final ExecutionSemester semester) {
@@ -77,7 +82,21 @@ abstract public class CompetenceCourseServices {
     static public boolean isApproved(final StudentCurricularPlan plan, final CompetenceCourse competence,
             final ExecutionSemester semester) {
 
-        return getExpandedCurricularCourses(competence).stream().anyMatch(curricular -> plan.isApproved(curricular, semester));
+        Map<String, Boolean> map = CACHE_APPROVALS.get();
+        if (map == null) {
+            map = Maps.newConcurrentMap();
+            CACHE_APPROVALS = new WeakReference<Map<String, Boolean>>(map);
+        }
+
+        final String key = plan.getExternalId() + competence.getExternalId() + (semester == null ? "" : semester.getExternalId());
+        Boolean value = map.get(key);
+        if (value == null) {
+            value = getExpandedCurricularCourses(competence).stream()
+                    .anyMatch(curricular -> plan.isApproved(curricular, semester));
+            map.put(key, value);
+        }
+
+        return value;
     }
 
     static public Set<CurricularCourse> getExpandedCurricularCourses(final CompetenceCourse competence) {
@@ -87,9 +106,9 @@ abstract public class CompetenceCourseServices {
         if (!isExpandedCode(code)) {
             result = competence.getAssociatedCurricularCoursesSet();
 
-        } else if (cache.containsKey(competence)) {
+        } else if (CACHE_COMPETENCE_CURRICULARS.containsKey(competence)) {
 
-            result = cache.get(competence);
+            result = CACHE_COMPETENCE_CURRICULARS.get(competence);
 
         } else {
 
@@ -100,7 +119,7 @@ abstract public class CompetenceCourseServices {
                 }
             }
 
-            cache.put(competence, result);
+            CACHE_COMPETENCE_CURRICULARS.put(competence, result);
         }
 
         return result;
