@@ -491,6 +491,9 @@ class curricularPeriod.rule.CurricularPeriodRule {
 		
 			class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriodForHighestCurricularYear extends curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod {
 			}
+			
+			class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriodForFlunkedStudent extends curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod {
+			}
 		
 		class curricularPeriod.rule.enrolment.CreditsInCurricularPeriod extends curricularPeriod.rule.RuleEnrolment {
 		}
