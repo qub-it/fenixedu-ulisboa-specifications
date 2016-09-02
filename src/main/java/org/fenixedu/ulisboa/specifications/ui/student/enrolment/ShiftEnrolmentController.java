@@ -90,6 +90,13 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     private static final String JSP_PATH = CONTROLLER_URL.substring(1);
 
+    private static PossibleShiftsToEnrolProvider possibleShiftsToEnrolProvider = getPossibleShiftsToEnrolDefaultProvider();
+
+    @FunctionalInterface
+    public interface PossibleShiftsToEnrolProvider {
+        Collection<Shift> getShifts(ExecutionCourse executionCourse, ShiftType shiftType, Registration registration);
+    }
+
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page;
     }
@@ -215,7 +222,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
         // otherwise, he can chose any shift
         if (shifts.isEmpty()) {
-            shifts.addAll(executionCourse.getShiftsByTypeOrderedByShiftName(shiftType));
+            shifts.addAll(possibleShiftsToEnrolProvider.getShifts(executionCourse, shiftType, registration));
         }
 
         final JsonArray result = new JsonArray();
@@ -231,6 +238,14 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         }
 
         return new GsonBuilder().create().toJson(result);
+    }
+
+    public static PossibleShiftsToEnrolProvider getPossibleShiftsToEnrolDefaultProvider() {
+        return (ExecutionCourse ec, ShiftType st, Registration r) -> ec.getShiftsByTypeOrderedByShiftName(st);
+    }
+
+    public static void setPossibleShiftsToEnrolProvider(PossibleShiftsToEnrolProvider possibleShiftsToEnrolProvider) {
+        ShiftEnrolmentController.possibleShiftsToEnrolProvider = possibleShiftsToEnrolProvider;
     }
 
     @RequestMapping(value = "/addShift/{registrationOid}/{periodOid}/{shiftOid}")
