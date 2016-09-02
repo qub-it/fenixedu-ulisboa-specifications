@@ -159,7 +159,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         schoolClassJson.addProperty("email", calculatePersonalEmail(registration.getStudent()));
         schoolClassJson.addProperty("institutionalEmail", registration.getStudent().getPerson()
                 .getInstitutionalEmailAddressValue());
-        schoolClassJson.addProperty("studentNumber", registration.getStudent().getNumber());
+        schoolClassJson.addProperty("studentNumber", registration.getNumber().toString());
         schoolClassJson.addProperty("id", registration.getStudent().getExternalId());
         schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
         schoolClassJson.addProperty("degree", registration.getLastDegreeCurricularPlan().getPresentationName());
