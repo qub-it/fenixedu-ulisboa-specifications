@@ -1055,6 +1055,14 @@ relation RegistrationSchoolClass {
     }
 }
 
+relation SchoolClassPrecedence {
+    .org.fenixedu.academic.domain.SchoolClass playsRole nextSchoolClass;
+    .org.fenixedu.academic.domain.SchoolClass playsRole previousSchoolClasses {
+        multiplicity *;
+    }
+}
+
+
 // ======================= = Enrolment in Scool Classes end = =========================
 
 

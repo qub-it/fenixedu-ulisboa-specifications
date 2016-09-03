@@ -309,11 +309,23 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
         public List<SchoolClass> getSchoolClassesToEnrol() {
             int curricularYear = getCurricularYear();
-            return RegistrationServices
+            final List<SchoolClass> schoolClasses = RegistrationServices
                     .getSchoolClassesToEnrolBy(getRegistration(), getRegistration().getActiveDegreeCurricularPlan(),
                             getExecutionSemester())
                     .stream().filter(s -> s.getAnoCurricular().equals(curricularYear))
                     .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
+
+            final ExecutionSemester previousExecutionSemester = getExecutionSemester().getPreviousExecutionPeriod();
+            if (previousExecutionSemester != null) {
+                final SchoolClass previousSchoolClass =
+                        RegistrationServices.getSchoolClassBy(getRegistration(), previousExecutionSemester).orElse(null);
+                if (previousSchoolClass != null && previousSchoolClass.getNextSchoolClass() != null) {
+                    return schoolClasses.contains(previousSchoolClass.getNextSchoolClass()) ? Collections
+                            .singletonList(previousSchoolClass.getNextSchoolClass()) : Collections.emptyList();
+                }
+            }
+
+            return schoolClasses;
         }
 
         public List<SchoolClass> getInitialSchoolClassesToEnrol() {
