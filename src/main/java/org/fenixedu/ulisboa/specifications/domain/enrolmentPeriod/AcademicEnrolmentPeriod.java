@@ -147,7 +147,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
                 bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(),
                 bean.getExecutionSemester());
     }
-    
+
     @Override
     public Boolean getSchoolClassSelectionMandatory() {
         return super.getSchoolClassSelectionMandatory() != null && super.getSchoolClassSelectionMandatory();
@@ -198,16 +198,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     private boolean isValidStudentNumber(final Registration input) {
-        if (getMinStudentNumber() == null) {
-            return true;
-        }
-
         final Integer number = input.getNumber();
-        if (number < getMinStudentNumber()) {
-            return false;
-        }
+        return (getMinStudentNumber() == null || number >= getMinStudentNumber())
 
-        return getMaxStudentNumber() == null || number < getMaxStudentNumber();
+                && (getMaxStudentNumber() == null || number <= getMaxStudentNumber());
     }
 
     /**
