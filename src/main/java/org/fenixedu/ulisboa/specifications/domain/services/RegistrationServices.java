@@ -1,13 +1,16 @@
 package org.fenixedu.ulisboa.specifications.domain.services;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -19,6 +22,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -30,6 +34,8 @@ import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationServices {
@@ -82,17 +88,50 @@ public class RegistrationServices {
             registration.getSchoolClassesSet().remove(currentSchoolClass.get());
         }
         if (schoolClass != null) {
+            final Function<Shift, Integer> vacanciesCalculator = s -> s.getLotacao() - s.getStudentsSet().size();
+            final Comparator<Shift> vacanciesComparator =
+                    (s1, s2) -> vacanciesCalculator.apply(s1).compareTo(vacanciesCalculator.apply(s2));
+
             final List<ExecutionCourse> attendingExecutionCourses =
                     registration.getAttendingExecutionCoursesFor(executionSemester);
-            for (Shift shift : schoolClass.getAssociatedShiftsSet().stream()
-                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse())).collect(Collectors.toSet())) {
-                if (!shift.reserveForStudent(registration)) {
-                    throw new DomainException("error.registration.replaceSchoolClass.shiftFull", shift.getNome(),
-                            shift.getShiftTypesPrettyPrint(), shift.getExecutionCourse().getName());
+            final Set<Shift> schoolClassesShifts = schoolClass.getAssociatedShiftsSet().stream()
+                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()) && vacanciesCalculator.apply(s) > 0)
+                    .collect(Collectors.toSet());
+
+            final Multimap<ExecutionCourse, Shift> shiftsByExecutionCourse = ArrayListMultimap.create();
+            schoolClassesShifts.forEach(s -> shiftsByExecutionCourse.put(s.getExecutionCourse(), s));
+            for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
+                final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
+                shiftsByExecutionCourse.get(executionCourse)
+                        .forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
+
+                for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
+                    final List<Shift> shiftsOrderedByVacancies = new ArrayList<>(shiftsTypesByShift.get(shiftType));
+                    shiftsOrderedByVacancies.sort(vacanciesComparator);
+                    enrolInOneShift(shiftsOrderedByVacancies, registration);
                 }
             }
+
             registration.getSchoolClassesSet().add(schoolClass);
         }
+    }
+
+    private static void enrolInOneShift(Collection<Shift> shiftsOrderedByVacancies, Registration registration) {
+        String shiftName = null;
+        String shiftTypes = null;
+        String executionCourseName = null;
+
+        for (final Shift shift : shiftsOrderedByVacancies) {
+            shiftName = shift.getNome();
+            shiftTypes = shift.getShiftTypesPrettyPrint();
+            executionCourseName = shift.getExecutionCourse().getName();
+
+            if (shift.reserveForStudent(registration)) {
+                return;
+            }
+        }
+
+        throw new DomainException("error.registration.replaceSchoolClass.shiftFull", shiftName, shiftTypes, executionCourseName);
     }
 
     public static Collection<EnrolmentEvaluation> getImprovementEvaluations(final Registration registration,
