@@ -193,7 +193,7 @@
 						</html:link>					 
 					</c:forEach>
 				 
-					<div id="calendar"></div>
+					<div id="calendar-${schoolClassToDisplay.externalId}"></div>
 					<script>
 					$(document).ready(function() {
 						
@@ -207,7 +207,7 @@
 							"<bean:message bundle="ENUMERATION_RESOURCES" key="SATURDAY.short" />"
 						];						
 						
-						$('#calendar').fullCalendar({
+						$('#calendar-<c:out value="${schoolClassToDisplay.externalId}"/>').fullCalendar({
 								header: { left: '', center: '', right: '' },
 								defaultView: 'agendaWeek',
 								columnFormat: { week: 'ddd' },			
