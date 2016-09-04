@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -47,6 +48,8 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 
 public class ULisboaConstants {
@@ -112,11 +115,21 @@ public class ULisboaConstants {
     /* Predicates and filtering criteria */
     public static final Predicate<Enrolment> isStandalone = e -> !e.isAnnulled() && e.isStandalone();
     public static final Predicate<Enrolment> isExtraCurricular = e -> !e.isAnnulled() && e.isExtraCurricular();
-    public static final Predicate<Enrolment> isNormalEnrolment =
-            e -> !e.isAnnulled()
-                    && (e.getCurriculumGroup().isInternalCreditsSourceGroup() || !e.getCurriculumGroup()
-                            .isNoCourseGroupCurriculumGroup())
-                    && (e.getParentCycleCurriculumGroup() == null || !e.getParentCycleCurriculumGroup().isExternal());
+
+    public static final Predicate<Enrolment> isNormalEnrolment = e -> !e.isAnnulled()
+
+            && (e.getCurriculumGroup().isInternalCreditsSourceGroup() || !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
+
+            && (e.getParentCycleCurriculumGroup() == null || !e.getParentCycleCurriculumGroup().isExternal())
+
+            && !ULisboaConstants.isAggregationChild.test(e);
+
+    private static final Predicate<Enrolment> isAggregationChild = x -> {
+
+        final Context context = CurriculumAggregatorServices.getContext(x);
+        return context != null && context.getCurriculumAggregatorEntry() != null;
+
+    };
 
     public static final List<ICurriculumEntry> getLastPlanApprovements(Registration registration) {
         return registration.getLastStudentCurricularPlan().getCurriculum(new DateTime(), null).getCurriculumEntries().stream()
