@@ -49,13 +49,13 @@ public class CurriculumModuleServices {
 
         BigDecimal result = BigDecimal.ZERO;
 
-        if (toInspect.getClass().isAssignableFrom(CurriculumGroup.class)) {
+        if (CurriculumGroup.class.isAssignableFrom(toInspect.getClass())) {
             result = getCreditsConcluded((CurriculumGroup) toInspect, semester);
 
-        } else if (toInspect.getClass().isAssignableFrom(Enrolment.class)) {
+        } else if (Enrolment.class.isAssignableFrom(toInspect.getClass())) {
             result = getCreditsConcluded((Enrolment) toInspect, semester);
 
-        } else if (toInspect.getClass().isAssignableFrom(Dismissal.class)) {
+        } else if (Dismissal.class.isAssignableFrom(toInspect.getClass())) {
             result = getCreditsConcluded((Dismissal) toInspect, semester);
         }
 
@@ -100,10 +100,10 @@ public class CurriculumModuleServices {
 
         BigDecimal result = BigDecimal.ZERO;
 
-        if (toInspect.getClass().isAssignableFrom(CurriculumGroup.class)) {
+        if (CurriculumGroup.class.isAssignableFrom(toInspect.getClass())) {
             result = getEnroledAndNotApprovedEctsCreditsFor((CurriculumGroup) toInspect, semester);
 
-        } else if (toInspect.getClass().isAssignableFrom(Enrolment.class)) {
+        } else if (Enrolment.class.isAssignableFrom(toInspect.getClass())) {
             result = getEnroledAndNotApprovedEctsCreditsFor((Enrolment) toInspect, semester);
         }
 
