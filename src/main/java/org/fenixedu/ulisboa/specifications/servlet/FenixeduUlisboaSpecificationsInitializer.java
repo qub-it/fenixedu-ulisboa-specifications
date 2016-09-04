@@ -227,6 +227,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             @Override
             public void deleting(SchoolClass schoolClass) {
                 schoolClass.getRegistrationsSet().clear();
+                schoolClass.setNextSchoolClass(null);
+                schoolClass.getPreviousSchoolClassesSet().clear();
             }
         });
     }
