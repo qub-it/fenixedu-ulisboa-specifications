@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,9 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExecutor {
 
@@ -85,11 +89,20 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
                                     .filter(s -> s.getExecutionCourse()
                                             .getCurricularCourseFor(degreeCurricularPlan) == curricularCourse)
                             .collect(Collectors.toSet());
-                    if (shifts.stream().anyMatch(s -> !isFree(s))) {
-                        return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
-                                ULisboaSpecificationsUtil.bundle(
-                                        "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShiftsInSchoolClass",
-                                        curricularCourse.getCode(), curricularCourse.getName()));
+
+                    final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
+                    shifts.forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
+
+                    for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
+                        final Collection<Shift> shiftsForType = shiftsTypesByShift.get(shiftType);
+                        if (shiftsForType.stream().noneMatch(s -> s.getStudentsSet().contains(registration))) {
+                            if (shiftsForType.stream().noneMatch(s -> isFree(s))) {
+                                return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
+                                        ULisboaSpecificationsUtil.bundle(
+                                                "curricularRules.ruleExecutors.StudentSchoolClassCurricularRuleExecutor.error.courseMustHaveFreeShiftsInSchoolClass",
+                                                curricularCourse.getCode(), curricularCourse.getName()));
+                            }
+                        }
                     }
 
                 }
