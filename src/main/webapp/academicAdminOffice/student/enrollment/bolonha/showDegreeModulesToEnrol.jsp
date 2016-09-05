@@ -97,7 +97,8 @@
 	</p>
 	<p class="mtop025 mbottom1">
 		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
-		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>			
+		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
+		<a href="#" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>			
 	</p>
 	
 	<fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
@@ -128,6 +129,7 @@
 	<p class="mtop05 mbottom1">
 		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
+		<a href="#" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>
 	</p>
 
 </html:form>
