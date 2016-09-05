@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -64,6 +65,8 @@ import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManage
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -248,8 +251,26 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         public boolean isSchoolClassToDisplayFree() {
             final SchoolClass schoolClassToDisplay = getSchoolClassToDisplay();
             if (schoolClassToDisplay != null) {
-                return !getAttendingShifts(schoolClassToDisplay).stream()
-                        .anyMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size());
+//                return !attendingShifts.stream().anyMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size());
+
+                final List<Shift> attendingShifts = getAttendingShifts(schoolClassToDisplay);
+
+                final Multimap<ExecutionCourse, Shift> shiftsByExecutionCourse = ArrayListMultimap.create();
+                attendingShifts.forEach(s -> shiftsByExecutionCourse.put(s.getExecutionCourse(), s));
+                for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
+                    final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
+                    shiftsByExecutionCourse.get(executionCourse)
+                            .forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
+
+                    for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
+                        if (shiftsTypesByShift.get(shiftType).stream()
+                                .allMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size())) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
             }
             return false;
         }
