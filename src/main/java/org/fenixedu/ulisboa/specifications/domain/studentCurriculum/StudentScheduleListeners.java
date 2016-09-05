@@ -35,6 +35,10 @@ public class StudentScheduleListeners {
             final ExecutionSemester executionSemester = enrolment.getExecutionPeriod();
             final Attends attends = enrolment.getAttendsFor(executionSemester);
 
+            if (attends == null) {
+                return;
+            }
+
             boolean enrolInShiftIfUnique = enrolment.getCurricularRules(executionSemester).stream()
                     .filter(cr -> cr instanceof StudentSchoolClassCurricularRule).map(cr -> (StudentSchoolClassCurricularRule) cr)
                     .anyMatch(ssccr -> ssccr.getEnrolInShiftIfUnique());
