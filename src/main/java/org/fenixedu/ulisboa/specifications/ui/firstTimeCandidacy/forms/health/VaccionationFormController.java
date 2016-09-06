@@ -52,7 +52,7 @@ public class VaccionationFormController extends FormAbstractController {
         }
 
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.createSchoolSpecificData.info"), model);
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata/vaccination/fillvaccinationform";
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/vaccinationform/fillvaccinationform";
     }
 
     public static boolean shouldBeSkipped() {

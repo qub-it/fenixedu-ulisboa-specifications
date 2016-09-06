@@ -69,7 +69,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
 
         addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillPreviousDegreeInformation.info"), model);
 
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/previousdegreeorigininformationform/fillpreviousdegreeinformation";
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/previousdegreeorigininformationform/fillpreviousdegreeinformation";
     }
 
     public PreviousDegreeInformationForm fillFormIfRequired(ExecutionYear executionYear, Registration registration, Model model) {

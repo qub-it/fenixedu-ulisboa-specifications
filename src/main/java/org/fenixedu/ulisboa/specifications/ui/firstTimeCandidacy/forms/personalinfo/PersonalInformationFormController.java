@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.PartySocialSecurityNumber;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.IDDocumentType;
+import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
@@ -74,13 +75,12 @@ public class PersonalInformationFormController extends FormAbstractController {
 
         PersonalInformationForm form = fillFormIfRequired(executionYear, model);
 
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillPersonalInformation.info"), model);
-
         if (getForm(model) == null) {
             setForm(form, model);
         }
 
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/personalinformationform/fillpersonalinformation";
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillPersonalInformation.info"), model);
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/personalinformationform/fillpersonalinformation";
     }
 
     public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, Model model) {
@@ -111,6 +111,7 @@ public class PersonalInformationFormController extends FormAbstractController {
         final Person person = student.getPerson();
         PersonalInformationForm form;
         form = new PersonalInformationForm();
+        final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, true);
 
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
         YearMonthDay emissionDateOfDocumentIdYearMonthDay = person.getEmissionDateOfDocumentIdYearMonthDay();
@@ -125,6 +126,14 @@ public class PersonalInformationFormController extends FormAbstractController {
         form.setDocumentIdNumber(person.getDocumentIdNumber());
         form.setIdDocumentType(person.getIdDocumentType());
         form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
+
+        if (personalData != null) {
+            form.setMaritalStatus(personalData.getMaritalStatus());
+
+            if (form.getMaritalStatus() == null) {
+                form.setMaritalStatus(MaritalStatus.SINGLE);
+            }
+        }
 
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
@@ -268,8 +277,8 @@ public class PersonalInformationFormController extends FormAbstractController {
     private void writeData(final ExecutionYear executionYear, final PersonalInformationForm form, final Model model) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        PersonalIngressionData personalData =
-                getOrCreatePersonalIngressionDataForCurrentExecutionYear(executionYear, getStudent(model));
+        PersonalIngressionData personalData = getPersonalIngressionData(getStudent(model), executionYear, false);
+
         //TODOJN - dirty hack to go around PrecedentDegreeInformation.checkHasAllRegistrationOrPhdInformation()
         FirstTimeCandidacyController.getOrCreatePersonalIngressionData(executionYear,
                 personalData.getPrecedentDegreesInformationsSet().iterator().next());
@@ -314,6 +323,9 @@ public class PersonalInformationFormController extends FormAbstractController {
                 && !isIdentityCardControlNumberValid(person.getDocumentIdNumber(), getIdentityCardControlNumber(person))) {
             setIdentityCardControlNumber(person, form.getIdentificationDocumentSeriesNumber());
         }
+
+        personalData.getStudent().getPerson().setMaritalStatus(form.getMaritalStatus());
+        personalData.setMaritalStatus(form.getMaritalStatus());
 
     }
 

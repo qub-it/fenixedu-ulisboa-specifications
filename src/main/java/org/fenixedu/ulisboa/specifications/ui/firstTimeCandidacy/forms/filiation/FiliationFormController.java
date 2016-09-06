@@ -50,7 +50,7 @@ public class FiliationFormController extends FormAbstractController {
         fillFormIfRequired(model);
 
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillFiliation.info"), model);
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform/fillfiliation";
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/filiationform/fillfiliation";
     }
 
     @Override
@@ -139,6 +139,10 @@ public class FiliationFormController extends FormAbstractController {
             person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
             person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
             person.setParishOfBirth(form.getParishOfBirth().getName());
+        } else {
+            person.setDistrictOfBirth(null);
+            person.setDistrictSubdivisionOfBirth(null);
+            person.setParishOfBirth(null);
         }
 
         person.setNameOfFather(form.getFatherName());

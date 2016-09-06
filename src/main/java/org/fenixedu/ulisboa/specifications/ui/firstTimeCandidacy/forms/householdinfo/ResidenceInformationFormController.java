@@ -64,13 +64,13 @@ public class ResidenceInformationFormController extends FormAbstractController {
 
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillResidenceInformation.info"), model);
 
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform/fillresidenceinformation";
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/residenceinformationform/fillresidenceinformation";
     }
 
     private ResidenceInformationForm fillFormIfRequired(ExecutionYear executionYear, Model model) {
         ResidenceInformationForm form = (ResidenceInformationForm) getForm(model);
         if (form == null) {
-            form = createResidenceInformationForm(getStudent(model), executionYear, true);
+            form = createResidenceInformationForm(getStudent(model), executionYear, false);
 
             setForm(form, model);
         }
@@ -226,7 +226,7 @@ public class ResidenceInformationFormController extends FormAbstractController {
         Student student = person.getStudent();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
-        PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, true);
+        PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
         personalData.setCountryOfResidence(form.getCountryOfResidence());
         personalData.setDistrictSubdivisionOfResidence(form.getDistrictSubdivisionOfResidence());
         personalData.setDislocatedFromPermanentResidence(form.getDislocatedFromPermanentResidence());

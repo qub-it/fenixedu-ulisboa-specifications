@@ -2,7 +2,6 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.househol
 
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
-import org.fenixedu.academic.domain.District;
-import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -19,15 +16,11 @@ import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
-import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
-import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 
 import pt.ist.fenixframework.FenixFramework;
 
@@ -48,13 +41,7 @@ public class HouseholdInformationForm implements CandidancyForm {
     private GrantOwnerType grantOwnerType;
     private String grantOwnerProvider;
     private String otherGrantOwnerProvider;
-    private MaritalStatus maritalStatus;
     private Country countryHighSchool;
-    private boolean dislocatedFromPermanentResidence;
-    private Country countryOfResidence;
-    private District permanentResidenceDistrict;
-    private DistrictSubdivision permanentResidentDistrictSubdivision;
-    private ResidenceType dislocatedResidenceType;
     private List<TupleDataSourceBean> professionalConditionValues;
     private List<TupleDataSourceBean> professionTypeValues;
     private List<TupleDataSourceBean> professionTimeTypeValues;
@@ -63,11 +50,6 @@ public class HouseholdInformationForm implements CandidancyForm {
     private String grantOwnerProviderNamePart;
     private List<TupleDataSourceBean> schoolLevelValues;
     private List<TupleDataSourceBean> salarySpanValues;
-    private List<TupleDataSourceBean> maritalStatusValues;
-    private List<TupleDataSourceBean> residenceTypeValues;
-    private List<TupleDataSourceBean> countriesValues;
-    private List<TupleDataSourceBean> districtsValues;
-    private List<TupleDataSourceBean> districtSubdivisionValues;
 
     public HouseholdInformationForm() {
         setProfessionalConditionValues(Arrays.asList(ProfessionalSituationConditionType.values()));
@@ -76,13 +58,6 @@ public class HouseholdInformationForm implements CandidancyForm {
         setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
         setSchoolLevelValues(Arrays.asList(SchoolLevelType.values()));
         setSalarySpanValues(SalarySpan.readAll().collect(Collectors.toList()));
-        setCountriesValues(Bennu.getInstance().getCountrysSet());
-        setResidenceTypeValues(Bennu.getInstance().getResidenceTypesSet());
-
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        setMaritalStatusValues(maritalStatusValues);
 
         updateLists();
     }
@@ -96,14 +71,6 @@ public class HouseholdInformationForm implements CandidancyForm {
             units.add(unit.getUnitName());
         }
         setGrantOwnerProviderValues(units.stream().filter(i -> i.getUnit().isNoOfficialExternal()).collect(Collectors.toList()));
-
-        if (countryOfResidence == Country.readDefault()) {
-            setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
-        }
-        if (permanentResidenceDistrict != null) {
-            setDistrictSubdivisionValues(
-                    FormAbstractController.getSubdivisionsWithParishes(permanentResidenceDistrict).collect(Collectors.toList()));
-        }
 
     }
 
@@ -219,28 +186,12 @@ public class HouseholdInformationForm implements CandidancyForm {
         this.professionTimeType = professionTimeType;
     }
 
-    public MaritalStatus getMaritalStatus() {
-        return maritalStatus;
-    }
-
-    public void setMaritalStatus(MaritalStatus maritalStatus) {
-        this.maritalStatus = maritalStatus;
-    }
-
     public Country getCountryHighSchool() {
         return countryHighSchool;
     }
 
     public void setCountryHighSchool(Country countryHighSchool) {
         this.countryHighSchool = countryHighSchool;
-    }
-
-    public ResidenceType getDislocatedResidenceType() {
-        return dislocatedResidenceType;
-    }
-
-    public void setDislocatedResidenceType(ResidenceType dislocatedResidenceType) {
-        this.dislocatedResidenceType = dislocatedResidenceType;
     }
 
     public boolean isStudentWorking() {
@@ -304,38 +255,6 @@ public class HouseholdInformationForm implements CandidancyForm {
 
     public void setExecutionYear(ExecutionYear executionYear) {
         this.executionYear = executionYear;
-    }
-
-    public boolean isDislocatedFromPermanentResidence() {
-        return dislocatedFromPermanentResidence;
-    }
-
-    public void setDislocatedFromPermanentResidence(boolean dislocatedFromPermanentResidence) {
-        this.dislocatedFromPermanentResidence = dislocatedFromPermanentResidence;
-    }
-
-    public Country getCountryOfResidence() {
-        return countryOfResidence;
-    }
-
-    public void setCountryOfResidence(Country countryOfResidence) {
-        this.countryOfResidence = countryOfResidence;
-    }
-
-    public District getPermanentResidenceDistrict() {
-        return permanentResidenceDistrict;
-    }
-
-    public void setPermanentResidenceDistrict(District permanentResidenceDistrict) {
-        this.permanentResidenceDistrict = permanentResidenceDistrict;
-    }
-
-    public DistrictSubdivision getPermanentResidentDistrictSubdivision() {
-        return permanentResidentDistrictSubdivision;
-    }
-
-    public void setPermanentResidentDistrictSubdivision(DistrictSubdivision permanentResidentDistrictSubdivision) {
-        this.permanentResidentDistrictSubdivision = permanentResidentDistrictSubdivision;
     }
 
     public List<TupleDataSourceBean> getProfessionalConditionValues() {
@@ -414,62 +333,4 @@ public class HouseholdInformationForm implements CandidancyForm {
                         .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    public List<TupleDataSourceBean> getMaritalStatusValues() {
-        return maritalStatusValues;
-    }
-
-    public void setMaritalStatusValues(List<MaritalStatus> maritalStatusValues) {
-        this.maritalStatusValues =
-                maritalStatusValues.stream().map(ms -> new TupleDataSourceBean(ms.toString(), ms.getLocalizedName()))
-                        .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getResidenceTypeValues() {
-        return residenceTypeValues;
-    }
-
-    public void setResidenceTypeValues(Collection<ResidenceType> residenceTypeValues) {
-        this.residenceTypeValues = residenceTypeValues.stream()
-                .map(rt -> new TupleDataSourceBean(rt.getExternalId(), rt.getDescription().getContent()))
-                .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getCountriesValues() {
-        return countriesValues;
-    }
-
-    public void setCountriesValues(Collection<Country> countriesValues) {
-        this.countriesValues = countriesValues.stream().map(c -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(c.getExternalId());
-            tuple.setText(c.getLocalizedName().getContent());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getDistrictsValues() {
-        return districtsValues;
-    }
-
-    public void setDistrictsValues(Collection<District> districtsValues) {
-        this.districtsValues = districtsValues.stream().map(d -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(d.getExternalId());
-            tuple.setText(d.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getDistrictSubdivisionValues() {
-        return districtSubdivisionValues;
-    }
-
-    public void setDistrictSubdivisionValues(Collection<DistrictSubdivision> districtSubdivisionValues) {
-        this.districtSubdivisionValues = districtSubdivisionValues.stream().map(ds -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(ds.getExternalId());
-            tuple.setText(ds.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
 }

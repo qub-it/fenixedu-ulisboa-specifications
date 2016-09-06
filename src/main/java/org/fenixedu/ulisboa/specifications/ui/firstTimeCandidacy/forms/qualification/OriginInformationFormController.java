@@ -31,6 +31,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandid
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.contacts.ContactsFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.DisabilitiesFormController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -79,7 +80,7 @@ public class OriginInformationFormController extends FormAbstractController {
 
         addInfoMessage(ULisboaSpecificationsUtil.bundle("label.firstTimeCandidacy.fillOriginInformation.info"), model);
 
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/origininformationform/fillorigininformation";
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/origininformationform/fillorigininformation";
     }
 
     public OriginInformationForm fillFormIfRequired(Registration registration, Model model) {
@@ -409,12 +410,20 @@ public class OriginInformationFormController extends FormAbstractController {
     @Override
     protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
         if (findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).isEmpty()) {
-            return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormController.CONTROLLER_URL, executionYear),
-                    model, redirectAttributes);
+            if (isPreviousDegreeOriginInformationRequired()) {
+                return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormController.CONTROLLER_URL, executionYear),
+                        model, redirectAttributes);
+            }
+            return redirect(urlWithExecutionYear(DisabilitiesFormController.CONTROLLER_URL, executionYear), model,
+                    redirectAttributes);
         } else {
             return redirect(urlWithExecutionYear(CONTROLLER_URL, executionYear), model, redirectAttributes);
         }
 
+    }
+
+    protected boolean isPreviousDegreeOriginInformationRequired() {
+        return false;
     }
 
     @Override

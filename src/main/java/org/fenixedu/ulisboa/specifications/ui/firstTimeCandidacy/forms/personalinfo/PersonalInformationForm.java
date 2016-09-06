@@ -13,6 +13,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
+import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -42,6 +43,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private Country countryHighSchool;
     private boolean firstYearRegistration;
     private boolean foreignStudent;
+    private MaritalStatus maritalStatus;
 
     private List<TupleDataSourceBean> countryHighSchoolValues;
     private List<TupleDataSourceBean> idDocumentTypeValues;
@@ -49,6 +51,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private String institutionNamePart;
     private List<TupleDataSourceBean> firstOptionDegreeDesignationValues;
     private String degreeNamePart;
+    private List<TupleDataSourceBean> maritalStatusValues;
 
     /* Read only */
     private String name;
@@ -63,6 +66,11 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         idDocumentTypeValues.addAll(Arrays.asList(IDDocumentType.values()));
         idDocumentTypeValues.remove(IDDocumentType.CITIZEN_CARD);
         setIdDocumentTypeValues(idDocumentTypeValues);
+
+        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+        setMaritalStatusValues(maritalStatusValues);
 
         updateLists();
     }
@@ -285,5 +293,23 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
 
     public void setForeignStudent(boolean foreignStudent) {
         this.foreignStudent = foreignStudent;
+    }
+
+    public MaritalStatus getMaritalStatus() {
+        return maritalStatus;
+    }
+
+    public void setMaritalStatus(MaritalStatus maritalStatus) {
+        this.maritalStatus = maritalStatus;
+    }
+
+    public List<TupleDataSourceBean> getMaritalStatusValues() {
+        return maritalStatusValues;
+    }
+
+    public void setMaritalStatusValues(List<MaritalStatus> maritalStatusValues) {
+        this.maritalStatusValues =
+                maritalStatusValues.stream().map(ms -> new TupleDataSourceBean(ms.toString(), ms.getLocalizedName()))
+                        .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 }

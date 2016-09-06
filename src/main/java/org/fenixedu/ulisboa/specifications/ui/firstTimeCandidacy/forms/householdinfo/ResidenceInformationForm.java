@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,7 @@ public class ResidenceInformationForm implements CandidancyForm {
     private String schoolTimeAreaCodePart;
     private List<TupleDataSourceBean> residenceTypeValues;
     private List<String> otherResidenceTypeValues;
+    private boolean isOtherResidenceType;
 
     public ResidenceInformationForm() {
         setResidenceTypeValues(Bennu.getInstance().getResidenceTypesSet());
@@ -60,9 +62,13 @@ public class ResidenceInformationForm implements CandidancyForm {
     @Override
     public void updateLists() {
         setCountriesValues(Bennu.getInstance().getCountrysSet());
-        //Populate districts
-        if (countryOfResidence == Country.readDefault()) {
-            setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
+        setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
+
+        //Process isOtherResidenceType boolean
+        if (schoolTimeResidenceType != null && schoolTimeResidenceType.isOther()) {
+            setOtherResidenceType(true);
+        } else {
+            setOtherResidenceType(false);
         }
         //Populate district subdivisions
         if (districtOfResidence != null) {
@@ -83,18 +89,30 @@ public class ResidenceInformationForm implements CandidancyForm {
         //Populate zip code
         List<String> postalCodes = getAllPostCodes().stream().map(pc -> pc.exportAsString().split(";")[4] + " " + pc.parent.name)
                 .collect(Collectors.toList());
-
-        if (getAreaCode() != null) {
-            setAreaCodePart(getAreaCode());
+        if (getCountryOfResidence() == Country.readDefault()) {
+            if (getAreaCode() != null) {
+                setAreaCodePart(getAreaCode());
+            }
+            if (areaCodePart == null) {
+                setAreaCodeValuesFormatted(Collections.emptyList());
+            } else {
+                setAreaCodeValuesFormatted(
+                        postalCodes.stream().filter(pc -> pc.contains(areaCodePart)).limit(50).collect(Collectors.toList()));
+            }
+        } else {
+            setAreaCode(null);
+            setAreaCodePart(null);
+            setAreaCodeValuesFormatted(Collections.emptyList());
         }
         if (getSchoolTimeAreaCode() != null) {
             setSchoolTimeAreaCodePart(getSchoolTimeAreaCode());
         }
-        setAreaCodeValuesFormatted(postalCodes.stream().filter(pc -> pc.contains(areaCodePart == null ? "" : areaCodePart))
-                .limit(50).collect(Collectors.toList()));
-        setSchoolTimeAreaCodeValuesFormatted(
-                postalCodes.stream().filter(pc -> pc.contains(schoolTimeAreaCodePart == null ? "" : schoolTimeAreaCodePart))
-                        .limit(50).collect(Collectors.toList()));
+        if (schoolTimeAreaCodePart == null) {
+            setSchoolTimeAreaCodeValuesFormatted(Collections.emptyList());
+        } else {
+            setSchoolTimeAreaCodeValuesFormatted(postalCodes.stream().filter(pc -> pc.contains(schoolTimeAreaCodePart)).limit(50)
+                    .collect(Collectors.toList()));
+        }
     }
 
     public String getAddress() {
@@ -417,6 +435,14 @@ public class ResidenceInformationForm implements CandidancyForm {
     public void setOtherResidenceTypeValues(List<ResidenceType> otherResidenceTypeValues) {
         this.otherResidenceTypeValues =
                 otherResidenceTypeValues.stream().map(rt -> rt.getExternalId()).collect(Collectors.toList());
+    }
+
+    public boolean isOtherResidenceType() {
+        return isOtherResidenceType;
+    }
+
+    public void setOtherResidenceType(boolean isOtherResidenceType) {
+        this.isOtherResidenceType = isOtherResidenceType;
     }
 
 }

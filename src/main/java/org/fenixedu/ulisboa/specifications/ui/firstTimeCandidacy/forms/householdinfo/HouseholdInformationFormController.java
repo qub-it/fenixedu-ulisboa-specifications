@@ -11,7 +11,6 @@ import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -60,13 +59,13 @@ public class HouseholdInformationFormController extends FormAbstractController {
         }
 
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/householdinformationform/fillhouseholdinformation";
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/householdinformationform/fillhouseholdinformation";
     }
 
     public HouseholdInformationForm fillFormIfRequired(ExecutionYear executionYear, Model model) {
         HouseholdInformationForm form = (HouseholdInformationForm) getForm(model);
         if (form == null) {
-            form = createHouseholdInformationForm(getStudent(model), executionYear, true);
+            form = createHouseholdInformationForm(getStudent(model), executionYear, false);
 
             setForm(form, model);
         }
@@ -99,24 +98,12 @@ public class HouseholdInformationFormController extends FormAbstractController {
             form.setMotherProfessionType(personalData.getMotherProfessionType());
             form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
 
-            form.setMaritalStatus(personalData.getMaritalStatus());
             form.setProfessionType(personalData.getProfessionType());
             form.setGrantOwnerType(personalData.getGrantOwnerType());
 
             Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
             form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
             form.setProfessionalCondition(personalData.getProfessionalCondition());
-
-            form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence() != null ? personalData
-                    .getDislocatedFromPermanentResidence() : false);
-            form.setCountryOfResidence(personalData.getCountryOfResidence());
-            form.setPermanentResidenceDistrict(personalData.getDistrictSubdivisionOfResidence() != null ? personalData
-                    .getDistrictSubdivisionOfResidence().getDistrict() : null);
-            form.setPermanentResidentDistrictSubdivision(personalData.getDistrictSubdivisionOfResidence());
-        }
-
-        if (form.getMaritalStatus() == null) {
-            form.setMaritalStatus(MaritalStatus.SINGLE);
         }
 
         if (form.getProfessionType() == null) {
@@ -137,7 +124,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
             form.setCountryHighSchool(personUl.getPerson().getCountryHighSchool());
-            form.setDislocatedResidenceType(personUl.getDislocatedResidenceType());
         }
 
         return form;
@@ -228,22 +214,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
                     BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
         }
 
-        if (form.isDislocatedFromPermanentResidence() && form.getCountryOfResidence() == null) {
-            messages.add(
-                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.countryOfResidence.required"));
-        }
-
-        if (form.isDislocatedFromPermanentResidence() && form.getCountryOfResidence() != null
-                && form.getCountryOfResidence().isDefaultCountry() && form.getPermanentResidentDistrictSubdivision() == null) {
-            messages.add(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.permanentResidentDistrictSubdivision.required"));
-        }
-
-        if (form.isDislocatedFromPermanentResidence() && form.getDislocatedResidenceType() == null) {
-            messages.add(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.PersonalInformationForm.dislocatedResidenceType.required"));
-        }
-
         return messages;
     }
 
@@ -263,7 +233,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
     @Atomic
     protected void writeData(final Student student, final ExecutionYear executionYear, final HouseholdInformationForm form,
             final Model model) {
-        PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, true);
+        PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
         PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
 
         personalData.setFatherProfessionalCondition(form.getFatherProfessionalCondition());
@@ -292,19 +262,11 @@ public class HouseholdInformationFormController extends FormAbstractController {
             personalData.setGrantOwnerProvider(null);
         }
 
-        personalData.getStudent().getPerson().setMaritalStatus(form.getMaritalStatus());
-        personalData.setMaritalStatus(form.getMaritalStatus());
-
         personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
 
         if (isToFillCountryHighSchool()) {
             personalData.getStudent().getPerson().setCountryHighSchool(form.getCountryHighSchool());
         }
-
-        personalData.setDislocatedFromPermanentResidence(form.isDislocatedFromPermanentResidence());
-        personalData.setCountryOfResidence(form.getCountryOfResidence());
-        personalData.setDistrictSubdivisionOfResidence(form.getPermanentResidentDistrictSubdivision());
-        personUlisboa.setDislocatedResidenceType(form.getDislocatedResidenceType());
 
     }
 

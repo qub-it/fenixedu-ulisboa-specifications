@@ -61,8 +61,8 @@ public class ContactsFormController extends FormAbstractController {
             setForm(form, model);
         }
 
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform/fillcontacts";
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillContacts.info"), model);
+        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/contactsform/fillcontacts";
     }
 
     public ContactsForm fillFormIfRequired(ExecutionYear executionYear, Model model) {
