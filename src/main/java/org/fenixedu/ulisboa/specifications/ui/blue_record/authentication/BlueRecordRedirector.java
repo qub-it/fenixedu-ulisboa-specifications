@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.blue_record.authentication;
 
+import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,10 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         }
 
         if (isEnrolmentStep(request)) {
+            return false;
+        }
+
+        if (isFirstTimeCandidacies(request)) {
             return false;
         }
 
@@ -112,7 +118,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
             // NOTE: at this stage of filter chain, ActionMapping or something else is not available
             // TODO legidio, deal with ui layer requests...
-            
+
             if (iter.contains("?")) {
                 // action
                 aux = iter.substring(0, iter.lastIndexOf("?"));
@@ -129,6 +135,11 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         }
 
         return false;
+    }
+
+    private boolean isFirstTimeCandidacies(HttpServletRequest request) {
+        String path = request.getRequestURL().toString();
+        return path.contains(FIRST_TIME_START_URL);
     }
 
 }
