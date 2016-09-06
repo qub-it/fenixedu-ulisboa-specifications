@@ -24,67 +24,72 @@ import pt.ist.fenixframework.Atomic;
 
 public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model,
+            RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return Optional.of(redirect(FirstTimeCandidacyController.CONTROLLER_URL + "/" + executionYear.getExternalId(), model, redirectAttributes));
+            return Optional.of(redirect(FirstTimeCandidacyController.CONTROLLER_URL + "/" + executionYear.getExternalId(), model,
+                    redirectAttributes));
         }
-        
+
         return Optional.empty();
     }
 
     @Atomic
-    protected PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(final ExecutionYear executionYear, final Student student) {
+    protected PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(final ExecutionYear executionYear,
+            final Student student) {
         return getPersonalIngressionData(student, executionYear, true);
     }
 
-    protected PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear, final boolean create) {
+    protected PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear,
+            final boolean create) {
         PersonalIngressionData personalData = student.getPersonalIngressionDataByExecutionYear(executionYear);
-        
-        if(personalData != null) {
+
+        if (personalData != null) {
             // Found one
             return personalData;
         }
-        
-        if(!create) {
+
+        if (!create) {
             return null;
         }
-        
+
         // Create personal ingression data with one precedentDegreeInformation from candidacy if possible
         final Set<PrecedentDegreeInformation> pdiSetFromCandidacy = Sets.newHashSet();
         for (final Candidacy candidacy : student.getPerson().getCandidaciesSet()) {
-            if(!candidacy.getActiveCandidacySituation().getCandidacySituationType().isActive()) {
+            if (!candidacy.getActiveCandidacySituation().getCandidacySituationType().isActive()) {
                 continue;
             }
-            
-            if(!(candidacy instanceof StudentCandidacy)) {
+
+            if (!(candidacy instanceof StudentCandidacy)) {
                 continue;
             }
-            
+
             final StudentCandidacy studentCandidacy = (StudentCandidacy) candidacy;
-            
-            if(studentCandidacy.getExecutionYear() != executionYear) {
+
+            if (studentCandidacy.getExecutionYear() != executionYear) {
                 continue;
             }
-            
+
             pdiSetFromCandidacy.add(studentCandidacy.getPrecedentDegreeInformation());
-         }
-        
-        if(!pdiSetFromCandidacy.isEmpty()) {
+        }
+
+        if (!pdiSetFromCandidacy.isEmpty()) {
             return new PersonalIngressionData(student, executionYear, pdiSetFromCandidacy.iterator().next());
         }
-        
-        if(!student.getRegistrationsSet().isEmpty()) {
+
+        if (!student.getRegistrationsSet().isEmpty()) {
             final PrecedentDegreeInformation pid = new PrecedentDegreeInformation();
             pid.setRegistration(student.getRegistrationsSet().iterator().next());
-            
+
             return new PersonalIngressionData(student, executionYear, pid);
         }
-        
+
         // Cannot create personal ingression data
         return null;
     }
 
-    protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final ExecutionYear executionYear, final Student student) {
+    protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final ExecutionYear executionYear,
+            final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
                 Lists.newArrayList(Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student));
 
@@ -98,7 +103,8 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return result;
     }
 
-    protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(final ExecutionYear executionYear, final Student student) {
+    protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(
+            final ExecutionYear executionYear, final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
                 Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student);
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
@@ -125,7 +131,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     protected void addControllerURLToModel(final ExecutionYear executionYear, final Model model) {
         model.addAttribute("controllerURL", getControllerURLWithExecutionYear(executionYear));
     }
-    
+
     public static final String urlWithExecutionYear(final String url, final ExecutionYear executionYear) {
         return url.replace("{executionYearId}", executionYear.getExternalId());
     }
@@ -133,15 +139,15 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     protected final String getControllerURLWithExecutionYear(final ExecutionYear executionYear) {
         return urlWithExecutionYear(getControllerURL(), executionYear);
     }
-    
-    protected abstract String getControllerURL();
 
     protected boolean isFormIsFilled(final ExecutionYear executionYear, final Model model) {
         return isFormIsFilled(executionYear, getStudent(model));
     }
-    
+
     public abstract boolean isFormIsFilled(final ExecutionYear executionYear, final Student student);
-    
+
     protected abstract Student getStudent(final Model model);
-    
+
+    protected abstract String getControllerURL();
+
 }

@@ -55,6 +55,7 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -68,7 +69,9 @@ import pt.ist.fenixframework.Atomic;
 @RequestMapping(FirstTimeCandidacyController.CONTROLLER_URL)
 public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/home";
+    public static final String FIRST_TIME_START_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy";
+
+    public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/home";
 
     @RequestMapping
     public String home(Model model) {
