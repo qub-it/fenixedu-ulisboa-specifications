@@ -45,6 +45,7 @@ import org.fenixedu.ulisboa.specifications.domain.DisabilityType;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.PreviousDegreeOriginInformationFormControllerBlueRecord;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,11 +55,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import edu.emory.mathcs.backport.java.util.Collections;
 import pt.ist.fenixframework.Atomic;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFormController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(DisabilitiesFormController.CONTROLLER_URL)
 public abstract class DisabilitiesFormController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/disabilitiesform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/disabilitiesform";
 
     public static final String _FILLDISABILITIES_URI = "/filldisabilities";
     public static final String FILLDISABILITIES_URL = CONTROLLER_URL + _FILLDISABILITIES_URI;

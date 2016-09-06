@@ -69,7 +69,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 public abstract class HouseholdInformationFormController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/householdinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/householdinformationform";
 
     public static final String _FILLHOUSEHOLDINFORMATION_URI = "/fillhouseholdinformation";
     public static final String FILLHOUSEHOLDINFORMATION_URL = CONTROLLER_URL + _FILLHOUSEHOLDINFORMATION_URI;

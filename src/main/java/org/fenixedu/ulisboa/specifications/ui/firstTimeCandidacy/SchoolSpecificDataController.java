@@ -39,6 +39,7 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.joda.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,13 +48,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.SchoolSpecificDataController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(SchoolSpecificDataController.CONTROLLER_URL)
 public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsBaseController {
 
     private static final String VACCINATION_VALIDITY = "vaccinationValidity";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/schoolspecificdata";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/schoolspecificdata";
 
     private static final String _CREATE_URI = "/create";
     public static final String CREATE_URL = CONTROLLER_URL + _CREATE_URI;

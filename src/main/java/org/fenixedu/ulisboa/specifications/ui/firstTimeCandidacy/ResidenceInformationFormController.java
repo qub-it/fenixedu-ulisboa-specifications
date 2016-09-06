@@ -60,6 +60,7 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseC
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.AutoCompletesController.DistrictSubdivisionBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.AutoCompletesController.ParishBean;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,11 +73,12 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.standards.geographic.Planet;
 import edu.emory.mathcs.backport.java.util.Collections;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ResidenceInformationFormController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ResidenceInformationFormController.CONTROLLER_URL)
 public class ResidenceInformationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/residenceinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/residenceinformationform";
 
     private static final String _FILLRESIDENCEINFORMATION_URI = "/fillresidenceinformation";
     public static final String FILLRESIDENCEINFORMATION_URL = CONTROLLER_URL + _FILLRESIDENCEINFORMATION_URI;

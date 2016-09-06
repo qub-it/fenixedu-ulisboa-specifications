@@ -70,6 +70,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,6 +83,7 @@ import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(PersonalInformationFormController.CONTROLLER_URL)
 public abstract class PersonalInformationFormController extends FirstTimeCandidacyAbstractController {
@@ -92,7 +94,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
     private static final String SOCIAL_SECURITY_NUMBER_FORMAT = "\\d{9}";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/personalinformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/personalinformationform";
 
     protected static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
     public static final String FILLPERSONALINFORMATION_URL = CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;

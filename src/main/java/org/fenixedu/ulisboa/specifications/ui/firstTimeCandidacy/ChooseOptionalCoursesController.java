@@ -47,14 +47,15 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 import org.joda.time.DateTime;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -104,13 +105,16 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
 
-        final String url = EnrolmentManagementApp.getStrutsEntryPointURL(request, CourseEnrolmentDA.getEntryPointURL(request))
-                + "&executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID="
-                + registration.getLastStudentCurricularPlan().getExternalId();
+        final String argsStruts =
+                EnrolmentManagementDA.buildArgsStruts(executionSemester, registration.getLastStudentCurricularPlan());
+        String url = CourseEnrolmentDA.getEntryPointURL(null) + argsStruts;
+        //Add checksum
+        url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
 
         return redirect(url, model, redirectAttributes);
     }
 
+//asd
     @RequestMapping(value = "/continue")
     public String chooseoptionalcoursesToContinue(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {

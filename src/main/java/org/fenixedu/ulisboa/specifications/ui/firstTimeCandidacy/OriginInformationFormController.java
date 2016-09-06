@@ -76,7 +76,7 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
 
     private static final String YEAR_FORMAT = "\\d{4}";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/origininformationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/origininformationform";
 
     public static final String _FILLORIGININFORMATION_URI = "/fillorigininformation";
     public static final String FILLORIGININFORMATION_URL = CONTROLLER_URL + _FILLORIGININFORMATION_URI;
