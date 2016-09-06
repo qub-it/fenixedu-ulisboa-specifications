@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.Curr
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentBySemesterExecutor;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentByYearExecutor;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.PreviousYearsEnrolmentByYearExecutor.SkipCollectCurricularCoursesPredicate;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.student.Registration;
@@ -46,6 +47,8 @@ import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CreditsLimitWithPreviousApprovals;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +93,9 @@ abstract public class CurricularRuleConfigurationInitializer {
     static private SkipCollectCurricularCoursesPredicate SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE =
             (courseGroup, enrolmentContext) -> {
 
-                return skipByCreditsLimitWithPreviousApprovals(courseGroup, enrolmentContext);
+                return skipByCreditsLimitWithPreviousApprovals(courseGroup, enrolmentContext)
+
+                        || skipByCurriculumAggregatorApproval(courseGroup, enrolmentContext);
             };
 
     static private boolean skipByCreditsLimitWithPreviousApprovals(final CourseGroup courseGroup,
@@ -121,6 +126,35 @@ abstract public class CurricularRuleConfigurationInitializer {
                 CurricularRuleServices.calculateTotalEctsInGroup(enrolmentContext, curriculumGroup) + ectsFromPrevious;
 
         return totalEcts >= minEctsToApprove;
+    }
+
+    /**
+     * We have a 1-1 relation between CurriculumAggregator and CourseGroup. So let's take advantage of that by excluding
+     * CurriculumAggregatorEntrys from PreviousYears curricular rule if the aggregation is already concluded
+     */
+    static private boolean skipByCurriculumAggregatorApproval(final CourseGroup courseGroup,
+            final EnrolmentContext enrolmentContext) {
+
+        final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
+        if (!CurriculumAggregatorServices.isAggregationsActive(semester.getExecutionYear())) {
+            return false;
+        }
+
+        for (final Context iter : courseGroup.getChildContexts(CurricularCourse.class)) {
+
+            if (enrolmentContext
+                    .isToEvaluateRulesByYear() ? !iter.isValid(semester.getExecutionYear()) : !iter.isValid(semester)) {
+                continue;
+            }
+
+            final CurriculumAggregator aggregator = iter.getCurriculumAggregator();
+            StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
+            if (aggregator != null && aggregator.isAggregationConcluded(studentCurricularPlan)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
