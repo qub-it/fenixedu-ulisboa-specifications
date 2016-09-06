@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.dto.enrolmentperiod;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,9 +10,11 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
@@ -31,10 +34,14 @@ import com.google.common.collect.Lists;
 
 public class AcademicEnrolmentPeriodBean implements IBean {
 
+    public static Comparator<IngressionType> INGRESSION_TYPE_COMPARATOR_BY_DESCRIPTION =
+            Comparator.comparing(IngressionType::getDescription).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
+
     private DateTime startDate;
     private DateTime endDate;
     private Boolean firstTimeRegistration = null;
     private Boolean restrictToSelectedStatutes = Boolean.FALSE;
+    private Boolean restrictToSelectedIngressionTypes = Boolean.FALSE;
     private Integer minStudentNumber;
     private Integer maxStudentNumber;
     private Integer curricularYear;
@@ -47,11 +54,14 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     private List<TupleDataSourceBean> degreeCurricularPlanDataSource;
     private List<StatuteType> statutesTypes;
     private List<TupleDataSourceBean> statuteTypeDataSource;
+    private List<IngressionType> ingressionTypes;
+    private List<TupleDataSourceBean> ingressionTypeDataSource;
 
     // slots for collecting periods of students
     private AcademicEnrolmentPeriod enrolmentPeriod;
     private StudentCurricularPlan studentCurricularPlan;
     private Set<StatuteType> studentStatuteTypes;
+    private IngressionType studentIngressionType;
 
     public DateTime getStartDate() {
         return startDate;
@@ -83,6 +93,14 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
     public void setRestrictToSelectedStatutes(Boolean restrictToSelectedStatutes) {
         this.restrictToSelectedStatutes = restrictToSelectedStatutes;
+    }
+
+    public Boolean getRestrictToSelectedIngressionTypes() {
+        return restrictToSelectedIngressionTypes;
+    }
+
+    public void setRestrictToSelectedIngressionTypes(Boolean restrictToSelectedIngressionTypes) {
+        this.restrictToSelectedIngressionTypes = restrictToSelectedIngressionTypes;
     }
 
     public Integer getMinStudentNumber() {
@@ -258,12 +276,42 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         this.studentStatuteTypes = input;
     }
 
+    public IngressionType getStudentIngressionType() {
+        return studentIngressionType;
+    }
+
+    public void setStudentIngressionType(IngressionType studentIngressionType) {
+        this.studentIngressionType = studentIngressionType;
+    }
+
+    public List<IngressionType> getIngressionTypes() {
+        return ingressionTypes;
+    }
+
+    public void setIngressionTypes(List<IngressionType> ingressionTypes) {
+        this.ingressionTypes = ingressionTypes;
+    }
+
+    public List<TupleDataSourceBean> getIngressionTypeDataSource() {
+        return ingressionTypeDataSource;
+    }
+
+    public void setIngressionTypeDataSource(List<IngressionType> ingressionTypeDataSource) {
+        this.ingressionTypeDataSource = ingressionTypeDataSource.stream().map(ingression -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(ingression.getExternalId());
+            tuple.setText("[" + ingression.getCode() + "] " + ingression.getDescription().getContent());
+            return tuple;
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
     public AcademicEnrolmentPeriodBean() {
         setEnrolmentPeriodTypeDataSource(Arrays.asList(AcademicEnrolmentPeriodType.values()));
         setExecutionSemesterDataSource(ExecutionSemester.readNotClosedExecutionPeriods());
 
         setDegreeCurricularPlans(Collections.emptyList());
         setStatuteTypes(Lists.newArrayList());
+        setIngressionTypes(Lists.newArrayList());
         if (executionSemester != null) {
             setDegreeCurricularPlanDataSource(DegreeCurricularPlan.readByDegreeTypesAndStateWithExecutionDegreeForYear(dt -> true,
                     DegreeCurricularPlanState.ACTIVE, executionSemester.getExecutionYear()));
@@ -271,6 +319,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
             setDegreeCurricularPlanDataSource(Collections.emptyList());
         }
         setStatuteTypeDataSource(Bennu.getInstance().getStatuteTypesSet().stream().collect(Collectors.toList()));
+        setIngressionTypeDataSource(Bennu.getInstance().getIngressionTypesSet().stream().collect(Collectors.toList()));
     }
 
     public AcademicEnrolmentPeriodBean(AcademicEnrolmentPeriod academicEnrolmentPeriod) {
@@ -280,6 +329,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         setEndDate(academicEnrolmentPeriod.getEndDate());
         setFirstTimeRegistration(academicEnrolmentPeriod.getFirstTimeRegistration());
         setRestrictToSelectedStatutes(academicEnrolmentPeriod.getRestrictToSelectedStatutes());
+        setRestrictToSelectedIngressionTypes(academicEnrolmentPeriod.getRestrictToSelectedIngressionTypes());
         setMinStudentNumber(academicEnrolmentPeriod.getMinStudentNumber());
         setMaxStudentNumber(academicEnrolmentPeriod.getMaxStudentNumber());
         setCurricularYear(academicEnrolmentPeriod.getCurricularYear());
@@ -288,6 +338,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         setExecutionSemester(academicEnrolmentPeriod.getExecutionSemester());
         setDegreeCurricularPlans(academicEnrolmentPeriod.getDegreeCurricularPlansSet().stream().collect(Collectors.toList()));
         setStatuteTypes(academicEnrolmentPeriod.getStatuteTypesSet().stream().collect(Collectors.toList()));
+        setIngressionTypes(academicEnrolmentPeriod.getIngressionTypesSet().stream().collect(Collectors.toList()));
     }
 
     public void updateLists() {
@@ -298,6 +349,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
             setDegreeCurricularPlanDataSource(Collections.emptyList());
         }
         setStatuteTypeDataSource(Bennu.getInstance().getStatuteTypesSet().stream().collect(Collectors.toList()));
+        setIngressionTypeDataSource(Bennu.getInstance().getIngressionTypesSet().stream().collect(Collectors.toList()));
     }
 
     public String getEntryPointURL() {

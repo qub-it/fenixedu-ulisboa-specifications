@@ -164,6 +164,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
     $scope.plansToAdd = [];
     $scope.statutesToRemove = [];
     $scope.statutesToAdd = [];
+    $scope.ingressionsToRemove = [];
+    $scope.ingressionsToAdd = [];
     
     //DegreeCurricularPlan Functions
     $scope.selectAllPlans = function(event) {
@@ -311,7 +313,80 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                 }, id, name)
         return name;
     }
-
+    //IngressionType Functions    
+    $scope.selectAllIngressions = function(event) {
+        var checkbox = event.target;
+        var action = (checkbox.checked ? 'add' : 'remove');
+        for( var i = 0; i < $scope.object.ingressionTypes.length; i++) {
+            $scope.updateSelectedIngression(action, $scope.object.ingressionTypes[i]);
+        }
+    };
+    $scope.updateSelectionIngression = function(event, ingression) {
+        var checkbox = event.target;
+        var action = (checkbox.checked ? 'add' : 'remove');
+        $scope.updateSelectedIngression(action, ingression);
+    };
+    $scope.updateSelectedIngression = function (action, id) {
+        if (action === 'add' && $scope.ingressionsToRemove.indexOf(id) === -1) {
+            $scope.ingressionsToRemove.push(id)
+        }
+        if (action === 'remove' && $scope.ingressionsToRemove.indexOf(id) !== -1) {
+            $scope.ingressionsToRemove.splice($scope.ingressionsToRemove.indexOf(id), 1);
+        }
+    };
+    $scope.getSelectedClassForIngression = function(ingression) {
+        return $scope.isIngressionSelected(ingression) ? 'selected' : '';
+    };
+    $scope.isIngressionSelected = function(ingression) {
+        return $scope.ingressionsToRemove.indexOf(ingression) >= 0;
+    };
+    $scope.isAllIngressionsSelected = function() {
+        return $scope.ingressionsToRemove.length === $scope.object.ingressionTypes.length;
+    };
+    $scope.addIngressionType = function(model) {
+        //Expected the id value and not an object with id attribute
+        angular.forEach($scope.ingressionsToAdd, function (ingression, index) {
+            $scope.ingressionsToAdd[index] = ingression.id;
+        });
+        
+        url = '${pageContext.request.contextPath}<%= AcademicEnrolmentPeriodController.ADD_ALL_INGRESSION_TYPE_URL%>/${academicEnrolmentPeriod.externalId}/';
+        $('form[name="formIngression"]').find('input[name="postback"]').attr('value', url);
+        
+        $scope.form = $scope.formIngression;
+        $scope.postBack(model);
+        
+        $scope.ingressionsToAdd = [];
+    };
+    $scope.deleteSelectedIngressionTypes = function () {
+        url = '${pageContext.request.contextPath}<%= AcademicEnrolmentPeriodController.REMOVE_ALL_INGRESSION_TYPE_URL %>/${academicEnrolmentPeriod.externalId}';
+        $('form[name="formIngression"]').find('input[name="postback"]').attr('value', url);
+        $('#deleteIngressionMessage').text('<spring:message code="label.AcademicEnrolmentPeriod.IngressionType.confirmRemove.all" />');
+        $('#deleteIngressionModal').modal('toggle');
+    };
+    $scope.deleteIngressionType = function(ingressionType, model) {
+        url = '${pageContext.request.contextPath}<%= AcademicEnrolmentPeriodController.REMOVE_INGRESSION_TYPE_URL%>/${academicEnrolmentPeriod.externalId}/' + ingressionType;
+        $('form[name="formIngression"]').find('input[name="postback"]').attr('value', url);
+        $('#deleteIngressionMessage').text('<spring:message code="label.AcademicEnrolmentPeriod.IngressionType.confirmRemove" />');
+        $('#deleteIngressionModal').modal('toggle');
+    }
+    $scope.submitDeleteIngression = function() {
+        $('#deleteIngressionModal').modal('toggle');  
+        $scope.form = $scope.formIngression;
+        $scope.postBack(null);         
+        $scope.ingressionsToRemove = [];
+    };
+    $scope.getIngressionName = function(id) {
+        var name;
+        angular.forEach(
+                $scope.object.ingressionTypeDataSource,
+                function(ingressionType) {
+                    if (ingressionType.id == id) {
+                        name = ingressionType.text;
+                    }
+                }, id, name)
+        return name;
+    }
+    
     $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
     $scope.translationTexts = {
             checkAll: '<spring:message code="label.angularjs.multiselect.checkAll" />',
@@ -390,6 +465,16 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                                 <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.true" />
                             </c:if> <c:if test="${not academicEnrolmentPeriod.restrictToSelectedStatutes}">
                                 <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedStatutes.false" />
+                            </c:if>
+                        </td>
+                    </tr>                                       
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions" /></th>
+                        <td>
+                            <c:if test="${academicEnrolmentPeriod.restrictToSelectedIngressionTypes}">
+                                <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions.true" />
+                            </c:if> <c:if test="${not academicEnrolmentPeriod.restrictToSelectedIngressionTypes}">
+                                <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions.false" />
                             </c:if>
                         </td>
                     </tr>                                       
@@ -627,12 +712,114 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
     
 </form>
 
+<form name="formIngression" ng-app="angularApp" ng-controller="angularController" method="post" class="form-horizontal" 
+      action='#'>          
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <spring:message code="label.AcademicEnrolmentPeriod.ingressionTypes" />
+            </h3>
+        </div>
+        <input type="hidden" name="postback" value='#' />
+        <input type="hidden" name="ingressionsToAdd" ng-repeat="ingression in ingressionsToAdd" value="{{ ingression }}" />
+        <input type="hidden" name="ingressionsToRemove" ng-repeat="ingression in ingressionsToRemove" value="{{ ingression }}" />
+        <input name="bean" type="hidden" value="{{ object }}" />
+        
+        <div class="panel panel-body">
+            <div class="form-group row">
+                <div class="col-sm-7">
+                    <div id="AcademicEnrolmentPeriod_ingressionTypes" name="AcademicEnrolmentPeriod_ingressionTypes" class="ui-select-container ui-select-bootstrap dropdown" 
+                        ng-dropdown-multiselect="" options="object.ingressionTypeDataSource"
+                        selected-model="ingressionsToAdd" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <button type="button" class="btn btn-default" ng-click="addIngressionType($model)" ng-disabled="ingressionsToAdd.length === 0">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
+                    </button>
+                </div>               
+            </div>
+        </div>
+        <div class="panel panel-body">
+              <table id="statuteTypeTable"
+                class="table responsive table-bordered table-hover" width="100%">
+                <thead>
+                    <tr>
+                        <%-- Check Column --%>
+                        <th style="width: 35px;">
+                            <input type="checkbox" ng-click="selectAllIngressions($event)" ng-checked="isAllIngressionsSelected()" />                        
+                        </th>
+                        <th><spring:message code="label.AcademicEnrolmentPeriod.ingressionType" /></th>
+                        <!-- operation column -->
+                        <th style="width: 60px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="ingression in object.ingressionTypes" ng-class="getSelectedClassForIngression(ingression)">
+                        <td>
+                            <input class="form-control" type="checkbox" ng-checked="isIngressionSelected(ingression)" ng-click="updateSelectionIngression($event, ingression)" />
+                        </td>
+                        <td>{{ getIngressionName(ingression) }}</td>
+                        <td>
+                            <a class="btn btn-danger" ng-click="deleteIngressionType(ingression, $model)">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                &nbsp;
+                                <spring:message code="label.event.delete" /> 
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel panel-body">
+            <a class="btn btn-danger" ng-click="deleteSelectedIngressionTypes()" ng-disabled="ingressionsToRemove.length === 0">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                &nbsp;
+                <spring:message code="label.event.delete.all" /> 
+            </a>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="deleteIngressionModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteIngressionMessage">
+                        <spring:message
+                            code="label.AcademicEnrolmentPeriod.IngressionType.confirmRemove" />
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="deleteButton" class="btn btn-danger" type="button" ng-click="submitDeleteIngression()">
+                        <spring:message code="label.event.delete" />
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
+</form>
 
 <script>
 
 angular.bootstrap($('form[name="formPlan"]')[0],['angularApp']);
 angular.bootstrap($('form[name="formStatute"]')[0],['angularApp']);
-
+angular.bootstrap($('form[name="formIngression"]')[0],['angularApp']);
 
 $(document).ready(function() {
     

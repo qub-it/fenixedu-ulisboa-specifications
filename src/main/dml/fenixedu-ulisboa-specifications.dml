@@ -2274,6 +2274,7 @@ class enrolmentPeriod.AcademicEnrolmentPeriod {
     DateTime endDate;
     Boolean firstTimeRegistration;
     Boolean restrictToSelectedStatutes;
+    Boolean restrictToSelectedIngressionTypes;
     Integer minStudentNumber;
     Integer maxStudentNumber;
     Integer curricularYear;
@@ -2319,6 +2320,15 @@ relation AcademicEnrolmentPeriodStatuteType {
     public .org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes {
         multiplicity *;
     }    
+}
+
+relation AcademicEnrolmentPeriodIngressionType {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+    public .org.fenixedu.academic.domain.candidacy.IngressionType playsRole ingressionTypes {
+        multiplicity *;
+    }
 }
 
 

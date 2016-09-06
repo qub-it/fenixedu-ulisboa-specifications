@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -332,6 +333,76 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
     public void removeAllStatuteTypes(AcademicEnrolmentPeriod academicEnrolmentPeriod, List<StatuteType> statuteTypes) {
         for (StatuteType statuteType : statuteTypes) {
             academicEnrolmentPeriod.removeStatuteTypes(statuteType);
+        }
+    }
+
+    private static final String _ADD_ALL_INGRESSION_TYPE_URI = "/add/allingressiontype";
+    public static final String ADD_ALL_INGRESSION_TYPE_URL = CONTROLLER_URL + _ADD_ALL_INGRESSION_TYPE_URI;
+
+    @RequestMapping(value = _ADD_ALL_INGRESSION_TYPE_URI + "/{academicEnrolmentPeriodId}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String addIngressionType(
+            @PathVariable("academicEnrolmentPeriodId") AcademicEnrolmentPeriod academicEnrolmentPeriod,
+            @RequestParam(value = "ingressionsToAdd", required = true) List<IngressionType> ingressionTypes,
+            @RequestParam(value = "bean", required = true) AcademicEnrolmentPeriodBean bean, Model model) {
+        addAllIngressionTypes(academicEnrolmentPeriod, ingressionTypes);
+
+        bean.setIngressionTypes(academicEnrolmentPeriod.getIngressionTypesSet().stream()
+                .sorted(AcademicEnrolmentPeriodBean.INGRESSION_TYPE_COMPARATOR_BY_DESCRIPTION).collect(Collectors.toList()));
+        setAcademicEnrolmentPeriodBean(bean, model);
+        return getBeanJson(bean);
+    }
+
+    @Atomic
+    public void addAllIngressionTypes(AcademicEnrolmentPeriod academicEnrolmentPeriod, List<IngressionType> ingressionTypes) {
+        for (IngressionType ingressionType : ingressionTypes) {
+            academicEnrolmentPeriod.addIngressionTypes(ingressionType);
+        }
+    }
+
+    private static final String _REMOVE_INGRESSION_TYPE_URI = "/remove/ingressiontype";
+    public static final String REMOVE_INGRESSION_TYPE_URL = CONTROLLER_URL + _REMOVE_INGRESSION_TYPE_URI;
+
+    @RequestMapping(value = _REMOVE_INGRESSION_TYPE_URI + "/{academicEnrolmentPeriodId}/{ingressionTypeId}",
+            method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public @ResponseBody String removeIngressionType(
+            @PathVariable("academicEnrolmentPeriodId") AcademicEnrolmentPeriod academicEnrolmentPeriod,
+            @PathVariable("ingressionTypeId") IngressionType ingressionType,
+            @RequestParam(value = "bean", required = true) AcademicEnrolmentPeriodBean bean, Model model) {
+        removeIngressionType(academicEnrolmentPeriod, ingressionType);
+
+        bean.setIngressionTypes(academicEnrolmentPeriod.getIngressionTypesSet().stream()
+                .sorted(AcademicEnrolmentPeriodBean.INGRESSION_TYPE_COMPARATOR_BY_DESCRIPTION).collect(Collectors.toList()));
+        setAcademicEnrolmentPeriodBean(bean, model);
+        return getBeanJson(bean);
+    }
+
+    @Atomic
+    public void removeIngressionType(AcademicEnrolmentPeriod academicEnrolmentPeriod, IngressionType ingressionType) {
+        academicEnrolmentPeriod.removeIngressionTypes(ingressionType);
+    }
+
+    private static final String _REMOVE_ALL_INGRESSION_TYPE_URI = "/remove/allingressiontype";
+    public static final String REMOVE_ALL_INGRESSION_TYPE_URL = CONTROLLER_URL + _REMOVE_ALL_INGRESSION_TYPE_URI;
+
+    @RequestMapping(value = _REMOVE_ALL_INGRESSION_TYPE_URI + "/{academicEnrolmentPeriodId}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String removeAllIngressionTypes(
+            @PathVariable("academicEnrolmentPeriodId") AcademicEnrolmentPeriod academicEnrolmentPeriod,
+            @RequestParam(value = "ingressionsToRemove", required = true) List<IngressionType> ingressionTypes,
+            @RequestParam(value = "bean", required = true) AcademicEnrolmentPeriodBean bean, Model model) {
+        removeAllIngressionTypes(academicEnrolmentPeriod, ingressionTypes);
+
+        bean.setIngressionTypes(academicEnrolmentPeriod.getIngressionTypesSet().stream()
+                .sorted(AcademicEnrolmentPeriodBean.INGRESSION_TYPE_COMPARATOR_BY_DESCRIPTION).collect(Collectors.toList()));
+        setAcademicEnrolmentPeriodBean(bean, model);
+        return getBeanJson(bean);
+    }
+
+    @Atomic
+    public void removeAllIngressionTypes(AcademicEnrolmentPeriod academicEnrolmentPeriod, List<IngressionType> ingressionTypes) {
+        for (IngressionType ingressionType : ingressionTypes) {
+            academicEnrolmentPeriod.removeIngressionTypes(ingressionType);
         }
     }
 

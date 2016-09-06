@@ -11,6 +11,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.Student;
@@ -33,14 +34,16 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     protected AcademicEnrolmentPeriod(final DateTime startDate, final DateTime endDate, final Boolean firstTimeRegistration,
-            final Boolean restrictToSelectedStatutes, final Integer minStudentNumber, final Integer maxStudentNumber,
-            final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
-            final AcademicEnrolmentPeriodType enrolmentPeriodType, final ExecutionSemester executionSemester) {
+            final Boolean restrictToSelectedStatutes, final Boolean restrictToSelectedIngressionTypes,
+            final Integer minStudentNumber, final Integer maxStudentNumber, final Integer curricularYear,
+            final Boolean schoolClassSelectionMandatory, final AcademicEnrolmentPeriodType enrolmentPeriodType,
+            final ExecutionSemester executionSemester) {
         this();
         setStartDate(startDate);
         setEndDate(endDate);
         setFirstTimeRegistration(firstTimeRegistration);
         setRestrictToSelectedStatutes(restrictToSelectedStatutes);
+        setRestrictToSelectedIngressionTypes(restrictToSelectedIngressionTypes);
         setMinStudentNumber(minStudentNumber);
         setMaxStudentNumber(maxStudentNumber);
         setCurricularYear(curricularYear);
@@ -81,13 +84,15 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
 
     @Atomic
     public void edit(final DateTime startDate, final DateTime endDate, final Boolean firstTimeRegistration,
-            final Boolean restrictToSelectedStatutes, final Integer minStudentNumber, final Integer maxStudentNumber,
-            final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
-            final AcademicEnrolmentPeriodType enrolmentPeriodType, final ExecutionSemester executionSemester) {
+            final Boolean restrictToSelectedStatutes, final Boolean restrictToSelectedIngressionTypes,
+            final Integer minStudentNumber, final Integer maxStudentNumber, final Integer curricularYear,
+            final Boolean schoolClassSelectionMandatory, final AcademicEnrolmentPeriodType enrolmentPeriodType,
+            final ExecutionSemester executionSemester) {
         setStartDate(startDate);
         setEndDate(endDate);
         setFirstTimeRegistration(firstTimeRegistration);
         setRestrictToSelectedStatutes(restrictToSelectedStatutes);
+        setRestrictToSelectedIngressionTypes(restrictToSelectedIngressionTypes);
         setMinStudentNumber(minStudentNumber);
         setMaxStudentNumber(maxStudentNumber);
         setCurricularYear(curricularYear);
@@ -101,8 +106,9 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     @Atomic
     public void edit(final AcademicEnrolmentPeriodBean bean) {
         edit(bean.getStartDate(), bean.getEndDate(), bean.getFirstTimeRegistration(), bean.getRestrictToSelectedStatutes(),
-                bean.getMinStudentNumber(), bean.getMaxStudentNumber(), bean.getCurricularYear(),
-                bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(), bean.getExecutionSemester());
+                bean.getRestrictToSelectedIngressionTypes(), bean.getMinStudentNumber(), bean.getMaxStudentNumber(),
+                bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(),
+                bean.getExecutionSemester());
     }
 
     @Override
@@ -130,22 +136,25 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return readAll().filter(p -> p.getEnrolmentPeriodType() == type);
     }
 
+    @Atomic
     public static AcademicEnrolmentPeriod create(final DateTime startDate, final DateTime endDate,
-            final Boolean firstTimeRegistration, final Boolean restrictToSelectedStatutes, final Integer minStudentNumber,
-            final Integer maxStudentNumber, final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
+            final Boolean firstTimeRegistration, final Boolean restrictToSelectedStatutes,
+            final Boolean restrictToSelectedIngressionTypes, final Integer minStudentNumber, final Integer maxStudentNumber,
+            final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
             final AcademicEnrolmentPeriodType enrolmentPeriodType, final ExecutionSemester executionSemester) {
         AcademicEnrolmentPeriod period = new AcademicEnrolmentPeriod(startDate, endDate, firstTimeRegistration,
-                restrictToSelectedStatutes, minStudentNumber, maxStudentNumber, curricularYear, schoolClassSelectionMandatory,
-                enrolmentPeriodType, executionSemester);
+                restrictToSelectedStatutes, restrictToSelectedIngressionTypes, minStudentNumber, maxStudentNumber, curricularYear,
+                schoolClassSelectionMandatory, enrolmentPeriodType, executionSemester);
 
         return period;
     }
 
+    @Atomic
     public static AcademicEnrolmentPeriod create(final AcademicEnrolmentPeriodBean bean) {
         return create(bean.getStartDate(), bean.getEndDate(), bean.getFirstTimeRegistration(),
-                bean.getRestrictToSelectedStatutes(), bean.getMinStudentNumber(), bean.getMaxStudentNumber(),
-                bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(),
-                bean.getExecutionSemester());
+                bean.getRestrictToSelectedStatutes(), bean.getRestrictToSelectedIngressionTypes(), bean.getMinStudentNumber(),
+                bean.getMaxStudentNumber(), bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(),
+                bean.getEnrolmentPeriodType(), bean.getExecutionSemester());
     }
 
     @Override
@@ -223,13 +232,31 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         }
     }
 
+    /**
+     * Returns IngressionTypes that grant access to this enrolment period
+     */
+    private boolean isValidIngressionTypes(final IngressionType input) {
+        final Set<IngressionType> configured = getIngressionTypesSet();
+        if (configured.isEmpty()) {
+            return true;
+        }
+
+        if (getRestrictToSelectedIngressionTypes()) {
+            // mandatory
+            return configured.contains(input);
+        } else {
+            // blocking
+            return input == null || !configured.contains(input);
+        }
+    }
+
     private boolean isValidCurricularYear(final int input) {
         return getCurricularYear() == null || getCurricularYear().equals(input);
     }
 
     private boolean isValidFirstTimeStatus(final StudentCurricularPlan input) {
         return getFirstTimeRegistration() == null
-                || (getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear())));
+                || getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear()));
     }
 
     private boolean isValidStudentCurricularPlan(final StudentCurricularPlan input) {
@@ -292,6 +319,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
             return result;
         }
 
+        if (!isValidIngressionTypes(input.getIngressionType())) {
+            return result;
+        }
+
         final int studentCurricularYear = input.getCurricularYear(getExecutionYear());
         if (!isValidCurricularYear(studentCurricularYear)) {
             return result;
@@ -309,6 +340,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         final AcademicEnrolmentPeriodBean bean = new AcademicEnrolmentPeriodBean(this);
         bean.setStudentCurricularPlan(studentCurricularPlan);
         bean.setStudentStatuteTypes(studentStatutes);
+        bean.setStudentIngressionType(input.getIngressionType());
         bean.setCurricularYear(studentCurricularYear);
         result.add(bean);
 

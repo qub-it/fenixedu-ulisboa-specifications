@@ -218,6 +218,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                     <spring:message code="label.AcademicEnrolmentPeriod.statuteTypes" />
                                 </th>
                                 <th>
+                                    <spring:message code="label.AcademicEnrolmentPeriod.ingressionTypes" />
+                                </th>
+                                <th>
                                     <spring:message code="label.AcademicEnrolmentPeriod.configuration" />
                                 </th>
                                 <!-- operation column -->
@@ -274,6 +277,34 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                         </c:forEach>
                                     </c:if>
                                     <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() == 0 }">-</c:if>
+                                </td>
+                                <td>
+                                    <c:set var="ingressionMeaning">
+                                        <c:if test="${ academicEnrolmentPeriod.restrictToSelectedIngressionTypes }">
+                                            <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions.true" />
+                                        </c:if>
+                                        <c:if test="${ !academicEnrolmentPeriod.restrictToSelectedIngressionTypes }">
+                                            <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions.false" />
+                                        </c:if>
+                                    </c:set>
+                                    <c:if test="${ academicEnrolmentPeriod.ingressionTypesSet.size() > 5 }">
+                                        <c:set var="ingressionMessage">
+                                            <c:out value="${ ingressionMeaning }"/>:
+                                            <c:forEach var="element" items="${ academicEnrolmentPeriod.ingressionTypesSet }">
+                                                <li><c:out value="[${ element.code }] ${ element.description.content }"/> </li>
+                                            </c:forEach>
+                                        </c:set>
+                                        <div data-toggle="tooltip" data-html="true" title="${ ingressionMessage }" >
+                                            <spring:message code="message.AcademicEnrolmentPeriod.has.x.ingressionTypes" arguments="${ academicEnrolmentPeriod.ingressionTypesSet.size() }" />
+                                        </div>
+                                    </c:if>
+                                    <c:if test="${ academicEnrolmentPeriod.ingressionTypesSet.size() <= 5 && academicEnrolmentPeriod.ingressionTypesSet.size() > 0 }">
+                                        <c:out value="${ ingressionMeaning }"/>:
+                                        <c:forEach var="element" items="${ academicEnrolmentPeriod.ingressionTypesSet }">
+                                            <li><c:out value="[${ element.code }] ${ element.description.content }"/> </li>
+                                        </c:forEach>
+                                    </c:if>
+                                    <c:if test="${ academicEnrolmentPeriod.ingressionTypesSet.size() == 0 }">-</c:if>
                                 </td>
                                 <td>
                                 	<li><c:out value="${ academicEnrolmentPeriod.executionSemester.qualifiedName }"/></li>
