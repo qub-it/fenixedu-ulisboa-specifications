@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -364,7 +365,8 @@ abstract public class CurriculumAggregatorServices {
             for (final Context iter : aggregator.getEnrolmentMasterContexts()) {
                 final boolean optionalEntryRelated = isOptionalEntryRelated(iter);
 
-                if (isAggregationEnroled(iter, plan, semester)) {
+                if (isAggregationEnroled(iter, plan, semester) || CompetenceCourseServices.isCompetenceCourseApproved(plan,
+                        (CurricularCourse) iter.getChildDegreeModule(), (ExecutionSemester) null)) {
 
                     if (optionalEntryRelated) {
                         optionalEnroled++;
@@ -386,7 +388,7 @@ abstract public class CurriculumAggregatorServices {
                 }
             }
 
-            if (optionalConcluded > 0 && optionalEnroled < optionalConcluded) {
+            if (optionalConcluded > 0 && optionalEnroled != optionalConcluded) {
                 return false;
             }
         }
