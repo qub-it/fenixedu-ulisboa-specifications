@@ -82,12 +82,19 @@ public class RegistrationServices {
 
     public static void replaceSchoolClass(final Registration registration, final SchoolClass schoolClass,
             final ExecutionSemester executionSemester) {
+
         final Optional<SchoolClass> currentSchoolClass = getSchoolClassBy(registration, executionSemester);
         if (currentSchoolClass.isPresent()) {
             currentSchoolClass.get().getAssociatedShiftsSet().forEach(s -> s.removeStudents(registration));
             registration.getSchoolClassesSet().remove(currentSchoolClass.get());
         }
+
         if (schoolClass != null) {
+
+            if (!isSchoolClassFree(schoolClass, registration)) {
+                throw new DomainException("label.schoolClassStudentEnrollment.fullSchoolClass");
+            }
+
             final Function<Shift, Integer> vacanciesCalculator = s -> s.getLotacao() - s.getStudentsSet().size();
             final Comparator<Shift> vacanciesComparator =
                     (s1, s2) -> vacanciesCalculator.apply(s1).compareTo(vacanciesCalculator.apply(s2));
@@ -132,6 +139,39 @@ public class RegistrationServices {
         }
 
         throw new DomainException("error.registration.replaceSchoolClass.shiftFull", shiftName, shiftTypes, executionCourseName);
+    }
+
+    public static boolean isSchoolClassFree(final SchoolClass schoolClass, final Registration registration) {
+        if (schoolClass != null) {
+//            return !attendingShifts.stream().anyMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size());
+
+            final List<Shift> attendingShifts = getAttendingShifts(schoolClass, registration);
+
+            final Multimap<ExecutionCourse, Shift> shiftsByExecutionCourse = ArrayListMultimap.create();
+            attendingShifts.forEach(s -> shiftsByExecutionCourse.put(s.getExecutionCourse(), s));
+            for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
+                final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
+                shiftsByExecutionCourse.get(executionCourse)
+                        .forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
+
+                for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
+                    if (shiftsTypesByShift.get(shiftType).stream()
+                            .allMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size())) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public static List<Shift> getAttendingShifts(final SchoolClass schoolClass, final Registration registration) {
+        final List<ExecutionCourse> attendingExecutionCourses =
+                registration.getAttendingExecutionCoursesFor(schoolClass.getExecutionPeriod());
+        return schoolClass.getAssociatedShiftsSet().stream()
+                .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse())).collect(Collectors.toList());
     }
 
     public static Collection<EnrolmentEvaluation> getImprovementEvaluations(final Registration registration,

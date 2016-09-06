@@ -242,37 +242,14 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         public int getMatchedCoursesNumber() {
             final SchoolClass schoolClassToDisplay = getSchoolClassToDisplay();
             if (schoolClassToDisplay != null) {
-                return getAttendingShifts(schoolClassToDisplay).stream().map(s -> s.getExecutionCourse())
-                        .collect(Collectors.toSet()).size();
+                return RegistrationServices.getAttendingShifts(schoolClassToDisplay, getRegistration()).stream()
+                        .map(s -> s.getExecutionCourse()).collect(Collectors.toSet()).size();
             }
             return 0;
         }
 
         public boolean isSchoolClassToDisplayFree() {
-            final SchoolClass schoolClassToDisplay = getSchoolClassToDisplay();
-            if (schoolClassToDisplay != null) {
-//                return !attendingShifts.stream().anyMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size());
-
-                final List<Shift> attendingShifts = getAttendingShifts(schoolClassToDisplay);
-
-                final Multimap<ExecutionCourse, Shift> shiftsByExecutionCourse = ArrayListMultimap.create();
-                attendingShifts.forEach(s -> shiftsByExecutionCourse.put(s.getExecutionCourse(), s));
-                for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
-                    final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
-                    shiftsByExecutionCourse.get(executionCourse)
-                            .forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
-
-                    for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
-                        if (shiftsTypesByShift.get(shiftType).stream()
-                                .allMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size())) {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-            return false;
+            return RegistrationServices.isSchoolClassFree(getSchoolClassToDisplay(), getRegistration());
         }
 
         public List<Shift> getSchoolClassToDisplayShifts() {
@@ -280,7 +257,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             final SchoolClass currentSchoolClass = getCurrentSchoolClass();
 
             if (schoolClassToDisplay != null) {
-                List<Shift> shifts = getAttendingShifts(schoolClassToDisplay);
+                List<Shift> shifts = RegistrationServices.getAttendingShifts(schoolClassToDisplay, getRegistration());
 
                 // if displaying current schoolClass, show only shifts of class that are enrolled
                 if (schoolClassToDisplay == currentSchoolClass) {
@@ -290,13 +267,6 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 return shifts;
             }
             return Collections.emptyList();
-        }
-
-        protected List<Shift> getAttendingShifts(final SchoolClass schoolClassToDisplay) {
-            final List<ExecutionCourse> attendingExecutionCourses =
-                    getRegistration().getAttendingExecutionCoursesFor(schoolClassToDisplay.getExecutionPeriod());
-            return schoolClassToDisplay.getAssociatedShiftsSet().stream()
-                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse())).collect(Collectors.toList());
         }
 
         public String getSchoolClassToDisplayLessonsJson() {
