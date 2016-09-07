@@ -28,6 +28,7 @@
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr" %>
 
 <bean:define id="shiftID" name="shift" property="externalId" />
 
@@ -49,17 +50,37 @@
 
 <p>&nbsp;</p>
 
-<ul class="list-group">
-	<c:forEach items="${shift.associatedShiftProfessorshipSet}" var="shiftProfessorship">
-		<bean:define id="shiftProfessorshipID" name="shiftProfessorship" property="externalId" />
-		<li class="list-group-item list-group-item-info">
+<h4><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.manageShiftProfessorships.teachersForThisShift" /></h4>
+<c:forEach items="${shift.associatedShiftProfessorshipSet}" var="shiftProfessorship">
+	<bean:define id="shiftProfessorshipID" name="shiftProfessorship" property="externalId" />
+	
+	<div class="panel panel-primary">
+	  <div class="panel-heading">
+	    <h3 class="panel-title">
 			<c:out value="${shiftProfessorship.professorship.person.name}" />
 			<html:link styleClass="btn btn-warning" action="<%= "/manageShiftProfessorships.do?method=deleteShiftProfessorship&shiftID=" + shiftID + "&shiftProfessorshipID=" + shiftProfessorshipID  %>">
 				<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> <bean:message key="label.remove" bundle="APPLICATION_RESOURCES"/>
-			</html:link>
-		</li>
-	</c:forEach>
-	
+			</html:link>		    
+	    </h3>
+	  </div>
+	  <div class="panel-body">
+		<fr:edit layout="flowLayout" id="<%= "editor-" + shiftProfessorshipID %>" name="shiftProfessorship" action="<%= "/manageShiftProfessorships.do?method=prepare&shiftID=" + shiftID  %>" >
+			<fr:schema bundle="APPLICATION_RESOURCES" type="org.fenixedu.academic.domain.ShiftProfessorship" >
+				<fr:slot name="percentage" key="property.shift.percentage" >
+			<fr:validator name="org.fenixedu.academic.ui.renderers.validators.DoubleRangeValidator" >
+               <fr:property name="lowerBound" value="0"/>
+               <fr:property name="upperBound" value="100"/>				
+			</fr:validator>
+				</fr:slot>
+			</fr:schema>
+		</fr:edit>
+	  </div>
+	</div>
+</c:forEach>
+
+<p>&nbsp;</p>
+<h4><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.manageShiftProfessorships.teachersNotForThisShift" /></h4>
+<ul class="list-group">
 	<c:forEach items="${professorshipsToAdd}" var="professorship">
 		<bean:define id="professorshipID" name="professorship" property="externalId" />
 		<li class="list-group-item">
