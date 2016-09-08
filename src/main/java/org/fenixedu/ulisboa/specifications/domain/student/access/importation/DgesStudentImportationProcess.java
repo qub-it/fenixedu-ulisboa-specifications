@@ -514,7 +514,7 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         }
 
         final ExecutionDegree executionDegree =
-                degreeCurricularPlan.getExecutionDegreeByYearAndCampus(getExecutionYear(), getSpace());
+                degreeCurricularPlan.getExecutionDegreeByYear(getExecutionYear());
 
         if (executionDegree == null) {
             throw new RuntimeException(

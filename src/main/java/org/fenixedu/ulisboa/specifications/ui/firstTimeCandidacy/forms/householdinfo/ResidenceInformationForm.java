@@ -110,38 +110,50 @@ public class ResidenceInformationForm implements CandidancyForm {
             String districtCode = postalCode.parent.parent.parent.exportAsString().split(";")[1];
             District district = District.readByCode(districtCode);
             setDistrictOfResidence(district);
-            districtOfResidenceName = district.getName();
+            if (district != null) {
+                districtOfResidenceName = district.getName();
+            }
 
             String subdivisionCode = postalCode.parent.parent.exportAsString().split(";")[2];
             DistrictSubdivision subdivision = district.getDistrictSubdivisionsSet().stream()
                     .filter(s -> s.getCode().equals(subdivisionCode)).findFirst().orElse(null);
             setDistrictSubdivisionOfResidence(subdivision);
-            districtSubdivisionOfResidenceName = subdivision.getName();
+            if (subdivision != null) {
+                districtSubdivisionOfResidenceName = subdivision.getName();
+            }
 
             String parishCode = postalCode.parent.exportAsString().split(";")[3];
             Parish parish =
                     subdivision.getParishSet().stream().filter(p -> p.getCode().equals(parishCode)).findFirst().orElse(null);
             setParishOfResidence(parish);
-            parishOfResidenceName = parish.getName();
+            if (parish != null) {
+                parishOfResidenceName = parish.getName();
+            }
         }
         if (StringUtils.isNotBlank(getSchoolTimeAreaCode())) {
             PostalCode postalCode = getAllPostalCodes().get(getSchoolTimeAreaCode());
             String districtCode = postalCode.parent.parent.parent.exportAsString().split(";")[1];
             District district = District.readByCode(districtCode);
             setSchoolTimeDistrictOfResidence(district);
-            schoolTimeDistrictOfResidenceName = district.getName();
+            if (district != null) {
+                schoolTimeDistrictOfResidenceName = district.getName();
+            }
 
             String subdivisionCode = postalCode.parent.parent.exportAsString().split(";")[2];
             DistrictSubdivision subdivision = district.getDistrictSubdivisionsSet().stream()
                     .filter(s -> s.getCode().equals(subdivisionCode)).findFirst().orElse(null);
             setSchoolTimeDistrictSubdivisionOfResidence(subdivision);
-            schoolTimeDistrictSubdivisionOfResidenceName = subdivision.getName();
+            if (subdivision != null) {
+                schoolTimeDistrictSubdivisionOfResidenceName = subdivision.getName();
+            }
 
             String parishCode = postalCode.parent.exportAsString().split(";")[3];
             Parish parish =
                     subdivision.getParishSet().stream().filter(p -> p.getCode().equals(parishCode)).findFirst().orElse(null);
             setSchoolTimeParishOfResidence(parish);
-            schoolTimeParishOfResidenceName = parish.getName();
+            if (parish != null) {
+                schoolTimeParishOfResidenceName = parish.getName();
+            }
         }
     }
 

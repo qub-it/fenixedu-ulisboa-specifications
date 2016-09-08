@@ -99,6 +99,7 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
         }
 
         if (!validate(executionYear, candidancyForm, model)) {
+            setForm(candidancyForm, model);
             return fillGetScreen(executionYear, model, redirectAttributes);
         }
 

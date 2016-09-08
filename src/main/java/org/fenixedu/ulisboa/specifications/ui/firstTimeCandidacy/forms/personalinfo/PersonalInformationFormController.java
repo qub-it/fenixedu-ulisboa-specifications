@@ -223,7 +223,7 @@ public class PersonalInformationFormController extends FormAbstractController {
             }
             String defaultSocialSecurityNumber =
                     FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
-            if (!defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
+            if (defaultSocialSecurityNumber == null || !defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
                 Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
                 if (party != null && party != person) {
                     result.add(BundleUtil.getString(BUNDLE,
