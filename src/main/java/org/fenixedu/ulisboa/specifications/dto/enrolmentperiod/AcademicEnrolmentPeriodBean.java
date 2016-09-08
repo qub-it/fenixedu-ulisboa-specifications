@@ -23,6 +23,7 @@ import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.InitialSchoolClassStudentEnrollmentDA;
@@ -46,8 +47,11 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     private Integer maxStudentNumber;
     private Integer curricularYear;
     private Boolean schoolClassSelectionMandatory = Boolean.FALSE;
+    private Boolean allowEnrolWithDebts = Boolean.FALSE;
     private AcademicEnrolmentPeriodType enrolmentPeriodType;
     private List<TupleDataSourceBean> enrolmentPeriodTypeDataSource;
+    private AutomaticEnrolment automaticEnrolment;
+    private List<TupleDataSourceBean> automaticEnrolmentDataSource;
     private ExecutionSemester executionSemester;
     private List<TupleDataSourceBean> executionSemesterDataSource;
     private List<DegreeCurricularPlan> degreeCurricularPlans;
@@ -81,6 +85,10 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
     public Boolean getFirstTimeRegistration() {
         return firstTimeRegistration;
+    }
+
+    public boolean isFirstTimeRegistration() {
+        return firstTimeRegistration != null && firstTimeRegistration.booleanValue();
     }
 
     public void setFirstTimeRegistration(Boolean firstTimeRegistration) {
@@ -135,6 +143,14 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         this.schoolClassSelectionMandatory = schoolClassSelectionMandatory;
     }
 
+    public Boolean getAllowEnrolWithDebts() {
+        return allowEnrolWithDebts;
+    }
+
+    public void setAllowEnrolWithDebts(Boolean allowEnrolWithDebts) {
+        this.allowEnrolWithDebts = allowEnrolWithDebts;
+    }
+
     public AcademicEnrolmentPeriodType getEnrolmentPeriodType() {
         return enrolmentPeriodType;
     }
@@ -152,6 +168,27 @@ public class AcademicEnrolmentPeriodBean implements IBean {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(t.toString());
             tuple.setText(t.getDescriptionI18N().getContent());
+            return tuple;
+        }).collect(Collectors.toList());
+    }
+
+    public AutomaticEnrolment getAutomaticEnrolment() {
+        return automaticEnrolment;
+    }
+
+    public void setAutomaticEnrolment(AutomaticEnrolment automaticEnrolment) {
+        this.automaticEnrolment = automaticEnrolment;
+    }
+
+    public List<TupleDataSourceBean> getAutomaticEnrolmentDataSource() {
+        return automaticEnrolmentDataSource;
+    }
+
+    public void setAutomaticEnrolmentDataSource(List<AutomaticEnrolment> automaticEnrolments) {
+        this.automaticEnrolmentDataSource = automaticEnrolments.stream().map(ae -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(ae.toString());
+            tuple.setText(ae.getDescriptionI18N().getContent());
             return tuple;
         }).collect(Collectors.toList());
     }
@@ -307,6 +344,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
     public AcademicEnrolmentPeriodBean() {
         setEnrolmentPeriodTypeDataSource(Arrays.asList(AcademicEnrolmentPeriodType.values()));
+        setAutomaticEnrolmentDataSource(Arrays.asList(AutomaticEnrolment.values()));
         setExecutionSemesterDataSource(ExecutionSemester.readNotClosedExecutionPeriods());
 
         setDegreeCurricularPlans(Collections.emptyList());
@@ -334,6 +372,8 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         setMaxStudentNumber(academicEnrolmentPeriod.getMaxStudentNumber());
         setCurricularYear(academicEnrolmentPeriod.getCurricularYear());
         setSchoolClassSelectionMandatory(academicEnrolmentPeriod.getSchoolClassSelectionMandatory());
+        setAllowEnrolWithDebts(academicEnrolmentPeriod.getAllowEnrolWithDebts());
+        setAutomaticEnrolment(academicEnrolmentPeriod.getAutomaticEnrolment());
         setEnrolmentPeriodType(academicEnrolmentPeriod.getEnrolmentPeriodType());
         setExecutionSemester(academicEnrolmentPeriod.getExecutionSemester());
         setDegreeCurricularPlans(academicEnrolmentPeriod.getDegreeCurricularPlansSet().stream().collect(Collectors.toList()));
@@ -350,6 +390,14 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         }
         setStatuteTypeDataSource(Bennu.getInstance().getStatuteTypesSet().stream().collect(Collectors.toList()));
         setIngressionTypeDataSource(Bennu.getInstance().getIngressionTypesSet().stream().collect(Collectors.toList()));
+    }
+
+    public boolean isAutomatic() {
+        return getAutomaticEnrolment() != null && getAutomaticEnrolment().isAutomatic();
+    }
+
+    public boolean isEditable() {
+        return getAutomaticEnrolment() == null || getAutomaticEnrolment().isEditable();
     }
 
     public String getEntryPointURL() {

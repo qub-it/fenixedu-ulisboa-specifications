@@ -20,7 +20,6 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.Candidanc
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController;
-import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,7 +67,6 @@ public class FiliationFormController extends FormAbstractController {
                 form.setSecondNationality(personUl.getSecondNationality());
             }
 
-            form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
             form.setCountryOfBirth(person.getCountryOfBirth());
             if (form.getCountryOfBirth() == null) {
                 form.setCountryOfBirth(Country.readDefault());
@@ -104,10 +102,6 @@ public class FiliationFormController extends FormAbstractController {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.parentsName.required"), model);
             return false;
         }
-        if (form.getDateOfBirth() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.birthDate.required"), model);
-            return false;
-        }
 
         if (form.getCountryOfBirth().isDefaultCountry()) {
             if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
@@ -133,7 +127,6 @@ public class FiliationFormController extends FormAbstractController {
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         personUl.setSecondNationality(form.getSecondNationality());
 
-        person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
         person.setCountryOfBirth(form.getCountryOfBirth());
         if (person.getCountryOfBirth().isDefaultCountry()) {
             person.setDistrictOfBirth(form.getDistrictOfBirth().getName());

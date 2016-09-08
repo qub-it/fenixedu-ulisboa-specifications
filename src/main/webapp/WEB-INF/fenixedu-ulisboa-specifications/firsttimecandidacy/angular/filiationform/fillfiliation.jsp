@@ -3,6 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
@@ -79,9 +80,12 @@ ${portal.angularToolkit()}
 			</c:if>
 
 <script>
+<c:set var="filiationJsonObject">
+    ${fn:replace(filiationFormJson, "'", "\\'")}
+</c:set>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${filiationFormJson}');
+    $scope.object= angular.fromJson('${filiationJsonObject}');
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [
@@ -154,38 +158,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.nationality" />
-				</div>
-
-				<div class="col-sm-10">
-					<div class="form-control-static">{{ getNationalityName(object.countryOfBirth) }}</div>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.FiliationForm.secondNationality" />
-				</div>
-
-				<div class="col-sm-10">
-                    <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" theme="bootstrap">
-                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: $select.search">
-                            <span ng-bind-html="nationality.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select> 
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message code="label.FiliationForm.dateOfBirth" />
-				</div>
-
-				<div class="col-sm-10">
-                    <input id="filiationForm_dateOfBirth" class="form-control" type="text" name="dateOfBirth" bennu-date="object.dateOfBirth" /> 
-				</div>
-			</div>
-			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message code="label.FiliationForm.countryOfBirth" />
 				</div>
@@ -242,6 +214,29 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>
 				</div>
 			</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.FiliationForm.nationality" />
+                </div>
+
+                <div class="col-sm-10">
+                    <div class="form-control-static">{{ getNationalityName(object.countryOfBirth) }}</div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.FiliationForm.secondNationality" />
+                </div>
+
+                <div class="col-sm-10">
+                    <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" theme="bootstrap">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: $select.search">
+                            <span ng-bind-html="nationality.text | highlight: $select.search"></span>
+                        </ui-select-choices> 
+                    </ui-select> 
+                </div>
+            </div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message code="label.FiliationForm.fatherName" />

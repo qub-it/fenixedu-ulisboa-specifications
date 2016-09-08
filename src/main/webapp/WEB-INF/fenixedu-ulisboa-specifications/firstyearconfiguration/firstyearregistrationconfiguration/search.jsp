@@ -32,7 +32,17 @@ ${portal.toolkit()}
 </div>
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit"  ><spring:message code="label.event.firstYearConfiguration.edit" /></a>	
+	<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+    &nbsp;
+    <a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit">
+        <spring:message code="label.event.firstYearConfiguration.edit" />
+    </a>	
+    &nbsp;|&nbsp;
+    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+    &nbsp;
+    <a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit/courses">
+        <spring:message code="label.event.firstYearConfiguration.edit" />
+    </a> 
 </div>
 	<c:if test="${not empty infoMessages}">
 				<div class="alert alert-info" role="alert">
@@ -117,10 +127,9 @@ ${portal.toolkit()}
 					<%--!!!  Field names here --%>
 					<th><spring:message code="label.FirstYearRegistrationConfiguration.degreeName"/></th>
 					<th><spring:message code="label.FirstYearRegistrationConfiguration.degreeCode"/></th>
-<th><spring:message code="label.FirstYearRegistrationConfiguration.requiresVaccination"/></th>
-<th><spring:message code="label.FirstYearRegistrationConfiguration.requiresCoursesEnrolment"/></th>
-<th><spring:message code="label.FirstYearRegistrationConfiguration.requiresClassesEnrolment"/></th>
-<th><spring:message code="label.FirstYearRegistrationConfiguration.requiresShiftsEnrolment"/></th>
+                    <th><spring:message code="label.FirstYearRegistrationConfiguration.requiresVaccination"/></th>
+                    <th><spring:message code="label.FirstYearRegistrationConfiguration.automaticEnrolment"/></th>
+                    <th><spring:message code="label.FirstYearRegistrationConfiguration.degreeCurricularPlan"/></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -130,9 +139,9 @@ ${portal.toolkit()}
 	</c:when>
 	<c:otherwise>
 				<div class="alert alert-warning" role="alert">
-					
-					<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>			<spring:message code="label.noResultsFound" /></p>
-					
+					<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>			
+                            <spring:message code="label.noResultsFound" />
+                    </p>
 				</div>	
 		
 	</c:otherwise>
@@ -145,60 +154,49 @@ ${portal.toolkit()}
 </style>
 
 <script>
-	var searchfirstyearregistrationconfigurationDataSet = [
-			<c:forEach items="${searchfirstyearregistrationconfigurationResultsDataSet}" var="searchResult">
-				{
-				"DT_RowId" : '<c:out value='${searchResult.degreeExternalId}'/>',
-"degreeName" : "${searchResult.degreeName}",
-"degreeCode" : "${searchResult.degreeCode}",
-"requiresvaccination" : "<c:if test="${searchResult.requiresVaccination}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requiresVaccination}"><spring:message code="label.false" /></c:if>",
-"requirescoursesenrolment" : "<c:if test="${searchResult.requiresCoursesEnrolment}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requiresCoursesEnrolment}"><spring:message code="label.false" /></c:if>",
-"requiresclassesenrolment" : "<c:if test="${searchResult.requiresClassesEnrolment}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requiresClassesEnrolment}"><spring:message code="label.false" /></c:if>",
-"requiresshiftsenrolment" : "<c:if test="${searchResult.requiresShiftsEnrolment}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requiresShiftsEnrolment}"><spring:message code="label.false" /></c:if>",
-			},
-            </c:forEach>
-    ];
+var searchfirstyearregistrationconfigurationDataSet = [
+    <c:forEach items="${searchfirstyearregistrationconfigurationResultsDataSet}" var="searchResult">
+    {
+	    "DT_RowId" : '<c:out value='${searchResult.degree.externalId}'/>',
+		"degreeName" : "${searchResult.degree.nameI18N.content}",
+		"degreeCode" : "${searchResult.degree.code}",
+		"requiresVaccination" : "<c:if test="${searchResult.requiresVaccination}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requiresVaccination}"><spring:message code="label.false" /></c:if>",
+		"automaticEnrolment" : "<c:if test="${searchResult.automaticEnrolment}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.automaticEnrolment}"><spring:message code="label.false" /></c:if>",
+		"degreeCurricularPlan" : "<c:out value='${ searchResult.degreeCurricularPlan.name }'/>"
+	},
+    </c:forEach>
+];
 	
-	$(document).ready(function() {
-
-	
-
-
-		var table = $('#searchfirstyearregistrationconfigurationTable').DataTable({language : {
-			url : "${datatablesI18NUrl}",			
-		},
+$(document).ready(function() {
+    var table = $('#searchfirstyearregistrationconfigurationTable').DataTable({
+	    language : { url : "${datatablesI18NUrl}" },
 		"columns": [
 			{ data: 'degreeName' },
 			{ data: 'degreeCode' },
-			{ data: 'requiresvaccination' },
-			{ data: 'requirescoursesenrolment' },
-			{ data: 'requiresclassesenrolment' },
-			{ data: 'requiresshiftsenrolment' },
-			
+			{ data: 'requiresVaccination' },
+			{ data: 'automaticEnrolment' },
+		    { data: 'degreeCurricularPlan' }
 		],
 		"data" : searchfirstyearregistrationconfigurationDataSet,
 		//Documentation: https://datatables.net/reference/option/dom
-"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
-//"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
-//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
-//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
+        "dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
+        //"dom": 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
+        //"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
+        //"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
         "tableTools": {
             "sSwfPath": "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"        	
         }
-		});
-		table.columns.adjust().draw();
-		
-		  $('#searchfirstyearregistrationconfigurationTable tbody').on( 'click', 'tr', function () {
-		        $(this).toggleClass('selected');
-		    } );
-		  
-	}); 
-	
-	
-	$(document).ready(function() {
-
-		
-		$("textarea").attr("readonly", true);
 	});
+	table.columns.adjust().draw();
+		
+    $('#searchfirstyearregistrationconfigurationTable tbody').on( 'click', 'tr', function () {
+        $(this).toggleClass('selected');
+    });
+}); 
+	
+	
+$(document).ready(function() {
+	$("textarea").attr("readonly", true);
+});
 </script>
 

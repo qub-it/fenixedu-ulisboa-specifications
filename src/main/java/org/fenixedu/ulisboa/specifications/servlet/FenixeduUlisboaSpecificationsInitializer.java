@@ -56,7 +56,6 @@ import org.fenixedu.learning.domain.degree.DegreeSite;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
-import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
@@ -195,11 +194,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
             @Override
             public void deleting(Degree degree) {
-                FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
-                        degree.getFirstYearRegistrationConfiguration();
-                if (firstYearRegistrationConfiguration != null) {
-                    firstYearRegistrationConfiguration.delete();
-                }
+                degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
 
                 DegreeSite site = degree.getSite();
                 if (site != null) {

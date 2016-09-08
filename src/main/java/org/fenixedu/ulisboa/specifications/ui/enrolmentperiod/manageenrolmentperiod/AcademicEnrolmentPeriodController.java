@@ -15,6 +15,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -62,23 +63,25 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
     @RequestMapping(value = _SEARCH_URI, method = GET)
     public String search(@RequestParam(value = "executionSemester", required = false) ExecutionSemester executionSemester,
             @RequestParam(value = "enrolmentPeriodType", required = false) AcademicEnrolmentPeriodType enrolmentPeriodType,
-            Model model) {
+            @RequestParam(value = "automaticEnrolment", required = false) AutomaticEnrolment automaticEnrolment, Model model) {
         //TODOJN - this list is not going correctly sorted to the screen
         List<ExecutionSemester> semesters = ExecutionSemester.readNotClosedExecutionPeriods().stream()
                 .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
         model.addAttribute("executionSemesters", semesters);
         model.addAttribute("enrolmentPeriodTypes", Arrays.asList(AcademicEnrolmentPeriodType.values()));
+        model.addAttribute("automaticEnrolments", Arrays.asList(AutomaticEnrolment.values()));
 
         model.addAttribute("academicEnrolmentPeriodsResult",
-                filterSearchAcademicEnrolmentPeriod(executionSemester, enrolmentPeriodType));
+                filterSearchAcademicEnrolmentPeriod(executionSemester, enrolmentPeriodType, automaticEnrolment));
         return jspPage(_SEARCH_URI);
     }
 
     private List<AcademicEnrolmentPeriod> filterSearchAcademicEnrolmentPeriod(final ExecutionSemester executionSemester,
-            final AcademicEnrolmentPeriodType enrolmentPeriodType) {
+            final AcademicEnrolmentPeriodType enrolmentPeriodType, final AutomaticEnrolment automaticEnrolment) {
         return AcademicEnrolmentPeriod.readAll()
                 .filter(p -> executionSemester == null || p.getExecutionSemester() == executionSemester)
                 .filter(p -> enrolmentPeriodType == null || p.getEnrolmentPeriodType() == enrolmentPeriodType)
+                .filter(p -> automaticEnrolment == null || p.getAutomaticEnrolment() == automaticEnrolment)
                 .collect(Collectors.toList());
     }
 

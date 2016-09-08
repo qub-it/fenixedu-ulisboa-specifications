@@ -167,6 +167,19 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
             </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
+                    <spring:message code="label.AcademicEnrolmentPeriod.automaticEnrolment" />
+                </div>
+
+                <div class="col-sm-4">
+                    <select id="academicEnrolmentPeriod_automaticEnrolment"
+                        class="js-example-basic-single"
+                        name="automaticEnrolment">
+                        <option value="">&nbsp;</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
                     <spring:message code="label.AcademicEnrolmentPeriod.executionSemester" />
                 </div>
 
@@ -411,6 +424,23 @@ $(document).ready( function() {
                                 
     $("#academicEnrolmentPeriod_type").select2().select2('val', '<c:out value='${param.enrolmentPeriodType}'/>');
 
+    //DROPDOWN automaticEnrolment
+    type_options = [
+        <c:forEach items="${automaticEnrolment}" var="element"> 
+            {
+                text :"<c:out value='${element.descriptionI18N.content}'/>", 
+                id : "<c:out value='${element.toString()}'/>"
+            },
+        </c:forEach>
+    ];
+                        
+    $("#academicEnrolmentPeriod_automaticEnrolment").select2({
+        data : type_options,
+    });
+                                
+    $("#academicEnrolmentPeriod_automaticEnrolment").select2().select2('val', '<c:out value='${param.automaticEnrolment}'/>');
+
+    
     $('[data-toggle="tooltip"]').tooltip();
 
 });

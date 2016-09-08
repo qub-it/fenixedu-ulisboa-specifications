@@ -96,10 +96,11 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
     }
 
     private boolean registrationRequiresManualClassEnrolment(Registration registration) {
-        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
-                registration.getDegree().getFirstYearRegistrationConfiguration();
-        return firstYearRegistrationConfiguration != null && (firstYearRegistrationConfiguration.getRequiresClassesEnrolment()
-                || firstYearRegistrationConfiguration.getRequiresShiftsEnrolment());
+//        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
+//                registration.getDegree().getFirstYearRegistrationConfiguration();
+//        return firstYearRegistrationConfiguration != null && (firstYearRegistrationConfiguration.getRequiresClassesEnrolment()
+//                || firstYearRegistrationConfiguration.getRequiresShiftsEnrolment());
+        return false;
     }
 
     private boolean checkClassEnrolments(Registration registration, ExecutionYear currentExecutionYear) {
@@ -123,9 +124,10 @@ public class ShowScheduledClassesController extends FenixeduUlisboaSpecification
 
     public static boolean isManualEnrolments() {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        FirstYearRegistrationConfiguration registrationConfiguration = degree.getFirstYearRegistrationConfiguration();
-        return registrationConfiguration != null && (degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()
-                || degree.getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment());
+//        FirstYearRegistrationConfiguration registrationConfiguration = degree.getFirstYearRegistrationConfiguration();
+//        return registrationConfiguration != null && (degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()
+//                || degree.getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment());
+        return false;
     }
 
     public static boolean currentPersonHasEnrolments() {

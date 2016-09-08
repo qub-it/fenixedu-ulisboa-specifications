@@ -82,8 +82,9 @@ public class SchoolSpecificDataController extends FenixeduUlisboaSpecificationsB
 
     public static boolean shouldBeSkipped() {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        return degree.getFirstYearRegistrationConfiguration() == null
-                || !degree.getFirstYearRegistrationConfiguration().getRequiresVaccination();
+//        return degree.getFirstYearRegistrationConfiguration() == null
+//                || !degree.getFirstYearRegistrationConfiguration().getRequiresVaccination();
+        return true;
     }
 
     private void fillFormIfRequired(Model model) {

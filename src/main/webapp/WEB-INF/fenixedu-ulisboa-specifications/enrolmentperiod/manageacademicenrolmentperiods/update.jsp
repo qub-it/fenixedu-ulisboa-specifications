@@ -268,6 +268,38 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>
                 </div>
             </div>            
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.AcademicEnrolmentPeriod.automaticEnrolment" />
+                </div>
+
+                <div class="col-sm-10">
+                    <ui-select  id="academicEnrolmentPeriod_automaticEnrolment" name="automaticEnrolment" ng-model="$parent.object.automaticEnrolment" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="type.id as type in object.automaticEnrolmentDataSource | filter: $select.search">
+                            <span ng-bind-html="type.text | highlight: $select.search"></span>
+                        </ui-select-choices> 
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.AcademicEnrolmentPeriod.allowEnrolWithDebts" />
+                </div>
+
+                <div class="col-sm-10">
+                    <ui-select id="academicEnrolmentPeriod_allowEnrolWithDebts" name="allowEnrolWithDebts"
+                        ng-model="$parent.object.allowEnrolWithDebts"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>  
         </div>
         <div class="panel-footer">
             <input type="submit" class="btn btn-primary" role="button" value="<spring:message code="label.submit" />" />

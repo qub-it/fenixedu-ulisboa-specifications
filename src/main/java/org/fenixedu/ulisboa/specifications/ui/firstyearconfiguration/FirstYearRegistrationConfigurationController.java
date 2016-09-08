@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -39,17 +40,16 @@ import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfigura
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.FenixFramework;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.firstYearConfiguration",
         accessGroup = "logged")
@@ -58,6 +58,12 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
 
     public static final String CONTROLLER_URL =
             "/fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration";
+
+    private void setFirstYearConfigurationBean(FirstYearConfigurationBean bean, Model model) {
+        bean.updateLists();
+        model.addAttribute("firstYearConfigurationBeanJson", getBeanJson(bean));
+        model.addAttribute("firstYearConfigurationBean", bean);
+    }
 
     @RequestMapping
     public String home(Model model) {
@@ -73,7 +79,7 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
 
     @RequestMapping(value = _SEARCH_URI)
     public String search(Model model) {
-        List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
+        List<FirstYearRegistrationConfiguration> searchfirstyearregistrationconfigurationResultsDataSet =
                 getSearchUniverseDataSet();
 
         model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
@@ -96,59 +102,120 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
 
     @RequestMapping(value = _EDIT_URI)
     public String edit(Model model) {
-        List<FirstYearRegistrationConfigurationBean> editResultsDataSet = getSearchUniverseDataSet();
+        List<FirstYearRegistrationConfiguration> editResultsDataSet = getSearchUniverseDataSet();
 
         model.addAttribute("editResultsDataSet", editResultsDataSet);
         model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
         return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/edit";
     }
 
-    @RequestMapping(value = _EDIT_URI + "/save", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.OK)
-    @Atomic
-    public void saveLine(FirstYearRegistrationConfigurationBean bean) {
-        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
-                bean.getDegree().getFirstYearRegistrationConfiguration();
-        if (bean.hasFieldsAsTrue()) {
+    private static final String _COURSES_URI = "/edit/courses";
+    public static final String COURSES_URL = CONTROLLER_URL + _COURSES_URI;
 
-            if (firstYearRegistrationConfiguration == null) {
-                firstYearRegistrationConfiguration = new FirstYearRegistrationConfiguration(bean.getDegree());
-            }
-            firstYearRegistrationConfiguration.setRequiresClassesEnrolment(bean.getRequiresClassesEnrolment());
-            firstYearRegistrationConfiguration.setRequiresShiftsEnrolment(bean.getRequiresShiftsEnrolment());
-            firstYearRegistrationConfiguration.setRequiresCoursesEnrolment(bean.getRequiresCoursesEnrolment());
-            firstYearRegistrationConfiguration.setRequiresVaccination(bean.getRequiresVaccination());
+    @RequestMapping(value = _COURSES_URI, method = RequestMethod.GET)
+    public String editCourses(Model model, RedirectAttributes redirectAttributes) {
+        setFirstYearConfigurationBean(new FirstYearConfigurationBean(), model);
+
+        return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/editDegrees";
+    }
+
+    private static final String ADD_DEGREE_CONFIGURATION_URI = "/add/degree/configuration";
+    public static final String ADD_DEGREE_CONFIGURATION_URL = CONTROLLER_URL + ADD_DEGREE_CONFIGURATION_URI;
+
+    @RequestMapping(value = ADD_DEGREE_CONFIGURATION_URI + "/{oid}/{executionYearOid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String addDegreeConfiguration(@PathVariable("oid") Degree degree,
+            @PathVariable("executionYearOid") ExecutionYear executionYear,
+            @RequestParam(value = "bean", required = true) FirstYearConfigurationBean bean,
+            @RequestParam(value = "requiresVaccination", required = true) boolean requiresVaccination,
+            @RequestParam(value = "automaticEnrolment", required = true) boolean automaticEnrolment,
+            @RequestParam(value = "degreeCurricularPlan", required = true) DegreeCurricularPlan degreeCurricularPlan,
+            Model model) {
+        createDegreeConfiguration(degree, executionYear, degreeCurricularPlan, requiresVaccination, automaticEnrolment);
+        setFirstYearConfigurationBean(bean, model);
+        return getBeanJson(bean);
+    }
+
+    @Atomic
+    private void createDegreeConfiguration(Degree degree, ExecutionYear executionYear, DegreeCurricularPlan degreeCurricularPlan,
+            boolean requiresVaccination, boolean automaticEnrolment) {
+        if (FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear) != null) {
+            FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear).edit(executionYear,
+                    degreeCurricularPlan, requiresVaccination, automaticEnrolment);
         } else {
-            if (firstYearRegistrationConfiguration != null) {
-                firstYearRegistrationConfiguration.delete();
+            new FirstYearRegistrationConfiguration(degree, executionYear, degreeCurricularPlan, requiresVaccination,
+                    automaticEnrolment);
+        }
+    }
+
+    private static final String DELETE_DEGREE_CONFIGURATION_URI = "/delete/degree/configuration";
+    public static final String DELETE_DEGREE_CONFIGURATION_URL = CONTROLLER_URL + DELETE_DEGREE_CONFIGURATION_URI;
+
+    @RequestMapping(value = DELETE_DEGREE_CONFIGURATION_URI + "/{oid}/{executionYearOid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String deleteDegreeConfiguration(@PathVariable("oid") Degree degree,
+            @PathVariable("executionYearOid") ExecutionYear executionYear,
+            @RequestParam(value = "bean", required = true) FirstYearConfigurationBean bean, Model model) {
+        deleteDegreeConfiguration(degree, executionYear);
+        setFirstYearConfigurationBean(bean, model);
+        return getBeanJson(bean);
+    }
+
+    @Atomic
+    private void deleteDegreeConfiguration(Degree degree, ExecutionYear executionYear) {
+        if (FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear) != null) {
+            FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear).delete();
+        }
+    }
+
+    private static final String EDIT_DEGREE_CONFIGURATION_URI = "/edit/degree/configuration";
+    public static final String EDIT_DEGREE_CONFIGURATION_URL = CONTROLLER_URL + EDIT_DEGREE_CONFIGURATION_URI;
+
+    @RequestMapping(value = EDIT_DEGREE_CONFIGURATION_URI + "/{executionYearOid}", method = RequestMethod.POST)
+    public String editDegreeConfiguration(@PathVariable("executionYearOid") ExecutionYear executionYear,
+            @RequestParam(value = "bean", required = true) FirstYearConfigurationBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
+        editDegreeConfiguration(bean, executionYear);
+        setFirstYearConfigurationBean(bean, model);
+        return redirect(SEARCH_URL, model, redirectAttributes);
+    }
+
+    @Atomic
+    private void editDegreeConfiguration(FirstYearConfigurationBean bean, ExecutionYear executionYear) {
+        for (FirstYearDegreeConfigurationBean configurationBean : bean.getActiveDegrees()) {
+            FirstYearRegistrationConfiguration configuration =
+                    FirstYearRegistrationConfiguration.getDegreeConfiguration(configurationBean.getDegree(), executionYear);
+            if (configuration != null) {
+                configuration.edit(executionYear, configurationBean.getDegreeCurricularPlan(),
+                        configurationBean.isRequiresVaccination(), configurationBean.isAutomaticEnrolment());
+            } else {
+                new FirstYearRegistrationConfiguration(configurationBean.getDegree(), executionYear,
+                        configurationBean.getDegreeCurricularPlan(), configurationBean.isRequiresVaccination(),
+                        configurationBean.isAutomaticEnrolment());
             }
         }
     }
 
     @Atomic
-    @RequestMapping(value = _EDIT_URI + "/uploadTemplate", headers = ("content-type=multipart/*"), method = RequestMethod.POST)
-    public String uploadTemplate(@RequestParam(value = "mod43Template", required = true) MultipartFile mod43Template,
-            Model model, RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = _EDIT_URI + "/uploadTemplate", headers = "content-type=multipart/*", method = RequestMethod.POST)
+    public String uploadTemplate(@RequestParam(value = "mod43Template", required = true) MultipartFile mod43Template, Model model,
+            RedirectAttributes redirectAttributes) {
         try {
             String fileName = mod43Template.getOriginalFilename();
             byte[] fileContent = mod43Template.getBytes();
             FirstYearRegistrationGlobalConfiguration.getInstance().uploadMod43Template(fileName, fileContent);
-            List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
-                    getSearchUniverseDataSet();
 
-            model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
-                    searchfirstyearregistrationconfigurationResultsDataSet);
-            model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
+            model.addAttribute("firstYearRegistrationGlobalConfiguration",
+                    FirstYearRegistrationGlobalConfiguration.getInstance());
             return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
         } catch (Exception e) {
-            addErrorMessage((BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "label.error.uploadMod43") + e.getLocalizedMessage()), model);
-            List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
-                    getSearchUniverseDataSet();
+            addErrorMessage(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "label.error.uploadMod43")
+                            + e.getLocalizedMessage(),
+                    model);
 
-            model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
-                    searchfirstyearregistrationconfigurationResultsDataSet);
-            model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
+            model.addAttribute("firstYearRegistrationGlobalConfiguration",
+                    FirstYearRegistrationGlobalConfiguration.getInstance());
             return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
         }
     }
@@ -159,18 +226,13 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
 
         FirstYearRegistrationGlobalConfiguration.getInstance().cleanTemplate();
 
-        List<FirstYearRegistrationConfigurationBean> searchfirstyearregistrationconfigurationResultsDataSet =
-                getSearchUniverseDataSet();
-
-        model.addAttribute("searchfirstyearregistrationconfigurationResultsDataSet",
-                searchfirstyearregistrationconfigurationResultsDataSet);
         model.addAttribute("firstYearRegistrationGlobalConfiguration", FirstYearRegistrationGlobalConfiguration.getInstance());
         return "fenixedu-ulisboa-specifications/firstyearconfiguration/firstyearregistrationconfiguration/search";
     }
 
-    private List<FirstYearRegistrationConfigurationBean> getSearchUniverseDataSet() {
-        return Bennu.getInstance().getDegreesSet().stream().filter(d -> d.isActive())
-                .map(d -> new FirstYearRegistrationConfigurationBean(d)).collect(Collectors.toList());
+    private List<FirstYearRegistrationConfiguration> getSearchUniverseDataSet() {
+        return FirstYearRegistrationGlobalConfiguration.getInstance().getFirstYearRegistrationConfigurationsSet().stream()
+                .filter(c -> c.getDegree().isActive()).collect(Collectors.toList());
     }
 
     @Atomic
@@ -180,87 +242,4 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
         return search(model);
     }
 
-    public static class FirstYearRegistrationConfigurationBean {
-
-        private Degree degree;
-        private boolean requiresVaccination;
-        private boolean requiresCoursesEnrolment;
-        private boolean requiresClassesEnrolment;
-        private boolean requiresShiftsEnrolment;
-
-        public Degree getDegree() {
-            return this.degree;
-        }
-
-        public String getDegreeExternalId() {
-            return degree.getExternalId();
-        }
-
-        public void setDegreeExternalId(String degreeExternalId) {
-            this.degree = FenixFramework.getDomainObject(degreeExternalId);
-        }
-
-        public String getDegreeName() {
-            return this.degree.getNameI18N().getContent();
-        }
-
-        public String getDegreeCode() {
-            return this.degree.getCode();
-        }
-
-        public boolean getRequiresVaccination() {
-            return requiresVaccination;
-        }
-
-        public void setRequiresVaccination(boolean value) {
-            requiresVaccination = value;
-        }
-
-        public boolean getRequiresCoursesEnrolment() {
-            return requiresCoursesEnrolment;
-        }
-
-        public void setRequiresCoursesEnrolment(boolean value) {
-            requiresCoursesEnrolment = value;
-        }
-
-        public boolean getRequiresClassesEnrolment() {
-            return requiresClassesEnrolment;
-        }
-
-        public void setRequiresClassesEnrolment(boolean value) {
-            requiresClassesEnrolment = value;
-        }
-
-        public FirstYearRegistrationConfigurationBean() {
-
-        }
-
-        public FirstYearRegistrationConfigurationBean(Degree degree) {
-            this.degree = degree;
-            if (degree.getFirstYearRegistrationConfiguration() != null) {
-                FirstYearRegistrationConfiguration firstYearRegistrationConfiguration =
-                        degree.getFirstYearRegistrationConfiguration();
-                this.setRequiresVaccination(firstYearRegistrationConfiguration.getRequiresVaccination());
-                this.setRequiresCoursesEnrolment(firstYearRegistrationConfiguration.getRequiresCoursesEnrolment());
-                this.setRequiresClassesEnrolment(firstYearRegistrationConfiguration.getRequiresClassesEnrolment());
-                this.setRequiresVaccination(firstYearRegistrationConfiguration.getRequiresVaccination());
-                this.setRequiresCoursesEnrolment(firstYearRegistrationConfiguration.getRequiresCoursesEnrolment());
-                this.setRequiresClassesEnrolment(firstYearRegistrationConfiguration.getRequiresClassesEnrolment());
-                this.setRequiresShiftsEnrolment(firstYearRegistrationConfiguration.getRequiresShiftsEnrolment());
-            }
-        }
-
-        public boolean hasFieldsAsTrue() {
-            return requiresClassesEnrolment || requiresCoursesEnrolment || requiresShiftsEnrolment || requiresVaccination;
-        }
-
-        public boolean getRequiresShiftsEnrolment() {
-            return requiresShiftsEnrolment;
-        }
-
-        public void setRequiresShiftsEnrolment(boolean requiresShiftsEnrolment) {
-            this.requiresShiftsEnrolment = requiresShiftsEnrolment;
-        }
-    }
 }

@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.enrolmentperiod.manageenrolmentperiod.AcademicEnrolmentPeriodController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -496,6 +497,25 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                             <c:if test="${academicEnrolmentPeriod.schoolClassSelectionMandatory}">
                                 <spring:message code="label.true" />
                             </c:if> <c:if test="${not academicEnrolmentPeriod.schoolClassSelectionMandatory}">
+                                <spring:message code="label.false" />
+                            </c:if>
+                        </td>
+                    </tr>                     
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.automaticEnrolment" /></th>
+                        <c:if test="${ not empty academicEnrolmentPeriod.automaticEnrolment }">
+                            <td><c:out value='${ academicEnrolmentPeriod.automaticEnrolment.descriptionI18N.content }' /></td>
+                        </c:if>
+                        <c:if test="${ empty academicEnrolmentPeriod.automaticEnrolment }">
+                            <td><c:out value='<%= AutomaticEnrolment.NO.getDescriptionI18N().getContent() %>' /></td>
+                        </c:if>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.allowEnrolWithDebts" /></th>
+                        <td>
+                            <c:if test="${academicEnrolmentPeriod.allowEnrolWithDebts}">
+                                <spring:message code="label.true" />
+                            </c:if> <c:if test="${not academicEnrolmentPeriod.allowEnrolWithDebts}">
                                 <spring:message code="label.false" />
                             </c:if>
                         </td>

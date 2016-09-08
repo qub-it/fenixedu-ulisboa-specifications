@@ -47,6 +47,8 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 import org.joda.time.DateTime;
@@ -66,10 +68,10 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(Model model, RedirectAttributes redirectAttributes) {
-        if (!SchoolSpecificDataController.shouldBeSkipped()) {
-            return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
+        if (!VaccionationFormController.shouldBeSkipped(null)) {
+            return redirect(VaccionationFormController.CONTROLLER_URL, model, redirectAttributes);
         } else {
-            return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
+            return redirect(MotivationsExpectationsFormController.CONTROLLER_URL, model, redirectAttributes);
         }
     }
 
@@ -91,8 +93,9 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
 
     public static boolean shouldBeSkipped() {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        return degree.getFirstYearRegistrationConfiguration() == null
-                || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
+//        return degree.getFirstYearRegistrationConfiguration() == null
+//                || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
+        return false;
     }
 
     @RequestMapping(value = "/opencourseenrollments")
@@ -114,7 +117,6 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         return redirect(url, model, redirectAttributes);
     }
 
-//asd
     @RequestMapping(value = "/continue")
     public String chooseoptionalcoursesToContinue(Model model, RedirectAttributes redirectAttributes) {
         if (!FirstTimeCandidacyController.isPeriodOpen()) {

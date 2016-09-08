@@ -12,14 +12,11 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
-import org.joda.time.LocalDate;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ResidenceInformationForm;
 
 public class FiliationForm implements CandidancyForm {
 
     private Country secondNationality;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dateOfBirth;
     private Country countryOfBirth;
     private District districtOfBirth;
     private DistrictSubdivision districtSubdivisionOfBirth;
@@ -43,7 +40,9 @@ public class FiliationForm implements CandidancyForm {
         setCountriesValues(Bennu.getInstance().getCountrysSet());
 
         if (countryOfBirth == Country.readDefault()) {
-            setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
+            setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes()
+                    .filter(d -> !ResidenceInformationForm.oldDistrictCodes.contains(new Integer(d.getCode())))
+                    .collect(Collectors.toList()));
         }
         if (districtOfBirth != null) {
             setDistrictSubdivisionValues(
@@ -52,14 +51,6 @@ public class FiliationForm implements CandidancyForm {
         if (districtSubdivisionOfBirth != null) {
             setParishValues(districtSubdivisionOfBirth.getParishSet());
         }
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
     }
 
     public Country getNationality() {

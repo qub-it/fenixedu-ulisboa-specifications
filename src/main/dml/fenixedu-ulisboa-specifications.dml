@@ -32,6 +32,7 @@ package org.fenixedu.ulisboa.specifications.domain;
 enum org.fenixedu.academic.domain.GradeScale as GradeScaleSpecifications;
 enum org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel as CurricularRuleLevel;
 enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType as AcademicEnrolmentPeriodType;
+enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment as AutomaticEnrolment;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
 enum org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum as CompetenceCourseMarkSheetChangeRequestStateEnum;
 enum org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFileType as LegalReportResultFileType;
@@ -83,7 +84,7 @@ external class .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment
 external class .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
 external class .org.fenixedu.academic.domain.EvaluationConfiguration;
-
+external class .org.fenixedu.academic.domain.DegreeCurricularPlan;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -379,16 +380,34 @@ class candidacy.FirstTimeCandidacy extends .org.fenixedu.academic.domain.candida
 
 class FirstYearRegistrationConfiguration{
 	boolean requiresVaccination;
-	boolean requiresCoursesEnrolment;
-	boolean requiresClassesEnrolment;
-	boolean requiresShiftsEnrolment;
+	boolean automaticEnrolment;
 }
 
 relation DegreeFirstYearRegistrationConfiguration{
 	.org.fenixedu.academic.domain.Degree playsRole degree{
 		multiplicity 1;
 	}
-	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfiguration;
+	FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfigurations {
+	    multiplicity *;
+	}
+}
+
+relation DegreeCurricularPlanFirstYearRegistrationConfiguration{
+    .org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlan {
+        multiplicity 0..1;
+    }
+    FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfigurations {
+        multiplicity *;
+    }
+}
+
+relation ExecutionYearFirstYearRegistrationConfiguration {
+    .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
+        multiplicity 0..1;
+    }
+    FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfigurations {
+        multiplicity *;
+    }
 }
 
 class FirstYearRegistrationGlobalConfiguration {
@@ -2279,6 +2298,8 @@ class enrolmentPeriod.AcademicEnrolmentPeriod {
     Integer maxStudentNumber;
     Integer curricularYear;
     AcademicEnrolmentPeriodType enrolmentPeriodType;
+    AutomaticEnrolment automaticEnrolment;
+    Boolean allowEnrolWithDebts;
     Boolean schoolClassSelectionMandatory;
 }
 

@@ -42,7 +42,7 @@ public class FirstYearRegistrationGlobalConfiguration extends FirstYearRegistrat
     public static void init() {
         FirstYearRegistrationGlobalConfiguration theGlobalConfiguration = getInstance();
         for (Degree degree : Bennu.getInstance().getDegreesSet()) {
-            degree.getFirstYearRegistrationConfiguration().setGlobalConfiguration(theGlobalConfiguration);
+            degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.setGlobalConfiguration(theGlobalConfiguration));
         }
     }
 }

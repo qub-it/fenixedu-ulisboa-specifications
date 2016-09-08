@@ -122,6 +122,7 @@ public class PersonalInformationFormController extends FormAbstractController {
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
+        form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
 
         form.setDocumentIdNumber(person.getDocumentIdNumber());
         form.setIdDocumentType(person.getIdDocumentType());
@@ -180,6 +181,11 @@ public class PersonalInformationFormController extends FormAbstractController {
 
     public Set<String> validateForm(PersonalInformationForm form, final Person person) {
         final Set<String> result = Sets.newHashSet();
+
+        if (form.getDateOfBirth() == null) {
+            result.add(BundleUtil.getString(BUNDLE, "error.birthDate.required"));
+        }
+
         if (!isPartialUpdate()) {
             IDDocumentType idType = form.getIdDocumentType();
             if (form.getIsForeignStudent()) {
@@ -279,10 +285,7 @@ public class PersonalInformationFormController extends FormAbstractController {
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         PersonalIngressionData personalData = getPersonalIngressionData(getStudent(model), executionYear, false);
 
-        //TODOJN - dirty hack to go around PrecedentDegreeInformation.checkHasAllRegistrationOrPhdInformation()
-        FirstTimeCandidacyController.getOrCreatePersonalIngressionData(executionYear,
-                personalData.getPrecedentDegreesInformationsSet().iterator().next());
-
+        person.setDateOfBirthYearMonthDay(new YearMonthDay(form.getDateOfBirth()));
         if (!isPartialUpdate()) {
             person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
             LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();

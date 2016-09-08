@@ -35,6 +35,8 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private LocalDate documentIdEmissionDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate documentIdExpirationDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateOfBirth;
     private String socialSecurityNumber;
     private Unit firstOptionInstitution;
     private DegreeDesignation firstOptionDegreeDesignation;
@@ -91,6 +93,14 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
                 .contains(StringNormalizer.normalize(degreeNamePart == null ? "" : degreeNamePart));
         setFirstOptionDegreeDesignationValues(
                 possibleDesignations.stream().filter(matchesName).limit(50).collect(Collectors.toList()));
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getName() {

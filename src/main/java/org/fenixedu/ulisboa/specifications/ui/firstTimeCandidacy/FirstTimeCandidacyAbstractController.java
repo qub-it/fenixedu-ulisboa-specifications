@@ -26,7 +26,12 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
 
     public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model,
             RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
+        List<String> errorMessages = FirstTimeCandidacyController.isValidForFirstTimeCandidacy();
+
+        if (!errorMessages.isEmpty()) {
+            for (String errorMessage : errorMessages) {
+                addErrorMessage(errorMessage, model);
+            }
             return Optional.of(redirect(FirstTimeCandidacyController.CONTROLLER_URL + "/" + executionYear.getExternalId(), model,
                     redirectAttributes));
         }
@@ -35,12 +40,12 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     }
 
     @Atomic
-    protected PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(final ExecutionYear executionYear,
-            final Student student) {
+    public static PersonalIngressionData getOrCreatePersonalIngressionDataForCurrentExecutionYear(
+            final ExecutionYear executionYear, final Student student) {
         return getPersonalIngressionData(student, executionYear, true);
     }
 
-    protected PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear,
+    public static PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear,
             final boolean create) {
         PersonalIngressionData personalData = student.getPersonalIngressionDataByExecutionYear(executionYear);
 

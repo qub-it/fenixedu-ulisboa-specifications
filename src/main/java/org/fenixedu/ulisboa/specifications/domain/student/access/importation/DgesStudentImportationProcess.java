@@ -34,28 +34,38 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.QueueJob;
 import org.fenixedu.academic.domain.QueueJobResult;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.RoleType;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.spaces.domain.Space;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO;
@@ -63,13 +73,15 @@ import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidate
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.NotFoundPersonException;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO.TooManyMatchedPersonsException;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.joda.time.DateTime;
+import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import pt.ist.fenixframework.core.WriteOnReadError;
-
 import com.google.common.collect.Lists;
+
+import pt.ist.fenixframework.core.WriteOnReadError;
 
 public class DgesStudentImportationProcess extends DgesStudentImportationProcess_Base {
 
@@ -316,8 +328,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         return result;
     }
 
-    private static final List<String> possibleManagers = Arrays.asList("manager", "admin", "qubit_admin", "qubIT_admin",
-            "qubIt_admin");
+    private static final List<String> possibleManagers =
+            Arrays.asList("manager", "admin", "qubit_admin", "qubIT_admin", "qubIt_admin");
 
     private User getPossibleManager() {
         for (String possibleManager : possibleManagers) {
@@ -359,18 +371,18 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
                     LOG_WRITER.println("Pessoa Criada");
                     peopleCreated++;
                 } catch (DegreeCandidateDTO.TooManyMatchedPersonsException e) {
-                    LOG_WRITER.println(String.format(
-                            "ERROR: Candidato com a Identificação %s possui mais do que uma identidade no sistema",
-                            degreeCandidateDTO.getDocumentIdNumber()));
+                    LOG_WRITER.println(
+                            String.format("ERROR: Candidato com a Identificação %s possui mais do que uma identidade no sistema",
+                                    degreeCandidateDTO.getDocumentIdNumber()));
                     continue;
                 } catch (DegreeCandidateDTO.MatchingPersonException e) {
                     throw new RuntimeException(e);
                 }
 
-                if ((person.getStudent() != null) && !person.getStudent().getRegistrationsSet().isEmpty()) {
-                    LOG_WRITER.println(String.format(
-                            "Warning: Candidato com a Identificação %s é aluno com o nº %s com matriculas",
-                            degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
+                if (person.getStudent() != null && !person.getStudent().getRegistrationsSet().isEmpty()) {
+                    LOG_WRITER
+                            .println(String.format("Warning: Candidato com a Identificação %s é aluno com o nº %s com matriculas",
+                                    degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
 
                     boolean hasEnrolmentsInExecutionYear = false;
                     for (Registration registration : person.getStudent().getActiveRegistrations()) {
@@ -381,10 +393,9 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
                     }
 
                     if (hasEnrolmentsInExecutionYear) {
-                        LOG_WRITER
-                                .println(String
-                                        .format("ERROR: Candidato com a Identificação %s é aluno com o nº %s possui matriculas com inscrições no ano lectivo de candidatura",
-                                                degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
+                        LOG_WRITER.println(String.format(
+                                "ERROR: Candidato com a Identificação %s é aluno com o nº %s possui matriculas com inscrições no ano lectivo de candidatura",
+                                degreeCandidateDTO.getDocumentIdNumber(), person.getStudent().getNumber()));
                         continue;
                     }
                 }
@@ -404,6 +415,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
 
                 StudentCandidacy studentCandidacy = createCandidacy(degreeCandidateDTO, person);
                 new StandByCandidacySituation(studentCandidacy, getPerson());
+                createRegistration(studentCandidacy);
+
                 candidaciesCreated++;
                 LOG_WRITER.println("Candidatura Criada");
 
@@ -422,7 +435,7 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         CollectionUtils.select(executionYear.getDgesStudentImportationProcessSet(), new Predicate() {
             @Override
             public boolean evaluate(Object process) {
-                return (process instanceof DgesStudentImportationProcess) && ((QueueJob) process).getDone();
+                return process instanceof DgesStudentImportationProcess && ((QueueJob) process).getDone();
             }
         }, jobList);
         return jobList;
@@ -437,7 +450,7 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         CollectionUtils.select(executionYear.getDgesStudentImportationProcessSet(), new Predicate() {
             @Override
             public boolean evaluate(Object arg0) {
-                return (arg0 instanceof DgesStudentImportationProcess);
+                return arg0 instanceof DgesStudentImportationProcess;
             }
         }, jobList);
         return jobList;
@@ -473,20 +486,48 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
     }
 
     private StudentCandidacy createCandidacy(DegreeCandidateDTO degreeCandidateDTO, Person person) {
-        ExecutionDegree executionDegree = degreeCandidateDTO.getExecutionDegree(getExecutionYear(), getSpace());
+
+        final Set<Degree> degrees = Bennu.getInstance().getDegreesSet().stream()
+                .filter(x -> StringUtils.equals(degreeCandidateDTO.getDegreeCode(), x.getMinistryCode()))
+                .collect(Collectors.toSet());
+
+        if (degrees.size() != 1) {
+            throw new RuntimeException("Unexpected number of degree with code: " + degreeCandidateDTO.getDegreeCode());
+        }
+
+        final Degree degree = degrees.iterator().next();
+
+        FirstYearRegistrationConfiguration degreeConfiguration =
+                FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, getExecutionYear());
+
+        if (degreeConfiguration == null) {
+            throw new RuntimeException("Degree [" + degree.getMinistryCode() + "] "
+                    + degree.getNameI18N(getExecutionYear()).getContent() + " doesnt have firstYearConfiguration associated.");
+        }
+
+        final DegreeCurricularPlan degreeCurricularPlan = degreeConfiguration.getDegreeCurricularPlan();
+
+        if (degreeCurricularPlan == null) {
+            throw new RuntimeException(
+                    "Degree [" + degree.getMinistryCode() + "] " + degree.getNameI18N(getExecutionYear()).getContent()
+                            + " doesnt have degree curricular plan associated in FirstYearConfiguration");
+        }
+
+        final ExecutionDegree executionDegree =
+                degreeCurricularPlan.getExecutionDegreeByYearAndCampus(getExecutionYear(), getSpace());
+
         if (executionDegree == null) {
-            throw new RuntimeException("Could not find execution degree with ministry code: "
-                    + degreeCandidateDTO.getDegreeCode());
+            throw new RuntimeException(
+                    "Could not find execution degree with ministry code: " + degreeCandidateDTO.getDegreeCode());
         }
         if (!executionDegree.getDegree().getDegreeType().isBolonhaDegree()
                 && !executionDegree.getDegree().getDegreeType().isIntegratedMasterDegree()) {
-            throw new RuntimeException("Unexpected degree type: "
-                    + executionDegree.getDegree().getDegreeType().getName().getContent());
+            throw new RuntimeException(
+                    "Unexpected degree type: " + executionDegree.getDegree().getDegreeType().getName().getContent());
         }
-        StudentCandidacy candidacy =
-                new FirstTimeCandidacy(person, executionDegree, getPerson(), degreeCandidateDTO.getEntryGrade(),
-                        degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
-                        degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
+        StudentCandidacy candidacy = new FirstTimeCandidacy(person, executionDegree, getPerson(),
+                degreeCandidateDTO.getEntryGrade(), degreeCandidateDTO.getContigent(), degreeCandidateDTO.getIngression(),
+                degreeCandidateDTO.getEntryPhase(), degreeCandidateDTO.getPlacingOption());
 
         candidacy.setHighSchoolType(degreeCandidateDTO.getHighSchoolType());
         candidacy.setFirstTimeCandidacy(true);
@@ -496,17 +537,46 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         return candidacy;
     }
 
-    public static java.util.function.Predicate<Registration> registrationHasDgesImportationProcessForCurrentYear() {
-        return new java.util.function.Predicate<Registration>() {
-            @Override
-            public boolean test(Registration r) {
-                return r.getStudentCandidacy() != null
-                        && r.getStudentCandidacy().getDgesStudentImportationProcess() != null
-                        && r.getStudentCandidacy().getDgesStudentImportationProcess().getExecutionYear() == ExecutionYear
-                                .readCurrentExecutionYear();
-            }
-        };
+    private Registration createRegistration(final StudentCandidacy studentCandidacy) {
+
+        Registration registration = studentCandidacy.getRegistration();
+        if (registration != null) {
+            return registration;
+        }
+
+        registration = new Registration(studentCandidacy.getPerson(), studentCandidacy);
+
+        PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation();
+        pdi.setRegistration(registration);
+        FirstTimeCandidacyAbstractController.getOrCreatePersonalIngressionDataForCurrentExecutionYear(getExecutionYear(),
+                studentCandidacy.getPerson().getStudent());
+        if (pdi.getPersonalIngressionData() != null) {
+            pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
+        }
+
+        StudentCurricularPlan.createBolonhaStudentCurricularPlan(registration,
+                studentCandidacy.getExecutionDegree().getDegreeCurricularPlan(), new YearMonthDay(),
+                getExecutionYear().getFirstExecutionPeriod());
+
+        RegistrationState registeredState = registration.getActiveState();
+        registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
+
+        RegistrationState.createRegistrationState(registration, getPerson(), new DateTime(), RegistrationStateType.INACTIVE);
+
+        return registration;
     }
+
+    //TODO: TO DELETE
+//    public static java.util.function.Predicate<Registration> registrationHasDgesImportationProcessForCurrentYear() {
+//        return new java.util.function.Predicate<Registration>() {
+//            @Override
+//            public boolean test(Registration r) {
+//                return r.getStudentCandidacy() != null && r.getStudentCandidacy().getDgesStudentImportationProcess() != null
+//                        && r.getStudentCandidacy().getDgesStudentImportationProcess().getExecutionYear() == ExecutionYear
+//                                .readCurrentExecutionYear();
+//            }
+//        };
+//    }
 
     @Override
     public String getFilename() {

@@ -10,9 +10,10 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ChooseOptionalCoursesController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.EnrolmentsReportController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
@@ -41,8 +42,8 @@ public class VaccionationFormController extends FormAbstractController {
 
     @Override
     protected String fillGetScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        if (shouldBeSkipped()) {
-            return redirect(ChooseOptionalCoursesController.CONTROLLER_URL, model, redirectAttributes);
+        if (shouldBeSkipped(executionYear)) {
+            return nextScreen(executionYear, model, redirectAttributes);
         }
 
         VaccinationForm form = fillFormIfRequired(model);
@@ -55,10 +56,10 @@ public class VaccionationFormController extends FormAbstractController {
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/vaccinationform/fillvaccinationform";
     }
 
-    public static boolean shouldBeSkipped() {
+    public static boolean shouldBeSkipped(ExecutionYear executionYear) {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        return degree.getFirstYearRegistrationConfiguration() == null
-                || !degree.getFirstYearRegistrationConfiguration().getRequiresVaccination();
+        return FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear) == null
+                || !FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear).getRequiresVaccination();
     }
 
     public VaccinationForm fillFormIfRequired(Model model) {
@@ -75,7 +76,7 @@ public class VaccionationFormController extends FormAbstractController {
     @Override
     protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
             RedirectAttributes redirectAttributes) {
-        // nothing
+
     }
 
     @Override
@@ -118,7 +119,7 @@ public class VaccionationFormController extends FormAbstractController {
 
     @Override
     protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(ChooseOptionalCoursesController.CONTROLLER_URL, executionYear), model,
+        return redirect(urlWithExecutionYear(EnrolmentsReportController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 

@@ -168,7 +168,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
                 <div class="col-sm-6">
                     <ui-select  id="householdInformationForm_professionTimeType" name="professionTimeType" ng-model="$parent.object.professionTimeType" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match allow-clear="true" >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="professionTimeType.id as professionTimeType in object.professionTimeTypeValues | filter: $select.search">
                             <span ng-bind-html="professionTimeType.text | highlight: $select.search"></span>
                         </ui-select-choices> 

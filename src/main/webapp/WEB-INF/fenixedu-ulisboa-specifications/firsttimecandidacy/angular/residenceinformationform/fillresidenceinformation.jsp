@@ -109,51 +109,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     };
     $scope.onCountryChange = function(country, model) {
         $scope.object.countriesValues = undefined;
-        $scope.object.districtSubdivisionValues = undefined;
-        $scope.object.parishValues = undefined;
         $scope.object.areaCodeValues = undefined;
         
-        $scope.object.districtOfResidence = undefined;
-        $scope.object.districtSubdivisionOfResidence = undefined;
-        $scope.object.parishOfResidence = undefined;
         $scope.object.areaCode = undefined;
         $scope.object.areaCodePart = undefined;
         
         $scope.postBack(model);
     };
-    $scope.onDistrictChange = function(district, model) {
-        $scope.object.districtSubdivisionValues = undefined;
-        $scope.object.parishValues = undefined;
-        
-        $scope.object.districtSubdivisionOfResidence = undefined;
-        $scope.object.parishOfResidence = undefined;
-        
-        $scope.postBack(model);
-    };
-    $scope.onDistrictSubdivisionChange = function(districtSubdivision, model) {
-        $scope.object.parishValues = undefined;
-        
-        $scope.object.parishOfResidence = undefined;
-        
-        $scope.postBack(model);
-    };
-    $scope.onSchoolDistrictChange = function(district, model) {
-        $scope.object.schoolTimeDistrictSubdivisionValues = undefined;
-        $scope.object.schoolTimeParishValues = undefined;        
-        
-        $scope.object.schoolTimeDistrictSubdivisionOfResidence = undefined;
-        $scope.object.schoolTimeParishOfResidence = undefined;
-        
-        $scope.postBack(model);
-    };
-    $scope.onSchoolDistrictSubdivisionChange = function(districtSubdivision, model) {
-        $scope.object.schoolTimeParishValues = undefined;        
-        
-        $scope.object.schoolTimeParishOfResidence = undefined;
-        
-        $scope.postBack(model);
-    };
-    $scope.onResidenceTypeChange = function() {
+    $scope.onAreaCodeChange = function (areaCode, model) {
+	    $scope.postBack(model);	
+    }
+    $scope.onResidenceTypeChange = function(residenceType, model) {
 	    if($scope.object.schoolTimeResidenceType == null) {
 		    return;
 	    }
@@ -219,7 +185,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" theme="bootstrap">
+                    <ui-select  id="residenceInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" on-select="onAreaCodeChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="areaCode.id as areaCode in object.areaCodeValues | filter: $select.search"
                                             refresh="onAreaCodeRefresh($item, $select.search, $model)"
@@ -236,12 +202,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_districtOfResidence" name="districtOfResidence" ng-model="$parent.object.districtOfResidence" on-select="onDistrictChange($item,$model)" ng-disabled="object.countryOfResidence !== defaultCountry" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="district.id as district in object.districtsValues | filter: $select.search">
-                            <span ng-bind-html="district.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select>
+                    <div class="form-control-static">{{ object.districtOfResidenceName }}</div>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -251,12 +212,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_districtSubdivisionOfResidence" name="districtSubdivisionOfResidence" ng-model="$parent.object.districtSubdivisionOfResidence" on-select="onDistrictSubdivisionChange($item,$model)" ng-disabled="!object.districtSubdivisionValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="districtSubdivision.id as districtSubdivision in object.districtSubdivisionValues | filter: $select.search">
-                            <span ng-bind-html="districtSubdivision.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select> 
+                    <div class="form-control-static">{{ object.districtSubdivisionOfResidenceName }}</div>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -266,12 +222,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_parishOfResidence" name="parishOfResidence" ng-model="$parent.object.parishOfResidence" ng-disabled="!object.parishValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="parish.id as parish in object.parishValues | filter: $select.search">
-                            <span ng-bind-html="parish.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select>    
+                    <div class="form-control-static">{{ object.parishOfResidenceName }}</div>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -324,7 +275,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_schoolTimeAreaCode" name="schoolTimeAreaCode" ng-model="$parent.object.schoolTimeAreaCode" theme="bootstrap">
+                    <ui-select  id="residenceInformationForm_schoolTimeAreaCode" name="schoolTimeAreaCode" ng-model="$parent.object.schoolTimeAreaCode" on-select="onAreaCodeChange($item, $model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="areaCode.id as areaCode in object.schoolTimeAreaCodeValues | filter: $select.search"
                                             refresh="onSchoolTimeAreaCodeRefresh($item, $select.search, $model)"
@@ -341,12 +292,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_schoolTimeDistrictOfResidence" name="schoolTimeDistrictOfResidence" ng-model="$parent.object.schoolTimeDistrictOfResidence" on-select="onSchoolDistrictChange($item,$model)" ng-disabled="!object.districtsValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="district.id as district in object.districtsValues | filter: $select.search">
-                            <span ng-bind-html="district.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select>    
+                    <div class="form-control-static">{{ object.schoolTimeDistrictOfResidenceName }}</div>
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
@@ -356,12 +302,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_schoolTimeDistrictSubdivisionOfResidence" name="schoolTimeDistrictSubdivisionOfResidence" ng-model="$parent.object.schoolTimeDistrictSubdivisionOfResidence" on-select="onSchoolDistrictSubdivisionChange($item,$model)" ng-disabled="!object.schoolTimeDistrictSubdivisionValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="districtSubdivision.id as districtSubdivision in object.schoolTimeDistrictSubdivisionValues | filter: $select.search">
-                            <span ng-bind-html="districtSubdivision.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select>     
+                    <div class="form-control-static">{{ object.schoolTimeDistrictSubdivisionOfResidenceName }}</div>
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
@@ -371,21 +312,16 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_schoolTimeParishOfResidence" name="schoolTimeParishOfResidence" ng-model="$parent.object.schoolTimeParishOfResidence" ng-disabled="!object.schoolTimeParishValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="parish.id as parish in object.schoolTimeParishValues | filter: $select.search">
-                            <span ng-bind-html="parish.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select>    
+                    <div class="form-control-static">{{ object.schoolTimeParishOfResidenceName }}</div>
 				</div>
 			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence" ng-init="onResidenceTypeChange()">
+			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message code="label.ResidenceInformationForm.schoolTimeResidenceType" />
 				</div>
 
 				<div class="col-sm-4">
-                    <ui-select  id="residenceInformationForm_schoolTimeResidenceType" name="schoolTimeResidenceType" ng-model="$parent.object.schoolTimeResidenceType" on-select="onResidenceTypeChange()" theme="bootstrap">
+                    <ui-select  id="residenceInformationForm_schoolTimeResidenceType" name="schoolTimeResidenceType" ng-model="$parent.object.schoolTimeResidenceType" on-select="onResidenceTypeChange($item, $model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="dislocatedResidenceType.id as dislocatedResidenceType in object.residenceTypeValues | filter: $select.search">
                             <span ng-bind-html="dislocatedResidenceType.text | highlight: $select.search"></span>

@@ -1,8 +1,11 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,36 +17,39 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
 import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 
 import pt.ist.standards.geographic.Planet;
 import pt.ist.standards.geographic.PostalCode;
 
 public class ResidenceInformationForm implements CandidancyForm {
 
-    private Country countryOfResidence;
+    public static List<Integer> oldDistrictCodes = Arrays.asList(19, 20, 21, 22);
+    private static Map<String, PostalCode> allPostalCodes;
+
     private String address;
     private String areaCode; // zip code
     private String area; // location
-    private Parish parishOfResidence;
+    private Country countryOfResidence;
     private District districtOfResidence;
     private DistrictSubdivision districtSubdivisionOfResidence;
+    private Parish parishOfResidence;
+    private String districtOfResidenceName;
+    private String districtSubdivisionOfResidenceName;
+    private String parishOfResidenceName;
     private Boolean dislocatedFromPermanentResidence;
-    private District schoolTimeDistrictOfResidence;
-    private DistrictSubdivision schoolTimeDistrictSubdivisionOfResidence;
     private String schoolTimeAddress;
     private String schoolTimeAreaCode;
     private String schoolTimeArea;
+    private District schoolTimeDistrictOfResidence;
+    private DistrictSubdivision schoolTimeDistrictSubdivisionOfResidence;
     private Parish schoolTimeParishOfResidence;
+    private String schoolTimeDistrictOfResidenceName;
+    private String schoolTimeDistrictSubdivisionOfResidenceName;
+    private String schoolTimeParishOfResidenceName;
     private ResidenceType schoolTimeResidenceType;
     private String otherSchoolTimeResidenceType;
 
     private List<TupleDataSourceBean> countriesValues;
-    private List<TupleDataSourceBean> districtsValues;
-    private List<TupleDataSourceBean> districtSubdivisionValues;
-    private List<TupleDataSourceBean> schoolTimeDistrictSubdivisionValues;
-    private List<TupleDataSourceBean> parishValues;
-    private List<TupleDataSourceBean> schoolTimeParishValues;
     private List<TupleDataSourceBean> areaCodeValues;
     private String areaCodePart;
     private List<TupleDataSourceBean> schoolTimeAreaCodeValues;
@@ -56,43 +62,28 @@ public class ResidenceInformationForm implements CandidancyForm {
         setResidenceTypeValues(Bennu.getInstance().getResidenceTypesSet());
         setOtherResidenceTypeValues(
                 Bennu.getInstance().getResidenceTypesSet().stream().filter(rt -> rt.isOther()).collect(Collectors.toList()));
+
         updateLists();
     }
 
     @Override
     public void updateLists() {
         setCountriesValues(Bennu.getInstance().getCountrysSet());
-        setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
-
         //Process isOtherResidenceType boolean
         if (schoolTimeResidenceType != null && schoolTimeResidenceType.isOther()) {
             setOtherResidenceType(true);
         } else {
             setOtherResidenceType(false);
         }
-        //Populate district subdivisions
-        if (districtOfResidence != null) {
-            setDistrictSubdivisionValues(
-                    FormAbstractController.getSubdivisionsWithParishes(districtOfResidence).collect(Collectors.toList()));
-        }
-        if (schoolTimeDistrictOfResidence != null) {
-            setSchoolTimeDistrictSubdivisionValues(FormAbstractController
-                    .getSubdivisionsWithParishes(schoolTimeDistrictOfResidence).collect(Collectors.toList()));
-        }
-        //Populate parishes
-        if (districtSubdivisionOfResidence != null) {
-            setParishValues(districtSubdivisionOfResidence.getParishSet());
-        }
-        if (schoolTimeDistrictSubdivisionOfResidence != null) {
-            setSchoolTimeParishValues(schoolTimeDistrictSubdivisionOfResidence.getParishSet());
-        }
         //Populate zip code
-        List<String> postalCodes = getAllPostCodes().stream().map(pc -> pc.exportAsString().split(";")[4] + " " + pc.parent.name)
-                .collect(Collectors.toList());
+        updatePostalCodes();
+        //Populate readOnly slots (district, subdivision and parish)
+        updateReadOnlySlot();
+    }
+
+    private void updatePostalCodes() {
+        Collection<String> postalCodes = getAllPostalCodes().keySet();
         if (getCountryOfResidence() == Country.readDefault()) {
-            if (getAreaCode() != null) {
-                setAreaCodePart(getAreaCode());
-            }
             if (areaCodePart == null) {
                 setAreaCodeValuesFormatted(Collections.emptyList());
             } else {
@@ -104,14 +95,53 @@ public class ResidenceInformationForm implements CandidancyForm {
             setAreaCodePart(null);
             setAreaCodeValuesFormatted(Collections.emptyList());
         }
-        if (getSchoolTimeAreaCode() != null) {
-            setSchoolTimeAreaCodePart(getSchoolTimeAreaCode());
-        }
         if (schoolTimeAreaCodePart == null) {
             setSchoolTimeAreaCodeValuesFormatted(Collections.emptyList());
         } else {
             setSchoolTimeAreaCodeValuesFormatted(postalCodes.stream().filter(pc -> pc.contains(schoolTimeAreaCodePart)).limit(50)
                     .collect(Collectors.toList()));
+        }
+    }
+
+    private void updateReadOnlySlot() {
+        if (StringUtils.isNotBlank(getAreaCode())) {
+            PostalCode postalCode = getAllPostalCodes().get(getAreaCode());
+
+            String districtCode = postalCode.parent.parent.parent.exportAsString().split(";")[1];
+            District district = District.readByCode(districtCode);
+            setDistrictOfResidence(district);
+            districtOfResidenceName = district.getName();
+
+            String subdivisionCode = postalCode.parent.parent.exportAsString().split(";")[2];
+            DistrictSubdivision subdivision = district.getDistrictSubdivisionsSet().stream()
+                    .filter(s -> s.getCode().equals(subdivisionCode)).findFirst().orElse(null);
+            setDistrictSubdivisionOfResidence(subdivision);
+            districtSubdivisionOfResidenceName = subdivision.getName();
+
+            String parishCode = postalCode.parent.exportAsString().split(";")[3];
+            Parish parish =
+                    subdivision.getParishSet().stream().filter(p -> p.getCode().equals(parishCode)).findFirst().orElse(null);
+            setParishOfResidence(parish);
+            parishOfResidenceName = parish.getName();
+        }
+        if (StringUtils.isNotBlank(getSchoolTimeAreaCode().trim())) {
+            PostalCode postalCode = getAllPostalCodes().get(getSchoolTimeAreaCode());
+            String districtCode = postalCode.parent.parent.parent.exportAsString().split(";")[1];
+            District district = District.readByCode(districtCode);
+            setSchoolTimeDistrictOfResidence(district);
+            schoolTimeDistrictOfResidenceName = district.getName();
+
+            String subdivisionCode = postalCode.parent.parent.exportAsString().split(";")[2];
+            DistrictSubdivision subdivision = district.getDistrictSubdivisionsSet().stream()
+                    .filter(s -> s.getCode().equals(subdivisionCode)).findFirst().orElse(null);
+            setSchoolTimeDistrictSubdivisionOfResidence(subdivision);
+            schoolTimeDistrictSubdivisionOfResidenceName = subdivision.getName();
+
+            String parishCode = postalCode.parent.exportAsString().split(";")[3];
+            Parish parish =
+                    subdivision.getParishSet().stream().filter(p -> p.getCode().equals(parishCode)).findFirst().orElse(null);
+            setSchoolTimeParishOfResidence(parish);
+            schoolTimeParishOfResidenceName = parish.getName();
         }
     }
 
@@ -129,6 +159,9 @@ public class ResidenceInformationForm implements CandidancyForm {
 
     public void setAreaCode(String areaCode) {
         this.areaCode = areaCode;
+        if (areaCode != null) {
+            setAreaCodePart(areaCode);
+        }
     }
 
     public String getArea() {
@@ -201,6 +234,9 @@ public class ResidenceInformationForm implements CandidancyForm {
 
     public void setSchoolTimeAreaCode(String schoolTimeAreaCode) {
         this.schoolTimeAreaCode = schoolTimeAreaCode;
+        if (schoolTimeAreaCode != null) {
+            setSchoolTimeAreaCodePart(schoolTimeAreaCode);
+        }
     }
 
     public String getSchoolTimeArea() {
@@ -296,71 +332,6 @@ public class ResidenceInformationForm implements CandidancyForm {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    public List<TupleDataSourceBean> getDistrictsValues() {
-        return districtsValues;
-    }
-
-    public void setDistrictsValues(Collection<District> districtsValues) {
-        this.districtsValues = districtsValues.stream().map(d -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(d.getExternalId());
-            tuple.setText(d.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getDistrictSubdivisionValues() {
-        return districtSubdivisionValues;
-    }
-
-    public void setDistrictSubdivisionValues(Collection<DistrictSubdivision> districtSubdivisionValues) {
-        this.districtSubdivisionValues = districtSubdivisionValues.stream().map(ds -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(ds.getExternalId());
-            tuple.setText(ds.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getParishValues() {
-        return parishValues;
-    }
-
-    public void setParishValues(Collection<Parish> parishValues) {
-        this.parishValues = parishValues.stream().map(p -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(p.getExternalId());
-            tuple.setText(p.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getSchoolTimeDistrictSubdivisionValues() {
-        return schoolTimeDistrictSubdivisionValues;
-    }
-
-    public void setSchoolTimeDistrictSubdivisionValues(Collection<DistrictSubdivision> districtSubdivisionValues) {
-        this.schoolTimeDistrictSubdivisionValues = districtSubdivisionValues.stream().map(ds -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(ds.getExternalId());
-            tuple.setText(ds.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
-    public List<TupleDataSourceBean> getSchoolTimeParishValues() {
-        return schoolTimeParishValues;
-    }
-
-    public void setSchoolTimeParishValues(Collection<Parish> parishValues) {
-        this.schoolTimeParishValues = parishValues.stream().map(p -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(p.getExternalId());
-            tuple.setText(p.getName());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
-    }
-
     public List<TupleDataSourceBean> getAreaCodeValues() {
         return areaCodeValues;
     }
@@ -413,11 +384,6 @@ public class ResidenceInformationForm implements CandidancyForm {
         this.schoolTimeAreaCodePart = schoolTimeAreaCodePart;
     }
 
-    private Collection<PostalCode> getAllPostCodes() {
-        return Planet.getEarth().getPlace("PRT").getPlaces().stream().flatMap(d -> d.getPlaces().stream())
-                .flatMap(m -> m.getPlaces().stream()).flatMap(l -> l.getPlaces().stream()).collect(Collectors.toList());
-    }
-
     public List<TupleDataSourceBean> getResidenceTypeValues() {
         return residenceTypeValues;
     }
@@ -443,6 +409,29 @@ public class ResidenceInformationForm implements CandidancyForm {
 
     public void setOtherResidenceType(boolean isOtherResidenceType) {
         this.isOtherResidenceType = isOtherResidenceType;
+    }
+
+    public static Map<String, PostalCode> getAllPostalCodes() {
+        if (allPostalCodes == null) {
+            populateAllPostalCodes();
+        }
+        return allPostalCodes;
+    }
+
+    private static void populateAllPostalCodes() {
+        Collection<PostalCode> allPortugalPostalCodes = getAllPortugalPostalCodes();
+        allPostalCodes = new HashMap<>();
+        for (PostalCode postalCode : allPortugalPostalCodes) {
+            String stringPostalCode = postalCode.exportAsString().split(";")[4] + " " + postalCode.parent.name;
+            allPostalCodes.put(stringPostalCode, postalCode);
+        }
+    }
+
+    private static Collection<PostalCode> getAllPortugalPostalCodes() {
+        return Planet.getEarth().getPlace("PRT").getPlaces().stream()
+                .filter(d -> !oldDistrictCodes.contains(new Integer(d.exportAsString().split(";")[1])))
+                .flatMap(d -> d.getPlaces().stream()).flatMap(m -> m.getPlaces().stream()).flatMap(l -> l.getPlaces().stream())
+                .collect(Collectors.toList());
     }
 
 }

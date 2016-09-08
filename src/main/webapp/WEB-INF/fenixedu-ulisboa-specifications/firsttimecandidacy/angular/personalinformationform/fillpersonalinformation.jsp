@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.FenixEduAcademicConfiguration"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -175,11 +176,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
 					<spring:message
 						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
+                    <a class="" href="#" data-toggle="modal" data-target="#showExtraDigitsImages">
+                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                    </a>
 				</label>
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_identificationDocumentSeriesNumber"
 						class="form-control" type="text" ng-model="object.identificationDocumentSeriesNumber" name="identificationDocumentSeriesNumber"
+                        placeholder="<spring:message code='label.PersonalInformationForm.extraDigit.more.help'/>"
 						value='<c:out value='${not empty param.identificationDocumentSeriesNumber ? param.identificationDocumentSeriesNumber : personalInformationForm.identificationDocumentSeriesNumber }'/>' />
 				</div>
 			</div>
@@ -262,11 +267,21 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_socialSecurityNumber"
-						class="form-control" type="text" ng-model="object.socialSecurityNumber" name="socialSecurityNumber" ng-required="!object.foreignStudent"
+						class="form-control" type="text" ng-model="object.socialSecurityNumber" name="socialSecurityNumber" ng-required="!object.foreignStudent" 
+                        placeholder="<spring:message code='label.PersonalInformationForm.socialSecurityNumber.default' arguments='<%= FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber() %>'/>"
 						value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
 						pattern="(\d{9})"/>
 				</div>
 			</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message code="label.FiliationForm.dateOfBirth" />
+                </div>
+
+                <div class="col-sm-10">
+                    <input id="filiationForm_dateOfBirth" class="form-control" type="text" name="dateOfBirth" bennu-date="object.dateOfBirth" /> 
+                </div>
+            </div>   
 		</c:if>
 			<c:if test="${1 lt placingOption}">
 				<div class="form-group row">
@@ -307,7 +322,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 			</c:if>
 			
 			<div class="form-group row">
-				<label class="col-sm-2 control.label required-field">
+				<label class="col-sm-2 control-label required-field">
 					<spring:message code="label.PersonalInformationForm.countryHighSchool" />
 				</label>
 				
@@ -325,7 +340,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
             <div class="form-group row">
-                <label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label">
+                <label for="personalInformationForm_maritalStatus" class="col-sm-2 control-label required-field">
                     <spring:message code="label.PersonalInformationForm.maritalStatus" />
                 </label>
 
@@ -344,6 +359,47 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             <button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>
 		</div>
 	</div>
+ 
+    <div class="modal fade" id="showExtraDigitsImages">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.PersonalInformationForm.help.extraDigit" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <img class="img-rounded" title="Imagem CC" alt="Dígitos extra do Cartão de Cidadão"
+                        src="http://www.cienciabraganca.pt/imagens/uploads/ESTiG_51_jornal_CienciasExactas_cartaoCidadao_3ultimoscaracteres_Fig1.png"
+                    />
+                    <p>
+                        Imagem do CC
+                    </p>
+                </div>
+                <div class="modal-body">
+                    <img class="img-rounded" title="Imagem BI" alt="Dígito extra do Bilhete de Identidade"
+                        src="http://www.rendimentobasico.pt/files/8813/6683/4073/bi.png"
+                    />
+                    <p>
+                        Imagem do BI
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal --> 
+ 
 </form>
 
 <style>
@@ -355,6 +411,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		font-size: 14px;
 		display: inline;
 	}
+    span.glyphicon-question-sign {
+        font-size: 2em;
+    }
 </style>
 
 <script>

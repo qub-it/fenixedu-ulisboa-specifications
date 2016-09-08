@@ -438,8 +438,6 @@ public class OriginInformationFormController extends FormAbstractController {
 
     protected Registration getRegistration(ExecutionYear executionYear, Model model) {
         return FirstTimeCandidacyController.getCandidacy().getRegistration();
-        //TODOJN - ver com o anil
-        //        return findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration();
     }
 
 }

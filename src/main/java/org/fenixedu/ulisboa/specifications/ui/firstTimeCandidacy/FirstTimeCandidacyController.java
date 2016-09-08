@@ -27,9 +27,12 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -53,6 +56,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
+import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController;
@@ -75,23 +79,12 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
 
     @RequestMapping
     public String home(Model model) {
-        Person person = AccessControl.getPerson();
-        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(isFirstTime).filter(isOpen);
-        long count = firstTimeCandidacies.count();
-        if (count == 0) {
-            throw new RuntimeException(
-                    "Students with no open FirstTimeCandidacies are not supported in the first time registration flow");
+        List<String> errorMessages = isValidForFirstTimeCandidacy();
+
+        for (String errorMessage : errorMessages) {
+            addErrorMessage(errorMessage, model);
         }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.academicalActsBlocked"),
-                    model);
-        }
-        if (!isPeriodOpen()) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.firstTimeCandidacy.period.closed"), model);
-        }
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/instructions";
     }
 
@@ -172,12 +165,34 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         return registration;
     }
 
-    public static boolean isPeriodOpen() {
-        AcademicEnrolmentPeriod period = getCandidacy().findCandidacyPeriod();
-        if (period == null) {
-            return false;
+    public static List<String> isValidForFirstTimeCandidacy() {
+        List<String> errorMessages = new ArrayList<>();
+        Person person = AccessControl.getPerson();
+        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(isFirstTime).filter(isOpen);
+        long count = firstTimeCandidacies.count();
+        if (count == 0) {
+            errorMessages.add("Students with no open FirstTimeCandidacies are not supported in the first time registration flow");
         }
-        return period.isOpen();
+
+        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
+            errorMessages.add(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.academicalActsBlocked"));
+        }
+        if (!isPeriodOpen()) {
+            errorMessages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.firstTimeCandidacy.period.closed"));
+        }
+        return errorMessages;
+    }
+
+    public static boolean isPeriodOpen() {
+        Predicate<AcademicEnrolmentPeriodBean> isOnlyOpen = p -> p.isOpen();
+        Predicate<AcademicEnrolmentPeriodBean> isFirstTime = p -> p.isFirstTimeRegistration();
+        List<AcademicEnrolmentPeriodBean> enrolmentPeriodsOpen = AcademicEnrolmentPeriod
+                .getEnrolmentPeriodsOpenOrUpcoming(AccessControl.getPerson().getStudent(), true,
+                        getCandidacy().getDegreeCurricularPlan())
+                .stream().filter(isOnlyOpen.and(isFirstTime)).collect(Collectors.toList());
+        return !enrolmentPeriodsOpen.isEmpty();
     }
 
 }
