@@ -35,7 +35,7 @@
 <bean:define id="studentID" type="java.lang.String" name="student" property="externalId"/>
 <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean"/>
 
-<% if (FirstYearRegistrationConfiguration.requiresVaccination(personBean.getPerson())) {%>
+<%-- <% if (FirstYearRegistrationConfiguration.requiresVaccination(personBean.getPerson())) {%> --%>
 	<h3 class="mbottom025"><bean:message key="label.others" bundle="APPLICATION_RESOURCES"/></h3>
 	<table class="tstyle1 thright thlight mtop0">
 	  <tr>
@@ -57,5 +57,5 @@
 	    </td>
 	  </tr>
 	</table>
-<% } %>
+<%-- <% } %> --%>
 

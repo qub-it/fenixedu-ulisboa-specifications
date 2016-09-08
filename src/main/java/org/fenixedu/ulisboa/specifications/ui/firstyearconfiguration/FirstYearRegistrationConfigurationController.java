@@ -131,20 +131,19 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
             @RequestParam(value = "automaticEnrolment", required = true) boolean automaticEnrolment,
             @RequestParam(value = "degreeCurricularPlan", required = true) DegreeCurricularPlan degreeCurricularPlan,
             Model model) {
-        createDegreeConfiguration(degree, executionYear, degreeCurricularPlan, requiresVaccination, automaticEnrolment);
+        createDegreeConfiguration(degree, executionYear, degreeCurricularPlan, requiresVaccination);
         setFirstYearConfigurationBean(bean, model);
         return getBeanJson(bean);
     }
 
     @Atomic
     private void createDegreeConfiguration(Degree degree, ExecutionYear executionYear, DegreeCurricularPlan degreeCurricularPlan,
-            boolean requiresVaccination, boolean automaticEnrolment) {
+            boolean requiresVaccination) {
         if (FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear) != null) {
             FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear).edit(executionYear,
-                    degreeCurricularPlan, requiresVaccination, automaticEnrolment);
+                    degreeCurricularPlan, requiresVaccination);
         } else {
-            new FirstYearRegistrationConfiguration(degree, executionYear, degreeCurricularPlan, requiresVaccination,
-                    automaticEnrolment);
+            new FirstYearRegistrationConfiguration(degree, executionYear, degreeCurricularPlan, requiresVaccination);
         }
     }
 
@@ -187,11 +186,10 @@ public class FirstYearRegistrationConfigurationController extends FenixeduUlisbo
                     FirstYearRegistrationConfiguration.getDegreeConfiguration(configurationBean.getDegree(), executionYear);
             if (configuration != null) {
                 configuration.edit(executionYear, configurationBean.getDegreeCurricularPlan(),
-                        configurationBean.isRequiresVaccination(), configurationBean.isAutomaticEnrolment());
+                        configurationBean.isRequiresVaccination());
             } else {
                 new FirstYearRegistrationConfiguration(configurationBean.getDegree(), executionYear,
-                        configurationBean.getDegreeCurricularPlan(), configurationBean.isRequiresVaccination(),
-                        configurationBean.isAutomaticEnrolment());
+                        configurationBean.getDegreeCurricularPlan(), configurationBean.isRequiresVaccination());
             }
         }
     }

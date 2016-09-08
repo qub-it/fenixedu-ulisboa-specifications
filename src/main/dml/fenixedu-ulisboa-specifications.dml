@@ -380,7 +380,6 @@ class candidacy.FirstTimeCandidacy extends .org.fenixedu.academic.domain.candida
 
 class FirstYearRegistrationConfiguration{
 	boolean requiresVaccination;
-	boolean automaticEnrolment;
 }
 
 relation DegreeFirstYearRegistrationConfiguration{

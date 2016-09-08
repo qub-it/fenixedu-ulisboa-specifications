@@ -42,7 +42,7 @@
 <fr:form action="<%= "/vaccinationValidity.do?method=editVaccinationValidity&studentID=" + studentID %>">	
 	<fr:edit id="vaccinationBean" name="vaccinationBean">
 		<fr:schema bundle="APPLICATION_RESOURCES" type="org.fenixedu.ulisboa.specifications.action.student.VaccinationValidityDA$VaccinationValidityBean">
-			<fr:slot key="label.date" name="vaccinationValidity" required="true"/>
+			<fr:slot key="label.date" name="vaccinationValidity"/>
 		</fr:schema>
 		<fr:layout name="tabular" >
 			<fr:property name="classes" value="tstyle1 thlight thright mtop025"/>

@@ -126,9 +126,8 @@ ${portal.toolkit()}
 				<tr>
 					<%--!!!  Field names here --%>
 					<th><spring:message code="label.FirstYearRegistrationConfiguration.degreeName"/></th>
-					<th><spring:message code="label.FirstYearRegistrationConfiguration.degreeCode"/></th>
+					<th><spring:message code="label.FirstYearRegistrationConfiguration.degreeMinistryCode"/></th>
                     <th><spring:message code="label.FirstYearRegistrationConfiguration.requiresVaccination"/></th>
-                    <th><spring:message code="label.FirstYearRegistrationConfiguration.automaticEnrolment"/></th>
                     <th><spring:message code="label.FirstYearRegistrationConfiguration.degreeCurricularPlan"/></th>
 				</tr>
 			</thead>
@@ -158,10 +157,9 @@ var searchfirstyearregistrationconfigurationDataSet = [
     <c:forEach items="${searchfirstyearregistrationconfigurationResultsDataSet}" var="searchResult">
     {
 	    "DT_RowId" : '<c:out value='${searchResult.degree.externalId}'/>',
-		"degreeName" : "${searchResult.degree.nameI18N.content}",
-		"degreeCode" : "${searchResult.degree.code}",
+		"degreeName" : "[${searchResult.degree.code}] ${searchResult.degree.presentationName}",
+		"degreeCode" : "${searchResult.degree.ministryCode}",
 		"requiresVaccination" : "<c:if test="${searchResult.requiresVaccination}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requiresVaccination}"><spring:message code="label.false" /></c:if>",
-		"automaticEnrolment" : "<c:if test="${searchResult.automaticEnrolment}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.automaticEnrolment}"><spring:message code="label.false" /></c:if>",
 		"degreeCurricularPlan" : "<c:out value='${ searchResult.degreeCurricularPlan.name }'/>"
 	},
     </c:forEach>
@@ -174,7 +172,6 @@ $(document).ready(function() {
 			{ data: 'degreeName' },
 			{ data: 'degreeCode' },
 			{ data: 'requiresVaccination' },
-			{ data: 'automaticEnrolment' },
 		    { data: 'degreeCurricularPlan' }
 		],
 		"data" : searchfirstyearregistrationconfigurationDataSet,

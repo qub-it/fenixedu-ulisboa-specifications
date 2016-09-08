@@ -181,7 +181,7 @@ ${portal.angularToolkit()}
                         <th><spring:message
                                 code="label.FirstYearRegistrationConfiguration.degreeName" /></th>
                         <th style="width: 10%"><spring:message
-                                code="label.FirstYearRegistrationConfiguration.degreeCode" /></th>
+                                code="label.FirstYearRegistrationConfiguration.degreeMinistryCode" /></th>
                         <th style="width: 10%"><spring:message
                                 code="label.FirstYearRegistrationConfiguration.requiresVaccination" /></th>
                         <th style="width: 30%"><spring:message

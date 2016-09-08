@@ -14,14 +14,13 @@ import pt.ist.fenixframework.Atomic;
 public class FirstYearRegistrationConfiguration extends FirstYearRegistrationConfiguration_Base {
 
     public FirstYearRegistrationConfiguration(Degree degree, ExecutionYear executionYear,
-            DegreeCurricularPlan degreeCurricularPlan, boolean requiresVaccination, boolean automaticEnrolment) {
+            DegreeCurricularPlan degreeCurricularPlan, boolean requiresVaccination) {
         super();
         setGlobalConfiguration(FirstYearRegistrationGlobalConfiguration.getInstance());
         setDegree(degree);
         setExecutionYear(executionYear);
         setDegreeCurricularPlan(degreeCurricularPlan);
         setRequiresVaccination(requiresVaccination);
-        setAutomaticEnrolment(automaticEnrolment);
     }
 
     @Atomic
@@ -35,11 +34,10 @@ public class FirstYearRegistrationConfiguration extends FirstYearRegistrationCon
 
     @Atomic
     public void edit(final ExecutionYear executionYear, final DegreeCurricularPlan degreeCurricularPlan,
-            final boolean requiresVaccination, final boolean automaticEnrolment) {
+            final boolean requiresVaccination) {
         setExecutionYear(executionYear);
         setDegreeCurricularPlan(degreeCurricularPlan);
         setRequiresVaccination(requiresVaccination);
-        setAutomaticEnrolment(automaticEnrolment);
     }
 
     public static boolean requiresVaccination(Person person, ExecutionYear executionYear) {
@@ -57,28 +55,6 @@ public class FirstYearRegistrationConfiguration extends FirstYearRegistrationCon
             }
         }
         return false;
-    }
-
-    public static boolean isAutomaticEnrolment(Person person, ExecutionYear executionYear) {
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy(person);
-        if (candidacy != null && isAutomaticEnrolment(candidacy.getDegreeCurricularPlan().getDegree(), executionYear)) {
-            return true;
-        }
-
-        Student student = person.getStudent();
-        if (student != null) {
-            for (Registration registration : student.getRegistrationsSet()) {
-                if (isAutomaticEnrolment(registration.getDegree(), executionYear)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static boolean isAutomaticEnrolment(Degree degree, ExecutionYear executionYear) {
-        return getDegreeConfiguration(degree, executionYear) != null
-                && getDegreeConfiguration(degree, executionYear).getAutomaticEnrolment();
     }
 
     private static boolean requiresVaccination(Degree degree, ExecutionYear executionYear) {

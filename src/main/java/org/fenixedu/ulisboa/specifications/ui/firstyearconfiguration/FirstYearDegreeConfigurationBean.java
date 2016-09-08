@@ -15,7 +15,6 @@ public class FirstYearDegreeConfigurationBean implements IBean {
     private String label;
     private String code;
     private boolean requiresVaccination;
-    private boolean automaticEnrolment;
     private DegreeCurricularPlan degreeCurricularPlan;
     private List<TupleDataSourceBean> degreeCurricularPlanDataSource;
 
@@ -51,14 +50,6 @@ public class FirstYearDegreeConfigurationBean implements IBean {
         this.requiresVaccination = requiresVaccination;
     }
 
-    public boolean isAutomaticEnrolment() {
-        return automaticEnrolment;
-    }
-
-    public void setAutomaticEnrolment(boolean automaticEnrolment) {
-        this.automaticEnrolment = automaticEnrolment;
-    }
-
     public DegreeCurricularPlan getDegreeCurricularPlan() {
         return degreeCurricularPlan;
     }
@@ -72,7 +63,8 @@ public class FirstYearDegreeConfigurationBean implements IBean {
     }
 
     public void setDegreeCurricularPlanDataSource(List<DegreeCurricularPlan> degreeCurricularPlanDataSource) {
-        this.degreeCurricularPlanDataSource = degreeCurricularPlanDataSource.stream().map(plan -> {
+        this.degreeCurricularPlanDataSource = degreeCurricularPlanDataSource.stream().map(plan ->
+        {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(plan.getExternalId());
             tuple.setText(plan.getName());
@@ -89,7 +81,6 @@ public class FirstYearDegreeConfigurationBean implements IBean {
         setLabel("[" + configuration.getDegree().getCode() + "] " + configuration.getDegree().getPresentationName());
         setCode(configuration.getDegree().getMinistryCode());
         setRequiresVaccination(configuration.getRequiresVaccination());
-        setAutomaticEnrolment(configuration.getAutomaticEnrolment());
         setDegreeCurricularPlan(configuration.getDegreeCurricularPlan());
         setDegreeCurricularPlanDataSource(degree.getDegreeCurricularPlansSet().stream()
                 .filter(plan -> plan.getExecutionYears().contains(configuration.getExecutionYear()))
