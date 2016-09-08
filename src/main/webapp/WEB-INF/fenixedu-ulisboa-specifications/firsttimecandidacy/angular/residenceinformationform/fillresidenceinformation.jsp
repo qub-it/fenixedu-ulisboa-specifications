@@ -179,7 +179,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry">
 				<div class="col-sm-2 control-label" ng-class="{'required-field': object.districtsValues.length}"  id="labelAreaCode">
 					<spring:message code="label.ResidenceInformationForm.areaCode" />
 				</div>
@@ -195,7 +195,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>    
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry">
 				<div class="col-sm-2 control-label" ng-class="{'required-field': object.districtsValues.length}" id="labelDistrictOfResidence">
 					<spring:message
 						code="label.ResidenceInformationForm.districtOfResidence" />
@@ -205,7 +205,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <div class="form-control-static">{{ object.districtOfResidenceName }}</div>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry">
 				<div class="col-sm-2 control-label" ng-class="{'required-field': object.districtSubdivisionValues.length}" id="labelDistrictSubdivisionOfResidence">
 					<spring:message
 						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
@@ -215,7 +215,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <div class="form-control-static">{{ object.districtSubdivisionOfResidenceName }}</div>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry">
 				<div class="col-sm-2 control-label" ng-class="{'required-field': object.parishValues.length}" id="labelParishOfResidence">
 					<spring:message
 						code="label.ResidenceInformationForm.parishOfResidence" />

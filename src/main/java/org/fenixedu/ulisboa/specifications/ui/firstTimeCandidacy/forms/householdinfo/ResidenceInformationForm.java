@@ -124,7 +124,7 @@ public class ResidenceInformationForm implements CandidancyForm {
             setParishOfResidence(parish);
             parishOfResidenceName = parish.getName();
         }
-        if (StringUtils.isNotBlank(getSchoolTimeAreaCode().trim())) {
+        if (StringUtils.isNotBlank(getSchoolTimeAreaCode())) {
             PostalCode postalCode = getAllPostalCodes().get(getSchoolTimeAreaCode());
             String districtCode = postalCode.parent.parent.parent.exportAsString().split(";")[1];
             District district = District.readByCode(districtCode);

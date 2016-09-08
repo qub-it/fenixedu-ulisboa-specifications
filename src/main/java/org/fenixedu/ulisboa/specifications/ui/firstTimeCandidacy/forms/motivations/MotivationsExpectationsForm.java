@@ -51,8 +51,8 @@ public class MotivationsExpectationsForm implements CandidancyForm {
         for (UniversityChoiceMotivationAnswer answer : universityChoiceMotivationAnswers) {
             if (answer.isOther()) {
                 otherChoiceAnswer = true;
+                break;
             }
-            break;
         }
         setOtherChoiceAnswer(otherChoiceAnswer);
     }

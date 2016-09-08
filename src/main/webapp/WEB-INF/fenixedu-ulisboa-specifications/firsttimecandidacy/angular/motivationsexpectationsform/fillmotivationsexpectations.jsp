@@ -116,7 +116,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
 	   }, bool);
 	   $scope.object.otherDiscoveryAnswer = bool;
 	};
-
+	
 	$scope.onChoiceAnswerSelect = function(item) {
 	    var indexOfItem = $scope.object.universityChoiceMotivationAnswers.indexOf(item);
 	    if($scope.object.universityChoiceMotivationAnswers.length > 3) {

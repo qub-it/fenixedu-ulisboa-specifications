@@ -27,10 +27,10 @@ public abstract class EnrolmentAbstractController extends FirstTimeCandidacyAbst
         return redirect(getControllerURLWithExecutionYear(executionYear) + _ENROL_URI, model, redirectAttributes);
     }
 
-    protected static final String _BACK_URI = "/back";
+    protected static final String _SHOW_BACK_URI = "/show/back";
 
-    @RequestMapping(value = _BACK_URI, method = RequestMethod.GET)
-    public String back(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
+    @RequestMapping(value = _SHOW_BACK_URI, method = RequestMethod.GET)
+    public String backFromShow(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
             RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
@@ -38,7 +38,21 @@ public abstract class EnrolmentAbstractController extends FirstTimeCandidacyAbst
             return accessControlRedirect.get();
         }
 
-        return backScreen(executionYear, model, redirectAttributes);
+        return backFromShowScreen(executionYear, model, redirectAttributes);
+    }
+
+    protected static final String _ENROL_BACK_URI = "/enrol/back";
+
+    @RequestMapping(value = _ENROL_BACK_URI, method = RequestMethod.GET)
+    public String backFromEnrol(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
+        return backFromEnrolScreen(executionYear, model, redirectAttributes);
     }
 
     protected static final String _ENROL_URI = "/enrol";
@@ -92,7 +106,11 @@ public abstract class EnrolmentAbstractController extends FirstTimeCandidacyAbst
     protected abstract String showScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes,
             HttpServletRequest request);
 
-    protected abstract String backScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes);
+    protected abstract String backFromShowScreen(final ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes);
+
+    protected abstract String backFromEnrolScreen(final ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes);
 
     protected abstract String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes);
 

@@ -373,20 +373,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </h4>
                 </div>
                 <div class="modal-body">
-                    <img class="img-rounded" title="Imagem CC" alt="Dígitos extra do Cartão de Cidadão"
-                        src="http://www.cienciabraganca.pt/imagens/uploads/ESTiG_51_jornal_CienciasExactas_cartaoCidadao_3ultimoscaracteres_Fig1.png"
+                    <img class="img-rounded" title="Digitos de Segurança" alt="Dígitos extra do Cartão de Cidadão"
+                        src="${pageContext.request.contextPath}/static/img/ajuda-digitos-de-seguranca.png"
                     />
-                    <p>
-                        Imagem do CC
-                    </p>
-                </div>
-                <div class="modal-body">
-                    <img class="img-rounded" title="Imagem BI" alt="Dígito extra do Bilhete de Identidade"
-                        src="http://www.rendimentobasico.pt/files/8813/6683/4073/bi.png"
-                    />
-                    <p>
-                        Imagem do BI
-                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">

@@ -40,6 +40,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandid
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ScheduleClassesController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.CgdDataAuthorizationController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -78,24 +80,40 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
         //Enrol automatically if needed
         List<AcademicEnrolmentPeriodBean> periods = getAllAcademicEnrolmentPeriods(model, candidacy);
         if (enrolAutomaticallyInUCs(periods)) {
+            System.out.println("Inscrever UCs automaticamente");
             createAutomaticEnrolments(registration, executionYear.getFirstExecutionPeriod(), studentCurricularPlan);
         }
         Collection<ExecutionSemester> executionSemesters = hasAnnualShifts(studentCurricularPlan) ? executionYear
                 .getExecutionPeriodsSet() : Collections.singleton(executionYear.getFirstExecutionPeriod());
         if (enrolAutomaticallyInSchoolClasses(periods)) {
-            Optional<SchoolClass> schoolClass = readFirstAlmostFilledClass(registration, executionSemesters);
-            if (!schoolClass.isPresent()) {
-                throw new RuntimeException("School Class not defined.");
-            }
-            schoolClass.get().addRegistrations(registration);
+            System.out.println("Inscrever Turmas automaticamente");
+//            Optional<SchoolClass> schoolClass = readFirstAlmostFilledClass(registration, executionSemesters);
+//            if (!schoolClass.isPresent()) {
+//                throw new RuntimeException("School Class not defined.");
+//            }
+//            schoolClass.get().addRegistrations(registration);
         }
         if (enrolAutomaticallyInShifts(periods)) {
-            associateShiftsFor(studentCurricularPlan, executionYear, executionSemesters);
+            System.out.println("Inscrever Turnos automaticamente");
+//            associateShiftsFor(studentCurricularPlan, executionYear, executionSemesters);
         }
 
         List<EnrolmentProcess> enrolmentProcesses =
                 EnrolmentProcess.buildProcesses(getAllAcademicEnrolmentPeriodsEditable(periods));
-        return redirect(enrolmentProcesses.iterator().next().getContinueURL(request), model, redirectAttributes);
+        if (enrolmentProcesses == null || enrolmentProcesses.isEmpty()) {
+            System.out.println("Processo vazio");
+            System.out.println("Tem " + getAllAcademicEnrolmentPeriodsEditable(periods).size() + " periodos.");
+            for (AcademicEnrolmentPeriodBean period : getAllAcademicEnrolmentPeriodsEditable(periods)) {
+                System.out
+                        .println(period.getEnrolmentPeriodType() + "||" + period.getStartDate().toString("yyyy-MM-dd HH:mm:ss"));
+            }
+            return redirect(SHOW_URL, model, redirectAttributes);
+        }
+        //TODOJN - 
+        String url = enrolmentProcesses.iterator().next().getContinueURL(request);
+        url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
+
+        return redirect(url, model, redirectAttributes);
 
     }
 
@@ -135,12 +153,14 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
 
         ExecutionSemester firstSemester = executionYear.getFirstExecutionPeriod();
         ExecutionSemester secondSemester = firstSemester.getNextExecutionPeriod();
-        Collection<Enrolment> firstSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(firstSemester);
+        Collection<Enrolment> firstSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(firstSemester).stream()
+                .filter(e -> e.getEctsCredits() > 0).collect(Collectors.toList());
         Double firstSemCredits = 0d;
         for (Enrolment enrolment : firstSemEnrolments) {
             firstSemCredits += enrolment.getEctsCredits();
         }
-        Collection<Enrolment> secondSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(secondSemester);
+        Collection<Enrolment> secondSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(secondSemester).stream()
+                .filter(e -> e.getEctsCredits() > 0).collect(Collectors.toList());
         Double secondSemCredits = 0d;
         for (Enrolment enrolment : secondSemEnrolments) {
             secondSemCredits += enrolment.getEctsCredits();
@@ -284,7 +304,15 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backFromShowScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        if (shouldBeSkipped(executionYear)) {
+            return redirect(backFromEnrolScreen(executionYear, model, redirectAttributes), model, redirectAttributes);
+        }
+        return redirect(ENROL_URL, model, redirectAttributes);
+    }
+
+    @Override
+    protected String backFromEnrolScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
         if (!VaccionationFormController.shouldBeSkipped(executionYear)) {
             return redirect(urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear), model,
                     redirectAttributes);
@@ -294,9 +322,14 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
         }
     }
 
+    protected boolean shouldBeSkipped(ExecutionYear executionYear) {
+        //TODOJN
+        return false;
+    }
+
     @Override
     protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(SHOW_URL, model, redirectAttributes);
+        return redirect(CgdDataAuthorizationController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @Override

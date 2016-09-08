@@ -32,9 +32,9 @@ ${portal.toolkit()}
 </div>
 
 <div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/back"><spring:message code="label.back"/></a>
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/show/back"><spring:message code="label.back"/></a>
 	&nbsp;&nbsp;|&nbsp;&nbsp;
-	<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/firsttimecandidacy/showselectedcourses/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
+	<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/continue"><spring:message code="label.event.firstTimeCandidacy.continue"  /></a>	
 		
 </div>
 	<c:if test="${not empty infoMessages}">
@@ -85,8 +85,6 @@ ${portal.toolkit()}
                             code="label.CompetenceCourse.name" /></th>
                     <th><spring:message
                             code="label.CompetenceCourse.ectsCredits" /></th>
-                    <%-- Operations Column --%>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -119,8 +117,6 @@ ${portal.toolkit()}
                             code="label.CompetenceCourse.name" /></th>
                     <th><spring:message
                             code="label.CompetenceCourse.ectsCredits" /></th>
-                    <%-- Operations Column --%>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -173,7 +169,7 @@ $(document).ready(function() {
 	    {
 		    language : { url : "${datatablesI18NUrl}" },
 			"columns": [ { data: 'name' }, { data: 'ects' } ],
-            "columnDefs": [ { "width": "128px", "targets": 8 } /*54 128*/],
+//             "columnDefs": [ { "width": "128px", "targets": 2 } /*54 128*/],
             "data" : firstSemesterEnrolmentsDataSet,
             //Documentation: https://datatables.net/reference/option/dom
             "dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
@@ -188,7 +184,7 @@ $(document).ready(function() {
         {
             language : { url : "${datatablesI18NUrl}" },
             "columns": [ { data: 'name' }, { data: 'ects' } ],
-            "columnDefs": [ { "width": "128px", "targets": 8 } /*54 128*/],
+//             "columnDefs": [ { "width": "128px", "targets": 2 } /*54 128*/],
             "data" : secondSemesterEnrolmentsDataSet,
             //Documentation: https://datatables.net/reference/option/dom
             "dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES

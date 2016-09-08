@@ -31,6 +31,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ResidenceInformationForm;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -76,7 +77,9 @@ public class OriginInformationForm implements CandidancyForm {
         setCountriesValues(Bennu.getInstance().getCountrysSet());
         //Populate districts
         if (countryWhereFinishedPreviousCompleteDegree == Country.readDefault()) {
-            setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes().collect(Collectors.toList()));
+            setDistrictsValues(FormAbstractController.getDistrictsWithSubdivisionsAndParishes()
+                    .filter(d -> !ResidenceInformationForm.oldDistrictCodes.contains(new Integer(d.getCode())))
+                    .collect(Collectors.toList()));
         }
         //Populate district subdivisions
         if (districtWhereFinishedPreviousCompleteDegree != null) {
