@@ -1,6 +1,5 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments;
 
-import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.util.Collection;
@@ -30,7 +29,6 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
@@ -40,7 +38,6 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandid
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ScheduleClassesController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.CgdDataAuthorizationController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -53,8 +50,8 @@ import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumR
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
-@RequestMapping(EnrolmentsReportController.CONTROLLER_URL)
-public class EnrolmentsReportController extends EnrolmentAbstractController {
+@RequestMapping(EnrolmentsController.CONTROLLER_URL)
+public class EnrolmentsController extends EnrolmentAbstractController {
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/enrolments";
 
@@ -107,14 +104,14 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
                 System.out
                         .println(period.getEnrolmentPeriodType() + "||" + period.getStartDate().toString("yyyy-MM-dd HH:mm:ss"));
             }
-            return redirect(SHOW_URL, model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes);
         }
         //TODOJN - 
         String url = enrolmentProcesses.iterator().next().getContinueURL(request);
         url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
 
-        return redirect(url, model, redirectAttributes);
-
+//        return redirect(url, model, redirectAttributes);
+        return nextScreen(executionYear, model, redirectAttributes);
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(Model model, FirstTimeCandidacy candidacy) {
@@ -136,45 +133,6 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
 
     private boolean enrolAutomaticallyInShifts(List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isForShift() && p.isAutomatic()).findFirst().isPresent();
-    }
-
-    public static final String SHOW_URL = CONTROLLER_URL + _SHOW_URI;
-
-    @Override
-    protected String showScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes,
-            HttpServletRequest request) {
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
-        Registration registration = candidacy.getRegistration();
-        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(candidacy.getDegreeCurricularPlan());
-
-        if (!validUCsEnrolment(studentCurricularPlan, executionYear)) {
-            redirect(ENROL_URL, model, redirectAttributes);
-        }
-
-        ExecutionSemester firstSemester = executionYear.getFirstExecutionPeriod();
-        ExecutionSemester secondSemester = firstSemester.getNextExecutionPeriod();
-        Collection<Enrolment> firstSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(firstSemester).stream()
-                .filter(e -> e.getEctsCredits() > 0).collect(Collectors.toList());
-        Double firstSemCredits = 0d;
-        for (Enrolment enrolment : firstSemEnrolments) {
-            firstSemCredits += enrolment.getEctsCredits();
-        }
-        Collection<Enrolment> secondSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(secondSemester).stream()
-                .filter(e -> e.getEctsCredits() > 0).collect(Collectors.toList());
-        Double secondSemCredits = 0d;
-        for (Enrolment enrolment : secondSemEnrolments) {
-            secondSemCredits += enrolment.getEctsCredits();
-        }
-
-        model.addAttribute("currentYear", ExecutionYear.readCurrentExecutionYear().getYear());
-        model.addAttribute("firstSemesterEnrolments", firstSemEnrolments);
-        model.addAttribute("firstSemesterCredits", firstSemCredits);
-        model.addAttribute("secondSemesterEnrolments", secondSemEnrolments);
-        model.addAttribute("secondSemesterCredits", secondSemCredits);
-
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.showSelectedCourses.info"), model);
-
-        return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/showenrolments/showselectedcourses";
     }
 
     @Atomic
@@ -240,18 +198,6 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
 
     /*
      * ------------------------------------------------------
-     *                Check UCs enrolled
-     * ------------------------------------------------------
-     */
-
-    private boolean validUCsEnrolment(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear) {
-        Double ectsEnrolled = studentCurricularPlan.getEnrolmentsByExecutionYear(executionYear).stream()
-                .map(e -> e.getEctsCredits()).reduce(Double::sum).orElse(0d);
-        return ectsEnrolled > 30d;
-    }
-
-    /*
-     * ------------------------------------------------------
      *                Enrol in SchoolClasses
      * ------------------------------------------------------
      */
@@ -304,15 +250,7 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
     }
 
     @Override
-    protected String backFromShowScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        if (shouldBeSkipped(executionYear)) {
-            return redirect(backFromEnrolScreen(executionYear, model, redirectAttributes), model, redirectAttributes);
-        }
-        return redirect(ENROL_URL, model, redirectAttributes);
-    }
-
-    @Override
-    protected String backFromEnrolScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
         if (!VaccionationFormController.shouldBeSkipped(executionYear)) {
             return redirect(urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear), model,
                     redirectAttributes);
@@ -322,14 +260,15 @@ public class EnrolmentsReportController extends EnrolmentAbstractController {
         }
     }
 
-    protected boolean shouldBeSkipped(ExecutionYear executionYear) {
+    public static boolean shouldBeSkipped(ExecutionYear executionYear) {
         //TODOJN
         return false;
     }
 
     @Override
     protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(CgdDataAuthorizationController.CONTROLLER_URL, model, redirectAttributes);
+        return redirect(urlWithExecutionYear(CurricularCoursesController.CONTROLLER_URL, executionYear), model,
+                redirectAttributes);
     }
 
     @Override

@@ -21,10 +21,8 @@ import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalCon
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
-import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEnd;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.EnrolmentsReportController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -48,12 +46,13 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
-        return redirect(urlWithExecutionYear(EnrolmentsReportController.SHOW_URL, executionYear), model, redirectAttributes);
+        return redirect(urlWithExecutionYear(TuitionController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(BlueRecordEnd.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.CONTROLLER_URL, executionYear), model,
+                redirectAttributes);
     }
 
     @RequestMapping

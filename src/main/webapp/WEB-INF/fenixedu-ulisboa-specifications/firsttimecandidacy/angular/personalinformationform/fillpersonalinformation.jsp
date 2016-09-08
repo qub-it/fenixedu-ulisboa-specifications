@@ -373,9 +373,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </h4>
                 </div>
                 <div class="modal-body">
-                    <img class="img-rounded" title="Digitos de Segurança" alt="Dígitos extra do Cartão de Cidadão"
+                    <center>
+                        <img class="img-rounded img-responsive" title="Digitos de Segurança" alt="Dígitos extra do Cartão de Cidadão"
                         src="${pageContext.request.contextPath}/static/img/ajuda-digitos-de-seguranca.png"
-                    />
+                        />
+                    </center>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -403,6 +405,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     span.glyphicon-question-sign {
         font-size: 2em;
     }
+}
 </style>
 
 <script>
