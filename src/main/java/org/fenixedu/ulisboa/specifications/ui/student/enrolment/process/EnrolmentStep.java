@@ -101,7 +101,7 @@ public class EnrolmentStep implements IBean {
     /**
      * Call the paramedics before looking into this.
      */
-    public boolean isEntryPointURL(final HttpServletRequest request) {
+    public boolean isRequested(final HttpServletRequest request) {
 
         // 1. the hacking goal
         final List<String> secrets = Lists.newArrayList();
