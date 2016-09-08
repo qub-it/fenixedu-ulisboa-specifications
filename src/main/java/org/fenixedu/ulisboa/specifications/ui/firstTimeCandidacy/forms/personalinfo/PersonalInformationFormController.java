@@ -186,6 +186,10 @@ public class PersonalInformationFormController extends FormAbstractController {
             result.add(BundleUtil.getString(BUNDLE, "error.birthDate.required"));
         }
 
+        if (form.getDateOfBirth().isAfter(new LocalDate())) {
+            result.add(BundleUtil.getString(BUNDLE, "error.birthDate.invalid"));
+        }
+
         if (!isPartialUpdate()) {
             IDDocumentType idType = form.getIdDocumentType();
             if (form.getIsForeignStudent()) {
@@ -216,11 +220,17 @@ public class PersonalInformationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.required"));
             }
 
+            if (form.getDocumentIdExpirationDate() != null && form.getDocumentIdEmissionDate() != null
+                    && !form.getDocumentIdExpirationDate().isAfter(form.getDocumentIdEmissionDate())) {
+                result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.is.after.emissionDate"));
+            }
+
             if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
                     && !FiscalCodeValidation.isValidcontrib(form.getSocialSecurityNumber())) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
             }
+
             String defaultSocialSecurityNumber =
                     FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
             if (defaultSocialSecurityNumber == null || !defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
