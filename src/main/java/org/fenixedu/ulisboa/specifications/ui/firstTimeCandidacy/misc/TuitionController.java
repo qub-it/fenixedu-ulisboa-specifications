@@ -60,6 +60,18 @@ public class TuitionController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/showtuition";
 
+    @RequestMapping
+    public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
+        return redirect(urlWithExecutionYear(SHOW_URL, executionYear), model, redirectAttributes);
+    }
+
     protected static final String _BACK_URI = "/back";
 
     @RequestMapping(value = _BACK_URI, method = RequestMethod.GET)
@@ -151,7 +163,7 @@ public class TuitionController extends FirstTimeCandidacyAbstractController {
 
     @Override
     public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
-        return false;
+        throw new RuntimeException("Error you should not call this method.");
     }
 
     @Override
@@ -161,7 +173,7 @@ public class TuitionController extends FirstTimeCandidacyAbstractController {
 
     @Override
     protected String getControllerURL() {
-        return CONTINUE_URL;
+        return CONTROLLER_URL;
     }
 
 }

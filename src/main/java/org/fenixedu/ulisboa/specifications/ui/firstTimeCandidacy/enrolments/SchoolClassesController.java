@@ -44,6 +44,7 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.TuitionController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +56,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class SchoolClassesController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/schoolClasses";
+
+    @RequestMapping
+    public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
+        return redirect(urlWithExecutionYear(SHOW_URL, executionYear), model, redirectAttributes);
+    }
 
     protected static final String _BACK_URI = "/back";
 
@@ -131,7 +144,7 @@ public class SchoolClassesController extends FirstTimeCandidacyAbstractControlle
     }
 
     protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(SchoolClassesController.CONTROLLER_URL, model, redirectAttributes);
+        return redirect(urlWithExecutionYear(TuitionController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
@@ -146,6 +159,6 @@ public class SchoolClassesController extends FirstTimeCandidacyAbstractControlle
 
     @Override
     protected String getControllerURL() {
-        return CONTINUE_URL;
+        return CONTROLLER_URL;
     }
 }

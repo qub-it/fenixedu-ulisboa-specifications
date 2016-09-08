@@ -184,7 +184,7 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
 
     @Override
     protected String getControllerURL() {
-        return CONTINUE_URL;
+        return CONTROLLER_URL;
     }
 
 }

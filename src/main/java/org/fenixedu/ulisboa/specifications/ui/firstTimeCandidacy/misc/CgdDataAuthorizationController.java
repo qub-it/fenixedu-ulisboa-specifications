@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,12 +47,24 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
         return redirect(urlWithExecutionYear(TuitionController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
-    protected String nextScreen(final ExecutionYear executionYear, final Model model,
-            final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.CONTROLLER_URL, executionYear), model,
+    protected String nextScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes,
+            final boolean wsCallSuccess) {
+        PersonUlisboaSpecifications personUlisboaSpecifications =
+                PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+        if (personUlisboaSpecifications != null && personUlisboaSpecifications.getAuthorizeSharingDataWithCGD()
+                && wsCallSuccess) {
+            return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL, executionYear),
+                    model, redirectAttributes);
+        }
+        return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITH_MODEL_URL, executionYear), model,
                 redirectAttributes);
     }
 
@@ -59,9 +72,11 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     public String cgddataauthorization(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
         }
+
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/cgd/cgddataauthorization";
     }
 
@@ -69,8 +84,13 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     public String cgddataauthorizationToAuthorize(@PathVariable("executionYearId") final ExecutionYear executionYear,
             final Model model, final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
         if (isFormIsFilled(executionYear, model)) {
-            return nextScreen(executionYear, model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes, true);
         }
 
         authorizeSharingDataWithCGD(true);
@@ -84,26 +104,33 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
             wsCallSuccess = false;
         }
 
-        if (wsCallSuccess) {
-            return nextScreen(executionYear, model, redirectAttributes);
-        } else {
-            final String url = urlWithExecutionYear(SHOW_MODEL_43_URL, executionYear) + "/true";
-            return redirect(url, model, redirectAttributes);
-        }
+        return nextScreen(executionYear, model, redirectAttributes, wsCallSuccess);
+        //This was redirect to the cgd model download page.
+//            return nextScreen(executionYear, model, redirectAttributes);
+//        } else {
+//            final String url = urlWithExecutionYear(SHOW_MODEL_43_URL, executionYear) + "/true";
+//            return redirect(url, model, redirectAttributes);
+//        }
     }
 
     @RequestMapping(value = "/unauthorize")
     public String cgddataauthorizationToUnauthorize(@PathVariable("executionYearId") final ExecutionYear executionYear,
             final Model model, final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
         if (isFormIsFilled(executionYear, model)) {
-            return nextScreen(executionYear, model, redirectAttributes);
+            return nextScreen(executionYear, model, redirectAttributes, true);
         }
 
         authorizeSharingDataWithCGD(false);
 
-        final String url = urlWithExecutionYear(SHOW_MODEL_43_URL, executionYear) + "/false";
-        return redirect(url, model, redirectAttributes);
+        return nextScreen(executionYear, model, redirectAttributes, true);
+//        final String url = urlWithExecutionYear(SHOW_MODEL_43_URL, executionYear) + "/false";
+//        return redirect(url, model, redirectAttributes);
     }
 
     @Atomic
@@ -117,7 +144,12 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @RequestMapping(value = _SHOW_MODEL_43_URI + "/{dueToError}", method = RequestMethod.GET)
     public String showmodelo43download(@PathVariable("executionYearId") final ExecutionYear executionYear,
-            @PathVariable("dueToError") boolean dueToError, final Model model) {
+            @PathVariable("dueToError") boolean dueToError, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
 
         final String url = urlWithExecutionYear(PRINT_43_URL, executionYear);
 
@@ -128,10 +160,15 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     }
 
     @RequestMapping(value = "/showmodelo43download/{dueToError}", method = RequestMethod.POST)
-    public String showmodelo43download(@PathVariable("executionYearId") final ExecutionYear executionYear,
+    public String showmodelo43downloadPost(@PathVariable("executionYearId") final ExecutionYear executionYear,
             @PathVariable("dueToError") boolean dueToError, final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
 
-        return nextScreen(executionYear, model, redirectAttributes);
+        return nextScreen(executionYear, model, redirectAttributes, dueToError);
     }
 
     protected static final String _PRINT_43_URI = "/printmodelo43";
@@ -139,7 +176,14 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @RequestMapping(value = _PRINT_43_URI)
     @ResponseBody
-    public byte[] cgddataauthorizationToUnauthorize(final HttpServletResponse response) {
+    public byte[] cgddataauthorizationToUnauthorize(@PathVariable("executionYearId") final ExecutionYear executionYear,
+            final Model model, final RedirectAttributes redirectAttributes, final HttpServletResponse response) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return null;
+        }
+
         byte[] printModel43Content = printModel43();
 
         response.setContentType("application/pdf");
