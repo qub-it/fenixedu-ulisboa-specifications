@@ -79,7 +79,7 @@ abstract public class CompetenceCourseServices {
         return result;
     }
 
-    static public boolean isApproved(final StudentCurricularPlan plan, final CompetenceCourse competence,
+    static private boolean isApproved(final StudentCurricularPlan plan, final CompetenceCourse competence,
             final ExecutionSemester semester) {
 
         Map<String, Boolean> map = CACHE_APPROVALS.get();
