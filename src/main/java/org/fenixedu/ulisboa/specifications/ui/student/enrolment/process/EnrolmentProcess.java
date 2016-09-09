@@ -19,6 +19,7 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.StudentPortalRedirectController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.EnrolmentsController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 
@@ -233,7 +234,7 @@ public class EnrolmentProcess implements IBean {
         }
 
         if (result.contains(".do")) {
-            result = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), result, request.getSession());
+            result = GenericChecksumRewriter.injectChecksumInUrl("", result, request.getSession());
         }
 
         return result;
@@ -301,10 +302,9 @@ public class EnrolmentProcess implements IBean {
                 lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
                 afterProcessURL = StudentPortalRedirectController.getEntryPointURL(null);
             } else {
-                // TODOJN
-                beforeProcessURL = "/student/consult/statutes";
-                lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
-                afterProcessURL = "/student/consult/time-table";
+                beforeProcessURL = EnrolmentsController.getBackUrl();
+                afterProcessURL = EnrolmentsController.getNextUrl();
+                lastEnrolmentStep = null;
             }
 
             result.addAll(buildProcesses(beforeProcessURL, periods, lastEnrolmentStep, afterProcessURL));

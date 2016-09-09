@@ -3,12 +3,12 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.NotSupportedException;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
@@ -21,7 +21,6 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.degreeStructure.Context;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -46,7 +45,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -71,29 +69,36 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         Registration registration = candidacy.getRegistration();
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(candidacy.getDegreeCurricularPlan());
 
-        //in order to enrol, registration must be active
+        //In order to enrol, registration must be active
         activateRegistration(registration);
 
         //Enrol automatically if needed
         List<AcademicEnrolmentPeriodBean> periods = getAllAcademicEnrolmentPeriods(model, candidacy);
+
+        //Enrol in UCs
         if (enrolAutomaticallyInUCs(periods)) {
             System.out.println("Inscrever UCs automaticamente");
             createAutomaticEnrolments(registration, executionYear.getFirstExecutionPeriod(), studentCurricularPlan);
         }
-        Collection<ExecutionSemester> executionSemesters = hasAnnualShifts(studentCurricularPlan) ? executionYear
-                .getExecutionPeriodsSet() : Collections.singleton(executionYear.getFirstExecutionPeriod());
-        if (enrolAutomaticallyInSchoolClasses(periods)) {
-            System.out.println("Inscrever Turmas automaticamente");
-            Optional<SchoolClass> schoolClass = readFirstAlmostFilledClass(registration, executionSemesters);
-            if (!schoolClass.isPresent()) {
-                throw new RuntimeException("School Class not defined.");
-            }
-            schoolClass.get().addRegistrations(registration);
-        }
-        if (enrolAutomaticallyInShifts(periods)) {
-            System.out.println("Inscrever Turnos automaticamente");
-            associateShiftsFor(studentCurricularPlan, executionYear, executionSemesters);
-        }
+
+        //Enrol in School Classes
+
+        //Enrol in Shifts
+
+//        Collection<ExecutionSemester> executionSemesters = hasAnnualShifts(studentCurricularPlan) ? executionYear
+//                .getExecutionPeriodsSet() : Collections.singleton(executionYear.getFirstExecutionPeriod());
+//        if (enrolAutomaticallyInSchoolClasses(periods)) {
+//            System.out.println("Inscrever Turmas automaticamente");
+//            Optional<SchoolClass> schoolClass = readFirstAlmostFilledClass(registration, executionSemesters);
+//            if (!schoolClass.isPresent()) {
+//                throw new RuntimeException("School Class not defined.");
+//            }
+//            enrolInSchoolClass();
+//        }
+//        if (enrolAutomaticallyInShifts(periods)) {
+//            System.out.println("Inscrever Turnos automaticamente");
+//            associateShiftsFor(studentCurricularPlan, executionYear, executionSemesters);
+//        }
 
         List<EnrolmentProcess> enrolmentProcesses =
                 EnrolmentProcess.buildProcesses(getAllAcademicEnrolmentPeriodsEditable(periods));
@@ -106,12 +111,15 @@ public class EnrolmentsController extends EnrolmentAbstractController {
             }
             return nextScreen(executionYear, model, redirectAttributes);
         }
-        //TODOJN - 
-        String url = enrolmentProcesses.iterator().next().getContinueURL(request);
-        url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
 
-//        return redirect(url, model, redirectAttributes);
-        return nextScreen(executionYear, model, redirectAttributes);
+        String url = enrolmentProcesses.iterator().next().getContinueURL(request);
+        url = url.replace(request.getContextPath(), "");
+
+        return redirect(url, model, redirectAttributes);
+    }
+
+    private void enrolInSchoolClass(Registration registration, SchoolClass schoolClass, ExecutionSemester executionSemester) {
+        RegistrationServices.replaceSchoolClass(registration, schoolClass, executionSemester);
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(Model model, FirstTimeCandidacy candidacy) {
@@ -201,10 +209,10 @@ public class EnrolmentsController extends EnrolmentAbstractController {
      *                Enrol in SchoolClasses
      * ------------------------------------------------------
      */
-    private Optional<SchoolClass> readFirstAlmostFilledClass(Registration registration,
+    private Optional<SchoolClass> readFirstAlmostFilledClass(Registration registration, ExecutionYear executionYear,
             final Collection<ExecutionSemester> executionSemesters) {
-        ExecutionDegree executionDegree = registration.getDegree()
-                .getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator().next();
+        ExecutionDegree executionDegree =
+                registration.getDegree().getExecutionDegreesForExecutionYear(executionYear).iterator().next();
         return executionDegree.getSchoolClassesSet().stream()
                 .filter(sc -> sc.getAnoCurricular().equals(1) && executionSemesters.contains(sc.getExecutionPeriod())
                         && AlmostFilledClassesComparator.getFreeVacancies(sc) > 0)
@@ -222,41 +230,31 @@ public class EnrolmentsController extends EnrolmentAbstractController {
      * ------------------------------------------------------
      */
 
-    public void associateShiftsFor(final StudentCurricularPlan studentCurricularPlan, final ExecutionYear executionYear,
-            final Collection<ExecutionSemester> executionSemesters) {
-        if (!studentCurricularPlan.getRegistration().getShiftsFor(executionYear.getFirstExecutionPeriod()).isEmpty()) {
-            return;
-        }
-
-        Optional<SchoolClass> firstUnfilledClass =
-                readFirstAlmostFilledClass(studentCurricularPlan.getRegistration(), executionSemesters);
-        if (firstUnfilledClass.isPresent()) {
-            logger.warn("Registering student " + studentCurricularPlan.getPerson().getUsername() + " to class "
-                    + firstUnfilledClass.get().getNome());
-            enrolOnShifts(firstUnfilledClass.get(), studentCurricularPlan.getRegistration());
-        } else {
-            logger.warn("No classes present. Skipping classes allocation for " + studentCurricularPlan.getPerson().getUsername()
-                    + ". If this is expected, ignore this message.");
-        }
-    }
-
     @Atomic
-    protected void enrolOnShifts(final SchoolClass schoolClass, final Registration registration) {
-        if (schoolClass == null) {
-            throw new DomainException("error.RegistrationOperation.avaliable.schoolClass.not.found");
+    public void associateShiftsFor(final Registration registration, final ExecutionSemester executionSemester) {
+        Optional<SchoolClass> optional = RegistrationServices.getSchoolClassBy(registration, executionSemester);
+        if (!optional.isPresent()) {
+            throw new NotSupportedException("Automatic Shift Enrolments not supported without school classes.");
         }
 
-        RegistrationServices.replaceSchoolClass(registration, schoolClass, schoolClass.getExecutionPeriod());
+        RegistrationServices.replaceSchoolClass(registration, optional.get(), executionSemester);
+
     }
 
     @Override
     protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        return redirect(getBackUrl(executionYear), model, redirectAttributes);
+    }
+
+    public static String getBackUrl() {
+        return getBackUrl(ExecutionYear.readCurrentExecutionYear());
+    }
+
+    public static String getBackUrl(ExecutionYear executionYear) {
         if (!VaccionationFormController.shouldBeSkipped(executionYear)) {
-            return redirect(urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear), model,
-                    redirectAttributes);
+            return urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear);
         } else {
-            return redirect(urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear), model,
-                    redirectAttributes);
+            return urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear);
         }
     }
 
@@ -267,8 +265,15 @@ public class EnrolmentsController extends EnrolmentAbstractController {
 
     @Override
     protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(CurricularCoursesController.CONTROLLER_URL, executionYear), model,
-                redirectAttributes);
+        return redirect(getNextUrl(executionYear), model, redirectAttributes);
+    }
+
+    public static String getNextUrl() {
+        return getNextUrl(ExecutionYear.readCurrentExecutionYear());
+    }
+
+    public static String getNextUrl(ExecutionYear executionYear) {
+        return urlWithExecutionYear(CurricularCoursesController.CONTROLLER_URL, executionYear);
     }
 
     @Override

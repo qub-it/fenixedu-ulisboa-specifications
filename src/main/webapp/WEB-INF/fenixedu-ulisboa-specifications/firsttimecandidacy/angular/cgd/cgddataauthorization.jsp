@@ -269,8 +269,6 @@ $(document).ready( function () {
 		$('.cgd-accept-panel-heading').css('cursor','progress');
 		$('.cgd-decline-panel-heading').css('cursor','progress');
 		$('html').css('cursor','progress');
-		$('.cgd-accept-panel-heading')[0].href="javascript: void(0);";
-		$('.cgd-decline-panel-heading')[0].href="javascript: void(0);";
 	});
 	
 	var declineHeaderColor = $('.cgd-decline-panel-heading').css('background-color');
@@ -300,8 +298,6 @@ $(document).ready( function () {
 		$('.cgd-accept-panel-heading').css('cursor','progress');
 		$('.cgd-decline-panel-heading').css('cursor','progress');
 		$('html').css('cursor','progress');
-		$('.cgd-accept-panel-heading')[0].href="javascript: void(0);";
-		$('.cgd-decline-panel-heading')[0].href="javascript: void(0);";		
 	});
 });
 </script>
