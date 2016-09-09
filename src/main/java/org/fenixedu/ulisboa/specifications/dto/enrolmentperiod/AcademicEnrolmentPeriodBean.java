@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -25,10 +23,10 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
-import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.InitialSchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
@@ -403,19 +401,19 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     public String getEntryPointURL() {
         String result = "";
 
-        final String argsStruts = EnrolmentManagementDA.buildArgsStruts(getExecutionSemester(), getStudentCurricularPlan());
+        final String argsStruts = EnrolmentStep.buildArgsStruts(getExecutionSemester(), getStudentCurricularPlan());
 
         switch (getEnrolmentPeriodType()) {
         case INITIAL_SCHOOL_CLASS:
-            result = InitialSchoolClassStudentEnrollmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
+            result = EnrolmentStep.prepareURL(null, InitialSchoolClassStudentEnrollmentDA.getEntryPointURL(), argsStruts);
             break;
 
         case CURRICULAR_COURSE:
-            result = CourseEnrolmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
+            result = EnrolmentStep.prepareURL(null, CourseEnrolmentDA.getEntryPointURL(), argsStruts);
             break;
 
         case SCHOOL_CLASS:
-            result = SchoolClassStudentEnrollmentDA.getEntryPointURL((HttpServletRequest) null) + argsStruts;
+            result = EnrolmentStep.prepareURL(null, SchoolClassStudentEnrollmentDA.getEntryPointURL(), argsStruts);
             break;
 
         case SHIFT:

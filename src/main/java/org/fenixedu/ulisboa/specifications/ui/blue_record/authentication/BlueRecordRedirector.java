@@ -108,9 +108,9 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
     static private boolean isEnrolmentStep(final HttpServletRequest request) {
 
-        final List<String> stepsURLs = Lists.newArrayList(EnrolmentManagementDA.getEndURL(null),
-                CourseEnrolmentDA.getInstructionsEntryPointURL(null), CourseEnrolmentDA.getEntryPointURL(null),
-                SchoolClassStudentEnrollmentDA.getEntryPointURL(null), ShiftEnrolmentController.getEntryPointURL());
+        final List<String> stepsURLs = Lists.newArrayList(EnrolmentManagementDA.getEndURL(),
+                CourseEnrolmentDA.getInstructionsEntryPointURL(), CourseEnrolmentDA.getEntryPointURL(),
+                SchoolClassStudentEnrollmentDA.getEntryPointURL(), ShiftEnrolmentController.getEntryPointURL());
 
         for (final String iter : stepsURLs) {
 

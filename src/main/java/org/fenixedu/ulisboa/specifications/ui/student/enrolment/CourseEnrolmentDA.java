@@ -53,8 +53,8 @@ import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.dto.student.enrollment.bolonha.CycleEnrolmentBean;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStepTemplate;
 import org.joda.time.LocalDate;
 
@@ -98,8 +98,8 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
         return ACTION.replace(MAPPING_MODULE, "");
     }
 
-    static public String getEntryPointURL(final HttpServletRequest request) {
-        return EnrolmentManagementApp.getStrutsEntryPointURL(request, ACTION);
+    static public String getEntryPointURL() {
+        return ACTION;
     }
 
     @Override
@@ -135,10 +135,10 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
 
                 BundleUtil.getLocalizedString(Bundle.STUDENT, "label.enrollment.courses.instructions"),
 
-                getInstructionsEntryPointURL(null),
+                getInstructionsEntryPointURL(),
 
                 (enrolmentProcess) -> {
-                    return EnrolmentManagementDA.buildArgsStruts(enrolmentProcess.getExecutionSemester(),
+                    return EnrolmentStep.buildArgsStruts(enrolmentProcess.getExecutionSemester(),
                             enrolmentProcess.getStudentCurricularPlan());
                 },
 
@@ -147,8 +147,8 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
                 });
     }
 
-    static public String getInstructionsEntryPointURL(final HttpServletRequest request) {
-        return EnrolmentManagementApp.getStrutsURL(request, ACTION, "showEnrollmentInstructions");
+    static public String getInstructionsEntryPointURL() {
+        return ACTION + "?method=showEnrollmentInstructions";
     }
 
     public ActionForward showEnrollmentInstructions(final ActionMapping mapping, final ActionForm form,

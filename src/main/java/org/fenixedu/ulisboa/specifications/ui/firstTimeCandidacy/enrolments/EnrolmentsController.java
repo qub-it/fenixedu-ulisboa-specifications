@@ -112,9 +112,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
             return nextScreen(executionYear, model, redirectAttributes);
         }
 
-        String url = enrolmentProcesses.iterator().next().getContinueURL(request);
-        url = url.replace(request.getContextPath(), "");
-
+        final String url = enrolmentProcesses.iterator().next().getContinueURL(request);
         return redirect(url, model, redirectAttributes);
     }
 

@@ -52,7 +52,6 @@ import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA.SchoolClassStudentEnrollmentDTO;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 
@@ -75,8 +74,8 @@ public class InitialSchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         return ACTION.replace(MAPPING_MODULE, "");
     }
 
-    static public String getEntryPointURL(final HttpServletRequest request) {
-        return EnrolmentManagementApp.getStrutsEntryPointURL(request, ACTION);
+    static public String getEntryPointURL() {
+        return ACTION;
     }
 
     @EntryPoint

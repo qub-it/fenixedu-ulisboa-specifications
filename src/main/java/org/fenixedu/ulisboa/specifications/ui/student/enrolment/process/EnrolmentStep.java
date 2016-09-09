@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
@@ -16,7 +18,11 @@ import org.springframework.web.servlet.HandlerMapping;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
+
 public class EnrolmentStep implements IBean {
+
+    static final private String DEFAULT_METHOD = "method=prepare";
 
     private LocalizedString description;
     private String entryPointURL;
@@ -98,6 +104,10 @@ public class EnrolmentStep implements IBean {
         this.previous = input;
     }
 
+    public String getEntryPointURL() {
+        return this.entryPointURL;
+    }
+
     /**
      * Call the paramedics before looking into this.
      */
@@ -121,7 +131,7 @@ public class EnrolmentStep implements IBean {
 
                 if (Strings.isNullOrEmpty(queryString)) {
                     // these are desperate times.
-                    method = ".do?method=prepare";
+                    method = ".do?" + DEFAULT_METHOD;
 
                 } else {
                     final int beginIndex = queryString.indexOf("method=");
@@ -164,8 +174,57 @@ public class EnrolmentStep implements IBean {
         return !secrets.isEmpty() && secrets.stream().anyMatch(i -> getEntryPointURL().contains(i));
     }
 
-    public String getEntryPointURL() {
-        return this.entryPointURL;
+    static public String prepareURL(final HttpServletRequest request, String url, final String... strutsArgs) {
+
+        if (url.contains(".do")) {
+            // struts
+
+            boolean checksumRefresh = !url.contains(GenericChecksumRewriter.CHECKSUM_ATTRIBUTE_NAME);
+
+            if (!url.contains("method=")) {
+                url += (url.contains("?") ? "&" : "?") + EnrolmentStep.DEFAULT_METHOD;
+                checksumRefresh = true;
+            }
+
+            // TODO legidio, definately improve (separate args into a map, check if existing, etc)
+            final List<String> args = Lists.newArrayList(strutsArgs);
+            if (!args.isEmpty()) {
+                url += (url.contains("?") ? "&" : "?");
+
+                for (final String arg : args) {
+                    if (!url.contains(arg)) {
+                        url += arg;
+                        checksumRefresh = true;
+                    }
+                }
+            }
+
+            if (request != null && checksumRefresh) {
+                // we have the responsability to inject checksum
+
+                while (url.contains(GenericChecksumRewriter.CHECKSUM_ATTRIBUTE_NAME)) {
+                    url = url.replace(
+                            url.substring(url.indexOf("&" + GenericChecksumRewriter.CHECKSUM_ATTRIBUTE_NAME + "="), url.length()),
+                            "");
+                }
+
+                url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
+            }
+
+            final String contextPath = request == null ? null : request.getContextPath();
+            if (!Strings.isNullOrEmpty(contextPath) && !url.contains(contextPath)) {
+                url = contextPath + url;
+            }
+
+        } else {
+            // spring
+        }
+
+        return url;
+    }
+
+    static public String buildArgsStruts(final ExecutionSemester executionSemester, final StudentCurricularPlan scp) {
+        return "executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID=" + scp.getExternalId();
     }
 
 }

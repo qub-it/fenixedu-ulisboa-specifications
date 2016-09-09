@@ -21,7 +21,8 @@ public class EnrolmentStepTemplate extends EnrolmentStep {
 
     @Override
     public String getEntryPointURL() {
-        return super.getEntryPointURL() + (getProcess() == null ? "" : argsSupplier.apply(getProcess()));
+        final String url = super.getEntryPointURL();
+        return url + (getProcess() == null ? "" : (url.contains("?") ? "&" : "?") + argsSupplier.apply(getProcess()));
     }
 
     protected boolean appliesTo(final EnrolmentProcess input) {

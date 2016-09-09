@@ -115,12 +115,12 @@ ${portal.angularToolkit()}
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-		<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="${enrolmentProcess.getReturnURL(pageContext.request))}">
 			<spring:message code="label.event.back" />
 		</a>
 	    &nbsp;|&nbsp;
 			<c:if test="${canContinueProcess}">
-				<a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}">
+				<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}">
 					<spring:message code="label.continue" />
 				</a>
 			</c:if>
@@ -470,12 +470,12 @@ ${portal.angularToolkit()}
 		<div class="well well-sm mtop15" style="display: inline-block">
 		    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 		    &nbsp;
-			<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getReturnURL(pageContext.request), pageContext.request.contextPath, ''))}">
+		    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="${enrolmentProcess.getReturnURL(pageContext.request))}">
 				<spring:message code="label.event.back" />
 			</a>
 		    &nbsp;|&nbsp;
 				<c:if test="${canContinueProcess}">
-					<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
+					<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="${enrolmentProcess.getContinueURL(pageContext.request))}">
 						<spring:message code="label.continue" />
 					</a>
 				</c:if>

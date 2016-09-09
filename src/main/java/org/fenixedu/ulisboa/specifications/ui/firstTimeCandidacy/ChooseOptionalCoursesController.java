@@ -50,14 +50,13 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseC
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
-import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.joda.time.DateTime;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -108,12 +107,8 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
 
-        final String argsStruts =
-                EnrolmentManagementDA.buildArgsStruts(executionSemester, registration.getLastStudentCurricularPlan());
-        String url = CourseEnrolmentDA.getEntryPointURL(null) + argsStruts;
-        //Add checksum
-        url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
-
+        final String args = EnrolmentStep.buildArgsStruts(executionSemester, registration.getLastStudentCurricularPlan());
+        final String url = EnrolmentStep.prepareURL(request, CourseEnrolmentDA.getEntryPointURL(), args);
         return redirect(url, model, redirectAttributes);
     }
 

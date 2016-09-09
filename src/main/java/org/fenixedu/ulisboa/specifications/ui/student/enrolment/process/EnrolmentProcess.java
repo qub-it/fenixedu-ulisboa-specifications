@@ -23,10 +23,9 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.Enro
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 
 public class EnrolmentProcess implements IBean {
 
@@ -181,8 +180,8 @@ public class EnrolmentProcess implements IBean {
     /**
      * Where process began
      */
-    private String getBeforeProcessURL(final HttpServletRequest input) {
-        return this.beforeProcessURL;
+    private String getBeforeProcessURL(final HttpServletRequest request) {
+        return EnrolmentStep.prepareURL(request, this.beforeProcessURL);
     }
 
     private void setBeforeProcessURL(final String input) {
@@ -192,8 +191,8 @@ public class EnrolmentProcess implements IBean {
     /**
      * Where process exits
      */
-    private String getAfterProcessURL(final HttpServletRequest input) {
-        return this.afterProcessURL;
+    private String getAfterProcessURL(final HttpServletRequest request) {
+        return EnrolmentStep.prepareURL(request, this.afterProcessURL);
     }
 
     private void setAfterProcessURL(final String input) {
@@ -204,37 +203,38 @@ public class EnrolmentProcess implements IBean {
      * Previous button
      */
     public String getReturnURL(final HttpServletRequest request) {
-        String contextPath = request.getContextPath();
-
         final EnrolmentStep currentStep = getCurrentStep(request);
         if (currentStep != null && currentStep.getPrevious() != null) {
-            return contextPath + currentStep.getPrevious().getEntryPointURL();
+            return EnrolmentStep.prepareURL(request, currentStep.getPrevious().getEntryPointURL());
         }
 
-        return contextPath + getBeforeProcessURL(request);
+        return getBeforeProcessURL(request);
     }
 
     /**
      * Next button
      */
     public String getContinueURL(final HttpServletRequest request) {
-        String result = request.getContextPath();
+        String result = null;
 
         final EnrolmentStep currentStep = getCurrentStep(request);
 
         if (currentStep == null) {
             // kick start
-            result += getSteps().stream().map(i -> i.getEntryPointURL()).findFirst().orElse("");
+            result = getSteps().stream().map(i -> i.getEntryPointURL()).findFirst().orElse("");
+            if (!Strings.isNullOrEmpty(result)) {
+                result = EnrolmentStep.prepareURL(request, result);
+            }
 
         } else if (currentStep.getNext() != null) {
-            result += currentStep.getNext().getEntryPointURL();
+            result = EnrolmentStep.prepareURL(request, currentStep.getNext().getEntryPointURL());
 
-        } else {
-            result += getAfterProcessURL(request);
+        } else {    
+            result = getAfterProcessURL(request);
         }
 
-        if (result.contains(".do")) {
-            result = GenericChecksumRewriter.injectChecksumInUrl("", result, request.getSession());
+        if (Strings.isNullOrEmpty(result)) {
+            result = getBeforeProcessURL(request);
         }
 
         return result;
@@ -298,9 +298,9 @@ public class EnrolmentProcess implements IBean {
             final String afterProcessURL;
 
             if (candidacy.isConcluded()) {
-                beforeProcessURL = EnrolmentManagementDA.getEntryPointURL(null);
+                beforeProcessURL = EnrolmentManagementDA.getEntryPointURL();
                 lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
-                afterProcessURL = StudentPortalRedirectController.getEntryPointURL(null);
+                afterProcessURL = StudentPortalRedirectController.getEntryPointURL();
             } else {
                 beforeProcessURL = EnrolmentsController.getBackUrl();
                 afterProcessURL = EnrolmentsController.getNextUrl();
