@@ -46,7 +46,7 @@ public class OriginInformationForm implements CandidancyForm {
     private String otherSchoolLevel;
     private String conclusionGrade;
     private String degreeDesignation;
-    private Integer conclusionYear;
+    private String conclusionYear;
     private String institutionOid;
     private String institutionName;
     private DegreeDesignation raidesDegreeDesignation;
@@ -236,11 +236,11 @@ public class OriginInformationForm implements CandidancyForm {
         this.degreeDesignation = degreeDesignation;
     }
 
-    public Integer getConclusionYear() {
+    public String getConclusionYear() {
         return conclusionYear;
     }
 
-    public void setConclusionYear(Integer conclusionYear) {
+    public void setConclusionYear(String conclusionYear) {
         this.conclusionYear = conclusionYear;
     }
 

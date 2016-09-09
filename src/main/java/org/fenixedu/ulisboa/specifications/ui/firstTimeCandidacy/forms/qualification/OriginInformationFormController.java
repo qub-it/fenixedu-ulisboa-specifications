@@ -138,7 +138,8 @@ public class OriginInformationFormController extends FormAbstractController {
         }
 
         form.setConclusionGrade(precedentDegreeInformation.getConclusionGrade());
-        form.setConclusionYear(precedentDegreeInformation.getConclusionYear());
+        form.setConclusionYear(precedentDegreeInformation.getConclusionYear() == null ? "" : ""
+                + precedentDegreeInformation.getConclusionYear());
         form.setCountryWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getCountry());
         if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
             form.setCountryWhereFinishedPreviousCompleteDegree(Country.readDefault());
@@ -282,7 +283,7 @@ public class OriginInformationFormController extends FormAbstractController {
          * ----------------
          */
 
-        if (!StringUtils.isEmpty(form.getConclusionGrade()) && !form.getConclusionGrade().matches(GRADE_FORMAT)) {
+        if (StringUtils.isNotBlank(form.getConclusionGrade()) && !form.getConclusionGrade().matches(GRADE_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"), model);
             return false;
         }
@@ -292,19 +293,20 @@ public class OriginInformationFormController extends FormAbstractController {
          * ---------------
          */
 
-        if (form.getConclusionYear() == null || !form.getConclusionYear().toString().matches(YEAR_FORMAT)) {
+        if (StringUtils.isBlank(form.getConclusionYear()) || !form.getConclusionYear().matches(YEAR_FORMAT)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"), model);
             return false;
         }
 
         LocalDate now = new LocalDate();
-        if (now.getYear() < form.getConclusionYear()) {
+        int conclusionYear = Integer.valueOf(form.getConclusionYear());
+        if (now.getYear() < conclusionYear) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"), model);
             return false;
         }
 
         int birthYear = registration.getPerson().getDateOfBirthYearMonthDay().getYear();
-        if (form.getConclusionYear() < birthYear) {
+        if (conclusionYear < birthYear) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"), model);
             return false;
         }
@@ -360,7 +362,7 @@ public class OriginInformationFormController extends FormAbstractController {
             precedentDegreeInformation.setInstitution((Unit) institutionObject);
         }
 
-        precedentDegreeInformation.setConclusionYear(form.getConclusionYear());
+        precedentDegreeInformation.setConclusionYear(Integer.valueOf(form.getConclusionYear()));
         Country country = form.getCountryWhereFinishedPreviousCompleteDegree();
         precedentDegreeInformation.setCountry(country);
         if (country.isDefaultCountry()) {

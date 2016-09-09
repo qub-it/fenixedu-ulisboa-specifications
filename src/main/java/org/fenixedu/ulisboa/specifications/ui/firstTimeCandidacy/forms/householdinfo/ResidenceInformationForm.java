@@ -209,7 +209,7 @@ public class ResidenceInformationForm implements CandidancyForm {
     }
 
     public Boolean getDislocatedFromPermanentResidence() {
-        return dislocatedFromPermanentResidence;
+        return dislocatedFromPermanentResidence != null && dislocatedFromPermanentResidence;
     }
 
     public void setDislocatedFromPermanentResidence(Boolean dislocatedFromPermanentResidence) {
