@@ -12,6 +12,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.IBean;
@@ -175,10 +176,6 @@ public class EnrolmentProcess implements IBean {
      * Where process began
      */
     private String getBeforeProcessURL(final HttpServletRequest input) {
-        if (this.beforeProcessURL == null) {
-            this.beforeProcessURL = EnrolmentManagementDA.getEntryPointURL(input);
-        }
-
         return this.beforeProcessURL;
     }
 
@@ -190,10 +187,6 @@ public class EnrolmentProcess implements IBean {
      * Where process exits
      */
     private String getAfterProcessURL(final HttpServletRequest input) {
-        if (this.afterProcessURL == null) {
-            this.afterProcessURL = StudentPortalRedirectController.getEntryPointURL(input);
-        }
-
         return this.afterProcessURL;
     }
 
@@ -251,10 +244,6 @@ public class EnrolmentProcess implements IBean {
     }
 
     private EnrolmentStepTemplate getLastStep() {
-        if (lastStep == null) {
-            setLastStep(EnrolmentManagementDA.createEnrolmentStepEndProcess());
-        }
-
         return lastStep;
     }
 
@@ -287,11 +276,36 @@ public class EnrolmentProcess implements IBean {
     }
 
     static public List<EnrolmentProcess> buildProcesses(final List<AcademicEnrolmentPeriodBean> periods) {
-        return buildProcesses(null, null, periods, null);
+        final List<EnrolmentProcess> result = Lists.newArrayList();
+
+        final StudentCandidacy candidacy = periods.stream()
+                .map(i -> i.getStudentCurricularPlan().getRegistration().getStudentCandidacy()).findFirst().orElse(null);
+
+        if (candidacy != null) {
+            final String beforeProcessURL;
+            final EnrolmentStepTemplate lastEnrolmentStep;
+            final String afterProcessURL;
+
+            if (candidacy.isConcluded()) {
+                beforeProcessURL = EnrolmentManagementDA.getEntryPointURL(null);
+                lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
+                afterProcessURL = StudentPortalRedirectController.getEntryPointURL(null);
+            } else {
+                // TODOJN
+                beforeProcessURL = "/student/consult/statutes";
+                lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
+                afterProcessURL = "/student/consult/time-table";
+            }
+
+            result.addAll(buildProcesses(beforeProcessURL, periods, lastEnrolmentStep, afterProcessURL));
+        }
+
+        return result;
     }
 
-    static public List<EnrolmentProcess> buildProcesses(final String beforeProcessURL, final String afterProcessURL,
-            final List<AcademicEnrolmentPeriodBean> periods, final EnrolmentStepTemplate lastEnrolmentStep) {
+    static private List<EnrolmentProcess> buildProcesses(final String beforeProcessURL,
+            final List<AcademicEnrolmentPeriodBean> periods, final EnrolmentStepTemplate lastEnrolmentStep,
+            final String afterProcessURL) {
 
         final Set<EnrolmentProcess> builder = Sets.newHashSet();
 
