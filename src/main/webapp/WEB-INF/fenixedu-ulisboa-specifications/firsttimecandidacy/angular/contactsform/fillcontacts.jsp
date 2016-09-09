@@ -81,7 +81,7 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${contactsFormJson}');
+    $scope.object= ${contactsFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [

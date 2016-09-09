@@ -80,12 +80,9 @@ ${portal.angularToolkit()}
 			</c:if>
 
 <script>
-<c:set var="filiationJsonObject">
-    ${fn:replace(filiationFormJson, "'", "\\'")}
-</c:set>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${filiationJsonObject}');
+    $scope.object= ${filiationFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [

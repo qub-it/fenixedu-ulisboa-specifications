@@ -84,7 +84,7 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angularjs-dropdown-multiselect']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${motivationsExpectationsFormJson}');
+    $scope.object= ${motivationsExpectationsFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [

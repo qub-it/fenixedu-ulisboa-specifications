@@ -105,7 +105,7 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', [ 'ngSanitize', 'ui.select', 'bennuToolkit' ])
     .controller('angularController', ['$scope', function($scope) {
-        $scope.object = angular.fromJson('${vaccinationFormJson}');
+        $scope.object = ${vaccinationFormJson};
         $scope.postBack = createAngularPostbackFunction($scope);
         $scope.booleanvalues = [ {
             name : '<spring:message code="label.no"/>', 
