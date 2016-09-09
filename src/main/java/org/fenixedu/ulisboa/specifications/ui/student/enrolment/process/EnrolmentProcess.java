@@ -138,7 +138,10 @@ public class EnrolmentProcess implements IBean {
 
     private void addEndSteps() {
         addExtraSteps(getEndSteps());
-        addExtraSteps(Lists.newArrayList(getLastStep()));
+        final EnrolmentStepTemplate lastStep = getLastStep();
+        if (lastStep != null) {
+            addExtraSteps(Lists.newArrayList(lastStep));
+        }
     }
 
     private void addExtraSteps(final List<EnrolmentStepTemplate> input) {
