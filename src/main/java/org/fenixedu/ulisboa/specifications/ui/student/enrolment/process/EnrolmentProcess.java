@@ -25,6 +25,8 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagem
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
+
 public class EnrolmentProcess implements IBean {
 
     private ExecutionSemester executionSemester;
@@ -215,21 +217,26 @@ public class EnrolmentProcess implements IBean {
      * Next button
      */
     public String getContinueURL(final HttpServletRequest request) {
-        String contextPath = request.getContextPath();
+        String result = request.getContextPath();
 
         final EnrolmentStep currentStep = getCurrentStep(request);
+
         if (currentStep == null) {
-
             // kick start
-            return contextPath + getSteps().stream().map(i -> i.getEntryPointURL()).findFirst().orElse("");
+            result += getSteps().stream().map(i -> i.getEntryPointURL()).findFirst().orElse("");
+
+        } else if (currentStep.getNext() != null) {
+            result += currentStep.getNext().getEntryPointURL();
+
+        } else {
+            result += getAfterProcessURL(request);
         }
 
-        if (currentStep.getNext() != null) {
-            return contextPath + currentStep.getNext().getEntryPointURL();
-
+        if (result.contains(".do")) {
+            result = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), result, request.getSession());
         }
 
-        return contextPath + getAfterProcessURL(request);
+        return result;
     }
 
     private EnrolmentStep getCurrentStep(final HttpServletRequest request) {

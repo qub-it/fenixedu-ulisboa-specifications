@@ -120,7 +120,7 @@ ${portal.angularToolkit()}
 		</a>
 	    &nbsp;|&nbsp;
 			<c:if test="${canContinueProcess}">
-				<a class="" href="${fr:checksumLink(pageContext.request, fn:replace(enrolmentProcess.getContinueURL(pageContext.request), pageContext.request.contextPath, ''))}">
+				<a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}">
 					<spring:message code="label.continue" />
 				</a>
 			</c:if>
