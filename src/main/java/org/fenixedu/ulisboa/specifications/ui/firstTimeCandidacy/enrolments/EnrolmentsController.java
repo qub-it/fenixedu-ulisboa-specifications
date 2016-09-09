@@ -84,15 +84,15 @@ public class EnrolmentsController extends EnrolmentAbstractController {
                 .getExecutionPeriodsSet() : Collections.singleton(executionYear.getFirstExecutionPeriod());
         if (enrolAutomaticallyInSchoolClasses(periods)) {
             System.out.println("Inscrever Turmas automaticamente");
-//            Optional<SchoolClass> schoolClass = readFirstAlmostFilledClass(registration, executionSemesters);
-//            if (!schoolClass.isPresent()) {
-//                throw new RuntimeException("School Class not defined.");
-//            }
-//            schoolClass.get().addRegistrations(registration);
+            Optional<SchoolClass> schoolClass = readFirstAlmostFilledClass(registration, executionSemesters);
+            if (!schoolClass.isPresent()) {
+                throw new RuntimeException("School Class not defined.");
+            }
+            schoolClass.get().addRegistrations(registration);
         }
         if (enrolAutomaticallyInShifts(periods)) {
             System.out.println("Inscrever Turnos automaticamente");
-//            associateShiftsFor(studentCurricularPlan, executionYear, executionSemesters);
+            associateShiftsFor(studentCurricularPlan, executionYear, executionSemesters);
         }
 
         List<EnrolmentProcess> enrolmentProcesses =
