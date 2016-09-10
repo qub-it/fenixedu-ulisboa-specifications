@@ -6,6 +6,8 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
+
 @RequestMapping("/returnToStudentPortal")
 @SpringFunctionality(app = EnrolmentManagementApp.class, title = "label.title.returnToStudentPortal",
         accessGroup = "activeStudents & !candidate")
@@ -18,7 +20,8 @@ public class StudentPortalRedirectController {
     public String redirect(final HttpServletRequest request) {
         return EnrolmentManagementApp.redirect(
 
-                EnrolmentStep.prepareURL(request, getEntryPointURL())
+                GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), getEntryPointURL() + "?method=prepare",
+                        request.getSession())
 
         );
     }
