@@ -3,15 +3,16 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotSupportedException;
 
 import org.fenixedu.academic.domain.CurricularCourse;
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -19,19 +20,21 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
-import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
+import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ScheduleClassesController;
@@ -44,6 +47,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -158,48 +163,73 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     @Atomic
     public void createAutomaticEnrolments(Registration registration, ExecutionSemester executionSemester,
             StudentCurricularPlan studentCurricularPlan) {
+
         if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {
-            createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
-                    studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester,
-                    AccessControl.getPerson().getUsername());
-            registration.updateEnrolmentDate(executionSemester.getExecutionYear());
+
+            createFirstTimeStudentEnrolmentsFor(studentCurricularPlan,
+                    studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester);
+
             if (hasAnnualEnrollments(studentCurricularPlan)) {
-                createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
+                createFirstTimeStudentEnrolmentsFor(studentCurricularPlan,
                         studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 2),
-                        executionSemester.getNextExecutionPeriod(), AccessControl.getPerson().getUsername());
+                        executionSemester.getNextExecutionPeriod());
             }
+
         }
     }
 
-    void createFirstTimeStudentEnrolmentsFor(StudentCurricularPlan studentCurricularPlan, CurriculumGroup curriculumGroup,
-            CurricularPeriod curricularPeriod, ExecutionSemester executionSemester, String createdBy) {
+    void createFirstTimeStudentEnrolmentsFor(StudentCurricularPlan studentCurricularPlan, CurricularPeriod curricularPeriod,
+            ExecutionSemester executionSemester) {
 
-        if (curriculumGroup.getDegreeModule() != null) {
+        final Set<IDegreeModuleToEvaluate> toEnrol = Sets.newHashSet();
+        final Set<CurricularCourse> processed = Sets.newHashSet();
+
+        for (final CurriculumGroup curriculumGroup : studentCurricularPlan.getAllCurriculumGroups()) {
+
+            if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
+                continue;
+            }
+
+            if (curriculumGroup.getDegreeModule().isOptionalCourseGroup()) {
+                continue;
+            }
+
             for (final Context context : curriculumGroup.getDegreeModule()
                     .getContextsWithCurricularCourseByCurricularPeriod(curricularPeriod, executionSemester)) {
-                new Enrolment(studentCurricularPlan, curriculumGroup, (CurricularCourse) context.getChildDegreeModule(),
-                        executionSemester, EnrollmentCondition.FINAL, createdBy);
+
+                final CurricularCourse curricularCourse = (CurricularCourse) context.getChildDegreeModule();
+
+                if (curricularCourse.isOptionalCurricularCourse()) {
+                    continue;
+                }
+
+                if (studentCurricularPlan.isEnroledInExecutionPeriod(curricularCourse, executionSemester)) {
+                    continue;
+                }
+
+                //TODO: check with legidio: && !CurriculumAggregatorServices.isOptionalEntryRelated(context)
+                if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context, executionSemester.getExecutionYear())) {
+                    continue;
+                }
+
+                if (!processed.add(curricularCourse)) {
+                    continue;
+                }
+
+                //TODO: exclude by rules (exclusivess and enrolment by services)
+
+                toEnrol.add(new DegreeModuleToEnrol(curriculumGroup, context, executionSemester));
             }
+
         }
 
-        if (!curriculumGroup.getCurriculumModulesSet().isEmpty()) {
-            for (final CurriculumModule curriculumModule : curriculumGroup.getCurriculumModulesSet()) {
-                if (!curriculumModule.isLeaf()) {
-                    createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, (CurriculumGroup) curriculumModule,
-                            curricularPeriod, executionSemester, createdBy);
-                }
-            }
-        }
+        studentCurricularPlan.enrol(executionSemester, toEnrol, Collections.EMPTY_LIST, CurricularRuleLevel.ENROLMENT_WITH_RULES);
+
     }
 
-    boolean hasAnnualEnrollments(StudentCurricularPlan studentCurricularPlan) {
+    private boolean hasAnnualEnrollments(StudentCurricularPlan studentCurricularPlan) {
         return studentCurricularPlan.getDegreeCurricularPlan()
                 .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
-    }
-
-    boolean hasAnnualEnrollments(Registration registration) {
-        return hasAnnualEnrollments(
-                registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod()));
     }
 
     /*
