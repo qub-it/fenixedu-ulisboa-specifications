@@ -122,8 +122,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="bvalue.name"></span>
                         </ui-select-choices>
                     </ui-select>    
 				</div>
@@ -136,8 +136,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-4">
                     <ui-select  id="disabilitiesForm_disabilityType" name="disabilityType" ng-model="$parent.object.disabilityType" on-select="onDisabilityTypeChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="type.id as type in object.disabilityTypeValues | filter: $select.search">
-                            <span ng-bind-html="type.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="type.id as type in object.disabilityTypeValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="type.text"></span>
                         </ui-select-choices> 
                     </ui-select>   
 				</div>
@@ -165,8 +165,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="bvalue.name"></span>
                         </ui-select-choices>
                     </ui-select>     
 				</div>

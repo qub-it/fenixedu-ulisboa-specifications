@@ -204,8 +204,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-4">
                     <ui-select  id="personalInformationForm_gender" name="gender" ng-model="$parent.object.gender" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="gender.id as gender in object.genderValues | filter: $select.search">
-                            <span ng-bind-html="gender.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="gender.id as gender in object.genderValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="gender.text"></span>
                         </ui-select-choices> 
                     </ui-select>     
 				</div>
@@ -229,8 +229,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<div class="col-sm-4">
                         <ui-select  id="personalInformationForm_idDocumentType" name="type" ng-model="$parent.object.idDocumentType" theme="bootstrap">
                             <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                            <ui-select-choices  repeat="type.id as type in object.idDocumentTypeValues | filter: $select.search">
-                                <span ng-bind-html="type.text | highlight: $select.search"></span>
+                            <ui-select-choices  repeat="type.id as type in object.idDocumentTypeValues | filter: {normalizedText : $select.search}">
+                                <span ng-bind-html="type.text"></span>
                             </ui-select-choices> 
                         </ui-select>     
 					</div>
@@ -304,10 +304,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select ng-model="$parent.object.firstOptionInstitution"
                             on-select="onFirstOptionInstitutionChange($item, $model)" theme="bootstrap"> 
                             <ui-select-match>{{$select.selected.text}}</ui-select-match>
-                            <ui-select-choices repeat="institution.id as institution in object.firstOptionInstitutionValues | filter: $select.search"
+                            <ui-select-choices repeat="institution.id as institution in object.firstOptionInstitutionValues | filter: {normalizedText : $select.search}"
                                             refresh="onFirstOptionInstitutionRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
-                                <span ng-bind-html="institution.text | highlight: $select.search"></span>
+                                <span ng-bind-html="institution.text"></span>
                             </ui-select-choices> 
                         </ui-select>
 					</div>
@@ -321,10 +321,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<div class="col-sm-10">
                         <ui-select ng-model="$parent.object.firstOptionDegreeDesignation" theme="bootstrap"> 
                             <ui-select-match>{{$select.selected.text}}</ui-select-match>
-                            <ui-select-choices repeat="degree.id as degree in object.firstOptionDegreeDesignationValues | filter: $select.search"
+                            <ui-select-choices repeat="degree.id as degree in object.firstOptionDegreeDesignationValues | filter: {normalizedText : $select.search}"
                                             refresh="onFirstOptionDegreeDesignationRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
-                                <span ng-bind-html="degree.text | highlight: $select.search"></span>
+                                <span ng-bind-html="degree.text"></span>
                             </ui-select-choices> 
                         </ui-select>
 					</div>
@@ -344,7 +344,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                             {{$select.selected.text}}
                         </ui-select-match> 
                         <ui-select-choices repeat="country.id as country in object.countryHighSchoolValues | filter: {normalizedText : $select.search}">
-                            <span ng-bind-html="country.text | highlight: $select.search"></span>
+                            <span ng-bind-html="country.text"></span>
                         </ui-select-choices>
                     </ui-select>
 				</div>
@@ -357,8 +357,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 <div class="col-sm-4">
                     <ui-select  id="personalInformationForm_maritalStatus" name="maritalStatus" ng-model="$parent.object.maritalStatus" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="maritalStatus.id as maritalStatus in object.maritalStatusValues | filter: $select.search">
-                            <span ng-bind-html="maritalStatus.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="maritalStatus.id as maritalStatus in object.maritalStatusValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="maritalStatus.text"></span>
                         </ui-select-choices> 
                     </ui-select>                 
                 </div>

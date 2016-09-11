@@ -162,8 +162,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_countryOfBirth" name="countryOfBirth" ng-model="$parent.object.countryOfBirth" on-select="onCountryChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="country.id as country in object.countriesValues | filter: $select.search">
-                            <span ng-bind-html="country.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="country.id as country in object.countriesValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="country.text"></span>
                         </ui-select-choices> 
                     </ui-select>
 				</div>
@@ -176,8 +176,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_districtOfBirth" name="districtOfBirth" ng-model="$parent.object.districtOfBirth" on-select="onDistrictChange($item,$model)" ng-disabled="!object.districtsValues.length" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="district.id as district in object.districtsValues | filter: $select.search">
-                            <span ng-bind-html="district.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="district.id as district in object.districtsValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="district.text"></span>
                         </ui-select-choices> 
                     </ui-select>
 				</div>
@@ -191,8 +191,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_districtSubdivisionOfBirth" name="districtSubdivisionOfBirth" ng-model="$parent.object.districtSubdivisionOfBirth" on-select="onDistrictSubdivisionChange($item,$model)" ng-disabled="!object.districtSubdivisionValues.length" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="districtSubdivision.id as districtSubdivision in object.districtSubdivisionValues | filter: $select.search">
-                            <span ng-bind-html="districtSubdivision.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="districtSubdivision.id as districtSubdivision in object.districtSubdivisionValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="districtSubdivision.text"></span>
                         </ui-select-choices> 
                     </ui-select>
 				</div>
@@ -205,8 +205,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_parishOfBirth" name="parishOfBirth" ng-model="$parent.object.parishOfBirth" ng-disabled="!object.parishValues.length" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="parish.id as parish in object.parishValues | filter: $select.search">
-                            <span ng-bind-html="parish.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="parish.id as parish in object.parishValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="parish.text"></span>
                         </ui-select-choices> 
                     </ui-select>
 				</div>
@@ -228,8 +228,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 <div class="col-sm-10">
                     <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" theme="bootstrap">
                         <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: $select.search">
-                            <span ng-bind-html="nationality.text | highlight: $select.search"></span>
+                        <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="nationality.text"></span>
                         </ui-select-choices> 
                     </ui-select> 
                 </div>

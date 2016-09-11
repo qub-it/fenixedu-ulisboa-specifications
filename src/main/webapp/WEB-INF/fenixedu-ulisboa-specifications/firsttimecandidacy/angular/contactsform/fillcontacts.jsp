@@ -168,8 +168,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="bvalue.name"></span>
                         </ui-select-choices>
                     </ui-select>
 				</div>
@@ -197,8 +197,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select-match>
                             {{$select.selected.name}}
                         </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="bvalue.name"></span>
                         </ui-select-choices>
                     </ui-select>    
 				</div>
