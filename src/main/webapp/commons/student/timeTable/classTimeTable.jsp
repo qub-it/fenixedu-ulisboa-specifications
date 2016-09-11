@@ -40,8 +40,10 @@
 		<title><bean:message key="private.student.view.timetable" bundle="TITLES_RESOURCES"/></title>
 	</head>
 	<body>
-	
-		<bean:define id="registrationId" name="registrationId" />
+		<bean:define id="registrationId" name="registrationId" type="java.lang.String" />
+		<% request.setAttribute("registration", pt.ist.fenixframework.FenixFramework.getDomainObject(registrationId)); %>
+		<bean:define id="registration" name="registration" type="org.fenixedu.academic.domain.student.Registration" />
+
 		<ul class="nav nav-tabs">
 			<c:forEach items="${executionSemesters}" var="executionSemester">
 				<bean:define id="executionSemesterID" name="executionSemester" property="externalId" />
@@ -50,6 +52,11 @@
 					<bean:define id="executionSemesterID" name="executionSemester" property="externalId" />
 					<html:link page="<%="/studentTimeTable.do?method=showTimeTable&registrationId=" + registrationId + "&executionSemesterID=" + executionSemesterID %>">
 						<c:out value="${executionSemester.qualifiedName}"></c:out>
+						<bean:define id="executionSemester" name="executionSemester" type="org.fenixedu.academic.domain.ExecutionSemester" />
+						<% request.setAttribute("thisSchoolClass", org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices.getSchoolClassBy(registration, executionSemester)); %>
+						<c:if test="${thisSchoolClass.present}">
+							<span class="badge"><c:out value="${thisSchoolClass.get().name}" /></span>
+						</c:if>
 					</html:link>			
 				 </li>
 			</c:forEach>
