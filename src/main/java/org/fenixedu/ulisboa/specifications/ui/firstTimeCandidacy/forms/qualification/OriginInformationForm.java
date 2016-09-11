@@ -123,14 +123,15 @@ public class OriginInformationForm implements CandidancyForm {
 
     }
 
-    protected static Collection<UnitName> findExternalAcademicUnit(final String name, final int size) {
+    //TODOJN - extract find methods
+    public static Collection<UnitName> findExternalAcademicUnit(final String name, final int size) {
         final ExternalAcademicUnitNameLimitedOrderedSet academicUnitNameLimitedOrderedSet =
                 new ExternalAcademicUnitNameLimitedOrderedSet(size);
         findUnits(academicUnitNameLimitedOrderedSet, name);
         return academicUnitNameLimitedOrderedSet;
     }
 
-    protected static Collection<UnitName> findExternalUnit(String namePart, int size) {
+    public static Collection<UnitName> findExternalUnit(String namePart, int size) {
         final ExternalUnitNameLimitedOrderedSet unitNameLimitedOrderedSet = new ExternalUnitNameLimitedOrderedSet(size);
         findUnits(unitNameLimitedOrderedSet, namePart);
         return unitNameLimitedOrderedSet;

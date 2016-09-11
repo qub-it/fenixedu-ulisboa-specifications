@@ -94,7 +94,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                             { name : '<spring:message code="label.no"/>', value : false },
                             { name : '<spring:message code="label.yes"/>', value : true } 
                     ];
-                    
+
     $scope.onFirstOptionInstitutionChange = function(institution, model) {
 	    $scope.object.firstOptionDegreeDesignationValues = undefined;
 	    $scope.postBack(model);
@@ -113,6 +113,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         }
         $scope.object.degreeNamePart = namePart;
         $scope.$apply();  
+        $scope.postBack(model);
+    };
+    $scope.onInstitutionChange = function(institution, model) {
+        $scope.object.raidesDegreeDesignationValues = undefined;
+
+        $scope.object.raidesDegreeDesignation = undefined;
+        $scope.object.degreeDesignation = undefined;
         $scope.postBack(model);
     };
     $scope.submitForm = function() {
@@ -151,15 +158,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 			</div>
 			
             <c:if test="${partial || not personalInformationForm.isForeignStudent}">
-                <div class="form-group row">
-                    <label class="col-sm-2 control-label">
-                        <spring:message code="label.PersonalInformationForm.idDocumentType" />
-                    </label>
-    
-                    <div class="col-sm-10">
-                        <div class="form-control-static"><c:out value='${personalInformationForm.idDocumentType.localizedName }' /></div>
-                    </div>
-                </div>
     			<div class="form-group row">
     				<label class="col-sm-2 control-label">
     					<spring:message code="label.PersonalInformationForm.documentIdNumber" />
@@ -169,31 +167,49 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     					<div class="form-control-static"><c:out value='${personalInformationForm.documentIdNumber}' /></div>
     				</div>
     			</div>
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label">
+                        <spring:message code="label.PersonalInformationForm.idDocumentType" />
+                    </label>
+    
+                    <div class="col-sm-10">
+                        <div class="form-control-static"><c:out value='${personalInformationForm.idDocumentType.localizedName }' /></div>
+                    </div>
+                </div>
             </c:if>
-			
-		<c:if test="${person.getIdDocumentType == IDDocumentType.IDENTITY_CARD}">
-			<div class="form-group row">
+	        <c:if test="${not partial && personalInformationForm.isForeignStudent}">
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label required-field">
+                        <spring:message code="label.PersonalInformationForm.idDocumentType" />
+                    </label>
+    
+                    <div class="col-sm-4">
+                        <ui-select  id="personalInformationForm_idDocumentType" name="type" ng-model="$parent.object.idDocumentType" theme="bootstrap">
+                            <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                            <ui-select-choices  repeat="type.id as type in object.idDocumentTypeValues | filter: $select.search">
+                                <span ng-bind-html="type.text | highlight: $select.search"></span>
+                            </ui-select-choices> 
+                        </ui-select>     
+                    </div>
+                </div>
+            </c:if>		
+   
+   
+			<div class="form-group row" ng-show="object.idDocumentType == 'IDENTITY_CARD'">
 				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
+					<spring:message code="label.PersonalInformationForm.identificationDocumentSeriesNumber" />
                     <a class="" href="#" data-toggle="modal" data-target="#showExtraDigitsImages">
                         <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
                     </a>
 				</label>
 
 				<div class="col-sm-10">
-					<c:if test="${identityCardExtraDigitRequired}">
 						<input id="personalInformationForm_identificationDocumentSeriesNumber"
 							class="form-control" type="text" ng-model="object.identificationDocumentSeriesNumber" name="identificationDocumentSeriesNumber"
 	                        placeholder="<spring:message code='label.PersonalInformationForm.extraDigit.more.help'/>"
 							value='<c:out value='${not empty param.identificationDocumentSeriesNumber ? param.identificationDocumentSeriesNumber : personalInformationForm.identificationDocumentSeriesNumber }'/>' />
-					</c:if>
-					<c:if test="${!identityCardExtraDigitRequired}">
-						<div class="form-control-static"><c:out value='${personalInformationForm.identificationDocumentSeriesNumber}' /></div>
-					</c:if>
 				</div>
 			</div>
-		</c:if>
 			
 	    <c:if test="${not partial}">
 			<div class="form-group row">
@@ -304,7 +320,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select ng-model="$parent.object.firstOptionInstitution"
                             on-select="onFirstOptionInstitutionChange($item, $model)" theme="bootstrap"> 
                             <ui-select-match>{{$select.selected.text}}</ui-select-match>
-                            <ui-select-choices repeat="institution.id as institution in object.firstOptionInstitutionValues | filter: {normalizedText : $select.search}"
+                            <ui-select-choices repeat="institution.id as institution in object.firstOptionInstitutionValues"
                                             refresh="onFirstOptionInstitutionRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
                                 <span ng-bind-html="institution.text"></span>
@@ -321,7 +337,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<div class="col-sm-10">
                         <ui-select ng-model="$parent.object.firstOptionDegreeDesignation" theme="bootstrap"> 
                             <ui-select-match>{{$select.selected.text}}</ui-select-match>
-                            <ui-select-choices repeat="degree.id as degree in object.firstOptionDegreeDesignationValues | filter: {normalizedText : $select.search}"
+                            <ui-select-choices repeat="degree.id as degree in object.firstOptionDegreeDesignationValues"
                                             refresh="onFirstOptionDegreeDesignationRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
                                 <span ng-bind-html="degree.text"></span>

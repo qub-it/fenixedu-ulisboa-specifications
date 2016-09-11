@@ -4,13 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitName;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
@@ -20,9 +21,11 @@ import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.OriginInformationForm;
 import org.joda.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 public class PersonalInformationForm implements Serializable, CandidancyForm {
@@ -84,16 +87,24 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
 
     @Override
     public void updateLists() {
-        Collection<UnitName> academicUnitList =
-                UnitName.findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 50);
-        setFirstOptionInstitutionValues(Lists.newArrayList(academicUnitList));
+        Set<Unit> units = new HashSet<Unit>();
+        Collection<DegreeDesignation> possibleDesignations = new HashSet<DegreeDesignation>();
 
-        Collection<DegreeDesignation> possibleDesignations;
-        if (firstOptionInstitution == null) {
-            possibleDesignations = Bennu.getInstance().getDegreeDesignationsSet();
-        } else {
+        if (firstOptionInstitution != null) {
+            units.add(firstOptionInstitution);
             possibleDesignations = firstOptionInstitution.getDegreeDesignationSet();
+        } else {
+            possibleDesignations = Bennu.getInstance().getDegreeDesignationsSet();
         }
+
+        if (firstOptionDegreeDesignation != null) {
+            setDegreeNamePart(getFullDescription(firstOptionDegreeDesignation));
+        }
+
+        units.addAll(OriginInformationForm.findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 50)
+                .stream().map(i -> i.getUnit()).filter(i -> !i.getDegreeDesignationSet().isEmpty()).collect(Collectors.toSet()));
+
+        setFirstOptionInstitutionValues(units);
         Predicate<DegreeDesignation> matchesName = dd -> StringNormalizer.normalize(getFullDescription(dd))
                 .contains(StringNormalizer.normalize(degreeNamePart == null ? "" : degreeNamePart));
         setFirstOptionDegreeDesignationValues(
@@ -259,11 +270,12 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return firstOptionInstitutionValues;
     }
 
-    public void setFirstOptionInstitutionValues(List<UnitName> firstOptionInstitutionValues) {
-        this.firstOptionInstitutionValues = firstOptionInstitutionValues.stream().map(un -> {
+    public void setFirstOptionInstitutionValues(Collection<Unit> firstOptionInstitutionValues) {
+        this.firstOptionInstitutionValues = firstOptionInstitutionValues.stream().map(u -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(un.getUnit().getExternalId());
-            tuple.setText(un.getName());
+            tuple.setId(u.getExternalId());
+            String code = !Strings.isNullOrEmpty(u.getCode()) ? "[" + u.getCode() + "]" : "";
+            tuple.setText(code + " " + u.getName());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
@@ -335,5 +347,13 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     public void setGenderValues(List<Gender> genderValues) {
         this.genderValues = genderValues.stream().map(g -> new TupleDataSourceBean(g.toString(), g.getLocalizedName()))
                 .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
+    public boolean isIdentityCardExtraDigitRequired() {
+        return identityCardExtraDigitRequired;
+    }
+
+    public void setIdentityCardExtraDigitRequired(boolean identityCardExtraDigitRequired) {
+        this.identityCardExtraDigitRequired = identityCardExtraDigitRequired;
     }
 }

@@ -88,10 +88,6 @@ public class PersonalInformationFormController extends FormAbstractController {
     public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, Model model) {
         Person person = getStudent(model).getPerson();
 
-        model.addAttribute("identityCardExtraDigitRequired",
-                person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD && !IdentityCardUtils
-                        .validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person)));
-
         PersonalInformationForm form = (PersonalInformationForm) getForm(model);
         if (form != null) {
             form.setDocumentIdNumber(person.getDocumentIdNumber());
@@ -99,7 +95,7 @@ public class PersonalInformationFormController extends FormAbstractController {
 
             if (person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
                 final String digitControl = IdentityCardUtils.getDigitControlFromPerson(person);
-                if (!Strings.isNullOrEmpty(digitControl)) {
+                if (!StringUtils.isNotBlank(digitControl)) {
                     form.setIdentificationDocumentSeriesNumber(digitControl);
                 }
             }
