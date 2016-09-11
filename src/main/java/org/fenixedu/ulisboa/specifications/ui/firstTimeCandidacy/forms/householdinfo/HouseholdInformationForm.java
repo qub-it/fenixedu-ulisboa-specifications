@@ -263,8 +263,7 @@ public class HouseholdInformationForm implements CandidancyForm {
 
     public void setProfessionalConditionValues(List<ProfessionalSituationConditionType> professionalConditionValues) {
         this.professionalConditionValues = professionalConditionValues.stream()
-                .map(psct -> new TupleDataSourceBean(psct.toString(), psct.getLocalizedName()))
-                .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+                .map(psct -> new TupleDataSourceBean(psct.toString(), psct.getLocalizedName())).collect(Collectors.toList());
     }
 
     public List<TupleDataSourceBean> getProfessionTypeValues() {
@@ -272,9 +271,8 @@ public class HouseholdInformationForm implements CandidancyForm {
     }
 
     public void setProfessionTypeValues(List<ProfessionType> professionTypeValues) {
-        this.professionTypeValues =
-                professionTypeValues.stream().map(pt -> new TupleDataSourceBean(pt.toString(), pt.getLocalizedName()))
-                        .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+        this.professionTypeValues = professionTypeValues.stream()
+                .map(pt -> new TupleDataSourceBean(pt.toString(), pt.getLocalizedName())).collect(Collectors.toList());
     }
 
     public List<TupleDataSourceBean> getProfessionTimeTypeValues() {
