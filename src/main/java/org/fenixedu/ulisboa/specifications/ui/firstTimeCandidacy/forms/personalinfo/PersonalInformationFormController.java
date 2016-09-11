@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personal
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -21,6 +22,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.treasury.util.FiscalCodeValidation;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
@@ -254,9 +256,12 @@ public class PersonalInformationFormController extends FormAbstractController {
                     .bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
         }
 
-        if (!Person.readByDocumentIdNumber(form.getDocumentIdNumber()).isEmpty()) {
-            result.add(ULisboaSpecificationsUtil
-                    .bundle("error.candidacy.workflow.PersonalInformationForm.identificationDocumentNumber.exists"));
+        final Collection<Person> found = Person.readByDocumentIdNumber(form.getDocumentIdNumber());
+        if (!found.isEmpty()) {
+            if (found.size() != 1 || found.iterator().next() != Authenticate.getUser().getPerson()) {
+                result.add(ULisboaSpecificationsUtil
+                        .bundle("error.candidacy.workflow.PersonalInformationForm.identificationDocumentNumber.exists"));
+            }
         }
 
         return result;
