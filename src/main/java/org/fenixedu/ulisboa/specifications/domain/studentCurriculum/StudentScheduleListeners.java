@@ -3,11 +3,10 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
+import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Enrolment;
@@ -51,15 +50,9 @@ public class StudentScheduleListeners {
                         RegistrationServices.getSchoolClassBy(registration, executionSemester);
 
                 if (schoolClassOpt.isPresent()) {
-                    final SchoolClass schoolClass = schoolClassOpt.get();
-                    final Set<Shift> shifts = schoolClass.getAssociatedShiftsSet().stream()
-                            .filter(s -> s.getExecutionCourse() == executionCourse).collect(Collectors.toSet());
-                    if (!shifts.isEmpty()) {
-                        for (final Shift shift : shifts) {
-                            shift.reserveForStudent(registration);
-                        }
-                        return;
-                    }
+                    RegistrationServices.enrolInSchoolClassExecutionCoursesShifts(registration, schoolClassOpt.get(),
+                            Collections.singletonList(executionCourse));
+                    return;
                 }
 
                 for (final ShiftType shiftType : executionCourse.getShiftTypes()) {

@@ -297,7 +297,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         public List<SchoolClass> getSchoolClassesToEnrol() {
             int curricularYear = getCurricularYear();
             final List<SchoolClass> schoolClasses = RegistrationServices
-                    .getSchoolClassesToEnrolBy(getRegistration(), getRegistration().getActiveDegreeCurricularPlan(),
+                    .getSchoolClassesToEnrolBy(getRegistration(), getRegistration().getLastDegreeCurricularPlan(),
                             getExecutionSemester())
                     .stream().filter(s -> s.getAnoCurricular().equals(curricularYear))
                     .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());

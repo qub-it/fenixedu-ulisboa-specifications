@@ -90,36 +90,38 @@ public class RegistrationServices {
         }
 
         if (schoolClass != null) {
-
-            if (!isSchoolClassFree(schoolClass, registration)) {
-                throw new DomainException("label.schoolClassStudentEnrollment.fullSchoolClass");
-            }
-
-            final Function<Shift, Integer> vacanciesCalculator = s -> s.getLotacao() - s.getStudentsSet().size();
-            final Comparator<Shift> vacanciesComparator =
-                    (s1, s2) -> vacanciesCalculator.apply(s1).compareTo(vacanciesCalculator.apply(s2));
-
             final List<ExecutionCourse> attendingExecutionCourses =
                     registration.getAttendingExecutionCoursesFor(executionSemester);
-            final Set<Shift> schoolClassesShifts = schoolClass.getAssociatedShiftsSet().stream()
-                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()) && vacanciesCalculator.apply(s) > 0)
-                    .collect(Collectors.toSet());
-
-            final Multimap<ExecutionCourse, Shift> shiftsByExecutionCourse = ArrayListMultimap.create();
-            schoolClassesShifts.forEach(s -> shiftsByExecutionCourse.put(s.getExecutionCourse(), s));
-            for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
-                final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
-                shiftsByExecutionCourse.get(executionCourse)
-                        .forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
-
-                for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
-                    final List<Shift> shiftsOrderedByVacancies = new ArrayList<>(shiftsTypesByShift.get(shiftType));
-                    shiftsOrderedByVacancies.sort(vacanciesComparator);
-                    enrolInOneShift(shiftsOrderedByVacancies, registration);
-                }
-            }
-
+            enrolInSchoolClassExecutionCoursesShifts(registration, schoolClass, attendingExecutionCourses);
             registration.getSchoolClassesSet().add(schoolClass);
+        }
+    }
+
+    public static void enrolInSchoolClassExecutionCoursesShifts(final Registration registration, final SchoolClass schoolClass,
+            final List<ExecutionCourse> attendingExecutionCourses) {
+        if (!isSchoolClassFree(schoolClass, registration)) {
+            throw new DomainException("label.schoolClassStudentEnrollment.fullSchoolClass");
+        }
+
+        final Function<Shift, Integer> vacanciesCalculator = s -> s.getLotacao() - s.getStudentsSet().size();
+        final Comparator<Shift> vacanciesComparator =
+                (s1, s2) -> vacanciesCalculator.apply(s1).compareTo(vacanciesCalculator.apply(s2));
+
+        final Set<Shift> schoolClassesShifts = schoolClass.getAssociatedShiftsSet().stream()
+                .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()) && vacanciesCalculator.apply(s) > 0)
+                .collect(Collectors.toSet());
+
+        final Multimap<ExecutionCourse, Shift> shiftsByExecutionCourse = ArrayListMultimap.create();
+        schoolClassesShifts.forEach(s -> shiftsByExecutionCourse.put(s.getExecutionCourse(), s));
+        for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
+            final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
+            shiftsByExecutionCourse.get(executionCourse).forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
+
+            for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
+                final List<Shift> shiftsOrderedByVacancies = new ArrayList<>(shiftsTypesByShift.get(shiftType));
+                shiftsOrderedByVacancies.sort(vacanciesComparator);
+                enrolInOneShift(shiftsOrderedByVacancies, registration);
+            }
         }
     }
 
