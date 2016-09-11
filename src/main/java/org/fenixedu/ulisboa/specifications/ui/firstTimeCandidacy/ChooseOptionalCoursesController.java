@@ -47,8 +47,10 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.joda.time.DateTime;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,14 +63,14 @@ import pt.ist.fenixframework.Atomic;
 @RequestMapping(ChooseOptionalCoursesController.CONTROLLER_URL)
 public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/chooseoptionalcourses";
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(Model model, RedirectAttributes redirectAttributes) {
-        if (!SchoolSpecificDataController.shouldBeSkipped()) {
-            return redirect(SchoolSpecificDataController.CREATE_URL, model, redirectAttributes);
+        if (!VaccionationFormController.shouldBeSkipped(null)) {
+            return redirect(VaccionationFormController.CONTROLLER_URL, model, redirectAttributes);
         } else {
-            return redirect(MotivationsExpectationsFormController.FILLMOTIVATIONSEXPECTATIONS_URL, model, redirectAttributes);
+            return redirect(MotivationsExpectationsFormController.CONTROLLER_URL, model, redirectAttributes);
         }
     }
 
@@ -90,8 +92,9 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
 
     public static boolean shouldBeSkipped() {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        return degree.getFirstYearRegistrationConfiguration() == null
-                || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
+//        return degree.getFirstYearRegistrationConfiguration() == null
+//                || !degree.getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
+        return false;
     }
 
     @RequestMapping(value = "/opencourseenrollments")
@@ -104,10 +107,8 @@ public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificatio
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
 
-        final String url = EnrolmentManagementApp.getStrutsEntryPointURL(request, CourseEnrolmentDA.getEntryPointURL(request))
-                + "&executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID="
-                + registration.getLastStudentCurricularPlan().getExternalId();
-
+        final String args = EnrolmentStep.buildArgsStruts(executionSemester, registration.getLastStudentCurricularPlan());
+        final String url = EnrolmentStep.prepareURL(request, CourseEnrolmentDA.getEntryPointURL(), args);
         return redirect(url, model, redirectAttributes);
     }
 

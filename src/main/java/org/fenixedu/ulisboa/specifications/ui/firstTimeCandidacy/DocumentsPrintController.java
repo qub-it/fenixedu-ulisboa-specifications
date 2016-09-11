@@ -72,11 +72,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfCopyFields;
 import com.lowagie.text.pdf.PdfReader;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(DocumentsPrintController.CONTROLLER_URL)
@@ -170,7 +171,7 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
 
     private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
 
-    @Atomic
+    @Atomic(mode = TxMode.WRITE)
     private void printRegistrationDeclaration(StudentCandidacy candidacy, Registration registration) {
         DocumentRequestCreator documentRequestCreator = new DocumentRequestCreator(registration);
         documentRequestCreator.setChosenServiceRequestType(ServiceRequestType.findUnique(AcademicServiceRequestType.DOCUMENT,
@@ -196,15 +197,13 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         documentRequest.delivered();
     }
 
-    @Atomic
     private void printModel43(StudentCandidacy candidacy) {
         Person person = Authenticate.getUser().getPerson();
 
         InputStream pdfTemplateStream;
         if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
-            pdfTemplateStream =
-                    new ByteArrayInputStream(FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template()
-                            .getContent());
+            pdfTemplateStream = new ByteArrayInputStream(
+                    FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template().getContent());
         } else {
             pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
         }
@@ -222,12 +221,12 @@ public class DocumentsPrintController extends FenixeduUlisboaSpecificationsBaseC
         appendSummaryFile(stream.toByteArray(), candidacy);
     }
 
-    @Atomic
     private void printTuitionPaymentPlan(StudentCandidacy candidacy, Registration registration) {
         byte[] tuitionPlanbytes = DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF);
         appendSummaryFile(tuitionPlanbytes, candidacy);
     }
 
+    @Atomic(mode = TxMode.WRITE)
     private static void appendSummaryFile(byte[] pdfByteArray, StudentCandidacy studentCandidacy) {
         CandidacySummaryFile existingSummary = studentCandidacy.getSummaryFile();
         if (existingSummary != null) {

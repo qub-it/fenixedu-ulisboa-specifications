@@ -41,9 +41,13 @@ import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 public class DegreeCandidateDTO {
+
+    private int lineNumber;
 
     private String degreeCode;
 
@@ -61,15 +65,11 @@ public class DegreeCandidateDTO {
 
     private Gender gender;
 
-    private YearMonthDay dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String contigent;
 
-    private IngressionType ingression;
-
     private Integer placingOption;
-
-    private String highSchoolFinalGrade;
 
     private AcademicalInstitutionType highSchoolType;
 
@@ -78,6 +78,14 @@ public class DegreeCandidateDTO {
     private EntryPhase entryPhase;
 
     private Country nationality;
+
+    private String personalDataLine;
+
+    private String addressDataLine;
+
+    public DegreeCandidateDTO(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
 
     public String getDegreeCode() {
         return degreeCode;
@@ -143,11 +151,22 @@ public class DegreeCandidateDTO {
         this.gender = gender;
     }
 
-    public YearMonthDay getDateOfBirth() {
+    public void setGender(String gender) {
+        if (gender.equals("M")) {
+            setGender(Gender.MALE);
+        } else if (gender.equals("F")) {
+            setGender(Gender.FEMALE);
+        } else {
+            throw new RuntimeException("[" + getLineNumber() + "] Unknown gender: " + gender);
+        }
+
+    }
+
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(YearMonthDay dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -160,11 +179,13 @@ public class DegreeCandidateDTO {
     }
 
     public IngressionType getIngression() {
-        return ingression;
-    }
+        final IngressionType ingression = ULisboaSpecificationsRoot.getInstance().getIngressionType(contigent);
+        if (ingression == null) {
+            throw new RuntimeException("[" + getLineNumber() + "] Contigent: " + contigent
+                    + " is not mapped to any IngressionType. Please configure an IngressionType for contigent: " + contigent);
+        }
 
-    public void setIngression(IngressionType ingression) {
-        this.ingression = ingression;
+        return ingression;
     }
 
     public Integer getPlacingOption() {
@@ -173,14 +194,6 @@ public class DegreeCandidateDTO {
 
     public void setPlacingOption(Integer placingOption) {
         this.placingOption = placingOption;
-    }
-
-    public String getHighSchoolFinalGrade() {
-        return highSchoolFinalGrade;
-    }
-
-    public void setHighSchoolFinalGrade(String highSchoolFinalGrade) {
-        this.highSchoolFinalGrade = highSchoolFinalGrade;
     }
 
     public AcademicalInstitutionType getHighSchoolType() {
@@ -225,11 +238,10 @@ public class DegreeCandidateDTO {
         }
 
         person.setMaritalStatus(MaritalStatus.SINGLE);
-        person.setDateOfBirthYearMonthDay(getDateOfBirth());
+        person.setDateOfBirthYearMonthDay(YearMonthDay.fromDateFields(getDateOfBirth().toDate()));
 
-        final PhysicalAddress createPhysicalAddress =
-                PhysicalAddress.createPhysicalAddress(person, new PhysicalAddressData(getAddress(), getAreaCode(),
-                        getAreaOfAreaCode(), null), PartyContactType.PERSONAL, true);
+        final PhysicalAddress createPhysicalAddress = PhysicalAddress.createPhysicalAddress(person,
+                new PhysicalAddressData(getAddress(), getAreaCode(), getAreaOfAreaCode(), null), PartyContactType.PERSONAL, true);
         createPhysicalAddress.setValid();
 
         if (PhoneUtil.isMobileNumber(getPhoneNumber())) {
@@ -256,12 +268,24 @@ public class DegreeCandidateDTO {
         this.nationality = nationality;
     }
 
-    public static abstract class MatchingPersonException extends Exception {
+    public int getLineNumber() {
+        return lineNumber;
     }
 
-    public static class NotFoundPersonException extends MatchingPersonException {
+    public String getPersonalDataLine() {
+        return personalDataLine;
     }
 
-    public static class TooManyMatchedPersonsException extends MatchingPersonException {
+    public void setPersonalDataLine(String personalDataLine) {
+        this.personalDataLine = personalDataLine;
     }
+
+    public String getAddressDataLine() {
+        return addressDataLine;
+    }
+
+    public void setAddressDataLine(String addressDataLine) {
+        this.addressDataLine = addressDataLine;
+    }
+
 }

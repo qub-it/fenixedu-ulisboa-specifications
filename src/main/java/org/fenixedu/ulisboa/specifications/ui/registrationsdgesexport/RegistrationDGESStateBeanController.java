@@ -108,8 +108,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
     private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(ExecutionYear executionYear, int phase) {
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentPhase =
-                sc -> sc.getDgesStudentImportationProcess() != null
-                        && sc.getDgesStudentImportationProcess().getEntryPhase().getPhaseNumber() == phase;
+                sc -> sc.getEntryPhase() != null && sc.getEntryPhase().getPhaseNumber() == phase;
         return executionYear.getStudentCandidacies().stream().filter(hasDgesImportationForCurrentPhase)
                 .map(sc -> populateBean(sc)).collect(Collectors.toList());
     }
@@ -118,9 +117,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         Person person = studentCandidacy.getPerson();
         String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
         String documentIdNumber = person.getDocumentIdNumber();
-        String candidacyState =
-                BundleUtil.getString("resources/EnumerationResources", studentCandidacy.getActiveCandidacySituationType()
-                        .getQualifiedName());
+        String candidacyState = BundleUtil.getString("resources/EnumerationResources",
+                studentCandidacy.getActiveCandidacySituationType().getQualifiedName());
         String name = person.getName();
         String registrationStatus = "";
         if (studentCandidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
@@ -214,9 +212,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                     disabilityType = personUl.getDisabilityType().getLocalizedName();
                 }
 
-                needsDisabilitySupport =
-                        BundleUtil.getString("resources/FenixeduUlisboaSpecificationsResources", "label."
-                                + personUl.getNeedsDisabilitySupport().toString());
+                needsDisabilitySupport = BundleUtil.getString("resources/FenixeduUlisboaSpecificationsResources",
+                        "label." + personUl.getNeedsDisabilitySupport().toString());
             }
 
             for (UniversityDiscoveryMeansAnswer universityDiscovery : personUl.getUniversityDiscoveryMeansAnswersSet()) {
@@ -234,8 +231,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             }
         }
 
-        return new RegistrationDGESStateBean(studentCandidacy.getExternalId(), degreeCode, documentIdNumber, candidacyState,
-                name, registrationStatus, nationality, secondNationality, ingressionType, placingOption, firstOptionDegree,
+        return new RegistrationDGESStateBean(studentCandidacy.getExternalId(), degreeCode, documentIdNumber, candidacyState, name,
+                registrationStatus, nationality, secondNationality, ingressionType, placingOption, firstOptionDegree,
                 firstOptionInstitution, dislocatedResidenceType, profession, professionTimeType, professionalCondition,
                 professionType, fatherName, fatherSchoolLevel, fatherProfessionalCondition, fatherProfessionType, motherName,
                 motherSchoolLevel, motherProfessionalCondition, motherProfessionType, salarySpan, disabilityType,

@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.Student;
@@ -33,19 +35,24 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     protected AcademicEnrolmentPeriod(final DateTime startDate, final DateTime endDate, final Boolean firstTimeRegistration,
-            final Boolean restrictToSelectedStatutes, final Integer minStudentNumber, final Integer maxStudentNumber,
-            final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
-            final AcademicEnrolmentPeriodType enrolmentPeriodType, final ExecutionSemester executionSemester) {
+            final Boolean restrictToSelectedStatutes, final Boolean restrictToSelectedIngressionTypes,
+            final Integer minStudentNumber, final Integer maxStudentNumber, final Integer curricularYear,
+            final Boolean schoolClassSelectionMandatory, final AcademicEnrolmentPeriodType enrolmentPeriodType,
+            final Boolean allowEnrolWithDebts, final AutomaticEnrolment automaticEnrolment,
+            final ExecutionSemester executionSemester) {
         this();
         setStartDate(startDate);
         setEndDate(endDate);
         setFirstTimeRegistration(firstTimeRegistration);
         setRestrictToSelectedStatutes(restrictToSelectedStatutes);
+        setRestrictToSelectedIngressionTypes(restrictToSelectedIngressionTypes);
         setMinStudentNumber(minStudentNumber);
         setMaxStudentNumber(maxStudentNumber);
         setCurricularYear(curricularYear);
         setSchoolClassSelectionMandatory(schoolClassSelectionMandatory);
         setEnrolmentPeriodType(enrolmentPeriodType);
+        setAllowEnrolWithDebts(allowEnrolWithDebts);
+        setAutomaticEnrolment(automaticEnrolment);
         setExecutionSemester(executionSemester);
 
         checkRules();
@@ -81,18 +88,23 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
 
     @Atomic
     public void edit(final DateTime startDate, final DateTime endDate, final Boolean firstTimeRegistration,
-            final Boolean restrictToSelectedStatutes, final Integer minStudentNumber, final Integer maxStudentNumber,
-            final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
-            final AcademicEnrolmentPeriodType enrolmentPeriodType, final ExecutionSemester executionSemester) {
+            final Boolean restrictToSelectedStatutes, final Boolean restrictToSelectedIngressionTypes,
+            final Integer minStudentNumber, final Integer maxStudentNumber, final Integer curricularYear,
+            final Boolean schoolClassSelectionMandatory, final AcademicEnrolmentPeriodType enrolmentPeriodType,
+            final AutomaticEnrolment automaticEnrolment, final Boolean allowEnrolWithDebts,
+            final ExecutionSemester executionSemester) {
         setStartDate(startDate);
         setEndDate(endDate);
         setFirstTimeRegistration(firstTimeRegistration);
         setRestrictToSelectedStatutes(restrictToSelectedStatutes);
+        setRestrictToSelectedIngressionTypes(restrictToSelectedIngressionTypes);
         setMinStudentNumber(minStudentNumber);
         setMaxStudentNumber(maxStudentNumber);
         setCurricularYear(curricularYear);
         setSchoolClassSelectionMandatory(schoolClassSelectionMandatory);
         setEnrolmentPeriodType(enrolmentPeriodType);
+        setAutomaticEnrolment(automaticEnrolment);
+        setAllowEnrolWithDebts(allowEnrolWithDebts);
         setExecutionSemester(executionSemester);
 
         checkRules();
@@ -101,8 +113,9 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     @Atomic
     public void edit(final AcademicEnrolmentPeriodBean bean) {
         edit(bean.getStartDate(), bean.getEndDate(), bean.getFirstTimeRegistration(), bean.getRestrictToSelectedStatutes(),
-                bean.getMinStudentNumber(), bean.getMaxStudentNumber(), bean.getCurricularYear(),
-                bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(), bean.getExecutionSemester());
+                bean.getRestrictToSelectedIngressionTypes(), bean.getMinStudentNumber(), bean.getMaxStudentNumber(),
+                bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(),
+                bean.getAutomaticEnrolment(), bean.getAllowEnrolWithDebts(), bean.getExecutionSemester());
     }
 
     @Override
@@ -130,21 +143,26 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return readAll().filter(p -> p.getEnrolmentPeriodType() == type);
     }
 
+    @Atomic
     public static AcademicEnrolmentPeriod create(final DateTime startDate, final DateTime endDate,
-            final Boolean firstTimeRegistration, final Boolean restrictToSelectedStatutes, final Integer minStudentNumber,
-            final Integer maxStudentNumber, final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
-            final AcademicEnrolmentPeriodType enrolmentPeriodType, final ExecutionSemester executionSemester) {
+            final Boolean firstTimeRegistration, final Boolean restrictToSelectedStatutes,
+            final Boolean restrictToSelectedIngressionTypes, final Integer minStudentNumber, final Integer maxStudentNumber,
+            final Integer curricularYear, final Boolean schoolClassSelectionMandatory,
+            final AcademicEnrolmentPeriodType enrolmentPeriodType, final Boolean allowEnrolWithDebts,
+            final AutomaticEnrolment automaticEnrolment, final ExecutionSemester executionSemester) {
         AcademicEnrolmentPeriod period = new AcademicEnrolmentPeriod(startDate, endDate, firstTimeRegistration,
-                restrictToSelectedStatutes, minStudentNumber, maxStudentNumber, curricularYear, schoolClassSelectionMandatory,
-                enrolmentPeriodType, executionSemester);
+                restrictToSelectedStatutes, restrictToSelectedIngressionTypes, minStudentNumber, maxStudentNumber, curricularYear,
+                schoolClassSelectionMandatory, enrolmentPeriodType, allowEnrolWithDebts, automaticEnrolment, executionSemester);
 
         return period;
     }
 
+    @Atomic
     public static AcademicEnrolmentPeriod create(final AcademicEnrolmentPeriodBean bean) {
         return create(bean.getStartDate(), bean.getEndDate(), bean.getFirstTimeRegistration(),
-                bean.getRestrictToSelectedStatutes(), bean.getMinStudentNumber(), bean.getMaxStudentNumber(),
-                bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(), bean.getEnrolmentPeriodType(),
+                bean.getRestrictToSelectedStatutes(), bean.getRestrictToSelectedIngressionTypes(), bean.getMinStudentNumber(),
+                bean.getMaxStudentNumber(), bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(),
+                bean.getEnrolmentPeriodType(), bean.getAllowEnrolWithDebts(), bean.getAutomaticEnrolment(),
                 bean.getExecutionSemester());
     }
 
@@ -177,20 +195,29 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return getStartDate().isAfterNow();
     }
 
+    public boolean isAutomatic() {
+        return getAutomaticEnrolment() != null && getAutomaticEnrolment().isAutomatic();
+    }
+
+    public boolean isEditable() {
+        return getAutomaticEnrolment() == null || getAutomaticEnrolment().isEditable();
+    }
+
     private boolean containsDate(final DateTime date) {
         return !(getStartDate().isAfter(date) || getEndDate().isBefore(date));
     }
 
-    private boolean isValidRegistration(final Registration input) {
-        if (!input.isActive()) {
+    private boolean isValidRegistration(final Registration input, final boolean skipRegistrationState) {
+        if (!skipRegistrationState && !input.isActive()) {
             return false;
         }
 
-        if (isForCurricularCourses() && !input.getStudent().getRegistrationsToEnrolByStudent().contains(input)) {
+        if (isForCurricularCourses() && !getRegistrationsToEnrolByStudent(input.getStudent()).contains(input)) {
             return false;
         }
 
-        if ((isForShift() || isForClasses()) && !input.getStudent().getRegistrationsToEnrolInShiftByStudent().contains(input)) {
+        if (!skipRegistrationState && (isForShift() || isForClasses())
+                && !input.getStudent().getRegistrationsToEnrolInShiftByStudent().contains(input)) {
             return false;
         }
 
@@ -202,6 +229,20 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return (getMinStudentNumber() == null || number >= getMinStudentNumber())
 
                 && (getMaxStudentNumber() == null || number <= getMaxStudentNumber());
+    }
+
+    /**
+     * Returns the registrations that can enrol in curricular courses
+     */
+    private Collection<Registration> getRegistrationsToEnrolByStudent(Student student) {
+        final List<Registration> result = new ArrayList<Registration>();
+        for (final Registration registration : student.getRegistrationsSet()) {
+            if (registration.getRegistrationProtocol().isEnrolmentByStudentAllowed()) {
+                result.add(registration);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -223,13 +264,31 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         }
     }
 
+    /**
+     * Returns IngressionTypes that grant access to this enrolment period
+     */
+    private boolean isValidIngressionTypes(final IngressionType input) {
+        final Set<IngressionType> configured = getIngressionTypesSet();
+        if (configured.isEmpty()) {
+            return true;
+        }
+
+        if (getRestrictToSelectedIngressionTypes()) {
+            // mandatory
+            return configured.contains(input);
+        } else {
+            // blocking
+            return input == null || !configured.contains(input);
+        }
+    }
+
     private boolean isValidCurricularYear(final int input) {
         return getCurricularYear() == null || getCurricularYear().equals(input);
     }
 
     private boolean isValidFirstTimeStatus(final StudentCurricularPlan input) {
         return getFirstTimeRegistration() == null
-                || (getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear())));
+                || getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear()));
     }
 
     private boolean isValidStudentCurricularPlan(final StudentCurricularPlan input) {
@@ -237,7 +296,13 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student) {
-        return getEnrolmentPeriodsOpenOrUpcoming(student,
+        return getEnrolmentPeriodsOpenOrUpcoming(student, false,
+                student.getRegistrationsSet().stream().map(i -> i.getLastDegreeCurricularPlan()).collect(Collectors.toSet()));
+    }
+
+    static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
+            final boolean skipRegistrationState) {
+        return getEnrolmentPeriodsOpenOrUpcoming(student, skipRegistrationState,
                 student.getRegistrationsSet().stream().map(i -> i.getLastDegreeCurricularPlan()).collect(Collectors.toSet()));
     }
 
@@ -247,18 +312,24 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
             final DegreeCurricularPlan degreeCurricularPlan) {
 
-        return getEnrolmentPeriodsOpenOrUpcoming(student, Sets.newHashSet(degreeCurricularPlan));
+        return getEnrolmentPeriodsOpenOrUpcoming(student, false, Sets.newHashSet(degreeCurricularPlan));
+    }
+
+    static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
+            final boolean skipRegistrationState, final DegreeCurricularPlan degreeCurricularPlan) {
+
+        return getEnrolmentPeriodsOpenOrUpcoming(student, skipRegistrationState, Sets.newHashSet(degreeCurricularPlan));
     }
 
     static private List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
-            final Set<DegreeCurricularPlan> degreeCurricularPlans) {
+            final boolean skipRegistrationState, final Set<DegreeCurricularPlan> degreeCurricularPlans) {
 
         final List<AcademicEnrolmentPeriodBean> result = Lists.newLinkedList();
 
         for (final DegreeCurricularPlan degreeCurricularPlan : degreeCurricularPlans) {
             for (final AcademicEnrolmentPeriod iter : degreeCurricularPlan.getAcademicEnrolmentPeriodsSet()) {
                 if (iter.isOpen() || iter.isUpcoming()) {
-                    result.addAll(iter.collectFor(degreeCurricularPlan, student));
+                    result.addAll(iter.collectFor(degreeCurricularPlan, student, skipRegistrationState));
                 }
             }
         }
@@ -268,18 +339,20 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return result;
     }
 
-    private Set<AcademicEnrolmentPeriodBean> collectFor(final DegreeCurricularPlan degreeCurricularPlan, final Student input) {
+    private Set<AcademicEnrolmentPeriodBean> collectFor(final DegreeCurricularPlan degreeCurricularPlan, final Student input,
+            final boolean skipRegistrationState) {
         final Set<AcademicEnrolmentPeriodBean> result = Sets.newHashSet();
 
-        input.getRegistrationsFor(degreeCurricularPlan).stream().forEach(i -> result.addAll(collectFor(i)));
+        input.getRegistrationsFor(degreeCurricularPlan).stream()
+                .forEach(i -> result.addAll(collectFor(i, skipRegistrationState)));
 
         return result;
     }
 
-    private Set<AcademicEnrolmentPeriodBean> collectFor(final Registration input) {
+    private Set<AcademicEnrolmentPeriodBean> collectFor(final Registration input, final boolean skipRegistrationState) {
         final Set<AcademicEnrolmentPeriodBean> result = Sets.newHashSet();
 
-        if (!isValidRegistration(input)) {
+        if (!isValidRegistration(input, skipRegistrationState)) {
             return result;
         }
 
@@ -289,6 +362,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
 
         final Set<StatuteType> studentStatutes = Sets.newHashSet(StatuteServices.findStatuteTypes(input, getExecutionSemester()));
         if (!isValidStatuteTypes(studentStatutes)) {
+            return result;
+        }
+
+        if (!isValidIngressionTypes(input.getIngressionType())) {
             return result;
         }
 
@@ -309,6 +386,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         final AcademicEnrolmentPeriodBean bean = new AcademicEnrolmentPeriodBean(this);
         bean.setStudentCurricularPlan(studentCurricularPlan);
         bean.setStudentStatuteTypes(studentStatutes);
+        bean.setStudentIngressionType(input.getIngressionType());
         bean.setCurricularYear(studentCurricularYear);
         result.add(bean);
 

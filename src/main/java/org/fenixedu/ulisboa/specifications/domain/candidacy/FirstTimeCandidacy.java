@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EntryPhase;
@@ -15,6 +14,7 @@ import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ShiftEnrolment;
 import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
+import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.candidacy.CandidacyOperationType;
 import org.fenixedu.academic.domain.candidacy.CandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.util.workflow.Operation;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -40,6 +39,10 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
             return candidacy1.getCandidacyDate().compareTo(candidacy2.getCandidacyDate());
         }
     };
+
+    public static Predicate<Candidacy> isFirstTime = c -> (c instanceof FirstTimeCandidacy);
+
+    public static Predicate<Candidacy> isOpen = c -> CandidacySituationType.STAND_BY.equals(c.getActiveCandidacySituationType());
 
     public FirstTimeCandidacy(Person person, ExecutionDegree executionDegree, Person creator, Double entryGrade, String contigent,
             IngressionType ingressionType, EntryPhase entryPhase, Integer placingOption) {
@@ -76,22 +79,6 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
     @Override
     public boolean isFirstCycleCandidacy() {
         return true;
-    }
-
-    public AcademicEnrolmentPeriod findCandidacyPeriod() {
-        Predicate<AcademicEnrolmentPeriod> isForCandidates = ep -> ep.getFirstTimeRegistration() != null && ep.getFirstTimeRegistration();
-        Predicate<AcademicEnrolmentPeriod> endsAfterThisCandidacy = ep -> ep.getEndDate().isAfter(getCandidacyDate());
-        Comparator<AcademicEnrolmentPeriod> periodComparatorByEndDate = new Comparator<AcademicEnrolmentPeriod>() {
-            @Override
-            public int compare(AcademicEnrolmentPeriod period1, AcademicEnrolmentPeriod period2) {
-                return period1.getEndDate().compareTo(period2.getEndDate());
-            }
-        };
-
-        Stream<AcademicEnrolmentPeriod> periods =
-                getExecutionDegree().getDegreeCurricularPlan().getAcademicEnrolmentPeriodsSet().stream();
-        periods = periods.filter(isForCandidates).filter(endsAfterThisCandidacy).sorted(periodComparatorByEndDate);
-        return (AcademicEnrolmentPeriod) periods.findFirst().orElse(null);
     }
 
     @Override

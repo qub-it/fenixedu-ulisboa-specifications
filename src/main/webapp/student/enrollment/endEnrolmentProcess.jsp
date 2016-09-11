@@ -52,11 +52,11 @@
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-		<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
 			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
 		</a>
 	    &nbsp;|&nbsp;
-		<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
 			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.finish" />
 		</a>
 		&nbsp;

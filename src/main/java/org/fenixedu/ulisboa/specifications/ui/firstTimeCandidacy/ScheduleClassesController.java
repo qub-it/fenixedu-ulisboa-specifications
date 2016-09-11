@@ -96,14 +96,14 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
 
     public static boolean shouldBeSkipped() {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        if (degree.getFirstYearRegistrationConfiguration() == null) {
-            return true;
-        }
-        if (!degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()
-                && !degree.getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment()) {
-            return true;
-        }
-        return false;
+//        if (degree.getFirstYearRegistrationConfiguration() == null) {
+//            return true;
+//        }
+//        if (!degree.getFirstYearRegistrationConfiguration().getRequiresClassesEnrolment()
+//                && !degree.getFirstYearRegistrationConfiguration().getRequiresShiftsEnrolment()) {
+//            return true;
+//        }
+        return true;
     }
 
     @RequestMapping(value = "/openshiftenrollments")
@@ -118,18 +118,18 @@ public class ScheduleClassesController extends FenixeduUlisboaSpecificationsBase
         String format = String.format(link, registration.getExternalId());
 
         Degree degree = registration.getDegree();
-        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration = degree.getFirstYearRegistrationConfiguration();
-        if (firstYearRegistrationConfiguration.getRequiresClassesEnrolment()) {
-            String injectChecksumInUrl =
-                    GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
-            return redirect(injectChecksumInUrl, model, redirectAttributes);
-        }
-        if (firstYearRegistrationConfiguration.getRequiresShiftsEnrolment()) {
-            return redirect(
-                    "/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
-                            + getEnrolmentPeriodForSemester(executionSemester, registration).getExternalId(),
-                    model, redirectAttributes);
-        }
+//        FirstYearRegistrationConfiguration firstYearRegistrationConfiguration = degree.getFirstYearRegistrationConfiguration();
+//        if (firstYearRegistrationConfiguration.getRequiresClassesEnrolment()) {
+//            String injectChecksumInUrl =
+//                    GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), format, request.getSession());
+//            return redirect(injectChecksumInUrl, model, redirectAttributes);
+//        }
+//        if (firstYearRegistrationConfiguration.getRequiresShiftsEnrolment()) {
+//            return redirect(
+//                    "/student/shiftEnrolment/switchEnrolmentPeriod/" + registration.getExternalId() + "/"
+//                            + getEnrolmentPeriodForSemester(executionSemester, registration).getExternalId(),
+//                    model, redirectAttributes);
+//        }
         throw new RuntimeException("No classes or course enrolment for current degree");
     }
 

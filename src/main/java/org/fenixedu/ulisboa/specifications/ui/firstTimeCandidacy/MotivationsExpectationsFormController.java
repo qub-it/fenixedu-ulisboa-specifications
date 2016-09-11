@@ -46,6 +46,7 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,11 +57,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pt.ist.fenixframework.Atomic;
 import edu.emory.mathcs.backport.java.util.Collections;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.MotivationsExpectationsFormController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(MotivationsExpectationsFormController.CONTROLLER_URL)
 public abstract class MotivationsExpectationsFormController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/motivationsexpectationsform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/motivationsexpectationsform";
 
     public static final String _FILLMOTIVATIONSEXPECTATIONS_URI = "/fillmotivationsexpectations";
     public static final String FILLMOTIVATIONSEXPECTATIONS_URL = CONTROLLER_URL + _FILLMOTIVATIONSEXPECTATIONS_URI;

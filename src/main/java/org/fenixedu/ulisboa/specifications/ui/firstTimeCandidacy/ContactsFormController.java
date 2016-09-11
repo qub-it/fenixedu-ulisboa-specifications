@@ -49,6 +49,7 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ContactsFormController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ContactsFormController.CONTROLLER_URL)
 public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseController {
@@ -65,7 +67,7 @@ public class ContactsFormController extends FenixeduUlisboaSpecificationsBaseCon
 
     private static final String URL_PATTERN = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/contactsform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/contactsform/";
 
     private static final String _FILLCONTACTS_URI = "/fillcontacts";
     public static final String FILLCONTACTS_URL = CONTROLLER_URL + _FILLCONTACTS_URI;

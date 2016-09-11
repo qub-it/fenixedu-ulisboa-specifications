@@ -12,15 +12,18 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.StudentPortalRedirectController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.EnrolmentsController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -30,8 +33,15 @@ public class EnrolmentProcess implements IBean {
     private StudentCurricularPlan curricularPlan;
     private List<AcademicEnrolmentPeriodBean> enrolmentPeriods = Lists.newArrayList();
 
+    private String beforeProcessURL;
+    private String afterProcessURL;
+
     private List<EnrolmentStep> steps = Lists.newArrayList();
     private EnrolmentStep currentStep;
+    private EnrolmentStepTemplate lastStep = null;
+
+    static final private List<EnrolmentStepTemplate> beginSteps = Lists.newArrayList();
+    static final private List<EnrolmentStepTemplate> endSteps = Lists.newArrayList();
 
     private EnrolmentProcess(final ExecutionSemester executionSemester, final StudentCurricularPlan curricularPlan) {
         setExecutionSemester(executionSemester);
@@ -108,7 +118,7 @@ public class EnrolmentProcess implements IBean {
                 .sorted(Comparator.comparing(AcademicEnrolmentPeriodBean::getExecutionSemester)).collect(Collectors.toList());
     }
 
-    public List<EnrolmentStep> getSteps() {
+    private List<EnrolmentStep> getSteps() {
         return steps;
     }
 
@@ -124,15 +134,19 @@ public class EnrolmentProcess implements IBean {
         }
     }
 
-    private void addBeginEnrolmentSteps() {
-        addExtraEnrolmentSteps(getBeginEnrolmentSteps());
+    private void addBeginSteps() {
+        addExtraSteps(getBeginSteps());
     }
 
-    private void addEndEnrolmentSteps() {
-        addExtraEnrolmentSteps(getEndEnrolmentSteps());
+    private void addEndSteps() {
+        addExtraSteps(getEndSteps());
+        final EnrolmentStepTemplate lastStep = getLastStep();
+        if (lastStep != null) {
+            addExtraSteps(Lists.newArrayList(lastStep));
+        }
     }
 
-    private void addExtraEnrolmentSteps(final List<EnrolmentStepTemplate> input) {
+    private void addExtraSteps(final List<EnrolmentStepTemplate> input) {
         for (final EnrolmentStepTemplate iter : input) {
             if (iter.appliesTo(this)) {
                 iter.setProcess(this);
@@ -143,12 +157,14 @@ public class EnrolmentProcess implements IBean {
     }
 
     private void addExtraEnrolmentSteps() {
+        // save steps from enrolment periods
         final List<EnrolmentStep> periodSteps = Lists.newArrayList(getSteps());
         getSteps().clear();
 
-        addBeginEnrolmentSteps();
+        // add extra steps
+        addBeginSteps();
         addSteps(periodSteps);
-        addEndEnrolmentSteps();
+        addEndSteps();
     }
 
     public List<String> getStepsDescriptions() {
@@ -161,51 +177,74 @@ public class EnrolmentProcess implements IBean {
         return result;
     }
 
-    public String getReturnURL(final HttpServletRequest request) {
-        String result = request.getContextPath();
-
-        final EnrolmentStep currentStep = getCurrentStep(request);
-        if (currentStep != null) {
-
-            if (currentStep.getPrevious() != null) {
-                result += currentStep.getPrevious().getEntryPointURL();
-
-            } else {
-                result += EnrolmentManagementDA.getEntryPointURL(request);
-            }
-        }
-
-        return result;
+    /**
+     * Where process began
+     */
+    private String getBeforeProcessURL(final HttpServletRequest request) {
+        return EnrolmentStep.prepareURL(request, this.beforeProcessURL);
     }
 
+    private void setBeforeProcessURL(final String input) {
+        this.beforeProcessURL = input;
+    }
+
+    /**
+     * Where process exits
+     */
+    private String getAfterProcessURL(final HttpServletRequest request) {
+        return EnrolmentStep.prepareURL(request, this.afterProcessURL);
+    }
+
+    private void setAfterProcessURL(final String input) {
+        this.afterProcessURL = input;
+    }
+
+    /**
+     * Previous button
+     */
+    public String getReturnURL(final HttpServletRequest request) {
+        final EnrolmentStep currentStep = getCurrentStep(request);
+        if (currentStep != null && currentStep.getPrevious() != null) {
+            return EnrolmentStep.prepareURL(request, currentStep.getPrevious().getEntryPointURL());
+        }
+
+        return getBeforeProcessURL(request);
+    }
+
+    /**
+     * Next button
+     */
     public String getContinueURL(final HttpServletRequest request) {
-        String result = request.getContextPath();
+        String result = null;
 
         final EnrolmentStep currentStep = getCurrentStep(request);
+
         if (currentStep == null) {
-
             // kick start
-            result += getSteps().stream().map(i -> i.getEntryPointURL()).findFirst().orElse(null);
-
-        } else {
-
-            if (currentStep.getNext() != null) {
-                result += currentStep.getNext().getEntryPointURL();
-
-            } else {
-                // not the proper end
-                result += StudentPortalRedirectController.getEntryPointURL(request);
+            result = getSteps().stream().map(i -> i.getEntryPointURL()).findFirst().orElse("");
+            if (!Strings.isNullOrEmpty(result)) {
+                result = EnrolmentStep.prepareURL(request, result);
             }
+
+        } else if (currentStep.getNext() != null) {
+            result = EnrolmentStep.prepareURL(request, currentStep.getNext().getEntryPointURL());
+
+        } else {    
+            result = getAfterProcessURL(request);
+        }
+
+        if (Strings.isNullOrEmpty(result)) {
+            result = getBeforeProcessURL(request);
         }
 
         return result;
     }
 
     private EnrolmentStep getCurrentStep(final HttpServletRequest request) {
-        if (this.currentStep == null || !this.currentStep.isEntryPointURL(request)) {
+        if (this.currentStep == null || !this.currentStep.isRequested(request)) {
 
             for (final EnrolmentStep iter : getSteps()) {
-                if (iter.isEntryPointURL(request)) {
+                if (iter.isRequested(request)) {
                     this.currentStep = iter;
                     break;
                 }
@@ -215,11 +254,19 @@ public class EnrolmentProcess implements IBean {
         return this.currentStep;
     }
 
+    private EnrolmentStepTemplate getLastStep() {
+        return lastStep;
+    }
+
+    private void setLastStep(final EnrolmentStepTemplate input) {
+        this.lastStep = input;
+    }
+
     static public EnrolmentProcess find(final ExecutionSemester semester, final StudentCurricularPlan scp) {
         EnrolmentProcess result = null;
 
         if (semester != null && scp != null) {
-            
+
             final EnrolmentProcess indexer = new EnrolmentProcess(semester, scp);
             for (final EnrolmentProcess iter : buildProcesses(scp.getRegistration().getStudent())) {
                 if (iter.equals(indexer)) {
@@ -240,6 +287,36 @@ public class EnrolmentProcess implements IBean {
     }
 
     static public List<EnrolmentProcess> buildProcesses(final List<AcademicEnrolmentPeriodBean> periods) {
+        final List<EnrolmentProcess> result = Lists.newArrayList();
+
+        final StudentCandidacy candidacy = periods.stream()
+                .map(i -> i.getStudentCurricularPlan().getRegistration().getStudentCandidacy()).findFirst().orElse(null);
+
+        if (candidacy != null) {
+            final String beforeProcessURL;
+            final EnrolmentStepTemplate lastEnrolmentStep;
+            final String afterProcessURL;
+
+            if (candidacy.isConcluded()) {
+                beforeProcessURL = EnrolmentManagementDA.getEntryPointURL();
+                lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
+                afterProcessURL = StudentPortalRedirectController.getEntryPointURL();
+            } else {
+                beforeProcessURL = EnrolmentsController.getBackUrl();
+                afterProcessURL = EnrolmentsController.getNextUrl();
+                lastEnrolmentStep = null;
+            }
+
+            result.addAll(buildProcesses(beforeProcessURL, periods, lastEnrolmentStep, afterProcessURL));
+        }
+
+        return result;
+    }
+
+    static private List<EnrolmentProcess> buildProcesses(final String beforeProcessURL,
+            final List<AcademicEnrolmentPeriodBean> periods, final EnrolmentStepTemplate lastEnrolmentStep,
+            final String afterProcessURL) {
+
         final Set<EnrolmentProcess> builder = Sets.newHashSet();
 
         // essential sort
@@ -253,6 +330,9 @@ public class EnrolmentProcess implements IBean {
 
                 // elements to add
                 final EnrolmentProcess process = new EnrolmentProcess(iter, periods);
+                process.setBeforeProcessURL(beforeProcessURL);
+                process.setAfterProcessURL(afterProcessURL);
+                process.setLastStep(lastEnrolmentStep);
                 process.addStep(new EnrolmentStep(iter));
 
                 if (builder.contains(process)) {
@@ -263,10 +343,10 @@ public class EnrolmentProcess implements IBean {
             }
         }
 
-        // consolidate steps within processes
         for (final EnrolmentProcess process : builder) {
             process.addExtraEnrolmentSteps();
 
+            // consolidate steps within processes
             for (final ListIterator<EnrolmentStep> iterator = process.getSteps().listIterator(); iterator.hasNext();) {
                 final EnrolmentStep current = iterator.next();
                 current.setProcess(process);
@@ -305,37 +385,30 @@ public class EnrolmentProcess implements IBean {
         addBeginEnrolmentStep(0, CourseEnrolmentDA.createEnrolmentStepShowEnrollmentInstructions());
     }
 
-    static final private List<EnrolmentStepTemplate> beginEnrolmentSteps = Lists.newArrayList();
-    static final private List<EnrolmentStepTemplate> endEnrolmentSteps = Lists.newArrayList();
-
-    static final public List<EnrolmentStepTemplate> getBeginEnrolmentSteps() {
-        return beginEnrolmentSteps;
+    static final private List<EnrolmentStepTemplate> getBeginSteps() {
+        return beginSteps;
     }
 
-    static final public List<EnrolmentStepTemplate> getEndEnrolmentSteps() {
-        final EnrolmentStepTemplate end = EnrolmentManagementDA.createEnrolmentStepEndProcess();
-        if (endEnrolmentSteps.contains(end)) {
-            endEnrolmentSteps.remove(end);
-        }
-        endEnrolmentSteps.add(end);
-
-        return endEnrolmentSteps;
+    static final private List<EnrolmentStepTemplate> getEndSteps() {
+        return endSteps;
     }
 
-    static final public List<EnrolmentStepTemplate> addBeginEnrolmentStep(final int index, final EnrolmentStepTemplate input) {
-        if (!getBeginEnrolmentSteps().contains(input)) {
-            getBeginEnrolmentSteps().add(index, input);
+    synchronized static final public List<EnrolmentStepTemplate> addBeginEnrolmentStep(final int index,
+            final EnrolmentStepTemplate input) {
+        if (!getBeginSteps().contains(input)) {
+            getBeginSteps().add(index, input);
         }
 
-        return getBeginEnrolmentSteps();
+        return getBeginSteps();
     }
 
-    static final public List<EnrolmentStepTemplate> addEndEnrolmentStep(final int index, final EnrolmentStepTemplate input) {
-        if (!getEndEnrolmentSteps().contains(input)) {
-            getEndEnrolmentSteps().add(index, input);
+    synchronized static final public List<EnrolmentStepTemplate> addEndEnrolmentStep(final int index,
+            final EnrolmentStepTemplate input) {
+        if (!getEndSteps().contains(input)) {
+            getEndSteps().add(index, input);
         }
 
-        return getEndEnrolmentSteps();
+        return getEndSteps();
     }
 
 }

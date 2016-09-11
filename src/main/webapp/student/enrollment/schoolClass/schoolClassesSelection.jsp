@@ -72,13 +72,13 @@
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-		<a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
 			<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
 		</a>
 	    &nbsp;|&nbsp;
 	    <c:if test="${canContinueProcess}">
 			<bean:define id="continueHACKLink"><%= request.getContextPath() + org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA.createEnrolmentStepEndProcess().getEntryPointURL()  %>&studentCurricularPlanOID=<c:out value="${enrolmentProcess.studentCurricularPlan.externalId}" />&executionSemesterOID=<c:out value="${enrolmentProcess.executionSemester.externalId}" /></bean:define>
-			<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+			<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
 				<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
 			</a>
 		</c:if>
@@ -110,12 +110,6 @@
 	  <html:messages id="messages" message="true" bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" property="success"><bean:write name="messages" /></html:messages>
 	</div>
 </logic:messagesPresent>
-
-<logic:present name="returnURL">
-	<p>
-		<a href="${returnURL}" class="btn btn-default"><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></a>
-	</p>
-</logic:present>
 
 <c:forEach items="${enrolmentBeans}" var="enrolmentBean">
 	<c:set value="${enrolmentBean.currentSchoolClass}" var="currentSchoolClass"/>

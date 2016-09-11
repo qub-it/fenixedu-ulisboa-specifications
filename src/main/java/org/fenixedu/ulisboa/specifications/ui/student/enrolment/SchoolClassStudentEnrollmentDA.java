@@ -28,9 +28,12 @@ package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +43,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
@@ -57,14 +62,16 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import pt.ist.fenixframework.Atomic;
 
 /**
  * @author shezad - Jul 9, 2015
@@ -84,8 +91,8 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         return ACTION.replace(MAPPING_MODULE, "");
     }
 
-    static public String getEntryPointURL(final HttpServletRequest request) {
-        return EnrolmentManagementApp.getStrutsEntryPointURL(request, ACTION);
+    static public String getEntryPointURL() {
+        return ACTION;
     }
 
     @EntryPoint
@@ -102,9 +109,17 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         final Student student = Authenticate.getUser().getPerson().getStudent();
         final List<SchoolClassStudentEnrollmentDTO> enrolmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
+        Collection<ExecutionSemester> automaticEnrolmentSemesters = new HashSet<>();
         boolean schoolClassEmptyButSelectionMandatory = false;
         for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
+
+                if (iter.getEnrolmentPeriod().getAutomaticEnrolment() == AutomaticEnrolment.YES_UNEDITABLE) {
+                    automaticEnrolmentSemesters.add(executionSemester);
+                }
+                if (!automaticEnrolmentSemesters.isEmpty()) {
+                    continue;
+                }
 
                 final SchoolClassStudentEnrollmentDTO schoolClassStudentEnrollmentBean = new SchoolClassStudentEnrollmentDTO(iter,
                         executionSemester == iter.getExecutionSemester() ? selectedSchoolClass : null);
@@ -116,6 +131,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 }
             }
         }
+
         request.setAttribute("schoolClassEmptyButSelectionMandatory", schoolClassEmptyButSelectionMandatory);
 
         if (!enrolmentBeans.isEmpty()) {
@@ -125,10 +141,61 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         request.setAttribute("enrolmentBeans", enrolmentBeans);
         request.setAttribute("action", getAction());
         if (executionSemester != null && scp != null) {
-            request.setAttribute("enrolmentProcess", EnrolmentProcess.find(executionSemester, scp));
+            final EnrolmentProcess enrolmentProcess = EnrolmentProcess.find(executionSemester, scp);
+            request.setAttribute("enrolmentProcess", enrolmentProcess);
+
+            if (!automaticEnrolmentSemesters.isEmpty() && enrolmentProcess != null) {
+                final Registration registration = scp.getRegistration();
+                final SchoolClass schoolClass = readFirstUnfilledClass(registration, executionSemester).orElse(null);
+                enrolOnSchoolClass(schoolClass, registration);
+                return redirect(enrolmentProcess.getContinueURL(request), request);
+            }
         }
 
         return mapping.findForward("showSchoolClasses");
+    }
+
+    @Atomic
+    protected void enrolOnSchoolClass(final SchoolClass schoolClass, final Registration registration) {
+        if (schoolClass == null) {
+            throw new DomainException("error.RegistrationOperation.avaliable.schoolClass.not.found");
+        }
+
+        RegistrationServices.replaceSchoolClass(registration, schoolClass, schoolClass.getExecutionPeriod());
+    }
+
+    private Optional<SchoolClass> readFirstUnfilledClass(Registration registration, final ExecutionSemester executionSemester) {
+        ExecutionDegree executionDegree = registration.getDegree()
+                .getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator().next();
+        return executionDegree
+                .getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
+                        && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
+                .sorted(new MostFilledFreeClass()).findFirst();
+    }
+
+    class MostFilledFreeClass implements Comparator<SchoolClass> {
+        // Return at the beggining the course which is the most filled, but still has space
+        // This allows a "fill first" kind of school class scheduling
+
+        @Override
+        public int compare(SchoolClass sc1, SchoolClass sc2) {
+            Integer sc1Vacancies = getFreeVacancies(sc1);
+            Integer sc2Vacancies = getFreeVacancies(sc2);
+
+            return sc1Vacancies.compareTo(sc2Vacancies) != 0 ? sc1Vacancies
+                    .compareTo(sc2Vacancies) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
+        }
+
+    }
+
+    private Integer getFreeVacancies(SchoolClass schoolClass) {
+        final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
+                .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
+        return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
+    }
+
+    private Integer getShiftVacancies(final Shift shift) {
+        return shift.getLotacao() - shift.getStudentsSet().size();
     }
 
     public ActionForward viewSchoolClass(ActionMapping mapping, ActionForm form, HttpServletRequest request,

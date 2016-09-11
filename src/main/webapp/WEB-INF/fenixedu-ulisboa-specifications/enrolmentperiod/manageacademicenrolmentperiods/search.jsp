@@ -167,6 +167,19 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
             </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
+                    <spring:message code="label.AcademicEnrolmentPeriod.automaticEnrolment" />
+                </div>
+
+                <div class="col-sm-4">
+                    <select id="academicEnrolmentPeriod_automaticEnrolment"
+                        class="js-example-basic-single"
+                        name="automaticEnrolment">
+                        <option value="">&nbsp;</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
                     <spring:message code="label.AcademicEnrolmentPeriod.executionSemester" />
                 </div>
 
@@ -216,6 +229,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                 </th>
                                 <th>
                                     <spring:message code="label.AcademicEnrolmentPeriod.statuteTypes" />
+                                </th>
+                                <th>
+                                    <spring:message code="label.AcademicEnrolmentPeriod.ingressionTypes" />
                                 </th>
                                 <th>
                                     <spring:message code="label.AcademicEnrolmentPeriod.configuration" />
@@ -274,6 +290,34 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                         </c:forEach>
                                     </c:if>
                                     <c:if test="${ academicEnrolmentPeriod.statuteTypesSet.size() == 0 }">-</c:if>
+                                </td>
+                                <td>
+                                    <c:set var="ingressionMeaning">
+                                        <c:if test="${ academicEnrolmentPeriod.restrictToSelectedIngressionTypes }">
+                                            <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions.true" />
+                                        </c:if>
+                                        <c:if test="${ !academicEnrolmentPeriod.restrictToSelectedIngressionTypes }">
+                                            <spring:message code="label.AcademicEnrolmentPeriod.restrictToSelectedIngressions.false" />
+                                        </c:if>
+                                    </c:set>
+                                    <c:if test="${ academicEnrolmentPeriod.ingressionTypesSet.size() > 5 }">
+                                        <c:set var="ingressionMessage">
+                                            <c:out value="${ ingressionMeaning }"/>:
+                                            <c:forEach var="element" items="${ academicEnrolmentPeriod.ingressionTypesSet }">
+                                                <li><c:out value="[${ element.code }] ${ element.description.content }"/> </li>
+                                            </c:forEach>
+                                        </c:set>
+                                        <div data-toggle="tooltip" data-html="true" title="${ ingressionMessage }" >
+                                            <spring:message code="message.AcademicEnrolmentPeriod.has.x.ingressionTypes" arguments="${ academicEnrolmentPeriod.ingressionTypesSet.size() }" />
+                                        </div>
+                                    </c:if>
+                                    <c:if test="${ academicEnrolmentPeriod.ingressionTypesSet.size() <= 5 && academicEnrolmentPeriod.ingressionTypesSet.size() > 0 }">
+                                        <c:out value="${ ingressionMeaning }"/>:
+                                        <c:forEach var="element" items="${ academicEnrolmentPeriod.ingressionTypesSet }">
+                                            <li><c:out value="[${ element.code }] ${ element.description.content }"/> </li>
+                                        </c:forEach>
+                                    </c:if>
+                                    <c:if test="${ academicEnrolmentPeriod.ingressionTypesSet.size() == 0 }">-</c:if>
                                 </td>
                                 <td>
                                 	<li><c:out value="${ academicEnrolmentPeriod.executionSemester.qualifiedName }"/></li>
@@ -380,6 +424,23 @@ $(document).ready( function() {
                                 
     $("#academicEnrolmentPeriod_type").select2().select2('val', '<c:out value='${param.enrolmentPeriodType}'/>');
 
+    //DROPDOWN automaticEnrolment
+    type_options = [
+        <c:forEach items="${automaticEnrolment}" var="element"> 
+            {
+                text :"<c:out value='${element.descriptionI18N.content}'/>", 
+                id : "<c:out value='${element.toString()}'/>"
+            },
+        </c:forEach>
+    ];
+                        
+    $("#academicEnrolmentPeriod_automaticEnrolment").select2({
+        data : type_options,
+    });
+                                
+    $("#academicEnrolmentPeriod_automaticEnrolment").select2().select2('val', '<c:out value='${param.automaticEnrolment}'/>');
+
+    
     $('[data-toggle="tooltip"]').tooltip();
 
 });

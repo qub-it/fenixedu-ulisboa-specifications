@@ -101,8 +101,9 @@ public class ShowSelectedCoursesController extends FenixeduUlisboaSpecifications
     }
 
     private boolean registrationRequiresManualCourseEnrolment(Registration registration) {
-        return registration.getDegree().getFirstYearRegistrationConfiguration() != null
-                && registration.getDegree().getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
+//        return registration.getDegree().getFirstYearRegistrationConfiguration() != null
+//                && registration.getDegree().getFirstYearRegistrationConfiguration().getRequiresCoursesEnrolment();
+        return false;
     }
 
     @RequestMapping(value = "/continue")

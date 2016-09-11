@@ -35,6 +35,7 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,11 +44,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.CgdDataAuthorizationController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(CgdDataAuthorizationController.CONTROLLER_URL)
 public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/cgddataauthorization/OLD";
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model,

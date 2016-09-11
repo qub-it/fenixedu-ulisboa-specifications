@@ -1,16 +1,21 @@
 package org.fenixedu.ulisboa.specifications.ui.blue_record.authentication;
 
+import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.ulisboa.specifications.authentication.IULisboaRedirectionHandler;
+import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesFormPeriod;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
@@ -54,6 +59,10 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         }
 
         if (isEnrolmentStep(request)) {
+            return false;
+        }
+
+        if (isFirstTimeCandidacies(user, request)) {
             return false;
         }
 
@@ -102,9 +111,9 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
     static private boolean isEnrolmentStep(final HttpServletRequest request) {
 
-        final List<String> stepsURLs = Lists.newArrayList(EnrolmentManagementDA.getEndURL(null),
-                CourseEnrolmentDA.getInstructionsEntryPointURL(null), CourseEnrolmentDA.getEntryPointURL(null),
-                SchoolClassStudentEnrollmentDA.getEntryPointURL(null), ShiftEnrolmentController.getEntryPointURL());
+        final List<String> stepsURLs = Lists.newArrayList(EnrolmentManagementDA.getEndURL(),
+                CourseEnrolmentDA.getInstructionsEntryPointURL(), CourseEnrolmentDA.getEntryPointURL(),
+                SchoolClassStudentEnrollmentDA.getEntryPointURL(), ShiftEnrolmentController.getEntryPointURL());
 
         for (final String iter : stepsURLs) {
 
@@ -112,7 +121,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
             // NOTE: at this stage of filter chain, ActionMapping or something else is not available
             // TODO legidio, deal with ui layer requests...
-            
+
             if (iter.contains("?")) {
                 // action
                 aux = iter.substring(0, iter.lastIndexOf("?"));
@@ -129,6 +138,14 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         }
 
         return false;
+    }
+
+    private boolean isFirstTimeCandidacies(User user, HttpServletRequest request) {
+        String path = request.getRequestURL().toString();
+        Optional<Candidacy> candidacy = user.getPerson().getCandidaciesSet().stream().filter(FirstTimeCandidacy.isFirstTime)
+                .filter(FirstTimeCandidacy.isOpen).findAny();
+
+        return candidacy.isPresent() || path.contains(FIRST_TIME_START_URL);
     }
 
 }

@@ -66,7 +66,7 @@ import pt.ist.fenixframework.FenixFramework;
 public abstract class PreviousDegreeOriginInformationFormController extends FirstTimeCandidacyAbstractController {
 
     public static final String CONTROLLER_URL =
-            "/fenixedu-ulisboa-specifications/firsttimecandidacy/{executionYearId}/previousdegreeorigininformationform";
+            "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/previousdegreeorigininformationform";
 
     public static final String _FILLPREVIOUSDEGREEINFORMATION_URI = "/fillpreviousdegreeinformation";
     public static final String FILLPREVIOUSDEGREEINFORMATION_URL = CONTROLLER_URL + _FILLPREVIOUSDEGREEINFORMATION_URI;

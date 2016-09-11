@@ -51,6 +51,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,11 +62,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import pt.ist.fenixframework.Atomic;
 
+@Component("org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FiliationFormController")
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(FiliationFormController.CONTROLLER_URL)
 public class FiliationFormController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/filiationform";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/filiationform";
 
     private static final String _FILLFILIATION_URI = "/fillfiliation";
     public static final String FILLFILIATION_URL = CONTROLLER_URL + _FILLFILIATION_URI;

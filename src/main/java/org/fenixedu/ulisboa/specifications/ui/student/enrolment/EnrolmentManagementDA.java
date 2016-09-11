@@ -48,8 +48,8 @@ import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
-import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManagementApp;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStepTemplate;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
@@ -71,8 +71,8 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
     static final private String MAPPING = "/ulisboa-specifications/student/enrolmentManagement";
     static final private String ACTION = MAPPING + ".do";
 
-    static public String getEntryPointURL(final HttpServletRequest request) {
-        return EnrolmentManagementApp.getStrutsEntryPointURL(request, ACTION);
+    static public String getEntryPointURL() {
+        return ACTION;
     }
 
     @EntryPoint
@@ -102,19 +102,15 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         return student;
     }
 
-    static public String buildArgsStruts(final ExecutionSemester executionSemester, final StudentCurricularPlan scp) {
-        return "&executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID=" + scp.getExternalId();
-    }
-
     static public EnrolmentStepTemplate createEnrolmentStepEndProcess() {
         return new EnrolmentStepTemplate(
 
                 ULisboaSpecificationsUtil.bundleI18N("label.EnrolmentProcess.end"),
 
-                getEndURL(null),
+                getEndURL(),
 
                 (enrolmentProcess) -> {
-                    return EnrolmentManagementDA.buildArgsStruts(enrolmentProcess.getExecutionSemester(),
+                    return EnrolmentStep.buildArgsStruts(enrolmentProcess.getExecutionSemester(),
                             enrolmentProcess.getStudentCurricularPlan());
                 },
 
@@ -123,8 +119,8 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
                 });
     }
 
-    static public String getEndURL(final HttpServletRequest request) {
-        return EnrolmentManagementApp.getStrutsURL(request, ACTION, "endEnrolmentProcess");
+    static public String getEndURL() {
+        return ACTION + "?method=endEnrolmentProcess";
     }
 
     public ActionForward endEnrolmentProcess(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,

@@ -98,7 +98,7 @@
 					</td>
 					<td class="acenter">
 						<div class="well well-sm" style="display: inline-block">
-							<a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+							<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
 								<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.begin" />
 							</a>
 							&nbsp;<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
