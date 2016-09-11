@@ -100,10 +100,9 @@ public class EnrolmentsController extends EnrolmentAbstractController {
             }
             return nextScreen(executionYear, model, redirectAttributes);
         }
-        //TODOJN - jump
-//        final String url = enrolmentProcesses.iterator().next().getContinueURL(request);
-//        return redirect(url, model, redirectAttributes);
-        return nextScreen(executionYear, model, redirectAttributes);
+
+        final String url = enrolmentProcesses.iterator().next().getContinueURL(request);
+        return redirect(url, model, redirectAttributes);
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(Model model, FirstTimeCandidacy candidacy) {
