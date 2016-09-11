@@ -40,12 +40,10 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -65,8 +63,6 @@ import org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects.EnrolmentManage
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -306,6 +302,17 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                     .stream().filter(s -> s.getAnoCurricular().equals(curricularYear))
                     .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
 
+            return filterSchoolClassesByPrecedence(schoolClasses);
+        }
+
+        public List<SchoolClass> getInitialSchoolClassesToEnrol() {
+            final List<SchoolClass> schoolClasses =
+                    RegistrationServices.getInitialSchoolClassesToEnrolBy(getRegistration(), getExecutionSemester()).stream()
+                            .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
+            return filterSchoolClassesByPrecedence(schoolClasses);
+        }
+
+        private List<SchoolClass> filterSchoolClassesByPrecedence(final List<SchoolClass> schoolClasses) {
             final ExecutionSemester previousExecutionSemester = getExecutionSemester().getPreviousExecutionPeriod();
             if (previousExecutionSemester != null) {
                 final SchoolClass previousSchoolClass =
@@ -316,12 +323,18 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 }
             }
 
-            return schoolClasses;
-        }
+            final ExecutionSemester nextExecutionSemester = getExecutionSemester().getNextExecutionPeriod();
+            if (nextExecutionSemester != null) {
+                final SchoolClass nextSchoolClass =
+                        RegistrationServices.getSchoolClassBy(getRegistration(), nextExecutionSemester).orElse(null);
+                if (nextSchoolClass != null && !nextSchoolClass.getPreviousSchoolClassesSet().isEmpty()) {
+                    final List<SchoolClass> result = new ArrayList<>(schoolClasses);
+                    result.retainAll(nextSchoolClass.getPreviousSchoolClassesSet());
+                    return result;
+                }
+            }
 
-        public List<SchoolClass> getInitialSchoolClassesToEnrol() {
-            return RegistrationServices.getInitialSchoolClassesToEnrolBy(getRegistration(), getExecutionSemester()).stream()
-                    .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
+            return schoolClasses;
         }
 
         public int getCurricularYear() {

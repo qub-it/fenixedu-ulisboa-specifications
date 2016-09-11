@@ -123,26 +123,29 @@
 	  		<div class="alert alert-warning" role="alert"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassStudentEnrollment.noAvailableSchoolClassesForPeriod" /></div>
 	  	</c:if>
 	  	<c:if test="${not empty schoolClassesToEnrol}">
-	  		<c:if test="${empty currentSchoolClass}">
-				<p class="text-muted"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.shiftEnrolment.schoolClassesCurricularYear.selectOneSchoolClass" />:</p>
-	  		</c:if>
+			<p class="text-muted"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.shiftEnrolment.schoolClassesCurricularYear.selectOneSchoolClass" />:</p>
 			<ul class="nav nav-tabs">
 				<c:forEach items="${schoolClassesToEnrol}" var="schoolClass">
-					<li class="">
+					<li class="${(not empty currentSchoolClass) and (schoolClass eq currentSchoolClass) ? 'active' : ''}">
 						<bean:define id="link"><%=action.toString()%>?method=enrollInSchoolClass&schoolClassID=<c:out value="${schoolClass.externalId}" />&studentCurricularPlanOID=<c:out value="${enrolmentBean.studentCurricularPlan.externalId}" />&enrolmentPeriodID=<c:out value="${enrolmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
 						<html:link page="<%= link %>">
 							<c:out value="${schoolClass.editablePartOfName}" />
 							<c:if test="${(not empty currentSchoolClass) and (schoolClass eq currentSchoolClass)}">
 								<span class="badge"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.schoolClassStudentEnrollment.selected" /></span>
 							</c:if>
+							<c:if test="${empty currentSchoolClass || not ((schoolClass eq currentSchoolClass))}">
+								<span class="badge" style="text-transform: lowercase;"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="button.schoolClassStudentEnrollment.selectSchoolClass" /></span>
+							</c:if>
 						</html:link>
 					</li>
 				</c:forEach>
 			</ul>
-			<bean:define id="removeSchoolClassLink"><%=action.toString()%>?method=enrollInSchoolClass&studentCurricularPlanOID=<c:out value="${enrolmentBean.studentCurricularPlan.externalId}" />&enrolmentPeriodID=<c:out value="${enrolmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
-			<html:link onclick="disabledOnClick(this);" page="<%= removeSchoolClassLink %>" styleClass="btn btn-default btn-xs mtop15">
-				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> <bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="button.schoolClassStudentEnrollment.unselectSchoolClass" />
-			</html:link>				
+			<c:if test="${not empty currentSchoolClass}">
+				<bean:define id="removeSchoolClassLink"><%=action.toString()%>?method=enrollInSchoolClass&studentCurricularPlanOID=<c:out value="${enrolmentBean.studentCurricularPlan.externalId}" />&enrolmentPeriodID=<c:out value="${enrolmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
+				<html:link onclick="disabledOnClick(this);" page="<%= removeSchoolClassLink %>" styleClass="btn btn-default btn-xs mtop15">
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> <bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="button.schoolClassStudentEnrollment.unselectSchoolClass" />
+				</html:link>				
+			</c:if>
 	  	</c:if>	  	
 	  </div>
 	</div>
