@@ -102,7 +102,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         }
 
         final String url = enrolmentProcesses.iterator().next().getContinueURL(request);
-        return redirect(url, model, redirectAttributes);
+        return redirect(url.replaceFirst(request.getContextPath(), ""), model, redirectAttributes);
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(Model model, FirstTimeCandidacy candidacy) {
