@@ -365,12 +365,6 @@ relation DgesStudentImportationProcessSpace {
 	}
 }
 
-relation DgesStudentImportationProcessStudentCandidacy {
-	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
-	.org.fenixedu.academic.domain.candidacy.StudentCandidacy playsRole studentCandidacy {
-		multiplicity *;
-	}
-}
 
 class candidacy.FirstTimeCandidacy extends .org.fenixedu.academic.domain.candidacy.StudentCandidacy {
 }
