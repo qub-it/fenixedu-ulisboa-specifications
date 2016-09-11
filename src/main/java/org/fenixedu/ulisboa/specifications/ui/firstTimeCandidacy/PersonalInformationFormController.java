@@ -94,7 +94,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
     private static final String SOCIAL_SECURITY_NUMBER_FORMAT = "\\d{9}";
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/personalinformationform";
+    public static final String CONTROLLER_URL =
+            "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/{executionYearId}/personalinformationform";
 
     protected static final String _FILLPERSONALINFORMATION_URI = "/fillpersonalinformation";
     public static final String FILLPERSONALINFORMATION_URL = CONTROLLER_URL + _FILLPERSONALINFORMATION_URI;
@@ -111,13 +112,15 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(@PathVariable("executionYearId") ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
+            RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.GET)
-    public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+    public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
             return nextScreen(executionYear, model, redirectAttributes);
@@ -154,8 +157,9 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, Model model) {
         Person person = getStudent(model).getPerson();
 
-        model.addAttribute("identityCardExtraDigitRequired", person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !isIdentityCardControlNumberValid(getIdentityCardControlNumber(person)));
+        model.addAttribute("identityCardExtraDigitRequired",
+                person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD && !IdentityCardUtils
+                        .validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person)));
 
         PersonalInformationForm form = (PersonalInformationForm) model.asMap().get("personalInformationForm");
         if (form != null) {
@@ -163,7 +167,10 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             form.setIdDocumentType(person.getIdDocumentType());
 
             if (person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
-                form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
+                final String digitControl = IdentityCardUtils.getDigitControlFromPerson(person);
+                if (!Strings.isNullOrEmpty(digitControl)) {
+                    form.setIdentificationDocumentSeriesNumber(digitControl);
+                }
             }
 
             fillstaticformdata(executionYear, getStudent(model), form);
@@ -192,7 +199,11 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         form.setDocumentIdNumber(person.getDocumentIdNumber());
         form.setIdDocumentType(person.getIdDocumentType());
-        form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
+
+        final String digitControl = IdentityCardUtils.getDigitControlFromPerson(person);
+        if (!Strings.isNullOrEmpty(digitControl)) {
+            form.setIdentificationDocumentSeriesNumber(digitControl);
+        }
 
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
@@ -218,7 +229,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         return form;
     }
 
-    private void fillstaticformdata(final ExecutionYear executionYear, final Student student, final PersonalInformationForm form) {
+    private void fillstaticformdata(final ExecutionYear executionYear, final Student student,
+            final PersonalInformationForm form) {
         form.setFirstYearRegistration(false);
         for (final Registration registration : student.getRegistrationsSet()) {
             if (!registration.isActive()) {
@@ -237,7 +249,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     @RequestMapping(value = _FILLPERSONALINFORMATION_URI, method = RequestMethod.POST)
-    public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear, PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
+    public String fillpersonalinformation(@PathVariable("executionYearId") final ExecutionYear executionYear,
+            PersonalInformationForm form, Model model, RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -261,7 +274,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     }
 
     protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(FiliationFormController.FILLFILIATION_URL + "/" + executionYear.getExternalId(), model, redirectAttributes);
+        return redirect(FiliationFormController.FILLFILIATION_URL + "/" + executionYear.getExternalId(), model,
+                redirectAttributes);
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
@@ -329,8 +343,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         }
 
         if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !isIdentityCardControlNumberValid(getIdentityCardControlNumber(person))
-                && !isIdentityCardControlNumberValid(form.getIdentificationDocumentSeriesNumber())) {
+                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))
+                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), form.getIdentificationDocumentSeriesNumber())) {
             result.add(ULisboaSpecificationsUtil
                     .bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
         }
@@ -338,20 +352,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         return result;
     }
 
-    private String getIdentityCardControlNumber(final Person person) {
-        if (!Strings.isNullOrEmpty(person.getIdentificationDocumentSeriesNumberValue())) {
-            return person.getIdentificationDocumentSeriesNumberValue();
-        }
-
-        return person.getIdentificationDocumentExtraDigitValue();
-    }
-
     private void setIdentityCardControlNumber(final Person person, final String number) {
         person.setIdentificationDocumentSeriesNumber(number);
-    }
-
-    private boolean isIdentityCardControlNumberValid(final String extraValue) {
-        return IdentityCardUtils.isIdentityCardDigitControlFormatValid(extraValue);
     }
 
     private boolean testsMode() {
@@ -364,7 +366,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
     private void writeData(final ExecutionYear executionYear, final PersonalInformationForm form, final Model model) {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        PersonalIngressionData personalData = getOrCreatePersonalIngressionDataForCurrentExecutionYear(executionYear, getStudent(model));
+        PersonalIngressionData personalData =
+                getOrCreatePersonalIngressionDataForCurrentExecutionYear(executionYear, getStudent(model));
         if (!isPartialUpdate()) {
             person.setEmissionLocationOfDocumentId(form.getDocumentIdEmissionLocation());
             LocalDate documentIdEmissionDate = form.getDocumentIdEmissionDate();
@@ -401,8 +404,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         person.setCountryHighSchool(form.getCountryHighSchool());
 
-        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !isIdentityCardControlNumberValid(getIdentityCardControlNumber(person))) {
+        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD && !IdentityCardUtils
+                .validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))) {
             setIdentityCardControlNumber(person, form.getIdentificationDocumentSeriesNumber());
         }
 

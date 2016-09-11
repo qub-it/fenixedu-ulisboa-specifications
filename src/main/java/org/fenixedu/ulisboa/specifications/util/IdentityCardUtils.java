@@ -99,6 +99,10 @@ public class IdentityCardUtils {
         return (sum % 10) == 0;
     }
 
+    /**
+     * @deprecated Use IdentityCardUtils.validate
+     */
+    @Deprecated
     public static boolean isIdentityCardDigitControlFormatValid(final String extraValue) {
         return !Strings.isNullOrEmpty(extraValue)
                 && (isBilheteIdentidadeDigitControlFormatValid(extraValue) || isCartaoCidadaoDigitControlFormatValid(extraValue));

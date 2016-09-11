@@ -171,7 +171,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     			</div>
             </c:if>
 			
-		<c:if test="${identityCardExtraDigitRequired}">
+		<c:if test="${person.getIdDocumentType == IDDocumentType.IDENTITY_CARD}">
 			<div class="form-group row">
 				<label for="personalInformationForm_identificationDocumentSeriesNumber" class="col-sm-2 control-label required-field">
 					<spring:message
@@ -182,10 +182,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</label>
 
 				<div class="col-sm-10">
-					<input id="personalInformationForm_identificationDocumentSeriesNumber"
-						class="form-control" type="text" ng-model="object.identificationDocumentSeriesNumber" name="identificationDocumentSeriesNumber"
-                        placeholder="<spring:message code='label.PersonalInformationForm.extraDigit.more.help'/>"
-						value='<c:out value='${not empty param.identificationDocumentSeriesNumber ? param.identificationDocumentSeriesNumber : personalInformationForm.identificationDocumentSeriesNumber }'/>' />
+					<c:if test="${identityCardExtraDigitRequired}">
+						<input id="personalInformationForm_identificationDocumentSeriesNumber"
+							class="form-control" type="text" ng-model="object.identificationDocumentSeriesNumber" name="identificationDocumentSeriesNumber"
+	                        placeholder="<spring:message code='label.PersonalInformationForm.extraDigit.more.help'/>"
+							value='<c:out value='${not empty param.identificationDocumentSeriesNumber ? param.identificationDocumentSeriesNumber : personalInformationForm.identificationDocumentSeriesNumber }'/>' />
+					</c:if>
+					<c:if test="${!identityCardExtraDigitRequired}">
+						<div class="form-control-static"><c:out value='${personalInformationForm.identificationDocumentSeriesNumber}' /></div>
+					</c:if>
 				</div>
 			</div>
 		</c:if>

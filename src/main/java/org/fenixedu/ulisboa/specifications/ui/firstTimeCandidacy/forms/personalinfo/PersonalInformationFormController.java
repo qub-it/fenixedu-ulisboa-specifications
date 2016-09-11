@@ -86,8 +86,9 @@ public class PersonalInformationFormController extends FormAbstractController {
     public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, Model model) {
         Person person = getStudent(model).getPerson();
 
-        model.addAttribute("identityCardExtraDigitRequired", person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !isIdentityCardControlNumberValid(person.getDocumentIdNumber(), getIdentityCardControlNumber(person)));
+        model.addAttribute("identityCardExtraDigitRequired",
+                person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD && !IdentityCardUtils
+                        .validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person)));
 
         PersonalInformationForm form = (PersonalInformationForm) getForm(model);
         if (form != null) {
@@ -95,7 +96,10 @@ public class PersonalInformationFormController extends FormAbstractController {
             form.setIdDocumentType(person.getIdDocumentType());
 
             if (person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
-                form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
+                final String digitControl = IdentityCardUtils.getDigitControlFromPerson(person);
+                if (!Strings.isNullOrEmpty(digitControl)) {
+                    form.setIdentificationDocumentSeriesNumber(digitControl);
+                }
             }
 
             fillstaticformdata(executionYear, getStudent(model), form);
@@ -126,7 +130,11 @@ public class PersonalInformationFormController extends FormAbstractController {
 
         form.setDocumentIdNumber(person.getDocumentIdNumber());
         form.setIdDocumentType(person.getIdDocumentType());
-        form.setIdentificationDocumentSeriesNumber(getIdentityCardControlNumber(person));
+
+        final String digitControl = IdentityCardUtils.getDigitControlFromPerson(person);
+        if (!Strings.isNullOrEmpty(digitControl)) {
+            form.setIdentificationDocumentSeriesNumber(digitControl);
+        }
 
         if (personalData != null) {
             form.setMaritalStatus(personalData.getMaritalStatus());
@@ -240,9 +248,8 @@ public class PersonalInformationFormController extends FormAbstractController {
         }
 
         if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !isIdentityCardControlNumberValid(person.getDocumentIdNumber(), getIdentityCardControlNumber(person))
-                && !isIdentityCardControlNumberValid(person.getDocumentIdNumber(),
-                        form.getIdentificationDocumentSeriesNumber())) {
+                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))
+                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), form.getIdentificationDocumentSeriesNumber())) {
             result.add(ULisboaSpecificationsUtil
                     .bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
         }
@@ -329,8 +336,8 @@ public class PersonalInformationFormController extends FormAbstractController {
 
         person.setCountryHighSchool(form.getCountryHighSchool());
 
-        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !isIdentityCardControlNumberValid(person.getDocumentIdNumber(), getIdentityCardControlNumber(person))) {
+        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD && !IdentityCardUtils
+                .validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))) {
             setIdentityCardControlNumber(person, form.getIdentificationDocumentSeriesNumber());
         }
 
@@ -350,19 +357,6 @@ public class PersonalInformationFormController extends FormAbstractController {
     @Override
     protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(FiliationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
-    }
-
-    protected String getIdentityCardControlNumber(final Person person) {
-        if (!Strings.isNullOrEmpty(person.getIdentificationDocumentSeriesNumberValue())) {
-            return person.getIdentificationDocumentSeriesNumberValue();
-        }
-
-        return person.getIdentificationDocumentExtraDigitValue();
-    }
-
-    protected boolean isIdentityCardControlNumberValid(final String idDocumentNumber, final String extraValue) {
-        return IdentityCardUtils.isIdentityCardDigitControlFormatValid(extraValue)
-                && IdentityCardUtils.validate(idDocumentNumber, extraValue);
     }
 
     protected void setIdentityCardControlNumber(final Person person, final String number) {
