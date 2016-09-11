@@ -31,8 +31,8 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import pt.ist.fenixframework.FenixFramework;
 
 public class DgesStudentImportService {
-
 
     /**
      * <pre>
@@ -109,9 +108,9 @@ public class DgesStudentImportService {
     private EntryPhase entryPhase;
 
     private List<String> reportMessages = new ArrayList<String>();
-    
+
     private List<String> errorMessages = new ArrayList<String>();
-    
+
     private int processed = 0;
 
     private int personsCreated = 0;
@@ -126,17 +125,17 @@ public class DgesStudentImportService {
     }
 
     private void addToReport(String message) {
-            reportMessages.add(message);
+        reportMessages.add(message);
     }
 
     private String transformReport() {
         StringBuilder sb = new StringBuilder();
-        for(String reportMessage : reportMessages) {
+        for (String reportMessage : reportMessages) {
             sb.append(reportMessage).append("\n");
         }
         return sb.toString();
     }
-    
+
     public String importStudents(byte[] file) {
 
         try {
@@ -148,10 +147,10 @@ public class DgesStudentImportService {
         addToReport("Pessoas criadas :" + this.personsCreated);
         addToReport("Candidaturas criadas :" + this.candidaciesCreated);
         addToReport("--------------//---------------");
-        for(String repeatLine : this.errorMessages) {
+        for (String repeatLine : this.errorMessages) {
             addToReport(repeatLine);
         }
-        
+
         return transformReport();
 
     }
@@ -209,8 +208,8 @@ public class DgesStudentImportService {
 
         final Country nationality = Country.readByTwoLetterCode(fields[15].trim());
         if (nationality == null) {
-            throw new RuntimeException(formatMessageWithLineNumber(entry,
-                    "Cannot import student with unknown nationality: " + fields[15].trim()));
+            throw new RuntimeException(
+                    formatMessageWithLineNumber(entry, "Cannot import student with unknown nationality: " + fields[15].trim()));
         }
         entry.setNationality(nationality);
     }
@@ -234,30 +233,28 @@ public class DgesStudentImportService {
                 logger.info("Processed :" + processed + " / " + toProcess.size());
             }
 
-                final Runnable runnable = () ->
-                {
-                    try {
-                        FenixFramework.atomic(() ->
-                        {
-                            processEntry(entry);
-                        });
-                    } catch(RuntimeException e) {
-                        addToReport(e.getMessage());
-                        addErrorMessages(entry.getPersonalDataLine(), entry.getAddressDataLine());
-                    } catch(Exception e) {
-                        addToReport(formatMessageWithLineNumber(entry, e.getMessage()));
-                        addErrorMessages(entry.getPersonalDataLine(), entry.getAddressDataLine());
-                    }
-                };
-
-                final Thread thread = new Thread(runnable);
+            final Runnable runnable = () -> {
                 try {
-                    thread.start();
-                    thread.join();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    FenixFramework.atomic(() -> {
+                        processEntry(entry);
+                    });
+                } catch (RuntimeException e) {
+                    addToReport(e.getMessage());
+                    addErrorMessages(entry.getPersonalDataLine(), entry.getAddressDataLine());
+                } catch (Exception e) {
+                    addToReport(formatMessageWithLineNumber(entry, e.getMessage()));
+                    addErrorMessages(entry.getPersonalDataLine(), entry.getAddressDataLine());
                 }
+            };
+
+            final Thread thread = new Thread(runnable);
+            try {
+                thread.start();
+                thread.join();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }
@@ -325,8 +322,7 @@ public class DgesStudentImportService {
         }
 
         if (persons.size() > 1) {
-            throw new RuntimeException(
-                    formatMessageWithLineNumber(entry, "Multiple persons with the same document id found"));
+            throw new RuntimeException(formatMessageWithLineNumber(entry, "Multiple persons with the same document id found"));
         }
 
         final Person person = persons.iterator().next();
@@ -346,11 +342,10 @@ public class DgesStudentImportService {
     }
 
     protected FirstYearRegistrationConfiguration getDegreeConfiguration(final DegreeCandidateDTO entry) {
-        final Optional<FirstYearRegistrationConfiguration> degreeConfig =
-                FirstYearRegistrationGlobalConfiguration.getInstance().getFirstYearRegistrationConfigurationsSet().stream()
-                        .filter(x -> x.getExecutionYear() == executionYear
-                                && StringUtils.equals(x.getDegree().getMinistryCode(), entry.getDegreeCode()))
-                        .findFirst();
+        final Optional<FirstYearRegistrationConfiguration> degreeConfig = FirstYearRegistrationGlobalConfiguration.getInstance()
+                .getFirstYearRegistrationConfigurationsSet().stream().filter(x -> x.getExecutionYear() == executionYear
+                        && StringUtils.equals(x.getDegree().getMinistryCode(), entry.getDegreeCode()))
+                .findFirst();
 
         if (!degreeConfig.isPresent()) {
             throw new RuntimeException(formatMessageWithLineNumber(entry, "Curso não encontrado na configuração"));
@@ -362,11 +357,10 @@ public class DgesStudentImportService {
     private Registration createRegistration(final DegreeCandidateDTO entry, final Person person) {
 
         final StudentCandidacy studentCandidacy = createCandidacy(entry, person);
-        new StandByCandidacySituation(studentCandidacy, Authenticate.getUser().getPerson());
+        new StandByCandidacySituation(studentCandidacy, AccessControl.getPerson());
 
-        final Registration registration = new Registration(person, studentCandidacy.getDegreeCurricularPlan(),
-                studentCandidacy, ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol(),
-                CycleType.FIRST_CYCLE, executionYear);
+        final Registration registration = new Registration(person, studentCandidacy.getDegreeCurricularPlan(), studentCandidacy,
+                ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol(), CycleType.FIRST_CYCLE, executionYear);
 
         final PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation() != null ? studentCandidacy
                 .getPrecedentDegreeInformation() : new PrecedentDegreeInformation();
@@ -391,7 +385,7 @@ public class DgesStudentImportService {
 
         //TODOJN: remove firsttimecandidacysubclass
         final StudentCandidacy candidacy =
-                new FirstTimeCandidacy(person, executionDegree, Authenticate.getUser().getPerson(), entry.getEntryGrade(),
+                new FirstTimeCandidacy(person, executionDegree, AccessControl.getPerson(), entry.getEntryGrade(),
                         entry.getContigent(), entry.getIngression(), entry.getEntryPhase(), entry.getPlacingOption());
 
         candidacy.setFirstTimeCandidacy(true);
@@ -401,7 +395,7 @@ public class DgesStudentImportService {
 
     protected void markRegistrationAsInactive(final Registration registration) {
         registration.getActiveState().setStateDate(registration.getActiveState().getStateDate().minusMinutes(1));
-        RegistrationState.createRegistrationState(registration, Authenticate.getUser().getPerson(), new DateTime(),
+        RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
                 RegistrationStateType.INACTIVE);
     }
 
@@ -449,9 +443,9 @@ public class DgesStudentImportService {
     }
 
     public void addErrorMessages(String... lines) {
-            for(String line: lines ) {
-                this.errorMessages.add(line);
-            }
+        for (String line : lines) {
+            this.errorMessages.add(line);
+        }
     }
-    
+
 }

@@ -32,6 +32,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.QueueJob;
 import org.fenixedu.academic.domain.QueueJobResult;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.spaces.domain.Space;
 
 import pt.ist.fenixframework.core.WriteOnReadError;
@@ -113,9 +114,14 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
     }
 
     public void importCandidates() {
-
-        final DgesStudentImportService service = new DgesStudentImportService(getExecutionYear(), getSpace(), getEntryPhase());
-        service.importStudents(getDgesStudentImportationFile().getContent());
+        Authenticate.mock(getPerson().getUser());
+        try {
+            final DgesStudentImportService service =
+                    new DgesStudentImportService(getExecutionYear(), getSpace(), getEntryPhase());
+            LOG_WRITER.write(service.importStudents(getDgesStudentImportationFile().getContent()));
+        } finally {
+            Authenticate.unmock();
+        }
     }
 
     public static List<DgesStudentImportationProcess> readDoneJobs(ExecutionYear executionYear) {
