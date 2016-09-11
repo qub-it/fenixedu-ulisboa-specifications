@@ -104,16 +104,15 @@ public class IdentityCardUtils {
      */
     @Deprecated
     public static boolean isIdentityCardDigitControlFormatValid(final String extraValue) {
-        return !Strings.isNullOrEmpty(extraValue)
-                && (isBilheteIdentidadeDigitControlFormatValid(extraValue) || isCartaoCidadaoDigitControlFormatValid(extraValue));
+        return isBilheteIdentidadeDigitControlFormatValid(extraValue) || isCartaoCidadaoDigitControlFormatValid(extraValue);
     }
 
-    public static boolean isBilheteIdentidadeDigitControlFormatValid(final String extraValue) {
-        return extraValue.matches("\\d");
+    private static boolean isBilheteIdentidadeDigitControlFormatValid(final String extraValue) {
+        return !Strings.isNullOrEmpty(extraValue) && extraValue.matches("\\d");
     }
 
-    public static boolean isCartaoCidadaoDigitControlFormatValid(final String extraValue) {
-        return extraValue.matches("\\d[A-Z][A-Z]\\d");
+    private static boolean isCartaoCidadaoDigitControlFormatValid(final String extraValue) {
+        return !Strings.isNullOrEmpty(extraValue) && extraValue.matches("\\d[A-Z][A-Z]\\d");
     }
 
     public static int generateBilheteIdentidadeDigitControl(final String idDocumentNumber) throws NumberFormatException {
