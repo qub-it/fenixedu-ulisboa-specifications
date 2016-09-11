@@ -211,13 +211,13 @@ public class EnrolmentStep implements IBean {
                 url = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
             }
 
-            final String contextPath = request == null ? null : request.getContextPath();
-            if (!Strings.isNullOrEmpty(contextPath) && !url.contains(contextPath)) {
-                url = contextPath + url;
-            }
-
         } else {
             // spring
+        }
+
+        final String contextPath = request == null ? null : request.getContextPath();
+        if (!Strings.isNullOrEmpty(contextPath) && !url.contains(contextPath)) {
+            url = contextPath + url;
         }
 
         return url;
