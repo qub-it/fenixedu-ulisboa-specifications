@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -49,6 +50,7 @@ import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.TuitionController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -142,15 +144,28 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
         model.addAttribute("secondSemesterEnrolments", secondSemEnrolments);
         model.addAttribute("secondSemesterCredits", secondSemCredits);
 
+        if (needAnnualEnrollments(studentCurricularPlan) && !hasAnnualEnrollments(studentCurricularPlan, executionYear)) {
+            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.showSelectedCourses.annual.warning"), model);
+        }
+
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.showSelectedCourses.info"), model);
 
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/showenrolments/showselectedcourses";
     }
 
+    protected boolean needAnnualEnrollments(StudentCurricularPlan studentCurricularPlan) {
+        return studentCurricularPlan.getDegreeCurricularPlan()
+                .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
+    }
+
+    protected boolean hasAnnualEnrollments(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear) {
+        return !studentCurricularPlan.getEnrolmentsByExecutionPeriod(executionYear.getLastExecutionPeriod()).isEmpty();
+    }
+
     private boolean validUCsEnrolment(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear) {
         Double ectsEnrolled = studentCurricularPlan.getEnrolmentsByExecutionYear(executionYear).stream()
                 .map(e -> e.getEctsCredits()).reduce(Double::sum).orElse(0d);
-        return ectsEnrolled > 30d;
+        return ectsEnrolled >= 30d;
     }
 
     protected static final String _CONTINUE_URI = "/continue";
@@ -169,6 +184,10 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
     }
 
     protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        if (SchoolClassesController.shouldBeSkipped(FirstTimeCandidacyController.getCandidacy().getRegistration(),
+                executionYear)) {
+            return redirect(urlWithExecutionYear(TuitionController.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        }
         return redirect(urlWithExecutionYear(SchoolClassesController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 

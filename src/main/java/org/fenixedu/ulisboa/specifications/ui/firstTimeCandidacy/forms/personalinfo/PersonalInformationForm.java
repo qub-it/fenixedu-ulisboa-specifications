@@ -46,6 +46,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private boolean firstYearRegistration;
     private boolean foreignStudent;
     private MaritalStatus maritalStatus;
+    private Gender gender;
 
     private List<TupleDataSourceBean> countryHighSchoolValues;
     private List<TupleDataSourceBean> idDocumentTypeValues;
@@ -54,11 +55,11 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private List<TupleDataSourceBean> firstOptionDegreeDesignationValues;
     private String degreeNamePart;
     private List<TupleDataSourceBean> maritalStatusValues;
+    private List<TupleDataSourceBean> genderValues;
 
     /* Read only */
     private String name;
     private String username;
-    private Gender gender;
 
     public PersonalInformationForm() {
         setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
@@ -73,6 +74,10 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
         maritalStatusValues.remove(MaritalStatus.UNKNOWN);
         setMaritalStatusValues(maritalStatusValues);
+
+        List<Gender> genderValues = new ArrayList<>();
+        genderValues.addAll(Arrays.asList(Gender.values()));
+        setGenderValues(genderValues);
 
         updateLists();
     }
@@ -321,5 +326,14 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         this.maritalStatusValues =
                 maritalStatusValues.stream().map(ms -> new TupleDataSourceBean(ms.toString(), ms.getLocalizedName()))
                         .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
+    public List<TupleDataSourceBean> getGenderValues() {
+        return genderValues;
+    }
+
+    public void setGenderValues(List<Gender> genderValues) {
+        this.genderValues = genderValues.stream().map(g -> new TupleDataSourceBean(g.toString(), g.getLocalizedName()))
+                .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 }

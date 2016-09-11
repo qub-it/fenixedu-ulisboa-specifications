@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EntryPhase;
@@ -13,6 +14,7 @@ import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.ShiftEnrolment;
 import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
+import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.candidacy.CandidacyOperationType;
 import org.fenixedu.academic.domain.candidacy.CandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
@@ -37,6 +39,10 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
             return candidacy1.getCandidacyDate().compareTo(candidacy2.getCandidacyDate());
         }
     };
+
+    public static Predicate<Candidacy> isFirstTime = c -> (c instanceof FirstTimeCandidacy);
+
+    public static Predicate<Candidacy> isOpen = c -> CandidacySituationType.STAND_BY.equals(c.getActiveCandidacySituationType());
 
     public FirstTimeCandidacy(Person person, ExecutionDegree executionDegree, Person creator, Double entryGrade, String contigent,
             IngressionType ingressionType, EntryPhase entryPhase, Integer placingOption) {

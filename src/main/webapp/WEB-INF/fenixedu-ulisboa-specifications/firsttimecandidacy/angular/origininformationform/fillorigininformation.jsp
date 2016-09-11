@@ -160,6 +160,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.object.raidesDegreeDesignationValues = undefined;
 
         $scope.object.raidesDegreeDesignation = undefined;
+        $scope.object.degreeDesignation = undefined;
         $scope.postBack(model);
     };
     $scope.submitForm = function() {
@@ -255,7 +256,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
 
                 <div class="col-sm-10">
-                    <ui-select  id="originInformationForm_institution" name="institutionOid" ng-model="$parent.object.institutionOid" theme="bootstrap">
+                    <ui-select  id="originInformationForm_institution" name="institutionOid" ng-model="$parent.object.institutionOid" on-select="onInstitutionChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="institution.id as institution in object.institutionValues"
                                             refresh="onInstitutionRefresh($item, $select.search, $model)"

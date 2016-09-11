@@ -137,6 +137,7 @@ public class OriginInformationForm implements CandidancyForm {
     }
 
     protected static void findUnits(final TreeSet<UnitName> unitNameLimitedOrderedSet, final String name) {
+        //TODOJN - improve, too many verifications
         final String[] nameParts = UnitNamePart.getNameParts(name);
         if (nameParts.length <= 0) {
             return;
@@ -156,7 +157,9 @@ public class OriginInformationForm implements CandidancyForm {
             for (UnitName unitName : unitNames) {
                 final String normalizedUnitName = unitName.getName();
                 if (containsAll(normalizedUnitName, nameParts)) {
-                    unitNameLimitedOrderedSet.add(unitName);
+                    if (sequentialNameParts(normalizedUnitName, name)) {
+                        unitNameLimitedOrderedSet.add(unitName);
+                    }
                 }
             }
         } else {
@@ -199,6 +202,24 @@ public class OriginInformationForm implements CandidancyForm {
             }
         }
         return true;
+    }
+
+    private static boolean sequentialNameParts(String normalizedUnitName, String name) {
+        String[] normalizedUnitNames = normalizedUnitName.split(" ");
+        String[] names = name.split(" ");
+        if (names.length > normalizedUnitNames.length) {
+            return false;
+        }
+        int containedParts = 0;
+        for (String normalizedUnitName2 : normalizedUnitNames) {
+            for (int j = containedParts; j < names.length; j++) {
+                if (normalizedUnitName2.contains(names[j])) {
+                    containedParts++;
+                    break;
+                }
+            }
+        }
+        return names.length == containedParts;
     }
 
     public SchoolLevelType getSchoolLevel() {

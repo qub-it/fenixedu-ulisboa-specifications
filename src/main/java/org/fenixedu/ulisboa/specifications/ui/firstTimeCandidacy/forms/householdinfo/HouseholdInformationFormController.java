@@ -197,7 +197,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
             if (grantOwnerProvider == null && (grantOwnerType.equals(GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER)
                     || grantOwnerType.equals(GrantOwnerType.ORIGIN_COUNTRY_GRANT_OWNER))) {
-                if (StringUtils.isEmpty(otherGrantOwnerProvider)) {
+                if (StringUtils.isBlank(otherGrantOwnerProvider)) {
                     messages.add(BundleUtil.getString(BUNDLE,
                             "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"));
                 }

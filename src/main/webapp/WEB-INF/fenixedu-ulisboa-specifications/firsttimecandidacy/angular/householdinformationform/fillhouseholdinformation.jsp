@@ -106,10 +106,34 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
  	        $scope.object.grantOwnerProvider = undefined;
 	    }
     };
+    $scope.transformData = function () {
+	    var index = -1;
+	    angular.forEach($scope.object.grantOwnerProviderValues, function(value, key) {
+		    if(value.id === value.text) {
+			    $scope.object.otherGrantOwnerProvider = value.id;
+			    $scope.object.grantOwnerProvider = undefined;
+			    index = key;
+		    }
+	    }, index);
+	    if( index != -1) {
+		    $scope.object.grantOwnerProviderValues.splice(index, 1);
+	    }
+	    $scope.$apply();
+    };
     $scope.submitForm = function() {
-       $('form').submit();
+	    $scope.transformData();
+        $('form').submit();
     };
 
+    $scope.$watch('object.grantOwnerProviderValues', function() {
+	    if($scope.object.grantOwnerProviderValues.length == 0 && ($scope.object.grantOwnerType === 'OTHER_INSTITUTION_GRANT_OWNER' || $scope.object.grantOwnerType === 'ORIGIN_COUNTRY_GRANT_OWNER')) {
+		    $scope.object.grantOwnerProviderValues.push(
+			    {
+				  'id': $scope.object.grantOwnerProviderNamePart, 
+				  'text':$scope.object.grantOwnerProviderNamePart
+				});
+	    }
+    });
 }]);
 </script>
 
@@ -195,7 +219,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>
                 </div>
             </div>
-            <div class="form-group row" ng-hide="!object.grantOwnerProviderValues.length && object.grantOwnerProviderNamePart.length > 3 && (object.grantOwnerType === 'OTHER_INSTITUTION_GRANT_OWNER' || object.grantOwnerType === 'ORIGIN_COUNTRY_GRANT_OWNER')">
+            <div class="form-group row">
                 <label class="col-sm-2 control-label" ng-class="{'required-field' : object.grantOwnerType !== 'STUDENT_WITHOUT_SCHOLARSHIP'}">
                     <spring:message
                         code="label.HouseholdInformationForm.grantOwnerProvider" />
@@ -203,24 +227,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
                 <div class="col-sm-6">
                     <ui-select reset-search-input="false" id="householdInformationForm_grantOwnerProvider" name="grantOwnerProvider" ng-model="$parent.object.grantOwnerProvider" ng-disabled="object.grantOwnerType === 'STUDENT_WITHOUT_SCHOLARSHIP'" theme="bootstrap">
-                        <ui-select-match placeholder="Start typing to choose the Institution">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match placeholder="Escreva o nome da instituição">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="grantOwnerProvider.id as grantOwnerProvider in object.grantOwnerProviderValues"
                                             refresh="onGrantOwnerProviderRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
                             <span ng-bind-html="grantOwnerProvider.text | highlight: $select.search"></span>
                         </ui-select-choices> 
                     </ui-select>                    
-                </div>
-            </div>
-            <div class="form-group row" ng-show="!object.grantOwnerProviderValues.length && object.grantOwnerProviderNamePart.length > 3 && (object.grantOwnerType === 'OTHER_INSTITUTION_GRANT_OWNER' || object.grantOwnerType === 'ORIGIN_COUNTRY_GRANT_OWNER')">
-                <label for="householdInformationForm_profession" class="col-sm-2 control-label">
-                    <spring:message code="label.HouseholdInformationForm.grantOwnerProviderName" />
-                </label>
-
-                <div class="col-sm-6">
-                    <input id="householdInformationForm_otherGrantOwnerProvider" class="form-control"
-                        type="text" ng-model="object.otherGrantOwnerProvider" ng-change="onGrantOwnerProviderRefresh($item, object.otherGrantOwnerProvider, $model)" name="otherGrantOwnerProvider"
-                        value='<c:out value='${not empty param.otherGrantOwnerProvider ? param.otherGrantOwnerProvider : householdInformationForm.otherGrantOwnerProvider }'/>' />
                 </div>
             </div>
         </div>

@@ -41,7 +41,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
-import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
@@ -98,9 +97,6 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
                 PersonalInformationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
-    private static Predicate<Candidacy> isFirstTime = c -> (c instanceof FirstTimeCandidacy);
-    private static Predicate<Candidacy> isOpen = c -> CandidacySituationType.STAND_BY.equals(c.getActiveCandidacySituationType());
-
     public static FirstTimeCandidacy getCandidacy() {
         return getCandidacy(AccessControl.getPerson());
     }
@@ -113,8 +109,8 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
             }
         }
 
-        Stream<FirstTimeCandidacy> firstTimeCandidacies =
-                candidacies.stream().filter(isFirstTime).filter(isOpen).sorted(FirstTimeCandidacy.COMPARATOR_BY_DATE);
+        Stream<FirstTimeCandidacy> firstTimeCandidacies = candidacies.stream().filter(FirstTimeCandidacy.isFirstTime)
+                .filter(FirstTimeCandidacy.isOpen).sorted(FirstTimeCandidacy.COMPARATOR_BY_DATE);
         return firstTimeCandidacies.findFirst().orElse(null);
     }
 
@@ -168,7 +164,8 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     public static List<String> isValidForFirstTimeCandidacy() {
         List<String> errorMessages = new ArrayList<>();
         Person person = AccessControl.getPerson();
-        Stream<Candidacy> firstTimeCandidacies = person.getCandidaciesSet().stream().filter(isFirstTime).filter(isOpen);
+        Stream<Candidacy> firstTimeCandidacies =
+                person.getCandidaciesSet().stream().filter(FirstTimeCandidacy.isFirstTime).filter(FirstTimeCandidacy.isOpen);
         long count = firstTimeCandidacies.count();
         if (count == 0) {
             errorMessages.add("Students with no open FirstTimeCandidacies are not supported in the first time registration flow");

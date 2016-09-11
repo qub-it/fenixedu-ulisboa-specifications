@@ -32,8 +32,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
             for (String errorMessage : errorMessages) {
                 addErrorMessage(errorMessage, model);
             }
-            return Optional.of(redirect(FirstTimeCandidacyController.CONTROLLER_URL + "/" + executionYear.getExternalId(), model,
-                    redirectAttributes));
+            return Optional.of(redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes));
         }
 
         return Optional.empty();

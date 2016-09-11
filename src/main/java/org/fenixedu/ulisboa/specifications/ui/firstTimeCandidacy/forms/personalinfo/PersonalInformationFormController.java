@@ -197,23 +197,15 @@ public class PersonalInformationFormController extends FormAbstractController {
                     result.add(BundleUtil.getString(BUNDLE, "error.documentIdType.required"));
                 }
 
-                if (StringUtils.isEmpty(form.getDocumentIdNumber())) {
+                if (StringUtils.isBlank(form.getDocumentIdNumber())) {
                     result.add(BundleUtil.getString(BUNDLE, "error.documentIdNumber.required"));
                 }
             }
 
-            if (!form.getIsForeignStudent()) {
-                if (StringUtils.isEmpty(form.getSocialSecurityNumber())
-                        || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                    result.add(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
-                }
-            } else {
-                if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
-                        && !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                    result.add(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
-                }
+            if (StringUtils.isBlank(form.getSocialSecurityNumber())
+                    || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
             }
 
             if (form.getDocumentIdExpirationDate() == null) {
@@ -225,7 +217,7 @@ public class PersonalInformationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.is.after.emissionDate"));
             }
 
-            if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
+            if (!StringUtils.isBlank(form.getSocialSecurityNumber())
                     && !FiscalCodeValidation.isValidcontrib(form.getSocialSecurityNumber())) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
@@ -253,6 +245,11 @@ public class PersonalInformationFormController extends FormAbstractController {
                         form.getIdentificationDocumentSeriesNumber())) {
             result.add(ULisboaSpecificationsUtil
                     .bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
+        }
+
+        if (!Person.readByDocumentIdNumber(form.getDocumentIdNumber()).isEmpty()) {
+            result.add(ULisboaSpecificationsUtil
+                    .bundle("error.candidacy.workflow.PersonalInformationForm.identificationDocumentNumber.exists"));
         }
 
         return result;
@@ -336,6 +333,8 @@ public class PersonalInformationFormController extends FormAbstractController {
                 && !isIdentityCardControlNumberValid(person.getDocumentIdNumber(), getIdentityCardControlNumber(person))) {
             setIdentityCardControlNumber(person, form.getIdentificationDocumentSeriesNumber());
         }
+
+        person.setGender(form.getGender());
 
         personalData.getStudent().getPerson().setMaritalStatus(form.getMaritalStatus());
         personalData.setMaritalStatus(form.getMaritalStatus());

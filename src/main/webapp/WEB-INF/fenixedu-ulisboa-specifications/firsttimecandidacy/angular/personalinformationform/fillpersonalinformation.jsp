@@ -116,7 +116,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.postBack(model);
     };
     $scope.submitForm = function() {
-       $('form').submit();
+        $('form').submit();
     };
 }]);
 </script>
@@ -197,7 +197,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</label>
 
 				<div class="col-sm-4">
-					<div class="form-control-static"><c:out value='${not empty param.gender ? param.gender : personalInformationForm.gender.localizedName }' /></div>
+                    <ui-select  id="personalInformationForm_gender" name="gender" ng-model="$parent.object.gender" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="gender.id as gender in object.genderValues | filter: $select.search">
+                            <span ng-bind-html="gender.text | highlight: $select.search"></span>
+                        </ui-select-choices> 
+                    </ui-select>     
 				</div>
 			</div>
 			<c:if test="${personalInformationForm.isForeignStudent}">
@@ -333,7 +338,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <ui-select-match allow-clear="true">
                             {{$select.selected.text}}
                         </ui-select-match> 
-                        <ui-select-choices repeat="country.id as country in object.countryHighSchoolValues | filter: $select.search">
+                        <ui-select-choices repeat="country.id as country in object.countryHighSchoolValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="country.text | highlight: $select.search"></span>
                         </ui-select-choices>
                     </ui-select>
@@ -374,7 +379,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
                 <div class="modal-body">
                     <center>
-                        <img class="img-rounded img-responsive" title="Digitos de Segurança" alt="Dígitos extra do Cartão de Cidadão"
+                        <img class="img-rounded img-responsive" title="Digitos de SeguranÃ§a" alt="DÃ­gitos extra do CartÃ£o de CidadÃ£o"
                         src="${pageContext.request.contextPath}/static/img/ajuda-digitos-de-seguranca.png"
                         />
                     </center>

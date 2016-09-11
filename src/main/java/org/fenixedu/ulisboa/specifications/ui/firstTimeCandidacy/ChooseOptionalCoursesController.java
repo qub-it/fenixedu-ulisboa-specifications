@@ -63,7 +63,7 @@ import pt.ist.fenixframework.Atomic;
 @RequestMapping(ChooseOptionalCoursesController.CONTROLLER_URL)
 public class ChooseOptionalCoursesController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy/chooseoptionalcourses";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/OLD/firsttimecandidacy/chooseoptionalcourses";
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(Model model, RedirectAttributes redirectAttributes) {

@@ -194,6 +194,8 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
 
         ULisboaServiceRequestGeneratedDocument printedDocument = request.downloadDocument();
         appendSummaryFile(printedDocument.getContent(), candidacy);
+        //schools want a duplicate of the declaration
+        appendSummaryFile(printedDocument.getContent(), candidacy);
     }
 
     private void printModel43(StudentCandidacy candidacy) {

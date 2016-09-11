@@ -30,11 +30,13 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments;
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -145,6 +147,11 @@ public class SchoolClassesController extends FirstTimeCandidacyAbstractControlle
 
     protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(TuitionController.CONTROLLER_URL, executionYear), model, redirectAttributes);
+    }
+
+    public static boolean shouldBeSkipped(Registration registration, ExecutionYear executionYear) {
+        List<Shift> firstPeriodShifts = registration.getShiftsFor(executionYear.getFirstExecutionPeriod());
+        return firstPeriodShifts.isEmpty();
     }
 
     @Override

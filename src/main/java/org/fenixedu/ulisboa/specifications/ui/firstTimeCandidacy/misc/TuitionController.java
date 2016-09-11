@@ -45,6 +45,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.CurricularCoursesController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.SchoolClassesController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -87,6 +88,11 @@ public class TuitionController extends FirstTimeCandidacyAbstractController {
     }
 
     public String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+        if (SchoolClassesController.shouldBeSkipped(FirstTimeCandidacyController.getCandidacy().getRegistration(),
+                executionYear)) {
+            return redirect(urlWithExecutionYear(CurricularCoursesController.CONTROLLER_URL, executionYear), model,
+                    redirectAttributes);
+        }
         return redirect(urlWithExecutionYear(SchoolClassesController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 

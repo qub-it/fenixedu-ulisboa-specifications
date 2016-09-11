@@ -92,76 +92,69 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
                             { name : '<spring:message code="label.yes"/>', value : true } 
                     ];
 
-    $scope.multiSelectOptions = { displayProp : 'text', idProp: 'id', externalIdProp : 'id' };
-    $scope.translationTexts = {
-            checkAll: '<spring:message code="label.angularjs.multiselect.checkAll" />',
-            uncheckAll: '<spring:message code="label.angularjs.multiselect.uncheckAll" />',
-            selectionCount: '<spring:message code="label.angularjs.multiselect.selectionCount" />',
-            selectionOf: '/',
-            searchPlaceholder: '<spring:message code="label.angularjs.multiselect.searchPlaceholder" />',
-            buttonDefaultText: '<spring:message code="label.angularjs.multiselect.buttonDefaultText" />',
-            dynamicButtonTextSuffix: '<spring:message code="label.angularjs.multiselect.dynamicButtonTextSuffix" />'                     
-    };
-    
     $scope.onDiscoveryAnswerSelect = function(item) {
-   	   var indexOfItem = $scope.object.universityDiscoveryMeansAnswers.indexOf(item);
-	   if($scope.object.universityDiscoveryMeansAnswers.length > 3) {
-	       $scope.object.universityDiscoveryMeansAnswers.splice(indexOfItem, 1);
-	   }	
-       var bool = false;
-	   angular.forEach($scope.object.universityDiscoveryMeansAnswers, function(element, index) {
- 	       if($scope.object.otherUniversityDiscoveryMeansAnswerValues.indexOf(element.id) != -1) {
-	           bool = true;
-           }
-	   }, bool);
-	   $scope.object.otherDiscoveryAnswer = bool;
+	    if(item.selected) {
+		    if($scope.object.universityDiscoveryMeansAnswers.length < 3) {
+		        $scope.object.universityDiscoveryMeansAnswers.push(item.id);
+		    } else {
+                var indexOfItem = $scope.object.universityDiscoveryMeansAnswerValues.indexOf(item);
+                $scope.object.universityDiscoveryMeansAnswerValues[indexOfItem].selected = false;
+		    }		
+	    } else {
+	        var indexOfItem = $scope.object.universityDiscoveryMeansAnswers.indexOf(item.id);
+	        $scope.object.universityDiscoveryMeansAnswers.splice(indexOfItem, 1);
+	    }
+	
+        var bool = false;
+	    angular.forEach($scope.object.universityDiscoveryMeansAnswers, function(elementId, index) {
+ 	        if($scope.object.otherUniversityDiscoveryMeansAnswerValues.indexOf(elementId) != -1) {
+	            bool = true;
+            }
+	    }, bool);
+	    $scope.object.otherDiscoveryAnswer = bool;
 	};
 	
 	$scope.onChoiceAnswerSelect = function(item) {
-	    var indexOfItem = $scope.object.universityChoiceMotivationAnswers.indexOf(item);
-	    if($scope.object.universityChoiceMotivationAnswers.length > 3) {
-		    $scope.object.universityChoiceMotivationAnswers.splice(indexOfItem, 1);
-		}    
+	    if(item.selected) {
+		    if($scope.object.universityChoiceMotivationAnswers.length < 3) {
+			    $scope.object.universityChoiceMotivationAnswers.push(item.id);
+		    } else {
+			    var indexOfItem = $scope.object.universityChoiceMotivationAnswerValues.indexOf(item);
+			    $scope.object.universityChoiceMotivationAnswerValues[indexOfItem].selected = false;
+		    }
+	    } else {
+		    var indexOfItem = $scope.object.universityChoiceMotivationAnswers.indexOf(item.id);
+	            $scope.object.universityChoiceMotivationAnswers.splice(indexOfItem, 1);
+	    }
+	    
 	    var bool = false;
-	    angular.forEach($scope.object.universityChoiceMotivationAnswers, function(element, index) {
-		    if($scope.object.otherUniversityChoiceMotivationAnswerValues.indexOf(element.id) != -1) {
+	    angular.forEach($scope.object.universityChoiceMotivationAnswers, function(elementId, index) {
+		    if($scope.object.otherUniversityChoiceMotivationAnswerValues.indexOf(elementId) != -1) {
 			    bool = true;
 			}
 		}, bool);
 		$scope.object.otherChoiceAnswer = bool;
     };
-	
-	$scope.discoveryAnswersEvents = {
-        onItemSelect: $scope.onDiscoveryAnswerSelect,
-        onItemDeselect: $scope.onDiscoveryAnswerSelect,
-	};
-	$scope.choiceAnswersEvents = {
-		onItemSelect: $scope.onChoiceAnswerSelect,
-		onItemDeselect: $scope.onChoiceAnswerSelect,
-    };	
     
-	$scope.transformDataToSubmit = function () {        
-	    angular.forEach($scope.object.universityDiscoveryMeansAnswers, function(el, i) {
-		    $scope.object.universityDiscoveryMeansAnswers[i] = el.id;
-        })
-        angular.forEach($scope.object.universityChoiceMotivationAnswers, function(el, i) {
-            $scope.object.universityChoiceMotivationAnswers[i] = el.id;
-        })
-        $scope.$apply();            
-    }
-	
-	$scope.transformDataToShow = function () {
-        angular.forEach($scope.object.universityDiscoveryMeansAnswers, function(el, i) {
-            $scope.object.universityDiscoveryMeansAnswers[i] = { 'id' : el };            
-        })
-        angular.forEach($scope.object.universityChoiceMotivationAnswers, function(el, i) {
-            $scope.object.universityChoiceMotivationAnswers[i] = { 'id' : el };
-        })
-        $scope.$apply();            
+    $scope.transformDataToShow = function () {
+        angular.forEach($scope.object.universityDiscoveryMeansAnswerValues, function(element, index) {
+            if($scope.object.universityDiscoveryMeansAnswers.indexOf(element.id)== -1){
+                element.selected = false;
+            }else {
+           	    element.selected = true;
+            }
+        });
+        angular.forEach($scope.object.universityChoiceMotivationAnswerValues, function(element, index) {
+            if($scope.object.universityChoiceMotivationAnswers.indexOf(element.id)== -1){
+                element.selected = false;
+            }else {
+                element.selected = true;
+            }
+        });
+	    
     };
-
+	
 	$scope.submitForm = function(event) {
-	    $scope.transformDataToSubmit();
 	    $('form').submit();	    
 	};
 }]);
@@ -177,18 +170,25 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
     
 	<div class="panel panel-default" ng-init="transformDataToShow()">
 		<div class="panel-body">
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.MotivationsExpectationsForm.universityDiscoveryMeansAnswers" />
-				</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.MotivationsExpectationsForm.universityDiscoveryMeansAnswers" />
+                </div>
 
-				<div class="col-sm-10">
-                    <div id="motivationsexpectationsform_universityDiscoveryMeans" name="universityDiscoveryMeans" class="ui-select-container ui-select-bootstrap dropdown" 
-                        ng-dropdown-multiselect="" options="object.universityDiscoveryMeansAnswerValues" events="discoveryAnswersEvents"
-                        selected-model="object.universityDiscoveryMeansAnswers" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
-                    </div>
-				</div>
-			</div>
+                <div class="col-sm-10">
+                    <ul>
+                        <li ng-repeat="discoveryAnswer in object.universityDiscoveryMeansAnswerValues">
+                            <input style="width:15px;height:15px"
+                              type="checkbox"
+                              name="selectedDiscoveryAnswer[]"
+                              ng-model="discoveryAnswer.selected"
+                              ng-change="onDiscoveryAnswerSelect(discoveryAnswer)"
+                            >
+                            {{ discoveryAnswer.text }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
 			
 			<div class="form-group row" ng-show="object.otherDiscoveryAnswer">
 				<div class="col-sm-2 control-label">
@@ -207,10 +207,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
 				</div>
 
 				<div class="col-sm-10">
-                    <div id="motivationsexpectationsform_universityChoiceMotivation" name="universityChoiceMotivation" class="ui-select-container ui-select-bootstrap dropdown" 
-                        ng-dropdown-multiselect="" options="object.universityChoiceMotivationAnswerValues" events="choiceAnswersEvents"
-                        selected-model="object.universityChoiceMotivationAnswers" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
-                    </div>
+                    <ul>
+                        <li ng-repeat="choiceAnswer in object.universityChoiceMotivationAnswerValues">
+                            <input style="width:15px;height:15px"
+                              type="checkbox"
+                              name="selectedChoicesAnswer[]"
+                              ng-model="choiceAnswer.selected"
+                              ng-change="onChoiceAnswerSelect(choiceAnswer)"
+                            >
+                            {{ choiceAnswer.text }}
+                        </li>
+                    </ul>
 				</div>
 			</div>
 			
@@ -232,6 +239,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
 		</div>
 	</div>
 </form>
+
+<style>
+ul {
+    list-style-type: none;
+}
+</style>
 
 <script>
 $(document).ready(function() {
