@@ -96,8 +96,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     ];
 
     $scope.onFirstOptionInstitutionChange = function(institution, model) {
-	    $scope.object.firstOptionDegreeDesignationValues = undefined;
-	    $scope.postBack(model);
+        $scope.object.firstOptionDegreeDesignationValues = undefined;
+
+        $scope.object.firstOptionDegreeDesignation = undefined;
+        $scope.postBack(model);
     };
     $scope.onFirstOptionInstitutionRefresh = function(institution, namePart, model) {
         if(namePart.length <= 3 || namePart === $scope.object.institutionNamePart) {
@@ -113,13 +115,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         }
         $scope.object.degreeNamePart = namePart;
         $scope.$apply();  
-        $scope.postBack(model);
-    };
-    $scope.onInstitutionChange = function(institution, model) {
-        $scope.object.raidesDegreeDesignationValues = undefined;
-
-        $scope.object.raidesDegreeDesignation = undefined;
-        $scope.object.degreeDesignation = undefined;
         $scope.postBack(model);
     };
     $scope.submitForm = function() {

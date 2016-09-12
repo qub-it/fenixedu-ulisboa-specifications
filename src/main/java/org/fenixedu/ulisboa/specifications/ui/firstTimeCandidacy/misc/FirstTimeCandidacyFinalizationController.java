@@ -75,7 +75,8 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
             return accessControlRedirect.get();
         }
 
-        return redirect(CgdDataAuthorizationController.CONTROLLER_URL, model, redirectAttributes);
+        return redirect(urlWithExecutionYear(CgdDataAuthorizationController.CONTROLLER_URL, executionYear), model,
+                redirectAttributes);
     }
 
     protected static final String _WITHOUT_MODEL_URI = "/withoutModel";

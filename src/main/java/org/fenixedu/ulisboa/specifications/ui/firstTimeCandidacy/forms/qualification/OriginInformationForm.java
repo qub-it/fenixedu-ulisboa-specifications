@@ -106,7 +106,8 @@ public class OriginInformationForm implements CandidancyForm {
             }
             if (schoolLevel.isHigherEducation()) {
                 units.addAll(findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 50).stream()
-                        .map(i -> i.getUnit()).filter(i -> !i.getDegreeDesignationSet().isEmpty()).collect(Collectors.toSet()));
+                        .map(i -> i.getUnit()).filter(i -> !getDegreeDesignationsWithSameSchoolLevel(i).isEmpty())
+                        .collect(Collectors.toSet()));
                 setRaidesInstitutionValues(units);
                 setRaidesDegreeDesignationValues(
                         possibleDesignations.stream().filter(matchesName).limit(50).collect(Collectors.toList()));
@@ -121,6 +122,12 @@ public class OriginInformationForm implements CandidancyForm {
             }
         }
 
+    }
+
+    private List<DegreeDesignation> getDegreeDesignationsWithSameSchoolLevel(Unit i) {
+        List<String> classifications = schoolLevel.getEquivalentDegreeClassifications();
+        return i.getDegreeDesignationSet().stream().filter(d -> classifications.contains(d.getDegreeClassification().getCode()))
+                .collect(Collectors.toList());
     }
 
     //TODOJN - extract find methods
