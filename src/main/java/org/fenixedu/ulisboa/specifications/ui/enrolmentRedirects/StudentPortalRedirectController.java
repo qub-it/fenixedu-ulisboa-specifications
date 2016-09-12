@@ -3,7 +3,6 @@ package org.fenixedu.ulisboa.specifications.ui.enrolmentRedirects;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
