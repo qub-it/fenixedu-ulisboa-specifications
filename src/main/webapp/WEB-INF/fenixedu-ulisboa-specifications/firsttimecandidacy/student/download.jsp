@@ -36,53 +36,58 @@ ${portal.angularToolkit()}
 
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.firstTimeCandidacy.Finished" />
+	<h1><spring:message code="label.firstTimeCandidacy.DownloadDocuments" />
 		<small></small>
 	</h1>
 </div>
 
-<div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
-</div>
-
-	<c:if test="${not empty infoMessages}">
-				<div class="alert alert-info" role="alert">
-					
-					<c:forEach items="${infoMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
-			<c:if test="${not empty warningMessages}">
-				<div class="alert alert-warning" role="alert">
-					
-					<c:forEach items="${warningMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
-			<c:if test="${not empty errorMessages}">
-				<div class="alert alert-danger" role="alert">
-					
-					<c:forEach items="${errorMessages}" var="message"> 
-						<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-  							${message}
-  						</p>
-					</c:forEach>
-					
-				</div>	
-			</c:if>
+<c:if test="${not empty infoMessages}">
+	<div class="alert alert-info" role="alert">
+		
+		<c:forEach items="${infoMessages}" var="message"> 
+			<p> <span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span>
+						${message}
+					</p>
+		</c:forEach>
+		
+	</div>	
+</c:if>
+<c:if test="${not empty warningMessages}">
+	<div class="alert alert-warning" role="alert">
+		
+		<c:forEach items="${warningMessages}" var="message"> 
+			<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+						${message}
+					</p>
+		</c:forEach>
+		
+	</div>	
+</c:if>
+<c:if test="${not empty errorMessages}">
+	<div class="alert alert-danger" role="alert">
+		
+		<c:forEach items="${errorMessages}" var="message"> 
+			<p> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+						${message}
+					</p>
+		</c:forEach>
+		
+	</div>	
+</c:if>
 
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    //$scope.object= ${contactsFormJson};
+    $scope.object=
+	{ 'registrationValues' : [
+	<c:forEach items="${registrationsSet}" var="registration">
+	    {'id': "<c:out value='${registration.externalId}'/>",
+		 'text': "<c:out value='${registration.degreeDescription}'/>",
+		},
+	</c:forEach>
+    ]};
+	
+	${contactsFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [
@@ -90,6 +95,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             { name : '<spring:message code="label.yes"/>', value : true } 
     ];
     $scope.isPrinted = false;
+    $scope.printDocuments = function () {
+	    var beginUrl = '${pageContext.request.contextPath}${controllerURL}/';
+	    var endUrl = '/printalldocuments';	
+	    $('#downloadATag').attr('href',beginUrl + $scope.object.registration + endUrl);
+    };
     $scope.submitForm = function() {
         $('form').submit();
     };
@@ -106,10 +116,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
 
     <div class="well">
-    	<spring:message code="label.firstTimeCandidacy.finished.details" />
-    </div>
-    
-    <div class="well">
     	<spring:message code="label.firstTimeCandidacy.finished.details.more" />
     	<ul>
     		<li><spring:message code="label.firstTimeCandidacy.finished.details.registrationDeclaration"/></li>
@@ -118,20 +124,25 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     	</ul>
     </div>
     
+    <div class="form-group row">
+        <div class="col-sm-2 control-label required-field">
+            <spring:message
+                code="label.student.registration" />
+        </div>
+
+        <div class="col-sm-10">
+            <ui-select  id="student_registration" name="registration" ng-model="$parent.object.registration" theme="bootstrap">
+                <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                <ui-select-choices  repeat="registration.id as registration in object.registrationValues | filter: $select.search">
+                    <span ng-bind-html="registration.text"></span>
+                </ui-select-choices> 
+            </ui-select>                    
+        </div>
+    </div>
+    
     <%-- NAVIGATION --%>
     <div class="well well-sm" style="display:inline-block" ng-hide="isPrinted">
-    	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" ng-click="isPrinted = true;" href="${pageContext.request.contextPath}${controllerURL}/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
-     </div>
-    <%
-    if(request.getContextPath().endsWith("/")) {
-        request.setAttribute("path", "");
-    } else {
-        request.setAttribute("path", "/");          
-    }
-    %>
-    <div class="well well-sm" style="display:inline-block" ng-show="isPrinted">
-        &nbsp;|&nbsp;
-        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="<%= request.getContextPath() %>${path}"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
+    	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a id="downloadATag"class="" ng-click="printDocuments()" href="#" target="_blank"><spring:message code="label.event.firstTimeCandidacy.download" /></a>
     </div>
 </form>
 

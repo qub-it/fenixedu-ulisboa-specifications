@@ -227,7 +227,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
                 <div class="col-sm-6">
                     <ui-select reset-search-input="false" id="householdInformationForm_grantOwnerProvider" name="grantOwnerProvider" ng-model="$parent.object.grantOwnerProvider" ng-disabled="object.grantOwnerType === 'STUDENT_WITHOUT_SCHOLARSHIP'" theme="bootstrap">
-                        <ui-select-match placeholder="Escreva o nome da instituição">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match placeholder="Escreva o nome da instituicao">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="grantOwnerProvider.id as grantOwnerProvider in object.grantOwnerProviderValues"
                                             refresh="onGrantOwnerProviderRefresh($item, $select.search, $model)"
                                             refresh-delay="0">

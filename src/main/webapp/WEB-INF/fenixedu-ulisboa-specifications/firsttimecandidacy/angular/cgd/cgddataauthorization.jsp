@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.FirstTimeCandidacyFinalizationController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -121,6 +123,24 @@ ${portal.toolkit()}
 			</div>
 		</div>
 	</div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body furtherInfo">
+                <% 
+                    String controllerURL = (String)request.getAttribute("controllerURL"); 
+                    String beginningURL = FirstTimeCandidacyController.FIRST_TIME_START_URL;
+                    String executionYear = controllerURL.substring(controllerURL.indexOf(beginningURL) + beginningURL.length() + 1, controllerURL.indexOf("/cgddataauthorization"));
+                    String url = FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL.replace("{executionYearId}", executionYear);
+                %>
+                <a href="${ pageContext.request.contextPath }<%= url %>">
+                    <spring:message code="label.CgdDataAuthorization.refuseDocument" htmlEscape="false"/>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">

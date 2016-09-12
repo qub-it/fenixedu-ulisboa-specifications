@@ -196,7 +196,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtAndSubdivisionRequired }" id="labelDistrictOfGraduation">
+                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : !object.districtsValues.length }" id="labelDistrictOfGraduation">
                     <spring:message
                         code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" />
                 </div>
@@ -211,7 +211,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtAndSubdivisionRequired }" id="labelDistrictSubdivisionOfGraduation">
+                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : !object.districtSubdivisionValues.length }" id="labelDistrictSubdivisionOfGraduation">
                     <spring:message
                         code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" />
                 </div>

@@ -369,6 +369,9 @@ public class OriginInformationFormController extends FormAbstractController {
         if (country.isDefaultCountry()) {
             precedentDegreeInformation.setDistrict(form.getDistrictWhereFinishedPreviousCompleteDegree());
             precedentDegreeInformation.setDistrictSubdivision(form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree());
+        } else {
+            precedentDegreeInformation.setDistrict(null);
+            precedentDegreeInformation.setDistrictSubdivision(null);
         }
         if (form.getSchoolLevel() != null && form.getSchoolLevel().isHighSchoolOrEquivalent()) {
             precedentDegreeInformation.setCountryHighSchool(form.getCountryWhereFinishedPreviousCompleteDegree());

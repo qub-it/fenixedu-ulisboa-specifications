@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
 import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -257,13 +258,11 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
 
     @RequestMapping(value = "/printalldocuments", produces = "application/pdf")
     public ResponseEntity<byte[]> finishedToPrintAllDocuments(Model model, RedirectAttributes redirectAttributes) {
-        if (!FirstTimeCandidacyController.isPeriodOpen()) {
-            // Cannot return redirect() with a return type of ResponseEntity<byte[]>
-            throw new RuntimeException("Cannot finish candidacy - period is not open");
-        }
         Person person = AccessControl.getPerson();
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
-        concludeStudentCandidacy(person, candidacy);
+        if (candidacy.getActiveCandidacySituationType() == CandidacySituationType.STAND_BY) {
+            concludeStudentCandidacy(person, candidacy);
+        }
 
         byte[] pdfBytes = new byte[0];
         if (candidacy.getSummaryFile() != null) {
