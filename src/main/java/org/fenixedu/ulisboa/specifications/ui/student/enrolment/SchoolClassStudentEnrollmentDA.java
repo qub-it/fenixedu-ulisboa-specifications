@@ -148,7 +148,11 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 final Registration registration = scp.getRegistration();
                 final SchoolClass schoolClass = readFirstUnfilledClass(registration, executionSemester).orElse(null);
                 enrolOnSchoolClass(schoolClass, registration);
-                return redirect(enrolmentProcess.getContinueURL(request), request);
+
+                final String url = enrolmentProcess.getContinueURL(request);
+                final ActionForward forward = new ActionForward(url.replaceFirst(request.getContextPath(), ""), true);
+                forward.setModule("/");
+                return forward;
             }
         }
 
