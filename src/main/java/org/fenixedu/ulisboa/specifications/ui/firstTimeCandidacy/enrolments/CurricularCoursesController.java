@@ -90,7 +90,7 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
     }
 
     public String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        if (!EnrolmentsController.shouldBeSkipped(executionYear)) {
+        if (!EnrolmentsController.shouldBeSkipped(executionYear, FirstTimeCandidacyController.getCandidacy())) {
             return redirect(urlWithExecutionYear(EnrolmentsController.CONTROLLER_URL, executionYear), model, redirectAttributes);
         } else {
             return redirect(urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear), model,

@@ -110,10 +110,6 @@ public class EnrolmentsController extends EnrolmentAbstractController {
                 .stream().filter(p -> p.isOpen() && p.isFirstTimeRegistration()).collect(Collectors.toList());
     }
 
-    private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriodsEditable(List<AcademicEnrolmentPeriodBean> periods) {
-        return periods.stream().filter(p -> p.isEditable()).collect(Collectors.toList());
-    }
-
     private boolean enrolAutomaticallyInUCs(List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isForCurricularCourses() && p.isAutomatic()).findFirst().isPresent();
     }
@@ -204,9 +200,10 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         }
     }
 
-    public static boolean shouldBeSkipped(ExecutionYear executionYear) {
-        //TODOJN
-        return false;
+    public static boolean shouldBeSkipped(ExecutionYear executionYear, FirstTimeCandidacy candidacy) {
+        return !AcademicEnrolmentPeriod
+                .getEnrolmentPeriodsOpenOrUpcoming(AccessControl.getPerson().getStudent(), candidacy.getDegreeCurricularPlan())
+                .stream().anyMatch(p -> p.isOpen() && p.isFirstTimeRegistration() && p.isEditable());
     }
 
     @Override
