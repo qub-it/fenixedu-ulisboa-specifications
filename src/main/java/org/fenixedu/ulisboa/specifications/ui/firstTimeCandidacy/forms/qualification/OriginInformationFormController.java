@@ -269,7 +269,7 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
-                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
+                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && form.getSchoolLevel() != null
                 && form.getSchoolLevel().isHigherEducation()) {
             if (form.getRaidesDegreeDesignation() == null) {
                 result.add(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"));
@@ -298,20 +298,22 @@ public class OriginInformationFormController extends FormAbstractController {
 
         if (StringUtils.isBlank(form.getConclusionYear()) || !form.getConclusionYear().matches(YEAR_FORMAT)) {
             result.add(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"));
+
+        } else {
+
+            final LocalDate now = new LocalDate();
+            int conclusionYear = Integer.valueOf(form.getConclusionYear());
+            if (now.getYear() < conclusionYear) {
+                result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"));
+            }
+
+            int birthYear = registration.getPerson().getDateOfBirthYearMonthDay().getYear();
+            if (conclusionYear < birthYear) {
+                result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"));
+            }
         }
 
-        LocalDate now = new LocalDate();
-        int conclusionYear = Integer.valueOf(form.getConclusionYear());
-        if (now.getYear() < conclusionYear) {
-            result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"));
-        }
-
-        int birthYear = registration.getPerson().getDateOfBirthYearMonthDay().getYear();
-        if (conclusionYear < birthYear) {
-            result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"));
-        }
-
-        if (form.getSchoolLevel().isHighSchoolOrEquivalent()) {
+        if (form.getSchoolLevel() != null && form.getSchoolLevel().isHighSchoolOrEquivalent()) {
             if (form.getHighSchoolType() == null) {
                 result.add(BundleUtil.getString(BUNDLE, "error.highSchoolType.required"));
             }
