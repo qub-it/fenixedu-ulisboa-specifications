@@ -273,7 +273,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
             return true;
         }
 
-        if (getRestrictToSelectedIngressionTypes()) {
+        if (getRestrictToSelectedIngressionTypes() != null && getRestrictToSelectedIngressionTypes()) {
             // mandatory
             return configured.contains(input);
         } else {
