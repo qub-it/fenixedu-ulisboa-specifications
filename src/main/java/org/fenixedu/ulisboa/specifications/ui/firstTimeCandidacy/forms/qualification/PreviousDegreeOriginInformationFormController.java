@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualific
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +33,8 @@ import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
@@ -160,12 +163,26 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                 model);
     }
 
+    private boolean validate(final ExecutionYear executionYear, final Registration registration,
+            PreviousDegreeInformationForm form, Model model) {
+
+        final Set<String> result = validateForm(executionYear, registration, form, model);
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
     /**
      * @see {@link com.qubit.qubEdu.module.candidacies.domain.academicCandidacy.config.screen.validation.PreviousQualificationScreenValidator.validate(WorkflowInstanceState,
      *      WorkflowScreen)}
      */
-    protected boolean validate(final ExecutionYear executionYear, final Registration registration,
+    protected Set<String> validateForm(final ExecutionYear executionYear, final Registration registration,
             PreviousDegreeInformationForm form, Model model) {
+
+        final Set<String> result = Sets.newLinkedHashSet();
 
         /* -------
          * COUNTRY
@@ -173,8 +190,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
          */
 
         if (form.getPrecedentCountry() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.requiredCountry"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.requiredCountry"));
         }
 
         /* ------------
@@ -183,17 +199,13 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
          */
 
         if (form.getPrecedentSchoolLevel() == null) {
-            addErrorMessage(
-                    ULisboaSpecificationsUtil.bundle("error.PreviousDegreeOriginInformationForm.precedentSchoolLevel.required"),
-                    model);
-            return false;
+            result.add(
+                    ULisboaSpecificationsUtil.bundle("error.PreviousDegreeOriginInformationForm.precedentSchoolLevel.required"));
         }
 
         if (form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherPrecedentSchoolLevel())) {
-            addErrorMessage(
-                    BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.otherPrecedentSchoolLevel.required"),
-                    model);
-            return false;
+            result.add(
+                    BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.otherPrecedentSchoolLevel.required"));
         }
 
         /* -----------
@@ -202,9 +214,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
          */
 
         if (StringUtils.isEmpty(StringUtils.trim(form.getPrecedentInstitutionOid()))) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.institution.must.be.filled"),
-                    model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.institution.must.be.filled"));
         }
 
         /* ------------------
@@ -215,14 +225,12 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
         if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry()
                 && form.getPrecedentSchoolLevel().isHigherEducation()) {
             if (form.getRaidesPrecedentDegreeDesignation() == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"));
             }
         } else {
             if (isDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
                 if (StringUtils.isEmpty(form.getPrecedentDegreeDesignation())) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
-                    return false;
+                    result.add(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"));
                 }
             }
         }
@@ -233,12 +241,11 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
          */
 
         if (form.getNumberOfEnrolmentsInPreviousDegrees() == 0) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE,
+                    "error.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees.required"));
         }
 
-        return true;
+        return result;
     }
 
     protected boolean isDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() {

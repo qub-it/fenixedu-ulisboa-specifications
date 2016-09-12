@@ -3,6 +3,8 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.filiatio
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Set;
+
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
@@ -21,9 +23,11 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstr
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -94,26 +98,36 @@ public class FiliationFormController extends FormAbstractController {
         if (!(candidancyForm instanceof FiliationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.FiliationFormController.wrong.form.type"), model);
         }
+
         return validate((FiliationForm) candidancyForm, model);
     }
 
     private boolean validate(FiliationForm form, Model model) {
-        if (StringUtils.isEmpty(form.getFatherName()) || StringUtils.isEmpty(form.getMotherName())) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.parentsName.required"), model);
-            return false;
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
+    private Set<String> validateForm(FiliationForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+
+        if (Strings.isNullOrEmpty(form.getFatherName()) || Strings.isNullOrEmpty(form.getMotherName())) {
+            result.add(BundleUtil.getString(BUNDLE, "error.parentsName.required"));
         }
 
         if (form.getCountryOfBirth().isDefaultCountry()) {
             if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
                     || form.getParishOfBirth() == null) {
-                addErrorMessage(
-                        BundleUtil.getString(BUNDLE,
-                                "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"),
-                        model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"));
             }
         }
-        return true;
+
+        return result;
     }
 
     @Override

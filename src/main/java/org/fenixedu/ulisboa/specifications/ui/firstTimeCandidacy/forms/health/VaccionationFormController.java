@@ -3,6 +3,8 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health;
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Set;
+
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
@@ -21,6 +23,8 @@ import org.joda.time.LocalDate;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -88,16 +92,27 @@ public class VaccionationFormController extends FormAbstractController {
     }
 
     private boolean validate(VaccinationForm form, Model model) {
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
+    private Set<String> validateForm(VaccinationForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+
         if (form.getVaccinationValidity() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.fillVaccionatioValidity"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "label.error.fillVaccionatioValidity"));
         }
 
         if (form.getVaccinationValidity() != null && !form.getVaccinationValidity().isAfter(new LocalDate())) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.fillVaccionatioValidity.is.invalid"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "label.error.fillVaccionatioValidity.is.invalid"));
         }
-        return true;
+
+        return result;
     }
 
     @Override
@@ -119,8 +134,7 @@ public class VaccionationFormController extends FormAbstractController {
 
     @Override
     protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(EnrolmentsController.CONTROLLER_URL, executionYear), model,
-                redirectAttributes);
+        return redirect(urlWithExecutionYear(EnrolmentsController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override

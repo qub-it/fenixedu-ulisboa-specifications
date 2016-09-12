@@ -6,6 +6,7 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTim
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
@@ -150,7 +152,7 @@ public class OriginInformationFormController extends FormAbstractController {
 
         form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
 
-        if (!StringUtils.isEmpty(form.getInstitutionOid())) {
+        if (!Strings.isNullOrEmpty(form.getInstitutionOid())) {
             DomainObject institutionObject = FenixFramework.getDomainObject(form.getInstitutionOid());
             if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
                 form.setInstitutionName(((Unit) institutionObject).getName());
@@ -185,11 +187,22 @@ public class OriginInformationFormController extends FormAbstractController {
         return validate(getRegistration(executionYear, model), (OriginInformationForm) candidancyForm, model);
     }
 
+    private boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
+        final Set<String> result = validateForm(registration, form, model);
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
     /**
      * @see {@link com.qubit.qubEdu.module.candidacies.domain.academicCandidacy.config.screen.validation.LastCompletedQualificationScreenValidator.validate(WorkflowInstanceState,
      *      WorkflowScreen)}
      */
-    protected boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
+    private Set<String> validateForm(final Registration registration, final OriginInformationForm form, final Model model) {
+        final Set<String> result = Sets.newLinkedHashSet();
 
         /* -------
          * COUNTRY
@@ -197,8 +210,7 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (form.getCountryWhereFinishedPreviousCompleteDegree() == null) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.requiredCountry"));
         }
 
         /* ------------------------
@@ -206,13 +218,13 @@ public class OriginInformationFormController extends FormAbstractController {
          * ------------------------
          */
 
-        if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry() && isDistrictAndSubdivisionRequired()) {
+        if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
+                && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
+                && isDistrictAndSubdivisionRequired()) {
             if (form.getDistrictSubdivisionWhereFinishedPreviousCompleteDegree() == null
                     || form.getDistrictWhereFinishedPreviousCompleteDegree() == null) {
-                addErrorMessage(
-                        BundleUtil.getString(BUNDLE, "error.personalInformation.requiredDistrictAndSubdivisionForDefaultCountry"),
-                        model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.personalInformation.requiredDistrictAndSubdivisionForDefaultCountry"));
             }
         }
 
@@ -222,16 +234,12 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (form.getSchoolLevel() == null) {
-            addErrorMessage(
-                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.schoolLevel.must.be.filled"),
-                    model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.schoolLevel.must.be.filled"));
         }
 
-        if (form.getSchoolLevel() == SchoolLevelType.OTHER && StringUtils.isEmpty(form.getOtherSchoolLevel())) {
-            addErrorMessage(BundleUtil.getString(BUNDLE,
-                    "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"), model);
-            return false;
+        if (form.getSchoolLevel() == SchoolLevelType.OTHER && Strings.isNullOrEmpty(form.getOtherSchoolLevel())) {
+            result.add(BundleUtil.getString(BUNDLE,
+                    "error.candidacy.workflow.OriginInformationForm.otherSchoolLevel.must.be.filled"));
         }
 
         /* -----------
@@ -240,19 +248,17 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
-            if (StringUtils.isEmpty(StringUtils.trim(form.getInstitutionOid()))) {
-                addErrorMessage(
-                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"),
-                        model);
-                return false;
+            if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
             }
         } else {
-            if (form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
+            if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
+                    && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
                     && form.getSchoolLevel().isHigherEducation()) {
-                if (StringUtils.isEmpty(StringUtils.trim(form.getInstitutionOid()))) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"), model);
-                    return false;
+                if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
                 }
             }
         }
@@ -266,14 +272,12 @@ public class OriginInformationFormController extends FormAbstractController {
                 && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
                 && form.getSchoolLevel().isHigherEducation()) {
             if (form.getRaidesDegreeDesignation() == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"));
             }
         } else {
             if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
-                if (StringUtils.isEmpty(form.getDegreeDesignation())) {
-                    addErrorMessage(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"), model);
-                    return false;
+                if (Strings.isNullOrEmpty(form.getDegreeDesignation())) {
+                    result.add(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"));
                 }
             }
         }
@@ -284,8 +288,7 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (StringUtils.isNotBlank(form.getConclusionGrade()) && !form.getConclusionGrade().matches(GRADE_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionGrade"));
         }
 
         /* ---------------
@@ -294,31 +297,27 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (StringUtils.isBlank(form.getConclusionYear()) || !form.getConclusionYear().matches(YEAR_FORMAT)) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"));
         }
 
         LocalDate now = new LocalDate();
         int conclusionYear = Integer.valueOf(form.getConclusionYear());
         if (now.getYear() < conclusionYear) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"));
         }
 
         int birthYear = registration.getPerson().getDateOfBirthYearMonthDay().getYear();
         if (conclusionYear < birthYear) {
-            addErrorMessage(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"), model);
-            return false;
+            result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"));
         }
 
         if (form.getSchoolLevel().isHighSchoolOrEquivalent()) {
             if (form.getHighSchoolType() == null) {
-                addErrorMessage(BundleUtil.getString(BUNDLE, "error.highSchoolType.required"), model);
-                return false;
+                result.add(BundleUtil.getString(BUNDLE, "error.highSchoolType.required"));
             }
         }
 
-        return true;
+        return result;
     }
 
     protected boolean isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel() {

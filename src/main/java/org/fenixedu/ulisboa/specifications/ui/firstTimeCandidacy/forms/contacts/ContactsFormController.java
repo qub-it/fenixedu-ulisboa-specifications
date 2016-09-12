@@ -5,6 +5,7 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTim
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.EmergencyContact;
@@ -28,9 +29,11 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstr
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ResidenceInformationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.OriginInformationFormController;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -141,38 +144,42 @@ public class ContactsFormController extends FormAbstractController {
     }
 
     private boolean validate(ContactsForm form, Model model) {
-        if (StringUtils.isEmpty(form.getPersonalEmail())) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.personalEmail.required"),
-                    model);
-            return false;
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
         }
 
-        if (!StringUtils.isEmpty(form.getPhoneNumber()) && !form.getPhoneNumber().matches(PHONE_PATTERN)) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"),
-                    model);
-            return false;
-        }
-        if (!StringUtils.isEmpty(form.getMobileNumber()) && !form.getMobileNumber().matches(PHONE_PATTERN)) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"),
-                    model);
-            return false;
+        return result.isEmpty();
+    }
+
+    private Set<String> validateForm(ContactsForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+
+        if (Strings.isNullOrEmpty(form.getPersonalEmail())) {
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.personalEmail.required"));
         }
 
-        if (!StringUtils.isEmpty(form.getWebAddress()) && !form.getWebAddress().matches(URL_PATTERN)) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.webAddress"),
-                    model);
-            return false;
+        if (!Strings.isNullOrEmpty(form.getPhoneNumber()) && !form.getPhoneNumber().matches(PHONE_PATTERN)) {
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"));
         }
-        if (StringUtils.isEmpty(form.getEmergencyContact()) || !form.getEmergencyContact().matches(PHONE_PATTERN)) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.incorrect.emergencyContact"), model);
-            return false;
+
+        if (!Strings.isNullOrEmpty(form.getMobileNumber()) && !form.getMobileNumber().matches(PHONE_PATTERN)) {
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"));
         }
-        return true;
+
+        if (!Strings.isNullOrEmpty(form.getWebAddress()) && !form.getWebAddress().matches(URL_PATTERN)) {
+            result.add(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.webAddress"));
+        }
+
+        if (Strings.isNullOrEmpty(form.getEmergencyContact()) || !form.getEmergencyContact().matches(PHONE_PATTERN)) {
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.incorrect.emergencyContact"));
+        }
+
+        return result;
     }
 
     @Override
@@ -212,7 +219,7 @@ public class ContactsFormController extends FormAbstractController {
             homepage.setUrl(form.getWebAddress());
             homepage.setVisibleToPublic(form.getIsHomepageAvailable());
         } else {
-            if (!StringUtils.isEmpty(form.getWebAddress())) {
+            if (!Strings.isNullOrEmpty(form.getWebAddress())) {
                 homepage = WebAddress.createWebAddress(person, form.getWebAddress(), PartyContactType.PERSONAL, true);
                 homepage.setVisibleToPublic(form.getIsHomepageAvailable());
             }

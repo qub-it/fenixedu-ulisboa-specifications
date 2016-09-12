@@ -144,8 +144,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
         return validate((HouseholdInformationForm) candidancyForm, model);
     }
 
-    protected boolean validate(HouseholdInformationForm form, Model model) {
-        final Set<String> messages = validateHouseholdInformationForm(form);
+    private boolean validate(HouseholdInformationForm form, Model model) {
+        final Set<String> messages = validateForm(form);
 
         for (final String message : messages) {
             addErrorMessage(message, model);
@@ -154,8 +154,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
         return messages.isEmpty();
     }
 
-    public Set<String> validateHouseholdInformationForm(HouseholdInformationForm form) {
-        final Set<String> messages = Sets.newHashSet();
+    private Set<String> validateForm(HouseholdInformationForm form) {
+        final Set<String> messages = Sets.newLinkedHashSet();
 
         if (form.getFatherProfessionalCondition() == null || form.getFatherProfessionType() == null
                 || form.getFatherSchoolLevel() == null) {

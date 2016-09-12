@@ -4,6 +4,7 @@ import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguratio
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.util.Comparator;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +34,8 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.contacts.
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.standards.geographic.Planet;
@@ -163,56 +166,52 @@ public class ResidenceInformationFormController extends FormAbstractController {
     }
 
     private boolean validate(ResidenceInformationForm form, Model model) {
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
+    private Set<String> validateForm(ResidenceInformationForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+
         if (!form.getCountryOfResidence().isDefaultCountry() && !form.getDislocatedFromPermanentResidence()) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.candidacy.workflow.ResidenceInformationForm.non.nacional.students.should.select.dislocated.option.and.fill.address"),
-                    model);
-            return false;
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.ResidenceInformationForm.non.nacional.students.should.select.dislocated.option.and.fill.address"));
         }
         if (form.getCountryOfResidence().isDefaultCountry() && !form.isResidenceInformationFilled()) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.candidacy.workflow.ResidenceInformationForm.address.national.students.should.supply.complete.address.information"),
-                    model);
-            return false;
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.ResidenceInformationForm.address.national.students.should.supply.complete.address.information"));
         }
         if (form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getAreaCode())) {
-            addErrorMessage(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"),
-                    model);
-            return false;
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"));
         }
 
         if (form.getDislocatedFromPermanentResidence()) {
             if (!form.isSchoolTimeRequiredInformationAddressFilled()) {
-                addErrorMessage(
-                        BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                "error.candidacy.workflow.ResidenceInformationForm.address.information.is.required.for.dislocated.students"),
-                        model);
-                return false;
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.ResidenceInformationForm.address.information.is.required.for.dislocated.students"));
             } else {
                 if ((form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(), form.getSchoolTimeArea())
                         || form.getSchoolTimeParishOfResidence() != null || form.getSchoolTimeResidenceType() != null)
                         && (form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(), form.getSchoolTimeArea())
                                 || form.getSchoolTimeParishOfResidence() == null || form.getSchoolTimeResidenceType() == null)) {
-                    addErrorMessage(
-                            BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                    "error.candidacy.workflow.ResidenceInformationForm.school.time.address.must.be.filled.completly.otherwise.fill.minimun.required"),
-                            model);
-                    return false;
+                    result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                            "error.candidacy.workflow.ResidenceInformationForm.school.time.address.must.be.filled.completly.otherwise.fill.minimun.required"));
                 }
             }
 
             if (form.getSchoolTimeResidenceType() != null && form.getSchoolTimeResidenceType().isOther()
                     && StringUtils.isEmpty(form.getOtherSchoolTimeResidenceType())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.ResidenceInformationForm.other.residence.type.required"), model);
-                return false;
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.ResidenceInformationForm.other.residence.type.required"));
             }
         }
 
-        return true;
+        return result;
     }
 
     @Override

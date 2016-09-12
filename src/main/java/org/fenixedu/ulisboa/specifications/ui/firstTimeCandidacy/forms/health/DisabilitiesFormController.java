@@ -3,8 +3,11 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health;
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -20,6 +23,8 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualifica
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -105,24 +110,36 @@ public class DisabilitiesFormController extends FormAbstractController {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.DisabilitiesFormController.wrong.form.type"), model);
         }
 
-        return validate(executionYear, (DisabilitiesForm) candidancyForm, model);
+        return validate((DisabilitiesForm) candidancyForm, model);
     }
 
-    protected boolean validate(final ExecutionYear executionYear, final DisabilitiesForm form, Model model) {
+    private boolean validate(DisabilitiesForm form, Model model) {
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
+    private Set<String> validateForm(DisabilitiesForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+
         if (form.getHasDisabilities()) {
             if (form.getDisabilityType() == null
                     || form.getDisabilityType().isOther() && StringUtils.isEmpty(form.getOtherDisabilityType())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.DisabilitiesForm.disabilityType.must.be.filled"), model);
-                return false;
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.DisabilitiesForm.disabilityType.must.be.filled"));
             }
+
             if (form.getNeedsDisabilitySupport() == null) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.DisabilitiesForm.needsDisabilitySupport.must.be.filled"), model);
-                return false;
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.DisabilitiesForm.needsDisabilitySupport.must.be.filled"));
             }
         }
-        return true;
+
+        return result;
     }
 
     @Override

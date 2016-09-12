@@ -3,7 +3,10 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivati
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Set;
+
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -22,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -110,33 +115,42 @@ public class MotivationsExpectationsFormController extends FormAbstractControlle
     }
 
     private boolean validate(MotivationsExpectationsForm form, Model model) {
+        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+
+        for (final String message : result) {
+            addErrorMessage(message, model);
+        }
+
+        return result.isEmpty();
+    }
+
+    private Set<String> validateForm(MotivationsExpectationsForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+
         if (form.getUniversityChoiceMotivationAnswers().size() > 3) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"), model);
-            return false;
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"));
         }
         if (form.getUniversityDiscoveryMeansAnswers().size() > 3) {
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"), model);
-            return false;
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"));
         }
 
         for (UniversityChoiceMotivationAnswer answer : form.getUniversityChoiceMotivationAnswers()) {
             if (answer.isOther() && StringUtils.isEmpty(form.getOtherUniversityChoiceMotivation())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.MotivationsExpectationsForm.other.must.be.filled"), model);
-                return false;
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.MotivationsExpectationsForm.other.must.be.filled"));
             }
         }
 
         for (UniversityDiscoveryMeansAnswer answer : form.getUniversityDiscoveryMeansAnswers()) {
             if (answer.isOther() && StringUtils.isEmpty(form.getOtherUniversityDiscoveryMeans())) {
-                addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.candidacy.workflow.MotivationsExpectationsForm.other.must.be.filled"), model);
-                return false;
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.MotivationsExpectationsForm.other.must.be.filled"));
             }
         }
-        return true;
+
+        return result;
     }
 
     @Override

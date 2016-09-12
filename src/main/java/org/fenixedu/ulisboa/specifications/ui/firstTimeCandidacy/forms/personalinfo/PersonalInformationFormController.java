@@ -185,14 +185,28 @@ public class PersonalInformationFormController extends FormAbstractController {
         form.setUsername(student.getPerson().getUser().getUsername());
     }
 
-    public Set<String> validateForm(PersonalInformationForm form, final Person person) {
-        final Set<String> result = Sets.newHashSet();
+    private Set<String> validateForm(PersonalInformationForm form, final Person person) {
+        final Set<String> result = Sets.newLinkedHashSet();
+        
+        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
+                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))
+                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), form.getIdentificationDocumentSeriesNumber())) {
+            result.add(ULisboaSpecificationsUtil
+                    .bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
+        }
+
+        final Collection<Person> found = Person.readByDocumentIdNumber(form.getDocumentIdNumber());
+        if (!found.isEmpty()) {
+            if (found.size() != 1 || found.iterator().next() != Authenticate.getUser().getPerson()) {
+                result.add(ULisboaSpecificationsUtil
+                        .bundle("error.candidacy.workflow.PersonalInformationForm.identificationDocumentNumber.exists"));
+            }
+        }
 
         if (form.getDateOfBirth() == null) {
             result.add(BundleUtil.getString(BUNDLE, "error.birthDate.required"));
-        }
 
-        if (form.getDateOfBirth().isAfter(new LocalDate())) {
+        } else if (form.getDateOfBirth().isAfter(new LocalDate())) {
             result.add(BundleUtil.getString(BUNDLE, "error.birthDate.invalid"));
         }
 
@@ -245,21 +259,6 @@ public class PersonalInformationFormController extends FormAbstractController {
                     BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
         }
 
-        if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))
-                && !IdentityCardUtils.validate(person.getDocumentIdNumber(), form.getIdentificationDocumentSeriesNumber())) {
-            result.add(ULisboaSpecificationsUtil
-                    .bundle("error.candidacy.workflow.PersonalInformationForm.incorrect.identificationSeriesNumber"));
-        }
-
-        final Collection<Person> found = Person.readByDocumentIdNumber(form.getDocumentIdNumber());
-        if (!found.isEmpty()) {
-            if (found.size() != 1 || found.iterator().next() != Authenticate.getUser().getPerson()) {
-                result.add(ULisboaSpecificationsUtil
-                        .bundle("error.candidacy.workflow.PersonalInformationForm.identificationDocumentNumber.exists"));
-            }
-        }
-
         return result;
     }
 
@@ -279,7 +278,6 @@ public class PersonalInformationFormController extends FormAbstractController {
     }
 
     private boolean validate(PersonalInformationForm form, Model model) {
-
         final Set<String> result = validateForm(form, getStudent(model).getPerson());
 
         for (final String message : result) {
