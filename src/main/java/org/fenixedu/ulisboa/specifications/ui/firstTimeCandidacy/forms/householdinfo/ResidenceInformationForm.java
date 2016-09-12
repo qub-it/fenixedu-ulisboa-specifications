@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
 import org.fenixedu.ulisboa.specifications.domain.ResidenceType;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
@@ -87,8 +88,9 @@ public class ResidenceInformationForm implements CandidancyForm {
             if (areaCodePart == null) {
                 setAreaCodeValuesFormatted(Collections.emptyList());
             } else {
-                setAreaCodeValuesFormatted(
-                        postalCodes.stream().filter(pc -> pc.contains(areaCodePart)).limit(50).collect(Collectors.toList()));
+                setAreaCodeValuesFormatted(postalCodes.stream()
+                        .filter(pc -> StringNormalizer.normalize(pc).contains(StringNormalizer.normalize(areaCodePart))).limit(50)
+                        .collect(Collectors.toList()));
             }
         } else {
             setAreaCode(null);
@@ -98,8 +100,11 @@ public class ResidenceInformationForm implements CandidancyForm {
         if (schoolTimeAreaCodePart == null) {
             setSchoolTimeAreaCodeValuesFormatted(Collections.emptyList());
         } else {
-            setSchoolTimeAreaCodeValuesFormatted(postalCodes.stream().filter(pc -> pc.contains(schoolTimeAreaCodePart)).limit(50)
-                    .collect(Collectors.toList()));
+            setSchoolTimeAreaCodeValuesFormatted(
+                    postalCodes.stream()
+                            .filter(pc -> StringNormalizer.normalize(pc)
+                                    .contains(StringNormalizer.normalize(schoolTimeAreaCodePart)))
+                            .limit(50).collect(Collectors.toList()));
         }
     }
 
