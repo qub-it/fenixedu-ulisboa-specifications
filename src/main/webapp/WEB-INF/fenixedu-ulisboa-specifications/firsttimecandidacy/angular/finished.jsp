@@ -1,3 +1,4 @@
+<%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -122,7 +123,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" ng-click="isPrinted = true;" href="${pageContext.request.contextPath}${controllerURL}/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
     </div>
     <div class="well well-sm" style="display:inline-block" ng-show="isPrinted">
-        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}/student"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
+        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), "/student/viewStudentCurriculum.do?method=prepare", request.getSession()) %>"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
     </div>
 </form>
 

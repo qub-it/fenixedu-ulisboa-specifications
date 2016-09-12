@@ -26,6 +26,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
+import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ScheduleClassesController;
@@ -71,38 +72,37 @@ public class EnrolmentsController extends EnrolmentAbstractController {
 
         //Enrol in UCs
         if (enrolAutomaticallyInUCs(periods)) {
-            System.out.println("Inscrever UCs automaticamente");
             createAutomaticEnrolments(registration, executionYear.getFirstExecutionPeriod(), studentCurricularPlan);
         } else {
-            //Jump to process
-            System.out.println("Need UCs enrolment. Jumping");
+            return redirectToEnrolmentProcess(periods, AcademicEnrolmentPeriodType.CURRICULAR_COURSE, model, redirectAttributes,
+                    request);
         }
 
         //Enrol in School Classes
         if (isToEnrolInSchoolClasses(periods)) {
-            System.out.println("Need school classes enrolment. Jumping");
+            return redirectToEnrolmentProcess(periods, AcademicEnrolmentPeriodType.SCHOOL_CLASS, model, redirectAttributes,
+                    request);
         }
         //Enrol in Shifts
         if (isToEnrolInShifts(periods)) {
-            System.out.println("Need school classes enrolment. Jumping");
+            return redirectToEnrolmentProcess(periods, AcademicEnrolmentPeriodType.SHIFT, model, redirectAttributes, request);
         }
 
-        System.out.println("Dont need enrolments. Jump to resume.");
+        return nextScreen(executionYear, model, redirectAttributes);
+    }
 
-        List<EnrolmentProcess> enrolmentProcesses =
-                EnrolmentProcess.buildProcesses(getAllAcademicEnrolmentPeriodsEditable(periods));
+    protected String redirectToEnrolmentProcess(List<AcademicEnrolmentPeriodBean> periods, AcademicEnrolmentPeriodType type,
+            Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        List<AcademicEnrolmentPeriodBean> filteredPeriods =
+                periods.stream().filter(p -> p.getEnrolmentPeriodType() == type).collect(Collectors.toList());
+        List<EnrolmentProcess> enrolmentProcesses = EnrolmentProcess.buildProcesses(filteredPeriods);
         if (enrolmentProcesses == null || enrolmentProcesses.isEmpty()) {
-            System.out.println("Processo vazio");
-            System.out.println("Tem " + getAllAcademicEnrolmentPeriodsEditable(periods).size() + " periodos.");
-            for (AcademicEnrolmentPeriodBean period : getAllAcademicEnrolmentPeriodsEditable(periods)) {
-                System.out
-                        .println(period.getEnrolmentPeriodType() + "||" + period.getStartDate().toString("yyyy-MM-dd HH:mm:ss"));
-            }
-            return nextScreen(executionYear, model, redirectAttributes);
+            throw new RuntimeException("Redefine periods.");
         }
 
         final String url = enrolmentProcesses.iterator().next().getContinueURL(request);
         return redirect(url.replaceFirst(request.getContextPath(), ""), model, redirectAttributes);
+
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(Model model, FirstTimeCandidacy candidacy) {
@@ -119,11 +119,11 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     }
 
     private boolean isToEnrolInSchoolClasses(List<AcademicEnrolmentPeriodBean> periods) {
-        return periods.stream().filter(p -> p.isForClasses() && p.isAutomatic()).findFirst().isPresent();
+        return periods.stream().filter(p -> p.isForClasses()).findFirst().isPresent();
     }
 
     private boolean isToEnrolInShifts(List<AcademicEnrolmentPeriodBean> periods) {
-        return periods.stream().filter(p -> p.isForShift() && p.isAutomatic()).findFirst().isPresent();
+        return periods.stream().filter(p -> p.isForShift()).findFirst().isPresent();
     }
 
     @Atomic

@@ -123,7 +123,7 @@ public class FiliationForm implements CandidancyForm {
             tuple.setId(c.getExternalId());
             tuple.setText(c.getCountryNationality().getContent());
             return tuple;
-        }).collect(Collectors.toList());
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
     public List<TupleDataSourceBean> getCountriesValues() {
