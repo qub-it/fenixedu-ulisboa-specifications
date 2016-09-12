@@ -152,7 +152,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			
-            <c:if test="${partial || not personalInformationForm.isForeignStudent}">
     			<div class="form-group row">
     				<label class="col-sm-2 control-label">
     					<spring:message code="label.PersonalInformationForm.documentIdNumber" />
@@ -171,23 +170,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <div class="form-control-static"><c:out value='${personalInformationForm.idDocumentType.localizedName }' /></div>
                     </div>
                 </div>
-            </c:if>
-	        <c:if test="${not partial && personalInformationForm.isForeignStudent}">
-                <div class="form-group row">
-                    <label class="col-sm-2 control-label required-field">
-                        <spring:message code="label.PersonalInformationForm.idDocumentType" />
-                    </label>
-    
-                    <div class="col-sm-4">
-                        <ui-select  id="personalInformationForm_idDocumentType" name="type" ng-model="$parent.object.idDocumentType" theme="bootstrap">
-                            <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                            <ui-select-choices  repeat="type.id as type in object.idDocumentTypeValues | filter: $select.search">
-                                <span ng-bind-html="type.text | highlight: $select.search"></span>
-                            </ui-select-choices> 
-                        </ui-select>     
-                    </div>
-                </div>
-            </c:if>		
    
    
 			<div class="form-group row" ng-show="object.idDocumentType == 'IDENTITY_CARD'">
@@ -221,32 +203,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>     
 				</div>
 			</div>
-			<c:if test="${personalInformationForm.isForeignStudent}">
-				<div class="form-group row">
-					<label class="col-sm-2 control-label required-field">
-						<spring:message code="label.PersonalInformationForm.documentIdNumber" />
-					</label>
-	
-					<div class="col-sm-10">
-						<input id="personalInformationForm_documentIdNumber" class="form-control" type="text" ng-model="object.documentIdNumber" name="documentIdNumber" required title="<spring:message code="label.field.required"/>"
-							value='${not empty param.documentidnumber ? param.documentidnumber : personalInformationForm.documentIdNumber }'/>
-					</div>
-				</div>
-				<div class="form-group row">
-					<label class="col-sm-2 control-label required-field">
-						<spring:message code="label.PersonalInformationForm.idDocumentType" />
-					</label>
-	
-					<div class="col-sm-4">
-                        <ui-select  id="personalInformationForm_idDocumentType" name="type" ng-model="$parent.object.idDocumentType" theme="bootstrap">
-                            <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                            <ui-select-choices  repeat="type.id as type in object.idDocumentTypeValues | filter: {normalizedText : $select.search}">
-                                <span ng-bind-html="type.text"></span>
-                            </ui-select-choices> 
-                        </ui-select>     
-					</div>
-				</div>
-			</c:if>
 			
 			<div class="form-group row">
 				<label for="personalInformationForm_documentIdEmissionLocation" class="col-sm-2 control-label">
