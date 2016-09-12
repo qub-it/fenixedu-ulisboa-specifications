@@ -77,7 +77,6 @@
 		</a>
 	    &nbsp;|&nbsp;
 	    <c:if test="${canContinueProcess}">
-			<bean:define id="continueHACKLink"><%= request.getContextPath() + org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA.createEnrolmentStepEndProcess().getEntryPointURL()  %>&studentCurricularPlanOID=<c:out value="${enrolmentProcess.studentCurricularPlan.externalId}" />&executionSemesterOID=<c:out value="${enrolmentProcess.executionSemester.externalId}" /></bean:define>
 			<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
 				<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
 			</a>
