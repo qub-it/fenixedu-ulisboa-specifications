@@ -95,7 +95,7 @@ public class PersonalInformationFormController extends FormAbstractController {
 
             if (person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
                 final String digitControl = IdentityCardUtils.getDigitControlFromPerson(person);
-                if (!StringUtils.isNotBlank(digitControl)) {
+                if (StringUtils.isNotBlank(digitControl)) {
                     form.setIdentificationDocumentSeriesNumber(digitControl);
                 }
             }
