@@ -291,6 +291,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
                 || getFirstTimeRegistration().equals(input.getRegistration().isFirstTime(getExecutionYear()));
     }
 
+    public boolean isForFirstTimeRegistration() {
+        return super.getFirstTimeRegistration() != null && super.getFirstTimeRegistration().booleanValue();
+    }
+
     private boolean isValidStudentCurricularPlan(final StudentCurricularPlan input) {
         return getDegreeCurricularPlansSet().contains(input.getDegreeCurricularPlan());
     }
