@@ -115,7 +115,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             if (isValidPeriodForUser(iter)) {
 
                 if (iter.getEnrolmentPeriod().getAutomaticEnrolment() == AutomaticEnrolment.YES_UNEDITABLE) {
-                    automaticEnrolmentSemesters.add(executionSemester);
+                    automaticEnrolmentSemesters.add(iter.getExecutionSemester());
                 }
                 if (!automaticEnrolmentSemesters.isEmpty()) {
                     continue;
@@ -146,8 +146,10 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
             if (!automaticEnrolmentSemesters.isEmpty() && enrolmentProcess != null) {
                 final Registration registration = scp.getRegistration();
-                final SchoolClass schoolClass = readFirstUnfilledClass(registration, executionSemester).orElse(null);
-                enrolOnSchoolClass(schoolClass, registration);
+                for (ExecutionSemester executionSemesterToEnrol : automaticEnrolmentSemesters) {
+                    final SchoolClass schoolClass = readFirstUnfilledClass(registration, executionSemesterToEnrol).orElse(null);
+                    enrolOnSchoolClass(schoolClass, registration);
+                }
                 return redirect(enrolmentProcess.getContinueURL(request), request);
             }
         }
@@ -170,7 +172,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         return executionDegree
                 .getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
                         && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
-                .sorted(new MostFilledFreeClass()).findFirst();
+                .max(new MostFilledFreeClass());
     }
 
     class MostFilledFreeClass implements Comparator<SchoolClass> {
