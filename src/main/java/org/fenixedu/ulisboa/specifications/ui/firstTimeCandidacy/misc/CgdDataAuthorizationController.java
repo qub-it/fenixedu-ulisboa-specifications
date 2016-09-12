@@ -133,6 +133,21 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 //        return redirect(url, model, redirectAttributes);
     }
 
+    @RequestMapping(value = "/unauthorize/withoutModel")
+    public String cgddataauthorizationToUnauthorizeAndNoModel(@PathVariable("executionYearId") final ExecutionYear executionYear,
+            final Model model, final RedirectAttributes redirectAttributes) {
+        addControllerURLToModel(executionYear, model);
+        Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
+        if (accessControlRedirect.isPresent()) {
+            return accessControlRedirect.get();
+        }
+
+        authorizeSharingDataWithCGD(false);
+
+        return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL, executionYear), model,
+                redirectAttributes);
+    }
+
     @Atomic
     protected void authorizeSharingDataWithCGD(boolean authorize) {
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setAuthorizeSharingDataWithCGD(authorize);

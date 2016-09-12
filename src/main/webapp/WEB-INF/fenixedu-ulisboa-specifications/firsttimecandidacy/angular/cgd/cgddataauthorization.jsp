@@ -129,13 +129,7 @@ ${portal.toolkit()}
     <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-body furtherInfo">
-                <% 
-                    String controllerURL = (String)request.getAttribute("controllerURL"); 
-                    String beginningURL = FirstTimeCandidacyController.FIRST_TIME_START_URL;
-                    String executionYear = controllerURL.substring(controllerURL.indexOf(beginningURL) + beginningURL.length() + 1, controllerURL.indexOf("/cgddataauthorization"));
-                    String url = FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL.replace("{executionYearId}", executionYear);
-                %>
-                <a href="${ pageContext.request.contextPath }<%= url %>">
+                <a href="${pageContext.request.contextPath}${controllerURL}/unauthorize/withoutModel">
                     <spring:message code="label.CgdDataAuthorization.refuseDocument" htmlEscape="false"/>
                 </a>
             </div>
