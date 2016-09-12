@@ -150,7 +150,10 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                     final SchoolClass schoolClass = readFirstUnfilledClass(registration, executionSemesterToEnrol).orElse(null);
                     enrolOnSchoolClass(schoolClass, registration);
                 }
-                return redirect(enrolmentProcess.getContinueURL(request), request);
+                final String url = enrolmentProcess.getContinueURL(request);
+                final ActionForward forward = new ActionForward(url.replaceFirst(request.getContextPath(), ""), true);
+                forward.setModule("/");
+                return forward;
             }
         }
 
