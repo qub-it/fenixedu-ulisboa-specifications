@@ -115,16 +115,16 @@ public class FiliationFormController extends FormAbstractController {
     private Set<String> validateForm(FiliationForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
 
-        if (Strings.isNullOrEmpty(form.getFatherName()) || Strings.isNullOrEmpty(form.getMotherName())) {
-            result.add(BundleUtil.getString(BUNDLE, "error.parentsName.required"));
-        }
-
         if (form.getCountryOfBirth().isDefaultCountry()) {
             if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
                     || form.getParishOfBirth() == null) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"));
             }
+        }
+
+        if (Strings.isNullOrEmpty(form.getFatherName()) || Strings.isNullOrEmpty(form.getMotherName())) {
+            result.add(BundleUtil.getString(BUNDLE, "error.parentsName.required"));
         }
 
         return result;
