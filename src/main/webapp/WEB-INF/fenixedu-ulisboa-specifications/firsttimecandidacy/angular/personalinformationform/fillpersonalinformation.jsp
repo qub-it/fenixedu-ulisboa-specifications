@@ -306,7 +306,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		</c:if>
 			<c:if test="${1 lt placingOption}">
 				<div class="form-group row">
-					<label class="col-sm-2 control-label required-field">
+					<label class="col-sm-2 control-label">
 						<spring:message
 							code="label.PersonalInformationForm.firstOptionInstitution" />
 					</label>
@@ -314,7 +314,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<div class="col-sm-10">
                         <ui-select ng-model="$parent.object.firstOptionInstitution"
                             on-select="onFirstOptionInstitutionChange($item, $model)" theme="bootstrap"> 
-                            <ui-select-match>{{$select.selected.text}}</ui-select-match>
+                            <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
                             <ui-select-choices repeat="institution.id as institution in object.firstOptionInstitutionValues"
                                             refresh="onFirstOptionInstitutionRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
@@ -324,14 +324,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					</div>
 				</div>
 				<div class="form-group row">
-					<div class="col-sm-2 control-label required-field">
+					<div class="col-sm-2 control-label">
 						<spring:message
 							code="label.PersonalInformationForm.firstOptionDegreeDesignation" />
 					</div>
 	
 					<div class="col-sm-10">
                         <ui-select ng-model="$parent.object.firstOptionDegreeDesignation" theme="bootstrap"> 
-                            <ui-select-match>{{$select.selected.text}}</ui-select-match>
+                            <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
                             <ui-select-choices repeat="degree.id as degree in object.firstOptionDegreeDesignationValues"
                                             refresh="onFirstOptionDegreeDesignationRefresh($item, $select.search, $model)"
                                             refresh-delay="0">

@@ -122,8 +122,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     <div class="well well-sm" style="display:inline-block" ng-hide="isPrinted">
     	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" ng-click="isPrinted = true;" href="${pageContext.request.contextPath}${controllerURL}/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
     </div>
+    <%
+    if(request.getContextPath().endsWith("/")) {
+        request.setAttribute("path", "");
+    } else {
+        request.setAttribute("path", "/");          
+    }
+    %>
     <div class="well well-sm" style="display:inline-block" ng-show="isPrinted">
-        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), "/student/viewStudentCurriculum.do?method=prepare", request.getSession()) %>"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
+        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="<%= request.getContextPath() %>${path}"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
     </div>
 </form>
 

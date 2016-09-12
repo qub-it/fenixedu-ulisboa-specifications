@@ -116,7 +116,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message code="label.ContactsForm.mobileNumber" />
 				</div>
 

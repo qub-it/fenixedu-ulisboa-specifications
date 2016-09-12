@@ -165,7 +165,7 @@ public class ContactsFormController extends FormAbstractController {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"));
         }
 
-        if (!Strings.isNullOrEmpty(form.getMobileNumber()) && !form.getMobileNumber().matches(PHONE_PATTERN)) {
+        if (Strings.isNullOrEmpty(form.getMobileNumber()) || !form.getMobileNumber().matches(PHONE_PATTERN)) {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.phone"));
         }
 
