@@ -349,11 +349,4 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
                 .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    public boolean isIdentityCardExtraDigitRequired() {
-        return identityCardExtraDigitRequired;
-    }
-
-    public void setIdentityCardExtraDigitRequired(boolean identityCardExtraDigitRequired) {
-        this.identityCardExtraDigitRequired = identityCardExtraDigitRequired;
-    }
 }

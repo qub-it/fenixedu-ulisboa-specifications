@@ -187,7 +187,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-10">
                     <ui-select  id="residenceInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" on-select="onAreaCodeChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="areaCode.id as areaCode in object.areaCodeValues | filter: $select.search"
+                        <ui-select-choices  repeat="areaCode.id as areaCode in object.areaCodeValues"
                                             refresh="onAreaCodeRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
                             <span ng-bind-html="areaCode.text | highlight: $select.search"></span>

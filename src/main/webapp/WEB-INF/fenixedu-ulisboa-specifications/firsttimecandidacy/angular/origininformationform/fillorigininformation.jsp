@@ -286,7 +286,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 <div class="col-sm-10">
                     <ui-select  id="originInformationForm_raidesDegreeDesignation" name="raidesDegreeDesignation" ng-model="$parent.object.raidesDegreeDesignation" ng-disabled="isUndefinedOrNull(object.institutionOid)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="raidesDegreeDesignation.id as raidesDegreeDesignation in object.raidesDegreeDesignationValues | filter: {normalizedText : $select.search}"
+                        <ui-select-choices  repeat="raidesDegreeDesignation.id as raidesDegreeDesignation in object.raidesDegreeDesignationValues"
                                             refresh="onDegreeDesignationRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
                             <span ng-bind-html="raidesDegreeDesignation.text"></span>
