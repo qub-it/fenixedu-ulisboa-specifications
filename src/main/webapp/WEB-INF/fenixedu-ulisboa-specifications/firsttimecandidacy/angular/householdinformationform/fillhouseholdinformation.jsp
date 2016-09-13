@@ -109,6 +109,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	    $scope.object.grantOwnerProviderNamePart = namePart;
 	    $scope.object.otherGrantOwnerProvider = namePart;
         $scope.$apply();  
+        $scope.transformData();
         $scope.postBack(model);
     };
     $scope.oldGrantOwnerTypeValue = $scope.object.grantOwnerType;
@@ -122,7 +123,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     $scope.transformData = function () {
 	    var index = -1;
 	    angular.forEach($scope.object.grantOwnerProviderValues, function(value, key) {
-		    if(value.id === value.text) {
+		    if(value.id === value.text && $scope.object.grantOwnerProvider == value.id) {
 			    $scope.object.otherGrantOwnerProvider = value.id;
 			    $scope.object.grantOwnerProvider = undefined;
 			    index = key;
@@ -141,7 +142,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     };
 
     $scope.$watch('object.grantOwnerProviderValues', function() {
-	    if($scope.object.grantOwnerProviderValues.length == 0 && ($scope.object.grantOwnerType === 'OTHER_INSTITUTION_GRANT_OWNER' || $scope.object.grantOwnerType === 'ORIGIN_COUNTRY_GRANT_OWNER')) {
+	    if($scope.object.grantOwnerProviderValues.length <= 1 && ($scope.object.grantOwnerType === 'OTHER_INSTITUTION_GRANT_OWNER' || $scope.object.grantOwnerType === 'ORIGIN_COUNTRY_GRANT_OWNER')) {
 		    $scope.object.grantOwnerProviderValues.push(
 			    {
 				  'id': $scope.object.grantOwnerProviderNamePart, 

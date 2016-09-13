@@ -69,6 +69,8 @@ public class HouseholdInformationForm implements CandidancyForm {
         if (grantOwnerProvider != null) {
             Unit unit = FenixFramework.getDomainObject(grantOwnerProvider);
             units.add(unit.getUnitName());
+        } else {
+            grantOwnerProvider = otherGrantOwnerProvider;
         }
         setGrantOwnerProviderValues(units.stream().filter(i -> i.getUnit().isNoOfficialExternal()).collect(Collectors.toList()));
 
