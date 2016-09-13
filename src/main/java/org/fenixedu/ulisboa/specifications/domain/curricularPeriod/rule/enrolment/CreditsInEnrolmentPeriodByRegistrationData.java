@@ -37,11 +37,16 @@ public class CreditsInEnrolmentPeriodByRegistrationData extends CreditsInEnrolme
 
         final Set<RegistrationDataByExecutionYear> datas = registration.getRegistrationDataByExecutionYearSet().stream()
                 .filter(i -> i.getEnrolmentDate() != null).collect(Collectors.toSet());
-        if (!datas.isEmpty() && datas.size() > 1) {
+
+        if (isReingression(registration) || datas.size() > 1) {
             return createNA();
         }
 
         return super.execute(enrolmentContext);
+    }
+
+    private boolean isReingression(Registration registration) {
+        return registration.getRegistrationDataByExecutionYearSet().stream().anyMatch(x -> x.isReingression());
     }
 
 }
