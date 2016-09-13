@@ -96,8 +96,10 @@ public class OriginInformationForm implements CandidancyForm {
             Collection<DegreeDesignation> possibleDesignations = new HashSet<DegreeDesignation>();
             if (institutionOid != null) {
                 Unit unit = FenixFramework.getDomainObject(institutionOid);
-                units.add(unit);
-                possibleDesignations.addAll(unit.getDegreeDesignationSet());
+                if (unit != null) {
+                    units.add(unit);
+                    possibleDesignations.addAll(unit.getDegreeDesignationSet());
+                }
             } else {
                 institutionOid = institutionName;
                 possibleDesignations.addAll(Bennu.getInstance().getDegreeDesignationsSet());
