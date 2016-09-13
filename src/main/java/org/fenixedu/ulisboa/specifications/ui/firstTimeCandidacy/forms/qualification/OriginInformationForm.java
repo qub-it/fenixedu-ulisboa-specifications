@@ -146,7 +146,8 @@ public class OriginInformationForm implements CandidancyForm {
 
     protected static void findUnits(final TreeSet<UnitName> unitNameLimitedOrderedSet, final String name) {
         //TODOJN - improve, too many verifications
-        final String[] nameParts = UnitNamePart.getNameParts(name);
+        final String normalizedName = StringNormalizer.normalize(name.trim());
+        final String[] nameParts = UnitNamePart.getNameParts(normalizedName);
         if (nameParts.length <= 0) {
             return;
         }
@@ -165,7 +166,7 @@ public class OriginInformationForm implements CandidancyForm {
             for (UnitName unitName : unitNames) {
                 final String normalizedUnitName = unitName.getName();
                 if (containsAll(normalizedUnitName, nameParts)) {
-                    if (sequentialNameParts(normalizedUnitName, name)) {
+                    if (sequentialNameParts(normalizedUnitName, normalizedName)) {
                         unitNameLimitedOrderedSet.add(unitName);
                     }
                 }
