@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.Teacher;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -83,9 +82,8 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
 
     @RequestMapping(value = _LISTTEACHERS_URI)
     public String listTeachers(Model model) {
-        List<MoodleExportBean> listteachersResultsDataSet =
-                getSearchUniverseListTeachersDataSet().map(p -> populateProfessors(p)).filter(meb -> meb.getCourses().size() > 0)
-                        .collect(Collectors.toList());
+        List<MoodleExportBean> listteachersResultsDataSet = getSearchUniverseListTeachersDataSet().map(p -> populateProfessors(p))
+                .filter(meb -> meb.getCourses().size() > 0).collect(Collectors.toList());
 
         //add the results dataSet to the model
         model.addAttribute("resultsDataSet", listteachersResultsDataSet);
@@ -103,10 +101,9 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         moodleExportBean.setRole1("student");
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         String yearName = calculateYearName(currentExecutionYear);
-        List<String> coursesNames =
-                student.getActiveRegistrations().stream().flatMap(r -> r.getEnrolments(currentExecutionYear).stream())
-                        .flatMap(en -> en.getExecutionCourses().stream()).map(ec -> ec.getName() + " " + yearName)
-                        .collect(Collectors.toList());
+        List<String> coursesNames = student.getActiveRegistrations().stream()
+                .flatMap(r -> r.getEnrolments(currentExecutionYear).stream()).flatMap(en -> en.getExecutionCourses().stream())
+                .map(ec -> ec.getName() + " " + yearName).collect(Collectors.toList());
         moodleExportBean.setCourses(coursesNames);
         return moodleExportBean;
     }
@@ -117,7 +114,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         String lastName = firstAndLastName.split(" ")[1];
         moodleExportBean.setFirstname(firstName);
         moodleExportBean.setLastname(lastName);
-        
+
         moodleExportBean.setEmail(person.getInstitutionalEmailAddressValue());
         if (StringUtils.isEmpty(person.getInstitutionalEmailAddressValue())) {
             final String defaultEmailAddress = person.getDefaultEmailAddressValue();
@@ -125,20 +122,19 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
                 moodleExportBean.setEmail(defaultEmailAddress);
             }
         }
-        
+
         moodleExportBean.setUsername(person.getUsername());
         moodleExportBean.setAuth("shibboleth");
     }
 
-    private MoodleExportBean populateProfessors(Teacher teacher) {
+    private MoodleExportBean populateProfessors(Person person) {
         MoodleExportBean moodleExportBean = new MoodleExportBean();
-        populatePerson(teacher.getPerson(), moodleExportBean);
+        populatePerson(person, moodleExportBean);
         moodleExportBean.setRole1("teacher");
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         String yearName = calculateYearName(currentExecutionYear);
-        List<String> coursesNames =
-                teacher.getProfessorships(currentExecutionYear).stream()
-                        .map(p -> p.getExecutionCourse().getName() + " " + yearName).collect(Collectors.toList());
+        List<String> coursesNames = person.getProfessorships(currentExecutionYear).stream()
+                .map(p -> p.getExecutionCourse().getName() + " " + yearName).collect(Collectors.toList());
         moodleExportBean.setCourses(coursesNames);
         return moodleExportBean;
     }
@@ -162,10 +158,10 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
     private static final String _LISTTEACHERS_URI = "/listteachers";
     public static final String LISTTEACHERS_URL = CONTROLLER_URL + _LISTTEACHERS_URI;
 
-    private Stream<Teacher> getSearchUniverseListTeachersDataSet() {
+    private Stream<Person> getSearchUniverseListTeachersDataSet() {
         return ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet().stream()
                 .flatMap(es -> es.getAssociatedExecutionCoursesSet().stream()).flatMap(ec -> ec.getProfessorshipsSet().stream())
-                .map(p -> p.getTeacher()).distinct();
+                .map(p -> p.getPerson()).distinct();
     }
 
     public static class MoodleExportBean {
