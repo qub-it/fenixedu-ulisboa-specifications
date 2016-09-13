@@ -84,6 +84,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
     $scope.object= ${householdInformationFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
+    $scope.isUISelectLoading = {};
+    $scope.getUISelectLoading = function() {
+	    if($scope.isUISelectLoading == undefined) {
+    		$scope.isUISelectLoading = {};		
+	    }
+	    return $scope.isUISelectLoading;
+    };
     
     $scope.booleanvalues = [
                             { name : '<spring:message code="label.no"/>', value : false },
@@ -93,6 +100,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	    if(namePart.length <= 3 || namePart === $scope.object.grantOwnerProviderNamePart) {
 		    return;
 	    }
+	    
+	    if($scope.getUISelectLoading()['grantOwnerProvider'] == undefined) {
+	        angular.extend($scope.getUISelectLoading(),{'grantOwnerProvider' : true});
+	    }
+	    $scope.isUISelectLoading.grantOwnerProvider = true;
+	    
 	    $scope.object.grantOwnerProviderNamePart = namePart;
 	    $scope.object.otherGrantOwnerProvider = namePart;
         $scope.$apply();  
@@ -120,6 +133,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	    }
 	    $scope.$apply();
     };
+    $scope.typpingMessage = "<spring:message code='label.startTyping'/>";
+    
     $scope.submitForm = function() {
 	    $scope.transformData();
         $('form').submit();
@@ -227,14 +242,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
                 <div class="col-sm-6">
                     <ui-select reset-search-input="false" id="householdInformationForm_grantOwnerProvider" name="grantOwnerProvider" ng-model="$parent.object.grantOwnerProvider" ng-disabled="object.grantOwnerType === 'STUDENT_WITHOUT_SCHOLARSHIP'" theme="bootstrap">
-                        <ui-select-match placeholder="Escreva o nome da instituicao">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match placeholder="{{typpingMessage}}">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="grantOwnerProvider.id as grantOwnerProvider in object.grantOwnerProviderValues"
                                             refresh="onGrantOwnerProviderRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
                             <span ng-bind-html="grantOwnerProvider.text"></span>
                         </ui-select-choices> 
-                    </ui-select>                    
+                    </ui-select>
                 </div>
+                <div class="col-sm-1">
+                    <i class="fa fa-spinner fa-spin" aria-hidden="true" ng-show="isUISelectLoading.grantOwnerProvider"></i>
+                </div>                    
             </div>
         </div>
     </div>

@@ -58,6 +58,7 @@ function createAngularPostbackFunction(angular_scope) {
 				data : postData,
 				success : function(data, textStatus, jqXHR) {
 					angular_scope.object = data;
+					angular_scope.isUISelectLoading = undefined;
 					angular_scope.$apply();
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
