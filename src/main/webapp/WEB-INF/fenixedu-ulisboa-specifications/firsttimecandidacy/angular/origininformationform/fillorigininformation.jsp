@@ -106,6 +106,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
     $scope.object= ${originInformationFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
+    $scope.isUISelectLoading = {};
+    $scope.getUISelectLoading = function() {
+        if($scope.isUISelectLoading == undefined) {
+            $scope.isUISelectLoading = {};      
+        }
+        return $scope.isUISelectLoading;
+    };
     
     $scope.isUndefinedOrNull = function(val) {
 	    return angular.isUndefined(val) || val === null 
@@ -118,8 +125,16 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         if(namePart.length <= 3 || namePart === $scope.object.institutionNamePart) {
             return;
         }
+        
+        if($scope.getUISelectLoading()['institution'] == undefined) {
+            angular.extend($scope.getUISelectLoading(),{'institution' : true});
+        }
+        $scope.isUISelectLoading.institution = true;
+        
         $scope.object.institutionNamePart = namePart;
+        $scope.object.institutionName = namePart;
         $scope.$apply();  
+        $scope.transformData();
         $scope.postBack(model);
     };
     $scope.onDegreeDesignationRefresh = function(degreeDesignation, namePart, model) {
@@ -128,6 +143,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         }
         $scope.object.degreeNamePart = namePart;
         $scope.$apply();  
+        $scope.transformData();
         $scope.postBack(model);
     };
     $scope.onCountryChange = function(country, model) {
@@ -138,6 +154,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.object.districtWhereFinishedPreviousCompleteDegree = undefined;
         $scope.object.districtSubdivisionWhereFinishedPreviousCompleteDegree = undefined;
         
+        $scope.transformData();
         $scope.postBack(model);
     };
     $scope.onDistrictChange = function(district, model) {
@@ -147,6 +164,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         
         $scope.object.districtSubdivisionWhereFinishedPreviousCompleteDegree = undefined;
         
+        $scope.transformData();
         $scope.postBack(model);
     };
     $scope.onSchoolLevelChange = function(schoolLevel, model) {
@@ -158,15 +176,40 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     };
     $scope.onInstitutionChange = function(institution, model) {
         $scope.object.raidesDegreeDesignationValues = undefined;
-
         $scope.object.raidesDegreeDesignation = undefined;
         $scope.object.degreeDesignation = undefined;
+        $scope.transformData();
         $scope.postBack(model);
     };
+    $scope.transformData = function () {
+        var index = -1;
+        angular.forEach($scope.object.institutionValues, function(value, key) {
+            if(value.id === value.text && $scope.object.institutionOid == value.id) {
+                $scope.object.institutionName = value.id;
+                $scope.object.institutionOid = undefined;
+                index = key;
+            }
+        }, index);
+        if( index != -1) {
+            $scope.object.institutionValues.splice(index, 1);
+        }
+        $scope.$apply();
+    };
     $scope.submitForm = function() {
-       $('form').submit();
+	    $scope.transformData();
+        $('form').submit();
     };
 
+    $scope.$watch('object.institutionValues', function() {
+        if($scope.object.institutionValues.length <= 1) {
+            $scope.object.institutionValues.push(
+                {
+                  'id': $scope.object.institutionNamePart, 
+                  'text':$scope.object.institutionNamePart
+                });
+        }
+    });
+    
 }]);
 </script>
 
@@ -255,9 +298,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <spring:message code="label.OriginInformationForm.institution" />
                 </div>
 
-                <div class="col-sm-10">
-                    <ui-select  id="originInformationForm_institution" name="institutionOid" ng-model="$parent.object.institutionOid" on-select="onInstitutionChange($item,$model)" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                <div class="col-sm-9">
+                    <ui-select reset-search-input="false" id="originInformationForm_institution" name="institutionOid" ng-model="$parent.object.institutionOid" on-select="onInstitutionChange($item,$model)" theme="bootstrap">
+                        <ui-select-match placeholder="{{typpingMessage}}">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="institution.id as institution in object.institutionValues"
                                             refresh="onInstitutionRefresh($item, $select.search, $model)"
                                             refresh-delay="0">
@@ -265,6 +308,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         </ui-select-choices> 
                     </ui-select> 
                 </div>
+                <div class="col-sm-1">
+                    <i class="fa fa-spinner fa-spin" aria-hidden="true" ng-show="isUISelectLoading.institution"></i>
+                </div> 
             </div>
             <div class="form-group row" ng-hide="isUndefinedOrNull(object.institutionOid) || object.raidesDegreeDesignationValues.length">
                 <div class="col-sm-2 control-label required-field">

@@ -44,7 +44,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.DomainObject;
 import pt.ist.fenixframework.FenixFramework;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
@@ -112,7 +111,6 @@ public class OriginInformationFormController extends FormAbstractController {
         Unit institution = precedentDegreeInformation.getInstitution();
         if (institution != null) {
             form.setInstitutionOid(institution.getExternalId());
-            form.setInstitutionName(institution.getName());
         }
 
         String degreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
@@ -151,15 +149,6 @@ public class OriginInformationFormController extends FormAbstractController {
         form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
 
         form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
-
-        if (!Strings.isNullOrEmpty(form.getInstitutionOid())) {
-            DomainObject institutionObject = FenixFramework.getDomainObject(form.getInstitutionOid());
-            if (institutionObject instanceof Unit && FenixFramework.isDomainObjectValid(institutionObject)) {
-                form.setInstitutionName(((Unit) institutionObject).getName());
-            } else {
-                form.setInstitutionName(form.getInstitutionOid());
-            }
-        }
 
         return form;
     }
@@ -248,7 +237,8 @@ public class OriginInformationFormController extends FormAbstractController {
          */
 
         if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
-            if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+            if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))
+                    && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionName()))) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
             }
@@ -345,22 +335,21 @@ public class OriginInformationFormController extends FormAbstractController {
         }
 
         if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()
-                || !Strings.isNullOrEmpty(form.getInstitutionOid())) {
-            String institution = form.getInstitutionOid();
-            DomainObject institutionObject = FenixFramework.getDomainObject(institution);
-            if (!(institutionObject instanceof Unit) || !FenixFramework.isDomainObjectValid(institutionObject)) {
-                institutionObject = UnitUtils.readExternalInstitutionUnitByName(institution);
-                if (institutionObject == null) {
+                || !Strings.isNullOrEmpty(form.getInstitutionOid()) || !Strings.isNullOrEmpty(form.getInstitutionName())) {
+            Unit institution = FenixFramework.getDomainObject(form.getInstitutionOid());
+            if (institution == null && !form.getSchoolLevel().isHigherEducation()) {
+                institution = UnitUtils.readExternalInstitutionUnitByName(form.getInstitutionName());
+                if (institution == null) {
                     Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                     Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                     Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                    institutionObject = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
-                            resolveAcronym(null, institution), new YearMonthDay(), null, adhocHighschools,
+                    institution = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), form.getInstitutionName()), null,
+                            null, resolveAcronym(null, form.getInstitutionName()), new YearMonthDay(), null, adhocHighschools,
                             AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
                             null, null);
                 }
+                precedentDegreeInformation.setInstitution(institution);
             }
-            precedentDegreeInformation.setInstitution((Unit) institutionObject);
         }
 
         precedentDegreeInformation.setConclusionYear(Integer.valueOf(form.getConclusionYear()));

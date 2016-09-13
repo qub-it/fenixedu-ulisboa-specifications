@@ -99,6 +99,7 @@ public class OriginInformationForm implements CandidancyForm {
                 units.add(unit);
                 possibleDesignations.addAll(unit.getDegreeDesignationSet());
             } else {
+                institutionOid = institutionName;
                 possibleDesignations.addAll(Bennu.getInstance().getDegreeDesignationsSet());
             }
             if (raidesDegreeDesignation != null) {
