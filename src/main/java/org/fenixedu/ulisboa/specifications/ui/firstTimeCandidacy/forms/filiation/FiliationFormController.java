@@ -71,6 +71,7 @@ public class FiliationFormController extends FormAbstractController {
                 form.setSecondNationality(personUl.getSecondNationality());
             }
 
+            form.setFirstNationality(person.getCountry());
             form.setCountryOfBirth(person.getCountryOfBirth());
             if (form.getCountryOfBirth() == null) {
                 form.setCountryOfBirth(Country.readDefault());
@@ -115,6 +116,10 @@ public class FiliationFormController extends FormAbstractController {
     private Set<String> validateForm(FiliationForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
 
+        if (form.getFirstNationality() == null) {
+            result.add(BundleUtil.getString(BUNDLE, "error.candidacy.FilliationForm.firstNationality.required"));
+        }
+
         if (form.getCountryOfBirth().isDefaultCountry()) {
             if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
                     || form.getParishOfBirth() == null) {
@@ -140,6 +145,8 @@ public class FiliationFormController extends FormAbstractController {
         Person person = AccessControl.getPerson();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
         personUl.setSecondNationality(form.getSecondNationality());
+
+        person.setCountry(form.getFirstNationality());
 
         person.setCountryOfBirth(form.getCountryOfBirth());
         if (person.getCountryOfBirth().isDefaultCountry()) {

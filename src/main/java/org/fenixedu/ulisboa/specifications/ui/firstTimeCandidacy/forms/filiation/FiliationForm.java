@@ -16,6 +16,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.household
 
 public class FiliationForm implements CandidancyForm {
 
+    private Country firstNationality;
     private Country secondNationality;
     private Country countryOfBirth;
     private District districtOfBirth;
@@ -103,6 +104,14 @@ public class FiliationForm implements CandidancyForm {
 
     public void setCountryOfBirth(Country countryOfBirth) {
         this.countryOfBirth = countryOfBirth;
+    }
+
+    public Country getFirstNationality() {
+        return firstNationality;
+    }
+
+    public void setFirstNationality(Country firstNationality) {
+        this.firstNationality = firstNationality;
     }
 
     public Country getSecondNationality() {

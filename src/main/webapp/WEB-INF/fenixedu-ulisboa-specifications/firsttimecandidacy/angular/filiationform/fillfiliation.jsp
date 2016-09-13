@@ -82,7 +82,7 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= ${filiationFormJson};
+    $scope.object= angular.extend({'secondNationalitiesValues' : []},${filiationFormJson});
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [
@@ -126,17 +126,29 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         
         $scope.postBack(model);
     };
-    $scope.getNationalityName = function(id) {
-        var name;
-        angular.forEach(
-                $scope.object.nationalitiesValues,
-                function(nationality) {
-                    if (nationality.id == id) {
-                        name = nationality.text;
-                    }
-                }, id, name)
-        return name;
-    }
+    $scope.onNationalityChange = function(nationality, model) {
+	    if(nationality == undefined) {
+		    model = $scope.object.firstNationality;
+	    }
+	    $scope.object.secondNationalitiesValues = angular.copy($scope.object.nationalitiesValues);	
+	    var index = $scope.getNationalityIndexOf(model);
+	    if(index != -1) {
+		    $scope.object.secondNationalitiesValues.splice(index, 1);
+	    }
+	    if(model == $scope.object.secondNationality) {
+  		    $scope.object.secondNationality = undefined;
+	    }
+	    $scope.$apply();
+    };
+    $scope.getNationalityIndexOf = function(nationalityId) {
+	    var index = -1;
+        angular.forEach($scope.object.secondNationalitiesValues, function(value, key) {
+            if(value.id == nationalityId) {
+        	    index = key;
+            }
+        }, index);
+        return index;
+    };
     $scope.submitForm = function() {
 	   $('form').submit();
     };
@@ -212,12 +224,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                <div class="col-sm-2 control-label required-field">
                     <spring:message code="label.FiliationForm.nationality" />
                 </div>
 
-                <div class="col-sm-10">
-                    <div class="form-control-static">{{ getNationalityName(object.countryOfBirth) }}</div>
+                <div class="col-sm-10" ng-init="onNationalityChange(undefined, undefined)">
+                    <ui-select  id="filiationForm_firstNationality" name="firstNationality" on-select="onNationalityChange($item, $model)" ng-model="$parent.object.firstNationality" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="nationality.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>
                 </div>
             </div>
             <div class="form-group row">
@@ -226,9 +243,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
 
                 <div class="col-sm-10">
-                    <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" theme="bootstrap">
+                    <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" ng-disabled="object.secondNationalitiesValues == undefined || !object.secondNationalitiesValues.length" theme="bootstrap">
                         <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: {normalizedText : $select.search}">
+                        <ui-select-choices  repeat="nationality.id as nationality in object.secondNationalitiesValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="nationality.text"></span>
                         </ui-select-choices> 
                     </ui-select> 
