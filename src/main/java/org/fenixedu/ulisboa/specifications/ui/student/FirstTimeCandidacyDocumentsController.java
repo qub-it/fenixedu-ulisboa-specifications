@@ -34,8 +34,9 @@ public class FirstTimeCandidacyDocumentsController extends FenixeduUlisboaSpecif
     public ResponseEntity<byte[]> finishedToPrintAllDocuments(@PathVariable("registrationId") Registration registration,
             Model model, RedirectAttributes redirectAttributes) {
         Person person = AccessControl.getPerson();
-        if (!person.getStudent().getRegistrationsSet().contains(registration)) {
-            throw new RuntimeException("Error. Not a correct registration");
+        Person registrationPerson = registration.getStudent().getPerson();
+        if (person != registrationPerson) {
+            throw new RuntimeException("Error. Mismatch between logged person and registration.");
         }
 
         StudentCandidacy candidacy = registration.getStudentCandidacy();
