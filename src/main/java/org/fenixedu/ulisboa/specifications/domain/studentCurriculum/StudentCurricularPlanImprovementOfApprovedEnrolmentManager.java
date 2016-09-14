@@ -54,9 +54,10 @@ public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager
             throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
         }
 
-        if (areModifiedCyclesConcluded()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
+// qubExtension, removed check 
+//        if (areModifiedCyclesConcluded()) {
+//            checkUpdateRegistrationAfterConclusion();
+//        }
     }
 
 }
