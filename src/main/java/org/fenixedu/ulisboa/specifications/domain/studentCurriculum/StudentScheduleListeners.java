@@ -38,9 +38,9 @@ public class StudentScheduleListeners {
                 return;
             }
 
-            boolean enrolInShiftIfUnique = enrolment.getCurricularRules(executionSemester).stream()
-                    .filter(cr -> cr instanceof StudentSchoolClassCurricularRule).map(cr -> (StudentSchoolClassCurricularRule) cr)
-                    .anyMatch(ssccr -> ssccr.getEnrolInShiftIfUnique());
+            boolean enrolInShiftIfUnique = !enrolment.getCurriculumGroup().isNoCourseGroupCurriculumGroup() && enrolment
+                    .getCurricularRules(executionSemester).stream().filter(cr -> cr instanceof StudentSchoolClassCurricularRule)
+                    .map(cr -> (StudentSchoolClassCurricularRule) cr).anyMatch(ssccr -> ssccr.getEnrolInShiftIfUnique());
             if (enrolInShiftIfUnique) {
 
                 final Registration registration = enrolment.getRegistration();
