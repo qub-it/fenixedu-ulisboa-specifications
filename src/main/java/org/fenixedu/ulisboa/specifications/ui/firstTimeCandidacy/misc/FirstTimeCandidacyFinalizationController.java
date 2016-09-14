@@ -141,8 +141,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
             printRegistrationDeclaration(candidacy, registration);
         } catch (Exception ex) {
             ex.printStackTrace();
-            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.registrationDeclaration.print.failed"),
-                    model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.registrationDeclaration.print.failed"), model);
         }
 
         if (includeModel43) {
@@ -150,7 +149,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
                 printModel43(candidacy);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.model43.print.failed"), model);
+                addErrorMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.model43.print.failed"), model);
             }
         }
 
@@ -158,7 +157,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
             printTuitionPaymentPlan(candidacy, registration);
         } catch (Exception ex) {
             ex.printStackTrace();
-            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.tuitionPayment.print.failed"), model);
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.tuitionPayment.print.failed"), model);
         }
     }
 
