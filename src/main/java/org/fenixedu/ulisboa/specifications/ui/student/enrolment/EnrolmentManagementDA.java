@@ -36,10 +36,16 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
+import org.fenixedu.academictreasury.domain.debtGeneration.AcademicDebtGenerationRule;
+import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
+import org.fenixedu.academictreasury.services.TuitionServices;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
@@ -52,6 +58,9 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.Enrolmen
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStepTemplate;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
 
 @StrutsFunctionality(app = StudentEnrollApp.class, path = "student-enrolment-management",
         titleKey = "label.title.enrolmentManagement", bundle = "FenixeduUlisboaSpecificationsResources")
@@ -112,7 +121,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
                 (enrolmentProcess) -> {
                     return EnrolmentStep.buildArgsStruts(enrolmentProcess.getExecutionSemester(),
                             enrolmentProcess.getStudentCurricularPlan());
-                },
+                } ,
 
                 (enrolmentProcess) -> {
                     return true;
@@ -131,7 +140,37 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         final EnrolmentProcess process = EnrolmentProcess.find(executionSemester, scp);
 
         request.setAttribute("enrolmentProcess", process);
+        final AcademicTreasuryEvent treasuryEvent = TuitionServices.findAcademicTreasuryEventTuitionForRegistration(scp.getRegistration(), executionSemester.getExecutionYear());
+        
+        if (treasuryEvent == null || !treasuryEvent.isCharged()) {
+            CreateTuitions thread = new CreateTuitions(scp.getRegistration(), executionSemester.getExecutionYear());
+            thread.start();
+        }
+
         return mapping.findForward("endEnrolmentProcess");
+    }
+    
+    private static class CreateTuitions extends Thread {
+
+        private String registrationId;
+        private String executionYearId;
+        
+        public CreateTuitions(final Registration registration, final ExecutionYear executionYear) {
+            this.registrationId = registration.getExternalId();
+            this.executionYearId = executionYear.getExternalId();
+        }
+        
+        @Override
+        @Atomic
+        public void run() {
+            final Registration registration = FenixFramework.getDomainObject(registrationId);
+            final ExecutionYear executionYear = FenixFramework.getDomainObject(executionYearId);
+            createTuitions(registration, executionYear);
+        }
+        
+        private void createTuitions(final Registration registration, final ExecutionYear executionYear) {
+            AcademicDebtGenerationRule.runAllActiveForRegistration(registration, true);
+        }
     }
 
 }
