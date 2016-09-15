@@ -15,10 +15,10 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import pt.ist.fenixframework.Atomic;
 
 public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
@@ -74,17 +74,24 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
     @Override
     public String getLabel() {
+        final BigDecimal credits = getCredits();
+
         if (getSemester() != null) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester", getCredits()
-                    .toString(), getSemester().toString(), getYearMin().toString());
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester",
+                    credits.toString(), getSemester().toString(), getYearMin().toString());
 
         } else if (isForYear()) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year", getCredits()
-                    .toString(), getYearMin().toString());
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year", credits.toString(),
+                    getYearMin().toString());
 
         } else {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
-                    getYearMin().toString(), getYearMax().toString());
+            final int configurationYear = getConfiguration().getCurricularPeriod().getChildOrder();
+            final int degreeDuration = getConfiguration().getDegreeCurricularPlan().getDegreeDuration();
+            final boolean simple =
+                    credits.equals(BigDecimal.ZERO) && getYearMin() == configurationYear + 1 && getYearMax() == degreeDuration;
+
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + (simple ? ".simple" : ""),
+                    credits.toString(), getYearMin().toString(), getYearMax().toString());
         }
     }
 
@@ -140,9 +147,8 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
             if (curricularPeriod != null) {
 
-                final BigDecimal credits =
-                        BigDecimal.valueOf(getSemester() != null ? iter.getAccumulatedEctsCredits(executionYear
-                                .getExecutionSemesterFor(getSemester())) : iter.getEctsCredits());
+                final BigDecimal credits = BigDecimal.valueOf(getSemester() != null ? iter
+                        .getAccumulatedEctsCredits(executionYear.getExecutionSemesterFor(getSemester())) : iter.getEctsCredits());
 
                 CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits);
             }
