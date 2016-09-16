@@ -40,6 +40,8 @@ import com.google.common.collect.Sets;
 
 public class RegistrationServices {
 
+    public static final String FULL_SCHOOL_CLASS_EXCEPTION_MSG = "label.schoolClassStudentEnrollment.fullSchoolClass";
+
     private static BiFunction<Registration, ExecutionSemester, Collection<SchoolClass>> initialSchoolClassesService =
             defaultInitialSchoolClassesService();
 
@@ -100,7 +102,7 @@ public class RegistrationServices {
     public static void enrolInSchoolClassExecutionCoursesShifts(final Registration registration, final SchoolClass schoolClass,
             final List<ExecutionCourse> attendingExecutionCourses) {
         if (!isSchoolClassFree(schoolClass, registration)) {
-            throw new DomainException("label.schoolClassStudentEnrollment.fullSchoolClass");
+            throw new DomainException(FULL_SCHOOL_CLASS_EXCEPTION_MSG);
         }
 
         final Function<Shift, Integer> vacanciesCalculator = s -> s.getLotacao() - s.getStudentsSet().size();
@@ -118,9 +120,11 @@ public class RegistrationServices {
             shiftsByExecutionCourse.get(executionCourse).forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
 
             for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
-                final List<Shift> shiftsOrderedByVacancies = new ArrayList<>(shiftsTypesByShift.get(shiftType));
-                shiftsOrderedByVacancies.sort(vacanciesComparator);
-                enrolInOneShift(shiftsOrderedByVacancies, registration);
+                if (registration.getShiftFor(executionCourse, shiftType) == null) {
+                    final List<Shift> shiftsOrderedByVacancies = new ArrayList<>(shiftsTypesByShift.get(shiftType));
+                    shiftsOrderedByVacancies.sort(vacanciesComparator);
+                    enrolInOneShift(shiftsOrderedByVacancies, registration);
+                }
             }
         }
     }
@@ -157,7 +161,7 @@ public class RegistrationServices {
                         .forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
 
                 for (final ShiftType shiftType : shiftsTypesByShift.keySet()) {
-                    if (shiftsTypesByShift.get(shiftType).stream()
+                    if (registration.getShiftFor(executionCourse, shiftType) == null && shiftsTypesByShift.get(shiftType).stream()
                             .allMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size())) {
                         return false;
                     }

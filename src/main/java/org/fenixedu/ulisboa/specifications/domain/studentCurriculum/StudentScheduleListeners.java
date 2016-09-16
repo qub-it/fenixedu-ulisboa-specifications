@@ -15,6 +15,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
@@ -50,8 +51,14 @@ public class StudentScheduleListeners {
                         RegistrationServices.getSchoolClassBy(registration, executionSemester);
 
                 if (schoolClassOpt.isPresent()) {
-                    RegistrationServices.enrolInSchoolClassExecutionCoursesShifts(registration, schoolClassOpt.get(),
-                            Collections.singletonList(executionCourse));
+                    try {
+                        RegistrationServices.enrolInSchoolClassExecutionCoursesShifts(registration, schoolClassOpt.get(),
+                                Collections.singletonList(executionCourse));
+                    } catch (DomainException e) {
+                        if (!RegistrationServices.FULL_SCHOOL_CLASS_EXCEPTION_MSG.equals(e.getKey())) {
+                            throw e;
+                        }
+                    }
                     return;
                 }
 
