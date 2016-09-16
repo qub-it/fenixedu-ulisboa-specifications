@@ -196,12 +196,12 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
         this.registrationProtocolsDataSource = Bennu.getInstance().getRegistrationProtocolsSet().stream()
                 .sorted((x, y) -> x.getDescription().getContent().compareTo(y.getDescription().getContent()))
-                .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getDescription().getContent()))
+                .map(x -> new TupleDataSourceBean(x.getExternalId(), "[" + x.getCode() + "] " + x.getDescription().getContent()))
                 .collect(Collectors.toList());
 
         this.ingressionTypesDataSource = Bennu.getInstance().getIngressionTypesSet().stream()
                 .sorted((x, y) -> x.getDescription().getContent().compareTo(y.getDescription().getContent()))
-                .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getDescription().getContent()))
+                .map(x -> new TupleDataSourceBean(x.getExternalId(), "[" + x.getCode() + "] " + x.getDescription().getContent()))
                 .collect(Collectors.toList());
 
         this.registrationStateTypesDataSource = Arrays.asList(RegistrationStateType.values()).stream()
