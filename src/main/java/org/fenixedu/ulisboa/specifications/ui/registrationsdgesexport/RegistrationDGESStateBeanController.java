@@ -26,8 +26,12 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.registrationsdgesexport;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -36,9 +40,16 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
+import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -48,53 +59,174 @@ import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.joda.time.DateTime;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import pt.ist.fenixframework.FenixFramework;
-import edu.emory.mathcs.backport.java.util.Collections;
+import pt.ist.fenixframework.Atomic;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.registrationsDgesExport",
         accessGroup = "logged")
 @RequestMapping(RegistrationDGESStateBeanController.CONTROLLER_URL)
 public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecificationsBaseController {
 
-    public static final String CONTROLLER_URL = "/registrationsdgesexport";
+    public static final String CONTROLLER_URL = "/list/student/registrationsdgesexport";
 
     private static final String _SEARCH_URI = "/";
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     @RequestMapping
+    public String home(Model model, RedirectAttributes redirectAttributes) {
+        return redirect(SEARCH_URL, model, redirectAttributes);
+    }
+
+    @RequestMapping(value = _SEARCH_URI)
     public String search(Model model, @RequestParam(required = false) ExecutionYear executionYear,
-            @RequestParam(required = false) Integer phase, @RequestParam(required = false) Boolean exportStatistics) {
+            @RequestParam(required = false) Integer phase,
+            @RequestParam(required = false) CandidacySituationType candidacySituationType,
+            @RequestParam(required = false) Boolean exportStatistics) {
         executionYear = executionYear != null ? executionYear : ExecutionYear.readCurrentExecutionYear();
         phase = phase != null ? phase : 1;
+        candidacySituationType = candidacySituationType != null ? candidacySituationType : CandidacySituationType.STAND_BY;
+        exportStatistics = exportStatistics != null ? exportStatistics : Boolean.FALSE;
         List<RegistrationDGESStateBean> searchregistrationdgesstatebeanResultsDataSet =
-                filterSearchRegistrationDGESStateBean(executionYear, phase);
+                filterSearchRegistrationDGESStateBean(executionYear, phase, candidacySituationType);
 
         model.addAttribute("searchregistrationdgesstatebeanResultsDataSet", searchregistrationdgesstatebeanResultsDataSet);
-        model.addAttribute("executionYears",
-                Bennu.getInstance().getExecutionYearsSet().stream().sorted().collect(Collectors.toList()));
+        model.addAttribute("executionYears", Bennu.getInstance().getExecutionYearsSet().stream()
+                .sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).collect(Collectors.toList()));
         model.addAttribute("phases", getPhases());
+        model.addAttribute("candidacyStates", getCandidacySituationTypeDataSource());
         model.addAttribute("selectedExecutionYear", executionYear);
         model.addAttribute("selectedPhase", phase);
+        model.addAttribute("selectedCandidacyState", candidacySituationType);
         model.addAttribute("exportStatistics", exportStatistics);
         return "registrationsdgesexport/search";
     }
 
-    @RequestMapping(value = "/reactivate/{candidacyId}")
-    public String reActivateCandidacy(Model model, @PathVariable("candidacyId") String candidacyId,
+    public List<TupleDataSourceBean> getCandidacySituationTypeDataSource() {
+        return Arrays.asList(CandidacySituationType.values()).stream().map(c -> {
+            TupleDataSourceBean bean = new TupleDataSourceBean();
+            bean.setId(c.toString());
+            bean.setText(BundleUtil.getString("resources/EnumerationResources", c.getQualifiedName()));
+            return bean;
+        }).collect(Collectors.toList());
+    }
+
+    public static String CANCEL_URL = CONTROLLER_URL + "/cancel";
+
+    @RequestMapping(value = "/cancel")
+    public String cancelCandidacy(
+            @RequestParam(value = "candidaciesToCancel", required = true) List<StudentCandidacy> candidacies, Model model,
             RedirectAttributes redirectAttributes) {
-        FirstTimeCandidacy candidacy = FenixFramework.getDomainObject(candidacyId);
-        if (!FenixFramework.isDomainObjectValid(candidacy)) {
-            throw new RuntimeException("Invalid externalId: " + candidacyId + " is not a FirstTimeCandidacy");
+
+        List<String> errors = cancelCandidacies(candidacies);
+        for (String error : errors) {
+            addErrorMessage(error, model);
         }
 
-        candidacy.revertCancel();
         return redirect(CONTROLLER_URL, model, redirectAttributes);
+    }
+
+    @Atomic
+    public List<String> cancelCandidacies(List<StudentCandidacy> candidacies) {
+        List<String> errors = new ArrayList<>();
+
+        for (StudentCandidacy candidacy : candidacies) {
+            String error = cancelCandidacy(candidacy);
+            if (error != null) {
+                errors.add(error);
+            }
+        }
+
+        return errors;
+    }
+
+    private String cancelCandidacy(StudentCandidacy candidacy) {
+        if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.CANCELLED)) {
+            return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.cancelled",
+                    candidacy.getPerson().getPresentationName());
+        }
+
+        Registration registration = candidacy.getRegistration();
+        if (registration != null) {
+            if (!registration.getEnrolments(candidacy.getExecutionYear()).isEmpty()) {
+                return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.cannot.cancel.have.enrolments",
+                        "" + registration.getNumber(), candidacy.getPerson().getName());
+            }
+
+            if (!registration.getShiftEnrolmentsSet().isEmpty()) {
+                return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.cannot.cancel.have.shifts",
+                        "" + registration.getNumber(), candidacy.getPerson().getName());
+            }
+
+            if (!registration.getShiftsSet().isEmpty()) {
+                return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.cannot.cancel.have.shifts",
+                        "" + registration.getNumber(), candidacy.getPerson().getName());
+            }
+
+            if (!registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
+                RegistrationState registeredState = RegistrationState.createRegistrationState(registration,
+                        AccessControl.getPerson(), new DateTime(), RegistrationStateType.INACTIVE);
+                registeredState.setRemarks(BundleUtil.getString(BUNDLE, "label.RegistrationDGESState.registrationState.remarks"));
+            }
+        }
+
+        new CancelledCandidacySituation(candidacy);
+        return null;
+    }
+
+    public static String REACTIVATE_URL = CONTROLLER_URL + "/reactivate";
+
+    @RequestMapping(value = "/reactivate")
+    public String reactivateCandidacy(@RequestParam("candidaciesToReactivate") List<StudentCandidacy> candidacies, Model model,
+            RedirectAttributes redirectAttributes) {
+
+        List<String> errors = reactivateCandidacies(candidacies);
+        for (String error : errors) {
+            addErrorMessage(error, model);
+        }
+        return redirect(CONTROLLER_URL, model, redirectAttributes);
+    }
+
+    @Atomic
+    public List<String> reactivateCandidacies(List<StudentCandidacy> candidacies) {
+        List<String> errors = new ArrayList<>();
+
+        for (StudentCandidacy candidacy : candidacies) {
+            String result = revertCancel(candidacy);
+            if (result != null) {
+                errors.add(result);
+            }
+        }
+
+        return errors;
+    }
+
+    public String revertCancel(StudentCandidacy candidacy) {
+        if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
+            return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.registered",
+                    candidacy.getPerson().getName());
+        }
+
+        Registration registration = candidacy.getRegistration();
+        if (registration != null) {
+            RegistrationState state = registration.getActiveState();
+
+            if (state.getStateType().equals(RegistrationStateType.INACTIVE)) {
+                RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
+                        RegistrationStateType.REGISTERED);
+            } else {
+                return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.not.inactive",
+                        "" + candidacy.getRegistration().getNumber(), candidacy.getPerson().getPresentationName());
+            }
+        }
+
+        new StandByCandidacySituation(candidacy);
+
+        return null;
     }
 
     private Collection<Integer> getPhases() {
@@ -106,11 +238,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return phases;
     }
 
-    private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(ExecutionYear executionYear, int phase) {
+    private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(ExecutionYear executionYear, int phase,
+            CandidacySituationType candidacySituationType) {
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentPhase =
                 sc -> sc.getEntryPhase() != null && sc.getEntryPhase().getPhaseNumber() == phase;
+        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentState = sc -> sc.getActiveCandidacySituationType() != null
+                && sc.getActiveCandidacySituationType() == candidacySituationType;
         return executionYear.getStudentCandidacies().stream().filter(hasDgesImportationForCurrentPhase)
-                .map(sc -> populateBean(sc)).collect(Collectors.toList());
+                .filter(hasDgesImportationForCurrentState).map(sc -> populateBean(sc)).collect(Collectors.toList());
     }
 
     private RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
