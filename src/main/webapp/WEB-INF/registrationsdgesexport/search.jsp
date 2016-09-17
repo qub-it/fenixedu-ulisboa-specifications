@@ -6,9 +6,15 @@
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
+<!-- TODO save in project -->
+<%-- <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" /> --%>
+<%-- <script type="text/javascript" src="${datatablesUrl}"></script> --%>
+
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
-<script type="text/javascript" src="${datatablesUrl}"></script>
 <script type="text/javascript" src="${datatablesBootstrapJsUrl}"></script>
 <spring:url var="datatablesCssUrl" value="/CSS/dataTables/dataTables.bootstrap.min.css" />
 
@@ -79,7 +85,7 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    //$scope.object= ${contactsFormJson};
+    $scope.object= ${objectBeanJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     $scope.entries = [];
     $scope.populateEntries = function (length) {
@@ -91,135 +97,231 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		    }
 	    }
     };
+    
+    $scope.executionYearsValues = [
+    <c:forEach items="${executionYears}" var="executionYear">
+        { 'id' : '${executionYear.id}',
+          'text' : '${executionYear.text}',  
+          'normalizedText' : '${executionYear.normalizedText}',
+        },
+    </c:forEach>         
+    ];
+    $scope.ingressTypesValues = [
+    <c:forEach items="${ingressTypes}" var="ingressType">
+        { 'id' : '${ingressType.id}',
+          'text' : '${ingressType.text}',  
+          'normalizedText' : '${ingressType.normalizedText}',
+        },
+    </c:forEach>         
+    ];
+    $scope.phasesValues = [
+    <c:forEach items="${phases}" var="phase">
+        { 'id' : '${phase}',
+          'text' : '${phase}',  
+          'normalizedText' : '${phase}',
+        },
+    </c:forEach>         
+    ];
+    $scope.candidacyStatesValues = [
+    <c:forEach items="${candidacyStates}" var="candidacyState">
+        { 'id' : '${candidacyState.id}',
+          'text' : '${candidacyState.text}',  
+          'normalizedText' : '${candidacyState.normalizedText}',
+        },
+    </c:forEach>         
+    ];
+
+    $scope.executionYear = '${selectedExecutionYear.externalId}';
+    $scope.candidacySituationType = '${selectedCandidacyState}';
+    $scope.phase = '${selectedPhase}';
+    $scope.ingressType = '${selectedIngressType.externalId}';
+    $scope.exportStatistics = '${exportStatistics}';
+    
     $scope.booleanvalues = [
-                            { name : '<spring:message code="label.no"/>', value : false },
-                            { name : '<spring:message code="label.yes"/>', value : true } 
-                    ];
+       { name : '<spring:message code="label.no"/>', value : false },
+       { name : '<spring:message code="label.yes"/>', value : true } 
+    ];
+    
     $scope.submitForm = function() {
-        $('form[id="candidaciesTable"]').submit();
-        };
+        $scope.$apply();
+        $('form[id="searchForm"]').submit();
+    };
     $scope.checkBoxClick = function(rowIndex, rowId) {
 	    $scope.entries[rowIndex].checked = !$scope.entries[rowIndex].checked;
-	    console.log($scope.rowId);
 	    $scope.$apply();
     };
+    $scope.anySelected = function () {
+	    var result = false;
+	    angular.forEach($scope.entries, function (value,key) {
+		    if($scope.entries[key].checked) {
+			   result = true;
+		    }
+	    }, result);
+	    return result;
+    };
     $scope.reactivateCandidacies = function() {
-	    $scope.candidaciesToReactivate = [];
+	    $scope.object.candidaciesToReactivate = [];
 	    angular.forEach($scope.entries, function(value,key) {
 		    if(value.checked) {
-		        var checkBox = $($('#candidaciesTable tr input')[key]);
-			    $scope.candidaciesToReactivate.push(checkBox.attr('id'));
+                var rowId = $('#searchregistrationdgesstatebeanTable').DataTable().row(key).data().DT_RowId;
+                $scope.object.candidaciesToReactivate.push(rowId);
 		    }
 	    });
 	    var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.REACTIVATE_URL %>';
-	    $('form[id="candidaciesTable"]').attr('action', url);
+	    $('form[id="searchForm"]').attr('action', url);
 	    $scope.$apply();
-        $('form[id="candidaciesTable"]').submit();
+        $('form[id="searchForm"]').submit();
     }
     $scope.cancelCandidacies = function () {
-        $scope.candidaciesToCancel = [];
+        $scope.object.candidaciesToCancel = [];
         angular.forEach($scope.entries, function(value,key) {
             if(value.checked) {
-                var checkBox = $($('#candidaciesTable tr input')[key]);
-                $scope.candidaciesToCancel.push(checkBox.attr('id'));
+        	    var rowId = $('#searchregistrationdgesstatebeanTable').DataTable().row(key).data().DT_RowId;
+                $scope.object.candidaciesToCancel.push(rowId);
             }
         });
         var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.CANCEL_URL %>';
-        $('form[id="candidaciesTable"]').attr('action', url);
+        $('form[id="searchForm"]').attr('action', url);
         $scope.$apply();
-        $('form[id="candidaciesTable"]').submit();	
+        $('form[id="searchForm"]').submit();	
+    }
+    $scope.selectAll = function() {
+	    $('#searchregistrationdgesstatebeanTable').DataTable().rows().select();
+	    angular.forEach($scope.entries, function(value, key) {
+		    if(!$scope.entries[key].checked) {
+		        $scope.entries[key].checked = true;
+	            $($('#searchregistrationdgesstatebeanTable tbody tr')[key]).children().removeClass("sorting_1");
+		    }
+	    });
+    }
+    $scope.deselectAll = function() {
+	    $('#searchregistrationdgesstatebeanTable').DataTable().rows().deselect();
+        angular.forEach($scope.entries, function(value, key) {
+            if($scope.entries[key].checked) {
+                $scope.entries[key].checked = false;
+                $($('#searchregistrationdgesstatebeanTable tbody tr')[key]).children().removeClass("sorting_1");
+            }
+        });
     }
 }]);
 </script>
 
-<style>
-table {
-    border-collapse: separate;
-    border-spacing: 1em;
-}
-</style>
 
-<form action="${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.SEARCH_URL %>" method="post">
-    <table>
-	   <tbody>
-	   <tr>
-		  <th>
-            <spring:message code="label.dges.importation.process.execution.year"/>&nbsp;
-          </th>
-	      <td>
-	       <select name="executionYear" style="width : 100px">
-		      <c:forEach items="${executionYears}" var="executionYear">
-			     <c:if test = "${executionYear == selectedExecutionYear}">
-				     <option selected value="${executionYear.externalId}">${executionYear.name}</option>
-				 </c:if>
-				 <c:if test = "${executionYear != selectedExecutionYear}">
-			         <option value="${executionYear.externalId}">${executionYear.name}</option>
-				 </c:if>
-			  </c:forEach>
-		   </select>
-	      </td>
-	   </tr>
-       <tr>
-	       <th>
-               <spring:message code="label.dges.importation.process.entry.phase"/>:&nbsp;
-           </th>
-	       <td>
-		      <select name="phase" style="width : 100px">
-			  <c:forEach items="${phases}" var="phase">
-			      <c:if test = "${phase == selectedPhase}">
-				      <option selected value="${phase}">${phase}</option>
-				  </c:if>
-				  <c:if test = "${phase != selectedPhase}">
-					  <option value="${phase}">${phase}</option>
-				  </c:if>
-			  </c:forEach>
-		      </select>
-	       </td>
-	   </tr>
-       <tr>
-           <th>
-               <spring:message code="label.dges.importation.process.candidacy.state"/>:&nbsp;
-           </th>
-           <td>
-              <select name="candidacySituationType" style="width : 100px">
-              <c:forEach items="${candidacyStates}" var="state">
-                  <c:if test = "${state.id == selectedCandidacyState}">
-                      <option selected value="${state.id}">${state.text}</option>
-                  </c:if>
-                  <c:if test = "${state.id != selectedCandidacyState}">
-                      <option value="${state.id}">${state.text}</option>
-                  </c:if>
-              </c:forEach>
-              </select>
-           </td>
-       </tr>
-       <tr>
-           <th>
-               <spring:message code="label.dges.importation.process.full.data"/>:&nbsp;
-           </th>
-           <td>
-              <select name="exportStatistics" style="width : 100px">
-                  <c:if test = "${exportStatistics}">
-                      <option value="false"><spring:message code="label.no"/></option>
-                  </c:if>
-                  <c:if test = "${exportStatistics}">
-                      <option selected value="true"><spring:message code="label.yes" /></option>
-                  </c:if>
-                  <c:if test = "${not exportStatistics}">
-                      <option selected value="false"><spring:message code="label.no"/></option>
-                  </c:if>
-                  <c:if test = "${not exportStatistics}">
-                      <option value="true"><spring:message code="label.yes" /></option>
-                  </c:if>
-              </select>
-           </td>
-       </tr>
-       <tr>
-	       <th></th>
-		   <td><input type="submit" style="width : 100px" value="<spring:message code='label.search' />"></td>
-	   </tr>
-	</tbody>
-</table>
+<form id="searchForm" action="${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.SEARCH_URL %>"  method="post" 
+      class="form-horizontal" ng-app="angularApp" ng-controller="angularController">
+
+        <input name="executionYear" type="hidden" value="{{ executionYear }}" />
+        <input name="candidacySituationType" type="hidden" value="{{ candidacySituationType }}" />
+        <input name="phase" type="hidden" value="{{ phase }}" />
+        <input name="ingressType" type="hidden" value="{{ ingressType }}" />
+        <input name="exportStatistics" type="hidden" value="{{ exportStatistics }}" />
+    
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <spring:message code="label.search" />
+            </h3>
+        </div>
+
+        <div class="panel panel-body">
+            <div class="form-group row">
+                <label for="dgesExportation_executionYear" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.execution.year"/>
+                </label>
+
+                <div class="col-sm-4">
+                    <ui-select  id="dgesExportation_executionYear" name="executionYear" ng-model="$parent.executionYear" theme="bootstrap">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="executionYear.id as executionYear in executionYearsValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="executionYear.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>                 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dgesExportation_phase" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.entry.phase"/>:
+                </label>
+
+                <div class="col-sm-4">
+                    <ui-select  id="dgesExportation_phase" name="phase" ng-model="$parent.phase" theme="bootstrap">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="phase.id as phase in phasesValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="phase.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>                 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dgesExportation_candidacySituationType" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.candidacy.state"/>
+                </label>
+
+                <div class="col-sm-4">
+                    <ui-select  id="dgesExportation_candidacySituationType" name="candidacySituationType" ng-model="$parent.candidacySituationType" theme="bootstrap">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="candidacySituationType.id as candidacySituationType in candidacyStatesValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="candidacySituationType.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>                 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dgesExportation_ingressType" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.ingress.type"/>
+                </label>
+
+                <div class="col-sm-4">
+                    <ui-select  id="dgesExportation_ingressType" name="ingressType" ng-model="$parent.ingressType" theme="bootstrap">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="ingressType.id as ingressType in ingressTypesValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="ingressType.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>                 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dgesExportation_beginDate" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.begin.date"/>
+                </label>
+
+                <div class="col-sm-4">
+                    <input id="dgesImportation_beginDate" class="form-control" type="text" name="beginDate" bennu-date="beginDate" />            
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dgesExportation_endDate" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.end.date"/>
+                </label>
+
+                <div class="col-sm-4">
+                    <input id="dgesImportation_endDate" class="form-control" type="text" name="endDate" bennu-date="endDate" />            
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="dgesExportation_exportStatistics" class="col-sm-2 control-label required-field">
+                   <spring:message code="label.dges.importation.process.full.data"/>
+                </label>
+
+                <div class="col-sm-4">
+                    <ui-select id="dgesExportation_exportStatistics" name="exportStatistics"
+                        ng-model="$parent.exportStatistics" theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-footer">
+            <button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>
+        </div>
+    </div>
 	
 	<%
 		boolean exportStatistics = false;
@@ -229,22 +331,30 @@ table {
 		}
 	%>
 
-</form>
 <% int collectionSize = ((Collection)request.getAttribute("searchregistrationdgesstatebeanResultsDataSet")).size(); %>
 
-<form id="candidaciesTable" method="post" class="form-horizontal" ng-app="angularApp" ng-controller="angularController"
-      action="#" />
-      
-      <input type="hidden" name="candidaciesToCancel" ng-repeat="candidacy in candidaciesToCancel" value="{{ candidacy }}" />
-      <input type="hidden" name="candidaciesToReactivate" ng-repeat="candidacy in candidaciesToReactivate" value="{{ candidacy }}" />
-      
+      <input type="hidden" name="candidaciesToCancel" ng-repeat="candidacy in object.candidaciesToCancel" value="{{ candidacy }}" />
+      <input type="hidden" name="candidaciesToReactivate" ng-repeat="candidacy in object.candidaciesToReactivate" value="{{ candidacy }}" />
+      <input type="hidden" name="bean" value="{{ object }}" />
       
 <c:choose>
 	<c:when test="${not empty searchregistrationdgesstatebeanResultsDataSet}">
+        <div class="panel">
+
+        <div class="panel panel-body">
+            <button type="button" class="btn btn-primary" role="button" ng-click="selectAll()">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                &nbsp;
+                <spring:message code="label.event.add.all" />
+            </button>
+            <button type="button" class="btn btn-primary" role="button" ng-click="deselectAll()">
+                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+                &nbsp;
+                <spring:message code="label.event.delete.all" />
+            </button>
 		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover" style="width:100%" ng-init="populateEntries(<%= collectionSize %>)">
 			<thead>
 				<tr>
-                    <th></th>
 					<th><spring:message code="label.studentsListByCurricularCourse.degree"/></th>
 					<th><spring:message code="label.identification.number"/></th>
 					<th><spring:message code="label.student"/></th>
@@ -282,14 +392,20 @@ table {
 				
 			</tbody>
 		</table>
-        <div class="panel-footer">
-            <button type="button" class="btn btn-primary" role="button" ng-click="reactivateCandidacies()"><spring:message code="label.registration.reactivate" /></button>
-            <button type="button" class="btn btn-primary" role="button" ng-click="cancelCandidacies()"><spring:message code="label.registration.cancel" /></button>
         </div>
-  
-		<form id="revertCancelForm" action="/registrationsdgesexport/reactivate/">
-			<button id="revertCancelButton" disabled onclick="return confirm('<spring:message code="label.remove.cancellation.confirm"/>');"><spring:message code="label.remove.cancellation"/></button>
-		</form>
+        <div class="panel-footer">
+            <button type="button" class="btn btn-primary" role="button" ng-click="reactivateCandidacies()" ng-disabled="!anySelected()">
+                <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+                &nbsp;
+                <spring:message code="label.registration.reactivate" />
+            </button>
+            <button type="button" class="btn btn-primary" role="button" ng-click="cancelCandidacies()" ng-disabled="!anySelected()">
+                <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+                &nbsp;
+                <spring:message code="label.registration.cancel" />
+            </button>
+        </div>
+        </div>
 	</c:when>
 	<c:otherwise>
         <div class="alert alert-warning" role="alert">
@@ -307,7 +423,6 @@ table {
 				<%-- Field access / formatting  here CHANGE_ME --%>
 				{
 					DT_RowId : "<c:out value='${searchResult.candidacyId}'/>",
-					selectionBox : "<input class='form-control' id='${searchResult.candidacyId}' ng-model='entries[${ loop.index }].checked' type='checkbox'/>",
 					degreeCode : "<c:out value='${searchResult.degreeCode}'/>",
 					idnumber : "<c:out value='${searchResult.idNumber}'/>",
 					name : "<c:out value='${searchResult.name}'/>",
@@ -345,15 +460,22 @@ table {
 
 		var table = $('#searchregistrationdgesstatebeanTable').DataTable({
 			language : {
-				url : "${datatablesI18NUrl}",			
+				url : "${datatablesI18NUrl}",
+				//This is a dirty hack, because the number of selected rows is not being updated
+				select: {
+                    rows: {
+                        _: "",
+                        0: "",
+                        1: ""
+                    }
+                }
 			},
 			columns: [
-			    { data:'selectionBox'},
-				{ data: 'degreeCode', width: "12%" },
-				{ data: 'idnumber', width: "13%" },
-				{ data: 'name', width: "50%" },
-				{ data: 'registrationstate', width: "12%" },
-				{ data: 'candidacyState', width: "13%" },
+				{ data: 'degreeCode' },
+				{ data: 'idnumber' },
+				{ data: 'name' },
+				{ data: 'registrationstate' },
+				{ data: 'candidacyState' },
 				<% if (exportStatistics) { %>
 				{ data: 'nationality', visible: false },
 				{ data: 'secondNationality', visible: false },
@@ -382,17 +504,15 @@ table {
 				<% } %>
 			],
 			data : searchregistrationdgesstatebeanDataSet,
-			dom: '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
+			dom: '<"col-sm-5"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
         	tableTools: {
             	sSwfPath: "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
-        	}
+        	},
 		});
 		table.columns.adjust().draw();
 		  $('#searchregistrationdgesstatebeanTable tbody').on( 'click', 'tr', function () {
-		        var checkBox = $($('#candidaciesTable tr input')[this.rowIndex - 1]);
-                angular.element($('#candidaciesTable')).scope().checkBoxClick(this.rowIndex - 1);
+                angular.element($('#searchForm')).scope().checkBoxClick(this.rowIndex - 1);
 	            $(this).toggleClass('selected');
-	            checkBox.prop('checked', !checkBox.prop('checked'));
 	            $(this).children().removeClass("sorting_1");
 		  } );
 	}); 
