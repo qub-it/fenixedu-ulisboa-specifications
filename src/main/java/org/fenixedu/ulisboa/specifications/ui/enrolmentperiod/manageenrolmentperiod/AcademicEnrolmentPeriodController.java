@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.enrolmentperiod.manageenrolmentpe
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,8 +66,8 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
             @RequestParam(value = "enrolmentPeriodType", required = false) AcademicEnrolmentPeriodType enrolmentPeriodType,
             @RequestParam(value = "automaticEnrolment", required = false) AutomaticEnrolment automaticEnrolment, Model model) {
         //TODOJN - this list is not going correctly sorted to the screen
-        List<ExecutionSemester> semesters = ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
+        List<ExecutionSemester> semesters = ExecutionSemester.readNotClosedExecutionPeriods();
+        semesters.sort(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed());
         model.addAttribute("executionSemesters", semesters);
         model.addAttribute("enrolmentPeriodTypes", Arrays.asList(AcademicEnrolmentPeriodType.values()));
         model.addAttribute("automaticEnrolments", Arrays.asList(AutomaticEnrolment.values()));
@@ -78,11 +79,17 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
 
     private List<AcademicEnrolmentPeriod> filterSearchAcademicEnrolmentPeriod(final ExecutionSemester executionSemester,
             final AcademicEnrolmentPeriodType enrolmentPeriodType, final AutomaticEnrolment automaticEnrolment) {
-        return AcademicEnrolmentPeriod.readAll()
+
+        final List<AcademicEnrolmentPeriod> result = AcademicEnrolmentPeriod.readAll()
                 .filter(p -> executionSemester == null || p.getExecutionSemester() == executionSemester)
                 .filter(p -> enrolmentPeriodType == null || p.getEnrolmentPeriodType() == enrolmentPeriodType)
                 .filter(p -> automaticEnrolment == null || p.getAutomaticEnrolment() == automaticEnrolment)
                 .collect(Collectors.toList());
+
+        result.sort(Comparator.comparing(AcademicEnrolmentPeriod::getStartDate).reversed()
+                .thenComparing(Comparator.comparing(AcademicEnrolmentPeriod::getEndDate).reversed())
+                .thenComparing(AcademicEnrolmentPeriod::getEnrolmentPeriodType));
+        return result;
     }
 
     private static final String SEARCH_VIEW_URI = "/search/view";
