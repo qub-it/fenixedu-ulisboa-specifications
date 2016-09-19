@@ -43,6 +43,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
@@ -296,7 +297,11 @@ abstract public class CurriculumAggregatorServices {
         final CurriculumGroup curriculumGroup = findCurriculumGroupFor(context, plan);
         if (curriculumGroup != null) {
 
-            result = curriculumGroup.getChildCurriculumModule(context.getChildDegreeModule());
+            result = curriculumGroup.getCurriculumModulesSet().stream()
+                    .filter(i -> i.getDegreeModule() == context.getChildDegreeModule() && i.isLeaf()
+                            && ((CurriculumLine) i).getExecutionPeriod() == semester)
+                    .findAny().orElse(null);
+
             if (result == null) {
                 logger.debug("Unable to find CurriculumModule for " + context.getChildDegreeModule().getOneFullName());
             } else {
