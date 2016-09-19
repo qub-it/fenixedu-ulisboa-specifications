@@ -88,15 +88,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     $scope.object= ${objectBeanJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     $scope.entries = [];
-    $scope.populateEntries = function (length) {
-	    for(var i = 0; i < length; i++) {
-		    if($scope.entries.length < i) {
-			    $scope.entries[i].checked = false;
-		    }else {
-			    $scope.entries[i] = {'checked': false};
-		    }
-	    }
-    };
+
     $scope.cancelActionMessage = '<spring:message code="label.registration.confirmAction.cancel" />';
     $scope.reactivateActionMessage = '<spring:message code="label.registration.confirmAction.reactivate" />';
     
@@ -144,27 +136,27 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
        { name : '<spring:message code="label.yes"/>', value : true } 
     ];
     
-    $scope.checkBoxClick = function(rowIndex, rowId) {
-	    $scope.entries[rowIndex].checked = !$scope.entries[rowIndex].checked;
-	    $scope.$apply();
-    };
-    $scope.anySelected = function () {
-	    var result = false;
-	    angular.forEach($scope.entries, function (value,key) {
-		    if($scope.entries[key].checked) {
-			   result = true;
+    $scope.checkBoxClick = function(rowId, isToInsert, name) {
+	    console.log(name);
+	    if(isToInsert) {
+		    $scope.entries.push(rowId);
+	    }else {
+		    var indexOf = $scope.entries.indexOf(rowId);
+		    if(indexOf != -1) {
+			    $scope.entries.splice(indexOf, 1);
+		    } else {
+			    alert('Error when deselecting a candidacy!');
 		    }
-	    }, result);
-	    return result;
+	    }
+	    $scope.$apply();
     };
     $scope.reactivateCandidacies = function() {
 	    $scope.object.candidaciesToReactivate = [];
+
 	    angular.forEach($scope.entries, function(value,key) {
-		    if(value.checked) {
-                var rowId = $('#searchregistrationdgesstatebeanTable').DataTable().row(key).data().DT_RowId;
-                $scope.object.candidaciesToReactivate.push(rowId);
-		    }
+            $scope.object.candidaciesToReactivate.push(value);
 	    });
+	    
 	    var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.REACTIVATE_URL %>';
 	    $('form[id="searchForm"]').attr('action', url);
 	    $scope.actionMessage = $scope.reactivateActionMessage;
@@ -174,10 +166,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     $scope.cancelCandidacies = function () {
         $scope.object.candidaciesToCancel = [];
         angular.forEach($scope.entries, function(value,key) {
-            if(value.checked) {
-        	    var rowId = $('#searchregistrationdgesstatebeanTable').DataTable().row(key).data().DT_RowId;
-                $scope.object.candidaciesToCancel.push(rowId);
-            }
+            $scope.object.candidaciesToCancel.push(value);
         });
         var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.CANCEL_URL %>';
         $('form[id="searchForm"]').attr('action', url);
@@ -194,21 +183,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     };
     $scope.selectAll = function() {
 	    $('#searchregistrationdgesstatebeanTable').DataTable().rows().select();
-	    angular.forEach($scope.entries, function(value, key) {
-		    if(!$scope.entries[key].checked) {
-		        $scope.entries[key].checked = true;
-	            $($('#searchregistrationdgesstatebeanTable tbody tr')[key]).children().removeClass("sorting_1");
-		    }
+	    $scope.entries = [];
+	    angular.forEach($('#searchregistrationdgesstatebeanTable').DataTable().rows().data(), function(value, key) {
+	        $scope.entries.push(value.DT_RowId);        
 	    });
     }
     $scope.deselectAll = function() {
 	    $('#searchregistrationdgesstatebeanTable').DataTable().rows().deselect();
-        angular.forEach($scope.entries, function(value, key) {
-            if($scope.entries[key].checked) {
-                $scope.entries[key].checked = false;
-                $($('#searchregistrationdgesstatebeanTable tbody tr')[key]).children().removeClass("sorting_1");
-            }
-        });
+	    $scope.entries = [];
     }
 }]);
 </script>
@@ -359,7 +341,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 &nbsp;
                 <spring:message code="label.event.delete.all" />
             </button>
-		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover" style="width:100%" ng-init="populateEntries(<%= collectionSize %>)">
+		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover" style="width:100%">
 			<thead>
 				<tr>
 					<th><spring:message code="label.studentsListByCurricularCourse.degree"/></th>
@@ -401,12 +383,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		</table>
         </div>
         <div class="panel-footer">
-            <button type="button" class="btn btn-primary" role="button" ng-click="reactivateCandidacies()" ng-disabled="!anySelected()">
+            <button type="button" class="btn btn-primary" role="button" ng-click="reactivateCandidacies()" ng-disabled="!entries.length">
                 <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
                 &nbsp;
                 <spring:message code="label.registration.reactivate" />
             </button>
-            <button type="button" class="btn btn-primary" role="button" ng-click="cancelCandidacies()" ng-disabled="!anySelected()">
+            <button type="button" class="btn btn-primary" role="button" ng-click="cancelCandidacies()" ng-disabled="!entries.length">
                 <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
                 &nbsp;
                 <spring:message code="label.registration.cancel" />
@@ -554,7 +536,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		});
 		table.columns.adjust().draw();
 		  $('#searchregistrationdgesstatebeanTable tbody').on( 'click', 'tr', function () {
-                angular.element($('#searchForm')).scope().checkBoxClick(this.rowIndex - 1);
+                angular.element($('#searchForm')).scope().checkBoxClick(this.id, !$(this).hasClass('selected'), $(this).children()[2]);
 	            $(this).toggleClass('selected');
 	            $(this).children().removeClass("sorting_1");
 		  } );
