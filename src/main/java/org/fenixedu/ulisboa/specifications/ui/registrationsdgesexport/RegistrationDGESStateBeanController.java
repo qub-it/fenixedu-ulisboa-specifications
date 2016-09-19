@@ -255,13 +255,13 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     private void populateModel(ExecutionYear executionYear, Integer phase, CandidacySituationType candidacySituationType,
             IngressionType ingressType, String beginDate, String endDate, Boolean exportStatistics,
             RedirectAttributes redirectAttributes) {
-        redirectAttributes.addAttribute("executionYear", executionYear.getExternalId());
-        redirectAttributes.addAttribute("phase", phase);
-        redirectAttributes.addAttribute("candidacySituationType", candidacySituationType);
-        redirectAttributes.addAttribute("ingressType", ingressType.getExternalId());
-        redirectAttributes.addAttribute("beginDate", beginDate);
-        redirectAttributes.addAttribute("endDate", endDate);
-        redirectAttributes.addAttribute("exportStatistics", exportStatistics);
+        redirectAttributes.addFlashAttribute("executionYear", executionYear);
+        redirectAttributes.addFlashAttribute("phase", phase);
+        redirectAttributes.addFlashAttribute("candidacySituationType", candidacySituationType);
+        redirectAttributes.addFlashAttribute("ingressType", ingressType);
+        redirectAttributes.addFlashAttribute("beginDate", beginDate);
+        redirectAttributes.addFlashAttribute("endDate", endDate);
+        redirectAttributes.addFlashAttribute("exportStatistics", exportStatistics);
     }
 
     public static final String REACTIVATE_URL = CONTROLLER_URL + "/reactivate";
