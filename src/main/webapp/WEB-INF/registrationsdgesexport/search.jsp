@@ -97,6 +97,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		    }
 	    }
     };
+    $scope.cancelActionMessage = '<spring:message code="label.registration.confirmAction.cancel" />';
+    $scope.reactivateActionMessage = '<spring:message code="label.registration.confirmAction.reactivate" />';
     
     $scope.executionYearsValues = [
     <c:forEach items="${executionYears}" var="executionYear">
@@ -169,9 +171,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	    });
 	    var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.REACTIVATE_URL %>';
 	    $('form[id="searchForm"]').attr('action', url);
+	    $scope.actionMessage = $scope.reactivateActionMessage;
 	    $scope.$apply();
-        $('form[id="searchForm"]').submit();
-    }
+	    $('#confirmModal').modal('toggle');  
+    };
     $scope.cancelCandidacies = function () {
         $scope.object.candidaciesToCancel = [];
         angular.forEach($scope.entries, function(value,key) {
@@ -182,9 +185,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         });
         var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.CANCEL_URL %>';
         $('form[id="searchForm"]').attr('action', url);
+        $scope.actionMessage = $scope.cancelActionMessage;
         $scope.$apply();
-        $('form[id="searchForm"]').submit();	
+        $('#confirmModal').modal('toggle');  
     }
+    $scope.submitForm = function() {
+        $('#confirmModal').modal('toggle');  
+	    $('form[id="searchForm"]').submit();	
+    };
     $scope.selectAll = function() {
 	    $('#searchregistrationdgesstatebeanTable').DataTable().rows().select();
 	    angular.forEach($scope.entries, function(value, key) {
@@ -413,6 +421,42 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         </div>	
 	</c:otherwise>
 </c:choose>
+
+    <div class="modal fade" id="confirmModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage">
+                        <spring:message code="label.registration.confirmAction.partA" />
+                        {{ actionMessage }}
+                        <spring:message code="label.registration.confirmAction.partB" />
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="confirmButton" class="btn btn-primary" type="button" ng-click="submitForm()">
+                        <spring:message code="label.confirmation" />
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+
 </form>
 
 <script>

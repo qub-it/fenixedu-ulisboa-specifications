@@ -38,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
@@ -371,7 +372,11 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             registrationStatus = "Não";
         }
 
-        String nationality = person.getCountry().getLocalizedName().getContent();
+        Country nat = person.getCountry();
+        String nationality = "";
+        if (nat != null) {
+            nationality = nat.getLocalizedName().getContent();
+        }
         String secondNationality = "";
         String ingressionType = ((FirstTimeCandidacy) studentCandidacy).getIngressionType().getLocalizedName();
         Integer placingOption = ((FirstTimeCandidacy) studentCandidacy).getPlacingOption();
