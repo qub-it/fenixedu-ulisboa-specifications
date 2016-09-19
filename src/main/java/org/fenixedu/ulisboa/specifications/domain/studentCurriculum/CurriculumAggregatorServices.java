@@ -210,7 +210,7 @@ abstract public class CurriculumAggregatorServices {
     static private boolean isAggregationEnroled(final CurricularCourse curricularCourse, final StudentCurricularPlan plan,
             final ExecutionSemester semester) {
 
-        // WARNING! at this leve this CAN NOT be competence course approval aware, since this method is used for evaluating if a given CurricularCourse is candidate for enrolment on THIS scp
+        // WARNING! at this level this CAN NOT be competence course approval aware, since this method is used for evaluating if a given CurricularCourse is candidate for enrolment on THIS scp
         return plan.isApproved(curricularCourse) || (semester == null ? !plan.getEnrolments(curricularCourse).isEmpty() : plan
                 .isEnroledInExecutionPeriod(curricularCourse, semester));
     }
@@ -357,6 +357,14 @@ abstract public class CurriculumAggregatorServices {
 
         // if is a optional aggregator entry must be manually enroled
         if (isOptionalEntryRelated(context)) {
+            return false;
+        }
+
+        // if is a slave entry, must check for aggregator's approval
+        // (typically this is not a problem because the aggregator is on the "first level" and is discarted by UI) 
+        final CurriculumAggregatorEntry entry = context == null ? null : context.getCurriculumAggregatorEntry();
+        if (entry != null && entry.getAggregator().isEnrolmentMaster() && CompetenceCourseServices.isCompetenceCourseApproved(
+                plan, (CurricularCourse) entry.getAggregator().getContext().getChildDegreeModule(), (ExecutionSemester) null)) {
             return false;
         }
 
