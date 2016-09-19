@@ -144,10 +144,6 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
        { name : '<spring:message code="label.yes"/>', value : true } 
     ];
     
-    $scope.submitForm = function() {
-        $scope.$apply();
-        $('form[id="searchForm"]').submit();
-    };
     $scope.checkBoxClick = function(rowIndex, rowId) {
 	    $scope.entries[rowIndex].checked = !$scope.entries[rowIndex].checked;
 	    $scope.$apply();
@@ -189,6 +185,9 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.$apply();
         $('#confirmModal').modal('toggle');  
     }
+    $scope.submitSearch = function() {
+        $('form[id="searchForm"]').submit();    
+    };
     $scope.submitForm = function() {
         $('#confirmModal').modal('toggle');  
 	    $('form[id="searchForm"]').submit();	
@@ -327,7 +326,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
         </div>
         <div class="panel-footer">
-            <button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>
+            <button type="button" class="btn btn-primary" role="button" ng-click="submitSearch()"><spring:message code="label.submit" /></button>
         </div>
     </div>
 	
