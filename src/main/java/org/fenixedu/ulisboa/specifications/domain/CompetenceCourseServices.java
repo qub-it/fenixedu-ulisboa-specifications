@@ -25,10 +25,9 @@
  */
 package org.fenixedu.ulisboa.specifications.domain;
 
-import java.lang.ref.WeakReference;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -38,17 +37,33 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
 
 abstract public class CompetenceCourseServices {
 
-    static private final Map<CompetenceCourse, Set<CurricularCourse>> CACHE_COMPETENCE_CURRICULARS = new ConcurrentHashMap<>();
+    static final private Logger logger = LoggerFactory.getLogger(CompetenceCourseServices.class);
 
-    static private WeakReference<Map<String, Boolean>> CACHE_APPROVALS =
-            new WeakReference<Map<String, Boolean>>(Maps.newConcurrentMap());
+    static final private LoadingCache<CompetenceCourse, Set<CurricularCourse>> CACHE_COMPETENCE_CURRICULARS =
+            CacheBuilder.newBuilder().concurrencyLevel(8).build(new CacheLoader<CompetenceCourse, Set<CurricularCourse>>() {
+
+                @Override
+                public Set<CurricularCourse> load(final CompetenceCourse key) throws Exception {
+                    logger.debug(String.format("Miss on CompetenceCourse CurricularCourses cache [%s %s]", new DateTime(), key));
+                    return getExpandedCurricularCourses(key);
+                }
+            });
+
+    static final private Cache<String, Boolean> CACHE_APPROVALS =
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(1, TimeUnit.MINUTES).build();
 
     static public boolean isCompetenceCourseApproved(final StudentCurricularPlan plan, final CurricularCourse course,
             final ExecutionSemester semester) {
@@ -82,33 +97,32 @@ abstract public class CompetenceCourseServices {
     static private boolean isApproved(final StudentCurricularPlan plan, final CompetenceCourse competence,
             final ExecutionSemester semester) {
 
-        Map<String, Boolean> map = CACHE_APPROVALS.get();
-        if (map == null) {
-            map = Maps.newConcurrentMap();
-            CACHE_APPROVALS = new WeakReference<Map<String, Boolean>>(map);
-        }
+        final String key = String.format("%s#%s#%s", plan.getExternalId(), competence.getExternalId(),
+                (semester == null ? "null" : semester.getExternalId()));
 
-        final String key = plan.getExternalId() + competence.getExternalId() + (semester == null ? "" : semester.getExternalId());
-        Boolean value = map.get(key);
-        if (value == null) {
-            value = getExpandedCurricularCourses(competence).stream()
-                    .anyMatch(curricular -> plan.isApproved(curricular, semester));
-            map.put(key, value);
-        }
+        try {
+            return CACHE_APPROVALS.get(key, new Callable<Boolean>() {
 
-        return value;
+                @Override
+                public Boolean call() throws Exception {
+                    logger.debug(String.format("Miss on Approvals cache [%s %s]", new DateTime(), key));
+                    final Set<CurricularCourse> curriculars = CACHE_COMPETENCE_CURRICULARS.get(competence);
+                    return curriculars == null ? false : curriculars.stream()
+                            .anyMatch(curricular -> plan.isApproved(curricular, semester));
+                }
+            });
+
+        } catch (final Throwable t) {
+            throw new RuntimeException(t.getCause());
+        }
     }
 
-    static public Set<CurricularCourse> getExpandedCurricularCourses(final CompetenceCourse competence) {
+    static private Set<CurricularCourse> getExpandedCurricularCourses(final CompetenceCourse competence) {
         final Set<CurricularCourse> result;
         final String code = competence.getCode();
 
         if (!isExpandedCode(code)) {
             result = competence.getAssociatedCurricularCoursesSet();
-
-        } else if (CACHE_COMPETENCE_CURRICULARS.containsKey(competence)) {
-
-            result = CACHE_COMPETENCE_CURRICULARS.get(competence);
 
         } else {
 
@@ -118,8 +132,6 @@ abstract public class CompetenceCourseServices {
                     result.addAll(iter.getAssociatedCurricularCoursesSet());
                 }
             }
-
-            CACHE_COMPETENCE_CURRICULARS.put(competence, result);
         }
 
         return result;
