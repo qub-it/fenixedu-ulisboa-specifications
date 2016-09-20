@@ -170,7 +170,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         }
 
         private void createTuitions(final Registration registration, final ExecutionYear executionYear) {
-            AcademicDebtGenerationRule.runAllActiveForRegistration(registration, true);
+            AcademicDebtGenerationRule.runAllActiveForRegistration(registration, false);
         }
     }
 
