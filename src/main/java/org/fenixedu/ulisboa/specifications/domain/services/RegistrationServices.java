@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,6 +30,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -34,11 +38,38 @@ import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.joda.time.LocalDate;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationServices {
+
+    static final private Cache<String, ICurriculum> CURRICULUMS =
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build();
+
+    static public ICurriculum getCurriculum(final Registration registration, final ExecutionYear executionYear) {
+        final String key = registration.getExternalId() + "#" + (executionYear == null ? "null" : executionYear.getExternalId());
+
+        try {
+            return CURRICULUMS.get(key, new Callable<ICurriculum>() {
+                @Override
+                public ICurriculum call() {
+                    return registration.getCurriculum(executionYear);
+                }
+            });
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    static public boolean isFlunked(final Registration registration, final ExecutionYear year) {
+        final int previousYear = getCurriculum(registration, year.getPreviousExecutionYear()).getCurricularYear();
+        final int currentYear = getCurriculum(registration, year).getCurricularYear();
+        return previousYear == currentYear;
+    }
 
     public static final String FULL_SCHOOL_CLASS_EXCEPTION_MSG = "label.schoolClassStudentEnrollment.fullSchoolClass";
 
@@ -69,7 +100,7 @@ public class RegistrationServices {
             final ExecutionDegree executionDegree =
                     r.getActiveDegreeCurricularPlan().getExecutionDegreeByYear(es.getExecutionYear());
             if (executionDegree != null) {
-                int curricularYear = r.getCurricularYear(es.getExecutionYear());
+                int curricularYear = getCurriculum(r, es.getExecutionYear()).getCurricularYear();
                 return executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getCurricularYear().equals(curricularYear))
                         .collect(Collectors.toSet());
             }

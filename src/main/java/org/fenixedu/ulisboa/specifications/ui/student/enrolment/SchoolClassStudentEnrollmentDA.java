@@ -413,7 +413,8 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
         public int getCurricularYear() {
             final ExecutionSemester executionSemester = getExecutionSemester();
-            return getRegistration().getCurricularYear(executionSemester.getExecutionYear());
+            return RegistrationServices.getCurriculum(getRegistration(), executionSemester.getExecutionYear())
+                    .getCurricularYear();
         }
 
         @Override

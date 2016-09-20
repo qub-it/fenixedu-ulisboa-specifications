@@ -40,10 +40,11 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-
-import pt.ist.fenixframework.Atomic;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import com.google.common.collect.Maps;
+
+import pt.ist.fenixframework.Atomic;
 
 public class CreditsNotEnroled extends CreditsNotEnroled_Base {
 
@@ -70,7 +71,6 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         super.setYearMin(year);
 
         checkRules();
-
     }
 
     private void checkRules() {
@@ -90,8 +90,8 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
             return createFalseConfiguration();
         }
 
-        final ICurriculum curriculum =
-                enrolmentContext.getRegistration().getCurriculum(enrolmentContext.getExecutionPeriod().getExecutionYear());
+        final ICurriculum curriculum = RegistrationServices.getCurriculum(enrolmentContext.getRegistration(),
+                enrolmentContext.getExecutionPeriod().getExecutionYear());
 
         BigDecimal approved = getCreditsApproved(curriculum, configured);
         BigDecimal enroledAndEnroling = getCreditsEnroledAndEnroling(enrolmentContext, configured);
@@ -147,16 +147,10 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
     }
 
     public RuleResult createWarningLabelled(final BigDecimal approved, final BigDecimal enroledAndEnroling) {
-        final String prefix =
-                BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix", getConfiguration().getCurricularPeriod()
-                        .getFullLabel());
-        final String literalMessage =
-                prefix
-                        + " "
-                        + getLabel()
-                        + " "
-                        + BundleUtil.getString(MODULE_BUNDLE, "label.CreditsNotEnroled.suffix", approved.toPlainString(),
-                                enroledAndEnroling.toPlainString());
+        final String prefix = BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix",
+                getConfiguration().getCurricularPeriod().getFullLabel());
+        final String literalMessage = prefix + " " + getLabel() + " " + BundleUtil.getString(MODULE_BUNDLE,
+                "label.CreditsNotEnroled.suffix", approved.toPlainString(), enroledAndEnroling.toPlainString());
         return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
     }
 

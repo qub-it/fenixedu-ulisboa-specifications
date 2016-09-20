@@ -18,6 +18,7 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.joda.time.DateTime;
@@ -373,7 +374,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
             return result;
         }
 
-        final int studentCurricularYear = input.getCurricularYear(getExecutionYear());
+        final int studentCurricularYear = RegistrationServices.getCurriculum(input, getExecutionYear()).getCurricularYear();
         if (!isValidCurricularYear(studentCurricularYear)) {
             return result;
         }

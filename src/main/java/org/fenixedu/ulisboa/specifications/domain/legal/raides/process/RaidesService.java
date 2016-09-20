@@ -39,6 +39,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.base.Strings;
@@ -62,7 +63,7 @@ public class RaidesService {
         }
 
         return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR)
-                .translate(String.valueOf(registration.getCurricularYear(executionYear)));
+                .translate(String.valueOf(RegistrationServices.getCurriculum(registration, executionYear).getCurricularYear()));
     }
 
     protected boolean isOnlyEnrolledOnDissertation(final Registration registration, final ExecutionYear executionYear) {
@@ -524,23 +525,24 @@ public class RaidesService {
 
         if (Strings.isNullOrEmpty(bean.getAlunoDeslocado())
                 && ((RaidesInstance) report).getDefaultDistrictOfResidence() != null) {
-            
-            if(Raides.countryOfResidence(registration, executionYear) != null && !Raides.countryOfResidence(registration, executionYear).isDefaultCountry()) {
-                bean.setAlunoDeslocado(LegalMapping.find(report, LegalMappingType.BOOLEAN)
-                        .translate(false));
-            } else if(Raides.countryOfResidence(registration, executionYear) != null && Raides.districtSubdivisionOfResidence(registration, executionYear) != null) {
-                bean.setAlunoDeslocado(LegalMapping.find(report, LegalMappingType.BOOLEAN)
-                        .translate(Raides.districtOfResidence(registration, executionYear) != ((RaidesInstance) report)
-                                .getDefaultDistrictOfResidence()));
+
+            if (Raides.countryOfResidence(registration, executionYear) != null
+                    && !Raides.countryOfResidence(registration, executionYear).isDefaultCountry()) {
+                bean.setAlunoDeslocado(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
+            } else if (Raides.countryOfResidence(registration, executionYear) != null
+                    && Raides.districtSubdivisionOfResidence(registration, executionYear) != null) {
+                bean.setAlunoDeslocado(
+                        LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(Raides.districtOfResidence(registration,
+                                executionYear) != ((RaidesInstance) report).getDefaultDistrictOfResidence()));
             }
-            
-            if(!Strings.isNullOrEmpty(bean.getAlunoDeslocado())) {
+
+            if (!Strings.isNullOrEmpty(bean.getAlunoDeslocado())) {
                 LegalReportContext.addWarn("",
                         i18n("warn.Raides.validation.dislocated.from.residence.missing",
                                 String.valueOf(registration.getStudent().getNumber()),
                                 registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             }
-            
+
         }
 
         final Country countryOfResidence = Raides.countryOfResidence(registration, executionYear);
@@ -658,24 +660,24 @@ public class RaidesService {
 
         return new BigDecimal(result);
     }
-    
+
     protected Set<Enrolment> scholarPartEnrolments(final ExecutionYear executionYear, final Registration registration) {
         final StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
-        
+
         final Set<Enrolment> result = Sets.newHashSet();
         for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
-            if(enrolment.getCurricularCourse() != null && enrolment.getCurricularCourse().isDissertation()) {
+            if (enrolment.getCurricularCourse() != null && enrolment.getCurricularCourse().isDissertation()) {
                 continue;
             }
-            
-            if(!enrolment.isValid(executionYear)) {
+
+            if (!enrolment.isValid(executionYear)) {
                 continue;
             }
-            
+
             result.add(enrolment);
         }
-        
-        return result; 
+
+        return result;
     }
 
     protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration) {

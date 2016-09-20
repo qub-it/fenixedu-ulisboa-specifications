@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,8 @@ public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricular
     static private final Logger logger = LoggerFactory.getLogger(EnrolmentPeriodRestrictionsExecutorLogic.class);
 
     static public void configure() {
-        CurricularRuleExecutorFactory.findExecutor(EnrolmentPeriodRestrictions.class).setLogic(
-                new EnrolmentPeriodRestrictionsExecutorLogic());
+        CurricularRuleExecutorFactory.findExecutor(EnrolmentPeriodRestrictions.class)
+                .setLogic(new EnrolmentPeriodRestrictionsExecutorLogic());
     }
 
     @Override
@@ -66,7 +67,9 @@ public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricular
         RuleResult result = createFalseConfiguration(dcp.getRoot());
 
         final Registration registration = enrolmentContext.getRegistration();
-        final int year = registration.getCurricularYear(enrolmentContext.getExecutionPeriod().getExecutionYear());
+        final int year = RegistrationServices
+                .getCurriculum(enrolmentContext.getRegistration(), enrolmentContext.getExecutionPeriod().getExecutionYear())
+                .getCurricularYear();
         logger.debug("Verifying restrictions for Registration Nr. [{}] in [{}] curricular year", registration.getNumber(), year);
 
         final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);

@@ -18,6 +18,7 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -61,7 +62,8 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
 
         if (schoolClassCurricularRule.getSchoolClassMustContainCourse()) {
 
-            int curricularYear = registration.getCurricularYear(executionSemester.getExecutionYear());
+            int curricularYear =
+                    RegistrationServices.getCurriculum(registration, executionSemester.getExecutionYear()).getCurricularYear();
             if (sourceDegreeModuleToEvaluate.getContext().getCurricularYear().equals(curricularYear)) {
 
                 if (registration.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionPeriod() == executionSemester)
@@ -88,7 +90,7 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
                             schoolClass.getAssociatedShiftsSet().stream()
                                     .filter(s -> s.getExecutionCourse()
                                             .getCurricularCourseFor(degreeCurricularPlan) == curricularCourse)
-                            .collect(Collectors.toSet());
+                                    .collect(Collectors.toSet());
 
                     final Multimap<ShiftType, Shift> shiftsTypesByShift = ArrayListMultimap.create();
                     shifts.forEach(s -> s.getTypes().forEach(st -> shiftsTypesByShift.put(st, s)));
