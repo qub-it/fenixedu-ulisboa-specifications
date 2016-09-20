@@ -131,7 +131,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
         if (serviceRequest.getAcademicTreasuryEvent() != null) {
             List<DebitEntry> activeDebitEntries =
-                    DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.toList());
+                    DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.<DebitEntry> toList());
             model.addAttribute("activeDebitEntries", activeDebitEntries);
             if (isAnyPaymentCodeInUsedState(activeDebitEntries)) {
                 addWarningMessage(
