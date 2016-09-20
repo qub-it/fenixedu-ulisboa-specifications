@@ -42,9 +42,11 @@ import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
@@ -147,6 +149,41 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return "registrationsdgesexport/search";
     }
 
+    private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(ExecutionYear executionYear, Integer phase,
+            CandidacySituationType candidacySituationType, IngressionType ingressType, LocalDate beginDate, LocalDate endDate) {
+        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentPhase =
+                sc -> phase == null || sc.getEntryPhase() != null && sc.getEntryPhase().getPhaseNumber() == phase;
+        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentState = sc -> candidacySituationType == null
+                || sc.getActiveCandidacySituationType() != null && sc.getActiveCandidacySituationType() == candidacySituationType;
+        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentIngress =
+                sc -> ingressType == null || sc.getIngressionType() != null && sc.getIngressionType().equals(ingressType);
+        Predicate<? super StudentCandidacy> hasDgesImportationForBeforeEnd = sc -> endDate == null
+                || sc.getCandidacyDate().toLocalDate().isEqual(endDate) || sc.getCandidacyDate().toLocalDate().isBefore(endDate);
+        Predicate<? super StudentCandidacy> hasDgesImportationForAfterBegin =
+                sc -> beginDate == null || sc.getCandidacyDate().toLocalDate().isEqual(beginDate)
+                        || sc.getCandidacyDate().toLocalDate().isAfter(beginDate);
+        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentExecutionYear =
+                sc -> executionYear == null || sc.getExecutionYear() == executionYear;
+        return getAllStudentCandidacies().stream().filter(hasDgesImportationForCurrentExecutionYear)
+                .filter(hasDgesImportationForCurrentPhase).filter(hasDgesImportationForCurrentState)
+                .filter(hasDgesImportationForCurrentIngress).filter(hasDgesImportationForAfterBegin)
+                .filter(hasDgesImportationForBeforeEnd).map(sc -> populateBean(sc)).collect(Collectors.toList());
+    }
+
+    private Collection<Integer> getPhases() {
+        EntryPhase[] values = EntryPhase.values();
+        List<Integer> phases = new ArrayList<>();
+        for (EntryPhase phase : values) {
+            phases.add(phase.getPhaseNumber());
+        }
+        return phases;
+    }
+
+    private List<StudentCandidacy> getAllStudentCandidacies() {
+        return Bennu.getInstance().getCandidaciesSet().stream().filter(c -> c instanceof FirstTimeCandidacy)
+                .map(StudentCandidacy.class::cast).collect(Collectors.toList());
+    }
+
     private List<TupleDataSourceBean> getExecutionYearDataSource() {
         return Bennu.getInstance().getExecutionYearsSet().stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(x -> {
             TupleDataSourceBean bean = new TupleDataSourceBean();
@@ -215,6 +252,22 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             }
         }
 
+        if (errors.isEmpty()) {
+            for (StudentCandidacy candidacy : candidacies) {
+                Registration registration = candidacy.getRegistration();
+                if (registration != null) {
+                    if (!registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
+                        RegistrationState registeredState = RegistrationState.createRegistrationState(registration,
+                                AccessControl.getPerson(), new DateTime(), RegistrationStateType.INACTIVE);
+                        registeredState.setRemarks(
+                                BundleUtil.getString(BUNDLE, "label.RegistrationDGESState.registrationState.remarks"));
+                    }
+                }
+
+                new CancelledCandidacySituation(candidacy);
+            }
+        }
+
         return errors;
     }
 
@@ -240,15 +293,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.cannot.cancel.have.shifts",
                         "" + registration.getNumber(), candidacy.getPerson().getName());
             }
-
-            if (!registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
-                RegistrationState registeredState = RegistrationState.createRegistrationState(registration,
-                        AccessControl.getPerson(), new DateTime(), RegistrationStateType.INACTIVE);
-                registeredState.setRemarks(BundleUtil.getString(BUNDLE, "label.RegistrationDGESState.registrationState.remarks"));
-            }
         }
 
-        new CancelledCandidacySituation(candidacy);
         return null;
     }
 
@@ -275,6 +321,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             RedirectAttributes redirectAttributes) {
 
         List<String> errors = reactivateCandidacies(bean.getCandidaciesToReactivate());
+
         for (String error : errors) {
             addErrorMessage(error, model);
         }
@@ -288,19 +335,73 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         List<String> errors = new ArrayList<>();
 
         for (StudentCandidacy candidacy : candidacies) {
-            String result = revertCancel(candidacy);
+            String result = reactivate(candidacy);
             if (result != null) {
                 errors.add(result);
+            }
+        }
+
+        if (errors.isEmpty()) {
+            for (StudentCandidacy candidacy : candidacies) {
+                new StandByCandidacySituation(candidacy);
             }
         }
 
         return errors;
     }
 
-    public String revertCancel(StudentCandidacy candidacy) {
+    public String reactivate(StudentCandidacy candidacy) {
         if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.STAND_BY)) {
             return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.standBy", candidacy.getPerson().getName());
         }
+
+        return null;
+    }
+
+    public static final String REGISTER_URL = CONTROLLER_URL + "/register";
+
+    @RequestMapping(value = "/register")
+    public String registerCandidacy(@RequestParam("bean") CandidacyToProcessBean bean,
+            @RequestParam(required = false) ExecutionYear executionYear, @RequestParam(required = false) Integer phase,
+            @RequestParam(required = false) CandidacySituationType candidacySituationType,
+            @RequestParam(required = false) IngressionType ingressType, @RequestParam(required = false) String beginDate,
+            @RequestParam(required = false) String endDate, @RequestParam(required = false) Boolean exportStatistics, Model model,
+            RedirectAttributes redirectAttributes) {
+
+        List<String> errors = registerCandidacies(bean.getCandidaciesToRegister());
+        for (String error : errors) {
+            addErrorMessage(error, model);
+        }
+        populateModel(executionYear, phase, candidacySituationType, ingressType, beginDate, endDate, exportStatistics,
+                redirectAttributes);
+        return redirect(CONTROLLER_URL, model, redirectAttributes);
+
+    }
+
+    @Atomic
+    public List<String> registerCandidacies(List<StudentCandidacy> candidacies) {
+        List<String> errors = new ArrayList<>();
+
+        for (StudentCandidacy candidacy : candidacies) {
+            String result = register(candidacy);
+            if (result != null) {
+                errors.add(result);
+            }
+        }
+
+        if (errors.isEmpty()) {
+            for (StudentCandidacy candidacy : candidacies) {
+                AdmittedCandidacySituation situation = new AdmittedCandidacySituation(candidacy, AccessControl.getPerson());
+                situation.setSituationDate(situation.getSituationDate().minusMinutes(1));
+
+                new RegisteredCandidacySituation(candidacy, AccessControl.getPerson());
+            }
+        }
+
+        return errors;
+    }
+
+    public String register(StudentCandidacy candidacy) {
         if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
             return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.registered",
                     candidacy.getPerson().getName());
@@ -309,53 +410,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         Registration registration = candidacy.getRegistration();
         if (registration != null) {
             RegistrationState state = registration.getActiveState();
-
-            if (state.getStateType().equals(RegistrationStateType.INACTIVE)) {
-                RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                        RegistrationStateType.REGISTERED);
-            } else {
-                return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.not.inactive",
-                        "" + candidacy.getRegistration().getNumber(), candidacy.getPerson().getPresentationName());
+            if (!state.getStateType().equals(RegistrationStateType.REGISTERED)) {
+                return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.not.registered",
+                        "" + candidacy.getRegistration().getNumber(), candidacy.getPerson().getPresentationName(),
+                        state.getStateType().getDescription());
             }
         }
 
-        new StandByCandidacySituation(candidacy);
-
         return null;
-    }
-
-    private Collection<Integer> getPhases() {
-        EntryPhase[] values = EntryPhase.values();
-        List<Integer> phases = new ArrayList<>();
-        for (EntryPhase phase : values) {
-            phases.add(phase.getPhaseNumber());
-        }
-        return phases;
-    }
-
-    private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(ExecutionYear executionYear, Integer phase,
-            CandidacySituationType candidacySituationType, IngressionType ingressType, LocalDate beginDate, LocalDate endDate) {
-        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentPhase =
-                sc -> phase == null || sc.getEntryPhase() != null && sc.getEntryPhase().getPhaseNumber() == phase;
-        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentState = sc -> candidacySituationType == null
-                || sc.getActiveCandidacySituationType() != null && sc.getActiveCandidacySituationType() == candidacySituationType;
-        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentIngress =
-                sc -> ingressType == null || sc.getIngressionType() != null && sc.getIngressionType().equals(ingressType);
-        Predicate<? super StudentCandidacy> hasDgesImportationForBeforeEnd =
-                sc -> endDate == null || sc.getCandidacyDate().toLocalDate().isBefore(endDate);
-        Predicate<? super StudentCandidacy> hasDgesImportationForAfterBegin =
-                sc -> beginDate == null || sc.getCandidacyDate().toLocalDate().isAfter(beginDate);
-        Predicate<? super StudentCandidacy> hasDgesImportationForCurrentExecutionYear =
-                sc -> executionYear == null || sc.getExecutionYear() == executionYear;
-        return getAllStudentCandidacies().stream().filter(hasDgesImportationForCurrentExecutionYear)
-                .filter(hasDgesImportationForCurrentPhase).filter(hasDgesImportationForCurrentState)
-                .filter(hasDgesImportationForCurrentIngress).filter(hasDgesImportationForAfterBegin)
-                .filter(hasDgesImportationForBeforeEnd).map(sc -> populateBean(sc)).collect(Collectors.toList());
-    }
-
-    private List<StudentCandidacy> getAllStudentCandidacies() {
-        return Bennu.getInstance().getCandidaciesSet().stream().filter(c -> c instanceof FirstTimeCandidacy)
-                .map(StudentCandidacy.class::cast).collect(Collectors.toList());
     }
 
     private RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
@@ -491,6 +553,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static class CandidacyToProcessBean implements IBean {
         private List<StudentCandidacy> candidaciesToCancel;
         private List<StudentCandidacy> candidaciesToReactivate;
+        private List<StudentCandidacy> candidaciesToRegister;
 
         public CandidacyToProcessBean() {
 
@@ -510,6 +573,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         public void setCandidaciesToReactivate(List<StudentCandidacy> candidaciesToReactivate) {
             this.candidaciesToReactivate = candidaciesToReactivate;
+        }
+
+        public List<StudentCandidacy> getCandidaciesToRegister() {
+            return candidaciesToRegister;
+        }
+
+        public void setCandidaciesToRegister(List<StudentCandidacy> candidaciesToRegister) {
+            this.candidaciesToRegister = candidaciesToRegister;
         }
     }
 

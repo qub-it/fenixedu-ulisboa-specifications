@@ -91,6 +91,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
     $scope.cancelActionMessage = '<spring:message code="label.registration.confirmAction.cancel" />';
     $scope.reactivateActionMessage = '<spring:message code="label.registration.confirmAction.reactivate" />';
+    $scope.registerActionMessage = '<spring:message code="label.registration.confirmAction.register" />';
     
     $scope.executionYearsValues = [
     <c:forEach items="${executionYears}" var="executionYear">
@@ -149,6 +150,19 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		    }
 	    }
 	    $scope.$apply();
+    };
+    $scope.registerCandidacies = function() {
+        $scope.object.candidaciesToRegister = [];
+
+        angular.forEach($scope.entries, function(value,key) {
+            $scope.object.candidaciesToRegister.push(value);
+        });
+        
+        var url = '${pageContext.request.contextPath}<%= RegistrationDGESStateBeanController.REGISTER_URL %>';
+        $('form[id="searchForm"]').attr('action', url);
+        $scope.actionMessage = $scope.registerActionMessage;
+        $scope.$apply();
+        $('#confirmModal').modal('toggle');  
     };
     $scope.reactivateCandidacies = function() {
 	    $scope.object.candidaciesToReactivate = [];
@@ -383,14 +397,19 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		</table>
         </div>
         <div class="panel-footer">
+            <button type="button" class="btn btn-primary" role="button" ng-click="registerCandidacies()" ng-disabled="!entries.length">
+<!--                 <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> -->
+<!--                 &nbsp; -->
+                <spring:message code="label.registration.register" />
+            </button>
             <button type="button" class="btn btn-primary" role="button" ng-click="reactivateCandidacies()" ng-disabled="!entries.length">
-                <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-                &nbsp;
+<!--                 <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> -->
+<!--                 &nbsp; -->
                 <spring:message code="label.registration.reactivate" />
             </button>
             <button type="button" class="btn btn-primary" role="button" ng-click="cancelCandidacies()" ng-disabled="!entries.length">
-                <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
-                &nbsp;
+<!--                 <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> -->
+<!--                 &nbsp; -->
                 <spring:message code="label.registration.cancel" />
             </button>
         </div>
