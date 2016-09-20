@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -36,7 +35,10 @@ import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -46,22 +48,26 @@ import com.google.common.collect.Sets;
 
 public class RegistrationServices {
 
+    static final private Logger logger = LoggerFactory.getLogger(RegistrationServices.class);
+
     static final private Cache<String, ICurriculum> CURRICULUMS =
-            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build();
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(1, TimeUnit.MINUTES).build();
 
     static public ICurriculum getCurriculum(final Registration registration, final ExecutionYear executionYear) {
-        final String key = registration.getExternalId() + "#" + (executionYear == null ? "null" : executionYear.getExternalId());
+        final String key = String.format("%s#%s", registration.getExternalId(),
+                executionYear == null ? "null" : executionYear.getExternalId());
 
         try {
             return CURRICULUMS.get(key, new Callable<ICurriculum>() {
                 @Override
                 public ICurriculum call() {
+                    logger.debug(String.format("Miss on Curriculum cache [%s %s]", new DateTime(), key));
                     return registration.getCurriculum(executionYear);
                 }
             });
 
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
+        } catch (final Throwable t) {
+            throw new RuntimeException(t.getCause());
         }
     }
 
