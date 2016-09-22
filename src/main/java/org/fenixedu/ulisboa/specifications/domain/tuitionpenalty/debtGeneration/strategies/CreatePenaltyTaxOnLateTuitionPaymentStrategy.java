@@ -14,6 +14,7 @@ import org.fenixedu.academictreasury.domain.exceptions.AcademicTreasuryDomainExc
 import org.fenixedu.academictreasury.domain.settings.AcademicTreasurySettings;
 import org.fenixedu.academictreasury.services.EmolumentServices;
 import org.fenixedu.treasury.domain.document.DebitEntry;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
@@ -206,8 +207,12 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                     .filter(s -> s.getServiceRequestType() == type && s.getExecutionYear() == rule.getExecutionYear())
                     .collect(Collectors.toSet());
 
-            boolean isToCreateServiceRequest = false;
             for (final ULisboaServiceRequest request : tuitionPenaltyRequests) {
+
+                if(ServiceRequestProperty.find(request, installmentOrderSlot).count() == 0) {
+                    throw new ULisboaSpecificationsDomainException("error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.iterate");
+                }
+                
                 for (final ServiceRequestProperty property : ServiceRequestProperty.find(request, installmentOrderSlot)
                         .collect(Collectors.toSet())) {
                     if (property.getInteger() == null) {
@@ -246,7 +251,11 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
         } else {
             ServiceRequestProperty.create(serviceRequest, executionYearSlot, rule.getExecutionYear());
         }
-
+        
+        if(ServiceRequestProperty.find(serviceRequest, installmentOrderSlot).count() == 0) {
+            throw new ULisboaSpecificationsDomainException("error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.creation");
+        }
+        
         return serviceRequest;
     }
 
