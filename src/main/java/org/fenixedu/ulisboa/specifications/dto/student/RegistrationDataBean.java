@@ -2,7 +2,6 @@ package org.fenixedu.ulisboa.specifications.dto.student;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -15,9 +14,9 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.RootCurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
@@ -86,12 +85,8 @@ public class RegistrationDataBean implements Serializable {
         final Registration registration = getRegistration();
         final ExecutionYear executionYear = getExecutionYear();
         final RuleResult ruleResult = RegistrationServices.getCurricularYear(registration, executionYear).getJustification();
-        if (ruleResult == null) {
-            return "";
-        }
 
-        return ruleResult.getMessages().stream().map(i -> i.getMessage().replace("Aluno do ", ""))
-                .collect(Collectors.joining(";    "));
+        return CurricularPeriodRule.getMessages(ruleResult).replace("Aluno do ", "");
     }
 
     public boolean getNotApproved() {

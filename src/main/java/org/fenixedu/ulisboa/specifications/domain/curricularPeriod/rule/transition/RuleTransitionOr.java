@@ -9,6 +9,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleTransition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +64,7 @@ public class RuleTransitionOr extends RuleTransitionOr_Base {
         final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
         for (final RuleResult iter : falseResults) {
             result = result.and(iter);
-            logger.debug("[RULE !true] [REG][{}][{}]", registration.getNumber(),
-                    iter.getMessages().iterator().next().getMessage());
+            logger.debug("[RULE !true] [REG][{}][{}]", registration.getNumber(), CurricularPeriodRule.getMessages(iter));
         }
 
         return result;

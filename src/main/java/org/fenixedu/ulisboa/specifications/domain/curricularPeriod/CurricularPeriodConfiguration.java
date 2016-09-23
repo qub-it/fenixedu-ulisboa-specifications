@@ -106,7 +106,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
 
         if (getRuleEnrolmentSet().isEmpty()) {
             final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
-            logger.debug("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
+            logger.debug("[REG][{}][{}]", registration.getNumber(), CurricularPeriodRule.getMessages(falseResult));
 
             return falseResult;
         }
@@ -120,7 +120,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             }
 
             logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
-                    rule.createFalseLabelled().getMessages().iterator().next().getMessage());
+                    CurricularPeriodRule.getMessages(rule.createFalseLabelled()));
         }
 
         RuleResult result = RuleResult.createTrue(degreeModule);
@@ -130,7 +130,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             if (!ruleResult.isTrue()) {
                 result = result.and(ruleResult);
                 logger.debug("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
-                        rule.createFalseLabelled().getMessages().iterator().next().getMessage());
+                        CurricularPeriodRule.getMessages(rule.createFalseLabelled()));
             }
         }
 
@@ -143,7 +143,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
 
         if (getRuleTransitionSet().isEmpty()) {
             final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
-            logger.debug("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
+            logger.debug("[REG][{}][{}]", registration.getNumber(), CurricularPeriodRule.getMessages(falseResult));
             return falseResult;
         }
 
@@ -156,13 +156,13 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             }
 
             logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
-                    rule.createFalseLabelled().getMessages().iterator().next().getMessage());
+                    CurricularPeriodRule.getMessages(rule.createFalseLabelled()));
         }
 
         final Collection<RuleTransition> otherRules = getFilteredRuleTransition(false);
         if (otherRules.isEmpty()) {
             final RuleResult falseResult = CurricularPeriodRule.createFalseConfiguration(degreeModule, this);
-            logger.debug("[REG][{}][{}]", registration.getNumber(), falseResult.getMessages().iterator().next().getMessage());
+            logger.debug("[REG][{}][{}]", registration.getNumber(), CurricularPeriodRule.getMessages(falseResult));
             return falseResult;
         }
 
@@ -173,7 +173,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             if (!ruleResult.isTrue()) {
                 result = result.and(ruleResult);
                 logger.debug("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
-                        rule.createFalseLabelled().getMessages().iterator().next().getMessage());
+                        CurricularPeriodRule.getMessages(rule.createFalseLabelled()));
             }
         }
 

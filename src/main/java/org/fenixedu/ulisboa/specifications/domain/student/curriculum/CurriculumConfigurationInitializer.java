@@ -56,6 +56,7 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
@@ -218,11 +219,12 @@ abstract public class CurriculumConfigurationInitializer {
         if (curricularYear != null) {
             final CurricularYearResult overriden = new CurricularYearResult(executionYear);
             overriden.setResult(curricularYear);
+
             overriden.setJustification(RuleResult.createFalseWithLiteralMessage(
                     curriculum.getCurriculumModule().getDegreeModule(),
                     BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE, "label.curricularYear.overriden",
                             String.valueOf(overriden.getResult()), String.valueOf(calculated.getResult()),
-                            calculated.getJustification().getMessages().iterator().next().getMessage())));
+                            CurricularPeriodRule.getMessages(calculated.getJustification()))));
             logger.debug("[REG][{}][CURRICULAR_YEAR][OVERRIDEN][{}]", registration.getNumber(),
                     String.valueOf(overriden.getResult()));
             return overriden;

@@ -29,6 +29,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -39,6 +40,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
+
+import com.google.common.base.Strings;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -134,6 +137,15 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
 
     public RuleResult createNA() {
         return RuleResult.createNA(getDegreeModule());
+    }
+
+    static public String getMessages(final RuleResult input) {
+        if (input == null || input.getMessages() == null) {
+            return "-";
+        }
+
+        return input.getMessages().stream().filter(i -> !Strings.isNullOrEmpty(i.getMessage())).map(i -> i.getMessage())
+                .collect(Collectors.joining("; "));
     }
 
     public void copyConfigurationTo(CurricularPeriodRule target) {
