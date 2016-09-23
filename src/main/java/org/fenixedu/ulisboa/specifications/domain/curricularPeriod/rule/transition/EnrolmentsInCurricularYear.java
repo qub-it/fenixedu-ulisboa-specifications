@@ -29,13 +29,13 @@ public class EnrolmentsInCurricularYear extends EnrolmentsInCurricularYear_Base 
 
         }
 
-        return createFalseLabelled(getValue());
-
+        return createFalseLabelled();
     }
 
     @Override
     public String getLabel() {
-        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getValue().toString());
+        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getValue().toString(),
+                String.valueOf(getYearMin()));
     }
 
     @Atomic
