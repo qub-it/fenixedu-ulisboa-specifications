@@ -535,8 +535,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
-                        addData("RegistrationHistoryReport.curricularYear", RegistrationServices
-                                .getCurriculum(registration, executionYearForCurricularYear).getCurricularYear());
+                        addData("RegistrationHistoryReport.curricularYear",
+                                RegistrationServices.getCurricularYear(registration, executionYearForCurricularYear).getResult());
                         addData("ICurriculumEntry.code", curriculumEntry.getCode());
                         addData("ICurriculumEntry.name", curriculumEntry.getName().getContent());
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());

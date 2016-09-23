@@ -10,14 +10,19 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
+import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
 
@@ -177,7 +182,36 @@ public class CurriculumLineServices {
         return curricularCourse.getParentContextsByExecutionYear(curriculumLine.getExecutionYear()).stream()
                 .filter(c -> c.getParentCourseGroup() == curriculumLine.getCurriculumGroup().getDegreeModule())
                 .collect(Collectors.toSet());
+    }
 
+    static public YearMonthDay getAcademicActDate(final CurriculumLine input) {
+        YearMonthDay result = null;
+
+        if (Enrolment.class.isAssignableFrom(input.getClass())) {
+            result = getAcademicActDate((Enrolment) input);
+
+        } else if (Dismissal.class.isAssignableFrom(input.getClass())) {
+            result = getAcademicActDate((Dismissal) input);
+        }
+
+        return result;
+    }
+
+    static private YearMonthDay getAcademicActDate(final Dismissal input) {
+        return input.getCreationDateDateTime().toYearMonthDay();
+    }
+
+    static private YearMonthDay getAcademicActDate(final Enrolment input) {
+        if (input.isApproved()) {
+            return input.calculateConclusionDate();
+        }
+        final EnrolmentEvaluation enrolmentEvaluation = getLatestEnrolmentEvaluation(input.getEvaluationsSet());
+        return enrolmentEvaluation == null ? null : enrolmentEvaluation.getExamDateYearMonthDay();
+    }
+
+    static private EnrolmentEvaluation getLatestEnrolmentEvaluation(final Collection<EnrolmentEvaluation> evaluations) {
+        return ((evaluations == null || evaluations.isEmpty()) ? null : Collections.<EnrolmentEvaluation> max(evaluations,
+                new EvaluationComparator()));
     }
 
 }

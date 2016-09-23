@@ -35,6 +35,8 @@ import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -71,9 +73,14 @@ public class RegistrationServices {
         }
     }
 
+    static public CurricularYearResult getCurricularYear(final Registration registration, final ExecutionYear executionYear) {
+        return CurriculumConfigurationInitializer
+                .calculateCurricularYear((Curriculum) getCurriculum(registration, executionYear));
+    }
+
     static public boolean isFlunked(final Registration registration, final ExecutionYear year) {
-        final int previousYear = getCurriculum(registration, year.getPreviousExecutionYear()).getCurricularYear();
-        final int currentYear = getCurriculum(registration, year).getCurricularYear();
+        final int previousYear = getCurricularYear(registration, year.getPreviousExecutionYear()).getResult();
+        final int currentYear = getCurricularYear(registration, year).getResult();
         return previousYear == currentYear;
     }
 
@@ -106,7 +113,7 @@ public class RegistrationServices {
             final ExecutionDegree executionDegree =
                     r.getActiveDegreeCurricularPlan().getExecutionDegreeByYear(es.getExecutionYear());
             if (executionDegree != null) {
-                int curricularYear = getCurriculum(r, es.getExecutionYear()).getCurricularYear();
+                int curricularYear = getCurricularYear(r, es.getExecutionYear()).getResult();
                 return executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getCurricularYear().equals(curricularYear))
                         .collect(Collectors.toSet());
             }

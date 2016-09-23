@@ -120,8 +120,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             }
 
             logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
-                    rule.getLabel());
-
+                    rule.createFalseLabelled().getMessages().iterator().next().getMessage());
         }
 
         RuleResult result = RuleResult.createTrue(degreeModule);
@@ -130,7 +129,8 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             final RuleResult ruleResult = rule.execute(enrolmentContext);
             if (!ruleResult.isTrue()) {
                 result = result.and(ruleResult);
-                logger.debug("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+                logger.debug("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
+                        rule.createFalseLabelled().getMessages().iterator().next().getMessage());
             }
         }
 
@@ -156,7 +156,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             }
 
             logger.debug("[RULE executive !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
-                    rule.getLabel());
+                    rule.createFalseLabelled().getMessages().iterator().next().getMessage());
         }
 
         final Collection<RuleTransition> otherRules = getFilteredRuleTransition(false);
@@ -172,7 +172,8 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
             final RuleResult ruleResult = rule.execute(curriculum);
             if (!ruleResult.isTrue()) {
                 result = result.and(ruleResult);
-                logger.debug("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(), rule.getLabel());
+                logger.debug("[RULE !true][{}] [REG][{}][{}]", rule.getExternalId(), registration.getNumber(),
+                        rule.createFalseLabelled().getMessages().iterator().next().getMessage());
             }
         }
 

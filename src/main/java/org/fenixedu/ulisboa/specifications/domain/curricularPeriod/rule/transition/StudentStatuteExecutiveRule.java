@@ -77,8 +77,8 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
     }
 
     static private String getMessagesSuffix(final ExecutionYear executionYear) {
-        return executionYear == null ? "" : BundleUtil.getString(MODULE_BUNDLE,
-                "label." + StudentStatuteExecutiveRule.class.getSimpleName() + ".suffix", executionYear.toString());
+        return executionYear == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE,
+                "label." + StudentStatuteExecutiveRule.class.getSimpleName() + ".suffix", executionYear.getQualifiedName()));
     }
 
 }

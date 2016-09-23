@@ -63,7 +63,7 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
         if (schoolClassCurricularRule.getSchoolClassMustContainCourse()) {
 
             int curricularYear =
-                    RegistrationServices.getCurriculum(registration, executionSemester.getExecutionYear()).getCurricularYear();
+                    RegistrationServices.getCurricularYear(registration, executionSemester.getExecutionYear()).getResult();
             if (sourceDegreeModuleToEvaluate.getContext().getCurricularYear().equals(curricularYear)) {
 
                 if (registration.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionPeriod() == executionSemester)

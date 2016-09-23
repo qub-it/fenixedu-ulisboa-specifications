@@ -118,6 +118,10 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
         return createFalseLabelled(getMessagesSuffix(suffix));
     }
 
+    public RuleResult createFalseLabelled() {
+        return createFalseLabelled("");
+    }
+
     public RuleResult createFalseLabelled(final String suffix) {
         final String literalMessage = getMessagesPrefix() + getLabel() + suffix;
         return RuleResult.createFalseWithLiteralMessage(getDegreeModule(), literalMessage);
@@ -157,7 +161,7 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     public CurricularPeriodRule cloneRule() {
 
         try {
-            
+
             final Constructor<? extends CurricularPeriodRule> constructor = getClass().getDeclaredConstructor();
             constructor.setAccessible(true);
 

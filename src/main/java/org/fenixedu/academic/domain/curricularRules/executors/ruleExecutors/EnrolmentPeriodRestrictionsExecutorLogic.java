@@ -68,8 +68,8 @@ public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricular
 
         final Registration registration = enrolmentContext.getRegistration();
         final int year = RegistrationServices
-                .getCurriculum(enrolmentContext.getRegistration(), enrolmentContext.getExecutionPeriod().getExecutionYear())
-                .getCurricularYear();
+                .getCurricularYear(enrolmentContext.getRegistration(), enrolmentContext.getExecutionPeriod().getExecutionYear())
+                .getResult();
         logger.debug("Verifying restrictions for Registration Nr. [{}] in [{}] curricular year", registration.getNumber(), year);
 
         final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);

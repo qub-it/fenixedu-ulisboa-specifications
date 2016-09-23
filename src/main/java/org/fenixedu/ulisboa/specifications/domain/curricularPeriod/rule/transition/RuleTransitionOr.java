@@ -5,14 +5,21 @@ import java.util.List;
 
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleTransition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 
 public class RuleTransitionOr extends RuleTransitionOr_Base {
+
+    static final private Logger logger = LoggerFactory.getLogger(CurricularPeriodConfiguration.class);
 
     protected RuleTransitionOr() {
         super();
@@ -40,16 +47,27 @@ public class RuleTransitionOr extends RuleTransitionOr_Base {
     }
 
     @Override
-    public RuleResult execute(Curriculum curriculum) {
+    public RuleResult execute(final Curriculum curriculum) {
+
+        final List<RuleResult> falseResults = Lists.newArrayList();
         for (final RuleTransition child : getChildrenSet()) {
             final RuleResult childResult = child.execute(curriculum);
             if (childResult.isTrue()) {
                 return childResult;
+            } else {
+                falseResults.add(childResult);
             }
         }
 
-        //TODO: legidio
-        return createFalseLabelled("");
+        RuleResult result = RuleResult.createInitialFalse();
+        final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
+        for (final RuleResult iter : falseResults) {
+            result = result.and(iter);
+            logger.debug("[RULE !true] [REG][{}][{}]", registration.getNumber(),
+                    iter.getMessages().iterator().next().getMessage());
+        }
+
+        return result;
     }
 
     @Override

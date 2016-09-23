@@ -75,8 +75,7 @@ public class FlunkedCredits extends FlunkedCredits_Base {
             final ExecutionYear executionYear =
                     input.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : input.getExecutionYear();
             if (StatuteServices.findStatuteTypes(registration, executionYear).stream().noneMatch(i -> getStatuteType() == i)) {
-                // TODO legidio
-                return createFalseLabelled("");
+                return createFalseLabelled(getMessagesSuffix(getStatuteType()));
             }
         }
 
@@ -109,7 +108,8 @@ public class FlunkedCredits extends FlunkedCredits_Base {
 
         final BigDecimal totalFlunked = calculateTotalFlunked(curriculum, configured);
 
-        return totalFlunked.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(totalFlunked);
+        return totalFlunked.compareTo(getCredits()) <= 0 ? createTrue() : getStatuteType() != null ? createFalseLabelled(
+                getMessagesSuffix(getStatuteType())) : createFalseLabelled(totalFlunked);
     }
 
     private BigDecimal calculateTotalFlunked(Curriculum curriculum, Set<CurricularPeriod> configured) {
@@ -132,6 +132,11 @@ public class FlunkedCredits extends FlunkedCredits_Base {
 
     private BigDecimal getFlunkedCreditsBaseline() {
         return FLUNKED_CREDITS_BY_YEAR.divide(BigDecimal.valueOf(getSemester() == null ? 1 : 2));
+    }
+
+    static private String getMessagesSuffix(final StatuteType input) {
+        return input == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE,
+                "label." + FlunkedCredits.class.getSimpleName() + ".suffix", input.getName().getContent()));
     }
 
 }

@@ -61,6 +61,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataByExecutionYearServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,10 +111,7 @@ abstract public class CurriculumConfigurationInitializer {
         @Override
         public Integer totalCurricularYears(final Curriculum curriculum) {
             if (totalCurricularYears == null) {
-
-                final StudentCurricularPlan scp = curriculum.getStudentCurricularPlan();
-                totalCurricularYears =
-                        scp == null ? 0 : scp.getDegreeCurricularPlan().getDurationInYears(getCycleType(curriculum));
+                totalCurricularYears = CurriculumConfigurationInitializer.totalCurricularYears(curriculum);
             }
 
             return totalCurricularYears;
@@ -175,50 +173,116 @@ abstract public class CurriculumConfigurationInitializer {
         }
 
         private CycleType getCycleType(final Curriculum curriculum) {
-            if (!curriculum.hasCurriculumModule() || !curriculum.isBolonha()) {
-                return null;
-            }
-
-            final CurriculumModule module = curriculum.getCurriculumModule();
-            final CycleType cycleType = module.isCycleCurriculumGroup() ? ((CycleCurriculumGroup) module).getCycleType() : null;
-            return cycleType;
+            return CurriculumConfigurationInitializer.getCycleType(curriculum);
         }
 
         private Integer calculateCurricularYear(final Curriculum curriculum) {
-            Integer result = 1;
-
-            final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
-
-            final Integer curricularYear = RegistrationDataByExecutionYearServices.getOverridenCurricularYear(registration,
-                    curriculum.getExecutionYear());
-            if (curricularYear != null) {
-                return curricularYear;
-            }
-
-            final DegreeCurricularPlan dcp = curriculum.getStudentCurricularPlan().getDegreeCurricularPlan();
-            for (int i = totalCurricularYears(curriculum); i > 1; i--) {
-
-                final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
-                final CurricularPeriodConfiguration configuration =
-                        curricularPeriod == null ? null : curricularPeriod.getConfiguration();
-
-                if (configuration == null) {
-                    throw new DomainException("curricularRules.ruleExecutors.logic.unavailable",
-                            BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
-                }
-
-                final RuleResult ruleResult = configuration.verifyRulesForTransition(curriculum);
-                if (ruleResult.isTrue()) {
-                    result = i;
-                    break;
-                }
-            }
-
-            logger.debug("[REG][{}][CURRICULAR_YEAR][{}]", registration.getNumber(), String.valueOf(result));
-            return result;
+            return CurriculumConfigurationInitializer.calculateCurricularYear(curriculum).getResult();
         }
 
     };
+
+    static public CurricularYearResult calculateCurricularYear(final Curriculum curriculum) {
+        final ExecutionYear executionYear = curriculum.getExecutionYear();
+        final CurricularYearResult calculated = new CurricularYearResult(executionYear);
+        final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
+
+        final DegreeCurricularPlan dcp = curriculum.getStudentCurricularPlan().getDegreeCurricularPlan();
+        RuleResult justification = null;
+        for (int i = totalCurricularYears(curriculum); i > 1; i--) {
+
+            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
+            final CurricularPeriodConfiguration configuration =
+                    curricularPeriod == null ? null : curricularPeriod.getConfiguration();
+
+            if (configuration == null) {
+                throw new DomainException("curricularRules.ruleExecutors.logic.unavailable",
+                        BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
+            }
+
+            final RuleResult ruleResult = configuration.verifyRulesForTransition(curriculum);
+            if (ruleResult.isTrue()) {
+                calculated.setResult(i);
+                if (justification == null) {
+                    justification = ruleResult;
+                }
+                break;
+            } else {
+                justification = ruleResult;
+            }
+        }
+        calculated.setJustification(justification);
+
+        final Integer curricularYear =
+                RegistrationDataByExecutionYearServices.getOverridenCurricularYear(registration, executionYear);
+        if (curricularYear != null) {
+            final CurricularYearResult overriden = new CurricularYearResult(executionYear);
+            overriden.setResult(curricularYear);
+            overriden.setJustification(RuleResult.createFalseWithLiteralMessage(
+                    curriculum.getCurriculumModule().getDegreeModule(),
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE, "label.curricularYear.overriden",
+                            String.valueOf(overriden.getResult()), String.valueOf(calculated.getResult()),
+                            calculated.getJustification().getMessages().iterator().next().getMessage())));
+            logger.debug("[REG][{}][CURRICULAR_YEAR][OVERRIDEN][{}]", registration.getNumber(),
+                    String.valueOf(overriden.getResult()));
+            return overriden;
+        }
+
+        logger.debug("[REG][{}][CURRICULAR_YEAR][{}]", registration.getNumber(), String.valueOf(calculated.getResult()));
+        return calculated;
+    }
+
+    static private int totalCurricularYears(final Curriculum curriculum) {
+        return curriculum.getStudentCurricularPlan() == null ? 0 : curriculum.getStudentCurricularPlan().getDegreeCurricularPlan()
+                .getDurationInYears(getCycleType(curriculum));
+    }
+
+    static private CycleType getCycleType(final Curriculum curriculum) {
+        if (!curriculum.hasCurriculumModule() || !curriculum.isBolonha()) {
+            return null;
+        }
+
+        final CurriculumModule module = curriculum.getCurriculumModule();
+        final CycleType cycleType = module.isCycleCurriculumGroup() ? ((CycleCurriculumGroup) module).getCycleType() : null;
+        return cycleType;
+    }
+
+    static public class CurricularYearResult {
+
+        private int curricularYear = 1;
+
+        private RuleResult justification = null;
+
+        private ExecutionYear executionYear;
+
+        public CurricularYearResult(final ExecutionYear executionYear) {
+            this.setExecutionYear(executionYear);
+        }
+
+        public int getResult() {
+            return curricularYear;
+        }
+
+        private void setResult(int result) {
+            this.curricularYear = result;
+        }
+
+        public RuleResult getJustification() {
+            return justification;
+        }
+
+        private void setJustification(final RuleResult justification) {
+            this.justification = justification;
+        }
+
+        public ExecutionYear getExecutionYear() {
+            return executionYear;
+        }
+
+        public void setExecutionYear(ExecutionYear executionYear) {
+            this.executionYear = executionYear;
+        }
+    }
 
     static private Supplier<CurriculumEntryPredicate> CURRICULUM_ENTRY_PREDICATE = () -> new CurriculumEntryPredicate() {
 

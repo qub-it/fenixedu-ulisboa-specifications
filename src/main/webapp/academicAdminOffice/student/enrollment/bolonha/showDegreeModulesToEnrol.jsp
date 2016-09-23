@@ -25,20 +25,62 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout"%>
+<%@page import="org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <h2>
 	<bean:write name="bolonhaStudentEnrollmentBean"  property="funcionalityTitle" />
 </h2>
 
 <bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
-<bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
+<bean:define id="executionYear" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear" type="org.fenixedu.academic.domain.ExecutionYear" />
+<bean:define id="executionYearName" name="executionYear" property="year" />
+<bean:define id="registration" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.registration" type="org.fenixedu.academic.domain.student.Registration" />
+<bean:define id="student" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.registration.student" />
 
-
+<p class="mtop15">
+    <span class="showpersonid">
+        <bean:message key="label.student" bundle="ACADEMIC_OFFICE_RESOURCES"/>:
+        <fr:view name="student" schema="student.show.personAndStudentInformation.short">
+            <fr:layout name="flow">
+                <fr:property name="labelExcluded" value="true"/>
+            </fr:layout>
+        </fr:view>
+    </span>
+</p>
 
 <p class="mtop15 mbottom025">
 	<strong><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.executionPeriod"/>:</strong> <bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.periodDescription" arg0="<%=periodSemester.toString()%>" arg1="<%=executionYearName.toString()%>" />
 </p>
 <p class="mtop0 mbottom025">
-	<strong><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.registration"/>:</strong> <bean:write name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.degreeCurricularPlan.presentationName"/> 
+    <strong><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.registration"/>:</strong> [<bean:write name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.degree.code"/>] <bean:write name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.degreeCurricularPlan.presentationName"/> 
+</p>
+<p class="mtop0 mbottom025">
+    <% 
+    final CurricularYearResult result = RegistrationServices.getCurricularYear(registration, executionYear); 
+    pageContext.setAttribute("curricularYear", result.getResult());    
+    %>
+    <a href="#" onclick="javascript: jQuery('#curricularYearJustifications').slideToggle('fast');">
+        <strong><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.curricularYear"/>:</strong>  <bean:write name="curricularYear" />
+        <span class="ui-icon ui-icon-triangle-2-n-s" style="margin-bottom: -4px"></span>
+    </a>
+    <%
+    if (result.getJustification() != null) {
+    %>
+    <div id="curricularYearJustifications" class="bgcolor3 padding1" style="border: #ddd dotted 1px; display: none;">
+    <%
+            for (final RuleResultMessage message : result.getJustification().getMessages()) {
+                pageContext.setAttribute("justification", message.getMessage().replace("Aluno do ", ""));
+    %>
+                <bean:write name="justification" /><br/>
+    <%
+            }
+    %>
+    </div>
+    <%
+    }
+    %>
 </p>
 <logic:present name="evaluationSeason">
 	<p class="mtop0 mbottom025">
@@ -51,8 +93,6 @@
 		<strong><bean:write name="label.ects.extra"/>:</strong> <bean:write name="enroledExtraEctsCredits" /> 
 	</p>
 </logic:present>
-
-<bean:define id="student" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.registration.student" />
 
 <logic:messagesPresent message="true" property="success">
 	<div class="success0" style="padding: 0.5em;">
@@ -92,10 +132,7 @@
 	<html:hidden property="withRules"/>
 
 	
-	<p class="mtop15 mbottom025">
-		<bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:
-	</p>
-	<p class="mtop025 mbottom1">
+	<p class="mtop10 mbottom1">
 		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
 		<a href="#" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>			
@@ -125,8 +162,7 @@
 		</fr:layout>
 	</fr:edit>
 	
-	<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
-	<p class="mtop05 mbottom1">
+	<p class="mtop10 mbottom1">
 		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
 		<a href="#" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>
@@ -134,22 +170,10 @@
 
 </html:form>
 
-
-
-<p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES" key="label.legend"/>:</em></p>
-
-<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.minCredits" bundle="APPLICATION_RESOURCES"/></em></p>
-<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.creditsConcluded" bundle="APPLICATION_RESOURCES"/></em></p>
-<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.maxCredits" bundle="APPLICATION_RESOURCES"/></em></p>
-
-<table class="mtop0">
+<table class="mtop2">
 <tr>
 	<td><div style="width: 10px; height: 10px; border: 1px solid #84b181; background: #eff9ee; float:left;"></div></td>
 	<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.confirmedEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.greenLines"/>)</span></td>
-</tr>
-<tr>
-	<td><div style="width: 10px; height: 10px; border: 1px solid #b9b983; background: #fafce6; float:left;"></div></td>
-	<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.temporaryEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.yellowLines"/>)</span></td>
 </tr>
 <tr>
 	<td><div style="width: 10px; height: 10px; border: 1px solid #be5a39; background: #ffe9e2; float:left;"></div></td>

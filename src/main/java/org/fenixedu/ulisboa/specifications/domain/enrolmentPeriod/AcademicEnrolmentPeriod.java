@@ -374,7 +374,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
             return result;
         }
 
-        final int studentCurricularYear = RegistrationServices.getCurriculum(input, getExecutionYear()).getCurricularYear();
+        final int studentCurricularYear = RegistrationServices.getCurricularYear(input, getExecutionYear()).getResult();
         if (!isValidCurricularYear(studentCurricularYear)) {
             return result;
         }

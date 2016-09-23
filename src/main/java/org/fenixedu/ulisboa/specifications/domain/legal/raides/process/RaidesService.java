@@ -63,7 +63,7 @@ public class RaidesService {
         }
 
         return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR)
-                .translate(String.valueOf(RegistrationServices.getCurriculum(registration, executionYear).getCurricularYear()));
+                .translate(String.valueOf(RegistrationServices.getCurricularYear(registration, executionYear).getResult()));
     }
 
     protected boolean isOnlyEnrolledOnDissertation(final Registration registration, final ExecutionYear executionYear) {
