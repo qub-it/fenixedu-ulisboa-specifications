@@ -140,11 +140,11 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     static public String getMessages(final RuleResult input) {
-        if (input == null || input.getMessages() == null) {
+        if (input == null || input.getMessages() == null || input.getMessages().isEmpty()) {
             return "-";
         }
 
-        return input.getMessages().stream().filter(i -> !Strings.isNullOrEmpty(i.getMessage())).map(i -> i.getMessage())
+        return input.getMessages().stream().filter(i -> !Strings.isNullOrEmpty(i.getMessage())).map(i -> i.getMessage()).sorted()
                 .collect(Collectors.joining("; "));
     }
 
