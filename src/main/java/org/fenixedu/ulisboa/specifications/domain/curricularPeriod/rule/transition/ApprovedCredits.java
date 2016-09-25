@@ -4,15 +4,12 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-
-import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -76,22 +73,13 @@ public class ApprovedCredits extends ApprovedCredits_Base {
 
         final Curriculum curriculum = prepareCurriculum(input);
 
-        final Set<CurricularPeriod> configured = Sets.newHashSet();
-
-        final int minYear = getYearMin() == null ? 1 : getYearMin();
-        final int maxYear =
+        final int yearMin = getYearMin() == null ? 1 : getYearMin();
+        final int yearMax =
                 getYearMax() == null ? getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1 : getYearMax();
 
-        final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
-        for (int i = minYear; i <= maxYear; i++) {
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
-
-            if (curricularPeriod == null) {
-                // if even one is not found, return false
-                return createFalseConfiguration();
-            } else {
-                configured.add(curricularPeriod);
-            }
+        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax);
+        if (configured == null) {
+            return createFalseConfiguration();
         }
 
         final BigDecimal total = calculateTotalApproved(curriculum, configured);

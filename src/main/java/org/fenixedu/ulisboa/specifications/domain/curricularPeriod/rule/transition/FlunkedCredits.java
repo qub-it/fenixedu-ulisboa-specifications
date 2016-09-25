@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -15,8 +14,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
-
-import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -81,29 +78,20 @@ public class FlunkedCredits extends FlunkedCredits_Base {
 
         final Curriculum curriculum = prepareCurriculum(input);
 
-        final Set<CurricularPeriod> configured = Sets.newHashSet();
-
-        final int minYear;
-        final int maxYear;
-
         // convert min max to curricular periods
+        final int yearMin;
+        final int yearMax;
         if (getYearMin() != null) {
-            minYear = getYearMin();
-            maxYear = getYearMax();
+            yearMin = getYearMin();
+            yearMax = getYearMax();
         } else {
-            minYear = 1;
-            maxYear = Math.max(1, getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1);
+            yearMin = 1;
+            yearMax = Math.max(1, getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1);
         }
-        final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
-        for (int i = minYear; i <= maxYear; i++) {
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
 
-            if (curricularPeriod == null) {
-                // if even one is not found, return false
-                return createFalseConfiguration();
-            } else {
-                configured.add(curricularPeriod);
-            }
+        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax);
+        if (configured == null) {
+            return createFalseConfiguration();
         }
 
         final BigDecimal totalFlunked = calculateTotalFlunked(curriculum, configured);

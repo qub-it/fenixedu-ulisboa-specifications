@@ -29,9 +29,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AbstractCurricularRuleExecutorLogic;
@@ -39,9 +41,11 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -168,6 +172,25 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     static private String getMessagesSuffix(final BigDecimal total) {
         return total == null ? "" : (" "
                 + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString()));
+    }
+
+    protected Set<CurricularPeriod> getCurricularPeriodsConfigured(final int yearMin, final int yearMax) {
+        final Set<CurricularPeriod> result = Sets.newHashSet();
+
+        final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
+        for (int i = yearMin; i <= yearMax; i++) {
+            final CurricularPeriod curricularPeriod = getSemester() == null ? CurricularPeriodServices.getCurricularPeriod(dcp,
+                    i) : CurricularPeriodServices.getCurricularPeriod(dcp, i, getSemester());
+
+            if (curricularPeriod == null) {
+                // if even one is not found, return false
+                return null;
+            } else {
+                result.add(curricularPeriod);
+            }
+        }
+
+        return result;
     }
 
     public CurricularPeriodRule cloneRule() {

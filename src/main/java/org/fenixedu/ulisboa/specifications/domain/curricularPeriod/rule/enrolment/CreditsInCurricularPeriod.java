@@ -16,7 +16,6 @@ import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPer
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -97,18 +96,9 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
-        final Set<CurricularPeriod> configured = Sets.newHashSet();
-
-        final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
-
-        for (int i = getYearMin(); i <= getYearMax(); i++) {
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i, getSemester());
-
-            if (curricularPeriod == null) {
-                return createFalseConfiguration();
-            } else {
-                configured.add(curricularPeriod);
-            }
+        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(getYearMin(), getYearMax());
+        if (configured == null) {
+            return createFalseConfiguration();
         }
 
         final BigDecimal total = getCreditsEnroledAndEnroling(enrolmentContext, configured);
