@@ -35,10 +35,8 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
 
     @RequestMapping
     public String home(Model model) {
-        model.addAttribute(
-                "executionSemesters",
-                Bennu.getInstance().getExecutionPeriodsSet().stream()
-                        .sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed()).collect(Collectors.toList()));
+        model.addAttribute("executionSemesters", Bennu.getInstance().getExecutionPeriodsSet().stream()
+                .sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed()).collect(Collectors.toList()));
         return "academicOffice/lists/studentsByCurricularCourses";
     }
 
@@ -57,7 +55,8 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
 
     private void addDegree(JsonArray response, ExecutionDegree executionDegree) {
         JsonObject degreeJson = new JsonObject();
-        degreeJson.addProperty("text", executionDegree.getPresentationName());
+        degreeJson.addProperty("text",
+                "(" + executionDegree.getDegree().getCode() + ") " + executionDegree.getPresentationName());
         degreeJson.addProperty("id", executionDegree.getExternalId());
         response.add(degreeJson);
     }
@@ -90,7 +89,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
                 .sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).forEach(ec -> addExecutionCourse(result, ec));
         return new GsonBuilder().create().toJson(result);
     }
-    
+
     @RequestMapping(value = "/executionSemesters/{executionSemester}/courses", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableCoursesForExecutionSemester(
@@ -99,7 +98,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         executionSemester.getAssociatedExecutionCoursesSet().stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR)
                 .forEach(ec -> addExecutionCourse(result, ec));
         return new GsonBuilder().create().toJson(result);
-    }    
+    }
 
     private void addExecutionCourse(JsonArray result, ExecutionCourse ec) {
         JsonObject schoolClassJson = new JsonObject();
@@ -124,8 +123,8 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         result.add(schoolClassJson);
     }
 
-    Comparator<? super Registration> registrationComparatorByStudentName = (x, y) -> Student.NAME_COMPARATOR.compare(
-            x.getStudent(), y.getStudent());
+    Comparator<? super Registration> registrationComparatorByStudentName =
+            (x, y) -> Student.NAME_COMPARATOR.compare(x.getStudent(), y.getStudent());
 
     @RequestMapping(value = "/executionCourseRegistrations/{executionCourse}", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
@@ -157,8 +156,8 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
         JsonObject schoolClassJson = new JsonObject();
         schoolClassJson.addProperty("name", registration.getStudent().getName());
         schoolClassJson.addProperty("email", calculatePersonalEmail(registration.getStudent()));
-        schoolClassJson.addProperty("institutionalEmail", registration.getStudent().getPerson()
-                .getInstitutionalEmailAddressValue());
+        schoolClassJson.addProperty("institutionalEmail",
+                registration.getStudent().getPerson().getInstitutionalEmailAddressValue());
         schoolClassJson.addProperty("studentNumber", registration.getNumber().toString());
         schoolClassJson.addProperty("id", registration.getStudent().getExternalId());
         schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
