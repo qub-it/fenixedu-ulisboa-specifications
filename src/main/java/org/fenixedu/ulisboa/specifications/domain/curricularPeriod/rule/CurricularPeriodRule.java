@@ -179,8 +179,7 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
 
         final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
         for (int i = yearMin; i <= yearMax; i++) {
-            final CurricularPeriod curricularPeriod = getSemester() == null ? CurricularPeriodServices.getCurricularPeriod(dcp,
-                    i) : CurricularPeriodServices.getCurricularPeriod(dcp, i, getSemester());
+            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i, getSemester());
 
             if (curricularPeriod == null) {
                 // if even one is not found, return false
