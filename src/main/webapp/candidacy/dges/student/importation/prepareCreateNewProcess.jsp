@@ -25,7 +25,6 @@
 
 <html:xhtml />
 
-<logic:present role="role(MANAGER)">
 
 	<h2><bean:message key="title.dges.importation.process" bundle="ULISBOA_SPECIFICATIONS_RESOURCES" /></h2>
 	
@@ -85,4 +84,3 @@
 		
 		<html:submit><bean:message key="button.submit" bundle="MANAGER_RESOURCES" /></html:submit>
 	</fr:form>
-</logic:present>

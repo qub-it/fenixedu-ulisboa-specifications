@@ -31,7 +31,6 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <html:xhtml />
 
-<logic:present role="role(MANAGER)">
 	<h2><bean:message key="link.dges.importation.configuration" bundle="ULISBOA_SPECIFICATIONS_RESOURCES" /></h2>
 	
 	<html:link page="/dgesStudentImportationProcess.do?method=list">
@@ -87,4 +86,3 @@
 		
 		<html:submit><bean:message key="button.add" bundle="APPLICATION_RESOURCES"/></html:submit>	
 	</fr:form>
-</logic:present>
