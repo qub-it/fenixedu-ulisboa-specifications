@@ -15,10 +15,14 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.joda.time.YearMonthDay;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 
 public class CurriculumModuleServices {
+
+    static final public Logger logger = LoggerFactory.getLogger(CurriculumModuleServices.class);
 
     static public BigDecimal getCreditsConcluded(final CurriculumGroup toInspect, final ExecutionInterval interval) {
         if (interval instanceof ExecutionSemester) {
@@ -119,8 +123,14 @@ public class CurriculumModuleServices {
     static private BigDecimal getEnroledAndNotApprovedEctsCreditsFor(final Enrolment toInspect,
             final ExecutionSemester semester) {
 
-        return (toInspect.isEnroled() || toInspect.isNotEvaluated() || toInspect.isFlunked())
-                && toInspect.isValid(semester) ? toInspect.getEctsCreditsForCurriculum() : BigDecimal.ZERO;
+        BigDecimal result = BigDecimal.ZERO;
+
+        if ((toInspect.isEnroled() || toInspect.isNotEvaluated() || toInspect.isFlunked()) && toInspect.isValid(semester)) {
+            result = toInspect.getEctsCreditsForCurriculum();
+            logger.debug("{}#UC {}#{} ECTS", toInspect.getCode(), semester.getQualifiedName(), result.toPlainString());
+        }
+
+        return result;
     }
 
     static private YearMonthDay calculateLastAcademicActDate(final CurriculumGroup group,
