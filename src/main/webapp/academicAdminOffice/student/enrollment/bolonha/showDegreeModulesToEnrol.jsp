@@ -29,6 +29,7 @@
 <%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule"%>
 <h2>
 	<bean:write name="bolonhaStudentEnrollmentBean"  property="funcionalityTitle" />
 </h2>
@@ -65,22 +66,9 @@
         <strong><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.curricularYear"/>:</strong>  <bean:write name="curricularYear" />
         <span class="ui-icon ui-icon-triangle-2-n-s" style="margin-bottom: -4px"></span>
     </a>
-    <%
-    if (result.getJustification() != null) {
-    %>
     <div id="curricularYearJustifications" class="bgcolor3 padding1" style="border: #ddd dotted 1px; display: none;">
-    <%
-            for (final RuleResultMessage message : result.getJustification().getMessages()) {
-                pageContext.setAttribute("justification", message.getMessage().replace("Aluno do ", ""));
-    %>
-                <bean:write name="justification" /><br/>
-    <%
-            }
-    %>
+        <%=CurricularPeriodRule.getMessages(result.getJustification()).replace("Aluno do ", "").replace("; ", "<br/>") %>
     </div>
-    <%
-    }
-    %>
 </p>
 <logic:present name="evaluationSeason">
 	<p class="mtop0 mbottom025">
