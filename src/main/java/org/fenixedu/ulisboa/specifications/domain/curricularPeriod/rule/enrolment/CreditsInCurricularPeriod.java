@@ -140,10 +140,12 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
                 final BigDecimal credits = BigDecimal.valueOf(getSemester() != null ? iter
                         .getAccumulatedEctsCredits(executionYear.getExecutionSemesterFor(getSemester())) : iter.getEctsCredits());
 
-                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits);
+                final String code = iter.getDegreeModule() == null ? "Opt" : iter.getDegreeModule().getCode();
+                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits, code);
             }
         }
 
+        CurricularPeriodServices.mapYearCreditsLogger(result);
         return result;
     }
 

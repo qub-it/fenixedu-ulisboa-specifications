@@ -43,6 +43,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -50,6 +52,8 @@ import com.google.common.collect.Sets;
 import pt.ist.fenixframework.Atomic;
 
 abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
+
+    static final public Logger logger = LoggerFactory.getLogger(CurricularPeriodRule.class);
 
     static protected String MODULE_BUNDLE = FenixeduUlisboaSpecificationsInitializer.BUNDLE;
 

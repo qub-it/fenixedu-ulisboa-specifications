@@ -20,6 +20,7 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +98,7 @@ public class CurricularPeriodServices {
             if (overridenCurricularYear == null) {
                 logger.warn("Unable to guess curricular year for [{}], returning 1", report.toString().replace("\n", ""));
                 return 1;
-                
+
             } else {
                 return overridenCurricularYear.intValue();
             }
@@ -151,28 +152,33 @@ public class CurricularPeriodServices {
 
         for (final ICurriculumEntry iter : curriculum.getCurricularYearEntries()) {
 
-            final int year = CurricularPeriodServices.getCurricularYear((CurriculumLine) iter);
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);
+            final int year = getCurricularYear((CurriculumLine) iter);
+            final CurricularPeriod curricularPeriod = getCurricularPeriod(dcp, year);
 
             if (curricularPeriod != null) {
 
                 final BigDecimal credits = iter.getEctsCreditsForCurriculum();
-                addYearCredits(result, curricularPeriod, credits);
+
+                addYearCredits(result, curricularPeriod, credits, iter.getCode());
             }
         }
 
-        for (final Map.Entry<CurricularPeriod, BigDecimal> entry : result.entrySet()) {
-            logger.debug("{} - {} ECTS", entry.getKey().getFullLabel(), entry.getValue().toPlainString());
-        }
-
+        mapYearCreditsLogger(result);
         return result;
     }
 
+    static public void mapYearCreditsLogger(final Map<CurricularPeriod, BigDecimal> input) {
+        for (final Map.Entry<CurricularPeriod, BigDecimal> entry : input.entrySet()) {
+            CurricularPeriodRule.logger.debug("{}#{} ECTS", entry.getKey().getFullLabel(), entry.getValue().toPlainString());
+        }
+    }
+
     static public void addYearCredits(final Map<CurricularPeriod, BigDecimal> result, final CurricularPeriod curricularPeriod,
-            final BigDecimal credits) {
+            final BigDecimal credits, final String code) {
 
         final BigDecimal creditsYear = result.get(curricularPeriod);
         result.put(curricularPeriod, creditsYear != null ? creditsYear.add(credits) : credits);
+        CurricularPeriodRule.logger.debug("{}#UC {}#{} ECTS", code, curricularPeriod.getFullLabel(), credits.toPlainString());
     }
 
     static public int getCurricularSemester(final CurriculumLine curriculumLine) {

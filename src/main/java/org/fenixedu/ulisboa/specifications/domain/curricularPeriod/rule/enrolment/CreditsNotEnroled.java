@@ -139,10 +139,13 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
             if (curricularPeriod != null) {
 
                 final BigDecimal credits = BigDecimal.valueOf(iter.getEctsCredits());
-                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits);
+                
+                final String code = iter.getDegreeModule() == null ? "Opt" : iter.getDegreeModule().getCode();
+                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits, code);
             }
         }
 
+        CurricularPeriodServices.mapYearCreditsLogger(result);
         return result;
     }
 
