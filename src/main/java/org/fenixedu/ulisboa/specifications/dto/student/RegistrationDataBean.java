@@ -122,8 +122,15 @@ public class RegistrationDataBean implements Serializable {
     private BigDecimal getEnroledEcts(final ExecutionYear input) {
         BigDecimal result = BigDecimal.ZERO;
 
-        for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
-            final RootCurriculumGroup curriculumGroup = iter.getRoot();
+        if (RegistrationServices.isCurriculumAccumulated(getRegistration())) {
+            for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
+                final RootCurriculumGroup curriculumGroup = iter.getRoot();
+                result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, input));
+            }
+
+        } else {
+            final StudentCurricularPlan plan = getStudentCurricularPlan();
+            final RootCurriculumGroup curriculumGroup = plan.getRoot();
             result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, input));
         }
 
