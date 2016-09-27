@@ -13,6 +13,12 @@ public class CustomEvaluationConfiguration extends CustomEvaluationConfiguration
 
     private static Comparator<EnrolmentEvaluation> ENROLMENT_EVALUATION_ORDER = new EvaluationComparator();
 
+    private static Predicate<Enrolment> ENROLMENT_FILTER = (e) -> false;
+
+    static public void setEnrolmentFilter(Predicate<Enrolment> predicate) {
+        ENROLMENT_FILTER = predicate;
+    }
+
     public CustomEvaluationConfiguration() {
         setRoot(Bennu.getInstance());
     }
@@ -44,9 +50,7 @@ public class CustomEvaluationConfiguration extends CustomEvaluationConfiguration
     }
 
     protected boolean isToApplySpecialAuthorization(Enrolment enrolment) {
-        //TODO: change to configuration
-        final String degreeTypeCode = enrolment.getRegistration().getDegreeType().getCode();
-        return degreeTypeCode != null && (degreeTypeCode.equals("BOLONHA_DEGREE") || degreeTypeCode.equals("DEGREE"));
+        return ENROLMENT_FILTER.test(enrolment);
     }
 
     public Optional<EnrolmentEvaluation> getCurrentEnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season) {
