@@ -78,9 +78,18 @@ public class RegistrationServices {
                 .calculateCurricularYear((Curriculum) getCurriculum(registration, executionYear));
     }
 
-    static public boolean isFlunked(final Registration registration, final ExecutionYear year) {
-        final int previousYear = getCurricularYear(registration, year.getPreviousExecutionYear()).getResult();
-        final int currentYear = getCurricularYear(registration, year).getResult();
+    static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
+        final ExecutionYear previousExecutionYear = executionYear.getPreviousExecutionYear();
+
+        if (registration.getStartExecutionYear().isAfterOrEquals(executionYear)
+                || registration.getStudentCurricularPlan(previousExecutionYear) == null
+                || registration.getStudentCurricularPlan(executionYear) == null) {
+
+            return false;
+        }
+
+        final int currentYear = getCurricularYear(registration, executionYear).getResult();
+        final int previousYear = getCurricularYear(registration, executionYear.getPreviousExecutionYear()).getResult();
         return previousYear == currentYear;
     }
 

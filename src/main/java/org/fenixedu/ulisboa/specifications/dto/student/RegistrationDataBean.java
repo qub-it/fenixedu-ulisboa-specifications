@@ -92,7 +92,7 @@ public class RegistrationDataBean implements Serializable {
     public boolean getNotApproved() {
         final Registration registration = getRegistration();
         final ExecutionYear executionYear = getExecutionYear();
-        return RegistrationServices.isFlunked(registration, executionYear);
+        return RegistrationServices.isFlunkedUsingCurricularYear(registration, executionYear);
     }
 
     public Integer getEnrolmentsCount() {

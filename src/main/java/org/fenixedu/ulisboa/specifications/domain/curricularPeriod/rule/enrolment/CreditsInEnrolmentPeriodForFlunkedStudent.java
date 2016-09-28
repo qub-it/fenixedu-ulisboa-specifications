@@ -39,7 +39,7 @@ public class CreditsInEnrolmentPeriodForFlunkedStudent extends CreditsInEnrolmen
             return createNA();
         }
 
-        final boolean flunked = RegistrationServices.isFlunked(registration, year);
+        final boolean flunked = RegistrationServices.isFlunkedUsingCurricularYear(registration, year);
         return flunked ? super.execute(enrolmentContext) : createNA();
     }
 
