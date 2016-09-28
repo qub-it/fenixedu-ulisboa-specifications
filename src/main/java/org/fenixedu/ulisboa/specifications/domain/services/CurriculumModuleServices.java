@@ -125,7 +125,8 @@ public class CurriculumModuleServices {
 
         BigDecimal result = BigDecimal.ZERO;
 
-        if ((toInspect.isEnroled() || toInspect.isNotEvaluated() || toInspect.isFlunked()) && toInspect.isValid(semester)) {
+        if ((toInspect.isEnroled() || toInspect.isNotEvaluated() || toInspect.isFlunked())
+                && (toInspect.isValid(semester) && (!toInspect.isAnual() || semester.isFirstOfYear()))) {
             result = toInspect.getEctsCreditsForCurriculum();
             logger.debug("{}#UC {}#{} ECTS", toInspect.getCode(), semester.getQualifiedName(), result.toPlainString());
         }
