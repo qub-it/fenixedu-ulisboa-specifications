@@ -89,7 +89,7 @@ public class FlunkedCredits extends FlunkedCredits_Base {
             yearMax = Math.max(1, getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1);
         }
 
-        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax);
+        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax, false);
         if (configured == null) {
             return createFalseConfiguration();
         }

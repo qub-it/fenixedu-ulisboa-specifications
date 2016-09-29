@@ -96,7 +96,7 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
-        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(getYearMin(), getYearMax());
+        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(getYearMin(), getYearMax(), true);
         if (configured == null) {
             return createFalseConfiguration();
         }

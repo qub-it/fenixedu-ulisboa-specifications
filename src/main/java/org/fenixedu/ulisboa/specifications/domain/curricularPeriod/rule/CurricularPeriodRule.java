@@ -178,12 +178,15 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
                 + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString()));
     }
 
-    protected Set<CurricularPeriod> getCurricularPeriodsConfigured(final int yearMin, final int yearMax) {
+    protected Set<CurricularPeriod> getCurricularPeriodsConfigured(final int yearMin, final int yearMax,
+            final boolean semesterAware) {
+
         final Set<CurricularPeriod> result = Sets.newHashSet();
 
         final DegreeCurricularPlan dcp = getDegreeCurricularPlan();
         for (int i = yearMin; i <= yearMax; i++) {
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i, getSemester());
+            final CurricularPeriod curricularPeriod = semesterAware ? CurricularPeriodServices.getCurricularPeriod(dcp, i,
+                    getSemester()) : CurricularPeriodServices.getCurricularPeriod(dcp, i);
 
             if (curricularPeriod == null) {
                 // if even one is not found, return false

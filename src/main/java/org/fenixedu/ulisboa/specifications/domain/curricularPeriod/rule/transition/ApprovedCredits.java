@@ -77,7 +77,7 @@ public class ApprovedCredits extends ApprovedCredits_Base {
         final int yearMax =
                 getYearMax() == null ? getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1 : getYearMax();
 
-        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax);
+        final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax, false);
         if (configured == null) {
             return createFalseConfiguration();
         }
