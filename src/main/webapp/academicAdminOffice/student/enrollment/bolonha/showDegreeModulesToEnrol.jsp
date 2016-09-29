@@ -67,7 +67,7 @@
         <span class="ui-icon ui-icon-triangle-2-n-s" style="margin-bottom: -4px"></span>
     </a>
     <div id="curricularYearJustifications" class="bgcolor3 padding1" style="border: #ddd dotted 1px; display: none;">
-        <%=CurricularPeriodRule.getMessages(result.getJustification()).replace("Aluno do ", "").replace("; ", "<br/>") %>
+        <%=CurricularPeriodRule.getMessages(result.getJustification()).replace("Aluno do", "Falhou").replace("; ", "<br/>") %>
     </div>
 </p>
 <logic:present name="evaluationSeason">

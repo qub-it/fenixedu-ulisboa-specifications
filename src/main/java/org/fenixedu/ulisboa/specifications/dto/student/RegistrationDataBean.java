@@ -90,7 +90,7 @@ public class RegistrationDataBean implements Serializable {
         final ExecutionYear executionYear = getExecutionYear();
         final RuleResult ruleResult = RegistrationServices.getCurricularYear(registration, executionYear).getJustification();
 
-        return CurricularPeriodRule.getMessages(ruleResult).replace("Aluno do ", "");
+        return CurricularPeriodRule.getMessages(ruleResult).replace("Aluno do", "Falhou");
     }
 
     public boolean getNotApproved() {
