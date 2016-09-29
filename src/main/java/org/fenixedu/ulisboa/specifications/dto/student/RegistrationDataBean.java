@@ -148,12 +148,14 @@ public class RegistrationDataBean implements Serializable {
     public String getLastRegistrationStatePresentation() {
         RegistrationStateType result = null;
 
-        if (getRegistration().isConcluded()
-                && getExecutionYear().isAfterOrEquals(new RegistrationConclusionBean(getRegistration()).getConclusionYear())) {
+        final Registration registration = getRegistration();
+        if (registration.isConcluded() && getExecutionYear().isAfterOrEquals(
+                new RegistrationConclusionBean(registration, registration.getLastStudentCurricularPlan().getRoot())
+                        .getConclusionYear())) {
             // ATTENTION: conclusion state year != conclusion year
             result = RegistrationStateType.CONCLUDED;
         } else {
-            final RegistrationState state = getRegistration().getLastRegistrationState(getExecutionYear());
+            final RegistrationState state = registration.getLastRegistrationState(getExecutionYear());
             result = state == null ? null : state.getStateType();
         }
 
