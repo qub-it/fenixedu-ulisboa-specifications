@@ -28,6 +28,8 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation.LooseEvaluationController"%>
 <%@page import="org.fenixedu.academic.domain.EvaluationSeason"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
+<%@page import="org.fenixedu.academic.domain.EnrolmentEvaluation"%>
+<%@page import="org.fenixedu.academic.domain.Enrolment"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -339,7 +341,7 @@ $(document).ready(function() {
 	                           				{
 	                           				"DT_RowId" : '<c:out value='${searchResult.externalId}'/>',
 	                           "code" : "<c:out value='${searchResult.enrolment.code}'/>",
-	                           "enrolment" : "<c:out value='${searchResult.enrolment.name.content}'/>",
+	                           "enrolment" : "<%=((EnrolmentEvaluation) pageContext.getAttribute("searchResult")).getEnrolment().getName().getContent().replace("'", " ").replace("\"", " ")%>",
 	                           "executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",
 	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
 	                           "examDate" : "<c:out value='${searchResult.examDateYearMonthDay}'/>",
@@ -357,7 +359,7 @@ $(document).ready(function() {
 		enrolment_options = [
 			<c:forEach items="${LooseEvaluationBean_enrolment_options}" var="element"> 
 				{
-					text : "${element.code} - ${element.name}",
+					text : "${element.code} - <%=((Enrolment) pageContext.getAttribute("element")).getName().getContent().replace("'", " ").replace("\"", " ")%>",
 					id : "${element.externalId}"
 				},
 			</c:forEach>
