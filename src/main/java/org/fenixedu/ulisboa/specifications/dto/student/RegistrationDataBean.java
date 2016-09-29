@@ -53,6 +53,10 @@ public class RegistrationDataBean implements Serializable {
         return getData() == null ? null : getData().getEnrolmentDate();
     }
 
+    public boolean isReingression() {
+        return getData() == null ? null : getData().getReingression();
+    }
+
     public StudentCurricularPlan getStudentCurricularPlan() {
         final Registration registration = getRegistration();
         return registration == null ? null : registration.getStudentCurricularPlan(getExecutionYear());
