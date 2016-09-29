@@ -70,11 +70,14 @@ public class RegistrationDataBean implements Serializable {
     }
 
     public String getSchoolClassPresentation() {
+        final String result = "";
+
         SchoolClass schoolClass = getSchoolClass();
-        if (schoolClass != null) {
-            return schoolClass.getNome();
+        if (schoolClass != null && schoolClass.getEditablePartOfName() != null) {
+            return schoolClass.getEditablePartOfName().toString();
         }
-        return null;
+
+        return result;
     }
 
     public String getCurricularYearPresentation() {
