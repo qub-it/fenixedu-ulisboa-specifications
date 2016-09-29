@@ -33,7 +33,11 @@
 <bean:define id="shiftID" name="shift" property="externalId" />
 
 <h2><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="title.manageShiftProfessorships" /> <small><c:out value="${shift.nome}" /></small></h2>
-<h3><c:out value="${shift.executionCourse.name}" /></h3>
+<h3>
+	<bean:define id="executionCourse" name="shift" property="executionCourse" type="org.fenixedu.academic.domain.ExecutionCourse" />
+	<%= org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices.getCode(executionCourse) %> - 
+	<c:out value="${shift.executionCourse.name}" />
+</h3>
 
 <logic:messagesPresent message="true" property="error">
 	<div class="alert alert-danger alert-dismissible" role="alert">

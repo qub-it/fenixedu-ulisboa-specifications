@@ -30,7 +30,9 @@
 
 <jsp:include page="/commons/contextClassAndExecutionDegreeAndCurricularYear.jsp" />
 
-<h2><bean:message key="link.manage.turmas"/> <span class="small"><c:out value="${executionDegree.executionDegree.degreeCurricularPlan.name}" /></span></h2>
+<h2><bean:message key="link.manage.turmas"/> 
+	<span class="small"><c:out value="[${executionDegree.executionDegree.degree.code}] ${executionDegree.executionDegree.presentationName}" /></span>
+</h2>
 
 <h3>Manipular Turma <span class="small"><c:out value="${schoolClass.nome}" /></span></h3>
 
@@ -161,7 +163,9 @@
 			<logic:notEqual name="numberOfLessons" value="0">
 	        	<td rowspan="<%= pageContext.findAttribute("numberOfLessons") %>">
 			</logic:notEqual>
-				<bean:write name="infoShift" property="infoDisciplinaExecucao.sigla"/>
+				<bean:define id="executionCourse" name="infoShift" property="shift.executionCourse" type="org.fenixedu.academic.domain.ExecutionCourse" />
+				<strong><%= org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices.getCode(executionCourse) %></strong> 
+				<bean:write name="infoShift" property="shift.executionCourse.name"/> (<bean:write name="infoShift" property="infoDisciplinaExecucao.sigla"/>)				
 			</td>
 			<logic:equal name="numberOfLessons" value="0">
 				<td>

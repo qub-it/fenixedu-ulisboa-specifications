@@ -18,6 +18,8 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.apache.commons.beanutils.BeanComparator"%>
+<%@page import="java.util.Collections"%>
 <%@ page language="java" %>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
@@ -31,7 +33,7 @@
 <jsp:include page="/commons/contextExecutionCourseAndExecutionDegreeAndCurricularYear.jsp" />
 
 <h2><bean:message key="link.manage.turnos"/> 
-	<span class="small"><c:out value="${context_selection_bean.executionDegree.degreeCurricularPlan.name} - ${context_selection_bean.curricularYear.year}º ano (${context_selection_bean.academicInterval.pathName})" /></span></h2>
+	<span class="small"><c:out value="[${context_selection_bean.executionDegree.degree.code}] ${context_selection_bean.executionDegree.presentationName} - ${context_selection_bean.curricularYear.year}º ano (${context_selection_bean.academicInterval.pathName})" /></span></h2>
 
 <jsp:include page="context.jsp"/>
 
@@ -59,11 +61,17 @@
 				<bean:message key="property.turno.disciplina"/>:
 			</th>
 			<td>
-				<bean:define id="executionCourseList" name="<%= PresentationConstants.EXECUTION_COURSE_LIST_KEY %>"/>
+				<bean:define id="executionCourseList" name="<%= PresentationConstants.EXECUTION_COURSE_LIST_KEY %>" type="java.util.List"/>
+				<% Collections.sort(executionCourseList, new org.apache.commons.beanutils.BeanComparator("executionCourse.nome")); %>
 				<html:select bundle="HTMLALT_RESOURCES" property="courseInitials" size="1" 
 					onchange="this.form.method.value='listExecutionCourseCourseLoads';this.form.submit();">
 					<html:option value=""><!-- w3c complient --></html:option>
-					<html:options property="sigla" labelProperty="nome" collection="executionCourseList"/>
+					<logic:iterate id="executionCourse" name="executionCourseList" type="org.fenixedu.academic.dto.InfoExecutionCourse">
+						<html:option value="<%= executionCourse.getSigla() %>">
+							<%= org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices.getCode(executionCourse.getExecutionCourse()) %>
+							 -  <bean:write name="executionCourse" property="nome"/>
+						</html:option>
+					</logic:iterate>
 				</html:select>
 			</td>
 		</tr>
