@@ -24,6 +24,7 @@ import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
@@ -344,8 +345,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     }
 
                     private void addPrecedentDegreeInformation(Registration registration) {
+                        final StudentCandidacy candidacy = registration.getStudentCandidacy();
                         final PrecedentDegreeInformation information =
-                                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                                candidacy == null ? null : candidacy.getPrecedentDegreeInformation();
 
                         if (information != null) {
                             addData("PrecedentDegreeInformation.institutionUnit", information.getInstitutionName());
