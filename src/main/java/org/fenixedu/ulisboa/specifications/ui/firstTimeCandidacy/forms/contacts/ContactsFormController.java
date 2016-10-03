@@ -197,8 +197,7 @@ public class ContactsFormController extends FormAbstractController {
         } else {
             phone = Phone.createPhone(person, form.getPhoneNumber(), PartyContactType.PERSONAL, true);
         }
-        phone.setValid();
-        phone.setDefaultContact(Boolean.TRUE);
+        setPartyContactValid(phone);
 
         MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
         if (mobilePhone != null) {
@@ -206,8 +205,7 @@ public class ContactsFormController extends FormAbstractController {
         } else {
             mobilePhone = MobilePhone.createMobilePhone(person, form.getMobileNumber(), PartyContactType.PERSONAL, true);
         }
-        mobilePhone.setValid();
-        mobilePhone.setDefaultContact(Boolean.TRUE);
+        setPartyContactValid(mobilePhone);
 
         EmailAddress email = getDefaultPersonalContact(person, EmailAddress.class);
         if (email != null) {
@@ -217,8 +215,7 @@ public class ContactsFormController extends FormAbstractController {
             email = EmailAddress.createEmailAddress(person, form.getPersonalEmail(), PartyContactType.PERSONAL, true);
             email.setVisibleToPublic(form.getIsEmailAvailable());
         }
-        email.setValid();
-        email.setDefaultContact(Boolean.TRUE);
+        setPartyContactValid(email);
 
         WebAddress homepage = getDefaultPersonalContact(person, WebAddress.class);
         if (homepage != null) {
@@ -230,9 +227,16 @@ public class ContactsFormController extends FormAbstractController {
                 homepage.setVisibleToPublic(form.getIsHomepageAvailable());
             }
         }
-        homepage.setValid();
+        setPartyContactValid(homepage);
 
         EmergencyContact.updateEmergencyContact(person.getProfile(), form.getEmergencyContact());
+    }
+
+    private void setPartyContactValid(PartyContact partyContact) {
+        if (partyContact != null) {
+            partyContact.setValid();
+            partyContact.setDefaultContact(Boolean.TRUE);
+        }
     }
 
     @Override
