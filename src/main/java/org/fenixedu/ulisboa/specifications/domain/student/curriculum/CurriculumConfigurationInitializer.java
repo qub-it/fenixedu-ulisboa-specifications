@@ -60,7 +60,7 @@ import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.Curricul
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataByExecutionYearServices;
+import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.joda.time.DateTime;
@@ -215,7 +215,7 @@ abstract public class CurriculumConfigurationInitializer {
         calculated.setJustification(justification);
 
         final Integer curricularYear =
-                RegistrationDataByExecutionYearServices.getOverridenCurricularYear(registration, executionYear);
+                RegistrationDataServices.getOverridenCurricularYear(registration, executionYear);
         if (curricularYear != null) {
             final CurricularYearResult overriden = new CurricularYearResult(executionYear);
             overriden.setResult(curricularYear);

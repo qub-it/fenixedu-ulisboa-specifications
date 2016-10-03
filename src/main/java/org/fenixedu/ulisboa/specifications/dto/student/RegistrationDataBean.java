@@ -17,6 +17,7 @@ import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
@@ -59,7 +60,11 @@ public class RegistrationDataBean implements Serializable {
 
     public StudentCurricularPlan getStudentCurricularPlan() {
         final Registration registration = getRegistration();
-        return registration == null ? null : registration.getStudentCurricularPlan(getExecutionYear());
+        final StudentCurricularPlan plan =
+                registration == null ? null : registration.getStudentCurricularPlan(getExecutionYear());
+
+        // better to return last than have a NPE
+        return plan == null ? registration.getLastStudentCurricularPlan() : plan;
     }
 
     private SchoolClass getSchoolClass() {
@@ -152,17 +157,28 @@ public class RegistrationDataBean implements Serializable {
         RegistrationStateType result = null;
 
         final Registration registration = getRegistration();
-        if (registration.isConcluded() && getExecutionYear().isAfterOrEquals(
-                new RegistrationConclusionBean(registration, registration.getLastStudentCurricularPlan().getRoot())
-                        .getConclusionYear())) {
+        if (registration.isConcluded() && getData() == RegistrationDataServices.getLastRegistrationData(registration)) {
+
+            // i've had enough
+            RegistrationConclusionBean bean = null;
+            try {
+                bean = new RegistrationConclusionBean(registration, registration.getLastStudentCurricularPlan().getRoot());
+            } catch (final Throwable t) {
+            }
+
             // ATTENTION: conclusion state year != conclusion year
-            result = RegistrationStateType.CONCLUDED;
-        } else {
+            if (bean != null && getExecutionYear().isAfterOrEquals(bean.getConclusionYear())) {
+                result = RegistrationStateType.CONCLUDED;
+            }
+        }
+
+        // what it should be in a perfect world
+        if (result == null) {
             final RegistrationState state = registration.getLastRegistrationState(getExecutionYear());
             result = state == null ? null : state.getStateType();
         }
 
-        return result == null ? null : result.getDescription();
+        return result == null ? "-" : result.getDescription();
     }
 
     public YearMonthDay getLastAcademicActDate() {

@@ -5,7 +5,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationDataByExecutionYearExtendedInformation;
 
-public class RegistrationDataByExecutionYearServices {
+public class RegistrationDataServices {
 
     static public void setCurricularYear(final RegistrationDataByExecutionYear registrationDataByExecutionYear,
             final Integer curricularYear) {
@@ -23,12 +23,12 @@ public class RegistrationDataByExecutionYearServices {
 
         final RegistrationDataByExecutionYear dataByExecutionYear;
         if (executionYear != null) {
-            dataByExecutionYear = getRegistrationDataByExecutionYear(registration, executionYear);
+            dataByExecutionYear = getRegistrationData(registration, executionYear);
         } else {
             dataByExecutionYear = null;
         }
 
-        final Integer curricularYear = RegistrationDataByExecutionYearServices.getCurricularYear(dataByExecutionYear);
+        final Integer curricularYear = getCurricularYear(dataByExecutionYear);
         if (curricularYear != null) {
             return curricularYear;
         }
@@ -36,14 +36,25 @@ public class RegistrationDataByExecutionYearServices {
         return null;
     }
 
-    static private RegistrationDataByExecutionYear getRegistrationDataByExecutionYear(Registration registration,
-            ExecutionYear year) {
-        for (RegistrationDataByExecutionYear registrationData : registration.getRegistrationDataByExecutionYearSet()) {
-            if (registrationData.getExecutionYear().equals(year)) {
-                return registrationData;
+    static public RegistrationDataByExecutionYear getRegistrationData(final Registration registration, final ExecutionYear year) {
+
+        for (final RegistrationDataByExecutionYear iter : registration.getRegistrationDataByExecutionYearSet()) {
+            if (iter.getExecutionYear() == year) {
+                return iter;
             }
         }
+
         return null;
+    }
+
+    static public RegistrationDataByExecutionYear getFirstRegistrationData(final Registration registration) {
+        return registration == null ? null : registration.getRegistrationDataByExecutionYearSet().stream()
+                .min((i, j) -> i.getExecutionYear().compareTo(j.getExecutionYear())).orElse(null);
+    }
+
+    static public RegistrationDataByExecutionYear getLastRegistrationData(final Registration registration) {
+        return registration == null ? null : registration.getRegistrationDataByExecutionYearSet().stream()
+                .max((i, j) -> i.getExecutionYear().compareTo(j.getExecutionYear())).orElse(null);
     }
 
 }
