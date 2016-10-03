@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.dto.student.IStudentCurricularPlanBean;
 import org.fenixedu.academic.ui.renderers.providers.ExecutionPeriodsForDismissalsStudentCurricularPlanProvider;
 import org.fenixedu.academic.ui.renderers.providers.ExecutionPeriodsForStudentCurricularPlanProvider;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Sets;
@@ -63,7 +64,7 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
     public Object provide(Object source, Object currentValue) {
 
         final StudentCurricularPlan studentCurricularPlan = ((IStudentCurricularPlanBean) source).getStudentCurricularPlan();
-        final LocalDate beginDate = new LocalDate(studentCurricularPlan.getStartDateYearMonthDay());
+        final LocalDate beginDate = new LocalDate(getFirstExecutionYear(studentCurricularPlan).getBeginDateYearMonthDay());
         final LocalDate endDate = new LocalDate(getLastExecutionYear(studentCurricularPlan).getEndDateYearMonthDay());
 
         final SortedSet<ExecutionSemester> result = new TreeSet<ExecutionSemester>(Collections.reverseOrder());
@@ -72,18 +73,38 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
         return result;
     }
 
+    static private ExecutionYear getFirstExecutionYear(final StudentCurricularPlan plan) {
+        final SortedSet<ExecutionYear> result = Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_YEAR);
+
+        // should be enough, if it wasn't for wrong data
+        result.add(ExecutionYear.readByDateTime(new DateTime(plan.getStartDateYearMonthDay().getChronology())));
+
+        // whatever the case, the SCP lines must be able to be accessible
+        final ExecutionSemester firstSemester = plan.getFirstExecutionPeriod();
+        final ExecutionYear firstScpYear = firstSemester == null ? null : firstSemester.getExecutionYear();
+        if (firstScpYear != null) {
+            result.add(firstScpYear);
+        }
+
+        return result.first();
+    }
+
     static private ExecutionYear getLastExecutionYear(final StudentCurricularPlan plan) {
         final SortedSet<ExecutionYear> result = Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_YEAR);
 
-        final ExecutionYear lastScpExecutionYear = plan.getLastExecutionYear();
-        if (lastScpExecutionYear != null) {
-            result.add(lastScpExecutionYear);
+        // whatever the case, the SCP lines must be able to be accessible 
+        final ExecutionYear lastScpYear = plan.getLastExecutionYear();
+        if (lastScpYear != null) {
+            result.add(lastScpYear);
         }
 
+        // inspect DCP executions
         final DegreeCurricularPlan dcp = plan.getDegreeCurricularPlan();
         if (!dcp.getExecutionDegreesSet().isEmpty()) {
             result.add(dcp.getLastExecutionYear());
         }
+
+        // inspect DCP definition
         result.addAll(getEndContextExecutionYears(dcp.getRoot()));
 
         return result.last();
