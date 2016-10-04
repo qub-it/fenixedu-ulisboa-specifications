@@ -22,10 +22,12 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
@@ -33,6 +35,8 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
@@ -48,9 +52,52 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
+import pt.ist.fenixframework.dml.runtime.RelationAdapter;
+
 public class RegistrationServices {
 
     static final private Logger logger = LoggerFactory.getLogger(RegistrationServices.class);
+
+    static private RelationAdapter<DegreeModule, CurriculumModule> CREDITS_CREATION_DISABLE_ACCUMULATED =
+            new RelationAdapter<DegreeModule, CurriculumModule>() {
+
+                @Override
+                public void afterAdd(final DegreeModule degreeModule, final CurriculumModule curriculumModule) {
+                    if (degreeModule == null || curriculumModule == null) {
+                        return;
+                    }
+
+                    if (!(curriculumModule instanceof Dismissal)) {
+                        return;
+                    }
+
+                    final Dismissal dismissal = (Dismissal) curriculumModule;
+                    final StudentCurricularPlan plan = dismissal.getStudentCurricularPlan();
+                    final Registration registration = plan.getRegistration();
+
+                    if (!isCurriculumAccumulated(registration)) {
+                        return;
+                    }
+
+                    //  hasIntertwinedCredits
+                    for (final IEnrolment iEnrolment : dismissal.getSourceIEnrolments()) {
+                        if (iEnrolment instanceof Enrolment) {
+                            final Enrolment enrolment = (Enrolment) iEnrolment;
+                            if (!CurriculumLineServices.isExcludedFromCurriculum(enrolment)) {
+
+                                if (plan != enrolment.getStudentCurricularPlan()) {
+                                    setCurriculumAccumulated(registration, false);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+    static {
+        Dismissal.getRelationDegreeModuleCurriculumModule().addListener(CREDITS_CREATION_DISABLE_ACCUMULATED);
+    }
 
     static final private Cache<String, ICurriculum> CURRICULUMS =
             CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(1, TimeUnit.MINUTES).build();
