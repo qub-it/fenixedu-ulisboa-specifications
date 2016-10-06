@@ -247,8 +247,8 @@ function load()
         var value_studentCPID = <%=RegistrationServices.isCurriculumAccumulated(registration) ? "-1" : "-2"%>;
         $("#select_studentCPID > option[value='" + value_studentCPID + "']").attr('selected','selected');
 
-        //var var2="ENROLED";
-        //$("input[type='radio'][name='select'][value='" + var2 + "']").attr('checked','checked');
+        var radio_enrolmentStateType="APPROVED_OR_ENROLED";
+        $("input[type='radio'][name='select'][value='" + radio_enrolmentStateType + "']").attr('checked','checked');
     } 
     else 
     {
