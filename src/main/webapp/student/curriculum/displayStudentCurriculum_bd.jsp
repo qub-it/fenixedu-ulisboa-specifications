@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <%@page import="org.fenixedu.academic.domain.StudentCurricularPlan"%>
 <%@page import="org.apache.commons.collections.comparators.ReverseComparator"%>
 <%@page import="java.util.Comparator"%>
@@ -133,7 +134,7 @@
 		<tr>
 			<th style="vertical-align: middle;"><bean:message key="label.studentCurricularPlan.basic" bundle="STUDENT_RESOURCES" /></th>
 			<td colspan="4">
-				<html:select bundle="HTMLALT_RESOURCES" property="studentCPID" onchange='this.form.submit();'>
+				<html:select styleId="select_studentCPID" bundle="HTMLALT_RESOURCES" property="studentCPID" onchange='this.form.submit();'>
 					<%-- qubExtension --%>
                     <html:option value="-1" key="label.all" bundle="APPLICATION_RESOURCES" />
                     <html:option value="-2" key="label.recent" bundle="APPLICATION_RESOURCES" />
@@ -243,11 +244,15 @@ function load()
 {
     if (document.referrer.indexOf("viewStudentCurriculum") < 0) 
     {
-        // TODO legidio
+        var value_studentCPID = <%=RegistrationServices.isCurriculumAccumulated(registration) ? "-1" : "-2"%>;
+        $("#select_studentCPID > option[value='" + value_studentCPID + "']").attr('selected','selected');
+
+        //var var2="ENROLED";
+        //$("input[type='radio'][name='select'][value='" + var2 + "']").attr('checked','checked');
     } 
     else 
     {
-        var scrollToElement = $("[class='mvert3']").first();
+        var scrollToElement = $("#select_studentCPID").first();
         $(window).scrollTop( scrollToElement.offset().top);
     }
 }
