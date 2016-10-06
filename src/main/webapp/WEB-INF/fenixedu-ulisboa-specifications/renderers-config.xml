@@ -71,5 +71,10 @@ Documentation:
     	type="org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentBean" 
     	layout="bolonha-student-optional-enrolments-extended" 
     	class="org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.OptionalEnrolmentRenderer"/>
-    
+
+    <renderer
+        mode="input" 
+        type="org.fenixedu.academic.domain.StudentCurricularPlan" 
+        class="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer"/>    
+
 </renderers-config>

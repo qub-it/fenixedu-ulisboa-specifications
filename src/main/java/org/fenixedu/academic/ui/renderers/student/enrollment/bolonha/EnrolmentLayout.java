@@ -288,7 +288,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    private void addCreditsDistributionMessage(final CurriculumGroup group, final ExecutionSemester semester,
+    static public void addCreditsDistributionMessage(final CurriculumGroup group, final ExecutionSemester semester,
             final StringBuilder result) {
 
         final Double approved = group.getAprovedEctsCredits();
@@ -303,7 +303,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    private boolean hasMinimumCredits(final CurriculumGroup group, final ExecutionSemester semester) {
+    static public boolean hasMinimumCredits(final CurriculumGroup group, final ExecutionSemester semester) {
         final CreditsLimit creditsRule =
                 (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, semester);
         return creditsRule != null && creditsRule.getMinimumCredits().doubleValue() > 0d
@@ -313,7 +313,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    private void addCreditsConcluded(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
+    static public void addCreditsConcluded(final CurriculumGroup group, final ExecutionSemester semester,
+            final StringBuilder result) {
         final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
 
         result.append(" <span title=\"");
@@ -325,7 +326,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    private void addEnroledEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
+    static public void addEnroledEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
         final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
 
         result.append(", <span title=\"");
@@ -337,7 +338,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    private void addSumEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
+    static public void addSumEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
         final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
 
         final BigDecimal total = CurriculumModuleServices.getCreditsConcluded(group, interval)
@@ -722,7 +723,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return isStudentLogged(getBolonhaStudentEnrollmentBean().getStudentCurricularPlan());
     }
 
-    private boolean isStudentLogged(final StudentCurricularPlan studentCurricularPlan) {
+    static public boolean isStudentLogged(final StudentCurricularPlan studentCurricularPlan) {
         return Authenticate.getUser().getPerson() == studentCurricularPlan.getPerson();
     }
 
