@@ -27,6 +27,7 @@ package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -240,7 +241,8 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateRowsForExecutionYearsOrganization(HtmlTable mainTable) {
-        final Map<ExecutionSemester, Set<CurriculumLine>> collected = Maps.newTreeMap();
+        final Map<ExecutionSemester, Set<CurriculumLine>> collected =
+                Maps.newTreeMap(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed());
 
         for (final CurriculumLine iter : getPlan().getAllCurriculumLines()) {
             ExecutionSemester executionInterval = null;
@@ -290,7 +292,7 @@ public class StudentCurricularPlanLayout extends Layout {
      * qubExtension, Curricular Years organization
      */
     protected void generateRowsForCurricularYearsOrganization(final HtmlTable mainTable) {
-        final Map<String, Set<CurriculumLine>> collected = Maps.newTreeMap();
+        final Map<String, Set<CurriculumLine>> collected = Maps.newTreeMap(Collections.reverseOrder());
 
         for (final CurriculumLine iter : getPlan().getAllCurriculumLines()) {
             String curricularPeriodLabel = null;
