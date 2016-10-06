@@ -191,8 +191,11 @@ public class RegistrationHistoryReport {
 
     public boolean hasImprovementEvaluations() {
 
-        final Predicate<Enrolment> improvementEvaluationForYear = e -> e.getEvaluationsSet().stream().anyMatch(
-                ev -> ev.getEvaluationSeason().isImprovement() && ev.getExecutionPeriod().getExecutionYear() == executionYear);
+        final Predicate<Enrolment> improvementEvaluationForYear =
+                e -> e.getEvaluationsSet().stream()
+                        .anyMatch(ev -> ev.getEvaluationSeason() != null && ev.getEvaluationSeason().isImprovement()
+                                && ev.getExecutionPeriod() != null
+                                && ev.getExecutionPeriod().getExecutionYear() == executionYear);
 
         return getRegistration().getStudentCurricularPlansSet().stream()
                 .anyMatch(scp -> scp.getEnrolmentsSet().stream().anyMatch(improvementEvaluationForYear));
