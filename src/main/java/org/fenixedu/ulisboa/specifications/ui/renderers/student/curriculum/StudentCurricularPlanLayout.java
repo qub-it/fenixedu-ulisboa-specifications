@@ -364,8 +364,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
         final HtmlComponent body;
         if (curriculumGroup != null && curriculumGroup.isRoot()) {
-            body = createDegreeCurricularPlanNameLink(text, curriculumGroup.getDegreeCurricularPlanOfDegreeModule(),
-                    executionPeriodContext);
+            body = createDegreeCurricularPlanNameLink(curriculumGroup.getDegreeCurricularPlanOfDegreeModule(),
+                    executionPeriodContext, text, true);
         } else {
             body = new HtmlText(createGroupName(text, curriculumGroup).toString(), false);
         }
@@ -1148,30 +1148,31 @@ public class StudentCurricularPlanLayout extends Layout {
             final HtmlTableCell cell = enrolmentRow.createCell();
             cell.setClasses(renderer.getDegreeCurricularPlanCellClass());
             final DegreeCurricularPlan plan = enrolment.getDegreeCurricularPlanOfDegreeModule();
-            cell.setBody(createDegreeCurricularPlanNameLink(plan.getName(), plan, enrolment.getExecutionPeriod()));
+            cell.setBody(createDegreeCurricularPlanNameLink(plan, enrolment.getExecutionPeriod(), plan.getName(), false));
         }
 
     }
 
-    protected HtmlComponent createDegreeCurricularPlanNameLink(final String text, final DegreeCurricularPlan degreeCurricularPlan,
-            ExecutionSemester executionSemester) {
-        if (degreeCurricularPlan.isPast() || degreeCurricularPlan.isEmpty()) {
-            return new HtmlText(degreeCurricularPlan.getName());
-        }
+    protected HtmlComponent createDegreeCurricularPlanNameLink(final DegreeCurricularPlan degreeCurricularPlan,
+            ExecutionSemester executionSemester, final String text, final boolean bold) {
+
+        HtmlComponent result = new HtmlText(text);
 
         final String siteUrl = degreeCurricularPlan.getDegree().getSiteUrl();
-
-        if (Strings.isNullOrEmpty(siteUrl)) {
-            return new HtmlText(text);
-        } else {
-            final HtmlLink result = new HtmlLink();
-            result.setText(text);
-            result.setModuleRelative(false);
-            result.setContextRelative(false);
-            result.setTarget("_blank");
-            result.setUrl(siteUrl);
-            return result;
+        if (!Strings.isNullOrEmpty(siteUrl)) {
+            result = new HtmlLink();
+            ((HtmlLink) result).setText(text);
+            ((HtmlLink) result).setModuleRelative(false);
+            ((HtmlLink) result).setContextRelative(false);
+            ((HtmlLink) result).setTarget("_blank");
+            ((HtmlLink) result).setUrl(siteUrl);
         }
+
+        if (bold) {
+            result.setStyle("font-weight: bold !important; color: #4b565c;");
+        }
+
+        return result;
     }
 
     protected void generateCurricularCourseCodeAndNameCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment,
