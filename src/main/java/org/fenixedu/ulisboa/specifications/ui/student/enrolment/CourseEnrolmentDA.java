@@ -187,13 +187,16 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
             request.setAttribute("openedEnrolmentPeriods", periods);
         }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(scp.getPerson(), new LocalDate())) {
-            request.setAttribute("debtsMessage",
-                    "error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
+        if (scp != null) {
+            if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(scp.getPerson(), new LocalDate())) {
+                request.setAttribute("debtsMessage",
+                        "error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
+            }
+
+            request.setAttribute("registration", scp.getRegistration());
         }
 
         request.setAttribute("enrolmentProcess", process);
-        request.setAttribute("registration", scp.getRegistration());
         request.setAttribute("action", getAction());
         return process;
     }
