@@ -8,6 +8,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -20,9 +21,13 @@ import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class RegistrationDataBean implements Serializable {
+
+    static final private Logger logger = LoggerFactory.getLogger(RegistrationDataBean.class);
 
     private RegistrationDataByExecutionYear data;
 
@@ -159,13 +164,15 @@ public class RegistrationDataBean implements Serializable {
         final Registration registration = getRegistration();
         if (registration.isConcluded() && getData() == RegistrationDataServices.getLastRegistrationData(registration)) {
 
-            // i've had enough
             ExecutionYear conclusionYear = null;
             try {
-                RegistrationConclusionBean bean =
-                        new RegistrationConclusionBean(registration, registration.getLastStudentCurricularPlan().getRoot());
-                conclusionYear = bean.getConclusionYear();
+
+                final ProgramConclusion programConclusion =
+                        ProgramConclusion.conclusionsFor(getRegistration()).filter(i -> i.isTerminal()).findFirst().get();
+
+                conclusionYear = new RegistrationConclusionBean(registration, programConclusion).getConclusionYear();
             } catch (final Throwable t) {
+                logger.error("Error trying to determine ConclusionYear: {}#{}", getData().toString(), t.getMessage());
             }
 
             // ATTENTION: conclusion state year != conclusion year
