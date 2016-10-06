@@ -210,7 +210,7 @@
         final List<StudentCurricularPlan> plans = (List<StudentCurricularPlan>) request.getAttribute("selectedStudentCurricularPlans");
         Collections.sort(plans, new ReverseComparator(StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE));
         %>
-                
+        
     	<logic:iterate id="studentCurricularPlan" name="selectedStudentCurricularPlans" indexId="index">
     		
 			<div class="mvert3"></div>
@@ -244,6 +244,11 @@ function load()
     if (document.referrer.indexOf("viewStudentCurriculum") < 0) 
     {
         // TODO legidio
+    } 
+    else 
+    {
+        var scrollToElement = $("[class='mvert3']").first();
+        $(window).scrollTop( scrollToElement.offset().top);
     }
 }
 window.onload = load();
