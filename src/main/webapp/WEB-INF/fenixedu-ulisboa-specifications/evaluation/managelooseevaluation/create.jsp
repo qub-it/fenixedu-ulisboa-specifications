@@ -345,7 +345,7 @@ $(document).ready(function() {
 	                           "executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",
 	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
 	                           "examDate" : "<c:out value='${searchResult.examDateYearMonthDay}'/>",
-	                           "grade" : "<c:out value='${searchResult.gradeValue}'/>",
+	                           "grade" : "<c:out value='${searchResult.grade.value}'/> <span class='color888 smalltxt'>(<span class='smalltxt'><c:out value='${searchResult.grade.extendedValue.content}' />, </span><c:out value='${searchResult.grade.gradeScale.description}' />)</span>",
 	                           "improvementSemester" : "<c:out value='${searchResult.executionPeriod.qualifiedName}'/>",
 	                           "actions" :
 	                           " <a  class=\"btn btn-xs btn-danger\" href=\"#\" onClick=\"javascript:processDelete('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span>&nbsp;<spring:message code='label.delete'/></a>" +

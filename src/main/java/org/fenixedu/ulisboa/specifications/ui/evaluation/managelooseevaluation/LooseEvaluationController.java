@@ -44,8 +44,10 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -65,6 +67,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
@@ -152,8 +155,10 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         try {
 
-            if (!checkIfAllGradesAreSameScale(enrolment, gradeScale)) {
-                addErrorMessage(ULisboaSpecificationsUtil.bundle("error.LooseEvaluationBean.grade.not.same.scale"), model);
+            final List<String> others = checkIfAllGradesAreSameScale(enrolment, gradeScale);
+            if (!others.isEmpty()) {
+                addErrorMessage(ULisboaSpecificationsUtil.bundle("error.LooseEvaluationBean.grade.not.same.scale",
+                        others.stream().collect(Collectors.joining(", "))), model);
                 return create(studentCurricularPlan, executionSemester, model);
             }
 
@@ -161,15 +166,28 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
             return redirect(CREATE_URL + studentCurricularPlan.getExternalId() + "/" + executionSemester.getExternalId(), model,
                     redirectAttributes);
         } catch (final DomainException e) {
-            addErrorMessage(e.getLocalizedMessage(), model);
+            addErrorMessage(e, model);
             return create(studentCurricularPlan, executionSemester, model);
         }
     }
 
-    private boolean checkIfAllGradesAreSameScale(Enrolment enrolment, GradeScale gradeScale) {
-        boolean result = true;
-        for (final EnrolmentEvaluation enrolmentEvaluation : enrolment.getEvaluationsSet()) {
-            result &= enrolmentEvaluation.getGradeScale() == gradeScale;
+    private void addErrorMessage(final DomainException e, final Model model) {
+        if (!e.getLocalizedMessage().startsWith("!")) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+        } else {
+            addErrorMessage(BundleUtil.getString(Bundle.ACADEMIC, e.getKey()), model);
+        }
+    }
+
+    static private List<String> checkIfAllGradesAreSameScale(final Enrolment enrolment, final GradeScale gradeScale) {
+        final List<String> result = Lists.newArrayList();
+
+        for (final EnrolmentEvaluation iter : enrolment.getEvaluationsSet()) {
+            final GradeScale other = iter.getGrade().getGradeScale();
+
+            if (!iter.getGrade().isEmpty() && other != gradeScale) {
+                result.add(other.getDescription());
+            }
         }
 
         return result;
@@ -202,7 +220,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         try {
             deleteLooseEvaluation(enrolmentEvaluation);
         } catch (final DomainException e) {
-            addErrorMessage(e.getLocalizedMessage(), model);
+            addErrorMessage(e, model);
         }
 
         return redirect(CREATE_URL + studentCurricularPlan.getExternalId() + "/" + executionSemester.getExternalId(), model,
