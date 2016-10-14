@@ -214,17 +214,16 @@ abstract public class CurriculumConfigurationInitializer {
         }
         calculated.setJustification(justification);
 
-        final Integer curricularYear =
-                RegistrationDataServices.getOverridenCurricularYear(registration, executionYear);
+        final Integer curricularYear = RegistrationDataServices.getOverridenCurricularYear(registration, executionYear);
         if (curricularYear != null) {
             final CurricularYearResult overriden = new CurricularYearResult(executionYear);
             overriden.setResult(curricularYear);
 
-            overriden.setJustification(RuleResult.createFalseWithLiteralMessage(
-                    curriculum.getCurriculumModule().getDegreeModule(),
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE, "label.curricularYear.overriden",
-                            String.valueOf(overriden.getResult()), String.valueOf(calculated.getResult()),
-                            CurricularPeriodRule.getMessages(calculated.getJustification()))));
+            overriden
+                    .setJustification(RuleResult.createFalseWithLiteralMessage(curriculum.getCurriculumModule().getDegreeModule(),
+                            BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                                    "label.curricularYear.overriden", String.valueOf(overriden.getResult()),
+                                    String.valueOf(calculated.getResult()), calculated.getJustificationPresentation())));
             logger.debug("[REG][{}][CURRICULAR_YEAR][OVERRIDEN][{}]", registration.getNumber(),
                     String.valueOf(overriden.getResult()));
             return overriden;
@@ -275,6 +274,10 @@ abstract public class CurriculumConfigurationInitializer {
 
         private void setJustification(final RuleResult justification) {
             this.justification = justification;
+        }
+
+        public String getJustificationPresentation() {
+            return CurricularPeriodRule.getMessages(this.justification).replace("Aluno do", "Falhou");
         }
 
         public ExecutionYear getExecutionYear() {

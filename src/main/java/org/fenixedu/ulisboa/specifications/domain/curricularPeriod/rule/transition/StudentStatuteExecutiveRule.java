@@ -73,12 +73,8 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
             }
         }
 
-        return createFalseLabelled(getMessagesSuffix(executionYear));
-    }
-
-    static private String getMessagesSuffix(final ExecutionYear executionYear) {
-        return executionYear == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE,
-                "label." + StudentStatuteExecutiveRule.class.getSimpleName() + ".suffix", executionYear.getQualifiedName()));
+        return createFalseLabelled(
+                getMessagesSuffix("label." + this.getClass().getSimpleName() + ".suffix", executionYear.getQualifiedName()));
     }
 
 }

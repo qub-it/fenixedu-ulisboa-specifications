@@ -28,14 +28,12 @@ package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
-import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AbstractCurricularRuleExecutorLogic;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -126,7 +124,8 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     }
 
     public RuleResult createFalseLabelled(final BigDecimal suffix) {
-        return createFalseLabelled(getMessagesSuffix(suffix));
+        return suffix == null ? createFalseLabelled() : createFalseLabelled(
+                getMessagesSuffix("label.CurricularPeriodRule.suffix", suffix.toPlainString()));
     }
 
     public RuleResult createFalseLabelled() {
@@ -136,11 +135,6 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
     public RuleResult createFalseLabelled(final String suffix) {
         final String literalMessage = getMessagesPrefix() + getLabel() + suffix;
         return RuleResult.createFalseWithLiteralMessage(getDegreeModule(), literalMessage);
-    }
-
-    public RuleResult createWarningLabelled(final BigDecimal suffix) {
-        final String literalMessage = getMessagesPrefix() + getLabel() + getMessagesSuffix(suffix);
-        return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
     }
 
     public RuleResult createNA() {
@@ -173,9 +167,8 @@ abstract public class CurricularPeriodRule extends CurricularPeriodRule_Base {
                 "label.CurricularPeriodRule.prefix", configuration.getCurricularPeriod().getFullLabel()) + " ");
     }
 
-    static private String getMessagesSuffix(final BigDecimal total) {
-        return total == null ? "" : (" "
-                + BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.suffix", total.toString()));
+    protected String getMessagesSuffix(final String key, final String... args) {
+        return args == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE, key, args));
     }
 
     protected Set<CurricularPeriod> getCurricularPeriodsConfigured(final int yearMin, final int yearMax,

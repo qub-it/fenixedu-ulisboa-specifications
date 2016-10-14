@@ -122,9 +122,9 @@ public class FlunkedCredits extends FlunkedCredits_Base {
         return FLUNKED_CREDITS_BY_YEAR.divide(BigDecimal.valueOf(getSemester() == null ? 1 : 2));
     }
 
-    static private String getMessagesSuffix(final StatuteType input) {
-        return input == null ? "" : (" " + BundleUtil.getString(MODULE_BUNDLE,
-                "label." + FlunkedCredits.class.getSimpleName() + ".suffix", input.getName().getContent()));
+    private String getMessagesSuffix(final StatuteType input) {
+        return input == null ? "" : getMessagesSuffix("label." + this.getClass().getSimpleName() + ".suffix",
+                input.getName().getContent());
     }
 
 }

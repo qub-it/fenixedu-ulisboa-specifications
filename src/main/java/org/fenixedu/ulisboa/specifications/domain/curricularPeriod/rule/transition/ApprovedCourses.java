@@ -51,7 +51,17 @@ public class ApprovedCourses extends ApprovedCourses_Base {
 
     @Override
     public String getLabel() {
-        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getApprovals().toString());
+
+        final String approvals = getApprovals().toString();
+
+        if (getSemester() != null) {
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester",
+                    approvals.toString(), getSemester().toString());
+
+        } else {
+
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), approvals);
+        }
     }
 
     @Override
@@ -61,8 +71,10 @@ public class ApprovedCourses extends ApprovedCourses_Base {
         final Predicate<ICurriculumEntry> previousYears = i -> CurricularPeriodServices
                 .getCurricularYear((CurriculumLine) i) < getConfiguration().getCurricularPeriod().getChildOrder().intValue();
 
-        return BigDecimal.valueOf(curriculum.getCurricularYearEntries().stream().filter(previousYears).count())
-                .compareTo(getApprovals()) >= 0 ? createTrue() : createFalseLabelled(getApprovals());
+        final BigDecimal total = BigDecimal.valueOf(curriculum.getCurricularYearEntries().stream().filter(previousYears).count());
+
+        return total.compareTo(getApprovals()) >= 0 ? createTrue() : createFalseLabelled(
+                getMessagesSuffix("label." + this.getClass().getSimpleName() + ".suffix", total.toPlainString()));
     }
 
 }
