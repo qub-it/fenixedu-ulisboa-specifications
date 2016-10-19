@@ -204,7 +204,11 @@ public abstract class OriginInformationFormController extends FirstTimeCandidacy
                 }
 
             } else {
-                degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
+                try {
+                    degreeDesignation = DegreeDesignation.readByNameAndSchoolLevel(degreeDesignationName, form.getSchoolLevel());
+                } catch (Exception e) {
+                    degreeDesignation = null;
+                }
                 form.setRaidesDegreeDesignation(degreeDesignation);
             }
         } else {
