@@ -22,6 +22,9 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.StudentDataShareAuthorization;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -55,7 +58,7 @@ public class RegistrationHistoryReport {
     private BigDecimal executionYearSimpleAverage;
 
     private BigDecimal executionYearWeightedAverage;
-
+    
     public RegistrationHistoryReport(final Registration registration, final ExecutionYear executionYear) {
         this.executionYear = executionYear;
         this.registration = registration;
@@ -278,4 +281,29 @@ public class RegistrationHistoryReport {
         return getRegistration().getRegistrationYear() == executionYear;
     }
 
+    public boolean isTuitionCharged() {
+        final ITreasuryBridgeAPI treasuryBridgeAPI = TreasuryBridgeAPIFactory.implementation();
+        if(treasuryBridgeAPI == null) {
+            return false;
+        }
+        
+        final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
+
+        return event != null && event.isWithDebitEntry();
+    }
+    
+    public BigDecimal getTuitionAmount() {
+        final ITreasuryBridgeAPI treasuryBridgeAPI = TreasuryBridgeAPIFactory.implementation();
+        if(treasuryBridgeAPI == null) {
+            return BigDecimal.ZERO;
+        }
+        
+        final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
+        
+        if(event == null) {
+            return BigDecimal.ZERO;
+        }
+        
+        return event.getAmountToPay();
+    }
 }

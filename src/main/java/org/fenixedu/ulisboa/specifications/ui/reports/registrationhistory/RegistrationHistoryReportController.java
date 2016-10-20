@@ -281,6 +281,12 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         addConclusionData(report);
 
+                        addTuitionAndAcademicTaxData(report);
+                    }
+
+                    private void addTuitionAndAcademicTaxData(final RegistrationHistoryReport report) {
+                        addData("RegistrationHistoryReport.tuitionCharged", booleanString(report.isTuitionCharged()));
+                        addData("RegistrationHistoryReport.tuitionAmount", report.getTuitionAmount().toPlainString());
                     }
 
                     private void addConclusionData(RegistrationHistoryReport report) {
