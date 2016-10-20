@@ -60,6 +60,9 @@ public class ULisboaConfiguration {
                 defaultValue = "org.fenixedu.ulisboa.specifications.service.cas.DefaultTicketValidationStrategy")
         public String getCasLoginStrategy();
 
+        @ConfigurationProperty(key = "executionCourse.more.funcs", defaultValue = "false")
+        public Boolean getShowAllExecutionCourseFuncs();
+
     }
 
     public static ConfigurationProperties getConfiguration() {

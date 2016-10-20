@@ -39,4 +39,9 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
         Boolean qualityMode = ULisboaConfiguration.getConfiguration().isQualityMode();
         return qualityMode != null ? qualityMode : false;
     }
+
+    public boolean getShowAllExecutionCourseFuncs() {
+        Boolean showFuncs = ULisboaConfiguration.getConfiguration().getShowAllExecutionCourseFuncs();
+        return showFuncs != null ? showFuncs : false;
+    }
 }
