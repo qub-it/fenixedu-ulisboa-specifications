@@ -50,7 +50,8 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
     protected RuleResult executeEnrolmentVerificationWithRules(ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
 
-        if (!canApplyRule(enrolmentContext, curricularRule) || !sourceDegreeModuleToEvaluate.isLeaf()
+        if (sourceDegreeModuleToEvaluate.isEnroled() || !canApplyRule(enrolmentContext, curricularRule)
+                || !sourceDegreeModuleToEvaluate.isLeaf()
                 || sourceDegreeModuleToEvaluate.getExecutionPeriod() != enrolmentContext.getExecutionPeriod()) {
             return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
