@@ -39,9 +39,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.District;
+import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
@@ -49,7 +52,9 @@ import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
@@ -421,29 +426,64 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     private RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
+        String executionYear = studentCandidacy.getExecutionYear().getQualifiedName();
         Person person = studentCandidacy.getPerson();
+        String degreeTypeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeTypeName();
         String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
+        String degreeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getNameI18N().getContent();
         String documentIdNumber = person.getDocumentIdNumber();
         String candidacyState = BundleUtil.getString("resources/EnumerationResources",
                 studentCandidacy.getActiveCandidacySituationType().getQualifiedName());
         String name = person.getName();
         String registrationStatus = "";
         if (studentCandidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
-            registrationStatus = "Sim";
+            registrationStatus = BundleUtil.getString(BUNDLE, "label.true");
         } else {
-            registrationStatus = "Não";
+            registrationStatus = BundleUtil.getString(BUNDLE, "label.false");
         }
 
         Country nat = person.getCountry();
         String nationality = "";
         if (nat != null) {
-            nationality = nat.getLocalizedName().getContent();
+            nationality = nat.getCountryNationality().getContent();
         }
         String secondNationality = "";
+        String birthYear = "";
+        if (person.getDateOfBirthYearMonthDay() != null) {
+            birthYear += person.getDateOfBirthYearMonthDay().toString("yyyy");
+        }
+
+        Country cOfBirth = person.getCountryOfBirth();
+        String countryOfBirth = "";
+        String districtOfBirth = "";
+        String districtSubdivisionOfBirth = "";
+        String parishOfBirth = "";
+        if (cOfBirth != null) {
+            countryOfBirth = cOfBirth.getLocalizedName().getContent();
+            if (cOfBirth.isDefaultCountry()) {
+                districtOfBirth = person.getDistrictOfBirth();
+                districtSubdivisionOfBirth = person.getDistrictSubdivisionOfBirth();
+                parishOfBirth = person.getParishOfBirth();
+            }
+        }
+
+        String countryOfResidence = "";
+        String districtOfResidence = "";
+        String districtSubdivisionOfResidence = "";
+        String parishOfResidence = "";
+        if (person.getDefaultPhysicalAddress() != null) {
+            countryOfResidence = person.getDefaultPhysicalAddress().getCountryOfResidenceName();
+            districtOfResidence = person.getDefaultPhysicalAddress().getDistrictOfResidence();
+            districtSubdivisionOfResidence = person.getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence();
+            parishOfResidence = person.getDefaultPhysicalAddress().getParishOfResidence();
+        }
+
+        String gender = person.getGender().getLocalizedName();
         String ingressionType = ((FirstTimeCandidacy) studentCandidacy).getIngressionType().getLocalizedName();
         Integer placingOption = ((FirstTimeCandidacy) studentCandidacy).getPlacingOption();
         String firstOptionDegree = "";
         String firstOptionInstitution = "";
+        String isDislocated = "";
         String dislocatedResidenceType = "";
         String profession = person.getProfession();
         String professionTimeType = "";
@@ -498,11 +538,19 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
             if (personUl.getSecondNationality() != null) {
-                secondNationality = personUl.getSecondNationality().getLocalizedName().getContent();
+                secondNationality = personUl.getSecondNationality().getCountryNationality().getContent();
             }
+
             if (personUl.getDislocatedResidenceType() != null) {
                 dislocatedResidenceType = personUl.getDislocatedResidenceType().getLocalizedName();
+                if (personUl.getDislocatedResidenceType().isOther()) {
+                    dislocatedResidenceType = personUl.getOtherDislocatedResidenceType();
+                }
+                isDislocated = BundleUtil.getString(BUNDLE, "label.true");
+            } else {
+                isDislocated = BundleUtil.getString(BUNDLE, "label.false");
             }
+
             if (personUl.getProfessionTimeType() != null) {
                 professionTimeType = personUl.getProfessionTimeType().getLocalizedName();
             }
@@ -525,6 +573,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
                 needsDisabilitySupport = BundleUtil.getString("resources/FenixeduUlisboaSpecificationsResources",
                         "label." + personUl.getNeedsDisabilitySupport().toString());
+            } else {
+                disabilityType = BundleUtil.getString(BUNDLE, "label.false");
+                needsDisabilitySupport = BundleUtil.getString(BUNDLE, "label.false");
             }
 
             for (UniversityDiscoveryMeansAnswer universityDiscovery : personUl.getUniversityDiscoveryMeansAnswersSet()) {
@@ -542,12 +593,57 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             }
         }
 
-        return new RegistrationDGESStateBean(studentCandidacy.getExternalId(), degreeCode, documentIdNumber, candidacyState, name,
-                registrationStatus, nationality, secondNationality, ingressionType, placingOption, firstOptionDegree,
-                firstOptionInstitution, dislocatedResidenceType, profession, professionTimeType, professionalCondition,
-                professionType, fatherName, fatherSchoolLevel, fatherProfessionalCondition, fatherProfessionType, motherName,
-                motherSchoolLevel, motherProfessionalCondition, motherProfessionType, salarySpan, disabilityType,
-                needsDisabilitySupport, universityDiscoveryString, universityChoiceString);
+        String precedentCountry = "";
+        String precedentDistrict = "";
+        String precedentDistrictSubdivision = "";
+        String precedentSchoolLevel = "";
+        String precedentInstitution = "";
+        String precedentDegreeDesignation = "";
+        String precedentConclusionGrade = "";
+        String precedentConclusionYear = "";
+        String precedentHighSchoolType = "";
+        if (studentCandidacy.getPrecedentDegreeInformation() != null) {
+            PrecedentDegreeInformation information = studentCandidacy.getPrecedentDegreeInformation();
+            if (information.getCountry() != null) {
+                precedentCountry = information.getCountry().getLocalizedName().getContent();
+            }
+            District district = information.getDistrict();
+            if (district != null) {
+                precedentDistrict = district.getName();
+            }
+            DistrictSubdivision districtSubdivision = information.getDistrictSubdivision();
+            if (districtSubdivision != null) {
+                precedentDistrictSubdivision = districtSubdivision.getName();
+            }
+            SchoolLevelType schoolLevelType = information.getSchoolLevel();
+            if (schoolLevelType != null) {
+                precedentSchoolLevel = schoolLevelType.getLocalizedName();
+                if (schoolLevelType.isOther()) {
+                    precedentSchoolLevel = information.getOtherSchoolLevel();
+                }
+            }
+            precedentInstitution = information.getInstitutionName();
+            precedentDegreeDesignation = information.getDegreeDesignation();
+
+            precedentConclusionGrade = information.getConclusionGrade();
+            precedentConclusionYear = "" + information.getConclusionYear();
+            if (information.getPersonalIngressionData() != null
+                    && information.getPersonalIngressionData().getHighSchoolType() != null) {
+                AcademicalInstitutionType highSchoolType = information.getPersonalIngressionData().getHighSchoolType();
+                precedentHighSchoolType = BundleUtil.getString(BUNDLE, highSchoolType.getName());
+            }
+        }
+
+        return new RegistrationDGESStateBean(executionYear, studentCandidacy.getExternalId(), degreeTypeName, degreeCode,
+                degreeName, documentIdNumber, candidacyState, name, registrationStatus, nationality, secondNationality, birthYear,
+                countryOfBirth, districtOfBirth, districtSubdivisionOfBirth, parishOfBirth, gender, ingressionType, placingOption,
+                firstOptionDegree, firstOptionInstitution, isDislocated, dislocatedResidenceType, countryOfResidence,
+                districtOfResidence, districtSubdivisionOfResidence, parishOfResidence, profession, professionTimeType,
+                professionalCondition, professionType, fatherName, fatherSchoolLevel, fatherProfessionalCondition,
+                fatherProfessionType, motherName, motherSchoolLevel, motherProfessionalCondition, motherProfessionType,
+                salarySpan, disabilityType, needsDisabilitySupport, universityDiscoveryString, universityChoiceString,
+                precedentCountry, precedentDistrict, precedentDistrictSubdivision, precedentSchoolLevel, precedentInstitution,
+                precedentDegreeDesignation, precedentConclusionGrade, precedentConclusionYear, precedentHighSchoolType);
     }
 
     public static class CandidacyToProcessBean implements IBean {
@@ -585,18 +681,32 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     public static class RegistrationDGESStateBean {
+        private String executionYear;
         private String candidacyId;
+        private String degreeTypeName;
         private String degreeCode;
+        private String degreeName;
         private String idNumber;
         private String candidacyState;
         private String name;
         private String registrationState;
         private String nationality;
         private String secondNationality;
+        private String birthYear;
+        private String countryOfBirth;
+        private String districtOfBirth;
+        private String districtSubdivisionOfBirth;
+        private String parishOfBirth;
+        private String gender;
         private String ingressionType;
         private Integer placingOption;
         private String firstOptionDegree;
         private String firstOptionInstitution;
+        private String countryOfResidence;
+        private String districtOfResidence;
+        private String districtSubdivisionOfResidence;
+        private String parishOfResidence;
+        private String isDislocated;
         private String dislocatedResidenceType;
         private String profession;
         private String professionTimeType;
@@ -615,46 +725,84 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         private String needsDisabilitySupport;
         private String universityDiscoveryString;
         private String universityChoiceString;
+        private String precedentCountry;
+        private String precedentDistrict;
+        private String precedentDistrictSubdivision;
+        private String precedentSchoolLevel;
+        private String precedentInstitution;
+        private String precedentDegreeDesignation;
+        private String precedentConclusionGrade;
+        private String precedentConclusionYear;
+        private String precedentHighSchoolType;
 
-        public RegistrationDGESStateBean(String candidacyId, String degreeCode, String idNumber, String candidacyState,
-                String name, String registrationState, String nationality, String secondNationality, String ingressionType,
-                Integer placingOption, String firstOptionDegree, String firstOptionInstitution, String dislocatedResidenceType,
-                String profession, String professionTimeType, String professionalCondition, String professionType,
-                String fatherName, String fatherSchoolLevel, String fatherProfessionalCondition, String fatherProfessionType,
-                String motherName, String motherSchoolLevel, String motherProfessionalCondition, String motherProfessionType,
-                String salarySpan, String disabilityType, String needsDisabilitySupport, String universityDiscoveryString,
-                String universityChoiceString) {
+        public RegistrationDGESStateBean(String executionYear, String candidacyId, String degreeTypeName, String degreeCode,
+                String degreeName, String idNumber, String candidacyState, String name, String registrationState,
+                String nationality, String secondNationality, String birthYear, String countryOfBirth, String districtOfBirth,
+                String districtSubdivisionOfBirth, String parishOfBirth, String gender, String ingressionType,
+                Integer placingOption, String firstOptionDegree, String firstOptionInstitution, String isDislocated,
+                String dislocatedResidenceType, String countryOfResidence, String districtOfResidence,
+                String districtSubdivisionOfResidence, String parishOfResidence, String profession, String professionTimeType,
+                String professionalCondition, String professionType, String fatherName, String fatherSchoolLevel,
+                String fatherProfessionalCondition, String fatherProfessionType, String motherName, String motherSchoolLevel,
+                String motherProfessionalCondition, String motherProfessionType, String salarySpan, String disabilityType,
+                String needsDisabilitySupport, String universityDiscoveryString, String universityChoiceString,
+                String precedentCountry, String precedentDistrict, String precedentDistrictSubdivision,
+                String precedentSchoolLevel, String precedentInstitution, String precedentDegreeDesignation,
+                String precedentConclusionGrade, String precedentConclusionYear, String precedentHighSchoolType) {
             super();
-            this.candidacyId = candidacyId;
-            this.degreeCode = degreeCode;
-            this.idNumber = idNumber;
-            this.candidacyState = candidacyState;
-            this.name = name;
-            this.registrationState = registrationState;
-            this.nationality = nationality;
-            this.secondNationality = secondNationality;
-            this.ingressionType = ingressionType;
+            this.setExecutionYear(StringUtils.trim(executionYear));
+            this.candidacyId = StringUtils.trim(candidacyId);
+            this.setDegreeTypeName(StringUtils.trim(degreeTypeName));
+            this.degreeCode = StringUtils.trim(degreeCode);
+            this.setDegreeName(StringUtils.trim(degreeName));
+            this.idNumber = StringUtils.trim(idNumber);
+            this.candidacyState = StringUtils.trim(candidacyState);
+            this.name = StringUtils.trim(name);
+            this.registrationState = StringUtils.trim(registrationState);
+            this.nationality = StringUtils.trim(nationality);
+            this.secondNationality = StringUtils.trim(secondNationality);
+            this.setBirthYear(StringUtils.trim(birthYear));
+            this.setGender(StringUtils.trim(gender));
+            this.countryOfBirth = StringUtils.trim(countryOfBirth);
+            this.districtOfBirth = StringUtils.trim(districtOfBirth);
+            this.districtSubdivisionOfBirth = StringUtils.trim(districtSubdivisionOfBirth);
+            this.parishOfBirth = StringUtils.trim(parishOfBirth);
+            this.ingressionType = StringUtils.trim(ingressionType);
             this.placingOption = placingOption;
-            this.firstOptionDegree = firstOptionDegree;
-            this.firstOptionInstitution = firstOptionInstitution;
-            this.dislocatedResidenceType = dislocatedResidenceType;
-            this.profession = profession;
-            this.professionTimeType = professionTimeType;
-            this.professionalCondition = professionalCondition;
-            this.professionType = professionType;
-            this.fatherName = fatherName;
-            this.fatherSchoolLevel = fatherSchoolLevel;
-            this.fatherProfessionalCondition = fatherProfessionalCondition;
-            this.fatherProfessionType = fatherProfessionType;
-            this.motherName = motherName;
-            this.motherSchoolLevel = motherSchoolLevel;
-            this.motherProfessionalCondition = motherProfessionalCondition;
-            this.motherProfessionType = motherProfessionType;
-            this.salarySpan = salarySpan;
-            this.disabilityType = disabilityType;
-            this.needsDisabilitySupport = needsDisabilitySupport;
-            this.universityDiscoveryString = universityDiscoveryString;
-            this.universityChoiceString = universityChoiceString;
+            this.firstOptionDegree = StringUtils.trim(firstOptionDegree);
+            this.firstOptionInstitution = StringUtils.trim(firstOptionInstitution);
+            this.isDislocated = StringUtils.trim(isDislocated);
+            this.dislocatedResidenceType = StringUtils.trim(dislocatedResidenceType);
+            this.countryOfResidence = StringUtils.trim(countryOfResidence);
+            this.districtOfResidence = StringUtils.trim(districtOfResidence);
+            this.districtSubdivisionOfResidence = StringUtils.trim(districtSubdivisionOfResidence);
+            this.parishOfResidence = StringUtils.trim(parishOfResidence);
+            this.profession = StringUtils.trim(profession);
+            this.professionTimeType = StringUtils.trim(professionTimeType);
+            this.professionalCondition = StringUtils.trim(professionalCondition);
+            this.professionType = StringUtils.trim(professionType);
+            this.fatherName = StringUtils.trim(fatherName);
+            this.fatherSchoolLevel = StringUtils.trim(fatherSchoolLevel);
+            this.fatherProfessionalCondition = StringUtils.trim(fatherProfessionalCondition);
+            this.fatherProfessionType = StringUtils.trim(fatherProfessionType);
+            this.motherName = StringUtils.trim(motherName);
+            this.motherSchoolLevel = StringUtils.trim(motherSchoolLevel);
+            this.motherProfessionalCondition = StringUtils.trim(motherProfessionalCondition);
+            this.motherProfessionType = StringUtils.trim(motherProfessionType);
+            this.salarySpan = StringUtils.trim(salarySpan);
+            this.disabilityType = StringUtils.trim(disabilityType);
+            this.needsDisabilitySupport = StringUtils.trim(needsDisabilitySupport);
+            this.universityDiscoveryString = StringUtils.trim(universityDiscoveryString);
+            this.universityChoiceString = StringUtils.trim(universityChoiceString);
+            this.precedentCountry = StringUtils.trim(precedentCountry);
+            this.precedentDistrict = StringUtils.trim(precedentDistrict);
+            this.precedentDistrictSubdivision = StringUtils.trim(precedentDistrictSubdivision);
+            this.precedentSchoolLevel = StringUtils.trim(precedentSchoolLevel);
+            this.precedentInstitution = StringUtils.trim(precedentInstitution);
+            this.precedentDegreeDesignation = StringUtils.trim(precedentDegreeDesignation);
+            this.precedentConclusionGrade = StringUtils.trim(precedentConclusionGrade);
+            this.precedentConclusionYear = StringUtils.trim(precedentConclusionYear);
+            this.precedentHighSchoolType = StringUtils.trim(precedentHighSchoolType);
         }
 
         public String getIdNumber() {
@@ -895,6 +1043,190 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         public void setUniversityChoiceString(String universityChoiceString) {
             this.universityChoiceString = universityChoiceString;
+        }
+
+        public String getExecutionYear() {
+            return executionYear;
+        }
+
+        public void setExecutionYear(String executionYear) {
+            this.executionYear = executionYear;
+        }
+
+        public String getDegreeTypeName() {
+            return degreeTypeName;
+        }
+
+        public void setDegreeTypeName(String degreeTypeName) {
+            this.degreeTypeName = degreeTypeName;
+        }
+
+        public String getDegreeName() {
+            return degreeName;
+        }
+
+        public void setDegreeName(String degreeName) {
+            this.degreeName = degreeName;
+        }
+
+        public String getBirthYear() {
+            return birthYear;
+        }
+
+        public void setBirthYear(String birthYear) {
+            this.birthYear = birthYear;
+        }
+
+        public String getGender() {
+            return gender;
+        }
+
+        public void setGender(String gender) {
+            this.gender = gender;
+        }
+
+        public String getCountryOfBirth() {
+            return countryOfBirth;
+        }
+
+        public void setCountryOfBirth(String countryOfBirth) {
+            this.countryOfBirth = countryOfBirth;
+        }
+
+        public String getDistrictOfBirth() {
+            return districtOfBirth;
+        }
+
+        public void setDistrictOfBirth(String districtOfBirth) {
+            this.districtOfBirth = districtOfBirth;
+        }
+
+        public String getDistrictSubdivisionOfBirth() {
+            return districtSubdivisionOfBirth;
+        }
+
+        public void setDistrictSubdivisionOfBirth(String districtSubdivisionOfBirth) {
+            this.districtSubdivisionOfBirth = districtSubdivisionOfBirth;
+        }
+
+        public String getParishOfBirth() {
+            return parishOfBirth;
+        }
+
+        public void setParishOfBirth(String parishOfBirth) {
+            this.parishOfBirth = parishOfBirth;
+        }
+
+        public String getIsDislocated() {
+            return isDislocated;
+        }
+
+        public void setIsDislocated(String isDislocated) {
+            this.isDislocated = isDislocated;
+        }
+
+        public String getCountryOfResidence() {
+            return countryOfResidence;
+        }
+
+        public void setCountryOfResidence(String countryOfResidence) {
+            this.countryOfResidence = countryOfResidence;
+        }
+
+        public String getDistrictOfResidence() {
+            return districtOfResidence;
+        }
+
+        public void setDistrictOfResidence(String districtOfResidence) {
+            this.districtOfResidence = districtOfResidence;
+        }
+
+        public String getDistrictSubdivisionOfResidence() {
+            return districtSubdivisionOfResidence;
+        }
+
+        public void setDistrictSubdivisionOfResidence(String districtSubdivisionOfResidence) {
+            this.districtSubdivisionOfResidence = districtSubdivisionOfResidence;
+        }
+
+        public String getParishOfResidence() {
+            return parishOfResidence;
+        }
+
+        public void setParishOfResidence(String parishOfResidence) {
+            this.parishOfResidence = parishOfResidence;
+        }
+
+        public String getPrecedentCountry() {
+            return precedentCountry;
+        }
+
+        public void setPrecedentCountry(String precedentCountry) {
+            this.precedentCountry = precedentCountry;
+        }
+
+        public String getPrecedentDistrict() {
+            return precedentDistrict;
+        }
+
+        public void setPrecedentDistrict(String precedentDistrict) {
+            this.precedentDistrict = precedentDistrict;
+        }
+
+        public String getPrecedentDistrictSubdivision() {
+            return precedentDistrictSubdivision;
+        }
+
+        public void setPrecedentDistrictSubdivision(String precedentDistrictSubdivision) {
+            this.precedentDistrictSubdivision = precedentDistrictSubdivision;
+        }
+
+        public String getPrecedentSchoolLevel() {
+            return precedentSchoolLevel;
+        }
+
+        public void setPrecedentSchoolLevel(String precedentSchoolLevel) {
+            this.precedentSchoolLevel = precedentSchoolLevel;
+        }
+
+        public String getPrecedentInstitution() {
+            return precedentInstitution;
+        }
+
+        public void setPrecedentInstitution(String precedentInstitution) {
+            this.precedentInstitution = precedentInstitution;
+        }
+
+        public String getPrecedentDegreeDesignation() {
+            return precedentDegreeDesignation;
+        }
+
+        public void setPrecedentDegreeDesignation(String precedentDegreeDesignation) {
+            this.precedentDegreeDesignation = precedentDegreeDesignation;
+        }
+
+        public String getPrecedentConclusionGrade() {
+            return precedentConclusionGrade;
+        }
+
+        public void setPrecedentConclusionGrade(String precedentConclusionGrade) {
+            this.precedentConclusionGrade = precedentConclusionGrade;
+        }
+
+        public String getPrecedentConclusionYear() {
+            return precedentConclusionYear;
+        }
+
+        public void setPrecedentConclusionYear(String precedentConclusionYear) {
+            this.precedentConclusionYear = precedentConclusionYear;
+        }
+
+        public String getPrecedentHighSchoolType() {
+            return precedentHighSchoolType;
+        }
+
+        public void setPrecedentHighSchoolType(String precedentHighSchoolType) {
+            this.precedentHighSchoolType = precedentHighSchoolType;
         }
     }
 }

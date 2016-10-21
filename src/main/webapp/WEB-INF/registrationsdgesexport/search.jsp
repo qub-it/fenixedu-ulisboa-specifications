@@ -364,7 +364,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		<table id="searchregistrationdgesstatebeanTable" class="table responsive table-bordered table-hover" style="width:100%">
 			<thead>
 				<tr>
+                    <th><spring:message code="label.HouseholdInformationForm.executionYear"/></th>
+                    <% if (exportStatistics) { %>
+                    <th><spring:message code="label.Degree.degreeType"/></th>
+                    <% } %>
 					<th><spring:message code="label.studentsListByCurricularCourse.degree"/></th>
+                    <% if (exportStatistics) { %>
+                    <th><spring:message code="label.Degree.name"/></th>
+                    <% } %>
 					<th><spring:message code="label.identification.number"/></th>
 					<th><spring:message code="label.student"/></th>
 					<th><spring:message code="label.is.registered"/></th>
@@ -372,10 +379,21 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<% if (exportStatistics) { %>
 					<th><spring:message code="label.FiliationForm.nationality"/></th>
 					<th><spring:message code="label.FiliationForm.secondNationality"/></th>
+                    <th><spring:message code="label.Person.birthYear"/></th>
+                    <th><spring:message code="label.FiliationForm.countryOfBirth" /></th>
+                    <th><spring:message code="label.FiliationForm.districtOfBirth" /></th>
+                    <th><spring:message code="label.FiliationForm.districtSubdivisionOfBirth" /></th>
+                    <th><spring:message code="label.FiliationForm.parishOfBirth" /></th>
+                    <th><spring:message code="label.Person.gender"/></th>
 					<th><spring:message code="label.Registration.ingressionType"/></th>
 					<th><spring:message code="label.PersonalInformationForm.ingressionOption"/></th>
 					<th><spring:message code="label.PersonalInformationForm.firstOptionDegreeDesignation.short"/></th>
 					<th><spring:message code="label.PersonalInformationForm.firstOptionInstitution.short"/></th>
+                    <th><spring:message code="label.ResidenceInformationForm.countryOfResidence" /></th>
+                    <th><spring:message code="label.ResidenceInformationForm.districtOfResidence" /></th>
+                    <th><spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence" /></th>
+                    <th><spring:message code="label.ResidenceInformationForm.parishOfResidence" /></th>
+                    <th><spring:message code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" /></th>
 					<th><spring:message code="label.firstTimeCandidacy.fillResidenceInformation"/></th>
 					<th><spring:message code="label.PersonalInformationForm.profession"/></th>
 					<th><spring:message code="label.PersonalInformationForm.professionTimeType.short"/></th>
@@ -394,6 +412,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<th><spring:message code="label.DisabilitiesForm.needsDisabilitySupport.short"/></th>
 					<th><spring:message code="label.MotivationsExpectationsForm.universityDiscoveryMeansAnswers.short"/></th>
 					<th><spring:message code="label.MotivationsExpectationsForm.universityChoiceMotivationAnswers.short"/></th>
+                    <th><spring:message code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree" /></th>
+                    <th><spring:message code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" /></th>
+                    <th><spring:message code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" /></th>
+                    <th><spring:message code="label.OriginInformationForm.schoolLevel" /></th>
+                    <th><spring:message code="label.OriginInformationForm.institution" /></th>
+                    <th><spring:message code="label.OriginInformationForm.degreeDesignation" /></th>
+                    <th><spring:message code="label.OriginInformationForm.conclusionGrade" /></th>
+                    <th><spring:message code="label.OriginInformationForm.conclusionYear" /></th>
+                    <th><spring:message code="label.OriginInformationForm.highSchoolType" /></th>
 					<% } %>
 				</tr>
 			</thead>
@@ -473,7 +500,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<%-- Field access / formatting  here CHANGE_ME --%>
 				{
 					DT_RowId : "<c:out value='${searchResult.candidacyId}'/>",
+				    executionYear : "<c:out value='${searchResult.executionYear}'/>",
+                    <% if (exportStatistics) { %>
+                        degreeTypeName : "<c:out value='${searchResult.degreeTypeName}'/>",
+                    <% } %>
 					degreeCode : "<c:out value='${searchResult.degreeCode}'/>",
+                    <% if (exportStatistics) { %>
+                        degreeName : "<c:out value='${searchResult.degreeName}'/>",
+                    <% } %>
 					idnumber : "<c:out value='${searchResult.idNumber}'/>",
 					name : "<c:out value='${searchResult.name}'/>",
 					registrationstate : "<c:out value='${searchResult.registrationState}'/>",
@@ -481,11 +515,22 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<% if (exportStatistics) { %>
 					nationality : "<c:out value='${searchResult.nationality}'/>",
 					secondNationality : "<c:out value='${searchResult.secondNationality}'/>",
+					birthYear : "<c:out value='${searchResult.birthYear}'/>",
+					countryOfBirth : "<c:out value='${searchResult.countryOfBirth}'/>",
+					districtOfBirth : "<c:out value='${searchResult.districtOfBirth}'/>",
+					districtSubdivisionOfBirth : "<c:out value='${searchResult.districtSubdivisionOfBirth}'/>",
+					parishOfBirth : "<c:out value='${searchResult.parishOfBirth}'/>",
+					gender : "<c:out value='${searchResult.gender}'/>",
 					ingressionType : "<c:out value='${searchResult.ingressionType}'/>",
 					placingOption : "<c:out value='${searchResult.placingOption}'/>",
 					firstOptionDegree : "<c:out value='${searchResult.firstOptionDegree}'/>",
 					firstOptionInstitution : "<c:out value='${searchResult.firstOptionInstitution}'/>",
-					dislocatedResidenceType : "<c:out value='${searchResult.dislocatedResidenceType}'/>",
+                    countryOfResidence : "<c:out value='${searchResult.countryOfResidence}'/>",
+                    districtOfResidence : "<c:out value='${searchResult.districtOfResidence}'/>",
+                    districtSubdivisionOfResidence : "<c:out value='${searchResult.districtSubdivisionOfResidence}'/>",
+                    parishOfResidence : "<c:out value='${searchResult.parishOfResidence}'/>",
+                    isDislocated : "<c:out value='${searchResult.isDislocated}'/>",
+                    dislocatedResidenceType : "<c:out value='${searchResult.dislocatedResidenceType}'/>",
 					profession : "<c:out value='${searchResult.profession}'/>",
 					professionTimeType : "<c:out value='${searchResult.professionTimeType}'/>",
 					professionalCondition : "<c:out value='${searchResult.professionalCondition}'/>",
@@ -503,6 +548,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					needsDisabilitySupport : "<c:out value='${searchResult.needsDisabilitySupport}'/>",
 					universityDiscoveryString : "<c:out value='${searchResult.universityDiscoveryString}'/>",
 					universityChoiceString : "<c:out value='${searchResult.universityChoiceString}'/>",
+					precedentCountry : "<c:out value='${searchResult.precedentCountry}'/>",
+					precedentDistrict : "<c:out value='${searchResult.precedentDistrict}'/>",
+					precedentDistrictSubdivision : "<c:out value='${searchResult.precedentDistrictSubdivision}'/>",
+					precedentSchoolLevel : "<c:out value='${searchResult.precedentSchoolLevel}'/>",
+					precedentInstitution : "<c:out value='${searchResult.precedentInstitution}'/>",
+					precedentDegreeDesignation : "<c:out value='${searchResult.precedentDegreeDesignation}'/>",
+					precedentConclusionGrade : "<c:out value='${searchResult.precedentConclusionGrade}'/>",
+					precedentConclusionYear : "<c:out value='${searchResult.precedentConclusionYear}'/>",
+					precedentHighSchoolType : "<c:out value='${searchResult.precedentHighSchoolType}'/>",
 					<% } %>
 				},
             </c:forEach>
@@ -521,18 +575,36 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 }
 			},
 			columns: [
-				{ data: 'degreeCode' },
-				{ data: 'idnumber' },
+			    { data: 'executionYear' },
+                <% if (exportStatistics) { %>
+                    { data: 'degreeTypeName' },
+                <% } %>
+		        { data: 'degreeCode' },
+                <% if (exportStatistics) { %>
+                    { data: 'degreeName' },
+                <% } %>
+		        { data: 'idnumber' },
 				{ data: 'name' },
 				{ data: 'registrationstate' },
 				{ data: 'candidacyState' },
 				<% if (exportStatistics) { %>
 				{ data: 'nationality', visible: false },
 				{ data: 'secondNationality', visible: false },
-				{ data: 'ingressionType', visible: false },
+		        { data: 'birthYear', visible: false },
+                { data: 'countryOfBirth', visible: false },
+                { data: 'districtOfBirth', visible: false },
+                { data: 'districtSubdivisionOfBirth', visible: false },
+                { data: 'parishOfBirth', visible: false },
+                { data: 'gender', visible: false },
+                { data: 'ingressionType', visible: false },
 				{ data: 'placingOption', visible: false },
 				{ data: 'firstOptionDegree', visible: false },
 				{ data: 'firstOptionInstitution', visible: false },
+                { data: 'countryOfResidence', visible: false },
+                { data: 'districtOfResidence', visible: false },
+                { data: 'districtSubdivisionOfResidence', visible: false },
+                { data: 'parishOfResidence', visible: false },
+                { data: 'isDislocated', visible: false },
 				{ data: 'dislocatedResidenceType', visible: false },
 				{ data: 'profession', visible: false },
 				{ data: 'professionTimeType', visible: false },
@@ -551,6 +623,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				{ data: 'needsDisabilitySupport', visible: false },
 				{ data: 'universityDiscoveryString', visible: false },
 				{ data: 'universityChoiceString', visible: false },
+                { data: 'precedentCountry', visible: false },
+                { data: 'precedentDistrict', visible: false },
+                { data: 'precedentDistrictSubdivision', visible: false },
+                { data: 'precedentSchoolLevel', visible: false },
+                { data: 'precedentInstitution', visible: false },
+                { data: 'precedentDegreeDesignation', visible: false },
+                { data: 'precedentConclusionGrade', visible: false },
+                { data: 'precedentConclusionYear', visible: false },
+                { data: 'precedentHighSchoolType', visible: false },
 				<% } %>
 			],
 			data : searchregistrationdgesstatebeanDataSet,
