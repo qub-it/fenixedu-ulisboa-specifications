@@ -348,8 +348,8 @@ public class OriginInformationFormController extends FormAbstractController {
                             AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
                             null, null);
                 }
-                precedentDegreeInformation.setInstitution(institution);
             }
+            precedentDegreeInformation.setInstitution(institution);
         }
 
         precedentDegreeInformation.setConclusionYear(Integer.valueOf(form.getConclusionYear()));
