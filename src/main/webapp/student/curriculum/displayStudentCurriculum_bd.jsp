@@ -123,8 +123,8 @@
 </div>
 
 <%-- Choose Student Curricular Plan form --%>
-<html:form action="<%="/viewStudentCurriculum.do?method=prepare&registrationOID=" + registration.getExternalId()%>">
-	<html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.degreeCurricularPlanID" property="degreeCurricularPlanID"/>
+<html:form styleId="scpForm" action="<%="/viewStudentCurriculum.do?method=prepare&registrationOID=" + registration.getExternalId()%>">
+    <html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.degreeCurricularPlanID" property="degreeCurricularPlanID"/>
 	<logic:present property="studentNumber" name="studentCurricularPlanAndEnrollmentsSelectionForm">
 		<html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.studentNumber" name="studentCurricularPlanAndEnrollmentsSelectionForm" property="studentNumber"/>
 	</logic:present>
@@ -249,6 +249,8 @@ function load()
 
         var radio_enrolmentStateType="APPROVED_OR_ENROLED";
         $("input[type='radio'][name='select'][value='" + radio_enrolmentStateType + "']").attr('checked','checked');
+
+        $("#scpForm").submit();
     } 
     else 
     {
