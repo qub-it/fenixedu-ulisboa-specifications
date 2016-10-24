@@ -65,7 +65,10 @@ public class StudentScheduleListeners {
                 for (final ShiftType shiftType : executionCourse.getShiftTypes()) {
                     final SortedSet<Shift> shiftsByType = executionCourse.getShiftsByTypeOrderedByShiftName(shiftType);
                     if (shiftsByType.size() == 1) {
-                        shiftsByType.iterator().next().reserveForStudent(registration);
+                        final Shift shift = shiftsByType.iterator().next();
+                        if (!shift.getStudentsSet().contains(registration)) {
+                            shift.reserveForStudent(registration);
+                        }
                     }
                 }
 

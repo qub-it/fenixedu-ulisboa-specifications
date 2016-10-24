@@ -239,7 +239,7 @@ public class RegistrationServices {
             shiftTypes = shift.getShiftTypesPrettyPrint();
             executionCourseName = shift.getExecutionCourse().getName();
 
-            if (shift.reserveForStudent(registration)) {
+            if (shift.getStudentsSet().contains(registration) || shift.reserveForStudent(registration)) {
                 return;
             }
         }
