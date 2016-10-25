@@ -57,7 +57,35 @@ public class ApprovedCredits extends ApprovedCredits_Base {
 
     @Override
     public String getLabel() {
-        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
+        if (isYearless()) {
+            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
+
+        } else {
+
+            final int yearMin = getYearMinFinal();
+            final int yearMax = getYearMaxFinal();
+
+            if (yearMin == yearMax) {
+                return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year",
+                        getCredits().toString(), String.valueOf(yearMin));
+
+            } else {
+                return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".years",
+                        getCredits().toString(), String.valueOf(yearMin), String.valueOf(yearMax));
+            }
+        }
+    }
+
+    private boolean isYearless() {
+        return getYearMin() == null && getYearMax() == null;
+    }
+
+    private int getYearMinFinal() {
+        return getYearMin() == null ? 1 : getYearMin();
+    }
+
+    private int getYearMaxFinal() {
+        return getYearMax() == null ? getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1 : getYearMax();
     }
 
     public RuleResult executeYearless(final Curriculum input) {
@@ -67,15 +95,14 @@ public class ApprovedCredits extends ApprovedCredits_Base {
 
     @Override
     public RuleResult execute(final Curriculum input) {
-        if (getYearMin() == null && getYearMax() == null) {
+        if (isYearless()) {
             return executeYearless(input);
         }
 
         final Curriculum curriculum = prepareCurriculum(input);
 
-        final int yearMin = getYearMin() == null ? 1 : getYearMin();
-        final int yearMax =
-                getYearMax() == null ? getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1 : getYearMax();
+        final int yearMin = getYearMinFinal();
+        final int yearMax = getYearMaxFinal();
 
         final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax, false);
         if (configured == null) {
