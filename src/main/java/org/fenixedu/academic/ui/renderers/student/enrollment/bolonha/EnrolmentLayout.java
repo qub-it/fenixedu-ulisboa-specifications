@@ -116,7 +116,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         addGroupHeaderRow(groupTable, studentCurriculumGroupBean, executionSemester);
 
         // init
-        setEmptyGroup(studentCurriculumGroupBean, emptyGroupsCollapsible);
         setEmptyGroup(studentCurriculumGroupBean, !studentCurriculumGroupBean.getCurriculumModule().isBranchCurriculumGroup());
 
         // qubExtension, don't GENERATE concluded groups

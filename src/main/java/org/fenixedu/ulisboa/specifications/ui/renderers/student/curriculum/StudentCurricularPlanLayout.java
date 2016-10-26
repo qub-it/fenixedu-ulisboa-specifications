@@ -102,6 +102,10 @@ import pt.ist.fenixWebFramework.renderers.layouts.Layout;
  */
 public class StudentCurricularPlanLayout extends Layout {
 
+    // qubExtension, don't SHOW empty groups
+    private Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
+    private boolean emptyGroupsCollapsible = true;
+
     // qubExtension
     static final private String MINIMUM_CREDITS_CONCLUDED_IN_CURRICULUM_GROUP =
             "margin: 1em 0; padding: 0.2em 0.5em 0.2em 0.5em; background-color: #fbf8cc; color: #805500;";
@@ -337,14 +341,45 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateRowsForGroupsOrganization(final HtmlTable mainTable, final CurriculumGroup curriculumGroup,
             final int level) {
 
-        generateGroupRowWithText(mainTable, getPresentationNameFor(curriculumGroup), curriculumGroup.hasCurriculumLines(), level,
-                curriculumGroup);
+        final HtmlTableRow groupRow = generateGroupRowWithText(mainTable, getPresentationNameFor(curriculumGroup),
+                curriculumGroup.hasCurriculumLines(), level, curriculumGroup);
+
+        // init
+        setEmptyGroup(curriculumGroup, !curriculumGroup.isRoot() && !curriculumGroup.isBranchCurriculumGroup());
+
         generateCurriculumLineRows(mainTable, curriculumGroup, level + 1);
         generateChildGroupRows(mainTable, curriculumGroup, level + 1);
+
+        // qubExtension, don't SHOW empty groups
+        if (isEmptyGroup(curriculumGroup)) {
+            String keepExistingStyle = Strings.isNullOrEmpty(groupRow.getStyle()) ? "" : groupRow.getStyle();
+            groupRow.setStyle(keepExistingStyle + " display: none");
+            String keepExistingClasses = Strings.isNullOrEmpty(groupRow.getClasses()) ? "" : groupRow.getClasses();
+            groupRow.setClasses(keepExistingClasses + " emptyGroup");
+        }
     }
 
-    protected void generateGroupRowWithText(final HtmlTable mainTable, final String text, boolean addHeaders, final int level,
-            final CurriculumGroup curriculumGroup) {
+    private void setEmptyGroup(final CurriculumGroup key, final boolean value) {
+
+        if (!emptyGroups.containsKey(key)) {
+            // init
+            emptyGroups.put(key, emptyGroupsCollapsible);
+
+        } else {
+
+            // must check already previously calculated value 
+            emptyGroups.put(key, isEmptyGroup(key) && value);
+        }
+    }
+
+    // qubExtension, don't SHOW empty groups
+    private Boolean isEmptyGroup(final CurriculumGroup group) {
+        final Boolean value = emptyGroups.get(group);
+        return value != null && value;
+    }
+
+    protected HtmlTableRow generateGroupRowWithText(final HtmlTable mainTable, final String text, boolean addHeaders,
+            final int level, final CurriculumGroup curriculumGroup) {
 
         final HtmlTableRow groupRow = mainTable.createRow();
         groupRow.setClasses(renderer.getCurriculumGroupRowClass());
@@ -381,6 +416,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
             // generateRulesInfo(groupRow, curriculumGroup);
         }
+
+        return groupRow;
     }
 
     protected StringBuilder createGroupName(final String text, final CurriculumGroup curriculumGroup) {
@@ -503,6 +540,7 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateCurriculumLineRows(HtmlTable mainTable, CurriculumGroup curriculumGroup, int level) {
+        boolean isEmpty = true;
 
         // qubExtension, mingle dismissals and enrolments
         final List<CurriculumLine> lines = curriculumGroup.getCurriculumModulesSet().stream().filter(i -> i.isLeaf())
@@ -510,6 +548,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         for (final CurriculumLine iter : lines) {
             if (isToShow(iter)) {
+                isEmpty = false;
 
                 if (iter instanceof Enrolment) {
                     generateEnrolmentRow(mainTable, (Enrolment) iter, level);
@@ -519,6 +558,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 }
             }
         }
+
+        // qubExtension, don't SHOW empty groups
+        setEmptyGroup(curriculumGroup, isEmpty);
     }
 
     protected void generateDismissalRow(HtmlTable mainTable, Dismissal dismissal, int level) {
@@ -1244,16 +1286,18 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateChildGroupRows(HtmlTable mainTable, CurriculumGroup parentGroup, int level) {
-        final Set<CurriculumGroup> sortedCurriculumGroups =
-                new TreeSet<CurriculumGroup>(CurriculumGroup.COMPARATOR_BY_CHILD_ORDER_AND_ID);
+        final Set<CurriculumGroup> groups = new TreeSet<CurriculumGroup>(CurriculumGroup.COMPARATOR_BY_CHILD_ORDER_AND_ID);
 
-        sortedCurriculumGroups.addAll(parentGroup.getCurriculumGroups());
+        groups.addAll(parentGroup.getCurriculumGroups().stream()
+                .filter(i -> StudentCurricularPlanRenderer.canGenerate(i, studentCurricularPlan)).collect(Collectors.toSet()));
 
-        for (final CurriculumGroup childGroup : sortedCurriculumGroups) {
-            if (StudentCurricularPlanRenderer.canGenerate(childGroup, studentCurricularPlan)) {
-                generateRowsForGroupsOrganization(mainTable, childGroup, level);
-            }
+        for (final CurriculumGroup childGroup : groups) {
+            generateRowsForGroupsOrganization(mainTable, childGroup, level);
         }
+
+        // qubExtension, don't SHOW empty groups
+        // notice this must be tested after group generation
+        setEmptyGroup(parentGroup, groups.isEmpty() || groups.stream().allMatch(i -> isEmptyGroup(i)));
     }
 
     protected void addTabsToRow(final HtmlTableRow row, final int level) {

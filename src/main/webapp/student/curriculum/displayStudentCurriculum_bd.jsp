@@ -180,15 +180,21 @@
         			</td>
 				</logic:iterate>
 		</tr>
-		<tr>
-			<th style="vertical-align: middle;"><bean:message key="label.detailed" bundle="STUDENT_RESOURCES" /></th>
-			<td>
-				<html:radio style="vertical-align: middle;" property="detailed" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=Boolean.TRUE.toString()%>"/><bean:message  key="label.yes" bundle="STUDENT_RESOURCES"/>
+        <tr>
+            <th style="vertical-align: middle;"><bean:message key="label.detailed" bundle="STUDENT_RESOURCES" /></th>
+            <td>
+                <html:radio style="vertical-align: middle;" property="detailed" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=Boolean.TRUE.toString()%>"/><bean:message  key="label.yes" bundle="STUDENT_RESOURCES"/>
             </td>
             <td>
-				<html:radio style="vertical-align: middle;" property="detailed" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=Boolean.FALSE.toString()%>"/><bean:message  key="label.no" bundle="STUDENT_RESOURCES"/>
-			</td>
-		</tr>
+                <html:radio style="vertical-align: middle;" property="detailed" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=Boolean.FALSE.toString()%>"/><bean:message  key="label.no" bundle="STUDENT_RESOURCES"/>
+            </td>
+        </tr>
+        <tr>
+            <th style="vertical-align: middle;"></th>
+            <td colspan="2">
+                <a href="#select_studentCPID" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>         
+            </td>
+        </tr>
 	</table>
 
 
