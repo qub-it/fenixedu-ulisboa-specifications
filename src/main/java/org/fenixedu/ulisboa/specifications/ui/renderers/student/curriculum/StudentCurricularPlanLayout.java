@@ -245,23 +245,18 @@ public class StudentCurricularPlanLayout extends Layout {
                 Maps.newTreeMap(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed());
 
         for (final CurriculumLine iter : getPlan().getAllCurriculumLines()) {
-            ExecutionSemester executionInterval = null;
+            if (isToShow(iter)) {
 
-            if (iter instanceof Enrolment && renderer.isToShowEnrolments()) {
-                executionInterval = iter.getExecutionPeriod();
-            }
+                final ExecutionSemester key = iter.getExecutionPeriod();
+                if (key != null) {
 
-            if (iter instanceof Dismissal && renderer.isToShowDismissals()) {
-                executionInterval = iter.getExecutionPeriod();
-            }
-
-            if (executionInterval != null) {
-                Set<CurriculumLine> set = collected.get(executionInterval);
-                if (set == null) {
-                    set = Sets.newTreeSet(CurriculumLineServices.COMPARATOR);
+                    Set<CurriculumLine> set = collected.get(key);
+                    if (set == null) {
+                        set = Sets.newTreeSet(CurriculumLineServices.COMPARATOR);
+                    }
+                    set.add(iter);
+                    collected.put(key, set);
                 }
-                set.add(iter);
-                collected.put(executionInterval, set);
             }
         }
 
@@ -278,7 +273,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
                 for (final CurriculumLine iter : entry.getValue()) {
                     if (iter instanceof Enrolment) {
-                        generateEnrolmentRowConditionally(mainTable, (Enrolment) iter, level);
+                        generateEnrolmentRow(mainTable, (Enrolment) iter, level);
                     }
                     if (iter instanceof Dismissal) {
                         generateDismissalRow(mainTable, (Dismissal) iter, level);
@@ -295,23 +290,19 @@ public class StudentCurricularPlanLayout extends Layout {
         final Map<String, Set<CurriculumLine>> collected = Maps.newTreeMap(Collections.reverseOrder());
 
         for (final CurriculumLine iter : getPlan().getAllCurriculumLines()) {
-            String curricularPeriodLabel = null;
+            if (isToShow(iter)) {
 
-            if (iter instanceof Enrolment && renderer.isToShowEnrolments()) {
-                curricularPeriodLabel = getCurricularPeriodLabel((Enrolment) iter);
-            }
+                final String key = iter instanceof Enrolment ? getCurricularPeriodLabel(
+                        (Enrolment) iter) : getCurricularPeriodLabel((Dismissal) iter);
+                if (!Strings.isNullOrEmpty(key)) {
 
-            if (iter instanceof Dismissal && renderer.isToShowDismissals()) {
-                curricularPeriodLabel = getCurricularPeriodLabel((Dismissal) iter);
-            }
-
-            if (!Strings.isNullOrEmpty(curricularPeriodLabel)) {
-                Set<CurriculumLine> set = collected.get(curricularPeriodLabel);
-                if (set == null) {
-                    set = Sets.newTreeSet(CurriculumLineServices.COMPARATOR);
+                    Set<CurriculumLine> set = collected.get(key);
+                    if (set == null) {
+                        set = Sets.newTreeSet(CurriculumLineServices.COMPARATOR);
+                    }
+                    set.add(iter);
+                    collected.put(key, set);
                 }
-                set.add(iter);
-                collected.put(curricularPeriodLabel, set);
             }
         }
 
@@ -326,7 +317,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
                 for (final CurriculumLine iter : entry.getValue()) {
                     if (iter instanceof Enrolment) {
-                        generateEnrolmentRowConditionally(mainTable, (Enrolment) iter, level);
+                        generateEnrolmentRow(mainTable, (Enrolment) iter, level);
                     }
                     if (iter instanceof Dismissal) {
                         generateDismissalRow(mainTable, (Dismissal) iter, level);
@@ -518,26 +509,15 @@ public class StudentCurricularPlanLayout extends Layout {
                 .map(i -> (CurriculumLine) i).sorted(CurriculumLineServices.COMPARATOR).collect(Collectors.toList());
 
         for (final CurriculumLine iter : lines) {
+            if (isToShow(iter)) {
 
-            if (renderer.isToShowDismissals() && iter.isDismissal()) {
-                final Dismissal dismissal = (Dismissal) iter;
-
-                generateDismissalRow(mainTable, dismissal, level);
+                if (iter instanceof Enrolment) {
+                    generateEnrolmentRow(mainTable, (Enrolment) iter, level);
+                }
+                if (iter instanceof Dismissal) {
+                    generateDismissalRow(mainTable, (Dismissal) iter, level);
+                }
             }
-
-            if (renderer.isToShowEnrolments() && iter.isEnrolment()) {
-                final Enrolment enrolment = (Enrolment) iter;
-
-                // from generateEnrolmentRows
-                generateEnrolmentRowConditionally(mainTable, enrolment, level);
-            }
-        }
-    }
-
-    protected void generateDismissalRows(HtmlTable mainTable, List<Dismissal> sortedDismissals, int level) {
-
-        for (final Dismissal dismissal : sortedDismissals) {
-            generateDismissalRow(mainTable, dismissal, level);
         }
     }
 
@@ -728,31 +708,41 @@ public class StudentCurricularPlanLayout extends Layout {
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
     }
 
-    protected void generateEnrolmentRows(HtmlTable mainTable, List<Enrolment> sortedEnrolments, int level) {
-
-        for (final Enrolment enrolment : sortedEnrolments) {
-            generateEnrolmentRowConditionally(mainTable, enrolment, level);
-        }
+    private void generateEnrolmentRow(final HtmlTable mainTable, final Enrolment enrolment, final int level) {
+        generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
     }
 
-    private void generateEnrolmentRowConditionally(final HtmlTable mainTable, final Enrolment enrolment, final int level) {
+    // qubExtension
+    private boolean isToShow(final CurriculumLine input) {
+        if (input instanceof Enrolment && renderer.isToShowEnrolments()) {
 
-        if (renderer.isToShowAllEnrolmentStates()) {
-            generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
-        } else if (renderer.isToShowApprovedOnly()) {
-            if (enrolment.isApproved()) {
-                generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
+            if (renderer.isToShowAllEnrolmentStates()) {
+                return true;
             }
-        } else if (renderer.isToShowApprovedOrEnroledStatesOnly()) {
-            if (enrolment.isApproved() || enrolment.isEnroled()) {
-                generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
+
+            if (renderer.isToShowApprovedOnly()) {
+                return input.isApproved();
             }
-        } else {
-            // qubExtension
-            if (enrolment.isEnroled()) {
-                generateEnrolmentRow(mainTable, enrolment, level, true, false, false);
+
+            if (renderer.isToShowApprovedOrEnroledStatesOnly()) {
+                return input.isApproved() || ((Enrolment) input).isEnroled();
+            }
+
+            if (isToShowEnroledStatesOnly()) {
+                return ((Enrolment) input).isEnroled();
             }
         }
+
+        if (input instanceof Dismissal && renderer.isToShowDismissals()) {
+            return !isToShowEnroledStatesOnly();
+        }
+
+        return false;
+    }
+
+    private boolean isToShowEnroledStatesOnly() {
+        return !renderer.isToShowAllEnrolmentStates() && !renderer.isToShowApprovedOnly()
+                && !renderer.isToShowApprovedOrEnroledStatesOnly();
     }
 
     protected void generateEnrolmentRow(HtmlTable mainTable, Enrolment enrolment, int level, boolean allowSelection,
