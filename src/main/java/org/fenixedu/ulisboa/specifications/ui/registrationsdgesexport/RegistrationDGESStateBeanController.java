@@ -425,7 +425,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return null;
     }
 
-    private RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
+    /*TODO: Remove to DTO with RDGESSBean */
+    public static RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
         String executionYear = studentCandidacy.getExecutionYear().getQualifiedName();
         Person person = studentCandidacy.getPerson();
         String degreeTypeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeTypeName();
@@ -479,8 +480,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         }
 
         String gender = person.getGender().getLocalizedName();
-        String ingressionType = ((FirstTimeCandidacy) studentCandidacy).getIngressionType().getLocalizedName();
-        Integer placingOption = ((FirstTimeCandidacy) studentCandidacy).getPlacingOption();
+        String ingressionType = studentCandidacy.getIngressionType().getLocalizedName();
+        Integer placingOption = studentCandidacy.getPlacingOption();
         String firstOptionDegree = "";
         String firstOptionInstitution = "";
         String isDislocated = "";
@@ -680,6 +681,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         }
     }
 
+    /*TODO: Extract to a file */
     public static class RegistrationDGESStateBean {
         private String executionYear;
         private String candidacyId;

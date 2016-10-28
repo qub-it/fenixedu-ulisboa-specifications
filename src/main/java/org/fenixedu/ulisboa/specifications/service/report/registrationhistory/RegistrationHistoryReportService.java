@@ -40,6 +40,7 @@ public class RegistrationHistoryReportService {
     private Boolean withEnrolments;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
+    private Integer studentNumber;
 
     private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
@@ -97,6 +98,10 @@ public class RegistrationHistoryReportService {
         this.improvementEnrolmentsOnly = improvementsEnrolmentsOnly;
     }
 
+    public void filterStudentNumber(Integer studentNumber) {
+        this.studentNumber = studentNumber;
+    }
+
     public boolean isDetailed() {
         return detailed;
     }
@@ -152,18 +157,26 @@ public class RegistrationHistoryReportService {
                 r -> this.ingressionTypes.isEmpty() || this.ingressionTypes.contains(r.getIngressionType());
 
         final Predicate<Registration> registrationStateFilter =
-                r -> this.registrationStateTypes.isEmpty() || (r.getLastRegistrationState(executionYear) != null
-                        && this.registrationStateTypes.contains(r.getLastRegistrationState(executionYear).getStateType()));
+                r -> this.registrationStateTypes.isEmpty() || r.getLastRegistrationState(executionYear) != null
+                        && this.registrationStateTypes.contains(r.getLastRegistrationState(executionYear).getStateType());
 
         final Predicate<Registration> statuteTypeFilter = r -> this.statuteTypes.isEmpty()
-                || r.getStudent().getStudentStatutesSet().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()))
-                || r.getStudentStatutesSet().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()));
+                || r.getStudent().getStudentStatutesSet().stream().filter(s -> s.isValidOn(executionYear))
+                        .anyMatch(s -> this.statuteTypes.contains(s.getType()))
+                || r.getStudentStatutesSet().stream().filter(s -> s.isValidOn(executionYear))
+                        .anyMatch(s -> this.statuteTypes.contains(s.getType()));
 
         final Predicate<Registration> firstTimeFilter =
-                r -> this.firstTimeOnly == null || (this.firstTimeOnly.booleanValue() && r.getRegistrationYear() == executionYear)
-                        || (!this.firstTimeOnly.booleanValue() && r.getRegistrationYear() != executionYear);
+                r -> this.firstTimeOnly == null || this.firstTimeOnly.booleanValue() && r.getRegistrationYear() == executionYear
+                        || !this.firstTimeOnly.booleanValue() && r.getRegistrationYear() != executionYear;
+
+        final Predicate<Registration> studentNumberFilter =
+                r -> this.studentNumber == null || this.studentNumber.intValue() == r.getStudent().getNumber().intValue()
+                        || this.studentNumber.intValue() == r.getNumber().intValue();
 
         return buildSearchUniverse(executionYear).stream()
+
+                .filter(studentNumberFilter)
 
                 .filter(firstTimeFilter).filter(degreeTypeFilter)
 
@@ -270,7 +283,7 @@ public class RegistrationHistoryReportService {
                 .filter(e -> e.isApproved() && e.getGrade().isNumeric()).collect(Collectors.toSet())) {
             gradesSum = gradesSum.add(enrolment.getGrade().getNumericValue().multiply(enrolment.getEctsCreditsForCurriculum()));
             creditsSum = creditsSum.add(enrolment.getEctsCreditsForCurriculum());
-        } ;
+        };
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum.divide(creditsSum, MathContext.DECIMAL128)
                 .setScale(3, RoundingMode.HALF_UP);
@@ -283,7 +296,7 @@ public class RegistrationHistoryReportService {
                 .filter(e -> e.isApproved() && e.getGrade().isNumeric()).collect(Collectors.toSet())) {
             gradesSum = gradesSum.add(enrolment.getGrade().getNumericValue());
             total++;
-        } ;
+        };
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum
                 .divide(BigDecimal.valueOf(total), MathContext.DECIMAL128).setScale(3, RoundingMode.HALF_UP);

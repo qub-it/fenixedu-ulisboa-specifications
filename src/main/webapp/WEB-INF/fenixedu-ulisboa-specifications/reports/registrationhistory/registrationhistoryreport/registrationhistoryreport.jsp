@@ -171,6 +171,14 @@ ${portal.angularToolkit()}
 							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/', 
 							'${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
 				}
+
+                $scope.exportBlueRecordData = function() {
+                    $scope.exportResult(
+                            '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportbluerecord', 
+                            '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/exportstatus/', 
+                            '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/downloadreport/')
+                }
+
 				
 				$scope.exportApprovals = function() {
 					$scope.exportResult(
@@ -466,6 +474,16 @@ ${portal.angularToolkit()}
 				</div>
 			</div>
 
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message
+                        code="label.RegistrationHistoryReportParametersBean.studentNumber" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="studentNumber" class="form-control" type="number" ng-model="object.studentNumber" name="studentNumber" />
+                </div>
+            </div>
 		</div>
 
 		<div class="panel-footer">
@@ -473,26 +491,42 @@ ${portal.angularToolkit()}
 				<spring:message
 					code="label.event.reports.registrationHistory.search" />
 			</button>
-			<button type="button" class="btn btn-primary"
-				ng-click="exportRegistrations()">
-				<spring:message
-					code="label.event.reports.registrationHistory.exportRegistrations" />
-			</button>
-			<button type="button" class="btn btn-primary"
-				ng-click="exportEnrolments()">
-				<spring:message
-					code="label.event.reports.registrationHistory.exportEnrolments" />
-			</button>
-			<button type="button" class="btn btn-primary"
-				ng-click="exportApprovals()">
-				<spring:message
-					code="label.event.reports.registrationHistory.exportApprovals" />
-			</button>
-			<button type="button" class="btn btn-primary"
-				ng-click="exportRegistrationsByStatute()">
-				<spring:message
-					code="label.event.reports.registrationHistory.exportRegistrationsByStatute" />
-			</button>
+            <button type="button" class="btn btn-primary"
+                ng-click="exportRegistrations()">
+                <spring:message
+                    code="label.event.reports.registrationHistory.exportRegistrations" />
+            </button>
+            <button type="button" class="btn btn-primary"
+                ng-click="exportEnrolments()">
+                <spring:message
+                    code="label.event.reports.registrationHistory.exportEnrolments" />
+            </button>
+            <button type="button" class="btn btn-primary"
+                 ng-click="exportApprovals()">
+                 <spring:message
+                     code="label.event.reports.registrationHistory.exportApprovals" />
+             </button>
+             <div class="btn-group">
+                <button type="button" class=" btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-export" aria-hidden="true"></span>&nbsp;
+                    <spring:message code="label.event.reports.registrationHistory.export" />
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                   <li>
+                        <a class="" href="#" ng-click="exportBlueRecordData()">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            &nbsp;
+                            <spring:message code="label.event.reports.registrationHistory.exportBlueRecordData" />
+                        </a>
+                        <a class="" href="#" ng-click="exportRegistrationsByStatute()">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            &nbsp;
+                            <spring:message code="label.event.reports.registrationHistory.exportRegistrationsByStatute" />
+                        </a>
+                    </li>
+                </ul>
+            </div>   
 		</div>
 	</div>
 

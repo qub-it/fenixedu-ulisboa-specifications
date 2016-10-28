@@ -33,6 +33,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Boolean withEnrolments;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
+    private Integer studentNumber;
 
     private List<TupleDataSourceBean> executionYearsDataSource;
     private List<TupleDataSourceBean> degreeTypesDataSource;
@@ -189,7 +190,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                         .sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)
                         .map(x -> new TupleDataSourceBean(x.getExternalId(),
                                 "[" + x.getCode() + "] " + x.getPresentationNameI18N().getContent()))
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         this.regimeTypesDataSource = Arrays.asList(RegistrationRegimeType.values()).stream()
                 .map(x -> new TupleDataSourceBean(x.getName(), x.getLocalizedName())).collect(Collectors.toList());
@@ -212,6 +213,14 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                 .map(x -> new TupleDataSourceBean(x.getExternalId(), "[" + x.getCode() + "] " + x.getName().getContent()))
                 .collect(Collectors.toList());
 
+    }
+
+    public Integer getStudentNumber() {
+        return studentNumber;
+    }
+
+    public void setStudentNumber(Integer studentNumber) {
+        this.studentNumber = studentNumber;
     }
 
 }
