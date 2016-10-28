@@ -41,6 +41,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
 import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
@@ -665,6 +666,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
                         addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
                         addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
+                        addData("Enrolment.numberOfEnrolments", CompetenceCourseServices.countEnrolmentsUntil(
+                                report.getStudentCurricularPlan(), enrolment.getCurricularCourse(), report.getExecutionYear()));
                     }
 
                     private void addData(String key, Object data) {

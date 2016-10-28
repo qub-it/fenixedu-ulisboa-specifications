@@ -28,11 +28,14 @@ package org.fenixedu.ulisboa.specifications.domain;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -77,6 +80,30 @@ abstract public class CompetenceCourseServices {
         }
 
         return getScpsToCheck(registration).stream().anyMatch(i -> isApproved(i, competence, semester));
+    }
+
+    static public int countEnrolmentsUntil(final StudentCurricularPlan plan, final CurricularCourse curricularCourse,
+            final ExecutionYear executionYear) {
+
+        final Registration registration = plan.getRegistration();
+        final CompetenceCourse competence = curricularCourse.getCompetenceCourse();
+
+        final Predicate<Enrolment> validEnrolment = (e) -> e.isActive() && e.getExecutionYear().isBeforeOrEquals(executionYear);
+
+        // optional curricular course
+        if (competence == null) {
+            return (int) plan.getEnrolments(curricularCourse).stream().filter(validEnrolment).count();
+        }
+
+        final Set<CurricularCourse> expandedCourses = getExpandedCurricularCourses(competence);
+        int total = 0;
+        for (final StudentCurricularPlan scpToCheck : getScpsToCheck(registration)) {
+            for (final CurricularCourse expandedCourse : expandedCourses) {
+                total += scpToCheck.getEnrolments(expandedCourse).stream().filter(validEnrolment).count();
+            }
+        }
+
+        return total;
     }
 
     static private Set<StudentCurricularPlan> getScpsToCheck(final Registration registration) {
