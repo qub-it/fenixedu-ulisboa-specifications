@@ -203,7 +203,14 @@ public class EnrolmentProcess implements IBean {
      * Previous button
      */
     public String getReturnURL(final HttpServletRequest request) {
-        final EnrolmentStep currentStep = getCurrentStep(request);
+        return getReturnURL(request, getCurrentStep(request));
+    }
+
+    public String getReturnURL(final HttpServletRequest request, final String currentStepUrl) {
+        return getReturnURL(request, getCurrentStep(request, currentStepUrl));
+    }
+
+    private String getReturnURL(final HttpServletRequest request, final EnrolmentStep currentStep) {
         if (currentStep != null && currentStep.getPrevious() != null) {
             return EnrolmentStep.prepareURL(request, currentStep.getPrevious().getEntryPointURL());
         }
@@ -215,9 +222,16 @@ public class EnrolmentProcess implements IBean {
      * Next button
      */
     public String getContinueURL(final HttpServletRequest request) {
-        String result = null;
+        return getContinueURL(request, getCurrentStep(request));
+    }
 
-        final EnrolmentStep currentStep = getCurrentStep(request);
+    public String getContinueURL(final HttpServletRequest request, final String currentStepUrl) {
+        return getContinueURL(request, getCurrentStep(request, currentStepUrl));
+    }
+
+    private String getContinueURL(final HttpServletRequest request, final EnrolmentStep currentStep) {
+
+        String result = null;
 
         if (currentStep == null) {
             // kick start
@@ -229,7 +243,7 @@ public class EnrolmentProcess implements IBean {
         } else if (currentStep.getNext() != null) {
             result = EnrolmentStep.prepareURL(request, currentStep.getNext().getEntryPointURL());
 
-        } else {    
+        } else {
             result = getAfterProcessURL(request);
         }
 
@@ -238,6 +252,11 @@ public class EnrolmentProcess implements IBean {
         }
 
         return result;
+    }
+
+    private EnrolmentStep getCurrentStep(final HttpServletRequest request, final String currentStepUrl) {
+        return getSteps().stream().filter(s -> EnrolmentStep.prepareURL(request, s.getEntryPointURL()).equals(currentStepUrl))
+                .findFirst().get();
     }
 
     private EnrolmentStep getCurrentStep(final HttpServletRequest request) {
