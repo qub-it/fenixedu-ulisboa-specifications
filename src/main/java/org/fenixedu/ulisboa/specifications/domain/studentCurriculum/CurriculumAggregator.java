@@ -244,12 +244,14 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             throw new DomainException("error.CurriculumAggregator.unexpected.number.of.EnrolmentEvaluations");
         } else {
             evaluation = enrolment.getEvaluationsSet().iterator().next();
+            evaluation.setEvaluationSeason(getEvaluationSeason());
         }
 
         final Grade conclusionGrade = calculateConclusionGrade(plan);
         final Date conclusionDate = calculateConclusionDate(plan);
         if (!conclusionGrade.isEmpty()) {
 
+            evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
             final Date availableDate = new Date();
             evaluation.edit(Authenticate.getUser().getPerson(), conclusionGrade, availableDate, conclusionDate);
             evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescriptionDefault().getContent());
@@ -334,6 +336,32 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return result;
     }
 
+    private boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
+        if (isAggregationConcluded(plan)) {
+            return true;
+        }
+
+        int optionalEvaluatedEntries = 0;
+
+        for (final CurriculumAggregatorEntry iter : getEntriesSet()) {
+
+            if (!iter.isAggregationEvaluated(plan)) {
+                if (!iter.getOptional()) {
+                    return false;
+                }
+
+            } else if (iter.getOptional()) {
+                optionalEvaluatedEntries = optionalEvaluatedEntries + 1;
+            }
+        }
+
+        if (optionalEvaluatedEntries < getOptionalConcluded()) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
@@ -384,6 +412,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             return Grade.createEmptyGrade();
         }
 
+        if (!isAggregationEvaluated(plan)) {
+            return Grade.createEmptyGrade();
+        }
+
         if (!isAggregationConcluded(plan)) {
             return Grade.createGrade(GradeScale.RE, getGradeCalculator().getGradeScale());
         }
@@ -417,7 +449,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             result = new YearMonthDay();
         }
 
-        return new Date(result.getYear(), result.getMonthOfYear(), result.getDayOfMonth());
+        return new Date(result.getYear() - 1900, result.getMonthOfYear() - 1, result.getDayOfMonth());
     }
 
     public Set<Context> getEnrolmentMasterContexts() {

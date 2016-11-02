@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -43,7 +44,9 @@ import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurriculumAggregatorApproval;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -140,21 +143,60 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         return getEvaluationType().isCandidateForEvaluation();
     }
 
-    public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
-        final CurriculumModule approval = getApprovedCurriculumModule(plan);
-        return approval != null && approval.isConcluded();
+    protected boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
+        final CurriculumModule module = getCurriculumModule(plan, false);
+        if (module != null) {
+            if (module instanceof CurriculumGroup) {
+                // TODO legidio
+            }
+            if (module instanceof Dismissal) {
+                return true;
+            }
+            if (module instanceof Enrolment) {
+                return !((Enrolment) module).getGrade().isEmpty();
+            }
+        }
+
+        return false;
     }
 
-    private CurriculumModule getApprovedCurriculumModule(final StudentCurricularPlan plan) {
+    public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
+        final CurriculumModule module = getCurriculumModule(plan, true);
+        return module != null && module.isConcluded();
+    }
+
+    private CurriculumModule getCurriculumModule(final StudentCurricularPlan plan, final boolean approved) {
         final CurriculumModule result;
 
         final DegreeModule degreeModule = getContext().getChildDegreeModule();
         if (degreeModule.isCourseGroup()) {
             result = plan.findCurriculumGroupFor((CourseGroup) degreeModule);
+
         } else if (degreeModule.isCurricularCourse()) {
-            result = plan.getApprovedCurriculumLine((CurricularCourse) degreeModule);
+
+            if (approved) {
+                result = plan.getApprovedCurriculumLine((CurricularCourse) degreeModule);
+
+            } else {
+                result = getLastEnrolment(plan);
+            }
+
         } else {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.unexpected.entry.type");
+        }
+
+        return result;
+    }
+
+    private Enrolment getLastEnrolment(final StudentCurricularPlan plan) {
+        Enrolment result = null;
+
+        if (plan != null && getContext().getChildDegreeModule().isCurricularCourse()) {
+
+            result = plan.getEnrolments((CurricularCourse) getContext().getChildDegreeModule()).stream().max((x, y) -> {
+                final int c = x.getExecutionYear().compareTo(y.getExecutionYear());
+                return c == 0 ? ICurriculumEntry.COMPARATOR_BY_ID.compare(x, y) : c;
+            }).orElse(null);
         }
 
         return result;
@@ -163,7 +205,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     protected Set<ICurriculumEntry> getApprovedCurriculumEntries(final StudentCurricularPlan plan) {
         final Set<ICurriculumEntry> result = Sets.newHashSet();
 
-        final CurriculumModule approval = getApprovedCurriculumModule(plan);
+        final CurriculumModule approval = getCurriculumModule(plan, true);
         if (approval != null) {
             result.addAll(approval.getApprovedCurriculumLines().stream().filter(i -> i instanceof ICurriculumEntry)
                     .map(i -> ((ICurriculumEntry) i)).collect(Collectors.toSet()));

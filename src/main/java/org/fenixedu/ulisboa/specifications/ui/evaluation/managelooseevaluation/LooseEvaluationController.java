@@ -103,8 +103,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         model.addAttribute("studentCurricularPlan", studentCurricularPlan);
         model.addAttribute("LooseEvaluationBean_enrolment_options",
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
-                        .sorted((x, y) -> x.getName().getContent().compareTo(y.getName().getContent()))
-                        .collect(Collectors.toList()));
+                        .sorted(CurriculumLineServices.COMPARATOR).collect(Collectors.toList()));
 
         final boolean possibleOldData = executionSemester.getExecutionYear().getEndCivilYear() < 2016;
         final Stream<EvaluationSeason> evaluationSeasons =
@@ -130,9 +129,10 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         final List<EnrolmentEvaluation> evaluations =
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
-                        .map(l -> l.getEvaluationsSet()).reduce((a, c) -> Sets.union(a, c))
-                        .orElse(Sets.newHashSet()).stream().filter(l -> l.getMarkSheet() == null
-                                && l.getCompetenceCourseMarkSheet() == null && l.getGrade() != null && !l.getGrade().isEmpty())
+                        .map(l -> l.getEvaluationsSet()).reduce((a, c) -> Sets.union(a, c)).orElse(Sets.newHashSet()).stream()
+                        .filter(l -> l.getMarkSheet() == null && l.getCompetenceCourseMarkSheet() == null && l.getGrade() != null
+                                && !l.getGrade().isEmpty())
+                        .sorted((x, y) -> CurriculumLineServices.COMPARATOR.compare(x.getEnrolment(), y.getEnrolment()))
                         .collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
@@ -229,10 +229,12 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
     @Atomic
     private void deleteLooseEvaluation(EnrolmentEvaluation enrolmentEvaluation) {
+        final Enrolment enrolment = enrolmentEvaluation.getEnrolment();
+
         enrolmentEvaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
-        EnrolmentServices.updateState(enrolmentEvaluation.getEnrolment());
-        CurriculumLineServices.updateAggregatorEvaluation(enrolmentEvaluation.getEnrolment());
         enrolmentEvaluation.delete();
+        EnrolmentServices.updateState(enrolment);
+        CurriculumLineServices.updateAggregatorEvaluation(enrolment);
     }
 
 }

@@ -20,6 +20,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.joda.time.YearMonthDay;
@@ -48,8 +49,12 @@ public class CurriculumLineServices {
     static public void updateAggregatorEvaluation(final CurriculumLine curriculumLine) {
         if (CurriculumAggregatorServices.isAggregationsActive(curriculumLine.getExecutionYear())) {
 
-            final CurriculumAggregator aggregator =
-                    CurriculumAggregatorServices.getAggregationRoot(CurriculumAggregatorServices.getContext(curriculumLine));
+            final Context context = CurriculumAggregatorServices.getContext(curriculumLine);
+
+            // CAN NOT update evaluations on it self, so must explicitly check for an entry and it's aggregator
+            final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
+            final CurriculumAggregator aggregator = entry == null ? null : entry.getAggregator();
+
             if (aggregator != null) {
                 aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
             }
