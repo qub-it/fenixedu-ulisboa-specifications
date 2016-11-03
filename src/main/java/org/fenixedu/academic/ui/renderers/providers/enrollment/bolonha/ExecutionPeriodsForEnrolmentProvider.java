@@ -39,8 +39,8 @@ import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.dto.student.IStudentCurricularPlanBean;
 import org.fenixedu.academic.ui.renderers.providers.ExecutionPeriodsForDismissalsStudentCurricularPlanProvider;
 import org.fenixedu.academic.ui.renderers.providers.ExecutionPeriodsForStudentCurricularPlanProvider;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.ReadableInstant;
 
 import com.google.common.collect.Sets;
 
@@ -77,7 +77,7 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
         final SortedSet<ExecutionYear> result = Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_YEAR);
 
         // should be enough, if it wasn't for wrong data
-        result.add(ExecutionYear.readByDateTime(new DateTime(plan.getStartDateYearMonthDay().getChronology())));
+        result.add(ExecutionYear.readByDateTime(plan.getStartDateYearMonthDay().toDateTime((ReadableInstant) null)));
 
         // whatever the case, the SCP lines must be able to be accessible
         final ExecutionSemester firstSemester = plan.getFirstExecutionPeriod();
