@@ -77,7 +77,7 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
         final SortedSet<ExecutionYear> result = Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_YEAR);
 
         // should be enough, if it wasn't for wrong data
-        result.add(ExecutionYear.readByDateTime(plan.getStartDateYearMonthDay().toDateTime((ReadableInstant) null)));
+        result.add(ExecutionYear.readByDateTime(plan.getStartDateYearMonthDay().toDateTimeAtCurrentTime()));
 
         // whatever the case, the SCP lines must be able to be accessible
         final ExecutionSemester firstSemester = plan.getFirstExecutionPeriod();
