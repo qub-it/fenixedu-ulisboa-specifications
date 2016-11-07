@@ -14,8 +14,10 @@ import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor;
+import org.fenixedu.academic.domain.enrolment.EnroledOptionalEnrolment;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
@@ -53,6 +55,11 @@ public class StudentSchoolClassCurricularRuleExecutor extends CurricularRuleExec
         if (sourceDegreeModuleToEvaluate.isEnroled() || !canApplyRule(enrolmentContext, curricularRule)
                 || !sourceDegreeModuleToEvaluate.isLeaf()
                 || sourceDegreeModuleToEvaluate.getExecutionPeriod() != enrolmentContext.getExecutionPeriod()) {
+            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
+        }
+        
+        if (sourceDegreeModuleToEvaluate instanceof OptionalDegreeModuleToEnrol
+                || sourceDegreeModuleToEvaluate instanceof EnroledOptionalEnrolment) {
             return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
