@@ -834,8 +834,14 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Degree.degreeType", item.getDegreeTypeName());
                         addData("studentsListByCurricularCourse.degree", item.getDegreeCode());
                         addData("Degree.name", item.getDegreeName());
+                        addData("ServiceRequestSlot.label.cycleType", item.getCycleName());
+                        addData("RegistrationHistoryReport.curricularYear", item.getCurricularYear());
+                        addData("OriginInformationForm.institution", item.getInstitutionName());
                         addData("identification.number", item.getIdNumber());
+                        addData("PersonalInformationForm.documentIdExpirationDate", item.getExpirationDateOfIdDoc());
+                        addData("PersonalInformationForm.documentIdEmissionLocation", item.getEmissionLocationOfIdDoc());
                         addData("student", item.getName());
+                        addData("PersonalInformationForm.maritalStatus", item.getMaritalStatus());
                         addData("is.registered", item.getRegistrationState());
                         addData("candidacy", item.getCandidacyState());
                         addData("FiliationForm.nationality", item.getNationality());
@@ -855,6 +861,15 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ResidenceInformationForm.districtSubdivisionOfResidence",
                                 item.getDistrictSubdivisionOfResidence());
                         addData("ResidenceInformationForm.parishOfResidence", item.getParishOfResidence());
+                        addData("ResidenceInformationForm.address", item.getAddressOfResidence());
+                        addData("ResidenceInformationForm.areaCode", item.getAreaCodeOfResidence());
+                        addData("ResidenceInformationForm.schoolTimeCountry", item.getCountryOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeDistrictOfResidence", item.getDistrictOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence",
+                                item.getDistrictSubdivisionOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeParishOfResidence", item.getParishOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeAddress", item.getAddressOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeAreaCode", item.getAreaCodeOfDislocated());
                         addData("ResidenceInformationForm.dislocatedFromPermanentResidence", item.getIsDislocated());
                         addData("firstTimeCandidacy.fillResidenceInformation", item.getDislocatedResidenceType());
                         addData("PersonalInformationForm.profession", item.getProfession());
@@ -885,9 +900,17 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("OriginInformationForm.schoolLevel", item.getPrecedentSchoolLevel());
                         addData("OriginInformationForm.institution", item.getPrecedentInstitution());
                         addData("OriginInformationForm.degreeDesignation", item.getPrecedentDegreeDesignation());
+                        addData("OriginInformationForm.degree.cycle", item.getPrecendentDegreeCycle());
                         addData("OriginInformationForm.conclusionGrade", item.getPrecedentConclusionGrade());
                         addData("OriginInformationForm.conclusionYear", item.getPrecedentConclusionYear());
                         addData("OriginInformationForm.highSchoolType", item.getPrecedentHighSchoolType());
+                        addData("ContactsForm.institutionalEmail", item.getInstitutionalEmail());
+                        addData("ContactsForm.personalEmail", item.getDefaultEmail());
+                        addData("ContactsForm.phoneNumber", item.getPhone());
+                        addData("ContactsForm.mobileNumber", item.getTelephone());
+                        addData("SchoolSpecificData.vaccinationValidity", item.getVaccinationValidity());
+                        addData("HouseholdInformationForm.grantOwnerType", item.getGrantOwnerType());
+                        addData("HouseholdInformationForm.grantOwnerProviderName", item.getGrantOwnerProvider());
                     }
 
                     private void addData(String key, Object data) {
