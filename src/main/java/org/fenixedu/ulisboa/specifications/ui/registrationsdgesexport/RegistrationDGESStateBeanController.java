@@ -62,6 +62,7 @@ import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutio
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -456,6 +457,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
         String executionYear = studentCandidacy.getExecutionYear().getQualifiedName();
         Person person = studentCandidacy.getPerson();
+        StudentCurricularPlan studentCurricularPlan =
+                studentCandidacy.getRegistration().getStudentCurricularPlan(studentCandidacy.getExecutionYear());
         String degreeTypeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeTypeName();
         String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
         String degreeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getNameI18N().getContent();
@@ -470,8 +473,18 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         } else {
             degreeLevel = "Desconhecido";
         }
-        String degreeBranch = getPrimaryBranchName(
-                studentCandidacy.getRegistration().getStudentCurricularPlan(studentCandidacy.getExecutionYear()));
+
+        String degreeBranch = "";
+        if (studentCurricularPlan != null) {
+            degreeBranch = getPrimaryBranchName(studentCurricularPlan);
+        }
+
+        RegistrationRegimeType regimeTypeObj =
+                studentCandidacy.getRegistration().getRegimeType(studentCandidacy.getExecutionYear());
+        String regimeType = "";
+        if (regimeTypeObj != null) {
+            regimeType = regimeTypeObj.getLocalizedName();
+        }
 
         String documentIdNumber = person.getDocumentIdNumber();
         String candidacyState = BundleUtil.getString("resources/EnumerationResources",
@@ -747,20 +760,20 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         }
 
         return new RegistrationDGESStateBean(executionYear, studentCandidacy.getExternalId(), degreeTypeName, degreeCode,
-                degreeName, cycleName, curricularYear, institutionName, documentIdNumber, expirationDateOfIdDoc,
-                emissionLocationOfIdDoc, candidacyState, name, maritalStatus, registrationStatus, nationality, secondNationality,
-                birthYear, countryOfBirth, districtOfBirth, districtSubdivisionOfBirth, parishOfBirth, gender, ingressionType,
-                placingOption, firstOptionDegree, firstOptionInstitution, isDislocated, dislocatedResidenceType,
-                countryOfResidence, districtOfResidence, districtSubdivisionOfResidence, parishOfResidence, addressOfResidence,
-                areaCodeOfResidence, countryOfDislocated, districtOfDislocated, districtSubdivisionOfDislocated,
-                parishOfDislocated, addressOfDislocated, areaCodeOfDislocated, profession, professionTimeType,
-                professionalCondition, professionType, fatherName, fatherSchoolLevel, fatherProfessionalCondition,
-                fatherProfessionType, motherName, motherSchoolLevel, motherProfessionalCondition, motherProfessionType,
-                salarySpan, disabilityType, needsDisabilitySupport, universityDiscoveryString, universityChoiceString,
-                precedentCountry, precedentDistrict, precedentDistrictSubdivision, precedentSchoolLevel, precedentInstitution,
-                precedentDegreeDesignation, precedentConclusionGrade, precedentConclusionYear, precedentHighSchoolType,
-                precendentDegreeCycle, institutionalEmail, defaultEmail, phone, telephone, vaccinationValidity, grantOwnerType,
-                grantOwnerProvider);
+                degreeName, cycleName, curricularYear, degreeLevel, degreeBranch, regimeType, institutionName, documentIdNumber,
+                expirationDateOfIdDoc, emissionLocationOfIdDoc, candidacyState, name, maritalStatus, registrationStatus,
+                nationality, secondNationality, birthYear, countryOfBirth, districtOfBirth, districtSubdivisionOfBirth,
+                parishOfBirth, gender, ingressionType, placingOption, firstOptionDegree, firstOptionInstitution, isDislocated,
+                dislocatedResidenceType, countryOfResidence, districtOfResidence, districtSubdivisionOfResidence,
+                parishOfResidence, addressOfResidence, areaCodeOfResidence, countryOfDislocated, districtOfDislocated,
+                districtSubdivisionOfDislocated, parishOfDislocated, addressOfDislocated, areaCodeOfDislocated, profession,
+                professionTimeType, professionalCondition, professionType, fatherName, fatherSchoolLevel,
+                fatherProfessionalCondition, fatherProfessionType, motherName, motherSchoolLevel, motherProfessionalCondition,
+                motherProfessionType, salarySpan, disabilityType, needsDisabilitySupport, universityDiscoveryString,
+                universityChoiceString, precedentCountry, precedentDistrict, precedentDistrictSubdivision, precedentSchoolLevel,
+                precedentInstitution, precedentDegreeDesignation, precedentConclusionGrade, precedentConclusionYear,
+                precedentHighSchoolType, precendentDegreeCycle, institutionalEmail, defaultEmail, phone, telephone,
+                vaccinationValidity, grantOwnerType, grantOwnerProvider);
     }
 
     public static class CandidacyToProcessBean implements IBean {
@@ -806,6 +819,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         private String degreeName;
         private String cycleName;
         private String curricularYear;
+        private String degreeLevel;
+        private String degreeBranch;
+        private String regimeType;
         private String institutionName;
         private String idNumber;
         private String expirationDateOfIdDoc;
@@ -876,14 +892,15 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         private String grantOwnerProvider;
 
         public RegistrationDGESStateBean(String executionYear, String candidacyId, String degreeTypeName, String degreeCode,
-                String degreeName, String cycleName, String curricularYear, String institutionName, String idNumber,
-                String expirationDateOfIdDoc, String emissionLocationOfIdDoc, String candidacyState, String name,
-                String maritalStatus, String registrationState, String nationality, String secondNationality, String birthYear,
-                String countryOfBirth, String districtOfBirth, String districtSubdivisionOfBirth, String parishOfBirth,
-                String gender, String ingressionType, Integer placingOption, String firstOptionDegree,
-                String firstOptionInstitution, String isDislocated, String dislocatedResidenceType, String countryOfResidence,
-                String districtOfResidence, String districtSubdivisionOfResidence, String parishOfResidence,
-                String addressOfResidence, String areaCodeOfResidence, String countryOfDislocated, String districtOfDislocated,
+                String degreeName, String cycleName, String curricularYear, String degreeLevel, String degreeBranch,
+                String regimeType, String institutionName, String idNumber, String expirationDateOfIdDoc,
+                String emissionLocationOfIdDoc, String candidacyState, String name, String maritalStatus,
+                String registrationState, String nationality, String secondNationality, String birthYear, String countryOfBirth,
+                String districtOfBirth, String districtSubdivisionOfBirth, String parishOfBirth, String gender,
+                String ingressionType, Integer placingOption, String firstOptionDegree, String firstOptionInstitution,
+                String isDislocated, String dislocatedResidenceType, String countryOfResidence, String districtOfResidence,
+                String districtSubdivisionOfResidence, String parishOfResidence, String addressOfResidence,
+                String areaCodeOfResidence, String countryOfDislocated, String districtOfDislocated,
                 String districtSubdivisionOfDislocated, String parishOfDislocated, String addressOfDislocated,
                 String areaCodeOfDislocated, String profession, String professionTimeType, String professionalCondition,
                 String professionType, String fatherName, String fatherSchoolLevel, String fatherProfessionalCondition,
@@ -903,6 +920,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             this.setDegreeName(StringUtils.trim(degreeName));
             this.cycleName = StringUtils.trim(cycleName);
             this.curricularYear = StringUtils.trim(curricularYear);
+            this.degreeLevel = StringUtils.trim(degreeLevel);
+            this.degreeBranch = StringUtils.trim(degreeBranch);
+            this.regimeType = StringUtils.trim(regimeType);
             this.institutionName = StringUtils.trim(institutionName);
             this.idNumber = StringUtils.trim(idNumber);
             this.expirationDateOfIdDoc = StringUtils.trim(expirationDateOfIdDoc);
@@ -1571,6 +1591,30 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         public void setPrecendentDegreeCycle(String precendentDegreeCycle) {
             this.precendentDegreeCycle = precendentDegreeCycle;
+        }
+
+        public String getDegreeLevel() {
+            return degreeLevel;
+        }
+
+        public void setDegreeLevel(String degreeLevel) {
+            this.degreeLevel = degreeLevel;
+        }
+
+        public String getDegreeBranch() {
+            return degreeBranch;
+        }
+
+        public void setDegreeBranch(String degreeBranch) {
+            this.degreeBranch = degreeBranch;
+        }
+
+        public String getRegimeType() {
+            return regimeType;
+        }
+
+        public void setRegimeType(String regimeType) {
+            this.regimeType = regimeType;
         }
     }
 }

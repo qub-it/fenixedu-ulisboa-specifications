@@ -836,6 +836,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Degree.name", item.getDegreeName());
                         addData("ServiceRequestSlot.label.cycleType", item.getCycleName());
                         addData("RegistrationHistoryReport.curricularYear", item.getCurricularYear());
+                        addData("OriginInformationForm.schoolLevel", item.getDegreeLevel());
+                        addData("RegistrationHistoryReport.primaryBranch", item.getDegreeBranch());
+                        addData("RegistrationHistoryReport.regimeType", item.getRegimeType());
                         addData("OriginInformationForm.institution", item.getInstitutionName());
                         addData("identification.number", item.getIdNumber());
                         addData("PersonalInformationForm.documentIdExpirationDate", item.getExpirationDateOfIdDoc());
