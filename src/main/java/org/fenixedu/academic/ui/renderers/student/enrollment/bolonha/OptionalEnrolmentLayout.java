@@ -25,8 +25,11 @@
  */
 package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.lang.StringUtils;
@@ -34,17 +37,22 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.CompositeRule;
+import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AnyCurricularCourseExceptionsExecutorLogic;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentBean;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
+import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseRestrictions;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixWebFramework.renderers.components.HtmlActionLink;
 import pt.ist.fenixWebFramework.renderers.components.HtmlBlockContainer;
@@ -72,19 +80,20 @@ public class OptionalEnrolmentLayout extends Layout {
         this.renderer = input;
     }
 
-    private BolonhaStudentOptionalEnrollmentBean bolonhaStudentOptionalEnrollmentBean = null;
+    private BolonhaStudentOptionalEnrollmentBean bean = null;
+    private Set<CourseGroup> allowedGroups = null;
 
     @Override
     public HtmlComponent createComponent(Object object, Class type) {
-        bolonhaStudentOptionalEnrollmentBean = (BolonhaStudentOptionalEnrollmentBean) object;
+        bean = (BolonhaStudentOptionalEnrollmentBean) object;
 
-        if (bolonhaStudentOptionalEnrollmentBean == null) {
+        if (bean == null) {
             return new HtmlText();
         }
+        allowedGroups = providePossibleCourseGroups();
 
         final HtmlBlockContainer container = new HtmlBlockContainer();
-
-        generateCourseGroup(container, bolonhaStudentOptionalEnrollmentBean.getDegreeCurricularPlan().getRoot(), 0);
+        generateCourseGroup(container, bean.getDegreeCurricularPlan().getRoot(), 0);
 
         return container;
     }
@@ -102,9 +111,9 @@ public class OptionalEnrolmentLayout extends Layout {
         htmlTableRow.createCell().setBody(new HtmlText(courseGroup.getNameI18N().getContent()));
 
         final List<Context> childCourseGroupContexts =
-                courseGroup.getValidChildContexts(CourseGroup.class, bolonhaStudentOptionalEnrollmentBean.getExecutionPeriod());
-        final List<Context> childCurricularCourseContexts = courseGroup.getValidChildContexts(CurricularCourse.class,
-                bolonhaStudentOptionalEnrollmentBean.getExecutionPeriod());
+                courseGroup.getValidChildContexts(CourseGroup.class, bean.getExecutionPeriod());
+        final List<Context> childCurricularCourseContexts =
+                courseGroup.getValidChildContexts(CurricularCourse.class, bean.getExecutionPeriod());
 
         Collections.sort(childCourseGroupContexts, new BeanComparator("childOrder"));
         Collections.sort(childCurricularCourseContexts, new BeanComparator("childOrder"));
@@ -132,8 +141,7 @@ public class OptionalEnrolmentLayout extends Layout {
                 final HtmlTableRow htmlTableRow = table.createRow();
                 HtmlTableCell cellName = htmlTableRow.createCell();
                 cellName.setClasses(getRenderer().getCurricularCourseNameClasses());
-                cellName.setBody(generateCurricularCourseNameComponent(curricularCourse,
-                        this.bolonhaStudentOptionalEnrollmentBean.getExecutionPeriod()));
+                cellName.setBody(generateCurricularCourseNameComponent(curricularCourse, this.bean.getExecutionPeriod()));
 
                 // Year
                 final HtmlTableCell yearCell = htmlTableRow.createCell();
@@ -227,23 +235,21 @@ public class OptionalEnrolmentLayout extends Layout {
             ((BolonhaStudentOptionalEnrollmentBean) viewState.getMetaObject().getObject())
                     .setSelectedOptionalCurricularCourse(this.curricularCourse);
         }
-
     }
 
     // qubExtension
     private String isToDisableEnrolmentOption(final Context input) {
 
         final CurricularCourse course = (CurricularCourse) input.getChildDegreeModule();
-        final DegreeCurricularPlan dcp = this.bolonhaStudentOptionalEnrollmentBean.getDegreeCurricularPlan();
-        final StudentCurricularPlan scp = this.bolonhaStudentOptionalEnrollmentBean.getStudentCurricularPlan();
+        final DegreeCurricularPlan dcp = this.bean.getDegreeCurricularPlan();
+        final StudentCurricularPlan scp = this.bean.getStudentCurricularPlan();
 
         if (AnyCurricularCourseExceptionsExecutorLogic.isException(course.getCompetenceCourse(), dcp, scp)) {
             return ULisboaSpecificationsUtil
                     .bundle("curricularRules.ruleExecutors.AnyCurricularCourseExceptions.not.offered.label");
         }
 
-        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(input,
-                this.bolonhaStudentOptionalEnrollmentBean.getExecutionYear())) {
+        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(input, this.bean.getExecutionYear())) {
             return ULisboaSpecificationsUtil.bundle("CurriculumAggregator");
         }
 
@@ -251,7 +257,45 @@ public class OptionalEnrolmentLayout extends Layout {
             return BundleUtil.getString(Bundle.ENUMERATION, "approved");
         }
 
+        if (!isAllowedCourseGroup(input)) {
+            return ULisboaSpecificationsUtil
+                    .bundle("curricularRules.ruleExecutors.AnyCurricularCourseRestrictions.not.offered.label");
+        }
+
         return null;
+    }
+
+    private boolean isAllowedCourseGroup(final Context input) {
+        return !Sets.intersection(allowedGroups, input.getChildDegreeModule().getAllParentCourseGroups()).isEmpty();
+    }
+
+    private Set<CourseGroup> providePossibleCourseGroups() {
+        return getAnyCurricularCourseRestrictions(bean).stream().flatMap(i -> i.getCourseGroupsSet().stream())
+                .collect(Collectors.toSet());
+    }
+
+    static private Set<AnyCurricularCourseRestrictions> getAnyCurricularCourseRestrictions(
+            final BolonhaStudentOptionalEnrollmentBean bean) {
+
+        final IDegreeModuleToEvaluate degreeModuleToEnrol = bean.getSelectedDegreeModuleToEnrol();
+        final ExecutionSemester executionPeriod = bean.getExecutionPeriod();
+        return getAnyCurricularCourseRestrictions(degreeModuleToEnrol.getCurricularRulesFromDegreeModule(executionPeriod));
+    }
+
+    static private Set<AnyCurricularCourseRestrictions> getAnyCurricularCourseRestrictions(
+            final Collection<CurricularRule> input) {
+        final Set<AnyCurricularCourseRestrictions> result = Sets.newHashSet();
+
+        for (final CurricularRule curricularRule : input) {
+            if (curricularRule instanceof AnyCurricularCourseRestrictions) {
+                result.add((AnyCurricularCourseRestrictions) curricularRule);
+            }
+            if (curricularRule.isCompositeRule()) {
+                result.addAll(getAnyCurricularCourseRestrictions(((CompositeRule) curricularRule).getCurricularRulesSet()));
+            }
+        }
+
+        return result;
     }
 
 }

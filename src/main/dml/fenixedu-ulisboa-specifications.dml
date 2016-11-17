@@ -640,6 +640,18 @@ class curricularRules.CreditsLimitWithPreviousApprovals extends .org.fenixedu.ac
 			multiplicity 1..*;
 		}
 	}
+
+class curricularRules.AnyCurricularCourseRestrictions extends .org.fenixedu.academic.domain.curricularRules.Rule {
+}
+
+    relation AnyCurricularCourseRestrictionsCourseGroup {
+        curricularRules.AnyCurricularCourseRestrictions playsRole anyCurricularCourseRestrictions {
+            multiplicity *;
+        }
+        .org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole courseGroups {
+            multiplicity *;
+        }
+    }
 	
 // ==================== END: CurricularRule ====================
 
@@ -648,23 +660,23 @@ class curricularRules.CreditsLimitWithPreviousApprovals extends .org.fenixedu.ac
 class curricularRules.AnyCurricularCourseExceptionsConfiguration {
 }
 
-relation AnyCurricularCourseExceptionsConfigurationRoot {
-	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
-		multiplicity 1..1;
-	}
-	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
-		multiplicity 0..1;
-	}
-}
-
-relation AnyCurricularCourseExceptionsCompetenceCourse {
-	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
-		multiplicity *;
-	}
-	.org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourses {
-		multiplicity *;
-	}
-}
+    relation AnyCurricularCourseExceptionsConfigurationRoot {
+    	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
+    		multiplicity 1..1;
+    	}
+    	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
+    		multiplicity 0..1;
+    	}
+    }
+    
+    relation AnyCurricularCourseExceptionsCompetenceCourse {
+    	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
+    		multiplicity *;
+    	}
+    	.org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourses {
+    		multiplicity *;
+    	}
+    }
 
 // ==================== END: CurricularRule Executor Logics ====================
 
