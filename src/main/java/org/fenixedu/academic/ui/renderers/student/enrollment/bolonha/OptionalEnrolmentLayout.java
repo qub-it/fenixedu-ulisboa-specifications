@@ -266,7 +266,8 @@ public class OptionalEnrolmentLayout extends Layout {
     }
 
     private boolean isAllowedCourseGroup(final Context input) {
-        return !Sets.intersection(allowedGroups, input.getChildDegreeModule().getAllParentCourseGroups()).isEmpty();
+        return allowedGroups.isEmpty()
+                || !Sets.intersection(allowedGroups, input.getChildDegreeModule().getAllParentCourseGroups()).isEmpty();
     }
 
     private Set<CourseGroup> providePossibleCourseGroups() {
