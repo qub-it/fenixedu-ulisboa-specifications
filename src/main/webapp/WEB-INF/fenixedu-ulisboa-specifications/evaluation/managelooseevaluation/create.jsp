@@ -72,7 +72,7 @@ ${portal.toolkit()}
 <div class="page-header">
 	<h1>
 		<spring:message code="label.manage.createLooseEvaluationBean" />
-		<small></small>
+        <br/><small><c:out value="${studentCurricularPlan.registration.student.person.name} (${studentCurricularPlan.registration.number})" /></small>
 	</h1>
 </div>
 
