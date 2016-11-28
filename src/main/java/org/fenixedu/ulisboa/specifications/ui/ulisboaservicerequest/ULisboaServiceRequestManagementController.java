@@ -49,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSpecificationsBaseController {
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/ulisboaservicerequest";
+    public static final int SEARCH_REQUEST_LIST_LIMIT_SIZE = 500;
 
     @RequestMapping
     public String home(Model model) {
@@ -120,7 +121,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .filter(req -> isPayed == null || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
                         || AcademicTreasuryEvent.findUnique(req).isPresent()
                                 && isPayed.equals(!AcademicTreasuryEvent.findUnique(req).get().isInDebt()))
-                .collect(Collectors.toList());
+                .limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
