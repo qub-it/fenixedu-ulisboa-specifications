@@ -65,9 +65,10 @@ abstract public class EvaluationSeasonServices {
 
     private static final Logger logger = LoggerFactory.getLogger(EvaluationSeasonServices.class);
 
-    static private void init(final EvaluationSeason evaluationSeason, final boolean active) {
+    static private void init(final EvaluationSeason evaluationSeason, final boolean active,
+            final boolean requiresEnrolmentEvaluation) {
 
-        EvaluationSeasonInformation.create(evaluationSeason, active);
+        EvaluationSeasonInformation.create(evaluationSeason, active, requiresEnrolmentEvaluation);
 
         checkRules(evaluationSeason);
     }
@@ -123,7 +124,7 @@ abstract public class EvaluationSeasonServices {
     @Atomic
     static public void edit(final EvaluationSeason evaluationSeason, final String code, final LocalizedString acronym,
             final LocalizedString name, final boolean normal, final boolean improvement, final boolean special,
-            final boolean specialAuthorization, final boolean active) {
+            final boolean specialAuthorization, final boolean active, final boolean requiresEnrolmentEvaluation) {
 
         checkSeasonExistsForName(evaluationSeason, name);
 
@@ -135,20 +136,20 @@ abstract public class EvaluationSeasonServices {
         evaluationSeason.setSpecial(special);
         evaluationSeason.setSpecialAuthorization(specialAuthorization);
 
-        evaluationSeason.getInformation().edit(active);
+        evaluationSeason.getInformation().edit(active, requiresEnrolmentEvaluation);
         checkRules(evaluationSeason);
     }
 
     @Atomic
     static public EvaluationSeason create(final String code, final LocalizedString acronym, final LocalizedString name,
             final boolean normal, final boolean improvement, final boolean special, final boolean specialAuthorization,
-            final boolean active) {
+            final boolean active, final boolean requiresEnrolmentEvaluation) {
 
         final EvaluationSeason evaluationSeason =
                 new EvaluationSeason(acronym, name, normal, improvement, specialAuthorization, special);
         evaluationSeason.setCode(code);
 
-        init(evaluationSeason, active);
+        init(evaluationSeason, active, requiresEnrolmentEvaluation);
         return evaluationSeason;
     }
 
@@ -285,8 +286,8 @@ abstract public class EvaluationSeasonServices {
         return false;
     }
 
-    static public boolean isRequiredEnrolmentEvaluation(final EvaluationSeason season) {
-        return season != null && (season.isImprovement() || season.isSpecial());
+    static public boolean isRequiredEnrolmentEvaluation(final EvaluationSeason input) {
+        return input.getInformation().getRequiresEnrolmentEvaluation();
     }
 
     static public boolean isForApprovedEnrolments(final EvaluationSeason season) {
@@ -491,7 +492,22 @@ abstract public class EvaluationSeasonServices {
 
             if (iter.getInformation() == null) {
                 logger.info("Init " + iter.getName().getContent());
-                EvaluationSeasonInformation.create(iter, true).setSeasonOrder(i);
+                EvaluationSeasonInformation.create(iter, true, false).setSeasonOrder(i);
+            }
+        }
+    }
+
+    /**
+     * legidio: temp method, to be removed
+     */
+    @Atomic
+    static public void initializeRequiredEnrolmentEvaluation() {
+        final List<EvaluationSeason> seasons = findAll().collect(Collectors.toList());
+
+        if (seasons.stream().noneMatch(i -> isRequiredEnrolmentEvaluation(i))) {
+
+            for (final EvaluationSeason iter : seasons) {
+                iter.getInformation().edit(iter.getInformation().getActive(), iter.getImprovement() || iter.getSpecial());
             }
         }
     }

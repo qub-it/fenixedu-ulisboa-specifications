@@ -208,7 +208,8 @@ public class EvaluationSeasonController extends FenixeduUlisboaSpecificationsBas
 
         try {
             EvaluationSeasonServices.edit(evaluationSeason, bean.getCode(), bean.getAcronym(), bean.getName(), bean.getNormal(),
-                    bean.getImprovement(), bean.getSpecial(), bean.getSpecialAuthorization(), bean.getActive());
+                    bean.getImprovement(), bean.getSpecial(), bean.getSpecialAuthorization(), bean.getActive(),
+                    bean.getRequiredEnrolmentEvaluation());
 
             return redirect(READ_URL + getEvaluationSeason(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
@@ -250,9 +251,9 @@ public class EvaluationSeasonController extends FenixeduUlisboaSpecificationsBas
 
         try {
 
-            final EvaluationSeason evaluationSeason =
-                    EvaluationSeasonServices.create(bean.getCode(), bean.getAcronym(), bean.getName(), bean.getNormal(),
-                            bean.getImprovement(), bean.getSpecial(), bean.getSpecialAuthorization(), bean.getActive());
+            final EvaluationSeason evaluationSeason = EvaluationSeasonServices.create(bean.getCode(), bean.getAcronym(),
+                    bean.getName(), bean.getNormal(), bean.getImprovement(), bean.getSpecial(), bean.getSpecialAuthorization(),
+                    bean.getActive(), bean.getRequiredEnrolmentEvaluation());
 
             model.addAttribute("evaluationSeason", evaluationSeason);
             return redirect(READ_URL + getEvaluationSeason(model).getExternalId(), model, redirectAttributes);

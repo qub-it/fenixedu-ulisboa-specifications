@@ -90,8 +90,8 @@ ${portal.angularToolkit()}
 					<th><spring:message code="label.EvaluationSeason.acronym" /></th>
 					<th><spring:message code="label.EvaluationSeason.code" /></th>
 					<th><spring:message code="label.EvaluationSeason.active" /></th>
-					<th><spring:message code="label.EvaluationSeason.type" /></th>
 					<th><spring:message code="label.EvaluationSeason.requiredEnrolmentEvaluation" /></th>
+					<th><spring:message code="label.EvaluationSeason.type" /></th>
 					<%-- Operations Column --%>
 					<th></th>
 				</tr>
@@ -102,11 +102,6 @@ ${portal.angularToolkit()}
 						<td><c:out value="${var.name.content}"></c:out></td>
 						<td><c:out value="${var.acronym.content}"></c:out></td>
 						<td><c:out value="${var.code}"></c:out></td>
-						<td><c:if test="${var.information.active}">
-								<spring:message code="label.true" />
-							</c:if> <c:if test="${not var.information.active}">
-								<spring:message code="label.false" />
-							</c:if></td>
 						<td><c:out
 								value="<%=EvaluationSeasonServices
 									.getTypeDescriptionI18N((EvaluationSeason) pageContext.getAttribute("var"))
@@ -114,11 +109,16 @@ ${portal.angularToolkit()}
 						<td><c:if
 								test="<%=EvaluationSeasonServices
 									.isRequiredEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
-								<spring:message code="label.true" />
+								<spring:message code="label.EvaluationSeason.automatic" />
 							</c:if> <c:if
 								test="<%=!EvaluationSeasonServices
 									.isRequiredEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
-								<spring:message code="label.false" />
+								<spring:message code="label.EvaluationSeason.manual" />
+							</c:if></td>
+						<td><c:if test="${var.information.active}">
+								<spring:message code="label.yes" />
+							</c:if> <c:if test="${not var.information.active}">
+								<spring:message code="label.no" />
 							</c:if></td>
 						<td><a class="btn btn-default btn-xs"
 							href="${pageContext.request.contextPath}<%=EvaluationSeasonController.SEARCH_TO_VIEW_ACTION_URL%>${var.externalId}"><spring:message

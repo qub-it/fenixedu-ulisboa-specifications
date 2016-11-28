@@ -753,6 +753,7 @@ relation EvaluationSeasonPeriodExecutionSemester {
 class evaluation.season.EvaluationSeasonInformation {
 	Integer seasonOrder;
 	boolean active;
+	boolean requiresEnrolmentEvaluation;
 }
 
 relation EvaluationSeasonInformationRelation {

@@ -40,10 +40,13 @@ public class EvaluationSeasonInformation extends EvaluationSeasonInformation_Bas
         super();
     }
 
-    protected void init(final EvaluationSeason evaluationSeason, final boolean active) {
+    protected void init(final EvaluationSeason evaluationSeason, final boolean active,
+            final boolean requiresEnrolmentEvaluation) {
+        
         setSeason(evaluationSeason);
         setSeasonOrder(EvaluationSeasonServices.maxOrder() + 1);
         setActive(active);
+        setRequiresEnrolmentEvaluation(requiresEnrolmentEvaluation);
         checkRules();
     }
 
@@ -58,8 +61,9 @@ public class EvaluationSeasonInformation extends EvaluationSeasonInformation_Bas
     }
 
     @Atomic
-    public void edit(final boolean active) {
+    public void edit(final boolean active, final boolean requiresEnrolmentEvaluation) {
         setActive(active);
+        setRequiresEnrolmentEvaluation(requiresEnrolmentEvaluation);
         checkRules();
     }
 
@@ -75,9 +79,11 @@ public class EvaluationSeasonInformation extends EvaluationSeasonInformation_Bas
     }
 
     @Atomic
-    public static EvaluationSeasonInformation create(final EvaluationSeason evaluationSeason, final boolean active) {
+    public static EvaluationSeasonInformation create(final EvaluationSeason evaluationSeason, final boolean active,
+            final boolean requiresEnrolmentEvaluation) {
+
         final EvaluationSeasonInformation result = new EvaluationSeasonInformation();
-        result.init(evaluationSeason, active);
+        result.init(evaluationSeason, active, requiresEnrolmentEvaluation);
         return result;
     }
 

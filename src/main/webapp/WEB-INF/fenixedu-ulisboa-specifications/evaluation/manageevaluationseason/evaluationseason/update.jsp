@@ -123,7 +123,15 @@ ${portal.angularToolkit()}
 					    name : '<spring:message code="label.yes"/>',
 					    value : true
 					} ];
-
+                $scope.requiredEnrolmentEvaluationValues = [
+                    {
+                        name : '<spring:message code="label.EvaluationSeason.manual"/>',
+                        value : false
+                    },
+                    {
+                        name : '<spring:message code="label.EvaluationSeason.automatic"/>',
+                        value : true
+                    } ];
 				$scope.object = ${evaluationSeasonBeanJson};
 				$scope.postBack = createAngularPostbackFunction($scope);
 
@@ -186,6 +194,18 @@ ${portal.angularToolkit()}
 					</select>
 				</div>
 			</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.EvaluationSeason.requiredEnrolmentEvaluation" />
+                </div>
+
+                <div class="col-sm-2">
+                    <select id="evaluationSeason_normal" name="requiredEnrolmentEvaluation"
+                        class="form-control" ng-model="object.requiredEnrolmentEvaluation"
+                        ng-options="bvalue.value as bvalue.name for bvalue in requiredEnrolmentEvaluationValues">
+                    </select>
+                </div>
+            </div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.EvaluationSeason.normal" />
