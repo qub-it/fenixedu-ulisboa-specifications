@@ -85,7 +85,7 @@ ${portal.angularToolkit()}
 				}
 				
 				$scope.submitGradesWithEmptyCheck = function() {
-				    if (!$scope.hasAnyEmptyGrade() || $scope.object.supportsEmptyGrades) {						
+				    if (!$scope.hasAnyEmptyGrade() || $scope.object.evaluationSeason.information.supportsEmptyGrades) {						
 						$scope.submitGrades();
 					} else {
 						$('#emptyGradesWarningModal').modal('toggle')
