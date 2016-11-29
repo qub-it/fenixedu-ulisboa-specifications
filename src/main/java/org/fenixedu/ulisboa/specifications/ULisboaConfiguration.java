@@ -63,6 +63,8 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "executionCourse.more.funcs", defaultValue = "false")
         public Boolean getShowAllExecutionCourseFuncs();
 
+        @ConfigurationProperty(key = "support.active", defaultValue = "true")
+        public Boolean getSupportActive();
     }
 
     public static ConfigurationProperties getConfiguration() {

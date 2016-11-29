@@ -44,4 +44,9 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
         Boolean showFuncs = ULisboaConfiguration.getConfiguration().getShowAllExecutionCourseFuncs();
         return showFuncs != null ? showFuncs : false;
     }
+
+    public boolean isSupportActive() {
+        Boolean supportActive = ULisboaConfiguration.getConfiguration().getSupportActive();
+        return supportActive != null ? supportActive : false;
+    }
 }
