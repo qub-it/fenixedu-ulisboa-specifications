@@ -125,14 +125,32 @@ ${portal.angularToolkit()}
 					} ];
                 $scope.requiredEnrolmentEvaluationValues = [
                     {
-                        name : '<spring:message code="label.EvaluationSeason.manual"/>',
+                        name : '<spring:message code="label.EvaluationSeason.automatic"/>',
                         value : false
                     },
                     {
-                        name : '<spring:message code="label.EvaluationSeason.automatic"/>',
+                        name : '<spring:message code="label.EvaluationSeason.manual"/>',
                         value : true
                     } ];
-
+                $scope.supportsEmptyGradesValues = [
+                    {
+                        name : '<spring:message code="label.EvaluationSeason.total"/>',
+                        value : false
+                    },
+                    {
+                        name : '<spring:message code="label.EvaluationSeason.partial"/>',
+                        value : true
+                    } ];
+                $scope.supportsTeacherConfirmationValues = [
+                    {
+                        name : '<spring:message code="label.EvaluationSeason.backoffice"/>',
+                        value : false
+                    },
+                    {
+                        name : '<spring:message code="label.EvaluationSeason.frontoffice"/>',
+                        value : true
+                    } ];
+                
                 $scope.object = ${evaluationSeasonBeanJson};
 				$scope.postBack = createAngularPostbackFunction($scope);
 
@@ -200,9 +218,33 @@ ${portal.angularToolkit()}
                 </div>
 
                 <div class="col-sm-2">
-                    <select id="evaluationSeason_normal" name="requiredEnrolmentEvaluation"
+                    <select id="evaluationSeason_requiredEnrolmentEvaluation" name="requiredEnrolmentEvaluation"
                         class="form-control" ng-model="object.requiredEnrolmentEvaluation"
                         ng-options="bvalue.value as bvalue.name for bvalue in requiredEnrolmentEvaluationValues">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.EvaluationSeason.supportsEmptyGrades" />
+                </div>
+
+                <div class="col-sm-2">
+                    <select id="evaluationSeason_supportsEmptyGrades" name="supportsEmptyGrades"
+                        class="form-control" ng-model="object.supportsEmptyGrades"
+                        ng-options="bvalue.value as bvalue.name for bvalue in supportsEmptyGradesValues">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.EvaluationSeason.supportsTeacherConfirmation" />
+                </div>
+
+                <div class="col-sm-2">
+                    <select id="evaluationSeason_supportsTeacherConfirmation" name="supportsTeacherConfirmation"
+                        class="form-control" ng-model="object.supportsTeacherConfirmation"
+                        ng-options="bvalue.value as bvalue.name for bvalue in supportsTeacherConfirmationValues">
                     </select>
                 </div>
             </div>

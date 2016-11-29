@@ -66,10 +66,11 @@ abstract public class EvaluationSeasonServices {
     private static final Logger logger = LoggerFactory.getLogger(EvaluationSeasonServices.class);
 
     static private void init(final EvaluationSeason evaluationSeason, final boolean active,
-            final boolean requiresEnrolmentEvaluation) {
+            final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
+            final boolean supportsTeacherConfirmation) {
 
-        EvaluationSeasonInformation.create(evaluationSeason, active, requiresEnrolmentEvaluation);
-
+        EvaluationSeasonInformation.create(evaluationSeason, active, requiresEnrolmentEvaluation, supportsEmptyGrades,
+                supportsTeacherConfirmation);
         checkRules(evaluationSeason);
     }
 
@@ -124,7 +125,8 @@ abstract public class EvaluationSeasonServices {
     @Atomic
     static public void edit(final EvaluationSeason evaluationSeason, final String code, final LocalizedString acronym,
             final LocalizedString name, final boolean normal, final boolean improvement, final boolean special,
-            final boolean specialAuthorization, final boolean active, final boolean requiresEnrolmentEvaluation) {
+            final boolean specialAuthorization, final boolean active, final boolean requiresEnrolmentEvaluation,
+            final boolean supportsEmptyGrades, final boolean supportsTeacherConfirmation) {
 
         checkSeasonExistsForName(evaluationSeason, name);
 
@@ -136,20 +138,22 @@ abstract public class EvaluationSeasonServices {
         evaluationSeason.setSpecial(special);
         evaluationSeason.setSpecialAuthorization(specialAuthorization);
 
-        evaluationSeason.getInformation().edit(active, requiresEnrolmentEvaluation);
+        evaluationSeason.getInformation().edit(active, requiresEnrolmentEvaluation, supportsEmptyGrades,
+                supportsTeacherConfirmation);
         checkRules(evaluationSeason);
     }
 
     @Atomic
     static public EvaluationSeason create(final String code, final LocalizedString acronym, final LocalizedString name,
             final boolean normal, final boolean improvement, final boolean special, final boolean specialAuthorization,
-            final boolean active, final boolean requiresEnrolmentEvaluation) {
+            final boolean active, final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
+            final boolean supportsTeacherConfirmation) {
 
         final EvaluationSeason evaluationSeason =
                 new EvaluationSeason(acronym, name, normal, improvement, specialAuthorization, special);
         evaluationSeason.setCode(code);
 
-        init(evaluationSeason, active, requiresEnrolmentEvaluation);
+        init(evaluationSeason, active, requiresEnrolmentEvaluation, supportsEmptyGrades, supportsTeacherConfirmation);
         return evaluationSeason;
     }
 
@@ -287,7 +291,15 @@ abstract public class EvaluationSeasonServices {
     }
 
     static public boolean isRequiredEnrolmentEvaluation(final EvaluationSeason input) {
-        return input.getInformation().getRequiresEnrolmentEvaluation();
+        return input != null && input.getInformation() != null && input.getInformation().getRequiresEnrolmentEvaluation();
+    }
+
+    static public boolean isSupportsEmptyGrades(final EvaluationSeason input) {
+        return input != null && input.getInformation() != null && input.getInformation().getSupportsEmptyGrades();
+    }
+
+    static public boolean isSupportsTeacherConfirmation(final EvaluationSeason input) {
+        return input != null && input.getInformation() != null && input.getInformation().getSupportsTeacherConfirmation();
     }
 
     static public boolean isForApprovedEnrolments(final EvaluationSeason season) {
@@ -492,7 +504,7 @@ abstract public class EvaluationSeasonServices {
 
             if (iter.getInformation() == null) {
                 logger.info("Init " + iter.getName().getContent());
-                EvaluationSeasonInformation.create(iter, true, false).setSeasonOrder(i);
+                EvaluationSeasonInformation.create(iter, false, false, true, false).setSeasonOrder(i);
             }
         }
     }
@@ -501,13 +513,32 @@ abstract public class EvaluationSeasonServices {
      * legidio: temp method, to be removed
      */
     @Atomic
-    static public void initializeRequiredEnrolmentEvaluation() {
+    static public void initializeNewAttributes() {
         final List<EvaluationSeason> seasons = findAll().collect(Collectors.toList());
 
         if (seasons.stream().noneMatch(i -> isRequiredEnrolmentEvaluation(i))) {
 
             for (final EvaluationSeason iter : seasons) {
-                iter.getInformation().edit(iter.getInformation().getActive(), iter.getImprovement() || iter.getSpecial());
+                iter.getInformation().edit(iter.getInformation().getActive(), iter.getImprovement() || iter.getSpecial(),
+                        iter.getInformation().getSupportsEmptyGrades(), iter.getInformation().getSupportsTeacherConfirmation());
+            }
+        }
+
+        if (seasons.stream().noneMatch(i -> i.getInformation().getSupportsEmptyGrades())) {
+
+            for (final EvaluationSeason iter : seasons) {
+                iter.getInformation().edit(iter.getInformation().getActive(),
+                        iter.getInformation().getRequiresEnrolmentEvaluation(), true,
+                        iter.getInformation().getSupportsTeacherConfirmation());
+            }
+        }
+
+        if (seasons.stream().noneMatch(i -> i.getInformation().getSupportsTeacherConfirmation())) {
+
+            for (final EvaluationSeason iter : seasons) {
+                iter.getInformation().edit(iter.getInformation().getActive(),
+                        iter.getInformation().getRequiresEnrolmentEvaluation(), iter.getInformation().getSupportsEmptyGrades(),
+                        false);
             }
         }
     }

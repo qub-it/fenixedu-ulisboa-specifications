@@ -46,6 +46,8 @@ public class EvaluationSeasonBean implements IBean {
     private Integer seasonOrder;
     private boolean active;
     private boolean requiredEnrolmentEvaluation;
+    private boolean supportsEmptyGrades;
+    private boolean supportsTeacherConfirmation;
 
     public EvaluationSeasonInformation getInformation() {
         return evaluationSeasonInformation;
@@ -135,6 +137,22 @@ public class EvaluationSeasonBean implements IBean {
         requiredEnrolmentEvaluation = value;
     }
 
+    public boolean getSupportsEmptyGrades() {
+        return this.supportsEmptyGrades;
+    }
+
+    public void setSupportsEmptyGrades(boolean value) {
+        this.supportsEmptyGrades = value;
+    }
+
+    public boolean getSupportsTeacherConfirmation() {
+        return this.supportsTeacherConfirmation;
+    }
+
+    public void setSupportsTeacherConfirmation(boolean value) {
+        this.supportsTeacherConfirmation = value;
+    }
+
     public EvaluationSeasonBean() {
 
     }
@@ -151,6 +169,8 @@ public class EvaluationSeasonBean implements IBean {
         this.setSeasonOrder(getInformation().getSeasonOrder());
         this.setActive(getInformation().getActive());
         this.setRequiredEnrolmentEvaluation(EvaluationSeasonServices.isRequiredEnrolmentEvaluation(evaluationSeason));
+        this.setSupportsEmptyGrades(getInformation().getSupportsEmptyGrades());
+        this.setSupportsTeacherConfirmation(getInformation().getSupportsTeacherConfirmation());
     }
 
 }

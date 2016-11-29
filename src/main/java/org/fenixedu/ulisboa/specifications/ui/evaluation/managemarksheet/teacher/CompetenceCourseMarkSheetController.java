@@ -145,7 +145,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     public String search(@PathVariable("executionCourseId") final ExecutionCourse executionCourse, final Model model) {
         final List<CompetenceCourseMarkSheet> searchResultsDataSet = filterSearch(executionCourse);
 
-        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(executionCourse, Authenticate.getUser().getPerson());
+        final CompetenceCourseMarkSheetBean bean =
+                new CompetenceCourseMarkSheetBean(executionCourse, Authenticate.getUser().getPerson());
         bean.update();
         setCompetenceCourseMarkSheetBean(bean, model);
 

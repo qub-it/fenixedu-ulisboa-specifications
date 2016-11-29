@@ -40,13 +40,15 @@ public class EvaluationSeasonInformation extends EvaluationSeasonInformation_Bas
         super();
     }
 
-    protected void init(final EvaluationSeason evaluationSeason, final boolean active,
-            final boolean requiresEnrolmentEvaluation) {
-        
+    protected void init(final EvaluationSeason evaluationSeason, final boolean active, final boolean requiresEnrolmentEvaluation,
+            final boolean supportsEmptyGrades, final boolean supportsTeacherConfirmation) {
+
         setSeason(evaluationSeason);
         setSeasonOrder(EvaluationSeasonServices.maxOrder() + 1);
         setActive(active);
         setRequiresEnrolmentEvaluation(requiresEnrolmentEvaluation);
+        setSupportsEmptyGrades(supportsEmptyGrades);
+        setSupportsTeacherConfirmation(supportsTeacherConfirmation);
         checkRules();
     }
 
@@ -61,9 +63,13 @@ public class EvaluationSeasonInformation extends EvaluationSeasonInformation_Bas
     }
 
     @Atomic
-    public void edit(final boolean active, final boolean requiresEnrolmentEvaluation) {
+    public void edit(final boolean active, final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
+            final boolean supportsTeacherConfirmation) {
+
         setActive(active);
         setRequiresEnrolmentEvaluation(requiresEnrolmentEvaluation);
+        setSupportsEmptyGrades(supportsEmptyGrades);
+        setSupportsTeacherConfirmation(supportsTeacherConfirmation);
         checkRules();
     }
 
@@ -80,10 +86,11 @@ public class EvaluationSeasonInformation extends EvaluationSeasonInformation_Bas
 
     @Atomic
     public static EvaluationSeasonInformation create(final EvaluationSeason evaluationSeason, final boolean active,
-            final boolean requiresEnrolmentEvaluation) {
+            final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
+            final boolean supportsTeacherConfirmation) {
 
         final EvaluationSeasonInformation result = new EvaluationSeasonInformation();
-        result.init(evaluationSeason, active, requiresEnrolmentEvaluation);
+        result.init(evaluationSeason, active, requiresEnrolmentEvaluation, supportsEmptyGrades, supportsTeacherConfirmation);
         return result;
     }
 

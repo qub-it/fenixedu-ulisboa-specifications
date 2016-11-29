@@ -60,6 +60,7 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.LocalDate;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -562,6 +563,12 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         if (getEvaluations().stream().anyMatch(e -> e.getErrorMessage() != null)) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.invalid.evaluations");
+        }
+
+        if (!EvaluationSeasonServices.isSupportsEmptyGrades(getEvaluationSeason())
+                && getEvaluations().stream().anyMatch(e -> Strings.isNullOrEmpty(e.getGradeValue()))) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.emptyGrades",
+                    getEvaluationSeason().getName().getContent());
         }
 
     }

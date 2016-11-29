@@ -145,19 +145,19 @@ ${portal.angularToolkit()}
 						<td><c:out value='${evaluationSeason.code}' /></td>
 					</tr>
 					<tr>
+						<th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.type" /></th>
+						<td><c:out
+								value="<%=EvaluationSeasonServices
+						.getTypeDescriptionI18N((EvaluationSeason) request.getAttribute("evaluationSeason"))
+						.getContent()%>"></c:out></td>
+					</tr>
+					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.active" /></th>
 						<td><c:if test="${evaluationSeason.information.active}">
 								<spring:message code="label.yes" />
 							</c:if> <c:if test="${not evaluationSeason.information.active}">
 								<spring:message code="label.no" />
 							</c:if></td>
-					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.type" /></th>
-						<td><c:out
-								value="<%=EvaluationSeasonServices
-						.getTypeDescriptionI18N((EvaluationSeason) request.getAttribute("evaluationSeason"))
-						.getContent()%>"></c:out></td>
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.requiredEnrolmentEvaluation" /></th>
@@ -171,6 +171,22 @@ ${portal.angularToolkit()}
 								<spring:message code="label.EvaluationSeason.manual" />
 							</c:if></td>
 					</tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.supportsEmptyGrades" /></th>
+                        <td><c:if test="${evaluationSeason.information.supportsEmptyGrades}">
+                                <spring:message code="label.EvaluationSeason.partial" />
+                            </c:if> <c:if test="${not evaluationSeason.information.supportsEmptyGrades}">
+                                <spring:message code="label.EvaluationSeason.total" />
+                            </c:if></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.EvaluationSeason.supportsTeacherConfirmation" /></th>
+                        <td><c:if test="${evaluationSeason.information.supportsTeacherConfirmation}">
+                                <spring:message code="label.EvaluationSeason.frontoffice" />
+                            </c:if> <c:if test="${not evaluationSeason.information.supportsTeacherConfirmation}">
+                                <spring:message code="label.EvaluationSeason.backoffice" />
+                            </c:if></td>
+                    </tr>
 				</tbody>
 			</table>
 		</form>

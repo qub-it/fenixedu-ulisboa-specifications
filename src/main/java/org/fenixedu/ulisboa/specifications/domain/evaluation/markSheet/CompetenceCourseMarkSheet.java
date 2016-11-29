@@ -735,6 +735,11 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.enrolmentEvaluations.required.to.confirm.markSheet");
         }
 
+        if (!EvaluationSeasonServices.isSupportsTeacherConfirmation(getEvaluationSeason()) && byTeacher) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.unauthorized.teacher.confirmation",
+                    getEvaluationSeason().getName().getContent());
+        }
+
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
             //TODO: force evaluation checksum generation
             evaluation.setWhenDateTime(new DateTime());
@@ -745,7 +750,6 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         }
 
         CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
-
     }
 
     @Atomic

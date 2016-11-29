@@ -754,6 +754,8 @@ class evaluation.season.EvaluationSeasonInformation {
 	Integer seasonOrder;
 	boolean active;
 	boolean requiresEnrolmentEvaluation;
+	boolean supportsEmptyGrades;
+	boolean supportsTeacherConfirmation;
 }
 
 relation EvaluationSeasonInformationRelation {

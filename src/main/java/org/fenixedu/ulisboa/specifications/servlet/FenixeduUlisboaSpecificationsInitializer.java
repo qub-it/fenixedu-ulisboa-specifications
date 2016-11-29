@@ -125,7 +125,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentPredicateInitializer.init();
         EnrolmentManagerFactoryInitializer.init();
         EvaluationSeasonServices.initialize();
-        EvaluationSeasonServices.initializeRequiredEnrolmentEvaluation();
+        EvaluationSeasonServices.initializeNewAttributes();
         StudentCurricularPlanLayout.register();
         CurriculumLayout.register();
         configureEnrolmentEvaluationComparator();
