@@ -116,11 +116,11 @@ ${portal.angularToolkit()}
 						<td><c:if
 								test="<%=EvaluationSeasonServices
 									.isRequiredEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
-								<spring:message code="label.EvaluationSeason.automatic" />
+								<spring:message code="label.EvaluationSeason.manual" />
 							</c:if> <c:if
 								test="<%=!EvaluationSeasonServices
 									.isRequiredEnrolmentEvaluation((EvaluationSeason) pageContext.getAttribute("var"))%>">
-								<spring:message code="label.EvaluationSeason.manual" />
+								<spring:message code="label.EvaluationSeason.automatic" />
 							</c:if></td>
                         <td><c:if test="${var.information.supportsEmptyGrades}">
                                 <spring:message code="label.EvaluationSeason.partial" />
