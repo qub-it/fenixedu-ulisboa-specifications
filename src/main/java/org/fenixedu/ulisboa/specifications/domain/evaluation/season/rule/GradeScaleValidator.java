@@ -105,16 +105,42 @@ public class GradeScaleValidator extends GradeScaleValidator_Base {
 
                 final List<String> limits = Lists.newArrayList(iter.split("-"));
                 if (limits.size() == 2) {
-                    final BigDecimal value = BigDecimalValidator.getInstance().validate(input.replace(".", ","));
-                    final BigDecimal min = BigDecimalValidator.getInstance().validate(limits.get(0).replace(".", ","));
-                    final BigDecimal max = BigDecimalValidator.getInstance().validate(limits.get(1).replace(".", ","));
-                    return value != null && min != null && max != null
-                            && BigDecimalValidator.getInstance().isInRange(value, min, max);
+
+                    final String limitMin = limits.get(0);
+                    final String limitMax = limits.get(1);
+                    final int scale = getScale(limitMin, limitMax);
+
+                    try {
+                        final BigDecimal value = new BigDecimal(input);
+                        if (value.scale() == scale) {
+
+                            final BigDecimal min = new BigDecimal(limitMin);
+                            final BigDecimal max = new BigDecimal(limitMax);
+                            return BigDecimalValidator.getInstance().isInRange(value, min, max);
+                        }
+                    } catch (Exception e) {
+                    }
                 }
             }
         }
 
         return false;
+    }
+
+    static private int getScale(final String limitMin, final String limitMax) {
+        int scale = 0;
+
+        if (limitMin.contains(".")) {
+            final int temp = limitMin.split("[.]")[1].length();
+            scale = scale == 0 || temp < scale ? temp : scale;
+        }
+
+        if (limitMax.contains(".")) {
+            final int temp = limitMax.split("[.]")[1].length();
+            scale = scale == 0 || temp < scale ? temp : scale;
+        }
+
+        return scale;
     }
 
     @Override
