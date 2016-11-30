@@ -125,11 +125,11 @@ ${portal.angularToolkit()}
 					} ];
                 $scope.requiredEnrolmentEvaluationValues = [
                     {
-                        name : '<spring:message code="label.EvaluationSeason.manual"/>',
+                        name : '<spring:message code="label.EvaluationSeason.automatic"/>',
                         value : false
                     },
                     {
-                        name : '<spring:message code="label.EvaluationSeason.automatic"/>',
+                        name : '<spring:message code="label.EvaluationSeason.manual"/>',
                         value : true
                     } ];
                 $scope.supportsEmptyGradesValues = [
