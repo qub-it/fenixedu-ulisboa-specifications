@@ -273,8 +273,13 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     public void updateCertifierDataSource() {
 
         // inspect professorships
-        final Set<Professorship> professorships = getFilteredExecutionCourses(getExecutionCourse())
-                .flatMap(e -> e.getProfessorshipsSet().stream()).collect(Collectors.toSet());
+        final Set<Professorship> shiftProfessorships = getShifts() == null ? Sets.newHashSet() : getShifts().stream()
+                .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getProfessorship()))
+                .filter(i -> i != null).collect(Collectors.toSet());
+
+        final Set<Professorship> professorships =
+                shiftProfessorships.isEmpty() ? getFilteredExecutionCourses(getExecutionCourse())
+                        .flatMap(e -> e.getProfessorshipsSet().stream()).collect(Collectors.toSet()) : shiftProfessorships;
         final Set<Person> teachers = professorships.stream().map(p -> p.getPerson()).collect(Collectors.toSet());
         final Set<Person> responsibles =
                 professorships.stream().filter(p -> p.isResponsibleFor()).map(p -> p.getPerson()).collect(Collectors.toSet());
@@ -327,8 +332,28 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         return shiftsDataSource;
     }
 
-    public void setShiftsDataSource(final Set<Shift> value) {
-        this.shiftsDataSource = value.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x -> {
+    private void updateShiftsDataSource() {
+
+        // inspect professorships
+        final Set<ExecutionCourse> executionCourses =
+                getFilteredExecutionCourses(getExecutionCourse()).collect(Collectors.toSet());
+        final Set<Professorship> professorships =
+                executionCourses.stream().flatMap(e -> e.getProfessorshipsSet().stream()).collect(Collectors.toSet());
+
+        // set available options
+        final Set<Shift> professorshipShifts = professorships.stream()
+                .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift())).collect(Collectors.toSet());
+        Set<Shift> available;
+        if (isByTeacher() && !professorshipShifts.isEmpty()) {
+            available = professorships.stream().filter(i -> i.getTeacher().getPerson() == Authenticate.getUser().getPerson())
+                    .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift()))
+                    .collect(Collectors.toSet());
+        } else {
+            available = executionCourses.stream().flatMap(e -> e.getAssociatedShifts().stream()).collect(Collectors.toSet());
+        }
+
+        // build data source
+        this.shiftsDataSource = available.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getNome());
@@ -485,19 +510,24 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         setExecutionCourse(markSheet.getExecutionCourse());
         setExpireDate(markSheet.getExpireDate());
 
-        setEvaluations(buildEvaluations());
+        setEvaluations(buildEnrolmentEvaluations());
 
         update();
     }
 
-    public CompetenceCourseMarkSheetBean(final ExecutionCourse executionCourse, final Person certifier) {
-        setExecutionSemester(executionCourse.getExecutionPeriod());
-        setCompetenceCourse(executionCourse.getCompetenceCourses().size() == 1 ? executionCourse.getCompetenceCourses().iterator()
-                .next() : null);
-        setCertifier(certifier);
-        setExecutionCourse(executionCourse);
+    static public CompetenceCourseMarkSheetBean createForTeacher(final ExecutionCourse executionCourse, final Person certifier) {
+        final CompetenceCourseMarkSheetBean result = new CompetenceCourseMarkSheetBean();
 
-        update();
+        result.setByTeacher(true);
+        result.setExecutionSemester(executionCourse.getExecutionPeriod());
+        result.setCompetenceCourse(executionCourse.getCompetenceCourses().size() == 1 ? executionCourse.getCompetenceCourses()
+                .iterator().next() : null);
+        result.setCertifier(certifier);
+        result.setExecutionCourse(executionCourse);
+
+        result.update();
+
+        return result;
     }
 
     public void update() {
@@ -511,8 +541,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         updateCertifierDataSource();
 
-        setShiftsDataSource(getFilteredExecutionCourses(getExecutionCourse()).flatMap(e -> e.getAssociatedShifts().stream())
-                .collect(Collectors.toSet()));
+        updateShiftsDataSource();
 
         setMarkSheetStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetStateEnum.values()));
 
@@ -531,7 +560,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 .filter(e -> toFilter == null || e == toFilter);
     }
 
-    private List<MarkBean> buildEvaluations() {
+    private List<MarkBean> buildEnrolmentEvaluations() {
         final List<MarkBean> result = Lists.newArrayList();
 
         if (getCompetenceCourseMarkSheet() != null) {
@@ -554,7 +583,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         return result;
     }
 
-    private void validateEvaluations() {
+    private void validateEnrolmentEvaluations() {
 
         for (final MarkBean markBean : getEvaluations()) {
             markBean.setErrorMessage(null);
@@ -574,7 +603,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void updateEnrolmentEvaluations() {
-        validateEvaluations();
+        validateEnrolmentEvaluations();
 
         for (final MarkBean markBean : getEvaluations()) {
             markBean.updateEnrolmentEvaluation();

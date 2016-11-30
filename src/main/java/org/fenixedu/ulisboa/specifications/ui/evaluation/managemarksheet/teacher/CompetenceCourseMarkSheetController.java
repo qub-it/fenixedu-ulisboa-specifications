@@ -146,7 +146,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         final List<CompetenceCourseMarkSheet> searchResultsDataSet = filterSearch(executionCourse);
 
         final CompetenceCourseMarkSheetBean bean =
-                new CompetenceCourseMarkSheetBean(executionCourse, Authenticate.getUser().getPerson());
+                CompetenceCourseMarkSheetBean.createForTeacher(executionCourse, Authenticate.getUser().getPerson());
         bean.update();
         setCompetenceCourseMarkSheetBean(bean, model);
 
@@ -291,8 +291,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     @RequestMapping(value = _CREATE_URI + "{executionCourseId}", method = RequestMethod.GET)
     public String create(@PathVariable("executionCourseId") final ExecutionCourse executionCourse, final Model model) {
         final CompetenceCourseMarkSheetBean bean =
-                new CompetenceCourseMarkSheetBean(executionCourse, Authenticate.getUser().getPerson());
-        bean.setByTeacher(true);
+                CompetenceCourseMarkSheetBean.createForTeacher(executionCourse, Authenticate.getUser().getPerson());
         this.setCompetenceCourseMarkSheetBean(bean, model);
 
         return jspPage("create");
