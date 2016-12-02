@@ -66,6 +66,8 @@ public class EvaluationSeasonRuleBean implements IBean {
 
     private LocalizedString ruleDescription;
 
+    private boolean appliesToCurriculumAggregatorEntry;
+
     public EvaluationSeason getSeason() {
         return season;
     }
@@ -138,6 +140,14 @@ public class EvaluationSeasonRuleBean implements IBean {
         this.ruleDescription = ruleDescription;
     }
 
+    public boolean getAppliesToCurriculumAggregatorEntry() {
+        return appliesToCurriculumAggregatorEntry;
+    }
+
+    public void setAppliesToCurriculumAggregatorEntry(boolean appliesToCurriculumAggregatorEntry) {
+        this.appliesToCurriculumAggregatorEntry = appliesToCurriculumAggregatorEntry;
+    }
+
     public EvaluationSeasonRuleBean() {
         init();
     }
@@ -171,6 +181,7 @@ public class EvaluationSeasonRuleBean implements IBean {
         setGradeValues(input.getGradeValues());
         setDegreeTypes(input.getDegreeTypeSet());
         setRuleDescription(input.getRuleDescription());
+        setAppliesToCurriculumAggregatorEntry(input.getAppliesToCurriculumAggregatorEntry());
     }
 
     private void init(final Grade grade) {

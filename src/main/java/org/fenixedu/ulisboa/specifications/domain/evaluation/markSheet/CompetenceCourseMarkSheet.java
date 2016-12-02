@@ -71,6 +71,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeSc
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -690,6 +691,11 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return false;
     }
 
+    public String getGradeScaleDescription() {
+        final GradeScaleValidator validator = getGradeScaleValidator();
+        return validator == null ? getGradeScale().getDescription() : validator.getRuleDescription().getContent();
+    }
+
     public GradeScaleValidator getGradeScaleValidator() {
         final SortedSet<GradeScaleValidator> result = Sets.newTreeSet(DomainObjectUtil.COMPARATOR_BY_ID);
 
@@ -707,6 +713,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     continue;
                 }
 
+                if (!validator.getAppliesToCurriculumAggregatorEntry() || !isCurriculumAggregatorEntryScaleConsistent()) {
+                    continue;
+                }
+
                 result.add(validator);
             }
         }
@@ -718,9 +728,30 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return result.isEmpty() ? null : result.first();
     }
 
-    public String getGradeScaleDescription() {
-        final GradeScaleValidator validator = getGradeScaleValidator();
-        return validator == null ? getGradeScale().getDescription() : validator.getRuleDescription().getContent();
+    private boolean isCurriculumAggregatorEntryScaleConsistent() {
+        return CurriculumAggregatorServices.isAggregationsActive(getExecutionYear())
+                && getCurriculumAggregatorEntryScale() != null;
+    }
+
+    private Integer getCurriculumAggregatorEntryScale() {
+        Integer result = null;
+
+        final Set<CurriculumAggregatorEntry> entries = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionYear()))
+                .map(y -> y.getCurriculumAggregatorEntry()).collect(Collectors.toSet());
+
+        if (!entries.isEmpty()) {
+            final int temp = entries.iterator().next().getGradeValueScale();
+
+            if (entries.stream().allMatch(i -> i.getGradeValueScale() == temp)) {
+                result = temp;
+            } else {
+                logger.warn("Mark sheet {} has more than one GradeValueScale configured, cannot filter GradeScaleValidator",
+                        this);
+            }
+        }
+
+        return result;
     }
 
     @Atomic

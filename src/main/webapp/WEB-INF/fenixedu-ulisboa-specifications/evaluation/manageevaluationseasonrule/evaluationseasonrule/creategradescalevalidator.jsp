@@ -202,6 +202,19 @@ ${portal.angularToolkit()}
 					<input id="gradeValues" name="gradeValues" ng-model="object.gradeValues" class="form-control" type="text"/>
 				</div>
 			</div>
+            
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.appliesToCurriculumAggregatorEntry" />
+                </div>
+
+                <div class="col-sm-2">
+                    <select id="appliesToCurriculumAggregatorEntry" name="appliesToCurriculumAggregatorEntry"
+                        class="form-control" ng-model="object.appliesToCurriculumAggregatorEntry"
+                        ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+                    </select>
+                </div>
+            </div>
 			
 			<div class="form-group row">
 			

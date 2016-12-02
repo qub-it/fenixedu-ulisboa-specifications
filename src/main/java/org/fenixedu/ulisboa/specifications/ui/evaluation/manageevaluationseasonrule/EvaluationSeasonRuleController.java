@@ -274,7 +274,8 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
         setEvaluationSeasonRule(rule, model);
 
         try {
-            rule.edit(bean.getGradeScale(), bean.getGradeValues(), bean.getRuleDescription(), bean.getDegreeTypes());
+            rule.edit(bean.getGradeScale(), bean.getGradeValues(), bean.getRuleDescription(),
+                    bean.getAppliesToCurriculumAggregatorEntry(), bean.getDegreeTypes());
             return redirect(SEARCH_URL + rule.getSeason().getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
 
@@ -440,8 +441,9 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
 
         try {
 
-            final EvaluationSeasonRule rule = GradeScaleValidator.create(bean.getSeason(), bean.getGradeScale(),
-                    bean.getGradeValues(), bean.getRuleDescription(), bean.getDegreeTypes());
+            final EvaluationSeasonRule rule =
+                    GradeScaleValidator.create(bean.getSeason(), bean.getGradeScale(), bean.getGradeValues(),
+                            bean.getRuleDescription(), bean.getAppliesToCurriculumAggregatorEntry(), bean.getDegreeTypes());
             model.addAttribute("evaluationSeasonRule", rule);
             return redirect(SEARCH_URL + getEvaluationSeasonRule(model).getSeason().getExternalId(), model, redirectAttributes);
 

@@ -789,6 +789,7 @@ class evaluation.season.rule.EvaluationSeasonRule {
 		GradeScale gradeScale;
 		String gradeValues;
 		LocalizedString ruleDescription;
+		boolean appliesToCurriculumAggregatorEntry;
 	}
 
 relation EvaluationSeasonRuleRelation {

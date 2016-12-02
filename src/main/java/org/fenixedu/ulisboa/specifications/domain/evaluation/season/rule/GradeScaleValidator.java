@@ -27,20 +27,23 @@ public class GradeScaleValidator extends GradeScaleValidator_Base {
 
     @Atomic
     static public EvaluationSeasonRule create(final EvaluationSeason season, final GradeScale gradeScale,
-            final String gradeValues, final LocalizedString description, final Set<DegreeType> degreeTypes) {
+            final String gradeValues, final LocalizedString description, final boolean appliesToCurriculumAggregatorEntry,
+            final Set<DegreeType> degreeTypes) {
 
         final GradeScaleValidator result = new GradeScaleValidator();
-        result.init(season, gradeScale, gradeValues, description, degreeTypes);
+        result.init(season, gradeScale, gradeValues, description, appliesToCurriculumAggregatorEntry, degreeTypes);
         return result;
     }
 
     private void init(final EvaluationSeason season, final GradeScale gradeScale, final String gradeValues,
-            final LocalizedString description, final Set<DegreeType> degreeTypes) {
+            final LocalizedString description, final boolean appliesToCurriculumAggregatorEntry,
+            final Set<DegreeType> degreeTypes) {
 
         super.init(season);
         setGradeScale(gradeScale);
         setGradeValues(gradeValues);
         setRuleDescription(description);
+        setAppliesToCurriculumAggregatorEntry(appliesToCurriculumAggregatorEntry);
         getDegreeTypeSet().clear();
         getDegreeTypeSet().addAll(degreeTypes);
 
@@ -74,15 +77,17 @@ public class GradeScaleValidator extends GradeScaleValidator_Base {
             }
 
             final GradeScaleValidator o = (GradeScaleValidator) i;
-            return o.getGradeScale() == getGradeScale() && !Sets.intersection(o.getDegreeTypeSet(), getDegreeTypeSet()).isEmpty();
+            return o.getGradeScale() == getGradeScale()
+                    && o.getAppliesToCurriculumAggregatorEntry() == getAppliesToCurriculumAggregatorEntry()
+                    && !Sets.intersection(o.getDegreeTypeSet(), getDegreeTypeSet()).isEmpty();
         };
     }
 
     @Atomic
     public void edit(final GradeScale gradeScale, final String gradeValues, final LocalizedString description,
-            final Set<DegreeType> degreeTypes) {
+            final boolean appliesToCurriculumAggregatorEntry, final Set<DegreeType> degreeTypes) {
 
-        init(getSeason(), gradeScale, gradeValues, description, degreeTypes);
+        init(getSeason(), gradeScale, gradeValues, description, appliesToCurriculumAggregatorEntry, degreeTypes);
     }
 
     @Override
@@ -112,7 +117,7 @@ public class GradeScaleValidator extends GradeScaleValidator_Base {
 
                     try {
                         final BigDecimal value = new BigDecimal(input);
-                        if (value.scale() == scale) {
+                        if (value.scale() <= scale) {   
 
                             final BigDecimal min = new BigDecimal(limitMin);
                             final BigDecimal max = new BigDecimal(limitMax);
