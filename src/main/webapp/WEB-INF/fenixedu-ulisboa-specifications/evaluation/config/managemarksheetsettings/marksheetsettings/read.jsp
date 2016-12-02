@@ -118,29 +118,36 @@ ${portal.angularToolkit()}
 			<spring:message code="label.no" var="noLabel" />
 			<table class="table">
 				<tbody>
+                    <tr>
+                        <th scope="row" class="col-xs-4"><spring:message
+                                code="label.MarkSheetSettings.limitCreationToResponsibleTeacher" /></th>
+                        <td>
+                            <c:out value="${markSheetSettings.limitCreationToResponsibleTeacher ? yesLabel : noLabel }"></c:out>
+                        </td>
+                    </tr>
 					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
+						<th scope="row" class="col-xs-4"><spring:message
 								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
 						<td>
 							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
+						<th scope="row" class="col-xs-4"><spring:message
 								code="label.MarkSheetSettings.allowTeacherToChooseCertifier" /></th>
 						<td>
 							<c:out value="${markSheetSettings.allowTeacherToChooseCertifier ? yesLabel : noLabel }"></c:out>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
+						<th scope="row" class="col-xs-4"><spring:message
 								code="label.MarkSheetSettings.limitCertifierToResponsibleTeacher" /></th>
 						<td>
 							<c:out value="${markSheetSettings.limitCertifierToResponsibleTeacher ? yesLabel : noLabel }"></c:out>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row" class="col-xs-3"><spring:message
+						<th scope="row" class="col-xs-4"><spring:message
 								code="label.MarkSheetSettings.templateFile" /></th>
 						<td>
 							<c:choose>

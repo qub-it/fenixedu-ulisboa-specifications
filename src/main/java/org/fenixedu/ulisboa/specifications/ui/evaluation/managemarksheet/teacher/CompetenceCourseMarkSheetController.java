@@ -151,6 +151,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheetBean(bean, model);
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
+        model.addAttribute("limitCreation", bean.getLimitCreation());
 
         return jspPage("search");
     }
@@ -194,6 +195,13 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
     @RequestMapping(value = _READ_URI + "{executionCourseId}/{oid}")
     public String read(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
+
+        final CompetenceCourseMarkSheetBean bean = CompetenceCourseMarkSheetBean
+                .createForTeacher(competenceCourseMarkSheet.getExecutionCourse(), Authenticate.getUser().getPerson());
+        if (bean.getLimitCreation()) {
+            throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitCreationToResponsibleTeacher.true");
+        }
+
         setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
         return jspPage("read");
     }
@@ -316,6 +324,10 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             final RedirectAttributes redirectAttributes) {
 
         try {
+            if (bean.getLimitCreation()) {
+                throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitCreationToResponsibleTeacher.true");
+            }
+
             if (MarkSheetSettings.getInstance().getRequiresExactlyOneShift() && bean.getShifts().size() != 1) {
                 throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
             }

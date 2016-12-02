@@ -691,6 +691,7 @@ class evaluation.config.MarkSheetSettings {
 	boolean allowTeacherToChooseCertifier;
 	boolean requiresExactlyOneShift;
 	boolean limitCertifierToResponsibleTeacher;
+	boolean limitCreationToResponsibleTeacher;
 }
 
 relation MarkSheetSettingsRoot {

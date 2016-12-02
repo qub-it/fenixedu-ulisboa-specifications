@@ -84,6 +84,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     private List<TupleDataSourceBean> executionCourseDataSource;
 
     private Person certifier;
+    private Set<Person> responsibles = Sets.newHashSet();
     private List<TupleDataSourceBean> certifierDataSource;
 
     private Set<Shift> shifts;
@@ -282,7 +283,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 shiftProfessorships.isEmpty() ? getFilteredExecutionCourses(getExecutionCourse())
                         .flatMap(e -> e.getProfessorshipsSet().stream()).collect(Collectors.toSet()) : shiftProfessorships;
         final Set<Person> teachers = professorships.stream().map(p -> p.getPerson()).collect(Collectors.toSet());
-        final Set<Person> responsibles =
+        this.responsibles =
                 professorships.stream().filter(p -> p.isResponsibleFor()).map(p -> p.getPerson()).collect(Collectors.toSet());
 
         // set available options
@@ -298,7 +299,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             if (MarkSheetSettings.getInstance().getLimitCertifierToResponsibleTeacher()) {
 
                 for (final Iterator<Person> iterator = available.iterator(); iterator.hasNext();) {
-                    if (!responsibles.contains(iterator.next())) {
+                    if (!this.responsibles.contains(iterator.next())) {
                         iterator.remove();
                     }
                 }
@@ -313,12 +314,17 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
 
-            final String prefix = isByTeacher() ? "" : responsibles.contains(x) ? "+* " : teachers.contains(x) ? "* " : "";
+            final String prefix = isByTeacher() ? "" : this.responsibles.contains(x) ? "+* " : teachers.contains(x) ? "* " : "";
             tuple.setText(prefix + x.getFirstAndLastName() + " (" + x.getUsername() + ")");
 
             return tuple;
 
         }).collect(Collectors.toList());
+    }
+
+    public boolean getLimitCreation() {
+        return MarkSheetSettings.getInstance().getLimitCreationToResponsibleTeacher()
+                && !this.responsibles.contains(Authenticate.getUser().getPerson());
     }
 
     public Set<Shift> getShifts() {

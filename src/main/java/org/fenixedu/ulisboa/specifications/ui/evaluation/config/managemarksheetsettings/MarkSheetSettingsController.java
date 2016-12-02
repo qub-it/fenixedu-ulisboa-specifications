@@ -155,13 +155,15 @@ public class MarkSheetSettingsController extends FenixeduUlisboaSpecificationsBa
     public String update(@PathVariable("oid") MarkSheetSettings markSheetSettings,
             @RequestParam(value = "allowTeacherToChooseCertifier") boolean allowTeacherToChooseCertifier,
             @RequestParam(value = "requiresExactlyOneShift") boolean requiresExactlyOneShift,
-            @RequestParam(value = "limitCertifierToResponsibleTeacher") boolean limitCertifierToResponsibleTeacher, Model model,
+            @RequestParam(value = "limitCertifierToResponsibleTeacher") boolean limitCertifierToResponsibleTeacher,
+            @RequestParam(value = "limitCreationToResponsibleTeacher") boolean limitCreationToResponsibleTeacher, Model model,
             RedirectAttributes redirectAttributes) {
 
         setMarkSheetSettings(markSheetSettings, model);
 
         try {
-            markSheetSettings.edit(allowTeacherToChooseCertifier, requiresExactlyOneShift, limitCertifierToResponsibleTeacher);
+            markSheetSettings.edit(allowTeacherToChooseCertifier, requiresExactlyOneShift, limitCertifierToResponsibleTeacher,
+                    limitCreationToResponsibleTeacher);
 
             return redirect(READ_URL + "/" + markSheetSettings.getExternalId(), model, redirectAttributes);
 
