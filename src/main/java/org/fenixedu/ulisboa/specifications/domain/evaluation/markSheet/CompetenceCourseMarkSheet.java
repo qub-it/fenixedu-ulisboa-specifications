@@ -565,7 +565,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             }
 
             final Optional<EnrolmentEvaluation> evaluation = enrolment.getEnrolmentEvaluation(season, semester, false);
-            if (evaluation.isPresent() && evaluation.get().getCompetenceCourseMarkSheet() != null) {
+            if (evaluation.isPresent()
+                    && (evaluation.get().getCompetenceCourseMarkSheet() != null || evaluation.get().isAnnuled())) {
                 continue;
             }
 
