@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -386,8 +387,12 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             tuple.setId(x.getExternalId());
 
             final String name = x.getNameI18N().getContent();
-            tuple.setText(name.replace("'", " ").replace("\"", " ") + " [" + x.getAssociatedCurricularCoursesSet().stream()
-                    .map(i -> i.getDegree().getCode()).collect(Collectors.joining("; ")) + "]");
+            tuple.setText(
+                    name.replace("'", " ").replace("\"", " ") + " [" + x.getAssociatedCurricularCoursesSet().stream().map(i -> {
+                        final String dcp = i.getDegreeCurricularPlan().getName();
+                        final int index = dcp.contains(" ") ? dcp.indexOf(" ") : 6;
+                        return i.getDegree().getCode() + " - " + StringUtils.substring(dcp, 0, index);
+                    }).collect(Collectors.joining("; ")) + "]");
 
             return tuple;
 
@@ -608,7 +613,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         for (final MarkBean markBean : getEvaluations()) {
             markBean.updateEnrolmentEvaluation();
         }
+    }
 
+    public boolean isSupportsEmptyGrades() {
+        return EvaluationSeasonServices.isSupportsEmptyGrades(getEvaluationSeason());
     }
 
 }
