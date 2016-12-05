@@ -50,13 +50,15 @@ public class CurriculumLineServices {
         if (CurriculumAggregatorServices.isAggregationsActive(curriculumLine.getExecutionYear())) {
 
             final Context context = CurriculumAggregatorServices.getContext(curriculumLine);
+            if (context != null) {
 
-            // CAN NOT update evaluations on it self, so must explicitly check for an entry and it's aggregator
-            final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
-            final CurriculumAggregator aggregator = entry == null ? null : entry.getAggregator();
+                // CAN NOT update evaluations on it self, so must explicitly check for an entry and it's aggregator
+                final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
+                final CurriculumAggregator aggregator = entry == null ? null : entry.getAggregator();
 
-            if (aggregator != null) {
-                aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
+                if (aggregator != null) {
+                    aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
+                }
             }
         }
     }

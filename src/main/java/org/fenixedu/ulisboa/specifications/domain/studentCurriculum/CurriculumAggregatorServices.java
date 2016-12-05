@@ -25,6 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -128,24 +129,29 @@ abstract public class CurriculumAggregatorServices {
                         degreeModule == null ? null : degreeModule.getOneFullName());
             }
 
-            result = getContext(degreeModule, input.getIEnrolmentsLastExecutionYear());
+            // Passing an execution year just to try to capture less possible contexts
+            result = getContext(degreeModule, input.getApprovedCurriculumLinesLastExecutionYear());
         }
 
         return result;
     }
 
     /**
-     * Passing an execution year just to try to capture less possible contexts
+     * ExecutionYear should be as close as possible to the business logic being addressed
      */
     static public Context getContext(final DegreeModule input, final ExecutionYear executionYear) {
         Context result = null;
 
         if (input != null) {
-            final Set<Context> parentContexts = input.getParentContextsSet().stream()
-                    .filter(i -> executionYear == null || i.isValid(executionYear)).collect(Collectors.toSet());
+            final List<Context> parentContexts =
+                    input.getParentContextsSet().stream().filter(i -> executionYear == null || i.isValid(executionYear))
+                            .sorted((x, y) -> -x.getBeginExecutionPeriod().compareExecutionInterval(y.getEndExecutionPeriod()))
+                            .collect(Collectors.toList());
             result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
             if (parentContexts.size() != 1 && result != null) {
-                logger.debug("Not only one parent context for [{}], returning [{}]", input.getOneFullName(), result);
+                logger.warn("Not only one parent context for [{}-{}-{}], returning [{}]", input.getOneFullName(),
+                        result.getBeginExecutionPeriod().getQualifiedName(),
+                        result.getEndExecutionPeriod() == null ? "X" : result.getEndExecutionPeriod().getQualifiedName(), result);
             }
         }
 
