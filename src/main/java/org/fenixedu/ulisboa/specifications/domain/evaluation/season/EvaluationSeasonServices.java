@@ -199,16 +199,13 @@ abstract public class EvaluationSeasonServices {
     }
 
     static public boolean hasPreviousSeasonBlockingGrade(final EvaluationSeason season, final EnrolmentEvaluation evaluation) {
-        if (season != null && evaluation != null) {
+        if (evaluation != null) {
 
-            for (final EvaluationSeasonRule iter : season.getRulesSet()) {
-                if (iter instanceof PreviousSeasonBlockingGrade) {
-
-                    final Grade blocking = ((PreviousSeasonBlockingGrade) iter).getBlocking();
-                    final Grade grade = evaluation.getGrade();
-                    if (blocking.compareTo(grade) == 0) {
-                        return true;
-                    }
+            for (final PreviousSeasonBlockingGrade rule : EvaluationSeasonRule.find(season, PreviousSeasonBlockingGrade.class)) {
+                final Grade blocking = rule.getBlocking();
+                final Grade grade = evaluation.getGrade();
+                if (blocking.compareTo(grade) == 0) {
+                    return true;
                 }
             }
         }
@@ -218,22 +215,21 @@ abstract public class EvaluationSeasonServices {
 
     static public boolean hasRequiredPreviousSeasonMinimumGrade(final EvaluationSeason season,
             final Collection<EnrolmentEvaluation> evaluations) {
-        if (season != null && evaluations != null) {
+
+        if (evaluations != null) {
 
             final EvaluationSeason previousSeason = EvaluationSeasonServices.getPreviousSeason(season);
             if (previousSeason != null) {
 
-                for (final EvaluationSeasonRule rule : season.getRulesSet()) {
-                    if (rule instanceof PreviousSeasonMinimumGrade) {
+                for (final PreviousSeasonMinimumGrade rule : EvaluationSeasonRule.find(season,
+                        PreviousSeasonMinimumGrade.class)) {
+                    for (final EnrolmentEvaluation evaluation : evaluations) {
+                        if (evaluation.getEvaluationSeason() == previousSeason) {
 
-                        for (final EnrolmentEvaluation evaluation : evaluations) {
-                            if (evaluation.getEvaluationSeason() == previousSeason) {
-
-                                final Grade minimum = ((PreviousSeasonMinimumGrade) rule).getMinimum();
-                                final Grade grade = evaluation.getGrade();
-                                if (minimum.compareTo(grade) < 0) {
-                                    return false;
-                                }
+                            final Grade minimum = rule.getMinimum();
+                            final Grade grade = evaluation.getGrade();
+                            if (minimum.compareTo(grade) < 0) {
+                                return false;
                             }
                         }
                     }
@@ -246,48 +242,33 @@ abstract public class EvaluationSeasonServices {
 
     static public boolean isBlockingTreasuryEventInDebt(final EvaluationSeason season, final Enrolment enrolment,
             final ExecutionSemester semester) {
-        if (season != null && enrolment != null) {
 
-            for (final EvaluationSeasonRule iter : season.getRulesSet()) {
-                if (iter instanceof BlockingTreasuryEventInDebt) {
+        if (enrolment != null && !EvaluationSeasonRule.find(season, BlockingTreasuryEventInDebt.class).isEmpty()) {
 
-                    final Registration registration = enrolment.getRegistration();
-                    final Person person = registration.getPerson();
+            final Registration registration = enrolment.getRegistration();
+            final Person person = registration.getPerson();
 
-                    if (ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
-                            && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
-                        return true;
-                    }
-
-                    if (season.isImprovement()) {
-                        final Optional<EnrolmentEvaluation> enrolmentEvaluation =
-                                enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
-                        if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
-                                .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
-                                .isInDebt(enrolmentEvaluation.get())) {
-                            return true;
-                        }
-                    }
-                }
+            if (ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
+                    && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(person, new LocalDate())) {
+                return true;
             }
 
-        }
-
-        return false;
-    }
-
-    static public boolean isRequiredPreviousSeasonEvaluation(final EvaluationSeason season) {
-        if (season != null) {
-
-            for (final EvaluationSeasonRule iter : season.getRulesSet()) {
-                if (iter instanceof PreviousSeasonEvaluation) {
-
+            if (season.isImprovement()) {
+                final Optional<EnrolmentEvaluation> enrolmentEvaluation =
+                        enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
+                if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
+                        .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
+                        .isInDebt(enrolmentEvaluation.get())) {
                     return true;
                 }
             }
         }
 
         return false;
+    }
+
+    static public boolean isRequiredPreviousSeasonEvaluation(final EvaluationSeason season) {
+        return !EvaluationSeasonRule.find(season, PreviousSeasonEvaluation.class).isEmpty();
     }
 
     static public boolean isRequiredEnrolmentEvaluation(final EvaluationSeason input) {

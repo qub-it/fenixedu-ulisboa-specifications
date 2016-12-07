@@ -11,6 +11,7 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
@@ -97,7 +98,12 @@ public class GradeScaleValidator extends GradeScaleValidator_Base {
 
     @Override
     public LocalizedString getDescriptionI18N() {
-        return ULisboaSpecificationsUtil.bundleI18N(getClass().getSimpleName());
+        final Builder builder = ULisboaSpecificationsUtil.bundleI18N(getClass().getSimpleName()).builder();
+        builder.append(getGradeValues(), ": ");
+        builder.append(String.valueOf(getDegreeTypeSet().stream().count()), " [");
+        builder.append(ULisboaSpecificationsUtil.bundle("label.Degree.degreeType"), " ");
+        builder.append("]");
+        return builder.build();
     }
 
     public boolean isGradeValueAccepted(final String input) {
@@ -117,7 +123,7 @@ public class GradeScaleValidator extends GradeScaleValidator_Base {
 
                     try {
                         final BigDecimal value = new BigDecimal(input);
-                        if (value.scale() <= scale) {   
+                        if (value.scale() <= scale) {
 
                             final BigDecimal min = new BigDecimal(limitMin);
                             final BigDecimal max = new BigDecimal(limitMax);

@@ -30,6 +30,7 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 
 enum org.fenixedu.academic.domain.GradeScale as GradeScaleSpecifications;
+enum org.fenixedu.academic.domain.ShiftType as ShiftTypeSpecifications;
 enum org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel as CurricularRuleLevel;
 enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType as AcademicEnrolmentPeriodType;
 enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment as AutomaticEnrolment;
@@ -44,13 +45,18 @@ enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationMem
 enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationGradeCalculator as AggregationGradeCalculator;
 
 
-
 valueType org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData as GradingTableData {
     externalizeWith {
         String toJson();
     }
 
     internalizeWith fromJson();
+}
+
+valueType org.fenixedu.ulisboa.specifications.domain.ShiftTypes as ShiftTypes {
+    externalizeWith {
+        JsonElement toJson();
+    }
 }
 
 
@@ -786,12 +792,16 @@ class evaluation.season.rule.EvaluationSeasonRule {
 		Grade blocking;
 	}
 
-	class evaluation.season.rule.GradeScaleValidator extends evaluation.season.rule.EvaluationSeasonRule {
-		GradeScale gradeScale;
-		String gradeValues;
-		LocalizedString ruleDescription;
-		boolean appliesToCurriculumAggregatorEntry;
-	}
+    class evaluation.season.rule.GradeScaleValidator extends evaluation.season.rule.EvaluationSeasonRule {
+        GradeScale gradeScale;
+        String gradeValues;
+        LocalizedString ruleDescription;
+        boolean appliesToCurriculumAggregatorEntry;
+    }
+
+    class evaluation.season.rule.EvaluationSeasonShiftType extends evaluation.season.rule.EvaluationSeasonRule {
+        ShiftTypes shiftTypes (REQUIRED);
+    }
 
 relation EvaluationSeasonRuleRelation {
     evaluation.season.rule.EvaluationSeasonRule playsRole rules {

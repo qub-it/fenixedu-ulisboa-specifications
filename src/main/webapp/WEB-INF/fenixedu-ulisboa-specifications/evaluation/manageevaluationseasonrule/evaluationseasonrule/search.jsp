@@ -153,6 +153,12 @@ ${portal.angularToolkit()}
 						<spring:message code="GradeScaleValidator" />
 					</button>
 				</form></li>
+            <li><form method="get"
+                    action="${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.CREATEEVALUATIONSEASONSHIFTTYPE_URL%>${evaluationSeasonRuleBean.season.externalId}">
+                    <button type="submit" class="btn btn-default btn-xs">
+                        <spring:message code="EvaluationSeasonShiftType" />
+                    </button>
+                </form></li>
 		</ul>
 	</div>
 </div>

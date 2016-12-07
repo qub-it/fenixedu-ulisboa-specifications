@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonEvaluation;
@@ -452,6 +453,97 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             addErrorMessage(de.getLocalizedMessage(), model);
             this.setEvaluationSeasonRuleBean(bean, model);
             return jspPage("creategradescalevalidator");
+        }
+    }
+
+    private static final String _UPDATEEVALUATIONSEASONSHIFTTYPE_URI = "/updateevaluationseasonshifttype/";
+    public static final String UPDATEEVALUATIONSEASONSHIFTTYPE_URL = CONTROLLER_URL + _UPDATEEVALUATIONSEASONSHIFTTYPE_URI;
+
+    @RequestMapping(value = _UPDATEEVALUATIONSEASONSHIFTTYPE_URI + "{oid}", method = RequestMethod.GET)
+    public String updateEvaluationSeasonShiftType(@PathVariable("oid") final EvaluationSeasonShiftType rule, final Model model) {
+        setEvaluationSeasonRule(rule, model);
+
+        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(rule);
+        this.setEvaluationSeasonRuleBean(bean, model);
+
+        return jspPage("updateevaluationseasonshifttype");
+    }
+
+    private static final String _UPDATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URI = "/updateevaluationseasonshifttypepostback/";
+    public static final String UPDATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URL =
+            CONTROLLER_URL + _UPDATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URI;
+
+    @RequestMapping(value = _UPDATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updateEvaluationSeasonShiftTypepostback(
+            @PathVariable("oid") final EvaluationSeasonRule rule,
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model) {
+
+        this.setEvaluationSeasonRuleBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = _UPDATEEVALUATIONSEASONSHIFTTYPE_URI + "{oid}", method = RequestMethod.POST)
+    public String updateEvaluationSeasonShiftType(@PathVariable("oid") final EvaluationSeasonShiftType rule,
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        setEvaluationSeasonRule(rule, model);
+
+        try {
+            rule.edit(bean.getShiftTypes());
+            return redirect(SEARCH_URL + rule.getSeason().getExternalId(), model, redirectAttributes);
+        } catch (Exception de) {
+
+            addErrorMessage(de.getLocalizedMessage(), model);
+            setEvaluationSeasonRule(rule, model);
+            this.setEvaluationSeasonRuleBean(bean, model);
+
+            return jspPage("updateevaluationseasonshifttype");
+        }
+    }
+
+    private static final String _CREATEEVALUATIONSEASONSHIFTTYPE_URI = "/createevaluationseasonshifttype/";
+    public static final String CREATEEVALUATIONSEASONSHIFTTYPE_URL = CONTROLLER_URL + _CREATEEVALUATIONSEASONSHIFTTYPE_URI;
+
+    @RequestMapping(value = _CREATEEVALUATIONSEASONSHIFTTYPE_URI + "{oid}", method = RequestMethod.GET)
+    public String createEvaluationSeasonShiftType(@PathVariable("oid") final EvaluationSeason evaluationSeason,
+            final Model model) {
+
+        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(evaluationSeason, EvaluationSeasonShiftType.class);
+        this.setEvaluationSeasonRuleBean(bean, model);
+
+        return jspPage("createevaluationseasonshifttype");
+    }
+
+    private static final String _CREATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URI = "/createevaluationseasonshifttypepostback/";
+    public static final String CREATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URL =
+            CONTROLLER_URL + _CREATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URI;
+
+    @RequestMapping(value = _CREATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URI, method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> createEvaluationSeasonShiftTypepostback(
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model) {
+
+        this.setEvaluationSeasonRuleBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = _CREATEEVALUATIONSEASONSHIFTTYPE_URI, method = RequestMethod.POST)
+    public String createEvaluationSeasonShiftType(
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+
+            final EvaluationSeasonRule rule = EvaluationSeasonShiftType.create(bean.getSeason(), bean.getShiftTypes());
+            model.addAttribute("evaluationSeasonRule", rule);
+            return redirect(SEARCH_URL + getEvaluationSeasonRule(model).getSeason().getExternalId(), model, redirectAttributes);
+
+        } catch (Exception de) {
+
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setEvaluationSeasonRuleBean(bean, model);
+            return jspPage("createevaluationseasonshifttype");
         }
     }
 

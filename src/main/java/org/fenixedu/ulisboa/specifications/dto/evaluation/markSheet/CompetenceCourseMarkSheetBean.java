@@ -44,6 +44,7 @@ import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -54,6 +55,8 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.Competenc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
@@ -348,10 +351,13 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 executionCourses.stream().flatMap(e -> e.getProfessorshipsSet().stream()).collect(Collectors.toSet());
 
         // set available options
+        Set<Shift> available;
+
+        // only filter by professorship if any has been configured
         final Set<Shift> professorshipShifts = professorships.stream()
                 .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift())).collect(Collectors.toSet());
-        Set<Shift> available;
         if (isByTeacher() && !professorshipShifts.isEmpty()) {
+
             available = professorships.stream().filter(i -> i.getTeacher().getPerson() == Authenticate.getUser().getPerson())
                     .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift()))
                     .collect(Collectors.toSet());
@@ -359,11 +365,19 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             available = executionCourses.stream().flatMap(e -> e.getAssociatedShifts().stream()).collect(Collectors.toSet());
         }
 
+        // filter by configured types
+        final Set<ShiftType> allowedTypes = EvaluationSeasonRule.find(getEvaluationSeason(), EvaluationSeasonShiftType.class)
+                .stream().flatMap(i -> i.getShiftTypes().getTypes().stream()).collect(Collectors.toSet());
+        if (isByTeacher() && !allowedTypes.isEmpty()) {
+            available = available.stream().filter(i -> !Sets.intersection(allowedTypes, i.getSortedTypes()).isEmpty())
+                    .collect(Collectors.toSet());
+        }
+
         // build data source
         this.shiftsDataSource = available.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
-            tuple.setText(x.getNome());
+            tuple.setText(String.format("%s [%s]", x.getNome(), x.getShiftTypesCodePrettyPrint()));
 
             return tuple;
 

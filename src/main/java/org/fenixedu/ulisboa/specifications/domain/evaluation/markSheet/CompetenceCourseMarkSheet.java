@@ -700,26 +700,23 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     public GradeScaleValidator getGradeScaleValidator() {
         final SortedSet<GradeScaleValidator> result = Sets.newTreeSet(DomainObjectUtil.COMPARATOR_BY_ID);
 
-        for (final EvaluationSeasonRule rule : getEvaluationSeason().getRulesSet()) {
-            if (rule instanceof GradeScaleValidator) {
-                final GradeScaleValidator validator = (GradeScaleValidator) rule;
+        for (final GradeScaleValidator validator : EvaluationSeasonRule.find(getEvaluationSeason(), GradeScaleValidator.class)) {
 
-                if (validator.getGradeScale() != getGradeScale()) {
-                    continue;
-                }
-
-                final Set<DegreeType> markSheetDegreeTypes = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                        .map(c -> c.getDegree().getDegreeType()).collect(Collectors.toSet());
-                if (Sets.intersection(markSheetDegreeTypes, validator.getDegreeTypeSet()).isEmpty()) {
-                    continue;
-                }
-
-                if (!validator.getAppliesToCurriculumAggregatorEntry() || !isCurriculumAggregatorEntryScaleConsistent()) {
-                    continue;
-                }
-
-                result.add(validator);
+            if (validator.getGradeScale() != getGradeScale()) {
+                continue;
             }
+
+            final Set<DegreeType> markSheetDegreeTypes = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                    .map(c -> c.getDegree().getDegreeType()).collect(Collectors.toSet());
+            if (Sets.intersection(markSheetDegreeTypes, validator.getDegreeTypeSet()).isEmpty()) {
+                continue;
+            }
+
+            if (!validator.getAppliesToCurriculumAggregatorEntry() || !isCurriculumAggregatorEntryScaleConsistent()) {
+                continue;
+            }
+
+            result.add(validator);
         }
 
         if (result.size() > 1) {

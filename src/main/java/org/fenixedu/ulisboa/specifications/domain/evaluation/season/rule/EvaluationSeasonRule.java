@@ -28,6 +28,7 @@
 package org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -36,6 +37,8 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -95,6 +98,16 @@ abstract public class EvaluationSeasonRule extends EvaluationSeasonRule_Base {
         builder.append(grade.getGradeScale().getDescription(), ", ");
         builder.append("]");
         return builder.build();
+    }
+
+    static public <T extends EvaluationSeasonRule> Set<T> find(final EvaluationSeason season, final Class<T> clazz) {
+        final Set<T> result = Sets.newHashSet();
+
+        if (season != null && clazz != null) {
+            season.getRulesSet().stream().filter(i -> i.getClass() == clazz).forEach(i -> result.add((T) i));
+        }
+
+        return result;
     }
 
 }

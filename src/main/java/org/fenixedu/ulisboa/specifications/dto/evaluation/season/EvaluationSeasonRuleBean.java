@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -45,6 +46,8 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeSc
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+
+import com.google.common.collect.Sets;
 
 public class EvaluationSeasonRuleBean implements IBean {
 
@@ -61,6 +64,10 @@ public class EvaluationSeasonRuleBean implements IBean {
     private Set<DegreeType> degreeTypes;
 
     private List<TupleDataSourceBean> degreeTypesDataSource;
+
+    private List<ShiftType> shiftTypes;
+
+    private List<TupleDataSourceBean> shiftTypesDataSource;
 
     private String gradeValues;
 
@@ -122,6 +129,22 @@ public class EvaluationSeasonRuleBean implements IBean {
 
     public void setDegreeTypesDataSource(List<TupleDataSourceBean> value) {
         this.degreeTypesDataSource = value;
+    }
+
+    public List<ShiftType> getShiftTypes() {
+        return this.shiftTypes;
+    }
+
+    public void setShiftTypes(final List<ShiftType> input) {
+        this.shiftTypes = input;
+    }
+
+    public List<TupleDataSourceBean> getShiftTypesDataSource() {
+        return shiftTypesDataSource;
+    }
+
+    public void setShiftTypesDataSource(List<TupleDataSourceBean> value) {
+        this.shiftTypesDataSource = value;
     }
 
     public String getGradeValues() {
@@ -200,6 +223,11 @@ public class EvaluationSeasonRuleBean implements IBean {
                 .sorted((x, y) -> x.getName().getContent().compareTo(y.getName().getContent()))
                 .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getName().getContent())).collect(Collectors.toList());
 
+        this.shiftTypesDataSource = Sets.newHashSet(ShiftType.values()).stream()
+                .sorted((x, y) -> x.getFullNameTipoAula().compareTo(y.getFullNameTipoAula()))
+                .map(i -> new TupleDataSourceBean(i.getName(),
+                        String.format("%s [%s]", i.getFullNameTipoAula(), i.getSiglaTipoAula())))
+                .collect(Collectors.toList());
     }
 
     public LocalizedString getDescriptionI18N() {
