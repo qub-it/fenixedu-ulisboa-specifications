@@ -127,9 +127,19 @@ ${portal.angularToolkit()}
                     </tr>
 					<tr>
 						<th scope="row" class="col-xs-4"><spring:message
-								code="label.MarkSheetSettings.requiresExactlyOneShift" /></th>
+								code="label.MarkSheetSettings.requiredNumberOfShifts" /></th>
 						<td>
-							<c:out value="${markSheetSettings.requiresExactlyOneShift ? yesLabel : noLabel }"></c:out>
+                            <c:choose>
+                                <c:when test="${markSheetSettings.requiredNumberOfShifts < 0}">
+                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.required" />
+                                </c:when>
+                                <c:when test="${markSheetSettings.requiredNumberOfShifts == 0}">
+                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.prohibited" />
+                                </c:when>
+                                <c:otherwise>
+        							<c:out value="${markSheetSettings.requiredNumberOfShifts}"></c:out>
+                                </c:otherwise>
+                            </c:choose>
 						</td>
 					</tr>
 					<tr>

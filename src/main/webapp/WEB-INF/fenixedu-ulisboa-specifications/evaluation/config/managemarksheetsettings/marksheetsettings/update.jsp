@@ -122,12 +122,11 @@ ${portal.angularToolkit()}
             </div>
 			<div class="form-group row">
 				<div class="col-sm-3 control-label">
-					<spring:message code="label.MarkSheetSettings.requiresExactlyOneShift" />
+					<spring:message code="label.MarkSheetSettings.requiredNumberOfShifts" />
 				</div>
 
 				<div class="col-sm-6">
-					<input type="radio" name="requiresExactlyOneShift" value="true" <c:out value="${markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.yes" /> &nbsp;
-					<input type="radio" name="requiresExactlyOneShift" value="false" <c:out value="${!markSheetSettings.requiresExactlyOneShift ? 'checked' : ''}" /> /> <spring:message code="label.no" />
+					<input type="number" name="requiredNumberOfShifts" value="${markSheetSettings.requiredNumberOfShifts}"/> 
 				</div>
 			</div>
 			<div class="form-group row">

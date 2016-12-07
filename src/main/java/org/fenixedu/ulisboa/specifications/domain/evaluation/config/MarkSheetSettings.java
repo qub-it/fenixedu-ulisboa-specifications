@@ -26,10 +26,10 @@ public class MarkSheetSettings extends MarkSheetSettings_Base {
     }
 
     @Atomic
-    public void edit(final boolean allowTeacherToChooseCertifier, final boolean requiresExactlyOneShift,
+    public void edit(final boolean allowTeacherToChooseCertifier, final int requiredNumberOfShifts,
             final boolean limitCertifierToResponsibleTeacher, final boolean limitCreationToResponsibleTeacher) {
         super.setAllowTeacherToChooseCertifier(allowTeacherToChooseCertifier);
-        super.setRequiresExactlyOneShift(requiresExactlyOneShift);
+        super.setRequiredNumberOfShifts(requiredNumberOfShifts);
         super.setLimitCertifierToResponsibleTeacher(limitCertifierToResponsibleTeacher);
         super.setLimitCreationToResponsibleTeacher(limitCreationToResponsibleTeacher);
     }
@@ -42,7 +42,15 @@ public class MarkSheetSettings extends MarkSheetSettings_Base {
         }
 
         CompetenceCourseMarkSheetTemplateFile.create(filename, content, this);
+    }
 
+    static public boolean isRequiredNumberOfShifts(final int input) {
+        return (isRequiredAtLeastOneShift() && input > 0) || getInstance().getRequiredNumberOfShifts() == input;
+    }
+
+    static public boolean isRequiredAtLeastOneShift() {
+        final int required = getInstance().getRequiredNumberOfShifts();
+        return required < 0;
     }
 
 }

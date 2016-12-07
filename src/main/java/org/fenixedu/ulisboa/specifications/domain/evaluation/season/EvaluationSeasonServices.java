@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
@@ -522,6 +523,9 @@ abstract public class EvaluationSeasonServices {
                         false);
             }
         }
+
+        MarkSheetSettings.getInstance()
+                .setRequiredNumberOfShifts(MarkSheetSettings.getInstance().getRequiresExactlyOneShift() ? 1 : -1);
     }
 
     static public Integer maxOrder() {

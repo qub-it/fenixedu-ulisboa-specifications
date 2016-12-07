@@ -328,9 +328,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
                 throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitCreationToResponsibleTeacher.true");
             }
 
-            if (MarkSheetSettings.getInstance().getRequiresExactlyOneShift() && bean.getShifts().size() != 1) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
-            }
+            assertRequiredNumberOfShifts(bean);
 
             final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
                     bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
@@ -345,6 +343,24 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             addErrorMessage(de.getLocalizedMessage(), model);
             this.setCompetenceCourseMarkSheetBean(bean, model);
             return jspPage("create");
+        }
+    }
+
+    private void assertRequiredNumberOfShifts(final CompetenceCourseMarkSheetBean bean) {
+        if (!MarkSheetSettings.isRequiredNumberOfShifts(bean.getShifts().size())) {
+
+            if (MarkSheetSettings.isRequiredAtLeastOneShift()) {
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
+
+            }
+
+            if (MarkSheetSettings.getInstance().getRequiredNumberOfShifts() == 0) {
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.prohibited");
+
+            } else {
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.required",
+                        String.valueOf(MarkSheetSettings.getInstance().getRequiredNumberOfShifts()));
+            }
         }
     }
 
