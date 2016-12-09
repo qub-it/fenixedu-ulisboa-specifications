@@ -771,9 +771,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
             //TODO: force evaluation checksum generation
-            evaluation.setWhenDateTime(new DateTime());
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
             evaluation.setPerson(Authenticate.getUser().getPerson());
+            evaluation.setWhenDateTime(new DateTime());
+            evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay());
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
         }
@@ -816,6 +817,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+            evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
         }

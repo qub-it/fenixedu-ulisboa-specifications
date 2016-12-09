@@ -28,7 +28,6 @@
 package org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -162,7 +161,8 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 return create(studentCurricularPlan, executionSemester, model);
             }
 
-            createLooseEvaluation(enrolment, examDate, Grade.createGrade(grade, gradeScale), type, improvementSemester);
+            createLooseEvaluation(enrolment, examDate, Grade.createGrade(grade, gradeScale), availableDate, type,
+                    improvementSemester);
             return redirect(CREATE_URL + studentCurricularPlan.getExternalId() + "/" + executionSemester.getExternalId(), model,
                     redirectAttributes);
         } catch (final DomainException e) {
@@ -194,15 +194,16 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
     }
 
     @Atomic
-    public void createLooseEvaluation(Enrolment enrolment, LocalDate examDate, Grade grade, EvaluationSeason type,
-            ExecutionSemester improvementSemester) {
+    public void createLooseEvaluation(Enrolment enrolment, LocalDate examDate, Grade grade, LocalDate availableDate,
+            EvaluationSeason type, ExecutionSemester improvementSemester) {
 
         final EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolment, type);
         if (type.isImprovement()) {
             evaluation.setExecutionPeriod(improvementSemester);
         }
 
-        evaluation.edit(Authenticate.getUser().getPerson(), grade, new Date(), examDate.toDateTimeAtStartOfDay().toDate());
+        evaluation.edit(Authenticate.getUser().getPerson(), grade, availableDate.toDate(),
+                examDate.toDateTimeAtStartOfDay().toDate());
         evaluation.confirmSubmission(Authenticate.getUser().getPerson(), "");
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);

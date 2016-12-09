@@ -76,6 +76,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -1154,11 +1155,21 @@ public class StudentCurricularPlanLayout extends Layout {
         final Grade grade = enrolment.getGrade();
 
         // qubExtension
-        final HtmlTableCell cell = enrolmentRow.createCell();
-        cell.setText(grade.isEmpty() ? EMPTY_INFO : grade.getValue());
+        final String text = grade.isEmpty() ? EMPTY_INFO : grade.getValue();
+        String title = null;
+        if (enrolment instanceof Enrolment) {
+            final Enrolment specific = (Enrolment) enrolment;
+            final EnrolmentEvaluation evaluation = specific.getFinalEnrolmentEvaluation();
+            final YearMonthDay available = evaluation.getGradeAvailableDateYearMonthDay();
+            if (available != null) {
+                title = ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                        + available.toString(DATE_FORMAT);
+            }
+        }
+
+        final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, text, title, null);
         cell.setStyle(
                 grade.isApproved() ? GRADE_APPROVED_STYLE : grade.isNotApproved() ? GRADE_NOT_APPROVED_STYLE : GRADE_EMPTY_STYLE);
-        cell.setColspan(1);
     }
 
     protected void generateEnrolmentStateCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {

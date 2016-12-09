@@ -77,13 +77,11 @@ ${portal.toolkit()}
 </div>
 
 <%-- NAVIGATION --%>
-<%--
 <div class="well well-sm" style="display: inline-block">
 	<a class="" href="${pageContext.request.contextPath}/${backUrl}"><span
 		class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<spring:message
 			code="label.event.back" /></a> |&nbsp;&nbsp;
 </div>
---%>
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
 
@@ -173,19 +171,6 @@ ${portal.toolkit()}
 					</select>
 				</div>
 			</div>
-			<%-- 
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.LooseEvaluationBean.availableDate" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="looseEvaluationBean_availableDate" class="form-control"
-						type="text" name="availabledate" bennu-date
-						value="${not empty param.availabledate ? param.availabledate : looseEvaluationBean.availableDate }" />
-				</div>
-			</div>
-			--%>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.LooseEvaluationBean.grade" />
@@ -211,6 +196,17 @@ ${portal.toolkit()}
 					</script>
 				</div>
 			</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.LooseEvaluationBean.availableDate" />
+                </div>
+
+                <div class="col-sm-4">
+                    <input id="looseEvaluationBean_availableDate" class="form-control"
+                        type="text" name="availabledate" bennu-date
+                        value="${not empty param.availabledate ? param.availabledate : looseEvaluationBean.availableDate }" />
+                </div>
+            </div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.LooseEvaluationBean.examDate" />
