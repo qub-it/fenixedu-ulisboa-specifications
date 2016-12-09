@@ -149,7 +149,7 @@ abstract public class CurriculumAggregatorServices {
                             .collect(Collectors.toList());
             result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
             if (parentContexts.size() != 1 && result != null) {
-                logger.warn("Not only one parent context for [{}-{}-{}], returning [{}]", input.getOneFullName(),
+                logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
                         result.getBeginExecutionPeriod().getQualifiedName(),
                         result.getEndExecutionPeriod() == null ? "X" : result.getEndExecutionPeriod().getQualifiedName(), result);
             }
