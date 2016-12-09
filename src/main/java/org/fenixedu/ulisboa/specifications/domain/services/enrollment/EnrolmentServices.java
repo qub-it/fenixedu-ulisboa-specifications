@@ -40,7 +40,9 @@ public class EnrolmentServices {
     }
 
     static public void updateState(final Enrolment enrolment) {
-        enrolment.setEnrollmentState(calculateState(enrolment));
+        if (!enrolment.isAnnulled()) {
+            enrolment.setEnrollmentState(calculateState(enrolment));
+        }
     }
 
     static public List<Enrolment> getEnrolmentsToEnrol(final StudentCurricularPlan studentCurricularPlan,
