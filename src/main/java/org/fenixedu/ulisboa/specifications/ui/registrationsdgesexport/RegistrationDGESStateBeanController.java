@@ -735,7 +735,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         }
 
         String vaccinationValidity = "";
-        if (personUl.getVaccinationValidity() != null) {
+        if (personUl != null && personUl.getVaccinationValidity() != null) {
             vaccinationValidity = personUl.getVaccinationValidity().toString("dd-MM-yyyy");
         }
 
