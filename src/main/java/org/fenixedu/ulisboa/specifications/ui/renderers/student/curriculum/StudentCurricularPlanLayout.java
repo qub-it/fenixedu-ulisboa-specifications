@@ -1160,7 +1160,7 @@ public class StudentCurricularPlanLayout extends Layout {
         if (enrolment instanceof Enrolment) {
             final Enrolment specific = (Enrolment) enrolment;
             final EnrolmentEvaluation evaluation = specific.getFinalEnrolmentEvaluation();
-            final YearMonthDay available = evaluation.getGradeAvailableDateYearMonthDay();
+            final YearMonthDay available = evaluation != null ? evaluation.getGradeAvailableDateYearMonthDay() : null;
             if (available != null) {
                 title = ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
                         + available.toString(DATE_FORMAT);
