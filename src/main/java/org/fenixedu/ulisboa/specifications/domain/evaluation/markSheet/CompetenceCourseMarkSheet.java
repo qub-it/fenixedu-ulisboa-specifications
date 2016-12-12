@@ -71,6 +71,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeSc
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
@@ -777,6 +778,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay());
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+            EnrolmentEvaluationServices.onStateChange(evaluation);
         }
 
         CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
@@ -820,6 +822,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+            EnrolmentEvaluationServices.onStateChange(evaluation);
         }
 
         CompetenceCourseMarkSheetStateChange.createEditionState(this, byTeacher, reason);

@@ -52,6 +52,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -207,6 +208,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         evaluation.confirmSubmission(Authenticate.getUser().getPerson(), "");
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);
+        EnrolmentEvaluationServices.onStateChange(evaluation);
     }
 
     private static final String _DELETE_URI = "/delete/";
@@ -233,6 +235,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         final Enrolment enrolment = enrolmentEvaluation.getEnrolment();
 
         enrolmentEvaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+        EnrolmentEvaluationServices.onStateChange(enrolmentEvaluation);
         enrolmentEvaluation.delete();
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);
