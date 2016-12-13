@@ -48,7 +48,6 @@ import org.joda.time.LocalDate;
 
 import com.google.common.collect.Lists;
 
-
 public class EvaluationSeasonPeriodBean implements IBean {
 
     private EvaluationSeasonPeriod period;
@@ -259,7 +258,7 @@ public class EvaluationSeasonPeriodBean implements IBean {
         // degrees
         if (period != null) {
             setExecutionDegreesDataSource(period.getExecutionSemester().getExecutionYear().getExecutionDegreesSet().stream()
-                    .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME).map(i -> {
+                    .sorted((x, y) -> x.getDegree().getCode().compareTo(y.getDegree().getCode())).map(i -> {
 
                         final TupleDataSourceBean tuple = new TupleDataSourceBean();
                         tuple.setId(i.getExternalId());
