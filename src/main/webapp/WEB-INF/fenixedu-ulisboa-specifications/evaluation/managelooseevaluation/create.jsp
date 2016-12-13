@@ -70,17 +70,18 @@ ${portal.toolkit()}
 
 <%-- TITLE --%>
 <div class="page-header">
-	<h1>
-		<spring:message code="label.manage.createLooseEvaluationBean" />
+	<h3 class="mtop2">
+		<spring:message code="label.manage.createLooseEvaluationBean" /> <span class="badge"><c:out value="${executionSemester.qualifiedName}" /></small></span>
         <br/><small><c:out value="${studentCurricularPlan.registration.student.person.name} (${studentCurricularPlan.registration.number})" /></small>
-	</h1>
+	</h3>
 </div>
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
-	<a class="" href="${pageContext.request.contextPath}/${backUrl}"><span
-		class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<spring:message
-			code="label.event.back" /></a> |&nbsp;&nbsp;
+	<a href="${pageContext.request.contextPath}${backUrl}">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;
+        <spring:message code="label.event.back" />
+    </a>
 </div>
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">

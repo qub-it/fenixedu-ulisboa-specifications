@@ -121,10 +121,11 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         model.addAttribute("executionSemester", executionSemester);
 
-        final String url = String.format("/academicAdministration/studentEnrolmentsExtended.do?scpID=%s&method=prepare",
-                studentCurricularPlan.getExternalId());
+        final String url = String.format(
+                "/academicAdministration/studentEnrolmentsExtended.do?scpID=%s&executionSemesterID=%s&method=prepare",
+                studentCurricularPlan.getExternalId(), executionSemester.getExternalId());
 
-        String backUrl = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session);
+        final String backUrl = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session);
         model.addAttribute("backUrl", backUrl);
 
         final List<EnrolmentEvaluation> evaluations =

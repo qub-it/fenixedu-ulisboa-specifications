@@ -13,6 +13,6 @@
 		<li>
 			<bean:define id="url7"><%= request.getContextPath() %><%=LooseEvaluationController.CREATE_URL%><bean:write name="studentEnrolmentBean" property="studentCurricularPlan.externalId"/>/<bean:write name="studentEnrolmentBean" property="executionPeriod.externalId"/></bean:define>
 			<%-- Ugly hack to force ulisboa specification bundle (this page is included inside academic, which is core) --%>
-			<html:link href='<%= url7 %>' target="_blank"><%= BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",I18N.getLocale(), "label.LooseEvaluationBean") %></html:link>
+			<html:link href='<%= url7 %>'><%= BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",I18N.getLocale(), "label.LooseEvaluationBean") %></html:link>
 			
 		</li>
