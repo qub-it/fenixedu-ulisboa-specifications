@@ -47,6 +47,7 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurricularYear
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumEntryPredicate;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup.ConclusionProcessEnabler;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup.CurriculumSupplier;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
@@ -87,6 +88,9 @@ abstract public class CurriculumConfigurationInitializer {
 
         CurriculumGroup.setCurriculumSupplier(CURRICULUM_SUPPLIER);
         logger.info("CurriculumSuppliers: Overriding default");
+
+        CurriculumGroup.setConclusionProcessEnabler(CONCLUSION_PROCESS_ENABLER);
+        logger.info("ConclusionProcessEnabler: Overriding default");
     }
 
     static private Supplier<CurricularYearCalculator> CURRICULAR_YEAR_CALCULATOR = () -> new CurricularYearCalculator() {
@@ -364,6 +368,18 @@ abstract public class CurriculumConfigurationInitializer {
             return result.stream().filter(predicate).collect(Collectors.toList());
         }
 
+    };
+
+    static private Supplier<ConclusionProcessEnabler> CONCLUSION_PROCESS_ENABLER = () -> new ConclusionProcessEnabler() {
+
+        @Override
+        public boolean isAllowed(final CurriculumGroup input) {
+            if (input != null) {
+                return input.isConcluded() || RegistrationServices.isCurriculumAccumulated(input.getRegistration());
+            }
+
+            return false;
+        }
     };
 
 }
