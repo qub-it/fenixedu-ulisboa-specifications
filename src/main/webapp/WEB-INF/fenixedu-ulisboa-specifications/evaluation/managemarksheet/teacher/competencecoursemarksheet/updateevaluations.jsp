@@ -273,14 +273,16 @@ ${portal.angularToolkit()}
 				<spring:message code="label.evaluation.manageMarkSheet.updateEvaluations.instructions" arguments="${competenceCourseMarkSheet.gradeScaleDescription}" />
 			</div>
 		
-			<div class="form-group row">
-				<div class="col-sm-6">
-					<input type="text" name="defaultGrade" ng-model="defaultGrade" size="6" maxlength="6"/>
-					<button class="btn glyphicon glyphicon-cog" type="button" ng-click="fillEmptyGradesWithValue()"> <spring:message code="label.fill" /></button>
-				</div>
-			</div>
-			
-			
+    		<div class="form-group row">
+	    		<div class="col-sm-9">
+                    <button type="button" class="btn btn-primary" role="button" ng-click="submitGradesWithEmptyCheck()"><spring:message code="label.save" /></button>
+                </div>
+                <div class="col-sm-3">
+    				<button class="btn glyphicon glyphicon-cog" type="button" ng-click="fillEmptyGradesWithValue()"> <spring:message code="label.fill" /></button>
+    				<input type="text" name="defaultGrade" ng-model="defaultGrade" size="6" maxlength="6"/>
+                </div>
+    		</div>
+        
 			<table id="evaluationsTable" class="table responsive table-bordered table-hover" width="100%">
 				<thead>
 					<tr>
