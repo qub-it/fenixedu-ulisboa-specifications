@@ -77,8 +77,9 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
                 enrolment.getStudentCurricularPlan().getDegree().getPresentationName().replace("'", " ").replace("\"", " ");
         this.degreeCode = enrolment.getStudentCurricularPlan().getDegree().getCode();
         this.shifts = EnrolmentServices.getShiftsDescription(enrolment, markSheet.getExecutionSemester());
-        this.statutes = StatuteServices.getStatuteTypesDescription(enrolment.getRegistration(), enrolment.getExecutionPeriod())
-                .replace("'", " ").replace("\"", " ");
+        this.statutes =
+                StatuteServices.getVisibleStatuteTypesDescription(enrolment.getRegistration(), enrolment.getExecutionPeriod())
+                        .replace("'", " ").replace("\"", " ");
     }
 
     public CompetenceCourseMarkSheet getMarkSheet() {
