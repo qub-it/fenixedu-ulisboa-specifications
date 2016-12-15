@@ -358,8 +358,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift())).collect(Collectors.toSet());
         if (isByTeacher() && !professorshipShifts.isEmpty()) {
 
-            available = professorships.stream().filter(i -> i.getTeacher().getPerson() == Authenticate.getUser().getPerson())
-                    .flatMap(i -> i.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift()))
+            available = professorships.stream().filter(prof -> prof.getPerson() == Authenticate.getUser().getPerson())
+                    .flatMap(prof -> prof.getAssociatedShiftProfessorshipSet().stream().map(x -> x.getShift()))
                     .collect(Collectors.toSet());
         } else {
             available = executionCourses.stream().flatMap(e -> e.getAssociatedShifts().stream()).collect(Collectors.toSet());
