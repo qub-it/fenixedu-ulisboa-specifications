@@ -86,10 +86,10 @@ ${portal.angularToolkit()}
 				}
 				
 				$scope.submitGradesWithEmptyCheck = function() {
-					if (!$scope.hasAnyEmptyGrade() || $scope.object.supportsEmptyGrades) {						
-						$scope.submitGrades();
-					} else {
+					if ($scope.hasAnyEmptyGrade() && <c:out value="${competenceCourseMarkSheetBean.supportsEmptyGrades}" />) {						
 						$('#emptyGradesWarningModal').modal('toggle')
+					} else {
+						$scope.submitGrades();
 					}
 				}
 				

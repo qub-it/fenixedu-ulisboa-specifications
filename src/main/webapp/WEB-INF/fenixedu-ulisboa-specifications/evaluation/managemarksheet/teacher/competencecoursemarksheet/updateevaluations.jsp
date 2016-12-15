@@ -84,13 +84,13 @@ ${portal.angularToolkit()}
 					
 				}
 				
-				$scope.submitGradesWithEmptyCheck = function() {
-				    if (!$scope.hasAnyEmptyGrade() || $scope.object.supportsEmptyGrades) {						
-						$scope.submitGrades();
-					} else {
-						$('#emptyGradesWarningModal').modal('toggle')
-					}
-				}
+                $scope.submitGradesWithEmptyCheck = function() {
+                    if ($scope.hasAnyEmptyGrade() && <c:out value="${competenceCourseMarkSheetBean.supportsEmptyGrades}" />) {                      
+                        $('#emptyGradesWarningModal').modal('toggle')
+                    } else {
+                        $scope.submitGrades();
+                    }
+                }
 				
 				$scope.submitGrades = function() {
 					$('#updateEvaluationsForm').submit();
