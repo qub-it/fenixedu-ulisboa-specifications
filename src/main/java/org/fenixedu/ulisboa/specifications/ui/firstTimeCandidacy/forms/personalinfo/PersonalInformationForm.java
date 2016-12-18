@@ -40,6 +40,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private LocalDate documentIdExpirationDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
+    private Country fiscalCountry;
     private String socialSecurityNumber;
     private Unit firstOptionInstitution;
     private DegreeDesignation firstOptionDegreeDesignation;
@@ -181,6 +182,14 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
 
     public void setDocumentIdExpirationDate(LocalDate documentIdExpirationDate) {
         this.documentIdExpirationDate = documentIdExpirationDate;
+    }
+    
+    public Country getFiscalCountry() {
+        return fiscalCountry;
+    }
+    
+    public void setFiscalCountry(Country fiscalCountry) {
+        this.fiscalCountry = fiscalCountry;
     }
 
     public String getSocialSecurityNumber() {
