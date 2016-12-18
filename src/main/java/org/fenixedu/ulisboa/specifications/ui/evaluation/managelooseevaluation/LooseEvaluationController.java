@@ -72,6 +72,7 @@ import com.google.common.collect.Sets;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
 
 @Component("org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation")
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.LooseEvaluationBean",
@@ -237,7 +238,13 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         enrolmentEvaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
         EnrolmentEvaluationServices.onStateChange(enrolmentEvaluation);
-        enrolmentEvaluation.delete();
+
+        if (FenixFramework.isDomainObjectValid(enrolmentEvaluation)) {
+            //TODO: hack since listeners can cause object to be deleted
+            //logic should be two-step, first change to Temporary and if it still exists delete
+            enrolmentEvaluation.delete();
+        }
+
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);
     }
