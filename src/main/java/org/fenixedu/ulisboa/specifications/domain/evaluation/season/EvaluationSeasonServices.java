@@ -372,7 +372,7 @@ abstract public class EvaluationSeasonServices {
     }
 
     static public boolean getActive(final EvaluationSeason input) {
-        return input.getInformation().getActive();
+        return input != null && input.getInformation() != null && input.getInformation().getActive();
     }
 
     static public Integer getSeasonOrder(final EvaluationSeason input) {
