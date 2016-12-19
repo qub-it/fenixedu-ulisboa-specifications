@@ -618,13 +618,6 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         if (getEvaluations().stream().anyMatch(e -> e.getErrorMessage() != null)) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.invalid.evaluations");
         }
-
-        if (!EvaluationSeasonServices.isSupportsEmptyGrades(getEvaluationSeason())
-                && getEvaluations().stream().anyMatch(e -> Strings.isNullOrEmpty(e.getGradeValue()))) {
-            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.emptyGrades",
-                    getEvaluationSeason().getName().getContent());
-        }
-
     }
 
     public void updateEnrolmentEvaluations() {
@@ -637,6 +630,14 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public boolean isSupportsEmptyGrades() {
         return EvaluationSeasonServices.isSupportsEmptyGrades(getEvaluationSeason());
+    }
+
+    public void checkRulesForSubmission() {
+
+        if (!isSupportsEmptyGrades() && getEvaluations().stream().anyMatch(e -> Strings.isNullOrEmpty(e.getGradeValue()))) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.emptyGrades",
+                    getEvaluationSeason().getName().getContent());
+        }
     }
 
 }

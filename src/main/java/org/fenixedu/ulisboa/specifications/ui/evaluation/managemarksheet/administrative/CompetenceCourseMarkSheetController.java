@@ -429,6 +429,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
         try {
+            new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet).checkRulesForSubmission();
             competenceCourseMarkSheet.submit(false);
 
         } catch (Exception de) {
