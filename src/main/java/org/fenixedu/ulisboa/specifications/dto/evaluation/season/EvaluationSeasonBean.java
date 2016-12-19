@@ -169,8 +169,8 @@ public class EvaluationSeasonBean implements IBean {
         this.setSeasonOrder(getInformation().getSeasonOrder());
         this.setActive(getInformation().getActive());
         this.setRequiredEnrolmentEvaluation(EvaluationSeasonServices.isRequiredEnrolmentEvaluation(evaluationSeason));
-        this.setSupportsEmptyGrades(getInformation().getSupportsEmptyGrades());
-        this.setSupportsTeacherConfirmation(getInformation().getSupportsTeacherConfirmation());
+        this.setSupportsEmptyGrades(EvaluationSeasonServices.isSupportsEmptyGrades(evaluationSeason));
+        this.setSupportsTeacherConfirmation(EvaluationSeasonServices.isSupportsTeacherConfirmation(evaluationSeason));
     }
 
 }
