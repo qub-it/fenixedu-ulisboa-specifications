@@ -346,16 +346,11 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         }
     }
 
-    private void assertRequiredNumberOfShifts(final CompetenceCourseMarkSheetBean bean) {
+    static private void assertRequiredNumberOfShifts(final CompetenceCourseMarkSheetBean bean) {
         if (!MarkSheetSettings.isRequiredNumberOfShifts(bean.getShifts().size())) {
 
-            if (MarkSheetSettings.isRequiredAtLeastOneShift()) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
-
-            }
-
             if (MarkSheetSettings.getInstance().getRequiredNumberOfShifts() == 0) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.prohibited");
+                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.prohibited");
 
             } else {
                 throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.required",

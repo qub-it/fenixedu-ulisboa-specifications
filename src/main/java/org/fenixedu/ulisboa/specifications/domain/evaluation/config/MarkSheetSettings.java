@@ -45,12 +45,11 @@ public class MarkSheetSettings extends MarkSheetSettings_Base {
     }
 
     static public boolean isRequiredNumberOfShifts(final int input) {
-        return (isRequiredAtLeastOneShift() && input > 0) || getInstance().getRequiredNumberOfShifts() == input;
+        return (isUndeterminedNumberOfShifts() && input >= 0) || getInstance().getRequiredNumberOfShifts() == input;
     }
 
-    static public boolean isRequiredAtLeastOneShift() {
-        final int required = getInstance().getRequiredNumberOfShifts();
-        return required < 0;
+    static private boolean isUndeterminedNumberOfShifts() {
+        return getInstance().getRequiredNumberOfShifts() < 0;
     }
 
 }

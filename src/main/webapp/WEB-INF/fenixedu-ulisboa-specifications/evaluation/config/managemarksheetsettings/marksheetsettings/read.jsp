@@ -131,7 +131,7 @@ ${portal.angularToolkit()}
 						<td>
                             <c:choose>
                                 <c:when test="${markSheetSettings.requiredNumberOfShifts < 0}">
-                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.required" />
+                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.undetermined" />
                                 </c:when>
                                 <c:when test="${markSheetSettings.requiredNumberOfShifts == 0}">
                                     <spring:message code="label.CompetenceCourseMarkSheet.shifts.prohibited" />
