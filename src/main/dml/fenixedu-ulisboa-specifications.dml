@@ -695,7 +695,6 @@ class evaluation.season.EvaluationSeasonPeriod {
 
 class evaluation.config.MarkSheetSettings {
 	boolean allowTeacherToChooseCertifier;
-	boolean requiresExactlyOneShift;
 	int requiredNumberOfShifts;
 	boolean limitCertifierToResponsibleTeacher;
 	boolean limitCreationToResponsibleTeacher;

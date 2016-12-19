@@ -45,7 +45,6 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
@@ -489,43 +488,6 @@ abstract public class EvaluationSeasonServices {
                 EvaluationSeasonInformation.create(iter, false, false, true, false).setSeasonOrder(i);
             }
         }
-    }
-
-    /**
-     * legidio: temp method, to be removed
-     */
-    @Atomic
-    static public void initializeNewAttributes() {
-        final List<EvaluationSeason> seasons = findAll().collect(Collectors.toList());
-
-        if (seasons.stream().noneMatch(i -> isRequiredEnrolmentEvaluation(i))) {
-
-            for (final EvaluationSeason iter : seasons) {
-                iter.getInformation().edit(iter.getInformation().getActive(), iter.getImprovement() || iter.getSpecial(),
-                        iter.getInformation().getSupportsEmptyGrades(), iter.getInformation().getSupportsTeacherConfirmation());
-            }
-        }
-
-        if (seasons.stream().noneMatch(i -> i.getInformation().getSupportsEmptyGrades())) {
-
-            for (final EvaluationSeason iter : seasons) {
-                iter.getInformation().edit(iter.getInformation().getActive(),
-                        iter.getInformation().getRequiresEnrolmentEvaluation(), true,
-                        iter.getInformation().getSupportsTeacherConfirmation());
-            }
-        }
-
-        if (seasons.stream().noneMatch(i -> i.getInformation().getSupportsTeacherConfirmation())) {
-
-            for (final EvaluationSeason iter : seasons) {
-                iter.getInformation().edit(iter.getInformation().getActive(),
-                        iter.getInformation().getRequiresEnrolmentEvaluation(), iter.getInformation().getSupportsEmptyGrades(),
-                        false);
-            }
-        }
-
-        MarkSheetSettings.getInstance()
-                .setRequiredNumberOfShifts(MarkSheetSettings.getInstance().getRequiresExactlyOneShift() ? 1 : -1);
     }
 
     static public Integer maxOrder() {
