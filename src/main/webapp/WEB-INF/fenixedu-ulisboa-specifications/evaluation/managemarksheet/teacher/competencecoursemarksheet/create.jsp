@@ -1,4 +1,5 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.teacher.CompetenceCourseMarkSheetController"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -179,20 +180,6 @@ ${portal.angularToolkit()}
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message code="label.CompetenceCourseMarkSheet.shifts" />
-				</div>
-
-				<div class="col-sm-6">
-					<ui-select	id="shiftsSelect" name="shifts" ng-model="$parent.object.shifts" theme="bootstrap"  on-select="onBeanChange($model)" on-remove="onBeanChange($model)" multiple="true">
-						<ui-select-match>{{$item.text}}</ui-select-match> 
-						<ui-select-choices	repeat="shift.id as shift in object.shiftsDataSource | filter: $select.search">
-							<span ng-bind-html="shift.text | highlight: $select.search"></span>
-						</ui-select-choices> 
-					</ui-select>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
 					<spring:message code="label.CompetenceCourseMarkSheet.certifier" />
 				</div>
 
@@ -205,6 +192,22 @@ ${portal.angularToolkit()}
 					</ui-select>
 				</div>
 			</div>
+            <c:if test="<%=!MarkSheetSettings.isNotAllowedShifts()%>">
+    			<div class="form-group row">
+    				<div class="col-sm-2 control-label">
+    					<spring:message code="label.CompetenceCourseMarkSheet.shifts" />
+    				</div>
+    
+    				<div class="col-sm-6">
+    					<ui-select	id="shiftsSelect" name="shifts" ng-model="$parent.object.shifts" theme="bootstrap"  on-select="onBeanChange($model)" on-remove="onBeanChange($model)" multiple="true">
+    						<ui-select-match>{{$item.text}}</ui-select-match> 
+    						<ui-select-choices	repeat="shift.id as shift in object.shiftsDataSource | filter: $select.search">
+    							<span ng-bind-html="shift.text | highlight: $select.search"></span>
+    						</ui-select-choices> 
+    					</ui-select>
+    				</div>
+    			</div>
+            </c:if>
 		</div>
 		<div class="panel-footer">
 			<button type="button" class="btn btn-primary" role="button" ng-click="createMarksheet()"><spring:message code="label.submit" /></button>

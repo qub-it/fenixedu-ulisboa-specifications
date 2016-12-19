@@ -328,7 +328,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
                 throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitCreationToResponsibleTeacher.true");
             }
 
-            assertRequiredNumberOfShifts(bean);
+            MarkSheetSettings.isRequiredNumberOfShifts(bean.getShifts().size());
 
             final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
                     bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
@@ -343,19 +343,6 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             addErrorMessage(de.getLocalizedMessage(), model);
             this.setCompetenceCourseMarkSheetBean(bean, model);
             return jspPage("create");
-        }
-    }
-
-    static private void assertRequiredNumberOfShifts(final CompetenceCourseMarkSheetBean bean) {
-        if (!MarkSheetSettings.isRequiredNumberOfShifts(bean.getShifts().size())) {
-
-            if (MarkSheetSettings.getInstance().getRequiredNumberOfShifts() == 0) {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.prohibited");
-
-            } else {
-                throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.required",
-                        String.valueOf(MarkSheetSettings.getInstance().getRequiredNumberOfShifts()));
-            }
         }
     }
 
@@ -458,6 +445,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
         try {
+            new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet).checkRulesForSubmission();
             competenceCourseMarkSheet.submit(true);
 
         } catch (Exception de) {

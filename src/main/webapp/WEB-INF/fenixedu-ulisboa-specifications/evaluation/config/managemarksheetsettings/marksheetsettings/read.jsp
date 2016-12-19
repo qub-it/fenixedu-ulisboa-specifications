@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.config.managemarksheetsettings.MarkSheetSettingsController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -130,11 +131,14 @@ ${portal.angularToolkit()}
 								code="label.MarkSheetSettings.requiredNumberOfShifts" /></th>
 						<td>
                             <c:choose>
-                                <c:when test="${markSheetSettings.requiredNumberOfShifts < 0}">
-                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.undetermined" />
+                                <c:when test="<%=MarkSheetSettings.isUnspecifiedNumberOfShifts()%>">
+                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.unspecified" />
                                 </c:when>
-                                <c:when test="${markSheetSettings.requiredNumberOfShifts == 0}">
-                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.prohibited" />
+                                <c:when test="<%=MarkSheetSettings.isNotAllowedShifts()%>">
+                                    <spring:message code="label.CompetenceCourseMarkSheet.shifts.not.allowed" />
+                                </c:when>
+                                <c:when test="<%=MarkSheetSettings.isRequiredAtLeastOneShift()%>">
+                                    <spring:message code="label.CompetenceCourseMarkSheet.shift.required" />
                                 </c:when>
                                 <c:otherwise>
         							<c:out value="${markSheetSettings.requiredNumberOfShifts}"></c:out>

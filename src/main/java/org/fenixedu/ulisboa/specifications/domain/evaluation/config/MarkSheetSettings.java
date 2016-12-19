@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.evaluation.config;
 
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -45,11 +46,36 @@ public class MarkSheetSettings extends MarkSheetSettings_Base {
     }
 
     static public boolean isRequiredNumberOfShifts(final int input) {
-        return (isUndeterminedNumberOfShifts() && input >= 0) || getInstance().getRequiredNumberOfShifts() == input;
+        if (isUnspecifiedNumberOfShifts()) {
+            return true;
+        }
+
+        if (isNotAllowedShifts() && input != 0) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.not.allowed");
+        }
+
+        if (isRequiredAtLeastOneShift() && input <= 0) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
+        }
+
+        if (getInstance().getRequiredNumberOfShifts() != input) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.required",
+                    String.valueOf(MarkSheetSettings.getInstance().getRequiredNumberOfShifts()));
+        }
+
+        return false;
     }
 
-    static private boolean isUndeterminedNumberOfShifts() {
+    static public boolean isUnspecifiedNumberOfShifts() {
         return getInstance().getRequiredNumberOfShifts() < 0;
+    }
+
+    static public boolean isNotAllowedShifts() {
+        return getInstance().getRequiredNumberOfShifts() == 0;
+    }
+
+    static public boolean isRequiredAtLeastOneShift() {
+        return getInstance().getRequiredNumberOfShifts() >= 10;
     }
 
 }
