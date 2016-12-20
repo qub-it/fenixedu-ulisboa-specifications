@@ -55,6 +55,8 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -322,7 +324,8 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.required"));
             }
 
-            if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !FiscalCodeValidation.isValidcontrib(
+            final ITreasuryBridgeAPI treasuryBridge = TreasuryBridgeAPIFactory.implementation();
+            if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !treasuryBridge.isValidFiscalNumber(
                     form.getFiscalCountry() != null ? form.getFiscalCountry().getCode() : null, form.getSocialSecurityNumber())) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
