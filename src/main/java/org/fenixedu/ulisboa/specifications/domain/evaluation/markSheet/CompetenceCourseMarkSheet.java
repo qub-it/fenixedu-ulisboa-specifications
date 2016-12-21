@@ -776,9 +776,9 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             evaluation.setPerson(Authenticate.getUser().getPerson());
             evaluation.setWhenDateTime(new DateTime());
             evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay());
+            EnrolmentEvaluationServices.onStateChange(evaluation);
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
-            EnrolmentEvaluationServices.onStateChange(evaluation);
         }
 
         CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
@@ -820,9 +820,9 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
             evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
+            EnrolmentEvaluationServices.onStateChange(evaluation);
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
-            EnrolmentEvaluationServices.onStateChange(evaluation);
         }
 
         CompetenceCourseMarkSheetStateChange.createEditionState(this, byTeacher, reason);

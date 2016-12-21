@@ -208,9 +208,9 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         evaluation.edit(Authenticate.getUser().getPerson(), grade, availableDate.toDate(),
                 examDate.toDateTimeAtStartOfDay().toDate());
         evaluation.confirmSubmission(Authenticate.getUser().getPerson(), "");
+        EnrolmentEvaluationServices.onStateChange(evaluation);
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);
-        EnrolmentEvaluationServices.onStateChange(evaluation);
     }
 
     private static final String _DELETE_URI = "/delete/";
