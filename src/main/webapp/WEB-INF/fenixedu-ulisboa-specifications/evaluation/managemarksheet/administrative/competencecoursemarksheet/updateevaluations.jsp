@@ -78,13 +78,6 @@ ${portal.angularToolkit()}
 					
 				}
 				
-				$scope.clearGrades = function() {
-					$.each( $scope.object.evaluations, function( index, evaluation ){
-						$scope.object.evaluations[index].gradeValue = undefined;
-					});
-					
-				}
-				
 				$scope.submitGradesWithEmptyCheck = function() {
 					if ($scope.hasAnyEmptyGrade() && <c:out value="${competenceCourseMarkSheetBean.supportsEmptyGrades}" />) {						
 						$('#emptyGradesWarningModal').modal('toggle')
