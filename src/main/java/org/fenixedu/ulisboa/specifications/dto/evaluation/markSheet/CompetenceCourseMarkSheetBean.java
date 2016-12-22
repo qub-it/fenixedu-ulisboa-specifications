@@ -344,6 +344,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     private void updateShiftsDataSource() {
 
+        if (getEvaluationSeason() == null) {
+            return;
+        }
+
         // inspect professorships
         final Set<ExecutionCourse> executionCourses =
                 getFilteredExecutionCourses(getExecutionCourse()).collect(Collectors.toSet());
