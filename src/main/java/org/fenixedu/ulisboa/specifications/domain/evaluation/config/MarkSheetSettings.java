@@ -58,12 +58,12 @@ public class MarkSheetSettings extends MarkSheetSettings_Base {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shift.required");
         }
 
-        if (getInstance().getRequiredNumberOfShifts() != input) {
+        if (!isRequiredAtLeastOneShift() && getInstance().getRequiredNumberOfShifts() != input) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.shifts.required",
                     String.valueOf(MarkSheetSettings.getInstance().getRequiredNumberOfShifts()));
         }
 
-        return false;
+        return true;
     }
 
     static public boolean isUnspecifiedNumberOfShifts() {
