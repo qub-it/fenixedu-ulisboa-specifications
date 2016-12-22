@@ -125,6 +125,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected static final String EMPTY_INFO = "-";
 
+    protected static final String EMPTY_SPACE = " ";
+
     protected static final String SPACER_IMAGE_PATH = "/images/scp_spacer.gif";
 
     protected static final int MAX_LINE_SIZE = 26;
@@ -939,12 +941,26 @@ public class StudentCurricularPlanLayout extends Layout {
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES + COLUMNS_BETWEEN_TEXT_AND_GRADE - level);
 
         final Grade grade = evaluation.getGrade();
-        generateCellWithText(enrolmentRow, grade.isEmpty() || !evaluation.isFinal() ? EMPTY_INFO : grade.getValue(),
-                renderer.getGradeCellClass());
+
+        // qubExtension, evaluation info may not yet be available to the public
+        final boolean isToShow = !grade.isEmpty() && evaluation.isFinal();
+
+        // qubExtension, show grade available as a tooltip
+        final String text = isToShow ? grade.getValue() : EMPTY_INFO;
+        String title = null;
+        if (isToShow) {
+            final YearMonthDay available = evaluation.getGradeAvailableDateYearMonthDay();
+            if (available != null) {
+                title = ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                        + available.toString(DATE_FORMAT);
+            }
+        }
+        generateCellWithSpan(enrolmentRow, text, title, renderer.getGradeCellClass());
 
         generateCellWithText(enrolmentRow, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
-        if (evaluation.getExecutionPeriod() != null) {
+        if (isToShow && evaluation.getExecutionPeriod() != null
+                && evaluation.getExecutionPeriod() != evaluation.getEnrolment().getExecutionPeriod()) {
             generateCellWithText(enrolmentRow, evaluation.getExecutionPeriod().getExecutionYear().getYear(),
                     renderer.getEnrolmentExecutionYearCellClass());
             generateCellWithText(enrolmentRow,
@@ -952,18 +968,17 @@ public class StudentCurricularPlanLayout extends Layout {
                             + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short"),
                     renderer.getEnrolmentSemesterCellClass());
         } else {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getEnrolmentSemesterCellClass());
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getEnrolmentSemesterCellClass());
+            generateCellWithText(enrolmentRow, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
         }
 
-        if (evaluation != null && evaluation.getExamDateYearMonthDay() != null) {
+        if (isToShow && evaluation.getExamDateYearMonthDay() != null) {
             generateCellWithSpan(enrolmentRow, evaluation.getExamDateYearMonthDay().toString(DATE_FORMAT),
                     BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
         } else {
             generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass());
         }
 
-        if (evaluation.getPersonResponsibleForGrade() != null
+        if (isToShow && evaluation.getPersonResponsibleForGrade() != null
                 && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             final Person person = evaluation.getPersonResponsibleForGrade();
             final String username = person.getUsername();
@@ -1154,7 +1169,7 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateEnrolmentGradeCell(HtmlTableRow enrolmentRow, IEnrolment enrolment) {
         final Grade grade = enrolment.getGrade();
 
-        // qubExtension
+        // qubExtension, show grade available as a tooltip
         final String text = grade.isEmpty() ? EMPTY_INFO : grade.getValue();
         String title = null;
         if (enrolment instanceof Enrolment) {
