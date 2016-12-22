@@ -210,7 +210,7 @@ ${portal.angularToolkit()}
             </c:if>
 		</div>
 		<div class="panel-footer">
-			<button type="button" class="btn btn-primary" role="button" ng-click="createMarksheet()"><spring:message code="label.submit" /></button>
+			<button type="button" class="btn btn-primary" role="button" ng-click="createMarksheet()"><spring:message code="label.create" /></button>
 		</div>
 	</div>
 </form>
