@@ -289,7 +289,7 @@ public class RegistrationHistoryReport {
         
         final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
 
-        return event != null && event.isWithDebitEntry();
+        return event != null && event.isCharged();
     }
     
     public BigDecimal getTuitionAmount() {

@@ -118,9 +118,11 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
                 .filter(req -> req.isUrgent() == isUrgent)
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
-                .filter(req -> isPayed == null || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
-                        || AcademicTreasuryEvent.findUnique(req).isPresent()
-                                && isPayed.equals(!AcademicTreasuryEvent.findUnique(req).get().isInDebt()))
+                .filter(req -> 
+                        isPayed == null 
+                        || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
+                        || !AcademicTreasuryEvent.findUnique(req).get().isCharged() && isPayed
+                        || (AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed.equals(!AcademicTreasuryEvent.findUnique(req).get().isInDebt())))
                 .limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
     }
 
