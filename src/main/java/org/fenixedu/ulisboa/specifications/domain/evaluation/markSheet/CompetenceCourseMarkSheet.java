@@ -713,7 +713,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            if (!validator.getAppliesToCurriculumAggregatorEntry() || !isCurriculumAggregatorEntryScaleConsistent()) {
+            if (isCurriculumAggregatorEntryScaleConsistent() && !validator.getAppliesToCurriculumAggregatorEntry()) {
                 continue;
             }
 
