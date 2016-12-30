@@ -237,17 +237,30 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="personalInformationForm_socialSecurityNumber" class="col-sm-2 control-label" ng-class="{'required-field' : !object.foreignStudent}">
-					<spring:message
-						code="label.PersonalInformationForm.socialSecurityNumber" />
+				<label for="personalInformationForm_fiscalCountry" class="col-sm-2 control-label" ng-class="{'required-field' : true}">
+					<spring:message code="label.PersonalInformationForm.fiscalCountry" />
+				</label>
+
+                <div class="col-sm-4">
+                    <ui-select  id="personalInformationForm_fiscalCountry" name="fiscalCountry" ng-model="$parent.object.fiscalCountry" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="fiscalCountry.id as fiscalCountry in object.fiscalCountryValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="fiscalCountry.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>
+                </div>
+			</div>
+			<div class="form-group row">
+				<label for="personalInformationForm_socialSecurityNumber" class="col-sm-2 control-label" ng-class="{'required-field' : true}">
+					<spring:message code="label.PersonalInformationForm.socialSecurityNumber" />
 				</label>
 
 				<div class="col-sm-10">
 					<input id="personalInformationForm_socialSecurityNumber"
-						class="form-control" type="text" ng-model="object.socialSecurityNumber" name="socialSecurityNumber" ng-required="!object.foreignStudent" 
+						class="form-control" type="text" ng-model="object.socialSecurityNumber" name="socialSecurityNumber" ng-required="true" 
                         placeholder="<spring:message code='label.PersonalInformationForm.socialSecurityNumber.default' arguments='<%= FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber() %>'/>"
 						value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : personalInformationForm.socialSecurityNumber }'/>'
-						pattern="(\d{9})"/>
+						pattern="(\d{9})" />
 				</div>
 			</div>
             <div class="form-group row">
