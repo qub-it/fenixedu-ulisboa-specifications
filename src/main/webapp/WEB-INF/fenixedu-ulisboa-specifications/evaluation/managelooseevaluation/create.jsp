@@ -25,6 +25,7 @@
  * along with FenixEdu QubDocs.  If not, see <http://www.gnu.org/licenses/>.
  --%>
 
+<%@page import="org.joda.time.LocalDate"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation.LooseEvaluationController"%>
 <%@page import="org.fenixedu.academic.domain.EvaluationSeason"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
@@ -199,13 +200,24 @@ ${portal.toolkit()}
 			</div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
-                    <spring:message code="label.LooseEvaluationBean.availableDate" />
+                    <spring:message code="label.LooseEvaluationBean.type" />
                 </div>
 
                 <div class="col-sm-4">
-                    <input id="looseEvaluationBean_availableDate" class="form-control"
-                        type="text" name="availabledate" bennu-date
-                        value="${not empty param.availabledate ? param.availabledate : looseEvaluationBean.availableDate }" />
+                    <select id="looseEvaluationBean_type" class="form-control"
+                        name="type">
+                        <option value=""></option>
+                        <%-- empty option remove it if you don't want to have it or give it a label --%>
+                        <c:forEach items="${typeValues}" var="field">
+                            <option value="${field.externalId}"
+                                ng-improvement="${field.improvement}"><%=EvaluationSeasonServices
+                                    .getDescriptionI18N((EvaluationSeason) pageContext.getAttribute("field"))
+                                    .getContent()%></option>
+                        </c:forEach>
+                    </select>
+                    <script>
+                        $("#looseEvaluationBean_type").val("${not empty param.type ? param.type : looseEvaluationBean.type }");
+                    </script>
                 </div>
             </div>
 			<div class="form-group row">
@@ -216,33 +228,26 @@ ${portal.toolkit()}
 				<div class="col-sm-4">
 					<input id="looseEvaluationBean_examDate" class="form-control"
 						type="text" name="examdate" bennu-date
-						value="${not empty param.examdate ? param.examdate : looseEvaluationBean.examDate }" />
+						value="${not empty param.examdate ? param.examdate : looseEvaluationBean.examDate }"
+                        required="true" />
 				</div>
 			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message code="label.LooseEvaluationBean.type" />
-				</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.LooseEvaluationBean.availableDate" />
+                </div>
+                
 
-				<div class="col-sm-4">
-					<select id="looseEvaluationBean_type" class="form-control"
-						name="type">
-						<option value=""></option>
-						<%-- empty option remove it if you don't want to have it or give it a label --%>
-						<c:forEach items="${typeValues}" var="field">
-							<option value="${field.externalId}"
-								ng-improvement="${field.improvement}"><%=EvaluationSeasonServices
-									.getDescriptionI18N((EvaluationSeason) pageContext.getAttribute("field"))
-									.getContent()%></option>
-						</c:forEach>
-					</select>
-					<script>
-						$("#looseEvaluationBean_type").val("${not empty param.type ? param.type : looseEvaluationBean.type }");
-					</script>
-				</div>
-			</div>
-			<script type="text/javascript">
-			</script>
+                <div class="col-sm-4">
+                    <%
+                       pageContext.setAttribute("defaultDate", new LocalDate().toString("yyyy-MM-dd"));
+                    %>
+                    <input id="looseEvaluationBean_availableDate" class="form-control"
+                        type="text" name="availabledate" bennu-date
+                        value="${not empty param.availabledate ? param.availabledate : defaultDate }" 
+                        required="true"/>
+                </div>
+            </div>
 			<div class="form-group row"
 				id="looseEvaluationBean_improvementSemesterRow">
 				<div class="col-sm-2 control-label">
@@ -281,17 +286,21 @@ ${portal.toolkit()}
 						<th><spring:message
 								code="label.LooseEvaluationBean.enrolmentEvaluation.enrolment.code" /></th>
 						<th><spring:message
-								code="label.LooseEvaluationBean.enrolmentEvaluation.enrolment" /></th>
-						<th><spring:message
+								code="label.name" /></th>
+						<%--
+                        <th><spring:message
 								code="label.LooseEvaluationBean.enrolmentEvaluation.enrolment.executionSemester" /></th>
-						<th><spring:message
-								code="label.LooseEvaluationBean.enrolmentEvaluation.evaluationSeason" /></th>
-						<th><spring:message
-								code="label.LooseEvaluationBean.enrolmentEvaluation.examDate" /></th>
+                         --%>
 						<th><spring:message
 								code="label.LooseEvaluationBean.enrolmentEvaluation.grade" /></th>
 						<th><spring:message
+								code="label.LooseEvaluationBean.enrolmentEvaluation.evaluationSeason" /></th>
+						<th><spring:message
 								code="label.LooseEvaluationBean.enrolmentEvaluation.improvementSemester" /></th>
+                        <th><spring:message
+                                code="label.LooseEvaluationBean.enrolmentEvaluation.examDate" /></th>
+                        <th><spring:message
+                                code="label.LooseEvaluationBean.availableDate" /></th>
 						<%-- Operations Column --%>
 						<th></th>
 					</tr>
@@ -329,11 +338,20 @@ $(document).ready(function() {
 	                           				"DT_RowId" : '<c:out value='${searchResult.externalId}'/>',
 	                           "code" : "<c:out value='${searchResult.enrolment.code}'/>",
 	                           "enrolment" : "<%=((EnrolmentEvaluation) pageContext.getAttribute("searchResult")).getEnrolment().getName().getContent().replace("'", " ").replace("\"", " ")%>",
-	                           "executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",
-	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
-	                           "examDate" : "<c:out value='${searchResult.examDateYearMonthDay}'/>",
+	                           <%--"executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",--%>
 	                           "grade" : "<c:out value='${searchResult.grade.value}'/> <span class='color888 smalltxt'>(<span class='smalltxt'><c:out value='${searchResult.grade.extendedValue.content}' />, </span><c:out value='${searchResult.grade.gradeScale.description}' />)</span>",
-	                           "improvementSemester" : "<c:out value='${searchResult.executionPeriod.qualifiedName}'/>",
+	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
+	                           "improvementSemester" : 
+                                   "<%
+                                        final EnrolmentEvaluation evaluation = ((EnrolmentEvaluation) pageContext.getAttribute("searchResult"));
+	                                    if (EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(evaluation.getEvaluationSeason())) {
+                                            out.append(evaluation.getExecutionPeriod().getQualifiedName());
+                                        } else {
+                                            out.append("-");
+                                        }
+                                    %>",
+	                           "examDate" : "<c:out value='${searchResult.examDateYearMonthDay}'/>",
+	                           "gradeAvailableDate" : "<c:out value='${searchResult.gradeAvailableDateYearMonthDay}'/>",
 	                           "actions" :
 	                           " <a  class=\"btn btn-xs btn-danger\" href=\"#\" onClick=\"javascript:processDelete('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span>&nbsp;<spring:message code='label.delete'/></a>" +
 	                                           "" 
@@ -386,11 +404,12 @@ $(document).ready(function() {
 		"columns": [
 			{ data: 'code' },
 			{ data: 'enrolment' },
-			{ data: 'executionSemester' },
-			{ data: 'evaluationSeason' },
-			{ data: 'examDate' },
+			<%--{ data: 'executionSemester' },--%>
 			{ data: 'grade' },
+			{ data: 'evaluationSeason' },
 			{ data: 'improvementSemester' },
+			{ data: 'examDate' },
+			{ data: 'gradeAvailableDate' },
 			{ data: 'actions' }
 			
 		],
