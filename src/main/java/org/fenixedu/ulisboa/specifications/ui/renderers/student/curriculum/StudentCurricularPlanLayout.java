@@ -960,7 +960,7 @@ public class StudentCurricularPlanLayout extends Layout {
         generateCellWithText(enrolmentRow, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
         if (isToShow && evaluation.getExecutionPeriod() != null
-                && evaluation.getExecutionPeriod() != evaluation.getEnrolment().getExecutionPeriod()) {
+                && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(evaluation.getEvaluationSeason())) {
             generateCellWithText(enrolmentRow, evaluation.getExecutionPeriod().getExecutionYear().getYear(),
                     renderer.getEnrolmentExecutionYearCellClass());
             generateCellWithText(enrolmentRow,
