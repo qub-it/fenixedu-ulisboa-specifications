@@ -244,7 +244,6 @@ ${portal.angularToolkit()}
                             <input type="text" name="gradeAvailableDate"
                                 class="form-control" required="true" 
                                 bennu-date="evaluation.gradeAvailableDate"
-                                ng-bind-html="{{evaluation.gradeAvailableDate}}"
                                 />
                             <span class="alert alert-danger btn-xs" ng-show="evaluation.errorMessage != null">{{evaluation.errorMessage}}</span>
                          </td>

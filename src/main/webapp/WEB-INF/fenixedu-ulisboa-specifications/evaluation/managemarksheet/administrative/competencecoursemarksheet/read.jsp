@@ -168,13 +168,11 @@ ${portal.angularToolkit()}
 			href="#"><spring:message code="label.event.evaluation.manageMarkSheet.confirm" /></a>
 	</c:if>
 	
-    <%-- WIP legidio
     <c:if test="${competenceCourseMarkSheet.confirmed}">
             &nbsp;|&nbsp; <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>&nbsp;<a class=""
             href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.READ_URL%>${competenceCourseMarkSheet.externalId}/updategradeavailabledates"><spring:message
                 code="label.event.evaluation.manageMarkSheet.updateGradeAvailableDates" /></a>
     </c:if>
-     --%>
 	
 	<c:if test="${!competenceCourseMarkSheet.edition}">
 		&nbsp;|&nbsp; <span

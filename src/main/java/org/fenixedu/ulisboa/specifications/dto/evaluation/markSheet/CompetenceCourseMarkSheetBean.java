@@ -654,7 +654,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void updateGradeAvailableDates() {
-        for (final MarkBean markBean : getUpdateGradeBeans()) {
+        for (final MarkBean markBean : getUpdateGradeAvailableDateBeans()) {
             markBean.updateGradeAvailableDate();
         }
     }
