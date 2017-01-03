@@ -53,6 +53,7 @@ import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.Holiday;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
@@ -75,6 +76,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentE
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.slf4j.Logger;
@@ -167,8 +169,20 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.no.enrolments.found.for.grade.submission");
         }
 
+        checkRulesEvaluationDate();
+    }
+
+    private void checkRulesEvaluationDate() {
+        checkIfEvaluationDateIsWorkingDay();
         checkIfEvaluationDateIsInExamsPeriod();
         checkIfEvaluationsDateIsEqualToMarkSheetEvaluationDate();
+    }
+
+    private void checkIfEvaluationDateIsWorkingDay() {
+        if (getEvaluationDate().getDayOfWeek() == DateTimeConstants.SUNDAY || Holiday.isHoliday(getEvaluationDate())) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.evaluationDateNotInWorkingDay",
+                    getEvaluationDate().toString());
+        }
     }
 
     private void checkIfEvaluationDateIsInExamsPeriod() {
