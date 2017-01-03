@@ -74,7 +74,9 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         setEvaluation(evaluation);
         setGradeValueSuggested();
 
-        setGradeAvailableDate(evaluation.getGradeAvailableDateYearMonthDay().toLocalDate());
+        if (!evaluation.isTemporary()) {
+            setGradeAvailableDate(evaluation.getGradeAvailableDateYearMonthDay().toLocalDate());
+        }
     }
 
     public MarkBean(final CompetenceCourseMarkSheet markSheet, final Enrolment enrolment) {
