@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
@@ -69,6 +70,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -397,7 +399,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.nationality", person.getCountry() != null ? person.getCountry().getName() : "");
                         addData("Person.countryOfBirth",
                                 person.getCountryOfBirth() != null ? person.getCountryOfBirth().getName() : "");
-                        addData("Person.socialSecurityNumber", person.getSocialSecurityNumber());
+                        addData("Person.socialSecurityNumber", PersonCustomer.uiPersonFiscalNumber(person));
                         addData("Person.districtOfBirth", person.getDistrictOfBirth());
                         addData("Person.districtSubdivisionOfBirth", person.getDistrictSubdivisionOfBirth());
                         addData("Person.parishOfBirth", person.getParishOfBirth());
@@ -408,6 +410,14 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                                 .getStudentPersonalDataAuthorizationChoice().getDescription() : "");
 
                         addContactsData(person);
+                    }
+
+                    private String uiSocialSecurityNumber(final Person person) {
+                        final String fiscalCountry = person.getFiscalCountry() != null ? person.getFiscalCountry().getCode() : "";
+                        final String fiscalNumber =
+                                !Strings.isNullOrEmpty(person.getSocialSecurityNumber()) ? person.getSocialSecurityNumber() : "";
+
+                        return (fiscalCountry + " " + fiscalNumber).trim();
                     }
 
                     protected void addContactsData(Person person) {
