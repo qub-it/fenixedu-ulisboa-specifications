@@ -381,7 +381,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
         try {
-            bean.updateEnrolmentEvaluations();
+            bean.updateGrades();
 
             return redirect(
                     READ_URL + executionCourse.getExternalId() + "/" + getCompetenceCourseMarkSheet(model).getExternalId(), model,
@@ -488,7 +488,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         try {
             bean = MarkSheetImportExportService.importFromXLSX(competenceCourseMarkSheet,
                     FilenameUtils.getName(markSheetFile.getOriginalFilename()), markSheetFile.getBytes());
-            bean.updateEnrolmentEvaluations();
+            bean.updateGrades();
 
             addInfoMessage(ULisboaSpecificationsUtil.bundle("label.event.evaluation.manageMarkSheet.importExcel.success"), model);
 

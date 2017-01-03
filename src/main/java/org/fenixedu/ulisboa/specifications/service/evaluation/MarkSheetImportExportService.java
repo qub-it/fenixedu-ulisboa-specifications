@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -75,7 +74,7 @@ public class MarkSheetImportExportService {
 
     private static void writeRows(CompetenceCourseMarkSheetBean bean, final Sheet sheet) {
         int rowIndex = 1;
-        for (final MarkBean markBean : bean.getEvaluations()) {
+        for (final MarkBean markBean : bean.getUpdateGradeBeans()) {
             final String[] values =
                     { markBean.getStudentNumber().toString(), markBean.getStudentName(), markBean.getGradeValue() };
             final Row row = sheet.createRow(rowIndex++);
@@ -89,14 +88,14 @@ public class MarkSheetImportExportService {
         try {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             workbook.write(baos);
-          
+
             return baos.toByteArray();
-            
+
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } 
+        }
     }
 
     static public CompetenceCourseMarkSheetBean importFromXLSX(CompetenceCourseMarkSheet competenceCourseMarkSheet,
@@ -121,8 +120,8 @@ public class MarkSheetImportExportService {
                         "error.MarkSheetImportExportService.unexpected.number.of.columns", String.valueOf(EXPECTED_COLUMNS)));
             }
 
-            final ImmutableMap<String, MarkBean> indexedMarkBeans =
-                    Maps.uniqueIndex(result.getEvaluations(), e -> buildMarkIndexKey(e.getStudentNumber(), e.getStudentName()));
+            final ImmutableMap<String, MarkBean> indexedMarkBeans = Maps.uniqueIndex(result.getUpdateGradeBeans(),
+                    e -> buildMarkIndexKey(e.getStudentNumber(), e.getStudentName()));
 
             final Iterator<Row> rowIterator = sheet.rowIterator();
             while (rowIterator.hasNext()) {
@@ -150,7 +149,7 @@ public class MarkSheetImportExportService {
 
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } 
+        }
 
     }
 

@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
-import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -104,7 +103,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     private String reason;
 
-    private List<MarkBean> evaluations;
+    private List<MarkBean> updateGradeBeans;
+    private List<MarkBean> updateGradeAvailableDateBeans;
 
     private boolean byTeacher = false;
 
@@ -431,12 +431,20 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         this.reason = reason;
     }
 
-    public List<MarkBean> getEvaluations() {
-        return evaluations;
+    public List<MarkBean> getUpdateGradeBeans() {
+        return updateGradeBeans;
     }
 
-    public void setEvaluations(List<MarkBean> evaluations) {
-        this.evaluations = evaluations;
+    public void setUpdateGradeBeans(final List<MarkBean> input) {
+        this.updateGradeBeans = input;
+    }
+
+    public List<MarkBean> getUpdateGradeAvailableDateBeans() {
+        return updateGradeAvailableDateBeans;
+    }
+
+    public void setUpdateGradeAvailableDateBeans(final List<MarkBean> input) {
+        this.updateGradeAvailableDateBeans = input;
     }
 
     public boolean isByTeacher() {
@@ -539,7 +547,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         setExecutionCourse(markSheet.getExecutionCourse());
         setExpireDate(markSheet.getExpireDate());
 
-        setEvaluations(buildEnrolmentEvaluations());
+        setUpdateGradeBeans(buildBeans(true));
+        setUpdateGradeAvailableDateBeans(buildBeans(false));
 
         update();
     }
@@ -589,20 +598,20 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 .filter(e -> toFilter == null || e == toFilter);
     }
 
-    private List<MarkBean> buildEnrolmentEvaluations() {
+    private List<MarkBean> buildBeans(final boolean searchNew) {
         final List<MarkBean> result = Lists.newArrayList();
 
         if (getCompetenceCourseMarkSheet() != null) {
 
-            getCompetenceCourseMarkSheet().getExecutionCourseEnrolmentsNotInAnyMarkSheet().forEach(e -> {
-                final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), e);
-                markBean.setGradeValueSuggested((EnrolmentEvaluation) null);
-                result.add(markBean);
-            });
+            if (searchNew) {
+                getCompetenceCourseMarkSheet().getExecutionCourseEnrolmentsNotInAnyMarkSheet().forEach(enrolment -> {
+                    final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), enrolment);
+                    result.add(markBean);
+                });
+            }
 
-            getCompetenceCourseMarkSheet().getEnrolmentEvaluationSet().forEach(e -> {
-                final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), e.getEnrolment());
-                markBean.setGradeValueSuggested(e);
+            getCompetenceCourseMarkSheet().getEnrolmentEvaluationSet().forEach(evaluation -> {
+                final MarkBean markBean = new MarkBean(getCompetenceCourseMarkSheet(), evaluation);
                 result.add(markBean);
             });
         }
@@ -612,23 +621,23 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         return result;
     }
 
-    private void validateEnrolmentEvaluations() {
+    private void validateUpdateGradeBeans() {
 
-        for (final MarkBean markBean : getEvaluations()) {
+        for (final MarkBean markBean : getUpdateGradeBeans()) {
             markBean.setErrorMessage(null);
             markBean.validate();
         }
 
-        if (getEvaluations().stream().anyMatch(e -> e.getErrorMessage() != null)) {
+        if (getUpdateGradeBeans().stream().anyMatch(e -> e.getErrorMessage() != null)) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.invalid.evaluations");
         }
     }
 
-    public void updateEnrolmentEvaluations() {
-        validateEnrolmentEvaluations();
+    public void updateGrades() {
+        validateUpdateGradeBeans();
 
-        for (final MarkBean markBean : getEvaluations()) {
-            markBean.updateEnrolmentEvaluation();
+        for (final MarkBean markBean : getUpdateGradeBeans()) {
+            markBean.updateGrade();
         }
     }
 
@@ -638,9 +647,15 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public void checkRulesForSubmission() {
 
-        if (!isSupportsEmptyGrades() && getEvaluations().stream().anyMatch(e -> Strings.isNullOrEmpty(e.getGradeValue()))) {
+        if (!isSupportsEmptyGrades() && getUpdateGradeBeans().stream().anyMatch(e -> Strings.isNullOrEmpty(e.getGradeValue()))) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheetBean.emptyGrades",
                     getEvaluationSeason().getName().getContent());
+        }
+    }
+
+    public void updateGradeAvailableDates() {
+        for (final MarkBean markBean : getUpdateGradeBeans()) {
+            markBean.updateGradeAvailableDate();
         }
     }
 

@@ -56,9 +56,9 @@ ${portal.angularToolkit()}
 				$scope.postBack = createAngularPostbackFunction($scope);
 				
 				$scope.fillEmptyGradesWithValue = function() {
-					$.each( $scope.object.evaluations, function( index, evaluation ){
+					$.each( $scope.object.updateGradeBeans, function( index, evaluation ){
 						if (evaluation.gradeValue == undefined || evaluation.gradeValue == '') {
-							$scope.object.evaluations[index].gradeValue = $scope.defaultGrade;
+							$scope.object.updateGradeBeans[index].gradeValue = $scope.defaultGrade;
 						}
 					});
 					
@@ -66,7 +66,7 @@ ${portal.angularToolkit()}
 				
 				$scope.hasAnyEmptyGrade = function() {
 					var foundEmptyGrades = false;
-					$.each( $scope.object.evaluations, function( index, evaluation ){
+					$.each( $scope.object.updateGradeBeans, function( index, evaluation ){
 						if (evaluation.gradeValue == undefined || evaluation.gradeValue == '') {
 							foundEmptyGrades = true;
 						}
@@ -78,8 +78,8 @@ ${portal.angularToolkit()}
 				}
 				
 				$scope.clearGrades = function() {
-					$.each( $scope.object.evaluations, function( index, evaluation ){
-						$scope.object.evaluations[index].gradeValue = undefined;
+					$.each( $scope.object.updateGradeBeans, function( index, evaluation ){
+						$scope.object.updateGradeBeans[index].gradeValue = undefined;
 					});
 					
 				}
@@ -295,7 +295,7 @@ ${portal.angularToolkit()}
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="evaluation in object.evaluations">
+					<tr ng-repeat="evaluation in object.updateGradeBeans">
 						<td>{{evaluation.studentNumber}}</td>
 						<td>{{evaluation.studentName}}</td>
 						<td>{{evaluation.degreeCode}}</td>

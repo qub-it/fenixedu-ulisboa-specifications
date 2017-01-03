@@ -356,7 +356,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
         try {
-            bean.updateEnrolmentEvaluations();
+            bean.updateGrades();
 
             return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
         } catch (Exception de) {
@@ -364,6 +364,62 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             this.setCompetenceCourseMarkSheetBean(bean, model);
 
             return jspPage("updateevaluations");
+        }
+    }
+
+    @RequestMapping(value = "/read/{oid}/updategradeavailabledates")
+    public String processReadToUpdateGradeAvailableDates(
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final RedirectAttributes redirectAttributes) {
+
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        return redirect(UPDATEGRADEAVAILABLEDATES_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                redirectAttributes);
+    }
+
+    private static final String _UPDATEGRADEAVAILABLEDATES_URI = "/updategradeavailabledates/";
+    public static final String UPDATEGRADEAVAILABLEDATES_URL = CONTROLLER_URL + _UPDATEGRADEAVAILABLEDATES_URI;
+
+    @RequestMapping(value = _UPDATEGRADEAVAILABLEDATES_URI + "{oid}", method = RequestMethod.GET)
+    public String updategradeavailabledates(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+
+        return jspPage("updategradeavailabledates");
+    }
+
+    private static final String _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI = "/updategradeavailabledatespostback/";
+    public static final String UPDATEGRADEAVAILABLEDATESPOSTBACK_URL = CONTROLLER_URL + _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI;
+
+    @RequestMapping(value = _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updategradeavailabledatespostback(
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
+
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = _UPDATEGRADEAVAILABLEDATES_URI + "{oid}", method = RequestMethod.POST)
+    public String updategradeavailabledates(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+
+        try {
+            bean.updateGradeAvailableDates();
+
+            return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
+
+            return jspPage("updategradeavailabledates");
         }
     }
 
@@ -494,7 +550,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         try {
             bean = MarkSheetImportExportService.importFromXLSX(competenceCourseMarkSheet,
                     FilenameUtils.getName(markSheetFile.getOriginalFilename()), markSheetFile.getBytes());
-            bean.updateEnrolmentEvaluations();
+            bean.updateGrades();
 
             addInfoMessage(ULisboaSpecificationsUtil.bundle("label.event.evaluation.manageMarkSheet.importExcel.success"), model);
 

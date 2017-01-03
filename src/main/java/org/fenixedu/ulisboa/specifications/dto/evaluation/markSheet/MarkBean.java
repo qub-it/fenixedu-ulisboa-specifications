@@ -49,6 +49,7 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAg
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixframework.Atomic;
@@ -57,6 +58,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     private CompetenceCourseMarkSheet markSheet;
     private Enrolment enrolment;
+    private EnrolmentEvaluation evaluation;
     private Integer studentNumber;
     private String studentName;
     private String gradeValue;
@@ -64,11 +66,21 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     private String degreeCode;
     private String shifts;
     private String statutes;
+    private LocalDate gradeAvailableDate;
     private String errorMessage;
+
+    public MarkBean(final CompetenceCourseMarkSheet markSheet, final EnrolmentEvaluation evaluation) {
+        this(markSheet, evaluation.getEnrolment());
+        setEvaluation(evaluation);
+        setGradeValueSuggested();
+
+        setGradeAvailableDate(evaluation.getGradeAvailableDateYearMonthDay().toLocalDate());
+    }
 
     public MarkBean(final CompetenceCourseMarkSheet markSheet, final Enrolment enrolment) {
         setMarkSheet(markSheet);
         setEnrolment(enrolment);
+        setGradeValueSuggested();
 
         final Registration registration = enrolment.getRegistration();
         this.studentNumber = registration.getNumber();
@@ -98,6 +110,14 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         this.enrolment = input;
     }
 
+    public EnrolmentEvaluation getEvaluation() {
+        return evaluation;
+    }
+
+    private void setEvaluation(final EnrolmentEvaluation input) {
+        this.evaluation = input;
+    }
+
     public Integer getStudentNumber() {
         return studentNumber;
     }
@@ -114,8 +134,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         this.studentName = studentName;
     }
 
-    public void setGradeValueSuggested(final EnrolmentEvaluation evaluation) {
-
+    public void setGradeValueSuggested() {
         Grade suggestion = evaluation == null ? null : evaluation.getGrade();
         if (suggestion == null || suggestion.isEmpty()) {
 
@@ -125,7 +144,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         setGradeValue(suggestion == null ? null : suggestion.getValue());
     }
 
-    public Grade getGradeSuggestedByAggregation() {
+    private Grade getGradeSuggestedByAggregation() {
         if (CurriculumAggregatorServices.isAggregationsActive(getEnrolment().getExecutionYear())) {
 
             final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
@@ -192,6 +211,14 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         this.statutes = statutes;
     }
 
+    public LocalDate getGradeAvailableDate() {
+        return gradeAvailableDate;
+    }
+
+    public void setGradeAvailableDate(final LocalDate input) {
+        this.gradeAvailableDate = input;
+    }
+
     @Override
     public int compareTo(final MarkBean o) {
         return CompetenceCourseMarkSheet.COMPARATOR_FOR_STUDENT_NAME.compare(getStudentName(), o.getStudentName());
@@ -230,7 +257,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     @Atomic
-    void updateEnrolmentEvaluation() {
+    void updateGrade() {
 
         final EnrolmentEvaluation evaluation = findEnrolmentEvaluation();
         if (evaluation == null) {
@@ -246,10 +273,13 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
                 setEnrolmentEvaluationData(evaluation);
             }
         }
-
     }
 
     private EnrolmentEvaluation findEnrolmentEvaluation() {
+        if (getEvaluation() != null) {
+            return getEvaluation();
+        }
+
         final CompetenceCourseMarkSheet markSheet = getMarkSheet();
         final Optional<EnrolmentEvaluation> foundEvaluation =
                 getEnrolment().getEnrolmentEvaluation(markSheet.getEvaluationSeason(), markSheet.getExecutionSemester(), false);
@@ -269,6 +299,19 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         enrolmentEvaluation.setExamDateYearMonthDay(markSheet.getEvaluationDate().toDateTimeAtStartOfDay().toYearMonthDay());
         enrolmentEvaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay());
         enrolmentEvaluation.setCompetenceCourseMarkSheet(markSheet);
+    }
+
+    @Atomic
+    void updateGradeAvailableDate() {
+        final EnrolmentEvaluation evaluation = findEnrolmentEvaluation();
+        if (evaluation != null && getGradeAvailableDate() != null) {
+
+            if (!evaluation.getGradeAvailableDateYearMonthDay().equals(getGradeAvailableDate())
+                    && getMarkSheet().getEvaluationDate().isBefore(getGradeAvailableDate())) {
+                
+                evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay(getGradeAvailableDate()));
+            }
+        }
     }
 
 }
