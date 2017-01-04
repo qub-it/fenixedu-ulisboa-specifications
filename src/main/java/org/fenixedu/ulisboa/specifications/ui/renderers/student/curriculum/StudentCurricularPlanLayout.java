@@ -77,6 +77,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentS
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -123,9 +124,13 @@ public class StudentCurricularPlanLayout extends Layout {
 
     static final private String GRADE_EMPTY_STYLE = "background-color: #d9d7d7;";
 
-    protected static final String EMPTY_INFO = "-";
+    static final private String EMPTY_INFO = "-";
 
-    protected static final String EMPTY_SPACE = " ";
+    static final private String EMPTY_SPACE = " ";
+
+    static final private String EMPTY_WIDTH = "width: 16px;";
+
+    static final private String TOOLTIP_DOT = " border-bottom: 1px dotted #777";
 
     protected static final String SPACER_IMAGE_PATH = "/images/scp_spacer.gif";
 
@@ -577,7 +582,8 @@ public class StudentCurricularPlanLayout extends Layout {
         generateDismissalGradeCell(dismissalRow, dismissal);
         generateDismissalWeightCell(dismissalRow, dismissal);
         generateDismissalEctsCell(dismissalRow, dismissal);
-        generateCellWithText(dismissalRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
+        // qubExtension, empty space
+        generateCellWithText(dismissalRow, EMPTY_SPACE, renderer.getLastEnrolmentEvaluationTypeCellClass()).setStyle(EMPTY_WIDTH);
         generateExecutionYearCell(dismissalRow, dismissal);
         generateSemesterCell(dismissalRow, dismissal);
         generateDismissalApprovementlDateIfRequired(dismissalRow, dismissal.getApprovementDate());
@@ -613,7 +619,8 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateCellsBetweenLabelAndGradeCell(final HtmlTableRow row) {
         // qubExtension, ignore CSS on empty info cells
         for (int i = 0; i < COLUMNS_BETWEEN_TEXT_AND_GRADE; i++) {
-            generateCellWithText(row, EMPTY_INFO, "");
+            // qubExtension, empty space
+            generateCellWithText(row, EMPTY_SPACE, "").setStyle(EMPTY_WIDTH);
         }
     }
 
@@ -629,7 +636,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateCellWithSpan(enrolmentRow, approvementDate.toString(DATE_FORMAT),
                         BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
             } else {
-                generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass());
+                // qubExtension, show tooltip
+                generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+                        renderer.getCreationDateCellClass());
             }
         }
     }
@@ -640,7 +649,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateCellWithSpan(externalEnrolmentRow, evaluationDate.toString(DATE_FORMAT),
                         BundleUtil.getString(Bundle.APPLICATION, "creationDate"), renderer.getCreationDateCellClass());
             } else {
-                generateCellWithText(externalEnrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass());
+                // qubExtension, show tooltip
+                generateCellWithSpan(externalEnrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creationDate"),
+                        renderer.getCreationDateCellClass());
             }
         }
     }
@@ -651,7 +662,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateCellWithSpan(enrolmentRow, createdBy, BundleUtil.getString(Bundle.APPLICATION, "creator"),
                         renderer.getCreatorCellClass());
             } else {
-                generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreatorCellClass());
+                // qubExtension, show tooltip
+                generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creator"),
+                        renderer.getCreatorCellClass());
             }
         }
     }
@@ -733,7 +746,9 @@ public class StudentCurricularPlanLayout extends Layout {
         generateEnrolmentGradeCell(externalEnrolmentRow, externalEnrolment);
         generateEnrolmentWeightCell(externalEnrolmentRow, externalEnrolment, isFromDetail);
         generateExternalEnrolmentEctsCell(externalEnrolmentRow, externalEnrolment);
-        generateCellWithText(externalEnrolmentRow, EMPTY_INFO, renderer.getLastEnrolmentEvaluationTypeCellClass());
+        // qubExtension, empty space
+        generateCellWithText(externalEnrolmentRow, EMPTY_SPACE, renderer.getLastEnrolmentEvaluationTypeCellClass())
+                .setStyle(EMPTY_WIDTH);
         generateExecutionYearCell(externalEnrolmentRow, externalEnrolment);
         generateSemesterCell(externalEnrolmentRow, externalEnrolment);
         generateEvaluationDateIfRequired(externalEnrolmentRow, externalEnrolment.getEvaluationDate());
@@ -800,11 +815,11 @@ public class StudentCurricularPlanLayout extends Layout {
             generateEnrolmentWithStateEnroled(enrolmentRow, enrolment, level, allowSelection);
         } else {
             generateCurricularCourseCodeAndNameCell(enrolmentRow, enrolment, level, allowSelection);
-            generateDegreeCurricularPlanCell(enrolmentRow, enrolment);
 
             // qubExtension, show shifts
             generateEnrolmentShiftsCell(enrolmentRow, enrolment);
 
+            generateDegreeCurricularPlanCell(enrolmentRow, enrolment);
             generateEnrolmentTypeCell(enrolmentRow, enrolment);
             generateEnrolmentStateCell(enrolmentRow, enrolment);
             generateEnrolmentGradeCell(enrolmentRow, enrolment);
@@ -850,7 +865,7 @@ public class StudentCurricularPlanLayout extends Layout {
             if (StringUtils.isNotBlank(remarks)) {
                 text = remarks;
             } else {
-                text = EMPTY_INFO;
+                text = EMPTY_SPACE;
             }
 
             final HtmlTableCell cell = generateCellWithText(row, text, "");
@@ -874,7 +889,8 @@ public class StudentCurricularPlanLayout extends Layout {
             text = EMPTY_INFO;
         }
 
-        final HtmlTableCell cell = generateCellWithText(enrolmentRow, text, "");
+        final HtmlTableCell cell =
+                generateCellWithSpan(enrolmentRow, text, ULisboaSpecificationsUtil.bundle("label.Enrolment.shifts"), null, true);
         if (!shifts.isEmpty()) {
             cell.setStyle("font-size: xx-small");
         }
@@ -943,16 +959,17 @@ public class StudentCurricularPlanLayout extends Layout {
         final Grade grade = evaluation.getGrade();
 
         // qubExtension, evaluation info may not yet be available to the public
-        final boolean isToShow = !grade.isEmpty() && evaluation.isFinal();
+        final YearMonthDay availableDate = evaluation.getGradeAvailableDateYearMonthDay();
+        final boolean isToShow =
+                !grade.isEmpty() && evaluation.isFinal() && availableDate != null && !availableDate.isAfter(new LocalDate());
 
         // qubExtension, show grade available as a tooltip
         final String text = isToShow ? grade.getValue() : EMPTY_INFO;
         String title = null;
         if (isToShow) {
-            final YearMonthDay available = evaluation.getGradeAvailableDateYearMonthDay();
-            if (available != null) {
+            if (availableDate != null) {
                 title = ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
-                        + available.toString(DATE_FORMAT);
+                        + availableDate.toString(DATE_FORMAT);
             }
         }
         generateCellWithSpan(enrolmentRow, text, title, renderer.getGradeCellClass());
@@ -975,7 +992,9 @@ public class StudentCurricularPlanLayout extends Layout {
             generateCellWithSpan(enrolmentRow, evaluation.getExamDateYearMonthDay().toString(DATE_FORMAT),
                     BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
         } else {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass());
+            // qubExtension, show tooltip
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+                    renderer.getCreationDateCellClass());
         }
 
         if (isToShow && evaluation.getPersonResponsibleForGrade() != null
@@ -985,7 +1004,9 @@ public class StudentCurricularPlanLayout extends Layout {
             generateCellWithSpan(enrolmentRow, username,
                     BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"), renderer.getCreatorCellClass());
         } else {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreatorCellClass());
+            // qubExtension, show tooltip
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO,
+                    BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"), renderer.getCreatorCellClass());
         }
 
         generateRemarksCell(enrolmentRow, evaluation);
@@ -995,11 +1016,11 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateEnrolmentWithStateEnroled(HtmlTableRow enrolmentRow, Enrolment enrolment, int level,
             boolean allowSelection) {
         generateCurricularCourseCodeAndNameCell(enrolmentRow, enrolment, level, allowSelection);
-        generateDegreeCurricularPlanCell(enrolmentRow, enrolment);
 
         // qubExtension, show shifts
         generateEnrolmentShiftsCell(enrolmentRow, enrolment);
 
+        generateDegreeCurricularPlanCell(enrolmentRow, enrolment);
         generateEnrolmentTypeCell(enrolmentRow, enrolment);
         generateEnrolmentStateCell(enrolmentRow, enrolment);
         generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getGradeCellClass()); // grade
@@ -1009,11 +1030,15 @@ public class StudentCurricularPlanLayout extends Layout {
         generateExecutionYearCell(enrolmentRow, enrolment);
         generateSemesterCell(enrolmentRow, enrolment);
         if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass()); // enrolment
-            // evaluation
-            // date
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreatorCellClass()); // grade
-            // responsible
+            // enrolment evaluation date
+            // qubExtension, show tooltip
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+                    renderer.getCreationDateCellClass());
+
+            // grade responsible
+            // qubExtension, show tooltip
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creator"),
+                    renderer.getCreatorCellClass());
             generateRemarksCell(enrolmentRow, enrolment);
         }
         generateSpacerCellsIfRequired(enrolmentRow);
@@ -1031,7 +1056,10 @@ public class StudentCurricularPlanLayout extends Layout {
                         renderer.getCreatorCellClass());
 
             } else {
-                generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreatorCellClass());
+                // qubExtension, show span
+                generateCellWithSpan(enrolmentRow, EMPTY_INFO,
+                        BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"),
+                        renderer.getCreatorCellClass());
             }
         }
 
@@ -1045,7 +1073,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateCellWithSpan(enrolmentRow, lastEnrolmentEvaluation.getExamDateYearMonthDay().toString(DATE_FORMAT),
                         BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
             } else {
-                generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getCreationDateCellClass());
+                // qubExtension, show tooltip
+                generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+                        renderer.getCreationDateCellClass());
             }
         }
     }
@@ -1128,7 +1158,7 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateEnrolmentLastEnrolmentEvaluationTypeCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
         final EnrolmentEvaluation lastEnrolmentEvaluation = enrolment.getFinalEnrolmentEvaluation();
         if (lastEnrolmentEvaluation != null && lastEnrolmentEvaluation.getEvaluationSeason() != null) {
-            generateCellWithSpan(enrolmentRow,
+            generateCellWithText(enrolmentRow,
                     lastEnrolmentEvaluation.getEvaluationSeason().getAcronym().getContent()
                             + ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER.apply(enrolment),
                     renderer.getLastEnrolmentEvaluationTypeCellClass());
@@ -1182,26 +1212,32 @@ public class StudentCurricularPlanLayout extends Layout {
             }
         }
 
-        final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, text, title, null);
+        final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, text, title, null, !Strings.isNullOrEmpty(title));
         cell.setStyle(
                 grade.isApproved() ? GRADE_APPROVED_STYLE : grade.isNotApproved() ? GRADE_NOT_APPROVED_STYLE : GRADE_EMPTY_STYLE);
     }
 
     protected void generateEnrolmentStateCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
-        generateCellWithText(enrolmentRow, enrolment.isApproved() ? EMPTY_INFO : BundleUtil.getString(Bundle.ENUMERATION,
-                enrolment.getEnrollmentState().getQualifiedName()), renderer.getEnrolmentStateCellClass());
+        // qubExtension, empty space
+        generateCellWithText(enrolmentRow,
+                enrolment.isApproved() ? EMPTY_SPACE : BundleUtil.getString(Bundle.ENUMERATION,
+                        enrolment.getEnrollmentState().getQualifiedName()),
+                renderer.getEnrolmentStateCellClass()).setStyle(EMPTY_WIDTH);
 
     }
 
     protected void generateEnrolmentTypeCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
-        generateCellWithText(enrolmentRow, enrolment.isEnrolmentTypeNormal() ? EMPTY_INFO : BundleUtil
-                .getString(Bundle.ENUMERATION, enrolment.getEnrolmentTypeName()), renderer.getEnrolmentTypeCellClass());
+        // qubExtension, empty space
+        generateCellWithText(enrolmentRow, enrolment.isEnrolmentTypeNormal() ? EMPTY_SPACE : BundleUtil
+                .getString(Bundle.ENUMERATION, enrolment.getEnrolmentTypeName()), renderer.getEnrolmentTypeCellClass())
+                        .setStyle(EMPTY_WIDTH);
     }
 
     protected void generateDegreeCurricularPlanCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment) {
 
         if (enrolment.isFor(studentCurricularPlan.getRegistration())) {
-            generateCellWithText(enrolmentRow, EMPTY_INFO, renderer.getDegreeCurricularPlanCellClass());
+            // qubExtension, empty space
+            generateCellWithText(enrolmentRow, EMPTY_SPACE, renderer.getDegreeCurricularPlanCellClass()).setStyle(EMPTY_WIDTH);
         } else {
             final HtmlTableCell cell = enrolmentRow.createCell();
             cell.setClasses(renderer.getDegreeCurricularPlanCellClass());
@@ -1340,7 +1376,7 @@ public class StudentCurricularPlanLayout extends Layout {
             tabCell.setBody(spacerImage);
 
             // qubExtension, bug fix on CSS width with percentage
-            tabCell.setStyle("width: 16px;");
+            tabCell.setStyle(EMPTY_WIDTH);
         }
     }
 
@@ -1367,24 +1403,23 @@ public class StudentCurricularPlanLayout extends Layout {
         return cell;
     }
 
-    protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String cssClass) {
-        return generateCellWithSpan(row, text, null, cssClass);
-    }
-
     protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
             final String cssClass) {
-        return generateCellWithSpan(row, text, title, cssClass, 1);
+        return generateCellWithSpan(row, text, title, cssClass, false);
     }
 
     protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
-            final String cssClass, final Integer colSpan) {
+            final String cssClass, final boolean forceDots) {
+
         final HtmlTableCell cell = row.createCell();
         cell.setClasses(cssClass);
-        cell.setColspan(colSpan);
 
         final HtmlInlineContainer span = new HtmlInlineContainer();
         span.addChild(new HtmlText(text));
         span.setTitle(title);
+        if (forceDots) {
+            span.setStyle(TOOLTIP_DOT);
+        }
 
         cell.setBody(span);
 
