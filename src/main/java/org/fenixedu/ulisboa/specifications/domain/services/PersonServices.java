@@ -11,7 +11,7 @@ public class PersonServices {
         if (input != null && input.getProfile() != null) {
             result = input.getProfile().getDisplayName();
 
-            if (!result.trim().contains(" ")) {
+            if (result.equals(input.getName()) || !result.trim().contains(" ")) {
                 result = input.getFirstAndLastName();
             }
         }
