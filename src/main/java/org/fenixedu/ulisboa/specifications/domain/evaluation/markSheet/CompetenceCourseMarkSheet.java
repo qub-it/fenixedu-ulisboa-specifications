@@ -620,6 +620,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return false;
         }
 
+        if (EvaluationSeasonServices.hasStudentStatuteBlocking(season, enrolment, semester)) {
+            return false;
+        }
+
         if (EvaluationSeasonServices.hasPreviousSeasonBlockingGrade(season, latestEvaluation)) {
             return false;
         }

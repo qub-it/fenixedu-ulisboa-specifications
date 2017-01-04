@@ -34,6 +34,7 @@ import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonStatuteType;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonEvaluation;
@@ -94,7 +95,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
 
     @RequestMapping(value = _SEARCH_URI + "{oid}")
     public String search(@PathVariable("oid") final EvaluationSeason evaluationSeason, final Model model) {
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(evaluationSeason, null);
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.creation(evaluationSeason, null);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         List<EvaluationSeasonRule> searchevaluationseasonruleResultsDataSet = filterSearchEvaluationSeasonRule(evaluationSeason);
@@ -143,6 +144,10 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             updateRedirect = UPDATEPREVIOUSSEASONMINIMUMGRADE_URL;
         } else if (clazz.equals(GradeScaleValidator.class)) {
             updateRedirect = UPDATEGRADESCALEVALIDATOR_URL;
+        } else if (clazz.equals(EvaluationSeasonShiftType.class)) {
+            updateRedirect = UPDATEEVALUATIONSEASONSHIFTTYPE_URL;
+        } else if (clazz.equals(EvaluationSeasonStatuteType.class)) {
+            updateRedirect = UPDATEEVALUATIONSEASONSTATUTETYPE_URL;
         }
 
         return redirect(updateRedirect + rule.getExternalId(), model, redirectAttributes);
@@ -156,7 +161,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             final Model model) {
         setEvaluationSeasonRule(rule, model);
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(rule);
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.update(rule);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("updatepreviousseasonblockinggrade");
@@ -203,7 +208,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             final Model model) {
         setEvaluationSeasonRule(rule, model);
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(rule);
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.update(rule);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("updatepreviousseasonminimumgrade");
@@ -249,7 +254,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
     public String updateGradeScaleValidator(@PathVariable("oid") final GradeScaleValidator rule, final Model model) {
         setEvaluationSeasonRule(rule, model);
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(rule);
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.update(rule);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("updategradescalevalidator");
@@ -331,7 +336,8 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
     public String createPreviousSeasonBlockingGrade(@PathVariable("oid") final EvaluationSeason evaluationSeason,
             final Model model) {
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(evaluationSeason, PreviousSeasonBlockingGrade.class);
+        final EvaluationSeasonRuleBean bean =
+                EvaluationSeasonRuleBean.creation(evaluationSeason, PreviousSeasonBlockingGrade.class);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("createpreviousseasonblockinggrade");
@@ -375,7 +381,8 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
     public String createPreviousSeasonMinimumGrade(@PathVariable("oid") final EvaluationSeason evaluationSeason,
             final Model model) {
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(evaluationSeason, PreviousSeasonMinimumGrade.class);
+        final EvaluationSeasonRuleBean bean =
+                EvaluationSeasonRuleBean.creation(evaluationSeason, PreviousSeasonMinimumGrade.class);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("createpreviousseasonminimumgrade");
@@ -418,7 +425,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
     @RequestMapping(value = _CREATEGRADESCALEVALIDATOR_URI + "{oid}", method = RequestMethod.GET)
     public String createGradeScaleValidator(@PathVariable("oid") final EvaluationSeason evaluationSeason, final Model model) {
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(evaluationSeason, GradeScaleValidator.class);
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.creation(evaluationSeason, GradeScaleValidator.class);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("creategradescalevalidator");
@@ -463,7 +470,7 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
     public String updateEvaluationSeasonShiftType(@PathVariable("oid") final EvaluationSeasonShiftType rule, final Model model) {
         setEvaluationSeasonRule(rule, model);
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(rule);
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.update(rule);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("updateevaluationseasonshifttype");
@@ -509,7 +516,8 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
     public String createEvaluationSeasonShiftType(@PathVariable("oid") final EvaluationSeason evaluationSeason,
             final Model model) {
 
-        final EvaluationSeasonRuleBean bean = new EvaluationSeasonRuleBean(evaluationSeason, EvaluationSeasonShiftType.class);
+        final EvaluationSeasonRuleBean bean =
+                EvaluationSeasonRuleBean.creation(evaluationSeason, EvaluationSeasonShiftType.class);
         this.setEvaluationSeasonRuleBean(bean, model);
 
         return jspPage("createevaluationseasonshifttype");
@@ -544,6 +552,99 @@ public class EvaluationSeasonRuleController extends FenixeduUlisboaSpecification
             addErrorMessage(de.getLocalizedMessage(), model);
             this.setEvaluationSeasonRuleBean(bean, model);
             return jspPage("createevaluationseasonshifttype");
+        }
+    }
+
+    private static final String _UPDATEEVALUATIONSEASONSTATUTETYPE_URI = "/updateevaluationseasonstatutetype/";
+    public static final String UPDATEEVALUATIONSEASONSTATUTETYPE_URL = CONTROLLER_URL + _UPDATEEVALUATIONSEASONSTATUTETYPE_URI;
+
+    @RequestMapping(value = _UPDATEEVALUATIONSEASONSTATUTETYPE_URI + "{oid}", method = RequestMethod.GET)
+    public String updateEvaluationSeasonStatuteType(@PathVariable("oid") final EvaluationSeasonStatuteType rule,
+            final Model model) {
+        setEvaluationSeasonRule(rule, model);
+
+        final EvaluationSeasonRuleBean bean = EvaluationSeasonRuleBean.update(rule);
+        this.setEvaluationSeasonRuleBean(bean, model);
+
+        return jspPage("updateevaluationseasonstatutetype");
+    }
+
+    private static final String _UPDATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URI = "/updateevaluationseasonstatutetypepostback/";
+    public static final String UPDATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URL =
+            CONTROLLER_URL + _UPDATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URI;
+
+    @RequestMapping(value = _UPDATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updateEvaluationSeasonStatuteTypepostback(
+            @PathVariable("oid") final EvaluationSeasonRule rule,
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model) {
+
+        this.setEvaluationSeasonRuleBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = _UPDATEEVALUATIONSEASONSTATUTETYPE_URI + "{oid}", method = RequestMethod.POST)
+    public String updateEvaluationSeasonStatuteType(@PathVariable("oid") final EvaluationSeasonStatuteType rule,
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        setEvaluationSeasonRule(rule, model);
+
+        try {
+            rule.edit(bean.getStatuteTypes());
+            return redirect(SEARCH_URL + rule.getSeason().getExternalId(), model, redirectAttributes);
+        } catch (Exception de) {
+
+            addErrorMessage(de.getLocalizedMessage(), model);
+            setEvaluationSeasonRule(rule, model);
+            this.setEvaluationSeasonRuleBean(bean, model);
+
+            return jspPage("updateevaluationseasonstatutetype");
+        }
+    }
+
+    private static final String _CREATEEVALUATIONSEASONSTATUTETYPE_URI = "/createevaluationseasonstatutetype/";
+    public static final String CREATEEVALUATIONSEASONSTATUTETYPE_URL = CONTROLLER_URL + _CREATEEVALUATIONSEASONSTATUTETYPE_URI;
+
+    @RequestMapping(value = _CREATEEVALUATIONSEASONSTATUTETYPE_URI + "{oid}", method = RequestMethod.GET)
+    public String createEvaluationSeasonStatuteType(@PathVariable("oid") final EvaluationSeason evaluationSeason,
+            final Model model) {
+
+        final EvaluationSeasonRuleBean bean =
+                EvaluationSeasonRuleBean.creation(evaluationSeason, EvaluationSeasonStatuteType.class);
+        this.setEvaluationSeasonRuleBean(bean, model);
+
+        return jspPage("createevaluationseasonstatutetype");
+    }
+
+    private static final String _CREATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URI = "/createevaluationseasonstatutetypepostback/";
+    public static final String CREATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URL =
+            CONTROLLER_URL + _CREATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URI;
+
+    @RequestMapping(value = _CREATEEVALUATIONSEASONSTATUTETYPEPOSTBACK_URI, method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> createEvaluationSeasonStatuteTypepostback(
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model) {
+
+        this.setEvaluationSeasonRuleBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = _CREATEEVALUATIONSEASONSTATUTETYPE_URI, method = RequestMethod.POST)
+    public String createEvaluationSeasonStatuteType(
+            @RequestParam(value = "bean", required = false) final EvaluationSeasonRuleBean bean, final Model model,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+
+            final EvaluationSeasonRule rule = EvaluationSeasonStatuteType.create(bean.getSeason(), bean.getStatuteTypes());
+            model.addAttribute("evaluationSeasonRule", rule);
+            return redirect(SEARCH_URL + getEvaluationSeasonRule(model).getSeason().getExternalId(), model, redirectAttributes);
+
+        } catch (Exception de) {
+
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setEvaluationSeasonRuleBean(bean, model);
+            return jspPage("createevaluationseasonstatutetype");
         }
     }
 

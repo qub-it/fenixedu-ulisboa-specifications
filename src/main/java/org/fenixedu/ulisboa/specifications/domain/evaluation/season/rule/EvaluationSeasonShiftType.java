@@ -35,7 +35,7 @@ public class EvaluationSeasonShiftType extends EvaluationSeasonShiftType_Base {
 
     private void checkRules() {
         if (getShiftTypes() == null || getShiftTypes().getTypes().isEmpty()) {
-            throw new ULisboaSpecificationsDomainException("error.GradeScaleValidator.shiftType.required");
+            throw new ULisboaSpecificationsDomainException("error.EvaluationSeasonShiftType.shiftTypes.required");
         }
     }
 

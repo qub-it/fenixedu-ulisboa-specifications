@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,22 +42,26 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonStatuteType;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonEvaluation;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.core.AbstractDomainObjectServices;
@@ -203,8 +208,9 @@ abstract public class EvaluationSeasonServices {
 
             for (final PreviousSeasonBlockingGrade rule : EvaluationSeasonRule.find(season, PreviousSeasonBlockingGrade.class)) {
                 final Grade blocking = rule.getBlocking();
-                final Grade grade = evaluation.getGrade();
-                if (blocking.compareTo(grade) == 0) {
+                final Grade inspect = evaluation.getGrade();
+
+                if (blocking.compareTo(inspect) == 0) {
                     return true;
                 }
             }
@@ -259,6 +265,25 @@ abstract public class EvaluationSeasonServices {
                 if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
                         .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
                         .isInDebt(enrolmentEvaluation.get())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    static public boolean hasStudentStatuteBlocking(final EvaluationSeason season, final Enrolment enrolment,
+            final ExecutionSemester semester) {
+
+        if (enrolment != null) {
+
+            for (final EvaluationSeasonStatuteType rule : EvaluationSeasonRule.find(season, EvaluationSeasonStatuteType.class)) {
+                final Set<StatuteType> blocking = rule.getStatuteTypesSet();
+                final Set<StatuteType> inspect = Sets.newHashSet(
+                        StatuteServices.findStatuteTypes(enrolment.getRegistration(), enrolment.getExecutionPeriod()));
+
+                if (!Sets.intersection(blocking, inspect).isEmpty()) {
                     return true;
                 }
             }

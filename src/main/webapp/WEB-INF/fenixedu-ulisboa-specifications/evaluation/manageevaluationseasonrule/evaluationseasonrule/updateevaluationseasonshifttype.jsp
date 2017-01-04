@@ -56,7 +56,7 @@ ${portal.angularToolkit()}
 <div class="page-header">
 	<h1>
 		<spring:message
-			code="label.evaluation.manageEvaluationSeasonRule.createEvaluationSeasonRule" />
+			code="label.evaluation.manageEvaluationSeasonRule.updateEvaluationSeasonRule" />
 		<small></small>
 	</h1>
 </div>
@@ -125,11 +125,11 @@ ${portal.angularToolkit()}
 					} ];
 
 				$scope.object = ${evaluationSeasonRuleBeanJson};
-				$scope.postBack = createAngularPostbackFunction($scope);
+				$scope.postBack = updateAngularPostbackFunction($scope);
 			
 				
 				$scope.submit = function(){
-					$('#createForm').submit();	
+					$('#updateForm').submit();	
 				}
 
 				//Begin here of Custom Screen business JS - code
@@ -165,13 +165,13 @@ ${portal.angularToolkit()}
 	</div>
 </div>
 
-<form id="createForm" name='form' method="post" class="form-horizontal"
+<form id="updateForm" name='form' method="post" class="form-horizontal"
 	ng-app="angularAppEvaluationSeasonRule"
 	ng-controller="EvaluationSeasonRuleController"
-	action='${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.CREATEEVALUATIONSEASONSHIFTTYPE_URL%>'>
+	action='${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.UPDATEEVALUATIONSEASONSHIFTTYPE_URL%>'>
 
 	<input type="hidden" name="postback"
-		value='${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.CREATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URL%>' />
+		value='${pageContext.request.contextPath}<%=EvaluationSeasonRuleController.UPDATEEVALUATIONSEASONSHIFTTYPEPOSTBACK_URL%>' />
 
 	<input name="bean" type="hidden" value="{{ object }}" />
 

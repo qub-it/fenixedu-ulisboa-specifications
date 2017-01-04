@@ -37,16 +37,20 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonStatuteType;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class EvaluationSeasonRuleBean implements IBean {
@@ -68,6 +72,10 @@ public class EvaluationSeasonRuleBean implements IBean {
     private List<ShiftType> shiftTypes;
 
     private List<TupleDataSourceBean> shiftTypesDataSource;
+
+    private List<StatuteType> statuteTypes;
+
+    private List<TupleDataSourceBean> statuteTypesDataSource;
 
     private String gradeValues;
 
@@ -147,6 +155,22 @@ public class EvaluationSeasonRuleBean implements IBean {
         this.shiftTypesDataSource = value;
     }
 
+    public List<StatuteType> getStatuteTypes() {
+        return this.statuteTypes;
+    }
+
+    public void setStatuteTypes(final List<StatuteType> input) {
+        this.statuteTypes = input;
+    }
+
+    public List<TupleDataSourceBean> getStatuteTypesDataSource() {
+        return statuteTypesDataSource;
+    }
+
+    public void setStatuteTypesDataSource(List<TupleDataSourceBean> value) {
+        this.statuteTypesDataSource = value;
+    }
+
     public String getGradeValues() {
         return gradeValues;
     }
@@ -175,36 +199,53 @@ public class EvaluationSeasonRuleBean implements IBean {
         init();
     }
 
-    public EvaluationSeasonRuleBean(final EvaluationSeason season, final Class<? extends EvaluationSeasonRule> clazz) {
-        this();
-        this.setSeason(season);
-        this.setEvaluationSeasonRuleSubclass(clazz == null ? null : clazz.getSimpleName());
+    static public EvaluationSeasonRuleBean creation(final EvaluationSeason season,
+            final Class<? extends EvaluationSeasonRule> clazz) {
+
+        final EvaluationSeasonRuleBean result = new EvaluationSeasonRuleBean();
+        result.setSeason(season);
+        result.setEvaluationSeasonRuleSubclass(clazz == null ? null : clazz.getSimpleName());
+        return result;
     }
 
-    public EvaluationSeasonRuleBean(final EvaluationSeasonRule input) {
-        this(input.getSeason(), input.getClass());
+    static private EvaluationSeasonRuleBean update(final EvaluationSeasonRule input) {
+        return creation(input.getSeason(), input.getClass());
     }
 
-    public EvaluationSeasonRuleBean(final PreviousSeasonBlockingGrade input) {
-        this((EvaluationSeasonRule) input);
-
-        init(input.getBlocking());
+    static public EvaluationSeasonRuleBean update(final PreviousSeasonBlockingGrade input) {
+        final EvaluationSeasonRuleBean result = update((EvaluationSeasonRule) input);
+        result.init(input.getBlocking());
+        return result;
     }
 
-    public EvaluationSeasonRuleBean(final PreviousSeasonMinimumGrade input) {
-        this((EvaluationSeasonRule) input);
-
-        init(input.getMinimum());
+    static public EvaluationSeasonRuleBean update(final PreviousSeasonMinimumGrade input) {
+        final EvaluationSeasonRuleBean result = update((EvaluationSeasonRule) input);
+        result.init(input.getMinimum());
+        return result;
     }
 
-    public EvaluationSeasonRuleBean(final GradeScaleValidator input) {
-        this((EvaluationSeasonRule) input);
+    static public EvaluationSeasonRuleBean update(final GradeScaleValidator input) {
+        final EvaluationSeasonRuleBean result = update((EvaluationSeasonRule) input);
 
-        setGradeScale(input.getGradeScale());
-        setGradeValues(input.getGradeValues());
-        setDegreeTypes(input.getDegreeTypeSet());
-        setRuleDescription(input.getRuleDescription());
-        setAppliesToCurriculumAggregatorEntry(input.getAppliesToCurriculumAggregatorEntry());
+        result.setGradeScale(input.getGradeScale());
+        result.setGradeValues(input.getGradeValues());
+        result.setDegreeTypes(input.getDegreeTypeSet());
+        result.setRuleDescription(input.getRuleDescription());
+        result.setAppliesToCurriculumAggregatorEntry(input.getAppliesToCurriculumAggregatorEntry());
+
+        return result;
+    }
+
+    static public EvaluationSeasonRuleBean update(final EvaluationSeasonShiftType input) {
+        final EvaluationSeasonRuleBean result = update((EvaluationSeasonRule) input);
+        result.setShiftTypes(Lists.newArrayList(input.getShiftTypes().getTypes()));
+        return result;
+    }
+
+    static public EvaluationSeasonRuleBean update(final EvaluationSeasonStatuteType input) {
+        final EvaluationSeasonRuleBean result = update((EvaluationSeasonRule) input);
+        result.setStatuteTypes(Lists.newArrayList(input.getStatuteTypesSet()));
+        return result;
     }
 
     private void init(final Grade grade) {
@@ -223,10 +264,15 @@ public class EvaluationSeasonRuleBean implements IBean {
                 .sorted((x, y) -> x.getName().getContent().compareTo(y.getName().getContent()))
                 .map(x -> new TupleDataSourceBean(x.getExternalId(), x.getName().getContent())).collect(Collectors.toList());
 
-        this.shiftTypesDataSource = Sets.newHashSet(ShiftType.values()).stream()
-                .sorted((x, y) -> x.getFullNameTipoAula().compareTo(y.getFullNameTipoAula()))
-                .map(i -> new TupleDataSourceBean(i.getName(),
-                        String.format("%s [%s]", i.getFullNameTipoAula(), i.getSiglaTipoAula())))
+        this.shiftTypesDataSource =
+                Sets.newHashSet(ShiftType.values()).stream()
+                        .sorted((x, y) -> x.getFullNameTipoAula().compareTo(y.getFullNameTipoAula()))
+                        .map(i -> new TupleDataSourceBean(i.getName(),
+                                String.format("%s [%s]", i.getFullNameTipoAula(), i.getSiglaTipoAula())))
+                        .collect(Collectors.toList());
+
+        this.statuteTypesDataSource = StatuteType.readAll(type -> true).sorted((x, y) -> x.getName().compareTo(y.getName())).map(
+                i -> new TupleDataSourceBean(i.getExternalId(), String.format("%s [%s]", i.getName().getContent(), i.getCode())))
                 .collect(Collectors.toList());
     }
 

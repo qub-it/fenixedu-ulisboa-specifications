@@ -804,6 +804,9 @@ class evaluation.season.rule.EvaluationSeasonRule {
         ShiftTypes shiftTypes (REQUIRED);
     }
 
+    class evaluation.season.rule.EvaluationSeasonStatuteType extends evaluation.season.rule.EvaluationSeasonRule {
+    }
+
 relation EvaluationSeasonRuleRelation {
     evaluation.season.rule.EvaluationSeasonRule playsRole rules {
         multiplicity *;
@@ -811,6 +814,16 @@ relation EvaluationSeasonRuleRelation {
 
     .org.fenixedu.academic.domain.EvaluationSeason playsRole season {
         multiplicity 1;
+    }
+}
+
+relation EvaluationSeasonStatuteTypeRelation {
+    evaluation.season.rule.EvaluationSeasonStatuteType playsRole evaluationSeasonStatuteTypeRules {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes {
+        multiplicity 1..*;
     }
 }
 
