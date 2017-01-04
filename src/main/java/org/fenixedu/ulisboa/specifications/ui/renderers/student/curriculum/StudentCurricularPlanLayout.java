@@ -972,7 +972,7 @@ public class StudentCurricularPlanLayout extends Layout {
                         + availableDate.toString(DATE_FORMAT);
             }
         }
-        generateCellWithSpan(enrolmentRow, text, title, renderer.getGradeCellClass());
+        generateCellWithSpan(enrolmentRow, text, title, renderer.getGradeCellClass(), true);
 
         generateCellWithText(enrolmentRow, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
