@@ -57,6 +57,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSe
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -318,7 +319,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             tuple.setId(x.getExternalId());
 
             final String prefix = isByTeacher() ? "" : this.responsibles.contains(x) ? "+* " : teachers.contains(x) ? "* " : "";
-            tuple.setText(prefix + x.getFirstAndLastName() + " (" + x.getUsername() + ")");
+            tuple.setText(prefix + PersonServices.getDisplayName(x) + " (" + x.getUsername() + ")");
 
             return tuple;
 

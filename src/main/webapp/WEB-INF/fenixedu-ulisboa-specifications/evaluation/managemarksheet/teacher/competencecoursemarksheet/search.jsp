@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.PersonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.teacher.CompetenceCourseMarkSheetController"%>
@@ -205,7 +206,7 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getEvaluationSeason()).getContent()%>"></c:out></td>
 						<td><joda:format value="${searchResult.evaluationDate}"  pattern="yyyy-MM-dd"/></td>
 						<td><c:out value='${searchResult.state}'/></td>
-						<td><c:out value='${searchResult.certifier.firstAndLastName}'/></td>
+                        <td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getCertifier())%>"></c:out></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>
 						<td><c:out value='${fn:length(searchResult.enrolmentEvaluationSet)}'/></td>
 						<td>

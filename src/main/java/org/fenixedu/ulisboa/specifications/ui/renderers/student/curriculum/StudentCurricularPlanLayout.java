@@ -73,6 +73,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
@@ -659,8 +660,9 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateCreatorIfRequired(HtmlTableRow enrolmentRow, String createdBy) {
         if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             if (!StringUtils.isEmpty(createdBy)) {
-                generateCellWithSpan(enrolmentRow, createdBy, BundleUtil.getString(Bundle.APPLICATION, "creator"),
-                        renderer.getCreatorCellClass());
+                final Person person = Person.findByUsername(createdBy);
+                generateCellWithSpan(enrolmentRow, person == null ? createdBy : PersonServices.getDisplayName(person),
+                        BundleUtil.getString(Bundle.APPLICATION, "creator"), renderer.getCreatorCellClass());
             } else {
                 // qubExtension, show tooltip
                 generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creator"),
@@ -1000,8 +1002,7 @@ public class StudentCurricularPlanLayout extends Layout {
         if (isToShow && evaluation.getPersonResponsibleForGrade() != null
                 && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             final Person person = evaluation.getPersonResponsibleForGrade();
-            final String username = person.getUsername();
-            generateCellWithSpan(enrolmentRow, username,
+            generateCellWithSpan(enrolmentRow, PersonServices.getDisplayName(person),
                     BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"), renderer.getCreatorCellClass());
         } else {
             // qubExtension, show tooltip
@@ -1050,8 +1051,7 @@ public class StudentCurricularPlanLayout extends Layout {
             if (lastEnrolmentEvaluation != null && lastEnrolmentEvaluation.getPersonResponsibleForGrade() != null) {
 
                 final Person person = lastEnrolmentEvaluation.getPersonResponsibleForGrade();
-                final String username = person.getUsername();
-                generateCellWithSpan(enrolmentRow, username,
+                generateCellWithSpan(enrolmentRow, PersonServices.getDisplayName(person),
                         BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"),
                         renderer.getCreatorCellClass());
 

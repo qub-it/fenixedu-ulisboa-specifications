@@ -53,6 +53,7 @@ import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
+import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
@@ -287,10 +288,9 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         if (markSheet != null) {
             final Registration registration = enrolment.getRegistration();
 
-            final String reason =
-                    ULisboaSpecificationsUtil.bundle("CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason",
-                            registration.getNumber().toString(), registration.getPerson().getFirstAndLastName(),
-                            getDescriptionDefault().getContent(), conclusionGrade.getValue());
+            final String reason = ULisboaSpecificationsUtil.bundle(
+                    "CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason", registration.getNumber().toString(),
+                    PersonServices.getDisplayName(registration.getPerson()), getDescriptionDefault().getContent(), conclusionGrade.getValue());
 
             CompetenceCourseMarkSheetChangeRequest.create(markSheet, Authenticate.getUser().getPerson(), reason);
         }

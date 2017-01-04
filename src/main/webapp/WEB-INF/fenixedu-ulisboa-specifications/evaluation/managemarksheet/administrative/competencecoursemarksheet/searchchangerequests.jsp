@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.PersonServices"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
 <%@page
@@ -280,9 +282,9 @@ ${portal.angularToolkit()}
 					<c:forEach var="changeRequest" items="${competenceCourseMarkSheet.sortedChangeRequests}">
 					<tr>
 						<td><joda:format value="${changeRequest.requestDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
-						<td><c:out value="${changeRequest.requester.firstAndLastName}" /></td>
+                        <td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheetChangeRequest)pageContext.getAttribute("changeRequest")).getRequester())%>"></c:out></td>
 						<td><pre style="border:none;background-color: inherit;white-space: pre-wrap;"><c:out value="${changeRequest.reason}" /></pre></td>
-						<td><c:out value="${changeRequest.responder.firstAndLastName}" /></td>
+                        <td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheetChangeRequest)pageContext.getAttribute("changeRequest")).getResponder())%>"></c:out></td>
 						<td><joda:format value="${changeRequest.responseDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 						<td><pre style="border:none;background-color: inherit;white-space: pre-wrap;"><c:out value="${changeRequest.comments}" /></pre></td>
 						<td><c:out value="${changeRequest.state.descriptionI18N.content}" /></td>

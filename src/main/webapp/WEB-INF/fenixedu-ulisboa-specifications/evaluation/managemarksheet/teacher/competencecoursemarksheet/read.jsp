@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.PersonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.teacher.CompetenceCourseMarkSheetController"%>
@@ -182,7 +183,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-							<c:out value="${competenceCourseMarkSheet.lastChangeRequest.requester.firstAndLastName}" />
+                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)pageContext.getAttribute("competenceCourseMarkSheet")).getLastChangeRequest().getRequester())%>"></c:out>
 						</div>
 					</div>
 					
@@ -213,7 +214,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-							<c:out value="${competenceCourseMarkSheet.lastChangeRequest.responder.firstAndLastName}" />
+                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)pageContext.getAttribute("competenceCourseMarkSheet")).getLastChangeRequest().getResponder())%>"></c:out>
 						</div>
 					</div>
 					
