@@ -27,6 +27,7 @@
 
 package org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -49,6 +51,7 @@ import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
@@ -58,9 +61,11 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.Evaluat
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
+import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import com.google.common.base.Joiner;
@@ -85,6 +90,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     private ExecutionCourse executionCourse;
     private List<TupleDataSourceBean> executionCourseDataSource;
+
+    private Evaluation courseEvaluation;
+    private List<TupleDataSourceBean> courseEvaluationDataSource;
+    private Boolean courseEvaluationsAvailable = true;
 
     private Person certifier;
     private Set<Person> responsibles = Sets.newHashSet();
@@ -197,6 +206,28 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     static private String reportLabelFor(final String field, final String value) {
         return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field) + ": <strong>" + value
                 + "</strong>";
+    }
+
+    public String getEvaluationDatePresentation() {
+        if (hasCourseEvaluationDate()) {
+            return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
+
+        } else {
+            return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
+        }
+    }
+
+    public DateTime getEvaluationDateTime() {
+        if (hasCourseEvaluationDate()) {
+            return new DateTime(getCourseEvaluation().getEvaluationDate());
+        } else {
+            return getEvaluationDate().toDateTimeAtStartOfDay();
+        }
+    }
+
+    public boolean hasCourseEvaluationDate() {
+        final Evaluation courseEvaluation = getCourseEvaluation();
+        return courseEvaluation != null && courseEvaluation.getEvaluationDate() != null;
     }
 
     public LocalDate getEvaluationDate() {
@@ -345,7 +376,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     private void updateShiftsDataSource() {
 
-        if (getEvaluationSeason() == null) {
+        if (getEvaluationSeason() == null || (getCourseEvaluation() == null && !getCourseEvaluationDataSource().isEmpty())) {
             return;
         }
 
@@ -368,6 +399,12 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                     .collect(Collectors.toSet());
         } else {
             available = executionCourses.stream().flatMap(e -> e.getAssociatedShifts().stream()).collect(Collectors.toSet());
+        }
+
+        // filter by course evaluation
+        final Set<Shift> evaluationShifts = EvaluationServices.findCourseEvaluationShifts(getCourseEvaluation());
+        if (isByTeacher() && !evaluationShifts.isEmpty()) {
+            available = Sets.intersection(evaluationShifts, available);
         }
 
         // filter by configured types
@@ -422,6 +459,47 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             return tuple;
 
         }).collect(Collectors.toList());
+    }
+
+    public Evaluation getCourseEvaluation() {
+        return courseEvaluation;
+    }
+
+    public void setCourseEvaluation(Evaluation courseEvaluation) {
+        this.courseEvaluation = courseEvaluation;
+    }
+
+    public List<TupleDataSourceBean> getCourseEvaluationDataSource() {
+        return this.courseEvaluationDataSource;
+    }
+
+    public void updateCourseEvaluationDataSource() {
+
+        this.courseEvaluationDataSource = getFilteredExecutionCourses(getExecutionCourse()).flatMap(e -> EvaluationServices
+                .findCourseEvaluations(e, getEvaluationSeason()).stream().filter(i -> i.getEvaluationDate() != null)).map(x -> {
+
+                    final TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+
+                    final String name = x.getPresentationName();
+                    tuple.setText(name.replace("'", " ").replace("\"", " ") + " ["
+                            + new SimpleDateFormat(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT)
+                                    .format(x.getEvaluationDate())
+                            + "]");
+
+                    return tuple;
+
+                }).collect(Collectors.toList());
+
+        setCourseEvaluationsAvailable(!this.courseEvaluationDataSource.isEmpty());
+    }
+
+    public Boolean getCourseEvaluationsAvailable() {
+        return courseEvaluationsAvailable;
+    }
+
+    public void setCourseEvaluationsAvailable(Boolean courseEvaluationsAvailable) {
+        this.courseEvaluationsAvailable = courseEvaluationsAvailable;
     }
 
     public String getReason() {
@@ -575,6 +653,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         updateCompetenceCourseDataSource();
 
         setExecutionCourseDataSource(getFilteredExecutionCourses(null).collect(Collectors.toSet()));
+
+        updateCourseEvaluationDataSource();
 
         setEvaluationSeasonDataSource(EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()));
 

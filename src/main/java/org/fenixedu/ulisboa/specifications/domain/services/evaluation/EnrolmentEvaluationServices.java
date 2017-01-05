@@ -6,8 +6,13 @@ import java.util.function.Consumer;
 
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluationExtendedInformation;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.joda.time.DateTime;
 
 public class EnrolmentEvaluationServices {
+
+    static final public String EVALUATION_DATE_FORMAT = "yyyy-MM-dd";
+    static final public String EVALUATION_DATE_TIME_FORMAT = EVALUATION_DATE_FORMAT + " HH:mm";
 
     private static final Collection<Consumer<EnrolmentEvaluation>> STATE_CHANGE_LISTENERS = new ArrayList<>();
 
@@ -26,6 +31,39 @@ public class EnrolmentEvaluationServices {
     static public String getRemarks(final EnrolmentEvaluation enrolmentEvaluation) {
         return enrolmentEvaluation.getExtendedInformation() == null ? null : enrolmentEvaluation.getExtendedInformation()
                 .getRemarks();
+    }
+
+    static public String getExamDatePresentation(final EnrolmentEvaluation input) {
+        String result = null;
+
+        final DateTime examDateTime = getExamDateTime(input);
+        if (examDateTime != null) {
+
+            if (examDateTime.toString().contains("00:00")) {
+                result = examDateTime.toString(EVALUATION_DATE_FORMAT);
+            } else {
+                result = examDateTime.toString(EVALUATION_DATE_TIME_FORMAT);
+            }
+        }
+
+        return result;
+    }
+
+    static public DateTime getExamDateTime(final EnrolmentEvaluation input) {
+        DateTime result = null;
+
+        if (input != null && input.getExamDateYearMonthDay() != null) {
+
+            final CompetenceCourseMarkSheet sheet = input.getCompetenceCourseMarkSheet();
+            if (sheet == null || !sheet.hasCourseEvaluationDate()) {
+                result = input.getExamDateYearMonthDay().toDateTimeAtMidnight();
+
+            } else {
+                result = sheet.getEvaluationDateTime();
+            }
+        }
+
+        return result;
     }
 
 }

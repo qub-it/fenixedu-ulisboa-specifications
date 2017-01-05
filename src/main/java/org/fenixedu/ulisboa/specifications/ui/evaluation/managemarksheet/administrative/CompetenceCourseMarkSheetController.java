@@ -307,8 +307,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         try {
             final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
-                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
-                    bean.getCertifier(), bean.getShifts(), false);
+                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getCourseEvaluation(),
+                    bean.getEvaluationDate(), bean.getCertifier(), bean.getShifts(), false);
 
             model.addAttribute("competenceCourseMarkSheet", markSheet);
             return redirect(UPDATEEVALUATIONS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
@@ -433,7 +433,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
         final String filename = competenceCourse.getCode() + "_"
                 + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
-                + competenceCourseMarkSheet.getEvaluationDate().toString("yyyy-MM-dd") + ".pdf";
+                + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-') + ".pdf";
 
         writeFile(response, filename, MarkSheetDocumentPrintService.PDF,
                 MarkSheetDocumentPrintService.print(competenceCourseMarkSheet));
@@ -448,7 +448,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
         final String filename = snapshot.getCompetenceCourseCode() + "_"
                 + snapshot.getCompetenceCourseName().getContent().replace(' ', '_').replace('/', '-').replace('\\', '-')
-                + snapshot.getEvaluationDate().toString("yyyy-MM-dd") + ".pdf";
+                + snapshot.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-') + ".pdf";
 
         writeFile(response, filename, MarkSheetDocumentPrintService.PDF, MarkSheetDocumentPrintService.print(snapshot));
     }
@@ -531,7 +531,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
         final String filename = competenceCourse.getCode() + "_"
                 + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
-                + competenceCourseMarkSheet.getEvaluationDate().toString("yyyy-MM-dd")
+                + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-')
                 + MarkSheetImportExportService.XLSX_EXTENSION;
 
         writeFile(response, filename, MarkSheetImportExportService.XLSX_MIME_TYPE,

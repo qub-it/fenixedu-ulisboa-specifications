@@ -157,7 +157,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected static final int LATEST_ENROLMENT_EVALUATION_COLUMNS = 3;
 
-    protected static final String DATE_FORMAT = "yyyy/MM/dd";
+    protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
     protected static final int GRADE_NEXT_COLUMN_SPAN = 3;
 
@@ -992,7 +992,7 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         if (isToShow && evaluation.getExamDateYearMonthDay() != null) {
-            generateCellWithSpan(enrolmentRow, evaluation.getExamDateYearMonthDay().toString(DATE_FORMAT),
+            generateCellWithSpan(enrolmentRow, EnrolmentEvaluationServices.getExamDatePresentation(evaluation),
                     BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
         } else {
             // qubExtension, show tooltip
@@ -1074,7 +1074,7 @@ public class StudentCurricularPlanLayout extends Layout {
             final EnrolmentEvaluation lastEnrolmentEvaluation = enrolment.getFinalEnrolmentEvaluation();
             if (lastEnrolmentEvaluation != null && lastEnrolmentEvaluation.getExamDateYearMonthDay() != null) {
 
-                generateCellWithSpan(enrolmentRow, lastEnrolmentEvaluation.getExamDateYearMonthDay().toString(DATE_FORMAT),
+                generateCellWithSpan(enrolmentRow, EnrolmentEvaluationServices.getExamDatePresentation(lastEnrolmentEvaluation),
                         BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
             } else {
                 // qubExtension, show tooltip

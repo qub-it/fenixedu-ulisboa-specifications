@@ -10,6 +10,8 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.util.FenixDigestUtils;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Sets;
@@ -24,7 +26,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
 
     protected void init(final CompetenceCourseMarkSheetStateChange stateChange, final String competenceCourseCode,
             final LocalizedString competenceCourseName, final String executionSemester, final LocalizedString evaluationSeason,
-            final String certifier, final LocalDate evaluationDate) {
+            final String certifier, final LocalDate evaluationDate, final DateTime evaluationDateTime) {
 
         setStateChange(stateChange);
         setCompetenceCourseCode(competenceCourseCode);
@@ -33,6 +35,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
         setEvaluationSeason(evaluationSeason);
         setCertifier(certifier);
         setEvaluationDate(evaluationDate);
+        setEvaluationDateTime(evaluationDateTime);
         checkRules();
     }
 
@@ -109,7 +112,8 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
         content.append(getExecutionSemester());
         content.append(getEvaluationSeason().toString());
         content.append(getCertifier());
-        content.append(getEvaluationDate().toString("yyyy/MM/dd"));
+        content.append(getStateChange().getCompetenceCourseMarkSheet().hasCourseEvaluationDate() ? getEvaluationDateTime()
+                .toString("yyyy/MM/dd HH:mm") : getEvaluationDate().toString("yyyy/MM/dd"));
         content.append(getStateChange().getDate().toString("yyyy/MM/dd"));
 
         for (final CompetenceCourseMarkSheetSnapshotEntry entry : getSortedEntries()) {
@@ -138,11 +142,12 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
 
     public static CompetenceCourseMarkSheetSnapshot create(final CompetenceCourseMarkSheetStateChange stateChange,
             final String competenceCourseCode, final LocalizedString competenceCourseName, final String executionSemester,
-            final LocalizedString evaluationSeason, final String certifier, final LocalDate evaluationDate) {
+            final LocalizedString evaluationSeason, final String certifier, final LocalDate evaluationDate,
+            final DateTime evaluationDateTime) {
 
         final CompetenceCourseMarkSheetSnapshot result = new CompetenceCourseMarkSheetSnapshot();
         result.init(stateChange, competenceCourseCode, competenceCourseName, executionSemester, evaluationSeason, certifier,
-                evaluationDate);
+                evaluationDate, evaluationDateTime);
 
         return result;
     }
@@ -171,7 +176,15 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
 
     public boolean isLastSnapshot() {
         return getStateChange().getCompetenceCourseMarkSheet().getLastSnapshot().get() == this;
+    }
 
+    public String getEvaluationDatePresentation() {
+        if (!getEvaluationDateTime().toString().contains("00:00")) {
+            return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
+
+        } else {
+            return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
+        }
     }
 
 }

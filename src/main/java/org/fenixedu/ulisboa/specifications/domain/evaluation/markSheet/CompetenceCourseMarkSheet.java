@@ -47,6 +47,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
@@ -112,14 +113,20 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     protected void init(final ExecutionSemester executionSemester, final CompetenceCourse competenceCourse,
-            final ExecutionCourse executionCourse, final EvaluationSeason evaluationSeason, final LocalDate evaluationDate,
-            GradeScale gradeScale, final Person certifier, final Set<Shift> shifts, final LocalDate expireDate) {
+            final ExecutionCourse executionCourse, final EvaluationSeason evaluationSeason, final Evaluation courseEvaluation,
+            final LocalDate evaluationDate, GradeScale gradeScale, final Person certifier, final Set<Shift> shifts,
+            final LocalDate expireDate) {
 
         setExecutionSemester(executionSemester);
         setCompetenceCourse(competenceCourse);
         setExecutionCourse(executionCourse);
         setEvaluationSeason(evaluationSeason);
-        setEvaluationDate(evaluationDate);
+        if (courseEvaluation != null) {
+            setCourseEvaluation(courseEvaluation);
+            setEvaluationDate(new LocalDate(courseEvaluation.getEvaluationDate()));
+        } else {
+            setEvaluationDate(evaluationDate);
+        }
         setGradeScale(gradeScale);
         setCertifier(certifier);
         getShiftSet().addAll(shifts);
@@ -238,6 +245,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     private void checkIfEvaluationsDateIsEqualToMarkSheetEvaluationDate() {
         for (final EnrolmentEvaluation iter : getEnrolmentEvaluationSet()) {
+            // TODO legidio, use EnrolmentEvaluationServices.getExamDateTime ?
             if (!iter.getExamDateYearMonthDay().toLocalDate().isEqual(getEvaluationDate())) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.CompetenceCourseMarkSheet.evaluations.examDate.must.be.equal.marksheet.evaluationDate");
@@ -259,8 +267,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             e.setPersonResponsibleForGrade(certifier);
         });
 
-        init(getExecutionSemester(), getCompetenceCourse(), getExecutionCourse(), getEvaluationSeason(), evaluationDate,
-                gradeScale, certifier, getShiftSet(), expireDate);
+        init(getExecutionSemester(), getCompetenceCourse(), getExecutionCourse(), getEvaluationSeason(), getCourseEvaluation(),
+                evaluationDate, gradeScale, certifier, getShiftSet(), expireDate);
 
         checkRules();
     }
@@ -287,6 +295,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         setCompetenceCourse(null);
         setExecutionCourse(null);
         setEvaluationSeason(null);
+        setCourseEvaluation(null);
         setCertifier(null);
         getShiftSet().clear();
         getEnrolmentEvaluationSet().clear();
@@ -344,12 +353,12 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     @Atomic
     public static CompetenceCourseMarkSheet create(final ExecutionSemester executionSemester,
             final CompetenceCourse competenceCourse, final ExecutionCourse executionCourse,
-            final EvaluationSeason evaluationSeason, final LocalDate evaluationDate, final Person certifier,
-            final Set<Shift> shifts, final boolean byTeacher) {
+            final EvaluationSeason evaluationSeason, final Evaluation courseEvaluation, final LocalDate evaluationDate,
+            final Person certifier, final Set<Shift> shifts, final boolean byTeacher) {
 
         final CompetenceCourseMarkSheet result = new CompetenceCourseMarkSheet();
-        result.init(executionSemester, competenceCourse, executionCourse, evaluationSeason, evaluationDate, GradeScale.TYPE20,
-                certifier, shifts, null);
+        result.init(executionSemester, competenceCourse, executionCourse, evaluationSeason, courseEvaluation, evaluationDate,
+                GradeScale.TYPE20, certifier, shifts, null);
         CompetenceCourseMarkSheetStateChange.createEditionState(result, byTeacher, null);
         return result;
     }
@@ -423,6 +432,28 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public DateTime getStateDate() {
         return getStateChange().getDate();
+    }
+
+    public String getEvaluationDatePresentation() {
+        if (hasCourseEvaluationDate()) {
+            return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
+
+        } else {
+            return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
+        }
+    }
+
+    public DateTime getEvaluationDateTime() {
+        if (hasCourseEvaluationDate()) {
+            return new DateTime(getCourseEvaluation().getEvaluationDate());
+        } else {
+            return getEvaluationDate().toDateTimeAtStartOfDay();
+        }
+    }
+
+    public boolean hasCourseEvaluationDate() {
+        final Evaluation courseEvaluation = getCourseEvaluation();
+        return courseEvaluation != null && courseEvaluation.getEvaluationDate() != null;
     }
 
     @Atomic
@@ -681,6 +712,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             for (final Iterator<EnrolmentEvaluation> iterator = evaluations.iterator(); iterator.hasNext();) {
                 final EnrolmentEvaluation enrolmentEvaluation = iterator.next();
 
+                // TODO legidio, use EnrolmentEvaluationServices.getExamDateTime ?
                 final YearMonthDay examDate = enrolmentEvaluation.getExamDateYearMonthDay();
                 if (examDate != null && !examDate.isBefore(evaluationDate)) {
                     iterator.remove();
@@ -815,7 +847,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         final CompetenceCourseMarkSheetSnapshot snapshot =
                 CompetenceCourseMarkSheetSnapshot.create(stateChange, getCompetenceCourse().getCode(),
                         getCompetenceCourse().getNameI18N().toLocalizedString(), getExecutionSemester().getQualifiedName(),
-                        getEvaluationSeason().getName(), getCertifier().getName(), getEvaluationDate());
+                        getEvaluationSeason().getName(), getCertifier().getName(), getEvaluationDate(), getEvaluationDateTime());
 
         for (final EnrolmentEvaluation evaluation : getSortedEnrolmentEvaluations()) {
             final Registration registration = evaluation.getRegistration();

@@ -380,7 +380,7 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 						<td><joda:format value="${searchResult.creationDate}" pattern="yyyy-MM-dd HH:mm" /></td>
 						<td><c:out value="${searchResult.competenceCourse.code}" /> - <c:out value="${searchResult.competenceCourse.nameI18N.content}" /></td>
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getEvaluationSeason()).getContent()%>"></c:out></td>
-						<td><joda:format value="${searchResult.evaluationDate}" pattern="yyyy-MM-dd"/></td>
+						<td><c:out value="${searchResult.evaluationDatePresentation}"/></td>
 						<td><c:out value='${searchResult.state}'/></td>
                         <td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getCertifier())%>"></c:out></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>

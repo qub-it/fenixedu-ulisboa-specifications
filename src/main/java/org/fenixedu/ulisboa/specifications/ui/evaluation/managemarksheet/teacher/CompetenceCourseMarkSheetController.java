@@ -331,8 +331,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             MarkSheetSettings.isRequiredNumberOfShifts(bean.getShifts().size());
 
             final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
-                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getEvaluationDate(),
-                    bean.getCertifier(), bean.getShifts(), true);
+                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getCourseEvaluation(),
+                    bean.getEvaluationDate(), bean.getCertifier(), bean.getShifts(), true);
 
             model.addAttribute("competenceCourseMarkSheet", markSheet);
             return redirect(UPDATEEVALUATIONS_URL + executionCourse.getExternalId() + "/"
@@ -404,7 +404,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
         final String filename = competenceCourse.getCode() + "_"
                 + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
-                + competenceCourseMarkSheet.getEvaluationDate().toString("yyyy-MM-dd") + ".pdf";
+                + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-') + ".pdf";
 
         writeFile(response, filename, MarkSheetDocumentPrintService.PDF,
                 MarkSheetDocumentPrintService.print(competenceCourseMarkSheet));
@@ -469,7 +469,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
         final String filename = competenceCourse.getCode() + "_"
                 + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
-                + competenceCourseMarkSheet.getEvaluationDate().toString("yyyy-MM-dd")
+                + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-')
                 + MarkSheetImportExportService.XLSX_EXTENSION;
 
         writeFile(response, filename, MarkSheetImportExportService.XLSX_MIME_TYPE,

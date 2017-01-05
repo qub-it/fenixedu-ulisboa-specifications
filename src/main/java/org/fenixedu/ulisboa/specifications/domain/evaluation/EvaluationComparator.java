@@ -86,6 +86,7 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
         }
 
         if (bothApproved) {
+            // TODO legidio, use EnrolmentEvaluationServices.getExamDateTime ?
             result = left.getExamDateYearMonthDay().compareTo(right.getExamDateYearMonthDay());
             if (result != 0) {
                 return result;

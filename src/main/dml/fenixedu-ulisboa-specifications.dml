@@ -66,6 +66,7 @@ external class .org.fenixedu.academic.domain.CompetenceCourse;
 external class .org.fenixedu.academic.domain.DegreeInfo;
 external class .org.fenixedu.academic.domain.Enrolment;
 external class .org.fenixedu.academic.domain.EnrolmentEvaluation;
+external class .org.fenixedu.academic.domain.Evaluation;
 external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.ExecutionInterval;
 external class .org.fenixedu.academic.domain.ExecutionSemester;
@@ -858,6 +859,7 @@ class evaluation.markSheet.CompetenceCourseMarkSheetSnapshot {
 	LocalizedString evaluationSeason;
 	String certifier;
 	LocalDate evaluationDate;
+	DateTime evaluationDateTime;
 	String checkSum;
 	String shifts;
 }
@@ -956,6 +958,16 @@ relation CompetenceCourseMarkSheetEnrolmentEvaluation {
     
     .org.fenixedu.academic.domain.EnrolmentEvaluation playsRole enrolmentEvaluation {
         multiplicity *;
+    }
+}
+
+relation CompetenceCourseMarkSheetEvaluation {
+    evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+        multiplicity *;
+    }
+
+    .org.fenixedu.academic.domain.Evaluation playsRole courseEvaluation {
+        multiplicity 0..1;
     }
 }
 
