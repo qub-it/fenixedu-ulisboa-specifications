@@ -166,10 +166,11 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 
 	<input name="bean" type="hidden" value="{{ object }}" />
 
-	<c:if test="${not empty competenceCourseMarkSheetBean.reportsSummaryForExecutionCourse}">
+    <c:set var="reportsSummaryForExecutionCourse" value="${competenceCourseMarkSheetBean.reportsSummaryForExecutionCourse}" />
+	<c:if test="${not empty reportsSummaryForExecutionCourse}">
 		<div class="alert alert-info" role="alert">
 	
-			<c:forEach items="${competenceCourseMarkSheetBean.reportsSummaryForExecutionCourse}" var="reportSummary">
+			<c:forEach items="${reportsSummaryForExecutionCourse}" var="reportSummary">
 				<p>
 					<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span> ${reportSummary}
 				</p>

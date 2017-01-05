@@ -184,7 +184,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)pageContext.getAttribute("competenceCourseMarkSheet")).getLastChangeRequest().getRequester())%>"></c:out>
+                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getLastChangeRequest().getRequester())%>"></c:out>
 						</div>
 					</div>
 					
@@ -215,7 +215,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)pageContext.getAttribute("competenceCourseMarkSheet")).getLastChangeRequest().getResponder())%>"></c:out>
+                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getLastChangeRequest().getResponder())%>"></c:out>
 						</div>
 					</div>
 					
