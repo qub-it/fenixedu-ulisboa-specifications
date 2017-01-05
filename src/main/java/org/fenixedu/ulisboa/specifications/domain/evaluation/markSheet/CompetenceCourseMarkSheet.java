@@ -470,37 +470,16 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     /**
-     * Does one final test for final vs temporary evaluations
-     * Possibly redundant with isEnrolmentCandidateForEvaluation
+     * Tests for final and temporary evaluations are made in filterEnrolmentsForGradeSubmission
      * 
      * @see {@link com.qubit.qubEdu.module.academicOffice.presentation.actions.teacher.MarkSheetTeacherManagementDispatchAction.getEnrolmentsNotInAnyMarkSheet}
      */
     static private Set<Enrolment> getEnrolmentsNotInAnyMarkSheet(final ExecutionSemester semester,
-            final CompetenceCourse competence, final ExecutionCourse execution, final EvaluationSeason evaluationSeason,
+            final CompetenceCourse competence, final ExecutionCourse execution, final EvaluationSeason season,
             final LocalDate evaluationDate, final Set<Shift> shifts) {
 
-        final Set<Enrolment> result = Sets.newHashSet();
-
-        for (final Enrolment enrolment : filterEnrolmentsForGradeSubmission(
-                collectEnrolmentsForGradeSubmission(semester, competence, execution), semester, evaluationSeason, evaluationDate,
-                shifts)) {
-
-            final Optional<EnrolmentEvaluation> finalEvaluation =
-                    enrolment.getEnrolmentEvaluation(evaluationSeason, semester, true);
-            if (finalEvaluation.isPresent()) {
-                continue;
-            }
-
-            final Optional<EnrolmentEvaluation> temporaryEvaluation =
-                    enrolment.getEnrolmentEvaluation(evaluationSeason, semester, false);
-            if (temporaryEvaluation.isPresent() && temporaryEvaluation.get().getCompetenceCourseMarkSheet() != null) {
-                continue;
-            }
-
-            result.add(enrolment);
-        }
-
-        return result;
+        return filterEnrolmentsForGradeSubmission(collectEnrolmentsForGradeSubmission(semester, competence, execution), semester,
+                season, evaluationDate, shifts);
     }
 
     /**
@@ -528,6 +507,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     }
                 }
 
+                // also look at execution course atends
                 for (final Attends attends : iter.getAttendsSet()) {
                     final Enrolment enrolment = attends.getEnrolment();
                     if (enrolment != null) {
@@ -540,17 +520,15 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return result;
     }
 
-    /**
-     * Algorithm entry point
-     * Deals with anual competence courses
-     */
     public Set<Enrolment> getExecutionCourseEnrolmentsNotInAnyMarkSheet() {
+        // We need static services for report purposes
         return getExecutionCourseEnrolmentsNotInAnyMarkSheet(getExecutionSemester(), getCompetenceCourse(), getExecutionCourse(),
                 getEvaluationSeason(), getEvaluationDate(), getShiftSet());
     }
 
     /**
-     * We need static services for report purposes
+     * Algorithm entry point
+     * Deals with anual competence courses
      */
     static public Set<Enrolment> getExecutionCourseEnrolmentsNotInAnyMarkSheet(final ExecutionSemester semester,
             final CompetenceCourse competence, final ExecutionCourse execution, final EvaluationSeason season,
@@ -602,35 +580,63 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            if (!isEnrolmentCandidateForEvaluation(enrolment, evaluationDate, semester, season)) {
-                continue;
-            }
-
             if (!shifts.isEmpty() && !EnrolmentServices.containsAnyShift(enrolment, semester, shifts)) {
                 continue;
             }
 
-            final Optional<EnrolmentEvaluation> evaluation = enrolment.getEnrolmentEvaluation(season, semester, false);
-            if (evaluation.isPresent()
-                    && (evaluation.get().getCompetenceCourseMarkSheet() != null || evaluation.get().isAnnuled())) {
+            // inspect enrolment evaluation of the given season
+            final Optional<EnrolmentEvaluation> inspect = enrolment.getEnrolmentEvaluation(season, semester, null);
+            final EnrolmentEvaluation evaluation = inspect.isPresent() ? inspect.get() : null;
+            if (evaluation != null) {
+
+                // isEvaluatedInSeason
+                if (!evaluation.isTemporary()) {
+                    continue;
+                }
+
+                // isEnroledInSeason
+                if (evaluation.isTemporary()) {
+
+                    if (evaluation.isAnnuled()) {
+                        continue;
+                    }
+
+                    // already included in a mark sheet
+                    if (evaluation.getCompetenceCourseMarkSheet() != null) {
+                        continue;
+                    }
+
+                    // if multiple evaluations are allowed in different semesters 
+                    if (EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)
+                            && evaluation.getExecutionPeriod() != semester) {
+                        continue;
+                    }
+
+                    if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
+                        // is automatic, enrolment must be included
+                        result.add(enrolment);
+                    }
+                }
+
+            } else if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
+                // is not automatic, evaluation should exist
                 continue;
             }
 
-            result.add(enrolment);
+            // the real business logic
+            if (isEnrolmentCandidateForEvaluation(enrolment, evaluationDate, semester, season)) {
+                result.add(enrolment);
+            }
         }
 
         return result;
     }
 
     /**
-     * Filters according to evaluation season
+     * Filters according to evaluation season parameters, rules, etc
      */
     static private boolean isEnrolmentCandidateForEvaluation(final Enrolment enrolment, final LocalDate evaluationDate,
             final ExecutionSemester semester, final EvaluationSeason season) {
-
-        if (enrolment.isEvaluatedInSeason(season, semester)) {
-            return false;
-        }
 
         // only evaluations before the input evaluation date should be investigated
         final Collection<EnrolmentEvaluation> evaluations = getAllFinalEnrolmentEvaluations(enrolment, evaluationDate);
@@ -644,10 +650,6 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         // this evaluation season is for approved enrolments
         if (EvaluationSeasonServices.isForApprovedEnrolments(season) && !isApproved) {
-            return false;
-        }
-
-        if (EvaluationSeasonServices.isBlockingTreasuryEventInDebt(season, enrolment, semester)) {
             return false;
         }
 
@@ -687,17 +689,15 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             }
         }
 
+        if (EvaluationSeasonServices.isBlockingTreasuryEventInDebt(season, enrolment, semester)) {
+            return false;
+        }
+
         if (!CurriculumAggregatorServices.isCandidateForEvaluation(season, enrolment)) {
             return false;
         }
 
-        final Optional<EnrolmentEvaluation> temporaryEvaluation = enrolment.getEnrolmentEvaluation(season, semester, false);
-
-        if (EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season) && temporaryEvaluation.isPresent()) {
-            return temporaryEvaluation.get().getExecutionPeriod() == semester;
-        }
-
-        return !EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season) || temporaryEvaluation.isPresent();
+        return true;
     }
 
     /**
@@ -724,8 +724,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     static private EnrolmentEvaluation getLatestEnrolmentEvaluation(final Collection<EnrolmentEvaluation> evaluations) {
-        return ((evaluations == null || evaluations.isEmpty()) ? null : Collections.<EnrolmentEvaluation> max(evaluations,
-                new EvaluationComparator()));
+        return ((evaluations == null || evaluations.isEmpty()) ? null : evaluations.stream().max(new EvaluationComparator())
+                .get());
     }
 
     public boolean isGradeValueAccepted(final String gradeValue) {
