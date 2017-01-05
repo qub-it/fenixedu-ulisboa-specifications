@@ -341,10 +341,11 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 	</div>
 	<!-- /.modal -->
 	
-	<c:if test="${not empty competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}">
+    <c:set var="reportsSummaryForCompetenceCourse" value="${competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}" />
+	<c:if test="${not empty reportsSummaryForCompetenceCourse}">
 		<div class="alert alert-info" role="alert">
 	
-			<c:forEach items="${competenceCourseMarkSheetBean.reportsSummaryForCompetenceCourse}" var="reportSummary">
+			<c:forEach items="${reportsSummaryForCompetenceCourse}" var="reportSummary">
 				<p>
 					<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true">&nbsp;</span> ${reportSummary}
 				</p>
