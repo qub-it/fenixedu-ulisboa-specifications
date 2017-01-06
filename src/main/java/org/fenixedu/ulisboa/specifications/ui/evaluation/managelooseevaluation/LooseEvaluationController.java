@@ -133,7 +133,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
                         .map(l -> l.getEvaluationsSet()).reduce((a, c) -> Sets.union(a, c)).orElse(Sets.newHashSet()).stream()
                         .filter(l -> l.getMarkSheet() == null && l.getCompetenceCourseMarkSheet() == null && l.getGrade() != null
-                                && !l.getGrade().isEmpty())
+                                && !l.getGrade().isEmpty() && l.isFinal())
                         .sorted((x, y) -> CurriculumLineServices.COMPARATOR.compare(x.getEnrolment(), y.getEnrolment()))
                         .collect(Collectors.toList());
 
