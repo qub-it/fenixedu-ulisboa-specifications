@@ -65,6 +65,7 @@ import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -522,8 +523,29 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public Set<Enrolment> getExecutionCourseEnrolmentsNotInAnyMarkSheet() {
         // We need static services for report purposes
-        return getExecutionCourseEnrolmentsNotInAnyMarkSheet(getExecutionSemester(), getCompetenceCourse(), getExecutionCourse(),
-                getEvaluationSeason(), getEvaluationDate(), getShiftSet());
+        final Set<Enrolment> result = Sets.newHashSet(getExecutionCourseEnrolmentsNotInAnyMarkSheet(getExecutionSemester(),
+                getCompetenceCourse(), getExecutionCourse(), getEvaluationSeason(), getEvaluationDate(), getShiftSet()));
+
+        if (getCourseEvaluation() == null) {
+            return result;
+        }
+
+        for (final Iterator<Enrolment> iterator = result.iterator(); iterator.hasNext();) {
+            final Enrolment enrolment = iterator.next();
+
+            if (!EvaluationServices.isEnroledInAnyCourseEvaluation(enrolment, getEvaluationSeason(), getExecutionSemester())) {
+                continue;
+            }
+
+            if (EvaluationServices.isEnroledInCourseEvaluation(enrolment, getEvaluationSeason(), getExecutionSemester(),
+                    getCourseEvaluation())) {
+                continue;
+            }
+
+            iterator.remove();
+        }
+
+        return result;
     }
 
     /**
@@ -594,32 +616,26 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     continue;
                 }
 
+                if (evaluation.isAnnuled()) {
+                    continue;
+                }
+
                 // isEnroledInSeason
                 if (evaluation.isTemporary()) {
-
-                    if (evaluation.isAnnuled()) {
-                        continue;
-                    }
 
                     // already included in a mark sheet
                     if (evaluation.getCompetenceCourseMarkSheet() != null) {
                         continue;
                     }
 
-                    // if multiple evaluations are allowed in different semesters 
-                    if (EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)
-                            && evaluation.getExecutionPeriod() != semester) {
-                        continue;
-                    }
-
                     if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
-                        // is automatic, enrolment must be included
+                        // is manual, enrolment must be included
                         result.add(enrolment);
                     }
                 }
 
             } else if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
-                // is not automatic, evaluation should exist
+                // is manual, evaluation should exist
                 continue;
             }
 
