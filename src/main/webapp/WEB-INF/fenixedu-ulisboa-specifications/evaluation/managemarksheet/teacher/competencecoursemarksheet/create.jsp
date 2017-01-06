@@ -174,33 +174,29 @@ ${portal.angularToolkit()}
 
 				</div>
 			</div>
-            <c:if test="${bean.courseEvaluationsAvailable}">
-                <div class="form-group row">
-                    <div class="col-sm-2 control-label">
-                        <spring:message code="label.CompetenceCourseMarkSheet.courseEvaluation" />
-                    </div>
-    
-                    <div class="col-sm-4">
-                        <ui-select  id="courseEvaluationSelect" name="courseEvaluation" ng-model="$parent.object.courseEvaluation" theme="bootstrap" on-select="onCourseEvaluationChange($model)" on-remove="onCourseEvaluationChange($model)">
-                            <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
-                            <ui-select-choices  repeat="courseEvaluation.id as courseEvaluation in object.courseEvaluationDataSource | filter: $select.search">
-                                <span ng-bind-html="courseEvaluation.text | highlight: $select.search"></span>
-                            </ui-select-choices> 
-                        </ui-select>
-                    </div>
+            <div class="form-group row" ng-hide="!object.courseEvaluationsAvailable">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.CompetenceCourseMarkSheet.courseEvaluation" />
                 </div>
-            </c:if>
-            <c:if test="${not bean.courseEvaluationsAvailable}">
-    			<div class="form-group row">
-    				<div class="col-sm-2 control-label">
-    					<spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" />
-    				</div>
-    
-    				<div class="col-sm-4">
-    					<input class="form-control" type="text" bennu-date="object.evaluationDate" required="true"/>
-    				</div>
-    			</div>
-            </c:if>
+
+                <div class="col-sm-4">
+                    <ui-select  id="courseEvaluationSelect" name="courseEvaluation" ng-model="$parent.object.courseEvaluation" theme="bootstrap" on-select="onCourseEvaluationChange($model)" on-remove="onCourseEvaluationChange($model)">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="courseEvaluation.id as courseEvaluation in object.courseEvaluationDataSource | filter: $select.search">
+                            <span ng-bind-html="courseEvaluation.text | highlight: $select.search"></span>
+                        </ui-select-choices> 
+                    </ui-select>
+                </div>
+            </div>
+			<div class="form-group row" ng-hide="object.courseEvaluationsAvailable">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" />
+				</div>
+
+				<div class="col-sm-4">
+					<input class="form-control" type="text" bennu-date="object.evaluationDate" required="true"/>
+				</div>
+			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.CompetenceCourseMarkSheet.certifier" />
