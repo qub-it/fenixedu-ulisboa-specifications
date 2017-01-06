@@ -158,17 +158,15 @@ ${portal.angularToolkit()}
 					<c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getEvaluationSeason()).getContent()%>"/>
 				</div>
 			</div>
-            <c:if test="${not bean.courseEvaluationsAvailable}">
-    			<div class="form-group row">
-    				<div class="col-sm-2 control-label">
-    					<spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" />
-    				</div>
-    
-    				<div class="col-sm-4">
-    					<input class="form-control" type="text" bennu-date="object.evaluationDatePresentation" required="true"/>
-    				</div>
-    			</div>
-            </c:if>
+			<div class="form-group row" ng-hide="object.courseEvaluationsAvailable">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" />
+				</div>
+
+				<div class="col-sm-4">
+					<input class="form-control" type="text" bennu-date="object.evaluationDatePresentation" required="true"/>
+				</div>
+			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.CompetenceCourseMarkSheet.gradeScale" />
