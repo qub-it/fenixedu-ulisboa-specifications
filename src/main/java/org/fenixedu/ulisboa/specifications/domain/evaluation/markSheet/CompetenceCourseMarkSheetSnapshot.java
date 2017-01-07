@@ -179,7 +179,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
     }
 
     public String getEvaluationDatePresentation() {
-        if (getEvaluationDateTime() != null && !getEvaluationDateTime().toString().contains("00:00")) {
+        if (getEvaluationDateTime() != null && !getEvaluationDateTime().toString().contains("T00:00")) {
             return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
 
         } else {

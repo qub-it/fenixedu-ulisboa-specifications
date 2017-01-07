@@ -476,7 +476,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     public void updateCourseEvaluationDataSource() {
 
         this.courseEvaluationDataSource = getFilteredExecutionCourses(getExecutionCourse()).flatMap(e -> EvaluationServices
-                .findCourseEvaluations(e, getEvaluationSeason()).stream().filter(i -> i.getEvaluationDate() != null)).map(x -> {
+                .findExecutionCourseEvaluations(e, getEvaluationSeason()).stream().filter(i -> i.getEvaluationDate() != null))
+                .map(x -> {
 
                     final TupleDataSourceBean tuple = new TupleDataSourceBean();
                     tuple.setId(x.getExternalId());

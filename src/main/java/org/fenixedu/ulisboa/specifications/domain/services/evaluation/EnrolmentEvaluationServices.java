@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluationExtendedInformation;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.joda.time.DateTime;
 
@@ -39,7 +40,7 @@ public class EnrolmentEvaluationServices {
         final DateTime examDateTime = getExamDateTime(input);
         if (examDateTime != null) {
 
-            if (examDateTime.toString().contains("00:00")) {
+            if (examDateTime.toString().contains("T00:00")) {
                 result = examDateTime.toString(EVALUATION_DATE_FORMAT);
             } else {
                 result = examDateTime.toString(EVALUATION_DATE_TIME_FORMAT);
@@ -52,14 +53,26 @@ public class EnrolmentEvaluationServices {
     static public DateTime getExamDateTime(final EnrolmentEvaluation input) {
         DateTime result = null;
 
-        if (input != null && input.getExamDateYearMonthDay() != null) {
+        if (input != null) {
 
             final CompetenceCourseMarkSheet sheet = input.getCompetenceCourseMarkSheet();
-            if (sheet == null || !sheet.hasCourseEvaluationDate()) {
-                result = input.getExamDateYearMonthDay().toDateTimeAtMidnight();
-
-            } else {
+            if (sheet != null) {
+                // has time, if has a course evaluation associated
                 result = sheet.getEvaluationDateTime();
+            }
+
+            // has time
+            if (result == null) {
+                result = EvaluationServices
+                        .findEnrolmentCourseEvaluations(input.getEnrolment(), input.getEvaluationSeason(),
+                                input.getExecutionPeriod())
+                        .stream().filter(ev -> ev.getEvaluationDate() != null).map(ev -> new DateTime(ev.getEvaluationDate()))
+                        .max((x, y) -> x.compareTo(y)).orElse(null);
+            }
+
+            // fallback to default
+            if (result == null && input.getExamDateYearMonthDay() != null) {
+                result = input.getExamDateYearMonthDay().toDateTimeAtMidnight();
             }
         }
 

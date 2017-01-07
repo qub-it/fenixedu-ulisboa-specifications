@@ -44,6 +44,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -70,6 +71,7 @@ import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLa
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
@@ -955,16 +957,36 @@ public class StudentCurricularPlanLayout extends Layout {
         addTabsToRow(enrolmentRow, level);
         enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
 
+        final EvaluationSeason season = evaluation.getEvaluationSeason();
+        final ExecutionSemester semester = evaluation.getExecutionPeriod();
+        generateCellWithText(enrolmentRow, season.getName().getContent(), renderer.getLabelCellClass(),
+                MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
+
+        // qubExtension, show course evaluations
+        final Set<Evaluation> courseEvaluations =
+                EvaluationServices.findEnrolmentCourseEvaluations(evaluation.getEnrolment(), season, semester);
+        if (!courseEvaluations.isEmpty()) {
+            final String courseEvaluationsPresentation =
+                    courseEvaluations.stream().map(x -> x.getPresentationName()).collect(Collectors.joining("; "));
+
+            generateCellWithSpan(enrolmentRow, courseEvaluationsPresentation,
+                    ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
+                    renderer.getCreatorCellClass());
+        } else {
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO,
+                    ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
+                    renderer.getCreatorCellClass());
+        }
+
         // qubExtension, removed unnecessary columns
-        generateCellWithText(enrolmentRow, evaluation.getEvaluationSeason().getName().getContent(), renderer.getLabelCellClass(),
-                MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES + COLUMNS_BETWEEN_TEXT_AND_GRADE - level);
+        generateCellWithText(enrolmentRow, "", "", COLUMNS_BETWEEN_TEXT_AND_GRADE - 1);
 
         final Grade grade = evaluation.getGrade();
 
         // qubExtension, evaluation info may not yet be available to the public
         final YearMonthDay availableDate = evaluation.getGradeAvailableDateYearMonthDay();
         final boolean isToShow =
-                !grade.isEmpty() && evaluation.isFinal() && availableDate != null && !availableDate.isAfter(new LocalDate());
+                !grade.isEmpty() && !evaluation.isTemporary() && availableDate != null && !availableDate.isAfter(new LocalDate());
 
         // qubExtension, show grade available as a tooltip
         final String text = isToShow ? grade.getValue() : EMPTY_INFO;
@@ -979,20 +1001,19 @@ public class StudentCurricularPlanLayout extends Layout {
 
         generateCellWithText(enrolmentRow, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
-        if (evaluation.getExecutionPeriod() != null
-                && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(evaluation.getEvaluationSeason())) {
-            generateCellWithText(enrolmentRow, evaluation.getExecutionPeriod().getExecutionYear().getYear(),
+        if (semester != null && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)) {
+            generateCellWithText(enrolmentRow, semester.getExecutionYear().getYear(),
                     renderer.getEnrolmentExecutionYearCellClass());
             generateCellWithText(enrolmentRow,
-                    evaluation.getExecutionPeriod().getSemester().toString() + " "
-                            + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short"),
+                    semester.getSemester().toString() + " " + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short"),
                     renderer.getEnrolmentSemesterCellClass());
         } else {
             generateCellWithText(enrolmentRow, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
         }
 
-        if (isToShow && evaluation.getExamDateYearMonthDay() != null) {
-            generateCellWithSpan(enrolmentRow, EnrolmentEvaluationServices.getExamDatePresentation(evaluation),
+        final String examDatePresentation = EnrolmentEvaluationServices.getExamDatePresentation(evaluation);
+        if (!Strings.isNullOrEmpty(examDatePresentation)) {
+            generateCellWithSpan(enrolmentRow, examDatePresentation,
                     BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
         } else {
             // qubExtension, show tooltip
