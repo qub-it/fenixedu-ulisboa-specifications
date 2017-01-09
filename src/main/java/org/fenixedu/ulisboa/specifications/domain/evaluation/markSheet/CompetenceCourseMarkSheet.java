@@ -59,6 +59,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
@@ -75,6 +76,7 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
@@ -779,7 +781,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            if (isCurriculumAggregatorEntryScaleConsistent() && !validator.getAppliesToCurriculumAggregatorEntry()) {
+            if (validator.getAppliesToCurriculumAggregatorEntry() && !isCurriculumAggregatorEntryScaleConsistent()) {
                 continue;
             }
 
@@ -798,21 +800,40 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 && getCurriculumAggregatorEntryScale() != null;
     }
 
+    /**
+     * Strange method, just to make sure we have consistency across the execution course's curricular courses.
+     */
     private Integer getCurriculumAggregatorEntryScale() {
         Integer result = null;
 
-        final Set<CurriculumAggregatorEntry> entries = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionYear()))
-                .map(y -> y.getCurriculumAggregatorEntry()).collect(Collectors.toSet());
+        // try to find context for each CC
+        final Set<Context> contexts = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionYear())).filter(i -> i != null)
+                .collect(Collectors.toSet());
+        if (!contexts.isEmpty()) {
 
-        if (!entries.isEmpty()) {
-            final int temp = entries.iterator().next().getGradeValueScale();
+            // we don't know if we are dealing with aggregators or entries...
+            // the CurricularCourses may even be configured with both status...
+            // so...let's search everything.
+            final Set<CurriculumAggregator> aggregators = contexts.stream().map(i -> i.getCurriculumAggregator())
+                    .filter(i -> i != null && i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
+            final Set<CurriculumAggregatorEntry> entries = contexts.stream().map(i -> i.getCurriculumAggregatorEntry())
+                    .filter(i -> i != null && i.isCandidateForEvaluation()).collect(Collectors.toSet());
 
-            if (entries.stream().allMatch(i -> i.getGradeValueScale() == temp)) {
-                result = temp;
-            } else {
-                logger.warn("Mark sheet {} has more than one GradeValueScale configured, cannot filter GradeScaleValidator",
-                        this);
+            if (!aggregators.isEmpty() || !entries.isEmpty()) {
+
+                // let's find a candidate for grade value scale 
+                final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next()
+                        .getGradeValueScale() : !entries.isEmpty() ? entries.iterator().next().getGradeValueScale() : null;
+
+                if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)
+                        && entries.stream().allMatch(i -> i.getGradeValueScale() == temp.intValue())) {
+                    result = temp;
+                }
+
+                if (result == null) {
+                    logger.warn("Unable to find grade value scale for {}", this);
+                }
             }
         }
 
@@ -883,6 +904,12 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.already.in.edition");
         }
 
+        revertEnrolmentEvaluationsToEdition();
+
+        CompetenceCourseMarkSheetStateChange.createEditionState(this, byTeacher, reason);
+    }
+
+    private void revertEnrolmentEvaluationsToEdition() {
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
             evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
@@ -890,8 +917,6 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
         }
-
-        CompetenceCourseMarkSheetStateChange.createEditionState(this, byTeacher, reason);
     }
 
     public String getCheckSum() {
