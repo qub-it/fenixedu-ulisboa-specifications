@@ -82,7 +82,7 @@ ${portal.angularToolkit()}
 					$scope.deleteMarkSheet = function() {	
 						$scope.showConfirmation('${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.DELETE_URL%>${competenceCourseMarkSheet.externalId}', 
 								'<spring:message code="label.evaluation.manageMarkSheet.administrative.readCompetenceCourseMarkSheet.confirmDelete" />', 
-								'<spring:message code="label.delete" />');
+								'<spring:message code="label.remove" />');
 					}
 					
 					$scope.showConfirmation = function(url,message,actionText) {
