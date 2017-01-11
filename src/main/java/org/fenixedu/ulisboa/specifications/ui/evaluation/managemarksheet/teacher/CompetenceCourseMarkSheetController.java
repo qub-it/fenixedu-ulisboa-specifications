@@ -104,6 +104,11 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
     }
 
     private void setCompetenceCourseMarkSheet(final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
+
+        if (competenceCourseMarkSheet != null && competenceCourseMarkSheet.getLimitTeacherView()) {
+            throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitTeacherView.true");
+        }
+
         model.addAttribute("competenceCourseMarkSheet", competenceCourseMarkSheet);
     }
 
@@ -151,7 +156,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         setCompetenceCourseMarkSheetBean(bean, model);
 
         model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
-        model.addAttribute("limitCreation", bean.getLimitCreation());
+        model.addAttribute("limitTeacherCreation", bean.getLimitTeacherCreation());
 
         return jspPage("search");
     }
@@ -195,13 +200,6 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
     @RequestMapping(value = _READ_URI + "{executionCourseId}/{oid}")
     public String read(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
-
-        final CompetenceCourseMarkSheetBean bean = CompetenceCourseMarkSheetBean
-                .createForTeacher(competenceCourseMarkSheet.getExecutionCourse(), Authenticate.getUser().getPerson());
-        if (bean.getLimitCreation()) {
-            throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitCreationToResponsibleTeacher.true");
-        }
-
         setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
         return jspPage("read");
     }
@@ -324,7 +322,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             final RedirectAttributes redirectAttributes) {
 
         try {
-            if (bean.getLimitCreation()) {
+            if (bean.getLimitTeacherCreation()) {
                 throw new ULisboaSpecificationsDomainException("label.MarkSheetSettings.limitCreationToResponsibleTeacher.true");
             }
 

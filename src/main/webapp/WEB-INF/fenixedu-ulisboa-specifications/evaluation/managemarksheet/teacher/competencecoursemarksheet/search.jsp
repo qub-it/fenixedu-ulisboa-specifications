@@ -46,12 +46,12 @@ ${portal.angularToolkit()}
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
     	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;
-        <c:if test="${limitCreation}">
+        <c:if test="${limitTeacherCreation}">
             <a href="javascript:void(0)" title="<spring:message code="label.MarkSheetSettings.limitCreationToResponsibleTeacher.true" />">
                 <spring:message code="label.event.create" />
             </a>
         </c:if>
-        <c:if test="${not limitCreation}">
+        <c:if test="${not limitTeacherCreation}">
             <a href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CREATE_URL%>${executionCourse.externalId}">
                 <spring:message code="label.event.create" />
             </a>
@@ -211,12 +211,12 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>
 						<td><c:out value='${fn:length(searchResult.enrolmentEvaluationSet)}'/></td>
 						<td>
-                            <c:if test="${limitCreation}">
-                                <a class="btn btn-default btn-xs" href="javascript:void(0)" title="<spring:message code="label.MarkSheetSettings.limitCreationToResponsibleTeacher.true" />">
+                            <c:if test="${searchResult.limitTeacherView}">
+                                <a class="btn btn-default btn-xs" href="javascript:void(0)" title="<spring:message code="label.MarkSheetSettings.limitTeacherView.true" />">
                                     <spring:message code='label.view'/>
                                 </a>
                             </c:if>
-                            <c:if test="${not limitCreation}">
+                            <c:if test="${not searchResult.limitTeacherView}">
                                 <a class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_TO_VIEW_ACTION_URL%>${executionCourse.externalId}/${searchResult.externalId}">
                                     <spring:message code='label.view'/>
                                 </a>

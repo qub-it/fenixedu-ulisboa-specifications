@@ -53,11 +53,13 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Holiday;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
@@ -67,6 +69,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -301,7 +304,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         setCourseEvaluation(null);
         setCertifier(null);
         getShiftSet().clear();
-        getEnrolmentEvaluationSet().clear();
+        removeEnrolmentEvaluationData();
 
         final Iterator<CompetenceCourseMarkSheetStateChange> stateIterator = getStateChangeSet().iterator();
         while (stateIterator.hasNext()) {
@@ -319,6 +322,12 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
         ULisboaSpecificationsDomainException.throwWhenDeleteBlocked(getDeletionBlockers());
         deleteDomainObject();
+    }
+
+    private void removeEnrolmentEvaluationData() {
+        for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
+            removeEnrolmentEvaluationData(evaluation);
+        }
     }
 
     public Set<EvaluationSeasonPeriod> getGradeSubmissionPeriods() {
@@ -858,17 +867,69 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         }
 
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
+
+            // it hasn't been touched since last confirmation
+            if (evaluation.isFinal()) {
+                continue;
+            }
+
             //TODO: force evaluation checksum generation
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
-            evaluation.setPerson(Authenticate.getUser().getPerson());
-            evaluation.setWhenDateTime(new DateTime());
             evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay());
-            EnrolmentEvaluationServices.onStateChange(evaluation);
-            EnrolmentServices.updateState(evaluation.getEnrolment());
-            CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
         }
 
         CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
+    }
+
+    static public void setEnrolmentEvaluationData(final CompetenceCourseMarkSheet markSheet, final EnrolmentEvaluation evaluation,
+            final String gradeValue, final GradeScale gradeScale) {
+
+        // avoid concurrent mark sheet editions
+        if (evaluation.getCompetenceCourseMarkSheet() != null && evaluation.getCompetenceCourseMarkSheet() != markSheet) {
+            return;
+        }
+
+        // avoid making untouched grades unavailable
+        if (gradeValue.equals(evaluation.getGradeValue())) {
+            return;
+        }
+
+        // grade available date is set upon mark sheet confirmation
+        evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+
+        evaluation.setGrade(Grade.createGrade(gradeValue, gradeScale));
+        evaluation.setWhenDateTime(new DateTime());
+
+        evaluation.setCompetenceCourseMarkSheet(markSheet);
+        evaluation.setExamDateYearMonthDay(markSheet.getEvaluationDateTime().toYearMonthDay());
+        evaluation.setPersonResponsibleForGrade(markSheet.getCertifier());
+        evaluation.setPerson(Authenticate.getUser().getPerson());
+        evaluation.setContext(EnrolmentEvaluationContext.MARK_SHEET_EVALUATION);
+
+        // this was once performed in revertToEdition
+        EnrolmentEvaluationServices.onStateChange(evaluation);
+        EnrolmentServices.updateState(evaluation.getEnrolment());
+        CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+    }
+
+    static public void removeEnrolmentEvaluationData(final EnrolmentEvaluation evaluation) {
+        // this was once performed in revertToEdition
+        evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+        evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
+
+        // additional cleanup
+        evaluation.setGrade(Grade.createEmptyGrade());
+        evaluation.setWhenDateTime((DateTime) null);
+        evaluation.setCompetenceCourseMarkSheet(null);
+        evaluation.setExamDateYearMonthDay((YearMonthDay) null);
+        evaluation.setPersonResponsibleForGrade((Person) null);
+        evaluation.setPerson((Person) null);
+        evaluation.setContext((EnrolmentEvaluationContext) null);
+
+        // this was once performed in revertToEdition
+        EnrolmentEvaluationServices.onStateChange(evaluation);
+        EnrolmentServices.updateState(evaluation.getEnrolment());
+        CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
     }
 
     @Atomic
@@ -904,19 +965,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.already.in.edition");
         }
 
-        revertEnrolmentEvaluationsToEdition();
-
         CompetenceCourseMarkSheetStateChange.createEditionState(this, byTeacher, reason);
-    }
-
-    private void revertEnrolmentEvaluationsToEdition() {
-        for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
-            evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
-            evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
-            EnrolmentEvaluationServices.onStateChange(evaluation);
-            EnrolmentServices.updateState(evaluation.getEnrolment());
-            CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
-        }
     }
 
     public String getCheckSum() {
@@ -987,6 +1036,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     public boolean isCertifierExecutionCourseResponsible() {
         final Professorship professorship = getExecutionCourse().getProfessorship(getCertifier());
         return professorship != null && professorship.isResponsibleFor();
+    }
+
+    public boolean getLimitTeacherView() {
+        final Person logged = Authenticate.getUser().getPerson();
+        final boolean teacherCanView = getCertifier() == logged || getCreator() == logged
+                || MarkSheetSettings.getInstance().getAllowTeacherToChooseCertifier();
+        return !teacherCanView;
     }
 
     public CompetenceCourseMarkSheetChangeRequest getLastChangeRequest() {

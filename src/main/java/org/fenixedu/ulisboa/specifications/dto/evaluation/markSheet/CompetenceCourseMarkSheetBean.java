@@ -357,8 +357,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         }).collect(Collectors.toList());
     }
 
-    public boolean getLimitCreation() {
-        return MarkSheetSettings.getInstance().getLimitCreationToResponsibleTeacher()
+    public boolean getLimitTeacherCreation() {
+        return isByTeacher() && MarkSheetSettings.getInstance().getLimitCreationToResponsibleTeacher()
                 && !this.responsibles.contains(Authenticate.getUser().getPerson());
     }
 
