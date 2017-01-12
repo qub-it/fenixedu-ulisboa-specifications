@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Objects;
+
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -63,6 +64,9 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
     public void delete() {
         setDegreeInfo(null);
         setBennu(null);
+        for (CourseGroupDegreeInfo degreeDocumentInfo : getCourseGroupDegreeInfosSet()) {
+            degreeDocumentInfo.delete();
+        }
         deleteDomainObject();
     }
 
@@ -99,13 +103,10 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
     }
 
     public static ExtendedDegreeInfo findMostRecent(ExecutionYear executionYear, Degree degree) {
-        return degree
-                .getDegreeInfosSet()
-                .stream()
-                .filter(di -> di.getExecutionYear().isBeforeOrEquals(executionYear))
+        return degree.getDegreeInfosSet().stream().filter(di -> di.getExecutionYear().isBeforeOrEquals(executionYear))
                 .sorted((di1, di2) -> ExecutionYear.REVERSE_COMPARATOR_BY_YEAR.compare(di1.getExecutionYear(),
-                        di2.getExecutionYear())).map(di -> di.getExtendedDegreeInfo()).filter(Objects::nonNull).findFirst()
-                .orElse(null);
+                        di2.getExecutionYear()))
+                .map(di -> di.getExtendedDegreeInfo()).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
 }

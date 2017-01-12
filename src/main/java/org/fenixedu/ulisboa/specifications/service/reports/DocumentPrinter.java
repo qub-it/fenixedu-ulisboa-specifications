@@ -51,14 +51,17 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.ServiceRequestDa
 import org.fenixedu.qubdocs.academic.documentRequests.providers.StandaloneCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.base.providers.InstitutionConfigurationReportDataProvider;
 import org.fenixedu.qubdocs.base.providers.PersonReportDataProvider;
+import org.fenixedu.qubdocs.base.providers.QubListDataProvider;
 import org.fenixedu.qubdocs.base.providers.UserReportDataProvider;
 import org.fenixedu.qubdocs.domain.DocumentPrinterConfiguration;
 import org.fenixedu.qubdocs.domain.InstitutionReportConfiguration;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
+import org.fenixedu.qubdocs.preprocessors.QubListPreProcessor;
+import org.fenixedu.qubdocs.util.reports.helpers.LanguageHelper;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
-import org.fenixedu.ulisboa.specifications.service.reports.preprocessors.QubIncludePreProcessor;
+import org.fenixedu.ulisboa.specifications.service.reports.providers.CourseGroupDegreeInfoDataProvider;
 import org.joda.time.DateTime;
 
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
@@ -90,20 +93,33 @@ public class DocumentPrinter {
 
         final ServiceRequestOutputType outputType = serviceRequest.getServiceRequestType().getServiceRequestOutputType();
 
-        final FenixEduDocumentGenerator generator = FenixEduDocumentGenerator
-                .create(academicServiceRequestTemplate.getDocumentTemplateFile().getContent(), outputType.getCode());
+        final byte[] templateContent = academicServiceRequestTemplate.getDocumentTemplateFile().getContent();
+        //This provider will modify the template content
+        final QubListDataProvider qubListDataProvider = new QubListDataProvider(templateContent);
+
+        final FenixEduDocumentGenerator generator =
+                FenixEduDocumentGenerator.create(qubListDataProvider.getFinalTemplateVersion(), outputType.getCode());
 
         if (serviceRequest.getDocumentSigner() == null) {
             resetDocumentSigner(serviceRequest);
         }
 
-        generator.registerPreProcessors(new QubIncludePreProcessor(academicServiceRequestTemplate.getLanguage()));
+        //Override the lang helper in order to give the correct locale
+        generator.registerHelper("lang", new LanguageHelper(serviceRequest.getLanguage()));
+
+        generator.registerPreProcessors(new QubListPreProcessor());
+        generator.registerDataProvider(qubListDataProvider);
 
         generator.registerDataProvider(new PersonReportDataProvider(serviceRequest.getPerson()));
         InstitutionReportConfiguration reportConfiguration = InstitutionReportConfiguration.getInstance();
-        generator.registerDataProvider(new InstitutionConfigurationReportDataProvider(reportConfiguration.getName(),
-                reportConfiguration.getInstitutionLogo().getContent()));
+        if (!reportConfiguration.getName().isEmpty() && reportConfiguration.getInstitutionLogo() != null) {
+            generator.registerDataProvider(new InstitutionConfigurationReportDataProvider(reportConfiguration.getName(),
+                    reportConfiguration.getInstitutionLogo().getContent()));
+        }
+
         generator.registerDataProvider(new RegistrationDataProvider(registration, serviceRequest.getLanguage()));
+        generator.registerDataProvider(
+                new CourseGroupDegreeInfoDataProvider(registration, executionYear, serviceRequest.getProgramConclusion()));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
         generator.registerDataProvider(

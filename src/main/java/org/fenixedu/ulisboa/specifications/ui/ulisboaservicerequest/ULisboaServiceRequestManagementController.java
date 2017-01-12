@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.domain.Degree;
@@ -33,14 +34,12 @@ import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
-import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageULisboaServiceRequest",
@@ -50,6 +49,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/ulisboaservicerequest";
     public static final int SEARCH_REQUEST_LIST_LIMIT_SIZE = 500;
+
+    private static final String ERROR_MESSAGE_ATTRIBUTE = "sessionErrorMessages";
 
     @RequestMapping
     public String home(Model model) {
@@ -118,11 +119,10 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
                 .filter(req -> req.isUrgent() == isUrgent)
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
-                .filter(req -> 
-                        isPayed == null 
-                        || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
+                .filter(req -> isPayed == null || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
                         || !AcademicTreasuryEvent.findUnique(req).get().isCharged() && isPayed
-                        || (AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed.equals(!AcademicTreasuryEvent.findUnique(req).get().isInDebt())))
+                        || AcademicTreasuryEvent.findUnique(req).isPresent()
+                                && isPayed.equals(!AcademicTreasuryEvent.findUnique(req).get().isInDebt()))
                 .limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
     }
 
@@ -181,7 +181,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String READ_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _READ_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _READ_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
-    public String read(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model) {
+    public String read(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
+            HttpServletRequest request) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         model.addAttribute("documentSignatures",
@@ -189,6 +190,13 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                         .sorted(DocumentSigner.DEFAULT_COMPARATOR).collect(Collectors.toList()));
         addDocumentTemplatesToModel(serviceRequest, model);
 
+        if (request.getSession().getAttribute(ERROR_MESSAGE_ATTRIBUTE) != null) {
+            List<String> errorMessages = (List<String>) request.getSession().getAttribute(ERROR_MESSAGE_ATTRIBUTE);
+            for (String errorMessage : errorMessages) {
+                addErrorMessage(errorMessage, model);
+            }
+            request.getSession().removeAttribute(ERROR_MESSAGE_ATTRIBUTE);
+        }
         if (serviceRequest.getAcademicTreasuryEvent() != null) {
             List<DebitEntry> activeDebitEntries =
                     DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.<DebitEntry> toList());
@@ -400,11 +408,10 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String PRINT_ACADEMIC_REQUEST_URL = CONTROLLER_URL + _PRINT_ACADEMIC_REQUEST_URI;
 
     @RequestMapping(value = _PRINT_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.OK)
     public void print(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest,
             @RequestParam(value = "template", required = true) AcademicServiceRequestTemplate template,
             @RequestParam(value = "signature", required = true) DocumentSigner signer, Model model,
-            RedirectAttributes redirectAttributes, HttpServletResponse response) {
+            RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) throws IOException {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
@@ -414,12 +421,15 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             }
             serviceRequest.setPrintSettings(signer, template);
             serviceRequest.generateDocument();
-            download(serviceRequest, model, response);
+            download(serviceRequest, model, redirectAttributes, response, request);
+            return;
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
         }
+        request.getSession().setAttribute(ERROR_MESSAGE_ATTRIBUTE, model.asMap().get(ERROR_MESSAGES));
+        response.sendRedirect(request.getContextPath() + READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId());
     }
 
     private static final String _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI = "/download/";
@@ -427,18 +437,30 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
 
     @RequestMapping(value = _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
     public void download(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
-            HttpServletResponse response) {
+            RedirectAttributes redirectAttributes, HttpServletResponse response, HttpServletRequest request) throws IOException {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
             ULisboaServiceRequestGeneratedDocument document = serviceRequest.downloadDocument();
+
             response.setContentType(document.getContentType());
             response.setHeader("Content-disposition", "attachment; filename=" + document.getFilename());
             response.getOutputStream().write(document.getContent());
+            return;
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        }
+        request.getSession().setAttribute(ERROR_MESSAGE_ATTRIBUTE, model.asMap().get(ERROR_MESSAGES));
+        response.sendRedirect(request.getContextPath() + READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId());
+    }
+
+    public void error(ULisboaServiceRequest serviceRequest, Model model, HttpServletResponse response, Throwable t) {
+        try {
+            response.setContentType("text/plain");
+            response.setHeader("Content-disposition", "attachment; filename=Error.txt");
+            response.getOutputStream().write(t.getLocalizedMessage().getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
