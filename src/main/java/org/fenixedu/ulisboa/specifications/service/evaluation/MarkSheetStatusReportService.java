@@ -17,12 +17,14 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.CompetenceCourseSeasonReport;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.ExecutionCourseSeasonReport;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -168,7 +170,8 @@ abstract public class MarkSheetStatusReportService {
 
         // setMarksheetsTotal
         final Supplier<Stream<CompetenceCourseMarkSheet>> supplier = () -> CompetenceCourseMarkSheet.findBy(semester, toProcess,
-                (CompetenceCourseMarkSheetStateEnum) null, season, (CompetenceCourseMarkSheetChangeRequestStateEnum) null);
+                (ExecutionCourse) null, season, (DateTime) null, (Set<Shift>) null, (CompetenceCourseMarkSheetStateEnum) null,
+                (CompetenceCourseMarkSheetChangeRequestStateEnum) null);
         final long markSheetsTotal = supplier.get().count();
         result.setMarksheetsTotal(Long.valueOf(markSheetsTotal).intValue());
 

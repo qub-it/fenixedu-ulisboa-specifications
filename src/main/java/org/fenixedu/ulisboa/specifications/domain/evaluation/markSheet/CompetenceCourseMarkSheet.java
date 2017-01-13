@@ -39,7 +39,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -89,9 +88,11 @@ import org.joda.time.YearMonthDay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.FenixFramework;
 
 public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
@@ -363,14 +364,22 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     // @formatter: on
 
     @Atomic
-    public static CompetenceCourseMarkSheet create(final ExecutionSemester executionSemester,
-            final CompetenceCourse competenceCourse, final ExecutionCourse executionCourse,
-            final EvaluationSeason evaluationSeason, final Evaluation courseEvaluation, final LocalDate evaluationDate,
-            final Person certifier, final Set<Shift> shifts, final boolean byTeacher) {
+    public static CompetenceCourseMarkSheet create(final ExecutionSemester semester, final CompetenceCourse competence,
+            final ExecutionCourse execution, final EvaluationSeason season, final Evaluation courseEvaluation,
+            final LocalDate evaluationDate, final Person certifier, final Set<Shift> shifts, final boolean byTeacher) {
 
         final CompetenceCourseMarkSheet result = new CompetenceCourseMarkSheet();
-        result.init(executionSemester, competenceCourse, executionCourse, evaluationSeason, courseEvaluation, evaluationDate,
-                GradeScale.TYPE20, certifier, shifts, null);
+        result.init(semester, competence, execution, season, courseEvaluation, evaluationDate, GradeScale.TYPE20, certifier,
+                shifts, null);
+
+        if (byTeacher && !EvaluationSeasonServices.isSupportsEmptyGrades(season)
+                && findBy(semester, competence, execution, season, result.getEvaluationDateTime(), shifts,
+                        (CompetenceCourseMarkSheetStateEnum) null, (CompetenceCourseMarkSheetChangeRequestStateEnum) null)
+                                .anyMatch(i -> i != result)) {
+            throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.duplicated",
+                    season.getName().getContent());
+        }
+
         CompetenceCourseMarkSheetStateChange.createEditionState(result, byTeacher, null);
         return result;
     }
@@ -390,8 +399,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     public static Stream<CompetenceCourseMarkSheet> findBy(final ExecutionSemester executionSemester,
-            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-            final EvaluationSeason evaluationSeason, final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+            final CompetenceCourse competenceCourse, final ExecutionCourse executionCourse,
+            final EvaluationSeason evaluationSeason, final DateTime evaluationDateTime, final Set<Shift> shifts,
+            final CompetenceCourseMarkSheetStateEnum markSheetState,
+            final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
         final Set<CompetenceCourseMarkSheet> result = Sets.newHashSet();
         if (executionSemester != null) {
@@ -402,9 +413,15 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
                 .filter(c -> competenceCourse == null || c.getCompetenceCourse() == competenceCourse)
 
-                .filter(c -> markSheetState == null || c.isInState(markSheetState))
+                .filter(c -> executionCourse == null || c.getExecutionCourse() == executionCourse)
 
                 .filter(c -> evaluationSeason == null || c.getEvaluationSeason() == evaluationSeason)
+
+                .filter(c -> evaluationDateTime == null || c.getEvaluationDateTime().equals(evaluationDateTime))
+
+                .filter(c -> shifts == null || shifts.isEmpty() || Sets.symmetricDifference(shifts, c.getShiftSet()).isEmpty())
+
+                .filter(c -> markSheetState == null || c.isInState(markSheetState))
 
                 .filter(c -> changeRequestState == null
                         || c.getChangeRequestsSet().stream().anyMatch(r -> r.getState() == changeRequestState));
@@ -757,7 +774,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     public boolean isGradeValueAccepted(final String gradeValue) {
 
-        if (StringUtils.isNotBlank(gradeValue)) {
+        if (!Strings.isNullOrEmpty(gradeValue)) {
 
             final GradeScaleValidator validator = getGradeScaleValidator();
             if (validator == null) {
@@ -876,6 +893,11 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             //TODO: force evaluation checksum generation
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
             evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay());
+
+            // depends on EnrolmentEvaluationState
+            EnrolmentEvaluationServices.onStateChange(evaluation);
+            EnrolmentServices.updateState(evaluation.getEnrolment());
+            CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
         }
 
         CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
@@ -906,13 +928,18 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         evaluation.setPerson(Authenticate.getUser().getPerson());
         evaluation.setContext(EnrolmentEvaluationContext.MARK_SHEET_EVALUATION);
 
-        // this was once performed in revertToEdition
+        // this was once performed in revertToEdition; depends on EnrolmentEvaluationState
         EnrolmentEvaluationServices.onStateChange(evaluation);
         EnrolmentServices.updateState(evaluation.getEnrolment());
         CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
     }
 
     static public void removeEnrolmentEvaluationData(final EnrolmentEvaluation evaluation) {
+        // unnecessary computation
+        if (!evaluation.hasGrade()) {
+            return;
+        }
+
         // this was once performed in revertToEdition
         evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
         evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
@@ -926,10 +953,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         evaluation.setPerson((Person) null);
         evaluation.setContext((EnrolmentEvaluationContext) null);
 
-        // this was once performed in revertToEdition
+        // this was once performed in revertToEdition; depends on EnrolmentEvaluationState
         EnrolmentEvaluationServices.onStateChange(evaluation);
-        EnrolmentServices.updateState(evaluation.getEnrolment());
-        CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+        // FIXME hack for bypass evaluation method type issues
+        if (FenixFramework.isDomainObjectValid(evaluation)) {
+            EnrolmentServices.updateState(evaluation.getEnrolment());
+            CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+        }
     }
 
     @Atomic

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -42,7 +43,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -164,11 +167,12 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
     }
 
-    private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionSemester executionSemester,
-            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-            final EvaluationSeason evaluationSeason, CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
-        return CompetenceCourseMarkSheet.findBy(executionSemester, competenceCourse, markSheetState, evaluationSeason,
-                changeRequestState);
+    private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionSemester semester,
+            final CompetenceCourse competence, final CompetenceCourseMarkSheetStateEnum markSheetState,
+            final EvaluationSeason season, CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+
+        return CompetenceCourseMarkSheet.findBy(semester, competence, (ExecutionCourse) null, season, (DateTime) null,
+                (Set<Shift>) null, markSheetState, changeRequestState);
     }
 
     private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionSemester executionSemester,
