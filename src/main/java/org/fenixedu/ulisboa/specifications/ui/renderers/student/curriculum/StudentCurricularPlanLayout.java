@@ -748,7 +748,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         generateExternalEnrolmentLabelCell(externalEnrolmentRow, externalEnrolment, level);
         generateCellsBetweenLabelAndGradeCell(externalEnrolmentRow);
-        generateEnrolmentGradeCell(externalEnrolmentRow, externalEnrolment);
+        generateEnrolmentGradeCell(externalEnrolmentRow, externalEnrolment, isFromDetail);
         generateEnrolmentWeightCell(externalEnrolmentRow, externalEnrolment, isFromDetail);
         generateExternalEnrolmentEctsCell(externalEnrolmentRow, externalEnrolment);
         // qubExtension, empty space
@@ -827,7 +827,7 @@ public class StudentCurricularPlanLayout extends Layout {
             generateDegreeCurricularPlanCell(enrolmentRow, enrolment);
             generateEnrolmentTypeCell(enrolmentRow, enrolment);
             generateEnrolmentStateCell(enrolmentRow, enrolment);
-            generateEnrolmentGradeCell(enrolmentRow, enrolment);
+            generateEnrolmentGradeCell(enrolmentRow, enrolment, isFromDetail);
             generateEnrolmentWeightCell(enrolmentRow, enrolment, isFromDetail);
             generateEnrolmentEctsCell(enrolmentRow, enrolment, isFromDetail);
             generateEnrolmentLastEnrolmentEvaluationTypeCell(enrolmentRow, enrolment);
@@ -1221,7 +1221,7 @@ public class StudentCurricularPlanLayout extends Layout {
                 renderer.getWeightCellClass());
     }
 
-    protected void generateEnrolmentGradeCell(HtmlTableRow enrolmentRow, IEnrolment enrolment) {
+    protected void generateEnrolmentGradeCell(HtmlTableRow enrolmentRow, IEnrolment enrolment, final boolean isFromDetail) {
         final Grade grade = enrolment.getGrade();
 
         // qubExtension, show grade available as a tooltip
@@ -1238,8 +1238,8 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, text, title, null, !Strings.isNullOrEmpty(title));
-        cell.setStyle(
-                grade.isApproved() ? GRADE_APPROVED_STYLE : grade.isNotApproved() ? GRADE_NOT_APPROVED_STYLE : GRADE_EMPTY_STYLE);
+        cell.setStyle(grade.isApproved()
+                && !isFromDetail ? GRADE_APPROVED_STYLE : grade.isNotApproved() ? GRADE_NOT_APPROVED_STYLE : GRADE_EMPTY_STYLE);
     }
 
     protected void generateEnrolmentStateCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
