@@ -174,7 +174,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.requestDate}" pattern="yyyy-MM-dd HH:mm" />
+							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.requestDate}" pattern="yyyy-MM-dd HH:mm:ss" />
 						</div>
 					</div>
 					
@@ -207,7 +207,7 @@ ${portal.angularToolkit()}
 						</div>
 						
 						<div class="col-sm-5">
-							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.responseDate}" pattern="yyyy-MM-dd HH:mm" />
+							<joda:format value="${competenceCourseMarkSheet.lastChangeRequest.responseDate}" pattern="yyyy-MM-dd HH:mm:ss" />
 						</div>
 					</div>
 					
@@ -462,7 +462,7 @@ ${portal.angularToolkit()}
 	<tbody>
 		<c:forEach var="each" items="${competenceCourseMarkSheet.stateChangeSet}">
 		<tr>
-			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm" /></td>
+			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 			<td><c:out value="${each.state.descriptionI18N.content}"></c:out></td>
 			<td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheetStateChange)pageContext.getAttribute("each")).getResponsible())%>"></c:out></td>
 			<td><c:out value="${each.byTeacher ? yesLabel : noLabel}"></c:out></td>

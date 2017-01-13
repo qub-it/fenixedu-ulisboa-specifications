@@ -449,16 +449,20 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             tuple.setId(x.getExternalId());
 
             final String name = x.getNameI18N().getContent();
-            tuple.setText(
-                    name.replace("'", " ").replace("\"", " ") + " [" + x.getAssociatedCurricularCoursesSet().stream().map(i -> {
-                        final String dcp = i.getDegreeCurricularPlan().getName();
-                        final int index = dcp.contains(" ") ? dcp.indexOf(" ") : 6;
-                        return i.getDegree().getCode() + " - " + StringUtils.substring(dcp, 0, index);
-                    }).collect(Collectors.joining("; ")) + "]");
+            tuple.setText(name.replace("'", " ").replace("\"", " ") + " [" + getExecutionCoursePresentation(x) + "]");
 
             return tuple;
 
         }).collect(Collectors.toList());
+    }
+
+    static public String getExecutionCoursePresentation(final ExecutionCourse input) {
+
+        return input.getAssociatedCurricularCoursesSet().stream().map(i -> {
+            final String dcp = i.getDegreeCurricularPlan().getName();
+            final int index = dcp.contains(" ") ? dcp.indexOf(" ") : 6;
+            return i.getDegree().getCode() + " - " + StringUtils.substring(dcp, 0, index);
+        }).collect(Collectors.joining("; "));
     }
 
     public Evaluation getCourseEvaluation() {

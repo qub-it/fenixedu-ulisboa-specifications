@@ -3,6 +3,7 @@
 <%@page import="org.fenixedu.ulisboa.specifications.domain.services.PersonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
+<%@page import="org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean"%>
 <%@page
 	import="org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative.CompetenceCourseMarkSheetController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -244,10 +245,14 @@ ${portal.angularToolkit()}
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.executionSemester" /></th>
 						<td><c:out value="${competenceCourseMarkSheet.executionSemester.qualifiedName}"/></td>
 					</tr>
-					<tr>
-						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.competenceCourse" /></th>
-						<td><c:out value="${competenceCourseMarkSheet.competenceCourse.code}"/> - <c:out value="${competenceCourseMarkSheet.competenceCourse.nameI18N.content}"/></td>
-					</tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.competenceCourse" /></th>
+                        <td><c:out value="${competenceCourseMarkSheet.competenceCourse.code}"/> - <c:out value="${competenceCourseMarkSheet.competenceCourse.nameI18N.content}"/></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.executionCourse" /></th>
+                        <td><c:out value="<%=CompetenceCourseMarkSheetBean.getExecutionCoursePresentation(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getExecutionCourse())%>"/></td>
+                    </tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.evaluationSeason" /></th>
 						<td><c:out value="<%=EvaluationSeasonServices.getDescriptionI18N(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getEvaluationSeason()).getContent()%>"/></td>
@@ -321,7 +326,7 @@ ${portal.angularToolkit()}
 	<tbody>
 		<c:forEach var="each" items="${competenceCourseMarkSheet.stateChangeSet}">
 		<tr>
-			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm" /></td>
+			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 			<td><c:out value="${each.state.descriptionI18N.content}"></c:out></td>
 			<td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheetStateChange)pageContext.getAttribute("each")).getResponsible())%>"></c:out></td>
 			<td><c:out value="${each.byTeacher ? yesLabel : noLabel}"></c:out></td>
@@ -345,7 +350,7 @@ ${portal.angularToolkit()}
 	<tbody>
 		<c:forEach var="each" items="${competenceCourseMarkSheet.previousSnapshots}">
 		<tr>
-			<td><joda:format value="${each.stateChange.date}" pattern="yyyy-MM-dd HH:mm" /></td>
+			<td><joda:format value="${each.stateChange.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 			<td>
 				<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.PRINT_SNAPSHOT_URL%>${each.externalId}">
 					<spring:message code='label.event.evaluation.manageMarkSheet.print'/>
