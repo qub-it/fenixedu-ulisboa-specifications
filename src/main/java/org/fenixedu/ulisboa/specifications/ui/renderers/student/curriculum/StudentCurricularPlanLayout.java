@@ -790,7 +790,7 @@ public class StudentCurricularPlanLayout extends Layout {
             }
 
             if (renderer.isToShowApprovedOrEnroledStatesOnly()) {
-                return input.isApproved() || ((Enrolment) input).isEnroled();
+                return input.isApproved() || ((Enrolment) input).isEnroled() || input.getExecutionYear().isCurrent();
             }
 
             if (isToShowEnroledStatesOnly()) {

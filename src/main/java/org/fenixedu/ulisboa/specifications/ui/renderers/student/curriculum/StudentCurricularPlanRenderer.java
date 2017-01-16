@@ -6,10 +6,17 @@ public class StudentCurricularPlanRenderer
         extends org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer {
 
     public static enum EnrolmentStateFilterType {
-        ALL, APPROVED, APPROVED_OR_ENROLED,
 
         // qubExtension
-        ENROLED;
+        ENROLED,
+
+        APPROVED,
+        
+        ALL,
+
+        APPROVED_OR_ENROLED,
+
+        ;
 
         public String getName() {
             return name();
@@ -25,11 +32,40 @@ public class StudentCurricularPlanRenderer
 
     }
 
+    public static enum ViewType {
+
+        DISMISSALS,
+
+        ENROLMENTS,
+
+        ALL
+
+        ;
+
+        public String getName() {
+            return name();
+        }
+
+        public String getFullyQualifiedName() {
+            return getClass() + "." + name();
+        }
+
+        public static ViewType[] getValues() {
+            return values();
+        }
+
+    }
+
     public static enum OrganizationType {
-        GROUPS, EXECUTION_YEARS,
+
+        EXECUTION_YEARS,
 
         // qubExtension
-        CURRICULAR_YEARS;
+        CURRICULAR_YEARS,
+
+        GROUPS
+
+        ;
 
         public String getName() {
             return name();
