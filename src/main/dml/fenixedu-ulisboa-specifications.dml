@@ -1460,6 +1460,42 @@ relation EnrolmentServiceRequestProperty {
     }
 }
 
+/*
+ * ***************************************************
+ *    ICurriculum Entries
+ * ***************************************************
+ * 
+ * ICurriculum Entries are stored in two variables, ExternalEnrolment and CurriculumLine, 
+ * in order to create specific deletion listeners.
+ */
+relation ExternalEnrolmentServiceRequestProperty {
+    protected .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment playsRole externalEnrolments {
+        multiplicity *;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+
+relation CurriculumLineServiceRequestProperty {
+    protected .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLines {
+        multiplicity *;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
+        multiplicity *;
+    }
+}
+/*
+ * ***************************************************
+ *    End ICurriculum Entries
+ * ***************************************************
+ */
+
+//======================= = END all classes related to ULisboa Service Request = =========================
+
+
 // ====================== = Service Request Restriction = ========================
 
 class serviceRequests.ServiceRequestRestriction {
@@ -1662,42 +1698,6 @@ relation CourseGroupDegreeInfoCourseGroup {
         multiplicity 0..1;
     }
 }
-
-/*
- * ***************************************************
- *    ICurriculum Entries
- * ***************************************************
- * 
- * ICurriculum Entries are stored in two variables, ExternalEnrolment and CurriculumLine, 
- * in order to create specific deletion listeners.
- */
-relation ExternalEnrolmentServiceRequestProperty {
-    protected .org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment playsRole externalEnrolments {
-        multiplicity *;
-    }
-
-    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
-        multiplicity *;
-    }
-}
-
-relation CurriculumLineServiceRequestProperty {
-    protected .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLines {
-        multiplicity *;
-    }
-
-    public serviceRequests.ServiceRequestProperty playsRole serviceRequestProperties {
-        multiplicity *;
-    }
-}
-/*
- * ***************************************************
- *    End ICurriculum Entries
- * ***************************************************
- */
-
-//======================= = END all classes related to ULisboa Service Request = =========================
-
 
 // ==================== BEGIN: Curriculum Aggregator ====================
 
