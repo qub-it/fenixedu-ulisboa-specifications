@@ -146,17 +146,6 @@
 				</html:select>
 			</td>
 		</tr>
-        <tr>
-            <th style="vertical-align: middle;"><bean:message key="organize.by" bundle="STUDENT_RESOURCES" /></th>
-                <e:labelValues id="organizationTypes" enumeration="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer$OrganizationType" bundle="APPLICATION_RESOURCES" />
-                <logic:iterate id="organizationType" name="organizationTypes">
-                    <bean:define id="label" name="organizationType" property="label" />
-                    <bean:define id="value" name="organizationType" property="value" />
-                    <td>
-                        <html:radio style="vertical-align: middle;" property="organizedBy" altKey="radio.organizedBy" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=value.toString()%>"/><bean:write name="label"/>
-                    </td>
-                </logic:iterate>
-        </tr>
 		<tr>
 			<th style="vertical-align: middle;"><bean:message key="label.view" bundle="STUDENT_RESOURCES" /></th>
 				<e:labelValues id="viewTypes" enumeration="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer$ViewType" bundle="APPLICATION_RESOURCES" />
@@ -180,6 +169,17 @@
         			</td>
                 </logic:iterate>
 		</tr>
+        <tr>
+            <th style="vertical-align: middle;"><bean:message key="organize.by" bundle="STUDENT_RESOURCES" /></th>
+                <e:labelValues id="organizationTypes" enumeration="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer$OrganizationType" bundle="APPLICATION_RESOURCES" />
+                <logic:iterate id="organizationType" name="organizationTypes">
+                    <bean:define id="label" name="organizationType" property="label" />
+                    <bean:define id="value" name="organizationType" property="value" />
+                    <td>
+                        <html:radio style="vertical-align: middle;" property="organizedBy" altKey="radio.organizedBy" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=value.toString()%>"/><bean:write name="label"/>
+                    </td>
+                </logic:iterate>
+        </tr>
         <tr>
             <th style="vertical-align: middle;"><bean:message key="label.detailed" bundle="STUDENT_RESOURCES" /></th>
             <td>
