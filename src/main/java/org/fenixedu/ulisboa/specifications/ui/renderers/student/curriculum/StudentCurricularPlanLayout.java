@@ -1093,15 +1093,17 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateLastEnrolmentEvaluationExamDateCellIfRequired(HtmlTableRow enrolmentRow, Enrolment enrolment) {
         if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             final EnrolmentEvaluation lastEnrolmentEvaluation = enrolment.getFinalEnrolmentEvaluation();
-            if (lastEnrolmentEvaluation != null && lastEnrolmentEvaluation.getExamDateYearMonthDay() != null) {
 
-                generateCellWithSpan(enrolmentRow, EnrolmentEvaluationServices.getExamDatePresentation(lastEnrolmentEvaluation),
-                        BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), renderer.getCreationDateCellClass());
+            final String text;
+            if (lastEnrolmentEvaluation != null && lastEnrolmentEvaluation.getExamDateYearMonthDay() != null) {
+                text = EnrolmentEvaluationServices.getExamDatePresentation(lastEnrolmentEvaluation);
             } else {
-                // qubExtension, show tooltip
-                generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
-                        renderer.getCreationDateCellClass());
+                text = EMPTY_INFO;
             }
+
+            // qubExtension, show tooltip
+            generateCellWithSpan(enrolmentRow, text, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+                    "nowrap " + renderer.getCreationDateCellClass());
         }
     }
 
