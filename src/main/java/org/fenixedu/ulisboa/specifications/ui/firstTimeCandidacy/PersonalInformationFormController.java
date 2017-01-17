@@ -55,6 +55,8 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -195,6 +197,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
+        form.setFiscalCountry(person.getFiscalCountry());
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
 
         form.setDocumentIdNumber(person.getDocumentIdNumber());
@@ -321,8 +324,9 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.required"));
             }
 
-            if (!StringUtils.isEmpty(form.getSocialSecurityNumber())
-                    && !FiscalCodeValidation.isValidcontrib(form.getSocialSecurityNumber())) {
+            final ITreasuryBridgeAPI treasuryBridge = TreasuryBridgeAPIFactory.implementation();
+            if (!StringUtils.isEmpty(form.getSocialSecurityNumber()) && !treasuryBridge.isValidFiscalNumber(
+                    form.getFiscalCountry() != null ? form.getFiscalCountry().getCode() : null, form.getSocialSecurityNumber())) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
             }
@@ -377,11 +381,14 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
             person.setExpirationDateOfDocumentIdYearMonthDay(
                     documentIdExpirationDate != null ? new YearMonthDay(documentIdExpirationDate.toDate()) : null);
 
+            Country fiscalCountry = form.getFiscalCountry();
             String socialSecurityNumber = form.getSocialSecurityNumber();
-            if (StringUtils.isEmpty(socialSecurityNumber)) {
+            if ((fiscalCountry == null || fiscalCountry == Country.readDefault()) && StringUtils.isEmpty(socialSecurityNumber)) {
+                fiscalCountry = Country.readDefault();
                 socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
             }
-            person.setSocialSecurityNumber(socialSecurityNumber);
+
+            person.editSocialSecurityNumber(fiscalCountry, socialSecurityNumber);
         }
 
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
@@ -444,6 +451,7 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
         private LocalDate documentIdEmissionDate;
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDate documentIdExpirationDate;
+        private Country fiscalCountry;
         private String socialSecurityNumber;
         private ProfessionalSituationConditionType professionalCondition;
         private String profession;
@@ -529,6 +537,14 @@ public abstract class PersonalInformationFormController extends FirstTimeCandida
 
         public void setDocumentIdExpirationDate(LocalDate documentIdExpirationDate) {
             this.documentIdExpirationDate = documentIdExpirationDate;
+        }
+
+        public Country getFiscalCountry() {
+            return fiscalCountry;
+        }
+
+        public void setFiscalCountry(Country fiscalCountry) {
+            this.fiscalCountry = fiscalCountry;
         }
 
         public String getSocialSecurityNumber() {

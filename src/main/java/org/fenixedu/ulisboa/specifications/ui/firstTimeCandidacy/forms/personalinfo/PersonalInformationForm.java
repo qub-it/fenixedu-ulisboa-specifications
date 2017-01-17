@@ -40,7 +40,10 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private LocalDate documentIdExpirationDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
+
+    private Country fiscalCountry;
     private String socialSecurityNumber;
+
     private Unit firstOptionInstitution;
     private DegreeDesignation firstOptionDegreeDesignation;
     private String documentIdNumber;
@@ -60,11 +63,14 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private List<TupleDataSourceBean> maritalStatusValues;
     private List<TupleDataSourceBean> genderValues;
 
+    private List<TupleDataSourceBean> fiscalCountryValues;
+    
     /* Read only */
     private String name;
     private String username;
 
     public PersonalInformationForm() {
+        setFiscalCountryValues(Lists.newArrayList(Country.readDistinctCountries()));
         setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
         setForeignStudent(getIsForeignStudent());
 
@@ -182,6 +188,14 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     public void setDocumentIdExpirationDate(LocalDate documentIdExpirationDate) {
         this.documentIdExpirationDate = documentIdExpirationDate;
     }
+    
+    public Country getFiscalCountry() {
+        return fiscalCountry;
+    }
+    
+    public void setFiscalCountry(Country fiscalCountry) {
+        this.fiscalCountry = fiscalCountry;
+    }
 
     public String getSocialSecurityNumber() {
         return socialSecurityNumber;
@@ -246,6 +260,19 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
 
     public void setCountryHighSchoolValues(List<Country> countryHighSchoolValues) {
         this.countryHighSchoolValues = countryHighSchoolValues.stream().map((c) -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(c.getExternalId());
+            tuple.setText(c.getLocalizedName().getContent());
+            return tuple;
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
+    public List<TupleDataSourceBean> getFiscalCountryValues() {
+        return fiscalCountryValues;
+    }
+
+    public void setFiscalCountryValues(List<Country> countryHighSchoolValues) {
+        this.fiscalCountryValues = countryHighSchoolValues.stream().map((c) -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(c.getExternalId());
             tuple.setText(c.getLocalizedName().getContent());

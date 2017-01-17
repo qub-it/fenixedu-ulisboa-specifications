@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
@@ -20,6 +21,8 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -123,6 +126,7 @@ public class PersonalInformationFormController extends FormAbstractController {
         form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
+        form.setFiscalCountry(person.getFiscalCountry());
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
         form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
 
@@ -187,7 +191,7 @@ public class PersonalInformationFormController extends FormAbstractController {
 
     private Set<String> validateForm(PersonalInformationForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
-        
+
         if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
                 && !IdentityCardUtils.validate(person.getDocumentIdNumber(), IdentityCardUtils.getDigitControlFromPerson(person))
                 && !IdentityCardUtils.validate(person.getDocumentIdNumber(), form.getIdentificationDocumentSeriesNumber())) {
@@ -237,8 +241,9 @@ public class PersonalInformationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.is.after.emissionDate"));
             }
 
-            if (!StringUtils.isBlank(form.getSocialSecurityNumber())
-                    && !FiscalCodeValidation.isValidcontrib(form.getSocialSecurityNumber())) {
+            final ITreasuryBridgeAPI treasuryBridge = TreasuryBridgeAPIFactory.implementation();
+            if (!StringUtils.isBlank(form.getSocialSecurityNumber()) && !treasuryBridge.isValidFiscalNumber(
+                    form.getFiscalCountry() != null ? form.getFiscalCountry().getCode() : null, form.getSocialSecurityNumber())) {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
             }
@@ -308,11 +313,14 @@ public class PersonalInformationFormController extends FormAbstractController {
             person.setExpirationDateOfDocumentIdYearMonthDay(
                     documentIdExpirationDate != null ? new YearMonthDay(documentIdExpirationDate.toDate()) : null);
 
+            Country fiscalCountry = form.getFiscalCountry();
             String socialSecurityNumber = form.getSocialSecurityNumber();
-            if (StringUtils.isEmpty(socialSecurityNumber)) {
+            if ((fiscalCountry == null || fiscalCountry == Country.readDefault()) && StringUtils.isEmpty(socialSecurityNumber)) {
+                fiscalCountry = Country.readDefault();
                 socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
             }
-            person.setSocialSecurityNumber(socialSecurityNumber);
+
+            person.editSocialSecurityNumber(fiscalCountry, socialSecurityNumber);
         }
 
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
