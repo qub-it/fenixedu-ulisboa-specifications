@@ -50,16 +50,15 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     }
 
     public static CourseGradingTable find(final ExecutionYear ey, final CompetenceCourse cc) {
-        return cc.getCourseGradingTablesSet().stream().filter(cgt -> cgt.getCurriculumLine() == null)
+        return cc == null ? null : cc.getCourseGradingTablesSet().stream().filter(cgt -> cgt.getCurriculumLine() == null)
                 .filter(cgt -> cgt.getExecutionYear() == ey).findAny().orElse(null);
     }
 
     public static CourseGradingTable find(CurriculumLine line) {
-        ExecutionYear year =
-                line instanceof Enrolment ? ((Enrolment) line).getFinalEnrolmentEvaluation().getExecutionPeriod()
-                        .getExecutionYear() : line.getExecutionYear();
-        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(year, line.getCurricularCourse()
-                .getCompetenceCourse());
+        ExecutionYear year = line instanceof Enrolment ? ((Enrolment) line).getFinalEnrolmentEvaluation().getExecutionPeriod()
+                .getExecutionYear() : line.getExecutionYear();
+        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(year,
+                line.getCurricularCourse().getCompetenceCourse());
     }
 
     public static String getEctsGrade(ICurriculumEntry entry) {
@@ -151,9 +150,8 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                     if (!enrolment.isApproved()) {
                         continue;
                     }
-                    Integer finalGrade =
-                            isNumeric(enrolment.getGrade()) ? enrolment.getGrade().getNumericValue()
-                                    .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
+                    Integer finalGrade = isNumeric(enrolment.getGrade()) ? enrolment.getGrade().getNumericValue()
+                            .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
                     if (finalGrade == 0) {
                         continue;
                     }
