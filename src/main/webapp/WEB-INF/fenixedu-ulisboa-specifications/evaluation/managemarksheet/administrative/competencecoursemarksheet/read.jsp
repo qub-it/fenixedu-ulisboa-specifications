@@ -1,6 +1,5 @@
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateChange"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.PersonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
 <%@page import="org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean"%>
@@ -268,7 +267,7 @@ ${portal.angularToolkit()}
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.certifier" /></th>
 						<td>
-                            <c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getCertifier())%>"></c:out>
+                            <c:out value="<%=CompetenceCourseMarkSheetBean.getPersonDescription(((CompetenceCourseMarkSheet)request.getAttribute("competenceCourseMarkSheet")).getCertifier())%>"></c:out>
 							<c:choose>
 								<c:when test="${!competenceCourseMarkSheet.certifierExecutionCourseResponsible}">
 									<span class="label label-danger"><spring:message code="label.evaluation.manageMarkSheet.notResponsible" /> </span>
@@ -328,7 +327,7 @@ ${portal.angularToolkit()}
 		<tr>
 			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 			<td><c:out value="${each.state.descriptionI18N.content}"></c:out></td>
-			<td><c:out value="<%=PersonServices.getDisplayName(((CompetenceCourseMarkSheetStateChange)pageContext.getAttribute("each")).getResponsible())%>"></c:out></td>
+			<td><c:out value="<%=CompetenceCourseMarkSheetBean.getPersonDescription(((CompetenceCourseMarkSheetStateChange)pageContext.getAttribute("each")).getResponsible())%>"></c:out></td>
 			<td><c:out value="${each.byTeacher ? yesLabel : noLabel}"></c:out></td>
 		</tr>
 		</c:forEach>

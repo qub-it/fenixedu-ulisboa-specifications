@@ -350,11 +350,15 @@ public class CompetenceCourseMarkSheetBean implements IBean {
             tuple.setId(x.getExternalId());
 
             final String prefix = isByTeacher() ? "" : this.responsibles.contains(x) ? "+* " : teachers.contains(x) ? "* " : "";
-            tuple.setText(prefix + PersonServices.getDisplayName(x) + " (" + x.getUsername() + ")");
+            tuple.setText(prefix + getPersonDescription(x));
 
             return tuple;
 
         }).collect(Collectors.toList());
+    }
+
+    static public String getPersonDescription(final Person input) {
+        return input == null ? null : PersonServices.getDisplayName(input) + " (" + input.getUsername() + ")";
     }
 
     public boolean getLimitTeacherCreation() {
