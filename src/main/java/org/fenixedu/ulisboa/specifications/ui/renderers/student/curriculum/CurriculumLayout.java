@@ -3,8 +3,9 @@ package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.OptionalEnrolment;
@@ -21,7 +22,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DefaultGradingTable;
-import org.fenixedu.ulisboa.specifications.domain.ects.InstitutionGradingTable;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
@@ -34,6 +34,8 @@ import pt.ist.fenixWebFramework.renderers.components.HtmlTable;
 import pt.ist.fenixWebFramework.renderers.components.HtmlTableCell;
 import pt.ist.fenixWebFramework.renderers.components.HtmlTableRow;
 import pt.ist.fenixWebFramework.renderers.components.HtmlText;
+import pt.ist.fenixWebFramework.renderers.components.state.IViewState;
+import pt.ist.fenixWebFramework.renderers.contexts.PresentationContext;
 import pt.ist.fenixWebFramework.renderers.layouts.Layout;
 
 public class CurriculumLayout extends Layout {
@@ -219,10 +221,12 @@ public class CurriculumLayout extends Layout {
             if (table != null) {
                 ectsGrade = table.getEctsGrade(grade);
             } else {
-                if (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION).isMember(Authenticate.getUser())) {
-                    generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
-                            FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                            "label.gradingTables.curriculumRenderer.generateInstitutionTable"));
+
+                if (!isConclusionDocument() && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
+                        .isMember(Authenticate.getUser())) {
+                    generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
+                            BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                                    "label.gradingTables.curriculumRenderer.generateInstitutionTable"));
                     return;
                 }
             }
@@ -230,24 +234,35 @@ public class CurriculumLayout extends Layout {
         } else if (entry instanceof CurriculumLine) {
             CurriculumLine line = (CurriculumLine) entry;
             if (line.getCurricularCourse() == null) {
-                ectsGrade =
-                        BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                                "label.gradingTables.curriculumRenderer.lineWithoutCurricularCourse");
+                ectsGrade = BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                        "label.gradingTables.curriculumRenderer.lineWithoutCurricularCourse");
             } else {
                 CourseGradingTable table = CourseGradingTable.find(line);
                 if (table != null) {
                     ectsGrade = table.getEctsGrade(grade);
                 } else if (CourseGradingTable.isApplicable(line)) {
-                    if (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION).isMember(Authenticate.getUser())) {
-                        generateCellWithLink(enrolmentRow, entry.getExecutionYear(), BundleUtil.getString(
-                                FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                                "label.gradingTables.curriculumRenderer.generateCourseTable"));
+                    if (!isConclusionDocument() && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
+                            .isMember(Authenticate.getUser())) {
+                        generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
+                                BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
+                                        "label.gradingTables.curriculumRenderer.generateCourseTable"));
                         return;
                     }
                 }
             }
         }
         generateCellWithText(enrolmentRow, ectsGrade == null ? "-" : ectsGrade, renderer.getGradeCellClass());
+    }
+
+    /**
+     * legidio, HUGE HACK to avoid links in document to be printed
+     */
+    private boolean isConclusionDocument() {
+        final PresentationContext context = this.renderer == null ? null : renderer.getContext();
+        final IViewState viewState = context == null ? null : context.getViewState();
+        final HttpServletRequest request = viewState == null ? null : viewState.getRequest();
+        final StringBuffer requestURL = request == null ? null : request.getRequestURL();
+        return requestURL == null ? false : requestURL.toString().contains("egistrationConclusionDocument");
     }
 
     private void generateWeightCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
@@ -265,9 +280,8 @@ public class CurriculumLayout extends Layout {
     }
 
     private void generateSemesterCell(final HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
-        final String semester =
-                entry.getExecutionPeriod() == null ? "-" : entry.getExecutionPeriod().getSemester().toString() + " "
-                        + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
+        final String semester = entry.getExecutionPeriod() == null ? "-" : entry.getExecutionPeriod().getSemester().toString()
+                + " " + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
 
         generateCellWithText(enrolmentRow, semester, renderer.getEnrolmentSemesterCellClass());
     }
