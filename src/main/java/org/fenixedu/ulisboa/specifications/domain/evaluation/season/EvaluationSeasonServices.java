@@ -30,7 +30,6 @@ package org.fenixedu.ulisboa.specifications.domain.evaluation.season;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,6 +42,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
+import org.fenixedu.academic.domain.treasury.IImprovementTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
@@ -260,12 +260,16 @@ abstract public class EvaluationSeasonServices {
             }
 
             if (season.isImprovement()) {
-                final Optional<EnrolmentEvaluation> enrolmentEvaluation =
-                        enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null);
-                if (enrolmentEvaluation.isPresent() && TreasuryBridgeAPIFactory.implementation()
-                        .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear())
-                        .isInDebt(enrolmentEvaluation.get())) {
-                    return true;
+                final EnrolmentEvaluation evaluation =
+                        enrolment.getEnrolmentEvaluation(season, semester, (Boolean) null).orElse(null);
+
+                if (evaluation != null) {
+                    final IImprovementTreasuryEvent event = TreasuryBridgeAPIFactory.implementation()
+                            .getImprovementTaxTreasuryEvent(registration, semester.getExecutionYear());
+
+                    if (event != null && event.isInDebt(evaluation)) {
+                        return true;
+                    }
                 }
             }
         }
