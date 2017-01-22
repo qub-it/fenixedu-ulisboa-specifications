@@ -239,10 +239,19 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.registrationYear", registration.getRegistrationYear().getQualifiedName());
                         addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlan().getName());
                         addData("RegistrationHistoryReport.isReingression", booleanString(report.isReingression()));
+                        addData("RegistrationHistoryReport.hasPreviousReingression",
+                                booleanString(report.hasPreviousReingression()));
                         addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
+
+                        final Integer previousYearCurricularYear = report.getPreviousYearCurricularYear();
+                        addData("RegistrationHistoryReport.previousYearCurricularYear",
+                                previousYearCurricularYear != null ? previousYearCurricularYear.toString() : "");
+
                         addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
                         addData("RegistrationHistoryReport.average",
                                 report.getAverage() != null ? report.getAverage().getValue() : null);
+                        addData("RegistrationHistoryReport.enrolmentYears", report.getEnrolmentYears().toString());
+
                         addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
 
                         final ExecutionYear lastEnrolmentExecutionYear = registration.getLastEnrolmentExecutionYear();
@@ -323,9 +332,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                     bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
                             addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
 
-                            final String descriptiveGrade = bean == null
-                                    || bean.getDescriptiveGrade() == null ? null : bean.getDescriptiveGradeExtendedValue() + " ("
-                                            + bean.getDescriptiveGrade().getValue() + ")";
+                            final String descriptiveGrade = bean == null || bean.getDescriptiveGrade() == null ? null : bean
+                                    .getDescriptiveGradeExtendedValue() + " (" + bean.getDescriptiveGrade().getValue() + ")";
                             addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
 
                             final YearMonthDay conclusionDate =
@@ -695,8 +703,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
                         .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason())
                                 && bean.getExecutionYears().contains(e.getExecutionPeriod().getExecutionYear()))
-                .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
-                .collect(Collectors.toList());
+                        .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                        .collect(Collectors.toList());
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),
                 new SheetData<EnrolmentEvaluation>(evaluations) {
 

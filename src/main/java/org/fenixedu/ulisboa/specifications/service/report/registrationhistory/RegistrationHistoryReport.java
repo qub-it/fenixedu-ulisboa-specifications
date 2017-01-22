@@ -28,6 +28,7 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Maps;
@@ -58,7 +59,7 @@ public class RegistrationHistoryReport {
     private BigDecimal executionYearSimpleAverage;
 
     private BigDecimal executionYearWeightedAverage;
-    
+
     public RegistrationHistoryReport(final Registration registration, final ExecutionYear executionYear) {
         this.executionYear = executionYear;
         this.registration = registration;
@@ -91,6 +92,10 @@ public class RegistrationHistoryReport {
 
     public boolean isReingression() {
         return registration.hasReingression(executionYear);
+    }
+
+    public boolean hasPreviousReingression() {
+        return registration.getReingressions().stream().filter(ri -> ri.getExecutionYear().isBefore(executionYear)).count() > 0;
     }
 
     public StudentPersonalDataAuthorizationChoice getStudentPersonalDataAuthorizationChoice() {
@@ -179,6 +184,18 @@ public class RegistrationHistoryReport {
         return curriculum.getCurricularYear();
     }
 
+    public Integer getPreviousYearCurricularYear() {
+
+        if (registration.getStartExecutionYear().isAfterOrEquals(executionYear)
+                || registration.getStudentCurricularPlan(executionYear.getPreviousExecutionYear()) == null
+                || registration.getStudentCurricularPlan(executionYear) == null) {
+
+            return null;
+        }
+
+        return RegistrationServices.getCurricularYear(registration, executionYear.getPreviousExecutionYear()).getResult();
+    }
+
     public BigDecimal getEctsCredits() {
         return curriculum.getSumEctsCredits();
     }
@@ -194,11 +211,9 @@ public class RegistrationHistoryReport {
 
     public boolean hasImprovementEvaluations() {
 
-        final Predicate<Enrolment> improvementEvaluationForYear =
-                e -> e.getEvaluationsSet().stream()
-                        .anyMatch(ev -> ev.getEvaluationSeason() != null && ev.getEvaluationSeason().isImprovement()
-                                && ev.getExecutionPeriod() != null
-                                && ev.getExecutionPeriod().getExecutionYear() == executionYear);
+        final Predicate<Enrolment> improvementEvaluationForYear = e -> e.getEvaluationsSet().stream()
+                .anyMatch(ev -> ev.getEvaluationSeason() != null && ev.getEvaluationSeason().isImprovement()
+                        && ev.getExecutionPeriod() != null && ev.getExecutionPeriod().getExecutionYear() == executionYear);
 
         return getRegistration().getStudentCurricularPlansSet().stream()
                 .anyMatch(scp -> scp.getEnrolmentsSet().stream().anyMatch(improvementEvaluationForYear));
@@ -283,27 +298,32 @@ public class RegistrationHistoryReport {
 
     public boolean isTuitionCharged() {
         final ITreasuryBridgeAPI treasuryBridgeAPI = TreasuryBridgeAPIFactory.implementation();
-        if(treasuryBridgeAPI == null) {
+        if (treasuryBridgeAPI == null) {
             return false;
         }
-        
+
         final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
 
         return event != null && event.isCharged();
     }
-    
+
     public BigDecimal getTuitionAmount() {
         final ITreasuryBridgeAPI treasuryBridgeAPI = TreasuryBridgeAPIFactory.implementation();
-        if(treasuryBridgeAPI == null) {
+        if (treasuryBridgeAPI == null) {
             return BigDecimal.ZERO;
         }
-        
+
         final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
-        
-        if(event == null) {
+
+        if (event == null) {
             return BigDecimal.ZERO;
         }
-        
+
         return event.getAmountToPay();
+    }
+
+    public Integer getEnrolmentYears() {
+        return RegistrationServices.getEnrolmentYears(registration, true).stream()
+                .filter(ey -> ey.isBeforeOrEquals(executionYear)).collect(Collectors.toSet()).size();
     }
 }

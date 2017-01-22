@@ -262,12 +262,12 @@ public class RegistrationHistoryReportService {
     }
 
     private int countFiltered(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
-        return (int) enrolments.stream().filter(filter).count();
+        return (int) enrolments.stream().filter(filter.and(e -> !e.isAnnulled())).count();
     }
 
     private BigDecimal sumCredits(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
-        return enrolments.stream().filter(filter).map(e -> e.getEctsCreditsForCurriculum()).reduce((x, y) -> x.add(y))
-                .orElse(BigDecimal.ZERO);
+        return enrolments.stream().filter(filter.and(e -> !e.isAnnulled())).map(e -> e.getEctsCreditsForCurriculum())
+                .reduce((x, y) -> x.add(y)).orElse(BigDecimal.ZERO);
     }
 
     private void addExecutionYearAverages(RegistrationHistoryReport report, Collection<Enrolment> enrolmentsByYear) {
@@ -283,7 +283,7 @@ public class RegistrationHistoryReportService {
                 .filter(e -> e.isApproved() && e.getGrade().isNumeric()).collect(Collectors.toSet())) {
             gradesSum = gradesSum.add(enrolment.getGrade().getNumericValue().multiply(enrolment.getEctsCreditsForCurriculum()));
             creditsSum = creditsSum.add(enrolment.getEctsCreditsForCurriculum());
-        };
+        } ;
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum.divide(creditsSum, MathContext.DECIMAL128)
                 .setScale(3, RoundingMode.HALF_UP);
@@ -296,7 +296,7 @@ public class RegistrationHistoryReportService {
                 .filter(e -> e.isApproved() && e.getGrade().isNumeric()).collect(Collectors.toSet())) {
             gradesSum = gradesSum.add(enrolment.getGrade().getNumericValue());
             total++;
-        };
+        } ;
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum
                 .divide(BigDecimal.valueOf(total), MathContext.DECIMAL128).setScale(3, RoundingMode.HALF_UP);
