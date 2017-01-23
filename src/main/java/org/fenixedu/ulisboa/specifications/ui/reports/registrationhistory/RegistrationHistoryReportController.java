@@ -297,6 +297,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         addConclusionData(report);
 
+                        addData("RegistrationHistoryReport.otherConcludedRegistrationYears",
+                                report.getOtherConcludedRegistrationYears());
+
                         addTuitionAndAcademicTaxData(report);
                     }
 

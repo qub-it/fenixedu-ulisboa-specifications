@@ -309,8 +309,9 @@ public class RegistrationHistoryReportService {
     private void addConclusion(final RegistrationHistoryReport result) {
         for (final ProgramConclusion programConclusion : this.programConclusions) {
 
-            if (ProgramConclusion.conclusionsFor(result.getDegreeCurricularPlan()).collect(Collectors.toSet()).isEmpty()
-                    || !programConclusion.groupFor(result.getStudentCurricularPlan()).isPresent()) {
+            if (ProgramConclusion.conclusionsFor(result.getRegistration().getLastDegreeCurricularPlan())
+                    .collect(Collectors.toSet()).isEmpty()
+                    || !programConclusion.groupFor(result.getRegistration().getLastStudentCurricularPlan()).isPresent()) {
                 result.addEmptyConclusion(programConclusion);
             } else {
                 result.addConclusion(programConclusion,

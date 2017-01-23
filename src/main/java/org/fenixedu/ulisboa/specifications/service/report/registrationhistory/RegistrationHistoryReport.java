@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -326,4 +327,29 @@ public class RegistrationHistoryReport {
         return RegistrationServices.getEnrolmentYears(registration, true).stream()
                 .filter(ey -> ey.isBeforeOrEquals(executionYear)).collect(Collectors.toSet()).size();
     }
+
+    public String getOtherConcludedRegistrationYears() {
+
+        final StringBuilder result = new StringBuilder();
+
+        registration.getStudent().getRegistrationsSet().stream()
+
+                .filter(r -> r != registration && r.isConcluded() && r.getLastStudentCurricularPlan() != null)
+
+                .forEach(r -> {
+
+                    final SortedSet<ExecutionYear> executionYears =
+                            Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed());
+                    executionYears.addAll(RegistrationServices.getEnrolmentYears(r, true));
+
+                    if (!executionYears.isEmpty()) {
+                        result.append(executionYears.first().getQualifiedName()).append("|");
+                    }
+
+                });
+
+        return result.toString().endsWith("|") ? result.delete(result.length() - 1, result.length()).toString() : result
+                .toString();
+    }
+
 }
