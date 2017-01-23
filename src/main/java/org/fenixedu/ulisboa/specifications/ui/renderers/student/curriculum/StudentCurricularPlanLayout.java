@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.Evaluation;
@@ -967,7 +968,8 @@ public class StudentCurricularPlanLayout extends Layout {
                 EvaluationServices.findEnrolmentCourseEvaluations(evaluation.getEnrolment(), season, semester);
         if (!courseEvaluations.isEmpty()) {
             final String courseEvaluationsPresentation =
-                    courseEvaluations.stream().map(x -> x.getPresentationName()).collect(Collectors.joining("; "));
+                    courseEvaluations.stream().sorted(DomainObjectUtil.COMPARATOR_BY_ID.reversed())
+                            .map(x -> x.getPresentationName()).collect(Collectors.joining(", "));
 
             generateCellWithSpan(enrolmentRow, courseEvaluationsPresentation,
                     ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
