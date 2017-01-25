@@ -120,9 +120,26 @@ public class RegistrationServices {
         }
     }
 
+    static final private Cache<String, CurricularYearResult> CACHE_CURRICULAR_YEAR =
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(2, TimeUnit.MINUTES).build();
+
     static public CurricularYearResult getCurricularYear(final Registration registration, final ExecutionYear executionYear) {
-        return CurriculumConfigurationInitializer
-                .calculateCurricularYear((Curriculum) getCurriculum(registration, executionYear));
+        final String key = String.format("%s#%s", registration.getExternalId(),
+                executionYear == null ? "null" : executionYear.getExternalId());
+
+        try {
+            return CACHE_CURRICULAR_YEAR.get(key, new Callable<CurricularYearResult>() {
+                @Override
+                public CurricularYearResult call() {
+                    logger.warn(String.format("Miss on Registration CurricularYear cache [%s %s]", new DateTime(), key));
+                    return CurriculumConfigurationInitializer
+                            .calculateCurricularYear((Curriculum) getCurriculum(registration, executionYear));
+                }
+            });
+
+        } catch (final Throwable t) {
+            throw new RuntimeException(t.getCause());
+        }
     }
 
     static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
