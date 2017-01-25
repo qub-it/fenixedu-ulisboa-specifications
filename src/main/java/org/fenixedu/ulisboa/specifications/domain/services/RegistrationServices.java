@@ -99,7 +99,7 @@ public class RegistrationServices {
         Dismissal.getRelationDegreeModuleCurriculumModule().addListener(CREDITS_CREATION_DISABLE_ACCUMULATED);
     }
 
-    static final private Cache<String, ICurriculum> CURRICULUMS =
+    static final private Cache<String, ICurriculum> CACHE_CURRICULUMS =
             CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(1, TimeUnit.MINUTES).build();
 
     static public ICurriculum getCurriculum(final Registration registration, final ExecutionYear executionYear) {
@@ -107,7 +107,7 @@ public class RegistrationServices {
                 executionYear == null ? "null" : executionYear.getExternalId());
 
         try {
-            return CURRICULUMS.get(key, new Callable<ICurriculum>() {
+            return CACHE_CURRICULUMS.get(key, new Callable<ICurriculum>() {
                 @Override
                 public ICurriculum call() {
                     logger.debug(String.format("Miss on Curriculum cache [%s %s]", new DateTime(), key));
