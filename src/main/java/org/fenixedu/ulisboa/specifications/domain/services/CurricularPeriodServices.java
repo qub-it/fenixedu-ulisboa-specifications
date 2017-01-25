@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -26,9 +28,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -78,29 +79,8 @@ public class CurricularPeriodServices {
         return result;
     }
 
-    static final private LoadingCache<CurriculumLine, Integer> CACHE_CURRICULUM_LINE_CURRICULAR_YEAR =
-            CacheBuilder.newBuilder().concurrencyLevel(8).maximumSize(3000).expireAfterWrite(1, TimeUnit.DAYS)
-                    .build(new CacheLoader<CurriculumLine, Integer>() {
-
-                        @Override
-                        public Integer load(final CurriculumLine key) throws Exception {
-                            logger.warn(
-                                    String.format("Miss on CurriculumLine CurricularYear cache [%s %s]", new DateTime(), key));
-                            return loadCurriculumLineCurricularYear(key);
-                        }
-                    });
-
     static public int getCurricularYear(final CurriculumLine input) {
 
-        try {
-            return CACHE_CURRICULUM_LINE_CURRICULAR_YEAR.get(input);
-
-        } catch (final Throwable t) {
-            throw new RuntimeException(t.getCause());
-        }
-    }
-
-    static private int loadCurriculumLineCurricularYear(final CurriculumLine input) {
         // no course group placeholder takes precedence over everything else
         final String report = input.print(StringUtils.EMPTY).toString();
         if (input.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
@@ -113,9 +93,9 @@ public class CurricularPeriodServices {
         final ExecutionYear executionYear = input.getExecutionYear();
         final Set<Context> contexts = input.getCurriculumGroup().getDegreeModule().getChildContextsSet();
 
-        final Optional<Integer> calculated = getCurricularYearCalculated(report, degreeModule, executionYear, contexts);
-        if (calculated.isPresent()) {
-            return calculated.get();
+        final Integer calculated = getCurricularYearCalculated(report, degreeModule, executionYear, contexts);
+        if (calculated != null) {
+            return calculated;
 
         } else {
 
@@ -131,10 +111,34 @@ public class CurricularPeriodServices {
         }
     }
 
+    static final private Cache<String, Integer> CACHE_DEGREE_MODULE_CURRICULAR_YEAR =
+            CacheBuilder.newBuilder().concurrencyLevel(8).maximumSize(3000).expireAfterWrite(1, TimeUnit.DAYS).build();
+    
     /**
      * Assume lowest curricular year of the degree module's contexts on the parent group
      */
-    static private Optional<Integer> getCurricularYearCalculated(final String report, final DegreeModule degreeModule,
+    static private Integer getCurricularYearCalculated(final String report, final DegreeModule degreeModule,
+            final ExecutionYear executionYear, final Set<Context> contexts) {
+
+        final String key = String.format("%s#%s#%s", degreeModule.getExternalId(),
+                executionYear == null ? "null" : executionYear.getExternalId(),
+                contexts.stream().map(i -> i.getExternalId()).collect(Collectors.joining(";")));
+
+        try {
+            return CACHE_DEGREE_MODULE_CURRICULAR_YEAR.get(key, new Callable<Integer>() {
+                @Override
+                public Integer call() {
+                    logger.debug(String.format("Miss on DegreeModule CurricularYear cache [%s %s]", new DateTime(), key));
+                    return loadCurricularYearCalculated(report, degreeModule, executionYear, contexts).orElse(null);
+                }
+            });
+
+        } catch (final Throwable t) {
+            throw new RuntimeException(t.getCause());
+        }
+    }
+
+    static private Optional<Integer> loadCurricularYearCalculated(final String report, final DegreeModule degreeModule,
             final ExecutionYear executionYear, final Set<Context> contexts) {
 
         // best scenario, we want to assert execution year on context
