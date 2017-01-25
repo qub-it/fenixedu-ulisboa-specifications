@@ -131,7 +131,7 @@ public class RegistrationServices {
             return CACHE_CURRICULAR_YEAR.get(key, new Callable<CurricularYearResult>() {
                 @Override
                 public CurricularYearResult call() {
-                    logger.warn(String.format("Miss on Registration CurricularYear cache [%s %s]", new DateTime(), key));
+                    logger.debug(String.format("Miss on Registration CurricularYear cache [%s %s]", new DateTime(), key));
                     return CurriculumConfigurationInitializer
                             .calculateCurricularYear((Curriculum) getCurriculum(registration, executionYear));
                 }
