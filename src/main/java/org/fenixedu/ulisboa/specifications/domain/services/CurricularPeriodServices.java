@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -21,9 +22,13 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -73,8 +78,29 @@ public class CurricularPeriodServices {
         return result;
     }
 
+    static final private LoadingCache<CurriculumLine, Integer> CACHE_CURRICULUM_LINE_CURRICULAR_YEAR =
+            CacheBuilder.newBuilder().concurrencyLevel(8).maximumSize(3000).expireAfterWrite(1, TimeUnit.DAYS)
+                    .build(new CacheLoader<CurriculumLine, Integer>() {
+
+                        @Override
+                        public Integer load(final CurriculumLine key) throws Exception {
+                            logger.warn(
+                                    String.format("Miss on CurriculumLine CurricularYear cache [%s %s]", new DateTime(), key));
+                            return loadCurriculumLineCurricularYear(key);
+                        }
+                    });
+
     static public int getCurricularYear(final CurriculumLine input) {
 
+        try {
+            return CACHE_CURRICULUM_LINE_CURRICULAR_YEAR.get(input);
+
+        } catch (final Throwable t) {
+            throw new RuntimeException(t.getCause());
+        }
+    }
+
+    static private int loadCurriculumLineCurricularYear(final CurriculumLine input) {
         // no course group placeholder takes precedence over everything else
         final String report = input.print(StringUtils.EMPTY).toString();
         if (input.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
