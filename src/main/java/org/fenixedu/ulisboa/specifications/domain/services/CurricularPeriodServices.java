@@ -113,14 +113,14 @@ public class CurricularPeriodServices {
 
     static final private Cache<String, Integer> CACHE_DEGREE_MODULE_CURRICULAR_YEAR =
             CacheBuilder.newBuilder().concurrencyLevel(8).maximumSize(3000).expireAfterWrite(1, TimeUnit.DAYS).build();
-    
+
     /**
      * Assume lowest curricular year of the degree module's contexts on the parent group
      */
     static private Integer getCurricularYearCalculated(final String report, final DegreeModule degreeModule,
             final ExecutionYear executionYear, final Set<Context> contexts) {
 
-        final String key = String.format("%s#%s#%s", degreeModule.getExternalId(),
+        final String key = String.format("%s#%s#%s", degreeModule == null ? "null" : degreeModule.getExternalId(),
                 executionYear == null ? "null" : executionYear.getExternalId(),
                 contexts.stream().map(i -> i.getExternalId()).collect(Collectors.joining(";")));
 
