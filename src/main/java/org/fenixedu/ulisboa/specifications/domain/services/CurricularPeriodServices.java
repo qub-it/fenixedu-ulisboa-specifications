@@ -134,7 +134,9 @@ public class CurricularPeriodServices {
             });
 
         } catch (final Throwable t) {
-            throw new RuntimeException(t.getCause());
+            logger.warn("Unable to calculate DegreeModule CurricularYear cache [%s %s %s]", new DateTime(), key,
+                    t.getLocalizedMessage());
+            return null;
         }
     }
 
