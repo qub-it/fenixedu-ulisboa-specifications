@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -104,6 +105,13 @@ abstract public class EnrolmentPredicateInitializer {
                 throw new DomainException(
                         "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.hasnt.been.approved",
                         enrolment.getName().getContent());
+            }
+
+            final DegreeModule degreeModule = enrolment.getDegreeModule();
+            if (!degreeModule.hasAnyParentContexts(improvementSemester)) {
+                throw new DomainException(
+                        "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.has.no.context.in.present.execution.period",
+                        enrolment.getName().getContent(), improvementSemester.getQualifiedName());
             }
 
             if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
