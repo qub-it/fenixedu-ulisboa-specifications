@@ -659,6 +659,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
                         // is manual, enrolment must be included
                         result.add(enrolment);
+                        continue;
                     }
                 }
 
