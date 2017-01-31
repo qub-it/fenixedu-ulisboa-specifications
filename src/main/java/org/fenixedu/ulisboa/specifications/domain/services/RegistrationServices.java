@@ -116,7 +116,8 @@ public class RegistrationServices {
             });
 
         } catch (final Throwable t) {
-            throw new RuntimeException(t.getCause());
+            logger.error(String.format("Unable to get Curriculum [%s %s %s]", new DateTime(), key, t.getLocalizedMessage()));
+            return null;
         }
     }
 
@@ -138,7 +139,9 @@ public class RegistrationServices {
             });
 
         } catch (final Throwable t) {
-            throw new RuntimeException(t.getCause());
+            logger.error(String.format("Unable to get Registration CurricularYear [%s %s %s]", new DateTime(), key,
+                    t.getLocalizedMessage()));
+            return null;
         }
     }
 
