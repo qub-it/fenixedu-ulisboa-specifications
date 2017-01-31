@@ -55,16 +55,6 @@ abstract public class CompetenceCourseServices {
 
     static final private Logger logger = LoggerFactory.getLogger(CompetenceCourseServices.class);
 
-    static final private LoadingCache<CompetenceCourse, Set<CurricularCourse>> CACHE_COMPETENCE_CURRICULARS =
-            CacheBuilder.newBuilder().concurrencyLevel(8).build(new CacheLoader<CompetenceCourse, Set<CurricularCourse>>() {
-
-                @Override
-                public Set<CurricularCourse> load(final CompetenceCourse key) throws Exception {
-                    logger.debug(String.format("Miss on CompetenceCourse CurricularCourses cache [%s %s]", new DateTime(), key));
-                    return getExpandedCurricularCourses(key);
-                }
-            });
-
     static final private Cache<String, Boolean> CACHE_APPROVALS =
             CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(1, TimeUnit.MINUTES).build();
 
@@ -95,7 +85,7 @@ abstract public class CompetenceCourseServices {
             return (int) plan.getEnrolments(curricularCourse).stream().filter(validEnrolment).count();
         }
 
-        final Set<CurricularCourse> expandedCourses = getExpandedCurricularCourses(competence);
+        final Set<CurricularCourse> expandedCourses = getExpandedCurricularCourses(competence.getCode());
         int total = 0;
         for (final StudentCurricularPlan scpToCheck : getScpsToCheck(registration)) {
             for (final CurricularCourse expandedCourse : expandedCourses) {
@@ -133,29 +123,54 @@ abstract public class CompetenceCourseServices {
                 @Override
                 public Boolean call() throws Exception {
                     logger.debug(String.format("Miss on Approvals cache [%s %s]", new DateTime(), key));
-                    final Set<CurricularCourse> curriculars = CACHE_COMPETENCE_CURRICULARS.get(competence);
+                    final Set<CurricularCourse> curriculars = getExpandedCurricularCourses(competence.getCode());
                     return curriculars == null ? false : curriculars.stream()
                             .anyMatch(curricular -> plan.isApproved(curricular, semester));
                 }
             });
 
         } catch (final Throwable t) {
-            throw new RuntimeException(t.getCause());
+            logger.error(String.format("Unable to get Approvals [%s %s %s]", new DateTime(), key, t.getLocalizedMessage()));
+            return false;
         }
     }
 
-    static private Set<CurricularCourse> getExpandedCurricularCourses(final CompetenceCourse competence) {
-        final Set<CurricularCourse> result;
-        final String code = competence.getCode();
+    static public Set<CurricularCourse> getExpandedCurricularCourses(final String code) {
+        final String key = filterCode(code);
 
-        if (!isExpandedCode(code)) {
-            result = competence.getAssociatedCurricularCoursesSet();
+        try {
+            return CACHE_COMPETENCE_CURRICULARS.get(key);
 
-        } else {
+        } catch (final Throwable t) {
+            logger.error(String.format("Unable to get CompetenceCourse CurricularCourses [%s %s %s]", new DateTime(), key,
+                    t.getLocalizedMessage()));
+            return null;
+        }
+    }
 
-            result = Sets.newHashSet();
+    static final private LoadingCache<String, Set<CurricularCourse>> CACHE_COMPETENCE_CURRICULARS =
+            CacheBuilder.newBuilder().concurrencyLevel(8).build(new CacheLoader<String, Set<CurricularCourse>>() {
+
+                @Override
+                public Set<CurricularCourse> load(final String key) throws Exception {
+                    logger.debug(String.format("Miss on CompetenceCourse CurricularCourses cache [%s %s]", new DateTime(), key));
+                    return loadExpandedCurricularCourses(key);
+                }
+            });
+
+    static private Set<CurricularCourse> loadExpandedCurricularCourses(final String key) {
+        Set<CurricularCourse> result = Sets.newHashSet();
+
+        final String code = filterCode(key);
+        if (!Strings.isNullOrEmpty(code)) {
+
+            final CompetenceCourse competence = CompetenceCourse.find(code);
+            if (competence != null) {
+                result.addAll(competence.getAssociatedCurricularCoursesSet());
+            }
+
             for (final CompetenceCourse iter : Bennu.getInstance().getCompetenceCoursesSet()) {
-                if (filterCode(competence.getCode()).equals(filterCode(iter.getCode()))) {
+                if (iter != competence && code.equals(filterCode(iter.getCode()))) {
                     result.addAll(iter.getAssociatedCurricularCoursesSet());
                 }
             }
