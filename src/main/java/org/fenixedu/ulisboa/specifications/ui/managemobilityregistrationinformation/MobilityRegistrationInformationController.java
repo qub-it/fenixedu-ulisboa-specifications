@@ -29,22 +29,20 @@ package org.fenixedu.ulisboa.specifications.ui.managemobilityregistrationinforma
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.SchoolPeriodDuration;
-import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = RegistrationController.class)
@@ -104,24 +102,8 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
 
     @RequestMapping(value = _CREATE_URI + "/{registrationId}", method = RequestMethod.GET)
     public String create(@PathVariable("registrationId") final Registration registration, final Model model) {
-        return _create(registration, model, new MobilityRegistrationInformationBean(registration));
-    }
-
-    private String _create(@PathVariable("registrationId") final Registration registration, final Model model,
-            final MobilityRegistrationInformationBean bean) {
-        model.addAttribute("programDurationValues", SchoolPeriodDuration.values());
-        model.addAttribute("MobilityRegistrationInformation_begin_options", ExecutionSemester.readNotClosedExecutionPeriods());
-        model.addAttribute("MobilityRegistrationInformation_end_options", ExecutionSemester.readNotClosedExecutionPeriods());
-        model.addAttribute("MobilityRegistrationInformation_mobilityProgramType_options", model.addAttribute(
-                "MobilityRegistrationInformation_mobilityProgramType_options", MobilityProgramType.findAllActive()));
-        model.addAttribute("MobilityRegistrationInformation_mobilityActivityType_options", MobilityActivityType.findAllActive());
-        model.addAttribute("MobilityRegistrationInformation_foreignInstitutionUnit_options", Unit.readAllUnits());
-
-        model.addAttribute("registration", registration);
-        model.addAttribute("mobilityRegistrationInformationBeanJson", getBeanJson(bean));
-
-        
-        
+        setRegistration(registration, model);
+        setMobilityRegistrationInformationBean(new MobilityRegistrationInformationBean(registration), model);
         return jspPage(_CREATE_URI);
     }
 
@@ -130,18 +112,80 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
             @RequestParam("bean") final MobilityRegistrationInformationBean bean, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-
-            if (bean.isIncoming()) {
-                MobilityRegistrationInformation.createMobilityRegistrationForIncoming(bean);
-            } else {
-                MobilityRegistrationInformation.createMobilityRegistrationForOutgoing(bean);
-            }
-
+            MobilityRegistrationInformation.create(bean);
             return redirect(String.format("%s/%s", SEARCH_URL, registration.getExternalId()), model, redirectAttributes);
         } catch (final DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
-            return _create(registration, model, bean);
+            setRegistration(registration, model);
+            setMobilityRegistrationInformationBean(bean, model);
+            return jspPage(_CREATE_URI);
         }
+    }
+
+    private static final String _CREATEPOSTBACK_URI = "/createpostback/";
+    public static final String CREATEPOSTBACK_URL = CONTROLLER_URL + _CREATEPOSTBACK_URI;
+
+    @RequestMapping(value = _CREATEPOSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> createpostback(
+            @RequestParam(value = "bean", required = false) final MobilityRegistrationInformationBean bean, final Model model) {
+
+        bean.update();
+        setMobilityRegistrationInformationBean(bean, model);
+
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    private static final String _UPDATE_URI = "/update";
+    public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
+
+    @RequestMapping(value = _UPDATE_URI + "/{mobilityRegistrationInformationId}", method = RequestMethod.GET)
+    public String update(
+            @PathVariable("mobilityRegistrationInformationId") final MobilityRegistrationInformation mobilityRegistrationInformation,
+            final Model model) {
+        setRegistration(mobilityRegistrationInformation.getRegistration(), model);
+        setMobilityRegistrationInformationBean(new MobilityRegistrationInformationBean(mobilityRegistrationInformation), model);
+        return jspPage(_UPDATE_URI);
+    }
+
+    @RequestMapping(value = _UPDATE_URI + "/{mobilityRegistrationInformationId}", method = RequestMethod.POST)
+    public String update(
+            @PathVariable("mobilityRegistrationInformationId") final MobilityRegistrationInformation mobilityRegistrationInformation,
+            @RequestParam("bean") final MobilityRegistrationInformationBean bean, Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+
+            bean.getMobilityRegistrationInformation().edit(bean);
+
+            return redirect(String.format("%s/%s", SEARCH_URL, mobilityRegistrationInformation.getRegistration().getExternalId()),
+                    model, redirectAttributes);
+        } catch (final DomainException de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            setRegistration(mobilityRegistrationInformation.getRegistration(), model);
+            setMobilityRegistrationInformationBean(bean, model);
+            return jspPage(_UPDATE_URI);
+        }
+    }
+
+    private static final String _UPDATEPOSTBACK_URI = "/updatepostback/";
+    public static final String UPDATEPOSTBACK_URL = CONTROLLER_URL + _UPDATEPOSTBACK_URI;
+
+    @RequestMapping(value = _UPDATEPOSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updatepostback(
+            @RequestParam(value = "bean", required = false) final MobilityRegistrationInformationBean bean, final Model model) {
+
+        bean.update();
+        setMobilityRegistrationInformationBean(bean, model);
+
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
+
+    private void setRegistration(final Registration registration, final Model model) {
+        model.addAttribute("registration", registration);
+    }
+
+    private void setMobilityRegistrationInformationBean(final MobilityRegistrationInformationBean bean, final Model model) {
+        model.addAttribute("mobilityRegistrationInformationBeanJson", getBeanJson(bean));
+        model.addAttribute("mobilityRegistrationInformationBean", bean);
     }
 
     private String jspPage(final String page) {

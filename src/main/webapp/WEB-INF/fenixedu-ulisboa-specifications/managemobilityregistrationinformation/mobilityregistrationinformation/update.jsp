@@ -33,7 +33,7 @@ ${portal.angularToolkit()}
 <%-- TITLE --%>
 <div class="page-header">
 	<h1>
-		<spring:message code="label.manageMobilityRegistrationInformation.createMobilityRegistrationInformation" />
+		<spring:message code="label.manageMobilityRegistrationInformation.updateMobilityRegistrationInformation" />
 		<small></small>
 	</h1>
 </div>
@@ -90,6 +90,7 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 
  	$scope.object=${mobilityRegistrationInformationBeanJson};
 
+	
 	$scope.booleanvalues = [ {
 		name : '<spring:message code="label.yes"/>',
 		value : true
@@ -118,7 +119,7 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
  	}
  	
  	$scope.submitForm = function() {
-		$('#createForm').submit();
+		$('#updateForm').submit();
 	}
  	
  	
@@ -165,11 +166,11 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 	</div>
 </div>
 
-<form id="createForm" name='form' method="post" class="form-horizontal" ng-app="angularAppMobilityRegistrationInformation"
+<form id="updateForm" name='form' method="post" class="form-horizontal" ng-app="angularAppMobilityRegistrationInformation"
 	ng-controller="MobilityRegistrationInformationController"
-	action='${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.CREATE_URL  %>/${registration.externalId}'>
+	action='${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.UPDATE_URL  %>/${mobilityRegistrationInformationBean.mobilityRegistrationInformation.externalId}'>
 	
-	<input type="hidden" name="postback" value='${pageContext.request.contextPath}<%=MobilityRegistrationInformationController.CREATEPOSTBACK_URL%>' />
+	<input type="hidden" name="postback" value='${pageContext.request.contextPath}<%=MobilityRegistrationInformationController.UPDATEPOSTBACK_URL%>' />
 	
 
 	<input name="bean" type="hidden" value="{{ object }}" />
@@ -183,7 +184,7 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 
 				<div class="col-sm-8">
 					<select id="mobilityRegistrationInformation_incoming" name="incoming" class="form-control" ng-model="object.incoming"
-						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues" ng-disabled="true">
 					</select>
 				</div>
 			</div>

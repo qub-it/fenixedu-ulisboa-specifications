@@ -93,6 +93,9 @@ external class .org.fenixedu.academic.domain.organizationalStructure.Unit;
 external class .org.fenixedu.academic.domain.EvaluationConfiguration;
 external class .org.fenixedu.academic.domain.DegreeCurricularPlan;
 external class .org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+external class .org.fenixedu.academic.domain.Degree;
+external class .org.fenixedu.academic.domain.Country;
+external class .org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -1893,6 +1896,11 @@ class student.mobility.MobilityRegistrationInformation {
 	SchoolPeriodDuration programDuration;
 	String otherOriginMobilityProgrammeLevel;
 	String otherIncomingMobilityProgrammeLevel;
+	boolean degreeBased;
+	LocalDate beginDate;
+	LocalDate endDate;
+	String remarks;
+	boolean national;
 }
 
 	relation MobilityRegistrationInformationBennu {
@@ -1986,6 +1994,47 @@ class student.mobility.MobilityRegistrationInformation {
 		}
 	
 		student.mobility.MobilityProgrammeLevel playsRole originMobilityProgrammeLevel {
+			multiplicity 0..1;
+		}
+	}
+	
+	relation MobilityRegistrationInformationDegree {
+		student.mobility.MobilityRegistrationInformation playsRole mobilityRegistrationInformations {
+			multiplicity *;
+		}
+	
+		.org.fenixedu.academic.domain.Degree playsRole degree {
+			multiplicity 0..1;
+		}
+	}
+	
+	relation MobilityRegistrationInformationDegreeCurricularPlan {
+		student.mobility.MobilityRegistrationInformation playsRole mobilityRegistrationInformations {
+			multiplicity *;
+		}
+	
+		.org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlan {
+			multiplicity 0..1;
+		}
+	}
+	
+	relation MobilityRegistrationInformationBranch {
+		student.mobility.MobilityRegistrationInformation playsRole mobilityRegistrationInformations {
+			multiplicity *;
+		}
+	
+		.org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole branchCourseGroup {
+			multiplicity 0..1;
+		}
+	}
+	
+	relation MobilityRegistrationInformationCountryUnit {
+		student.mobility.MobilityRegistrationInformation playsRole mobilityRegistrationInformations {
+			multiplicity *;
+		}
+	
+	
+		.org.fenixedu.academic.domain.organizationalStructure.CountryUnit playsRole countryUnit {
 			multiplicity 0..1;
 		}
 	}

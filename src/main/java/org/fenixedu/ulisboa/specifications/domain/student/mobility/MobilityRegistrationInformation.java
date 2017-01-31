@@ -7,11 +7,9 @@ import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.SchoolPeriodDuration;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
-import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -31,71 +29,96 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setBennu(Bennu.getInstance());
     }
 
-    protected MobilityRegistrationInformation(final Registration registration, final SchoolPeriodDuration duration,
-            final Unit unit, final MobilityProgramType mobilityProgramType, final MobilityActivityType activityType,
-            final MobilityScientificArea mobilityScientificArea, final MobilityProgrammeLevel originMobilityProgrammeLevel,
-            final MobilityProgrammeLevel incomingMobilityProgrammeLevel, final String otherOriginMobilityProgrammeLevel,
-            final String otherIncomingMobilityProgrammeLevel) {
-        this();
-        setRegistration(registration);
-        setProgramDuration(duration);
-        setForeignInstitutionUnit(unit);
-        setMobilityProgramType(mobilityProgramType);
-        setMobilityActivityType(activityType);
-        setMobilityScientificArea(mobilityScientificArea);
-        setIncomingMobilityProgrammeLevel(incomingMobilityProgrammeLevel);
-        setOriginMobilityProgrammeLevel(originMobilityProgrammeLevel);
-        setOtherIncomingMobilityProgrammeLevel(otherIncomingMobilityProgrammeLevel);
-        setOtherOriginMobilityProgrammeLevel(otherOriginMobilityProgrammeLevel);
+    @Atomic
+    public void edit(final MobilityRegistrationInformationBean bean) {
+        setIncoming(bean.isIncoming());
+        setRegistration(bean.getRegistration());
+        setBegin(bean.getBegin());
+        setBeginDate(bean.getBeginDate());
+        setEnd(bean.getEnd());
+        setEndDate(bean.getEndDate());
+        setMobilityProgramType(bean.getMobilityProgramType());
+        setMobilityActivityType(bean.getMobilityActivityType());
+        setCountryUnit(bean.getCountryUnit());
+        setForeignInstitutionUnit(bean.getForeignInstitutionUnit());
+        setRemarks(bean.getRemarks());
+        setOriginMobilityProgrammeLevel(bean.getOriginMobilityProgrammeLevel());
+        setOtherOriginMobilityProgrammeLevel(bean.getOtherOriginMobilityProgrammeLevel());
+        setProgramDuration(bean.getProgramDuration());
+        setDegreeBased(bean.isDegreeBased());
+        setNational(bean.isNational());
+        setRemarks(bean.getRemarks());
 
-        setIncoming(true);
+        if (bean.isDegreeBased()) {
+            setDegree(bean.getDegree());
+            setDegreeCurricularPlan(bean.getDegreeCurricularPlan());
+            setBranchCourseGroup(bean.getBranchCourseGroup());
 
-        checkRulesForIncoming();
+            setMobilityScientificArea(null);
+            setIncomingMobilityProgrammeLevel(null);
+            setOtherIncomingMobilityProgrammeLevel(null);
+
+        } else {
+            setDegree(null);
+            setDegreeCurricularPlan(null);
+            setBranchCourseGroup(null);
+
+            setMobilityScientificArea(bean.getMobilityScientificArea());
+            setIncomingMobilityProgrammeLevel(bean.getIncomingMobilityProgrammeLevel());
+            setOtherIncomingMobilityProgrammeLevel(bean.getOtherIncomingMobilityProgrammeLevel());
+        }
+
+        checkRules();
+
+        if (isIncoming()) {
+            checkRulesForIncoming();
+        } else {
+            checkRulesForOutgoing();
+        }
     }
 
-    protected MobilityRegistrationInformation(final Registration registration, final ExecutionSemester begin,
-            final ExecutionSemester end, final MobilityProgramType programType, final MobilityActivityType activityType,
-            final Unit foreignInstitutionUnit) {
-        this();
-        setRegistration(registration);
-        setBegin(begin);
-        setEnd(end);
-        setMobilityProgramType(programType);
-        setMobilityActivityType(activityType);
-        setForeignInstitutionUnit(foreignInstitutionUnit);
-        setIncoming(false);
+    private void checkRules() {
+        if (getRegistration() == null) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.registration.required");
+        }
 
-        checkRulesForOutgoing();
+        if (getBegin() == null) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.begin.required");
+        }
+
+        if (getEnd() != null && getBegin().isAfter(getEnd())) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.end.must.be.after.begin");
+        }
+
+        if (getMobilityProgramType() == null) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityProgramType.required");
+        }
+
+        if (getMobilityActivityType() == null) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityActivityType.required");
+        }
+
     }
 
     // Due to the joint of incoming and outgoing mobility students in the same class
     // We have different requirements acording to their situation
     // 10-03-2014 - Nuno Pinheiro
     protected void checkRulesForOutgoing() {
-        if (getRegistration() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.registration.required");
+
+        if (getCountryUnit() == null) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.countryUnit.required");
         }
-        if (getBegin() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.begin.required");
-        }
-        if (getMobilityProgramType() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityProgramType.required");
-        }
-        if (getMobilityActivityType() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityActivityType.required");
-        }
+
         if (getForeignInstitutionUnit() == null) {
             throw new ULisboaSpecificationsDomainException(
                     "error.MobilityRegistrationInformation.foreignInstitutionUnit.required");
         }
 
-        if (getEnd() != null && getBegin().isAfter(getEnd())) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.end.must.be.after.begin");
-        }
         for (final MobilityRegistrationInformation information : MobilityRegistrationInformation.readAll(getRegistration())) {
             if (information == this) {
                 continue;
             }
+
             // Incoming mobility students do not have begin and end values
             if (information.getIncoming() == Boolean.FALSE && overlaps(information.getBegin(), information.getEnd())) {
                 throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.period.overlaps");
@@ -104,35 +127,43 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     }
 
     private void checkRulesForIncoming() {
-        if (getRegistration() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.registration.required");
-        }
 
         if (getProgramDuration() == null) {
             throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.programDuration.required");
         }
 
-        // Check if there is only one incoming mobility information
-        MobilityRegistrationInformation.readIncomingInformation(getRegistration());
-    }
+        if (getDegreeBased()) {
 
-    public static MobilityRegistrationInformation readIncomingInformation(final Registration registration) {
-        MobilityRegistrationInformation result = null;
-
-        for (final MobilityRegistrationInformation iter : registration.getMobilityRegistrationInformationsSet()) {
-            if (!iter.isIncoming()) {
-                continue;
+            if (getDegree() == null) {
+                throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.degree.required");
             }
 
-            if (result != null) {
+            if (getDegreeCurricularPlan() == null) {
                 throw new ULisboaSpecificationsDomainException(
-                        "error.MobilityRegistrationInformation.more.than.one.incoming.information.on.registration");
+                        "error.MobilityRegistrationInformation.degreeCurricularPlan.required");
             }
 
-            result = iter;
+        } else {
+
+            if (getMobilityScientificArea() == null) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.MobilityRegistrationInformation.mobilityScientificArea.required");
+            }
+
+            if (getIncomingMobilityProgrammeLevel() == null) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.MobilityRegistrationInformation.incomingMobilityProgrammeLevel.required");
+            }
+
         }
 
-        return result;
+        if (getOriginMobilityProgrammeLevel() == null) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required");
+        }
+
+        // Check if there is only one incoming mobility information
+        MobilityRegistrationInformation.readIncomingInformation(getRegistration());
     }
 
     public boolean isDeletable() {
@@ -144,114 +175,56 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     }
 
     @Atomic
-    public void edit(final MobilityRegistrationInformationBean bean) {
-        setIncoming(bean.isIncoming());
-
-        if (isIncoming()) {
-            editIncoming(bean);
-        } else {
-            editOutgoing(bean);
-        }
-    }
-
-    private void editOutgoing(final MobilityRegistrationInformationBean bean) {
-        setBegin(bean.getBegin());
-        setEnd(bean.getEnd());
-        setMobilityProgramType(bean.getMobilityProgramType());
-        setMobilityActivityType(bean.getMobilityActivityType());
-        setForeignInstitutionUnit(bean.getForeignInstitutionUnit());
-        checkRulesForOutgoing();
-    }
-
-    private void editIncoming(final MobilityRegistrationInformationBean bean) {
-        setProgramDuration(bean.getProgramDuration());
-        setMobilityActivityType(bean.getMobilityActivityType());
-        setMobilityProgramType(bean.getMobilityProgramType());
-        setForeignInstitutionUnit(bean.getForeignInstitutionUnit());
-        setMobilityScientificArea(bean.getMobilityScientificArea());
-        setIncomingMobilityProgrammeLevel(bean.getIncomingMobilityProgrammeLevel());
-        setOtherIncomingMobilityProgrammeLevel(bean.getOtherIncomingMobilityProgrammeLevel());
-        setOriginMobilityProgrammeLevel(bean.getOriginMobilityProgrammeLevel());
-        setOtherOriginMobilityProgrammeLevel(bean.getOtherOriginMobilityProgrammeLevel());
-
-        checkRulesForIncoming();
-    }
-
-    @Atomic
     public void delete() {
         setRegistration(null);
         setBegin(null);
         setEnd(null);
         setMobilityProgramType(null);
         setMobilityActivityType(null);
+        setCountryUnit(null);
         setForeignInstitutionUnit(null);
         setMobilityScientificArea(null);
         setIncomingMobilityProgrammeLevel(null);
         setOriginMobilityProgrammeLevel(null);
-        
+
+        setDegree(null);
+        setDegreeCurricularPlan(null);
+        setBranchCourseGroup(null);
+
         setBennu(null);
 
         deleteDomainObject();
     }
 
     public Country getCountry() {
+        return getCountryUnit() != null ? Country
+                .readByTwoLetterCode(getCountryUnit().getAcronym()) : getCountryByForeignInstitutionUnit();
+    }
+
+    @Deprecated
+    private Country getCountryByForeignInstitutionUnit() {
+
         Collection<? extends Party> parentParties =
                 getForeignInstitutionUnit().getParentParties(AccountabilityTypeEnum.GEOGRAPHIC, CountryUnit.class);
+
         if (parentParties.size() > 1) {
             throw new ULisboaSpecificationsDomainException(
                     "error.MobilityRegistrationInformation.found.more.than.one.parent.country.of.foreign.unit");
         }
-        
+
         if (parentParties.size() == 1) {
-            if(((CountryUnit) parentParties.iterator().next()).getCountry() != null) {
+            if (((CountryUnit) parentParties.iterator().next()).getCountry() != null) {
                 return ((CountryUnit) parentParties.iterator().next()).getCountry();
-            } else if(!Strings.isNullOrEmpty(((CountryUnit) parentParties.iterator().next()).getAcronym())){
+            } else if (!Strings.isNullOrEmpty(((CountryUnit) parentParties.iterator().next()).getAcronym())) {
                 return Country.readByTwoLetterCode(((CountryUnit) parentParties.iterator().next()).getAcronym());
             }
         }
-        
+
         return null;
     }
 
     public boolean hasCountry() {
         return getCountry() != null;
-    }
-
-    // Creates a mobility registration for an internal student which is going to other institution
-    @Atomic
-    public static MobilityRegistrationInformation createMobilityRegistrationForOutgoing(
-            final MobilityRegistrationInformationBean bean) {
-        return new MobilityRegistrationInformation(bean.getRegistration(), bean.getBegin(), bean.getEnd(),
-                bean.getMobilityProgramType(), bean.getMobilityActivityType(), bean.getForeignInstitutionUnit());
-    }
-
-    public static Set<MobilityRegistrationInformation> readAll(final Registration registration) {
-        return registration.getMobilityRegistrationInformationsSet();
-    }
-
-    public static MobilityRegistrationInformation findMobilityRegistrationInformation(final Registration registration,
-            final ExecutionInterval executionInterval) {
-        final Set<MobilityRegistrationInformation> mobilityInformations = readAll(registration);
-        for (final MobilityRegistrationInformation mobilityRegistrationInformation : mobilityInformations) {
-            if (mobilityRegistrationInformation.insidePeriod(executionInterval)) {
-                return mobilityRegistrationInformation;
-            }
-        }
-        return null;
-    }
-
-    @Atomic
-    public static MobilityRegistrationInformation createMobilityRegistrationForIncoming(
-            MobilityRegistrationInformationBean bean) {
-        return new MobilityRegistrationInformation(bean.getRegistration(), bean.getProgramDuration(),
-                bean.getForeignInstitutionUnit(), bean.getMobilityProgramType(), bean.getMobilityActivityType(),
-                bean.getMobilityScientificArea(), bean.getOriginMobilityProgrammeLevel(),
-                bean.getIncomingMobilityProgrammeLevel(), bean.getOtherOriginMobilityProgrammeLevel(),
-                bean.getOtherIncomingMobilityProgrammeLevel());
-    }
-
-    public static boolean hasBeenInMobility(final Registration registration, final ExecutionYear executionYear) {
-        return findMobilityRegistrationInformation(registration, executionYear) != null;
     }
 
     public static MobilityRegistrationInformation findIncomingInformation(final Registration registration) {
@@ -316,4 +289,53 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     protected boolean checkOutgoingForeignInstitution() {
         return getIncoming() || getForeignInstitutionUnit() != null;
     }
+
+    public static MobilityRegistrationInformation readIncomingInformation(final Registration registration) {
+        MobilityRegistrationInformation result = null;
+
+        for (final MobilityRegistrationInformation iter : registration.getMobilityRegistrationInformationsSet()) {
+            if (!iter.isIncoming()) {
+                continue;
+            }
+
+            if (result != null) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.MobilityRegistrationInformation.more.than.one.incoming.information.on.registration");
+            }
+
+            result = iter;
+        }
+
+        return result;
+    }
+
+    // Creates a mobility registration for an internal student which is going to other institution
+    @Atomic
+    public static MobilityRegistrationInformation create(final MobilityRegistrationInformationBean bean) {
+        final MobilityRegistrationInformation result = new MobilityRegistrationInformation();
+        result.edit(bean);
+
+        return result;
+    }
+
+    public static Set<MobilityRegistrationInformation> readAll(final Registration registration) {
+        return registration.getMobilityRegistrationInformationsSet();
+    }
+
+    public static MobilityRegistrationInformation findMobilityRegistrationInformation(final Registration registration,
+            final ExecutionInterval executionInterval) {
+        final Set<MobilityRegistrationInformation> mobilityInformations = readAll(registration);
+        for (final MobilityRegistrationInformation mobilityRegistrationInformation : mobilityInformations) {
+            if (mobilityRegistrationInformation.insidePeriod(executionInterval)) {
+                return mobilityRegistrationInformation;
+            }
+        }
+        return null;
+    }
+
+    public static boolean hasBeenInMobility(final Registration registration, final ExecutionYear executionYear) {
+        return findMobilityRegistrationInformation(registration, executionYear) != null;
+    }
+
+    
 }

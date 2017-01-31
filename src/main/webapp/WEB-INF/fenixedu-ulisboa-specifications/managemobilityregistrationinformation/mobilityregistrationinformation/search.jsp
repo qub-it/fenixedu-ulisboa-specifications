@@ -225,6 +225,11 @@ ${portal.angularToolkit()}
 							<c:out value='${information.foreignInstitutionUnit.nameI18n.content}' />
 						</td>
 						<td>
+							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.UPDATE_URL %>/${information.externalId}">
+								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+								&nbsp;
+								<spring:message code='label.edit' />
+							</a>
 							<a class="btn btn-xs btn-danger" href="#" onclick="javascript:processDelete('${information.externalId}')">
 								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								&nbsp;
@@ -308,6 +313,11 @@ ${portal.angularToolkit()}
 							<c:out value='${information.foreignInstitutionUnit.nameI18n.content}' />
 						</td>
 						<td>
+							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.UPDATE_URL %>/${information.externalId}">
+								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+								&nbsp;
+								<spring:message code='label.edit' />
+							</a>
 							<a class="btn btn-xs btn-danger" href="#" onclick="javascript:processDelete('${information.externalId}')">
 								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								&nbsp;
