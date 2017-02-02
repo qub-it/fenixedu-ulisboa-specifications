@@ -96,28 +96,35 @@ abstract public class EnrolmentPredicateInitializer {
             final ExecutionSemester improvementSemester = getExecutionSemester();
 
             final ExecutionSemester enrolmentSemester = enrolment.getExecutionPeriod();
+            final String name = enrolment.getName().getContent();
+
             if (improvementSemester.isBefore(enrolmentSemester)) {
-                throw new DomainException("error.EnrolmentEvaluation.improvement.semester.must.be.after.or.equal.enrolment",
-                        enrolment.getName().getContent());
+                throw new ULisboaSpecificationsDomainException(
+                        "error.EnrolmentEvaluation.improvement.semester.must.be.after.or.equal.enrolment", name);
+            }
+
+            // qubExtension
+            if (enrolment.isAnual() && !improvementSemester.isFirstOfYear()) {
+                throw new DomainException(
+                        "error.EnrolmentEvaluation.improvement.semester.must.be.first.of.year.for.anual.courses", name);
             }
 
             if (!enrolment.isApproved()) {
                 throw new DomainException(
                         "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.hasnt.been.approved",
-                        enrolment.getName().getContent());
+                        name);
             }
 
             final DegreeModule degreeModule = enrolment.getDegreeModule();
             if (!degreeModule.hasAnyParentContexts(improvementSemester)) {
                 throw new DomainException(
                         "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.has.no.context.in.present.execution.period",
-                        enrolment.getName().getContent(), improvementSemester.getQualifiedName());
+                        name, improvementSemester.getQualifiedName());
             }
 
+            // qubExtension
             if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
-                throw new ULisboaSpecificationsDomainException(
-                        "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
-                        enrolment.getName().getContent());
+                throw new DomainException("error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation", name);
             }
 
             PREDICATE_SEASON.get().fill(getEvaluationSeason(), improvementSemester, getContext()).test(enrolment);
