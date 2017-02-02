@@ -38,6 +38,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
@@ -121,14 +122,18 @@ public class RegistrationServices {
         }
     }
 
-    static final private Cache<String, CurricularYearResult> CACHE_CURRICULAR_YEAR =
-            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(2, TimeUnit.MINUTES).build();
+    static final private int CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES =
+            ULisboaConfiguration.getConfiguration().getCurricularYearCalculatorCached() ? 2 : 0;
+
+    static final private Cache<String, CurricularYearResult> CACHE_CURRICULAR_YEAR = CacheBuilder.newBuilder().concurrencyLevel(4)
+            .maximumSize(1500).expireAfterWrite(CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES, TimeUnit.MINUTES).build();
 
     static public CurricularYearResult getCurricularYear(final Registration registration, final ExecutionYear executionYear) {
         final String key = String.format("%s#%s", registration.getExternalId(),
                 executionYear == null ? "null" : executionYear.getExternalId());
 
         try {
+
             return CACHE_CURRICULAR_YEAR.get(key, new Callable<CurricularYearResult>() {
                 @Override
                 public CurricularYearResult call() {

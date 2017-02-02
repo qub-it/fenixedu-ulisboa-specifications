@@ -28,6 +28,9 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curricularYearCalculator.override", defaultValue = "true")
         public Boolean getCurricularYearCalculatorOverride();
 
+        @ConfigurationProperty(key = "domain.academic.curricularYearCalculator.cached", defaultValue = "true")
+        public Boolean getCurricularYearCalculatorCached();
+
         @ConfigurationProperty(key = "domain.academic.curricularYearConfiguration.initialize", defaultValue = "false")
         public Boolean getCurricularPeriodConfigurationInitialize();
 
