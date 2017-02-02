@@ -36,7 +36,7 @@ public class MobilidadeInternacionalService extends RaidesService {
         bean.setRamo(Raides.Ramo.TRONCO_COMUM);
         bean.setAnoCurricular(
                 LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.NAO_APLICAVEL_CODE));
-        
+
         bean.setPrimeiraVez(
                 LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
 
@@ -62,7 +62,7 @@ public class MobilidadeInternacionalService extends RaidesService {
         if (registration.getRegistrationProtocol() != null
                 && Raides.isAgreementPartOfMobilityReport(raidesRequestParameter, registration)) {
             MobilityRegistrationInformation mobilityInformation =
-                    MobilityRegistrationInformation.findIncomingInformation(registration);
+                    MobilityRegistrationInformation.findIncomingInformation(registration, executionYear);
             if (mobilityInformation != null) {
                 if (mobilityInformation.getMobilityActivityType() != null) {
                     bean.setTipoProgMobilidade(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY)

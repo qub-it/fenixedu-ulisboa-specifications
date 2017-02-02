@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.Country;
-import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
@@ -86,8 +84,18 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
             throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.begin.required");
         }
 
-        if (getEnd() != null && getBegin().isAfter(getEnd())) {
+        if (getEnd() == null) {
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.end.required");
+        }
+
+        if (getBegin().isAfter(getEnd())) {
             throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.end.must.be.after.begin");
+        }
+
+        if (getBegin().getExecutionYear().isBefore(getRegistration().getStartExecutionYear())
+                || getEnd().getExecutionYear().isBefore(getRegistration().getStartExecutionYear())) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.MobilityRegistrationInformation.begin.and.end.must.be.after.registration.begin");
         }
 
         if (getMobilityProgramType() == null) {
@@ -98,11 +106,32 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
             throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityActivityType.required");
         }
 
+        checkOverlaps();
+
     }
 
-    // Due to the joint of incoming and outgoing mobility students in the same class
-    // We have different requirements acording to their situation
-    // 10-03-2014 - Nuno Pinheiro
+    private void checkOverlaps() {
+
+        for (final MobilityRegistrationInformation information : MobilityRegistrationInformation.findAll(getRegistration())) {
+
+            if (information == this) {
+                continue;
+            }
+
+            if (information.getBegin() == null || information.getEnd() == null) {
+                throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.period.overlaps");
+            }
+
+            if (getBegin().isAfter(information.getEnd()) || getEnd().isBefore(information.getBegin())) {
+                continue;
+            }
+
+            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.period.overlaps");
+
+        }
+
+    }
+
     protected void checkRulesForOutgoing() {
 
         if (getCountryUnit() == null) {
@@ -114,16 +143,6 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
                     "error.MobilityRegistrationInformation.foreignInstitutionUnit.required");
         }
 
-        for (final MobilityRegistrationInformation information : MobilityRegistrationInformation.readAll(getRegistration())) {
-            if (information == this) {
-                continue;
-            }
-
-            // Incoming mobility students do not have begin and end values
-            if (information.getIncoming() == Boolean.FALSE && overlaps(information.getBegin(), information.getEnd())) {
-                throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.period.overlaps");
-            }
-        }
     }
 
     private void checkRulesForIncoming() {
@@ -162,8 +181,6 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
                     "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required");
         }
 
-        // Check if there is only one incoming mobility information
-        MobilityRegistrationInformation.readIncomingInformation(getRegistration());
     }
 
     public boolean isDeletable() {
@@ -227,10 +244,6 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         return getCountry() != null;
     }
 
-    public static MobilityRegistrationInformation findIncomingInformation(final Registration registration) {
-        return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> m.isIncoming()).findAny().orElse(null);
-    }
-
     public boolean isIncomingStudent() {
         return getIncoming();
     }
@@ -245,40 +258,15 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
                 "label.org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean.outgoingStudent");
     }
 
-    /*
-     * OTHER METHODS
-     */
-    protected boolean overlaps(final ExecutionSemester begin, final ExecutionSemester end) {
-        if (getEnd() != null && end != null && !(getBegin().isAfter(end) || getEnd().isBefore(begin))) {
-            return true;
-        }
-        if (getEnd() == null && getBegin().isBefore(begin)) {
-            return true;
-        }
-        if (end == null && begin.isBefore(begin)) {
-            return true;
-        }
-        return false;
-    }
+    private boolean isValid(final ExecutionYear executionYear) {
 
-    protected boolean insidePeriod(final ExecutionInterval executionInterval) {
-        if (executionInterval instanceof ExecutionYear) {
-            final ExecutionYear executionYear =
-                    ExecutionInterval.assertExecutionIntervalType(ExecutionYear.class, executionInterval);
-            final Set<ExecutionSemester> executionPeriodsSet = executionYear.getExecutionPeriodsSet();
-            for (final ExecutionSemester executionSemester : executionPeriodsSet) {
-                if (insidePeriod(executionSemester)) {
-                    return true;
-                }
-            }
-            return false;
+        //Legacy - compatibility reasons only
+        if (getBegin() == null || getEnd() == null) {
+            return true;
         }
-        return insidePeriod(ExecutionInterval.assertExecutionIntervalType(ExecutionSemester.class, executionInterval));
-    }
 
-    protected boolean insidePeriod(final ExecutionSemester executionSemester) {
-        return getBegin().isBeforeOrEquals(executionSemester)
-                && (getEnd() == null || getEnd().isAfterOrEquals(executionSemester));
+        return !executionYear.isAfter(getEnd().getExecutionYear()) && !executionYear.isBefore(getBegin().getExecutionYear());
+
     }
 
     // Due to the migration of the legacy PrecedentDegreeInformation, there were MobilityRegistrationInformation created for incoming mobility students 
@@ -290,25 +278,6 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         return getIncoming() || getForeignInstitutionUnit() != null;
     }
 
-    public static MobilityRegistrationInformation readIncomingInformation(final Registration registration) {
-        MobilityRegistrationInformation result = null;
-
-        for (final MobilityRegistrationInformation iter : registration.getMobilityRegistrationInformationsSet()) {
-            if (!iter.isIncoming()) {
-                continue;
-            }
-
-            if (result != null) {
-                throw new ULisboaSpecificationsDomainException(
-                        "error.MobilityRegistrationInformation.more.than.one.incoming.information.on.registration");
-            }
-
-            result = iter;
-        }
-
-        return result;
-    }
-
     // Creates a mobility registration for an internal student which is going to other institution
     @Atomic
     public static MobilityRegistrationInformation create(final MobilityRegistrationInformationBean bean) {
@@ -318,24 +287,22 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         return result;
     }
 
-    public static Set<MobilityRegistrationInformation> readAll(final Registration registration) {
+    public static Set<MobilityRegistrationInformation> findAll(final Registration registration) {
         return registration.getMobilityRegistrationInformationsSet();
     }
 
-    public static MobilityRegistrationInformation findMobilityRegistrationInformation(final Registration registration,
-            final ExecutionInterval executionInterval) {
-        final Set<MobilityRegistrationInformation> mobilityInformations = readAll(registration);
-        for (final MobilityRegistrationInformation mobilityRegistrationInformation : mobilityInformations) {
-            if (mobilityRegistrationInformation.insidePeriod(executionInterval)) {
-                return mobilityRegistrationInformation;
-            }
-        }
-        return null;
+    public static boolean hasBeenInMobility(final Registration registration) {
+        return registration.getMobilityRegistrationInformationsSet().stream().anyMatch(m -> !m.isIncoming());
     }
 
-    public static boolean hasBeenInMobility(final Registration registration, final ExecutionYear executionYear) {
-        return findMobilityRegistrationInformation(registration, executionYear) != null;
+    public static MobilityRegistrationInformation findOutgoingInformation(final Registration registration) {
+        return findAll(registration).iterator().next();
     }
 
-    
+    public static MobilityRegistrationInformation findIncomingInformation(final Registration registration,
+            final ExecutionYear executionYear) {
+        return registration.getMobilityRegistrationInformationsSet().stream()
+                .filter(m -> m.isIncoming() && m.isValid(executionYear)).findFirst().orElse(null);
+    }
+
 }

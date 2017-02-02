@@ -9,9 +9,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider.ConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
@@ -54,15 +52,15 @@ public class DiplomadoService extends RaidesService {
             bean.setAnoLectivo(terminalConclusionInfo.getConclusionYear().getQualifiedName());
             bean.setNumInscConclusao(
                     String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
-            
-            if(Raides.isDoctoralDegree(registration) && !registrationConclusionBean.isConclusionProcessed()) {
+
+            if (Raides.isDoctoralDegree(registration) && !registrationConclusionBean.isConclusionProcessed()) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.doctoral.degree.without.conclusion.process",
                                 String.valueOf(registration.getStudent().getNumber()),
                                 registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
-                bean.markAsInvalid();                
+                bean.markAsInvalid();
             }
-            
+
             if (registrationConclusionBean.getDescriptiveGrade() != null
                     && !registrationConclusionBean.getDescriptiveGrade().isEmpty() && Raides.isDoctoralDegree(registration)) {
                 bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
@@ -124,12 +122,9 @@ public class DiplomadoService extends RaidesService {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
         }
 
-        bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN)
-                .translate(MobilityRegistrationInformation.hasBeenInMobility(registration, executionYear)));
-
-        if (hasBeenInMobility(registration, executionYear)) {
+        if (MobilityRegistrationInformation.hasBeenInMobility(registration)) {
             final MobilityRegistrationInformation mobilityRegistrationInformation =
-                    MobilityRegistrationInformation.readAll(registration).iterator().next();
+                    MobilityRegistrationInformation.findOutgoingInformation(registration);
             bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
 
             bean.setTipoMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY)
@@ -187,7 +182,6 @@ public class DiplomadoService extends RaidesService {
         return null;
     }
 
-
     private boolean isScholarPartConcluded(final Registration registration, final ExecutionYear executionYear) {
         return scholarPartConclusionInformation(registration, executionYear) != null;
     }
@@ -232,13 +226,9 @@ public class DiplomadoService extends RaidesService {
         return null;
     }
 
-    private boolean hasBeenInMobility(Registration registration, ExecutionYear executionYear) {
-        return !MobilityRegistrationInformation.readAll(registration).isEmpty();
-    }
-
     protected void validaMobilidadeCredito(final ExecutionYear executionYear, final Registration registration,
             final TblDiplomado bean) {
-        if (!MobilityRegistrationInformation.hasBeenInMobility(registration, executionYear)) {
+        if (!MobilityRegistrationInformation.hasBeenInMobility(registration)) {
             return;
         }
 

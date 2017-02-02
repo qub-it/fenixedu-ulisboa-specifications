@@ -23,12 +23,9 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblMobilidadeInte
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFileType;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.base.Strings;
-
-import net.fortuna.ical4j.model.parameter.Language;
 
 public class XlsxExporter {
 
@@ -141,8 +138,11 @@ public class XlsxExporter {
                     @Override
                     protected void makeLine(final TblMobilidadeInternacional tblMobilidadeInternacional) {
                         addCell("IdAluno", tblMobilidadeInternacional.getIdAluno());
-                        addCell("Curso", !Strings.isNullOrEmpty(tblMobilidadeInternacional.getCurso()) ? tblMobilidadeInternacional.getCurso() : "" );
-                        addCell("Ramo", !Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo()) ? tblMobilidadeInternacional.getRamo() : "");
+                        addCell("Curso",
+                                !Strings.isNullOrEmpty(tblMobilidadeInternacional.getCurso()) ? tblMobilidadeInternacional
+                                        .getCurso() : "");
+                        addCell("Ramo", !Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo()) ? tblMobilidadeInternacional
+                                .getRamo() : "");
                         addCell("AnoLetivo", tblMobilidadeInternacional.getAnoLectivo());
                         addCell("AreaCientifica", tblMobilidadeInternacional.getAreaCientifica());
                         addCell("AnoCurricular", tblMobilidadeInternacional.getAnoCurricular());
@@ -171,11 +171,13 @@ public class XlsxExporter {
                                 .getExecutionYear().getQualifiedName());
                         addCell("Curso", personalInformationBean.getRegistration().getDegree().getPresentationName());
                         addCell("Acordo",
-                                personalInformationBean.getRegistration().getRegistrationProtocol() != null ? personalInformationBean
-                                        .getRegistration().getRegistrationProtocol().getDescription().getContent() : "");
-                        addCell("Ingresso", personalInformationBean.getRegistration().getStudentCandidacy()
-                                .getIngressionType() != null ? personalInformationBean.getRegistration()
-                                .getIngressionType().getDescription().getContent() : "");
+                                personalInformationBean.getRegistration()
+                                        .getRegistrationProtocol() != null ? personalInformationBean.getRegistration()
+                                                .getRegistrationProtocol().getDescription().getContent() : "");
+                        addCell("Ingresso",
+                                personalInformationBean.getRegistration().getStudentCandidacy()
+                                        .getIngressionType() != null ? personalInformationBean.getRegistration()
+                                                .getIngressionType().getDescription().getContent() : "");
                         addCell("Nome", personalInformationBean.getRegistration().getStudent().getName());
 
                         addCell("Reportar como Inscrito", raides.isInEnrolledData(personalInformationBean.getRegistration()));
@@ -187,8 +189,8 @@ public class XlsxExporter {
                                 personalInformationBean.getRegistration().getStudentCandidacy().getPrecedentDegreeInformation();
 
                         addCell(pdiLabel("schoolLevel"),
-                                lastCompletedQualification.getSchoolLevel() != null ? schoolLevelLocalizedName(lastCompletedQualification
-                                        .getSchoolLevel()) : "");
+                                lastCompletedQualification.getSchoolLevel() != null ? schoolLevelLocalizedName(
+                                        lastCompletedQualification.getSchoolLevel()) : "");
                         addCell(pdiLabel("otherSchoolLevel"), lastCompletedQualification.getOtherSchoolLevel());
                         addCell(pdiLabel("country"), lastCompletedQualification.getCountry() != null ? lastCompletedQualification
                                 .getCountry().getCode() : "");
@@ -205,34 +207,25 @@ public class XlsxExporter {
                                 personalInformationBean.getRegistration().getStudentCandidacy().getPrecedentDegreeInformation();
 
                         addCell(pdiLabel("precedentSchoolLevel"),
-                                previousQualification != null && previousQualification.getPrecedentSchoolLevel() != null ? schoolLevelLocalizedName(previousQualification
-                                        .getPrecedentSchoolLevel()) : "");
-                        addCell(pdiLabel("otherPrecedentSchoolLevel"), previousQualification != null ? previousQualification.getOtherPrecedentSchoolLevel() : "");
-                        addCell(pdiLabel("precedentCountry"), previousQualification != null && previousQualification.getPrecedentCountry() != null ? previousQualification
-                                .getPrecedentCountry().getCode() : "");
+                                previousQualification != null
+                                        && previousQualification.getPrecedentSchoolLevel() != null ? schoolLevelLocalizedName(
+                                                previousQualification.getPrecedentSchoolLevel()) : "");
+                        addCell(pdiLabel("otherPrecedentSchoolLevel"),
+                                previousQualification != null ? previousQualification.getOtherPrecedentSchoolLevel() : "");
+                        addCell(pdiLabel("precedentCountry"),
+                                previousQualification != null
+                                        && previousQualification.getPrecedentCountry() != null ? previousQualification
+                                                .getPrecedentCountry().getCode() : "");
                         addCell(pdiLabel("precedentInstitution"),
-                                previousQualification != null && previousQualification.getPrecedentInstitution() != null ? previousQualification.getPrecedentInstitution().getName() : "");
-                        addCell(pdiLabel("precedentDegreeDesignation"), previousQualification != null ? previousQualification.getPrecedentDegreeDesignation() : "");
-                        addCell(pdiLabel("numberOfEnrolmentsInPreviousDegrees"),
-                                previousQualification != null && previousQualification.getNumberOfEnrolmentsInPreviousDegrees() != null ? previousQualification
+                                previousQualification != null
+                                        && previousQualification.getPrecedentInstitution() != null ? previousQualification
+                                                .getPrecedentInstitution().getName() : "");
+                        addCell(pdiLabel("precedentDegreeDesignation"),
+                                previousQualification != null ? previousQualification.getPrecedentDegreeDesignation() : "");
+                        addCell(pdiLabel("numberOfEnrolmentsInPreviousDegrees"), previousQualification != null
+                                && previousQualification.getNumberOfEnrolmentsInPreviousDegrees() != null ? previousQualification
                                         .getNumberOfEnrolmentsInPreviousDegrees() : "");
 
-                        final MobilityRegistrationInformation incomingInformation =
-                                MobilityRegistrationInformation
-                                        .readIncomingInformation(personalInformationBean.getRegistration());
-
-                        if (incomingInformation != null) {
-
-                            addCell(pdiLabel("mobilityProgramDuration"),
-                                    incomingInformation.getProgramDuration() != null ? schoolPeriodDurationLocalizedName(incomingInformation
-                                            .getProgramDuration()) : "");
-                            addCell(pdiLabel("mobilityActivityType"),
-                                    incomingInformation.getMobilityActivityType() != null ? incomingInformation
-                                            .getMobilityActivityType().getName().getContent() : "");
-                        } else {
-                            addCell(pdiLabel("mobilityProgramDuration"), "");
-                            addCell(pdiLabel("mobilityActivityType"), "");
-                        }
                     }
 
                 };
@@ -260,29 +253,32 @@ public class XlsxExporter {
                                     personalIngressionData.getDislocatedFromPermanentResidence() != null ? personalIngressionData
                                             .getDislocatedFromPermanentResidence() : "");
                             addCell(pidLabel("professionType"),
-                                    personalIngressionData.getProfessionType() != null ? professionTypeLocalizedName(personalIngressionData
-                                            .getProfessionType()) : "");
+                                    personalIngressionData.getProfessionType() != null ? professionTypeLocalizedName(
+                                            personalIngressionData.getProfessionType()) : "");
                             addCell(pidLabel("professionalCondition"),
-                                    personalIngressionData.getProfessionalCondition() != null ? professionalSituationConditionTypeLocalizedName(personalIngressionData
-                                            .getProfessionalCondition()) : "");
+                                    personalIngressionData
+                                            .getProfessionalCondition() != null ? professionalSituationConditionTypeLocalizedName(
+                                                    personalIngressionData.getProfessionalCondition()) : "");
                             addCell(pidLabel("motherSchoolLevel"),
-                                    personalIngressionData.getMotherSchoolLevel() != null ? schoolLevelLocalizedName(personalIngressionData
-                                            .getMotherSchoolLevel()) : "");
+                                    personalIngressionData.getMotherSchoolLevel() != null ? schoolLevelLocalizedName(
+                                            personalIngressionData.getMotherSchoolLevel()) : "");
                             addCell(pidLabel("motherProfessionType"),
-                                    personalIngressionData.getMotherProfessionType() != null ? professionTypeLocalizedName(personalIngressionData
-                                            .getMotherProfessionType()) : "");
+                                    personalIngressionData.getMotherProfessionType() != null ? professionTypeLocalizedName(
+                                            personalIngressionData.getMotherProfessionType()) : "");
                             addCell(pidLabel("motherProfessionalCondition"),
-                                    personalIngressionData.getMotherProfessionalCondition() != null ? professionalSituationConditionTypeLocalizedName(personalIngressionData
-                                            .getMotherProfessionalCondition()) : "");
+                                    personalIngressionData
+                                            .getMotherProfessionalCondition() != null ? professionalSituationConditionTypeLocalizedName(
+                                                    personalIngressionData.getMotherProfessionalCondition()) : "");
                             addCell(pidLabel("fatherSchoolLevel"),
-                                    personalIngressionData.getFatherSchoolLevel() != null ? schoolLevelLocalizedName(personalIngressionData
-                                            .getFatherSchoolLevel()) : "");
+                                    personalIngressionData.getFatherSchoolLevel() != null ? schoolLevelLocalizedName(
+                                            personalIngressionData.getFatherSchoolLevel()) : "");
                             addCell(pidLabel("fatherProfessionType"),
-                                    personalIngressionData.getFatherProfessionType() != null ? professionTypeLocalizedName(personalIngressionData
-                                            .getFatherProfessionType()) : "");
+                                    personalIngressionData.getFatherProfessionType() != null ? professionTypeLocalizedName(
+                                            personalIngressionData.getFatherProfessionType()) : "");
                             addCell(pidLabel("fatherProfessionalCondition"),
-                                    personalIngressionData.getFatherProfessionalCondition() != null ? professionalSituationConditionTypeLocalizedName(personalIngressionData
-                                            .getFatherProfessionalCondition()) : "");
+                                    personalIngressionData
+                                            .getFatherProfessionalCondition() != null ? professionalSituationConditionTypeLocalizedName(
+                                                    personalIngressionData.getFatherProfessionalCondition()) : "");
                         }
 
                     }
@@ -292,7 +288,7 @@ public class XlsxExporter {
         try {
             outputStream = new ByteArrayOutputStream();
             final SpreadsheetBuilder spreadsheetBuilder = new SpreadsheetBuilder();
-            
+
             spreadsheetBuilder.addSheet("Informacao Pessoal Complementar", personalIngressionDataSheetData);
             spreadsheetBuilder.addSheet("Graus Precedentes & Informacao Pessoal", precedentDegreeInformationData);
             spreadsheetBuilder.addSheet("Alunos Mobilidade Internacional", mobilidadeInternacionalData);
@@ -334,7 +330,8 @@ public class XlsxExporter {
         return profession.getLocalizedName();
     }
 
-    protected static String professionalSituationConditionTypeLocalizedName(final ProfessionalSituationConditionType conditionType) {
+    protected static String professionalSituationConditionTypeLocalizedName(
+            final ProfessionalSituationConditionType conditionType) {
         return conditionType.getLocalizedName();
     }
 

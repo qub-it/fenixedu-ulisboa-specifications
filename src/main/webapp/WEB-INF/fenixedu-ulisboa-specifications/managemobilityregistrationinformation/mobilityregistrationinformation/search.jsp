@@ -264,6 +264,12 @@ ${portal.angularToolkit()}
 				<tr>
 					<%--!!!  Field names here --%>
 					<th>
+						<spring:message code="label.MobilityRegistrationInformation.begin" />
+					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.end" />
+					</th>
+					<th>
 						<spring:message code="label.MobilityRegistrationInformation.programDuration" />
 					</th>
 					<th>
@@ -288,6 +294,12 @@ ${portal.angularToolkit()}
 			<tbody>
 				<c:forEach var="information" items="${searchmobilityregistrationinformationResultsDataSet}">
 					<tr>
+						<td>
+							<c:out value='${empty information.begin ? "" : information.begin.qualifiedName}' />
+						</td>
+						<td>
+							<c:out value='${empty information.end ? "" : information.end.qualifiedName}' />
+						</td>
 						<td>
 							<spring:message code="label.SchoolPeriodDuration.${information.programDuration}" />
 						</td>
