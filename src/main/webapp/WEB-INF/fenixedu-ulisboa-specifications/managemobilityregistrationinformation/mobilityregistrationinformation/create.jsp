@@ -199,7 +199,7 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 				</div>
 			</div>
 			
-			<div class="form-group row" ng-show="object.incoming === true">
+			<div class="form-group row">
 				<div class="col-sm-3 control-label">
 					<spring:message code="label.MobilityRegistrationInformation.programDuration" />
 				</div>
