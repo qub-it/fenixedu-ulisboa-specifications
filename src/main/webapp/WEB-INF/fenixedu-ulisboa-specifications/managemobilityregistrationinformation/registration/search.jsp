@@ -2,6 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
 <script type="text/javascript" src="${datatablesUrl}"></script>
@@ -97,6 +99,28 @@ ${portal.angularToolkit()}
 					<input id="registration_name" class="form-control" type="text" name="name" value='<c:out value='${param.name}'/>' />
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.MobilityRegistrationInformation.withMobilityInformation" />
+				</div>
+
+				<div class="col-sm-10">
+                    <select id="registration_withMobilityInformation"
+                        class="js-example-basic-single"
+                        name="withMobilityInformation">
+                        <option value=""><spring:message code="label.choose.one" /></option>
+                        <option value="false"><spring:message code="label.no" /></option>
+                        <option value="true"><spring:message code="label.yes" /></option>
+                    </select>
+			
+			        <script>
+	                	$(document).ready(function() {
+	                	     $("#registration_withMobilityInformation").select2().select2('val', '<c:out value='${param.withMobilityInformation}'/>');
+	                	});
+                	</script>
+                    
+				</div>
+			</div>
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button" value="<spring:message code="label.search" />" />
@@ -104,6 +128,14 @@ ${portal.angularToolkit()}
 	</form>
 </div>
 
+<c:if test="${fn:length(searchregistrationResultsDataSet) > 200}">
+	<div class="alert alert-warning" role="alert">
+		<p>
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+			<spring:message code="label.limitexceeded" arguments="200;${fn:length(searchregistrationResultsDataSet)}" argumentSeparator=";" htmlEscape="false" />
+		</p>
+	</div>
+</c:if>
 
 <c:choose>
 	<c:when test="${not empty searchregistrationResultsDataSet}">
@@ -120,29 +152,38 @@ ${portal.angularToolkit()}
 					<th>
 						<spring:message code="label.MobilityRegistrationInformation.degreeName" />
 					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.mobilityInformationCount" />
+					</th>
 					<%-- Operations Column --%>
 					<th></th>
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach var="registration" items="${searchregistrationResultsDataSet}">
-					<tr>
-						<td>
-							<c:out value="${registration.student.number}" />
-						</td>
-						<td>
-							<c:out value="${registration.student.person.name}" />
-						</td>
-						<td>
-							<c:out value="${registration.degree.presentationNameI18N.content}" />
-						</td>
-						<td>
-							<a class="btn btn-default btn-xs"
-								href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_TO_VIEW_ACTION_URL %>/${registration.externalId}">
-								<spring:message code='label.view' />
-							</a>
-						</td>
-					</tr>
+				<c:forEach var="registration" items="${searchregistrationResultsDataSet}" varStatus="loop">
+					<c:if test="${loop.index < 200}">
+						<tr>
+							<td>
+								<c:out value="${registration.student.number}" />
+							</td>
+							<td>
+								<c:out value="${registration.student.person.name}" />
+							</td>
+							<td>
+								<c:if test="${not empty registration.degree.code}">[<c:out value="${registration.degree.code}" />]</c:if>
+								<c:out value="${registration.degree.presentationNameI18N.content}" />
+							</td>
+							<td>
+								<c:out value="${fn:length(registration.mobilityRegistrationInformationsSet)}" />
+							</td>
+							<td>
+								<a class="btn btn-default btn-xs"
+									href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_TO_VIEW_ACTION_URL %>/${registration.externalId}">
+									<spring:message code='label.view' />
+								</a>
+							</td>
+						</tr>
+					</c:if>
 				</c:forEach>
 
 			</tbody>

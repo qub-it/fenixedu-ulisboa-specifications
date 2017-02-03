@@ -18,7 +18,6 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import com.google.common.base.Strings;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
 
 public class MobilityRegistrationInformation extends MobilityRegistrationInformation_Base {
 
@@ -258,7 +257,7 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
                 "label.org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean.outgoingStudent");
     }
 
-    private boolean isValid(final ExecutionYear executionYear) {
+    public boolean isValid(final ExecutionYear executionYear) {
 
         //Legacy - compatibility reasons only
         if (getBegin() == null || getEnd() == null) {
@@ -267,15 +266,6 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
 
         return !executionYear.isAfter(getEnd().getExecutionYear()) && !executionYear.isBefore(getBegin().getExecutionYear());
 
-    }
-
-    // Due to the migration of the legacy PrecedentDegreeInformation, there were MobilityRegistrationInformation created for incoming mobility students 
-    // that did not have information about the origin institution
-    // This consistency predicate assusres the 1..1 multiplicity of the foreignInstitution in the case on outgoing mantaining the previous semantics
-    //TODO check this same condition for other relations
-    @ConsistencyPredicate
-    protected boolean checkOutgoingForeignInstitution() {
-        return getIncoming() || getForeignInstitutionUnit() != null;
     }
 
     // Creates a mobility registration for an internal student which is going to other institution

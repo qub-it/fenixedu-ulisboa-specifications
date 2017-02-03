@@ -26,12 +26,15 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.managemobilityregistrationinformation;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.service.services.person.PersonSearcher;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -42,10 +45,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @Component("org.fenixedu.ulisboa.specifications.ui.manageMobilityRegistrationInformation")
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
@@ -66,35 +65,42 @@ public class RegistrationController extends FenixeduUlisboaSpecificationsBaseCon
 
     @RequestMapping(value = _SEARCH_URI)
     public String search(@RequestParam(value = "number", required = false) final Integer number,
-            @RequestParam(value = "name", required = false) final String name, final Model model) {
+            @RequestParam(value = "name", required = false) final String name,
+            @RequestParam(value = "withMobilityInformation", required = false) final Boolean withMobilityInformation,
+            @RequestParam(value = "mobilityYear", required = false) final ExecutionYear executionYear, final Model model) {
 
-        List<Registration> searchregistrationResultsDataSet = searchRegistrations(number, name);
+        List<Registration> searchregistrationResultsDataSet = searchRegistrations(number, name, withMobilityInformation);
 
         //add the results dataSet to the model
         model.addAttribute("searchregistrationResultsDataSet", searchregistrationResultsDataSet);
+
         return "fenixedu-ulisboa-specifications/managemobilityregistrationinformation/registration/search";
     }
 
-    private List<Registration> searchRegistrations(Integer number, String name) {
-        final Set<Registration> result = Sets.newHashSet();
+    private List<Registration> searchRegistrations(Integer number, String name, Boolean withMobilityInformation) {
 
-        if (number != null) {
-            result.addAll(Bennu.getInstance().getRegistrationsSet().stream()
-                    .filter(registration -> number != null && number.equals(registration.getNumber()))
-                    .collect(Collectors.toSet()));
-
-            result.addAll(Bennu.getInstance().getStudentsSet().stream()
-                    .filter(student -> number != null && number.equals(student.getNumber()))
-                    .<Registration> flatMap(student -> student.getRegistrationsSet().stream()).collect(Collectors.toSet()));
+        if (number == null && StringUtils.isBlank(name) && withMobilityInformation == null) {
+            return Collections.emptyList();
         }
 
-        if (!Strings.isNullOrEmpty(name)) {
-            final PersonSearcher personSearcher = new PersonSearcher().name(name);
-            result.addAll(personSearcher.search().filter(p -> p.getStudent() != null)
-                    .<Registration> flatMap(p -> p.getStudent().getRegistrationsSet().stream()).collect(Collectors.toSet()));
+        final Predicate<Registration> numberFilter = r -> number == null || r.getNumber().intValue() == number.intValue();
+        final Predicate<Registration> nameFilter =
+                r -> name == null || r.getPerson().getName().toUpperCase().contains(name.toUpperCase());
+        final Predicate<Registration> withMobilityInformationFilter = r -> withMobilityInformation == null
+                || r.getMobilityRegistrationInformationsSet().isEmpty() != withMobilityInformation.booleanValue();
+        final Predicate<Registration> allFilters = numberFilter.and(nameFilter).and(withMobilityInformationFilter);
+
+        final Comparator<Registration> comparator = (x, y) -> x.getPerson().getName().compareTo(y.getPerson().getName());
+
+        //optimization
+        if (withMobilityInformation != null && withMobilityInformation.booleanValue()) {
+            return Bennu.getInstance().getMobilityRegistrationInformationsSet().stream().map(m -> m.getRegistration())
+                    .filter(allFilters).distinct().sorted(comparator).collect(Collectors.toList());
         }
 
-        return Lists.newArrayList(result);
+        return Bennu.getInstance().getRegistrationsSet().stream().filter(allFilters).sorted(comparator)
+                .collect(Collectors.toList());
+
     }
 
     private static final String _SEARCH_TO_VIEW_ACTION_URI = "/search/view";

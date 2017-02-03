@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.managemobilityregistrationinformation.RegistrationController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.managemobilityregistrationinformation.MobilityRegistrationInformationController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -54,6 +55,9 @@ ${portal.angularToolkit()}
 		<spring:message code="label.event.create" />
 	</a>
 	|&nbsp;&nbsp;
+	<a class="" href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_URL %>">
+		<spring:message code="label.event.back" />
+	</a>
 </div>
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
