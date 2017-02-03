@@ -49,16 +49,18 @@ ${portal.angularToolkit()}
 </div>
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
-	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-	&nbsp;
-	<a class="" href="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.CREATE_URL %>/${registration.externalId}">
-		<spring:message code="label.event.create" />
-	</a>
-	|&nbsp;&nbsp;
+
+	
 	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	&nbsp;
 	<a class="" href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_URL %>">
 		<spring:message code="label.event.back" />
+	</a>
+	&nbsp;|&nbsp;
+	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+	&nbsp;
+	<a class="" href="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.CREATE_URL %>/${registration.externalId}">
+		<spring:message code="label.event.create" />
 	</a>
 </div>
 <c:if test="${not empty infoMessages}">
