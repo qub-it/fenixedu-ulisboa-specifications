@@ -209,6 +209,11 @@ public class RegistrationServices {
 
     public static void replaceSchoolClass(final Registration registration, final SchoolClass schoolClass,
             final ExecutionSemester executionSemester) {
+        replaceSchoolClass(registration, schoolClass, executionSemester, true);
+    }
+
+    public static void replaceSchoolClass(final Registration registration, final SchoolClass schoolClass,
+            final ExecutionSemester executionSemester, final boolean enrolInOnlyOneShift) {
 
         final Optional<SchoolClass> currentSchoolClass = getSchoolClassBy(registration, executionSemester);
         if (currentSchoolClass.isPresent()) {
@@ -219,13 +224,18 @@ public class RegistrationServices {
         if (schoolClass != null) {
             final List<ExecutionCourse> attendingExecutionCourses =
                     registration.getAttendingExecutionCoursesFor(executionSemester);
-            enrolInSchoolClassExecutionCoursesShifts(registration, schoolClass, attendingExecutionCourses);
+            enrolInSchoolClassExecutionCoursesShifts(registration, schoolClass, attendingExecutionCourses, enrolInOnlyOneShift);
             registration.getSchoolClassesSet().add(schoolClass);
         }
     }
 
     public static void enrolInSchoolClassExecutionCoursesShifts(final Registration registration, final SchoolClass schoolClass,
             final List<ExecutionCourse> attendingExecutionCourses) {
+        enrolInSchoolClassExecutionCoursesShifts(registration, schoolClass, attendingExecutionCourses, true);
+    }
+
+    public static void enrolInSchoolClassExecutionCoursesShifts(final Registration registration, final SchoolClass schoolClass,
+            final List<ExecutionCourse> attendingExecutionCourses, final boolean enrolInOnlyOneShift) {
         if (!isSchoolClassFree(schoolClass, registration)) {
             throw new DomainException(FULL_SCHOOL_CLASS_EXCEPTION_MSG);
         }
@@ -248,7 +258,11 @@ public class RegistrationServices {
                 if (registration.getShiftFor(executionCourse, shiftType) == null) {
                     final List<Shift> shiftsOrderedByVacancies = new ArrayList<>(shiftsTypesByShift.get(shiftType));
                     shiftsOrderedByVacancies.sort(vacanciesComparator);
-                    enrolInOneShift(shiftsOrderedByVacancies, registration);
+                    if (enrolInOnlyOneShift) {
+                        enrolInOneShift(shiftsOrderedByVacancies, registration);
+                    } else {
+                        enrolInAllAvailableShifts(shiftsOrderedByVacancies, registration);
+                    }
                 }
             }
         }
@@ -270,6 +284,14 @@ public class RegistrationServices {
         }
 
         throw new DomainException("error.registration.replaceSchoolClass.shiftFull", shiftName, shiftTypes, executionCourseName);
+    }
+
+    private static void enrolInAllAvailableShifts(Collection<Shift> shiftsOrderedByVacancies, Registration registration) {
+        for (final Shift shift : shiftsOrderedByVacancies) {
+            if (!shift.reserveForStudent(registration)) {
+                return;
+            }
+        }
     }
 
     public static boolean isSchoolClassFree(final SchoolClass schoolClass, final Registration registration) {
