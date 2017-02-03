@@ -55,6 +55,8 @@ ${portal.angularToolkit()}
 		<spring:message code="label.event.create" />
 	</a>
 	|&nbsp;&nbsp;
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	&nbsp;
 	<a class="" href="${pageContext.request.contextPath}<%= RegistrationController.SEARCH_URL %>">
 		<spring:message code="label.event.back" />
 	</a>
