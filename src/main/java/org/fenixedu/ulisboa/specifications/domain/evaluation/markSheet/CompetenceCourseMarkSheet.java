@@ -879,10 +879,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.enrolmentEvaluations.required.to.confirm.markSheet");
         }
 
-        if (!EvaluationSeasonServices.isSupportsTeacherConfirmation(getEvaluationSeason()) && byTeacher) {
+        if (byTeacher && !EvaluationSeasonServices.isSupportsTeacherConfirmation(getEvaluationSeason())) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.unauthorized.teacher.confirmation",
                     getEvaluationSeason().getName().getContent());
         }
+
+        // unfortunately this is relevant for the evaluation comparator used by Enrolment.getFinalEnrolmentEvaluation
+        CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
 
         for (final EnrolmentEvaluation evaluation : getEnrolmentEvaluationSet()) {
 
@@ -900,8 +903,6 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             EnrolmentServices.updateState(evaluation.getEnrolment());
             CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
         }
-
-        CompetenceCourseMarkSheetStateChange.createConfirmedState(this, byTeacher, null);
     }
 
     static public void setEnrolmentEvaluationData(final CompetenceCourseMarkSheet markSheet, final EnrolmentEvaluation evaluation,
