@@ -102,6 +102,7 @@ import pt.ist.fenixWebFramework.renderers.components.HtmlTableRow;
 import pt.ist.fenixWebFramework.renderers.components.HtmlText;
 import pt.ist.fenixWebFramework.renderers.contexts.InputContext;
 import pt.ist.fenixWebFramework.renderers.layouts.Layout;
+import pt.ist.fenixframework.DomainObject;
 
 /**
  * @see {@link org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.StudentCurricularPlanLayout}
@@ -394,8 +395,9 @@ public class StudentCurricularPlanLayout extends Layout {
             final int level, final CurriculumGroup curriculumGroup) {
 
         final HtmlTableRow groupRow = mainTable.createRow();
-        groupRow.setClasses(renderer.getCurriculumGroupRowClass());
         addTabsToRow(groupRow, level);
+        generateExternalId(groupRow, curriculumGroup);
+        groupRow.setClasses(renderer.getCurriculumGroupRowClass());
 
         final HtmlTableCell cell = groupRow.createCell();
         cell.setClasses(renderer.getLabelCellClass());
@@ -578,6 +580,7 @@ public class StudentCurricularPlanLayout extends Layout {
     protected void generateDismissalRow(HtmlTable mainTable, Dismissal dismissal, int level) {
         final HtmlTableRow dismissalRow = mainTable.createRow();
         addTabsToRow(dismissalRow, level);
+        generateExternalId(dismissalRow, dismissal);
         dismissalRow.setClasses(dismissal.getCredits().isTemporary() ? renderer.getTemporaryDismissalRowClass() : renderer
                 .getDismissalRowClass());
 
@@ -744,8 +747,9 @@ public class StudentCurricularPlanLayout extends Layout {
             boolean isFromDetail) {
 
         final HtmlTableRow externalEnrolmentRow = mainTable.createRow();
-        externalEnrolmentRow.setClasses(renderer.getEnrolmentRowClass());
         addTabsToRow(externalEnrolmentRow, level);
+        generateExternalId(externalEnrolmentRow, externalEnrolment);
+        externalEnrolmentRow.setClasses(renderer.getEnrolmentRowClass());
 
         generateExternalEnrolmentLabelCell(externalEnrolmentRow, externalEnrolment, level);
         generateCellsBetweenLabelAndGradeCell(externalEnrolmentRow);
@@ -815,6 +819,7 @@ public class StudentCurricularPlanLayout extends Layout {
             boolean isFromDetail, boolean isDismissal) {
         final HtmlTableRow enrolmentRow = mainTable.createRow();
         addTabsToRow(enrolmentRow, level);
+        generateExternalId(enrolmentRow, enrolment);
         enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
 
         if (enrolment.isEnroled()) {
@@ -851,6 +856,13 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateEnrolmentEvaluationRows(mainTable, iter, level + 1);
             }
         }
+    }
+
+    // qubExtension
+    static private HtmlTableCell generateExternalId(final HtmlTableRow row, final DomainObject domainObject) {
+        HtmlTableCell result = generateCellWithText(row, domainObject.getExternalId(), "");
+        result.setStyle("display: none");
+        return result;
     }
 
     // qubExtension
@@ -954,8 +966,8 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         final HtmlTableRow enrolmentRow = mainTable.createRow();
-
         addTabsToRow(enrolmentRow, level);
+        generateExternalId(enrolmentRow, evaluation);
         enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
 
         final EvaluationSeason season = evaluation.getEvaluationSeason();
@@ -1424,11 +1436,11 @@ public class StudentCurricularPlanLayout extends Layout {
 
     }
 
-    protected HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
+    static protected HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
         return generateCellWithText(row, text, cssClass, 1);
     }
 
-    protected HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass,
+    static protected HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass,
             Integer colSpan) {
         final HtmlTableCell cell = row.createCell();
         cell.setClasses(cssClass);
