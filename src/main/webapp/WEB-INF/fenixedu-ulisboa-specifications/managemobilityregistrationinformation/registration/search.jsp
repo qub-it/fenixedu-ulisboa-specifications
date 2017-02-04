@@ -164,7 +164,7 @@ ${portal.angularToolkit()}
 					<c:if test="${loop.index < 200}">
 						<tr>
 							<td>
-								<c:out value="${registration.student.number}" />
+								<c:out value="${registration.number}" />
 							</td>
 							<td>
 								<c:out value="${registration.student.person.name}" />

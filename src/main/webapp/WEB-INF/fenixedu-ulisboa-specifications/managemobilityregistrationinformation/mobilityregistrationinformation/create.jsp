@@ -140,7 +140,7 @@ angular.module('angularAppMobilityRegistrationInformation', ['ngSanitize', 'ui.s
 							<spring:message code="label.MobilityRegistrationInformation.studentNumber" />
 						</th>
 						<td>
-							<c:out value='${registration.student.number}' />
+							<c:out value='${registration.number}' />
 						</td>
 					</tr>
 					<tr>
