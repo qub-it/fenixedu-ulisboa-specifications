@@ -860,7 +860,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     // qubExtension
     static private HtmlTableCell generateExternalId(final HtmlTableRow row, final DomainObject domainObject) {
-        HtmlTableCell result = generateCellWithText(row, domainObject.getExternalId(), "");
+        HtmlTableCell result = generateCellWithText(row, domainObject == null ? "" : domainObject.getExternalId(), "");
         result.setStyle("display: none");
         return result;
     }
