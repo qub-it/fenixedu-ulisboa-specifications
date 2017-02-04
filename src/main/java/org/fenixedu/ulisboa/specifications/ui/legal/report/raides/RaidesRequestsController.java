@@ -89,6 +89,16 @@ public class RaidesRequestsController extends FenixeduUlisboaSpecificationsBaseC
         return _create(raidesRequestParameter, model);
     }
 
+    private static final String _CREATE_BY_COPY_URI = "/createByCopy";
+    public static final String CREATE_BY_COPY_URL = CONTROLLER_URL + _CREATE_BY_COPY_URI;
+
+    @RequestMapping(value = _CREATE_BY_COPY_URI + "/{legalReportRequestId}", method = RequestMethod.GET)
+    public String createByCopy(@PathVariable("legalReportRequestId") final LegalReportRequest legalReportRequest,
+            final Model model) {
+        final RaidesRequestParameter previousRequestParameters = legalReportRequest.getParametersAs(RaidesRequestParameter.class);
+        return _create(previousRequestParameters.copy(), model);
+    }
+
     private String _create(final RaidesRequestParameter raidesRequestParameter, final Model model) {
         model.addAttribute("bean", raidesRequestParameter);
         model.addAttribute("beanJson", getBeanJson(raidesRequestParameter));

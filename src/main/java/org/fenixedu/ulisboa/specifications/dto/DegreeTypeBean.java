@@ -51,7 +51,7 @@ public class DegreeTypeBean implements IBean {
         this.degreesDataSource = degrees.stream().map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
-            tuple.setText(x.getPresentationNameI18N().getContent());
+            tuple.setText("[" + x.getCode() + "] " + x.getPresentationNameI18N().getContent());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }

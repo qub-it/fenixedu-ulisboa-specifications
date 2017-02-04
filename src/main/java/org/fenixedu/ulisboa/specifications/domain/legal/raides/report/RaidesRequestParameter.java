@@ -46,13 +46,12 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
     private List<TupleDataSourceBean> registrationProtocolsDataSource;
     private List<TupleDataSourceBean> ingressionTypesDataSource;
 
-    
     /**
      * Used to display data with Angular
      */
-    
+
     private String institutionName;
-    
+
     public RaidesRequestParameter(final String institutionCode, final String moment, final String interlocutorName,
             final String interlocutorEmail, final String interlocutorPhone, final boolean filterEntriesWithErrors) {
         setInstitutionCode(institutionCode);
@@ -70,9 +69,9 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
      */
     public RaidesRequestParameter() {
         setFilterEntriesWithErrors(true);
-        
+
         loadDataSources();
-        
+
     }
 
     private void loadDataSources() {
@@ -82,12 +81,12 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
 
     private void loadIngressionTypesDataSource() {
         this.ingressionTypesDataSource = Lists.newArrayList();
-        
+
         this.ingressionTypesDataSource.add(ULisboaConstants.SELECT_OPTION);
-        
-        this.ingressionTypesDataSource.addAll(Bennu.getInstance().getIngressionTypesSet().stream().map(r -> new TupleDataSourceBean(r.getExternalId(), r.getLocalizedName()))
-                        .collect(Collectors.toList()));
-        
+
+        this.ingressionTypesDataSource.addAll(Bennu.getInstance().getIngressionTypesSet().stream()
+                .map(r -> new TupleDataSourceBean(r.getExternalId(), r.getLocalizedName())).collect(Collectors.toList()));
+
     }
 
     private void loadRegistrationProtocolsDataSource() {
@@ -287,6 +286,26 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
 
     public void setFilterEntriesWithErrors(boolean filterEntriesWithErrors) {
         this.filterEntriesWithErrors = filterEntriesWithErrors;
+    }
+
+    public RaidesRequestParameter copy() {
+        final RaidesRequestParameter result = new RaidesRequestParameter();
+        result.setAgreementsForEnrolled(getAgreementsForEnrolled());
+        result.setAgreementsForMobility(getAgreementsForMobility());
+        result.setDegrees(getDegrees());
+        result.setFilterEntriesWithErrors(this.filterEntriesWithErrors);
+        result.setIngressionsForDegreeChange(getIngressionsForDegreeChange());
+        result.setIngressionsForDegreeTransfer(getIngressionsForDegreeTransfer());
+        result.setIngressionsForGeneralAccessRegime(getIngressionsForGeneralAccessRegime());
+        result.setInstitution(getInstitution());
+        result.setInstitutionCode(getInstitutionCode());
+        result.setInterlocutorEmail(getInterlocutorEmail());
+        result.setInterlocutorName(getInterlocutorName());
+        result.setInterlocutorPhone(getInterlocutorPhone());
+        result.setMoment(getMoment());
+        result.setPeriods(getPeriods().stream().map(p -> p.copy()).collect(Collectors.toList()));
+
+        return result;
     }
 
 }

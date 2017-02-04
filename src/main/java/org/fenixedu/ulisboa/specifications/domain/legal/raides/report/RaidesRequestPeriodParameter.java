@@ -12,16 +12,16 @@ import org.joda.time.LocalDate;
 
 public class RaidesRequestPeriodParameter implements Serializable, IBean {
 
-    public static final Comparator<RaidesRequestPeriodParameter> COMPARATOR_BY_BEGIN_DATE = new Comparator<RaidesRequestPeriodParameter>() {
+    public static final Comparator<RaidesRequestPeriodParameter> COMPARATOR_BY_BEGIN_DATE =
+            new Comparator<RaidesRequestPeriodParameter>() {
 
-        @Override
-        public int compare(final RaidesRequestPeriodParameter o1, final RaidesRequestPeriodParameter o2) {
-            return o1.getBegin().compareTo(o2.getBegin());
-        }
-        
-    };
-    
-    
+                @Override
+                public int compare(final RaidesRequestPeriodParameter o1, final RaidesRequestPeriodParameter o2) {
+                    return o1.getBegin().compareTo(o2.getBegin());
+                }
+
+            };
+
     private static final long serialVersionUID = 1L;
 
     private ExecutionYear academicPeriod;
@@ -66,12 +66,20 @@ public class RaidesRequestPeriodParameter implements Serializable, IBean {
     }
 
     private void checkRules() {
-        if(getAcademicPeriod() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.academicPeriod.required"); }
-        if(getBegin() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.begin.required"); }
-        if(getEnd() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.end.required"); }
-        if(getPeriodInputType() == null) { throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.periodInputType.required"); }
+        if (getAcademicPeriod() == null) {
+            throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.academicPeriod.required");
+        }
+        if (getBegin() == null) {
+            throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.begin.required");
+        }
+        if (getEnd() == null) {
+            throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.end.required");
+        }
+        if (getPeriodInputType() == null) {
+            throw new ULisboaSpecificationsDomainException("error.RaidesReportPeriodInput.periodInputType.required");
+        }
     }
-    
+
     public Interval getInterval() {
         return new Interval(getBegin().toDateTimeAtStartOfDay(), getEnd().toDateTimeAtStartOfDay().plusDays(1).minusSeconds(1));
     }
@@ -88,11 +96,11 @@ public class RaidesRequestPeriodParameter implements Serializable, IBean {
     public void setAcademicPeriod(ExecutionYear academicPeriod) {
         this.academicPeriod = academicPeriod;
     }
-    
+
     public String getAcademicPeriodQualifiedName() {
         return academicPeriodQualifiedName;
     }
-    
+
     public void setAcademicPeriodQualifiedName(String academicPeriodQualifiedName) {
         this.academicPeriodQualifiedName = academicPeriodQualifiedName;
     }
@@ -179,6 +187,24 @@ public class RaidesRequestPeriodParameter implements Serializable, IBean {
 
     public static long getSerialversionuid() {
         return serialVersionUID;
+    }
+
+    public RaidesRequestPeriodParameter copy() {
+        final RaidesRequestPeriodParameter result = new RaidesRequestPeriodParameter();
+        result.setAcademicPeriod(getAcademicPeriod());
+        result.setAcademicPeriodQualifiedName(getAcademicPeriodQualifiedName());
+        result.setBegin(getBegin());
+        result.setEnd(getEnd());
+        result.setEnrolledInAcademicPeriod(this.enrolledInAcademicPeriod);
+        result.setEnrolmentEctsConstraint(this.enrolmentEctsConstraint);
+        result.setEnrolmentYearsConstraint(this.enrolmentYearsConstraint);
+        result.setMinEnrolmentEcts(getMaxEnrolmentEcts());
+        result.setMaxEnrolmentEcts(getMaxEnrolmentEcts());
+        result.setMinEnrolmentYears(getMinEnrolmentYears());
+        result.setMaxEnrolmentYears(getMaxEnrolmentYears());
+        result.setPeriodInputType(getPeriodInputType());
+
+        return result;
     }
 
 }

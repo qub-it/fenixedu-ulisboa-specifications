@@ -256,9 +256,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
  	    $('#deleteDegreeModal').modal('toggle');
  	}
 
-    $scope.deleteDegree = function() {
-        $scope.object.degrees.splice($scope.deleteDegreeIndex, 1);
-        $('#deleteDegreeModal').modal('toggle');        
+    $scope.deleteDegree = function(degreeIndex) {
+        $scope.object.degrees.splice(degreeIndex, 1);        
     };
  	
  	$scope.getDegreeTypeName = function(degreeId) {
@@ -292,6 +291,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 }, degreeId, name);
         return name; 	    
  	};
+ 	
+ 	$scope.submitForm = function() {
+		$('#form').submit();
+	}
+ 	
  	
 }]);
 </script>
@@ -412,38 +416,72 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		</div>
 	</div>
 	
-    <div class="modal fade" id="deleteDegreeModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"
-                        aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title">
-                        <spring:message code="label.confirmation" />
-                    </h4>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><spring:message code="label.RaidesRequests.degrees" /></h3>
+        </div>
+        <div class="panel-body">
+            <div class="form-group row">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-1 control-label"><spring:message code="label.RaidesRequests.degreeType"/></div>
+                <div class="col-sm-6">
+                    <ui-select id="raidesRequest_degreeType" class="" name="degreetype" ng-model="$parent.selectedDegreeType" on-select="onDegreeTypeChange()" theme="bootstrap" ng-disabled="disabled" >
+                                    <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
+                                    <ui-select-choices repeat="degreeType.id as degreeType in degreeTypeDataSource | filter: $select.search">
+                                            <span ng-bind-html="degreeType.text | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                            </ui-select>                
                 </div>
-                <div class="modal-body">
-                    <p>
-                        <spring:message
-                            code="label.RaidesRequests.degree.confirmDelete" />
-                    </p>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-1 control-label"><spring:message code="label.RaidesRequests.degree"/></div>
+                <div class="col-sm-6">
+                    <ui-select id="raidesRequest_degree" class="" name="degree" ng-model="$parent.selectedDegree" theme="bootstrap" >
+                                    <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
+                                    <ui-select-choices repeat="degree.id as degree in degreeDataSource | filter: $select.search">
+                                            <span ng-bind-html="degree.text | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                            </ui-select>                
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <spring:message code="label.close" />
-                    </button>
-                    <button id="deleteButton" class="btn btn-danger" type="button" ng-click="deleteDegree()">
-                        <spring:message code="label.remove" />
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary" ng-disabled="isDegreeFieldEmpty()" ng-click="addDegree()">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
                     </button>
                 </div>
             </div>
-            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
+        
+        <div class="panel panel-body">
+            <div class="col-sm-8">
+                <table id="raidesRequest_degree" class="table responsive table-bordered table-hover" width="100%" >
+                    <thead>
+                        <tr>
+                            <th style="width:30%"><spring:message code="label.RaidesRequests.degreeType" /></th>
+                            <th style="width:50%"><spring:message code="label.RaidesRequests.degree" /></th>
+                            <th style="width:20%"></th>
+                        </tr>
+                    </thead>            
+                    <tbody>
+                        <tr ng-repeat="degree in object.degrees">
+                            <td>{{ getDegreeTypeName(degree) }}</td>
+                            <td>{{ getDegreeName(degree) }}</td>
+                            <td>
+                                <a class="bnt btn-danger btn-xs" ng-click="deleteDegree($index)">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    &nbsp;
+                                    <spring:message code="label.remove" />
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>   
+            </div>
+        </div>
     </div>
-    <!-- /.modal -->
     
     <div class="panel panel-default">
 		<div class="panel-body">
@@ -518,77 +556,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 			</div>
 		</div>
 		<div class="panel-footer">
-			<input type="submit" class="btn btn-default btn-xs" value="<spring:message code="label.submit" />" />
+			<button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>
 		</div>
 	</div>	
 	
 	
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title"><spring:message code="label.RaidesRequests.degrees" /></h3>
-        </div>
-        <div class="panel-body">
-            <div class="form-group row">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-1 control-label"><spring:message code="label.RaidesRequests.degreeType"/></div>
-                <div class="col-sm-6">
-                    <ui-select id="raidesRequest_degreeType" class="" name="degreetype" ng-model="$parent.selectedDegreeType" on-select="onDegreeTypeChange()" theme="bootstrap" ng-disabled="disabled" >
-                                    <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
-                                    <ui-select-choices repeat="degreeType.id as degreeType in degreeTypeDataSource | filter: $select.search">
-                                            <span ng-bind-html="degreeType.text | highlight: $select.search"></span>
-                                    </ui-select-choices>
-                            </ui-select>                
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-1 control-label"><spring:message code="label.RaidesRequests.degree"/></div>
-                <div class="col-sm-6">
-                    <ui-select id="raidesRequest_degree" class="" name="degree" ng-model="$parent.selectedDegree" theme="bootstrap" >
-                                    <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
-                                    <ui-select-choices repeat="degree.id as degree in degreeDataSource | filter: $select.search">
-                                            <span ng-bind-html="degree.text | highlight: $select.search"></span>
-                                    </ui-select-choices>
-                            </ui-select>                
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2"></div>
-                <div class="col-sm-1">
-                    <button type="button" class="btn btn-primary" ng-disabled="isDegreeFieldEmpty()" ng-click="addDegree()">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" ></span> &nbsp;<spring:message code="label.event.add" />
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="panel panel-body">
-            <div class="col-sm-8">
-                <table id="raidesRequest_degree" class="table responsive table-bordered table-hover" width="100%" >
-                    <thead>
-                        <tr>
-                            <th style="width:30%"><spring:message code="label.RaidesRequests.degreeType" /></th>
-                            <th style="width:50%"><spring:message code="label.RaidesRequests.degree" /></th>
-                            <th style="width:20%"></th>
-                        </tr>
-                    </thead>            
-                    <tbody>
-                        <tr ng-repeat="degree in object.degrees">
-                            <td>{{ getDegreeTypeName(degree) }}</td>
-                            <td>{{ getDegreeName(degree) }}</td>
-                            <td>
-                                <a class="bnt btn-danger btn-xs" href="#" ng-click="openDeleteModal($index)">
-                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                    &nbsp;
-                                    <spring:message code="label.remove" />
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>   
-            </div>
-        </div>
-    </div>
+  
 	
 </form>
 

@@ -44,8 +44,8 @@ ${portal.angularToolkit()}
 
 <%-- NAVIGATION --%>
 <div class="well well-sm" style="display: inline-block">
-    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-    &nbsp;
+   	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	&nbsp;
     <a class="" href="${pageContext.request.contextPath}<%= RaidesRequestsController.SEARCH_URL %>">
         <spring:message code="label.back" />
     </a>

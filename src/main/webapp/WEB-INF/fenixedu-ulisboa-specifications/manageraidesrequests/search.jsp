@@ -148,6 +148,10 @@ ${portal.angularToolkit()}
 								href="${pageContext.request.contextPath}<%= RaidesRequestsController.READ_URL %>/${request.externalId}">
 								<spring:message code='label.view' />
 							</a>
+							<a class="btn btn-default btn-xs"
+								href="${pageContext.request.contextPath}<%= RaidesRequestsController.CREATE_BY_COPY_URL %>/${request.externalId}">
+								<spring:message code='label.copy' />
+							</a>
 						</td>
 					</tr>
 				</c:forEach>
