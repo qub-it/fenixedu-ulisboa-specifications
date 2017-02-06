@@ -153,13 +153,16 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     }
 
     private void addStudent(JsonArray result, Registration registration) {
+
         JsonObject schoolClassJson = new JsonObject();
-        schoolClassJson.addProperty("name", registration.getStudent().getName());
-        schoolClassJson.addProperty("email", calculatePersonalEmail(registration.getStudent()));
-        schoolClassJson.addProperty("institutionalEmail",
-                registration.getStudent().getPerson().getInstitutionalEmailAddressValue());
+
+        final Student student = registration.getStudent();
+        schoolClassJson.addProperty("picture", request.getContextPath() + "/user/photo/" + student.getPerson().getUsername());
+        schoolClassJson.addProperty("name", student.getName());
+        schoolClassJson.addProperty("email", calculatePersonalEmail(student));
+        schoolClassJson.addProperty("institutionalEmail", student.getPerson().getInstitutionalEmailAddressValue());
         schoolClassJson.addProperty("studentNumber", registration.getNumber().toString());
-        schoolClassJson.addProperty("id", registration.getStudent().getExternalId());
+        schoolClassJson.addProperty("id", student.getExternalId());
         schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
         schoolClassJson.addProperty("degree", registration.getLastDegreeCurricularPlan().getPresentationName());
         schoolClassJson.addProperty("phone", registration.getPerson().getDefaultPhoneNumber());

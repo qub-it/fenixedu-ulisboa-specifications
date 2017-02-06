@@ -218,6 +218,7 @@ ${portal.toolkit()}
 	<thead>
 		<tr>
 			<%--!!!  Field names here --%>
+			<th><spring:message code="label.studentsListByCurricularCourse.picture"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.number"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.name"/></th>
 			<th><spring:message code="label.studentsListByCurricularCourse.degreeCode"/></th>
@@ -256,6 +257,11 @@ ${portal.toolkit()}
 		url : "${datatablesI18NUrl}",			
 	},
 	"columns": [
+				{ data: 'picture',
+				  "render": function(data, type, row) {
+				        return '<img src="'+data+'" />';
+				    }				
+				},
 				{ data: 'studentNumber' },
 				{ data: 'name' },
 				{ data: 'degreeCode' },
