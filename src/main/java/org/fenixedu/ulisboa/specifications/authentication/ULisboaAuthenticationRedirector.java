@@ -30,11 +30,9 @@ public class ULisboaAuthenticationRedirector {
     }
 
     public static String getRedirectionPath(final User user, final HttpServletRequest request) {
-        synchronized (handlers) {
-            for (final IULisboaRedirectionHandler iuLisboaRedirectionHandler : handlers) {
-                if (iuLisboaRedirectionHandler.isToRedirect(user, request)) {
-                    return iuLisboaRedirectionHandler.redirectionPath(user, request);
-                }
+        for (final IULisboaRedirectionHandler iuLisboaRedirectionHandler : handlers) {
+            if (iuLisboaRedirectionHandler.isToRedirect(user, request)) {
+                return iuLisboaRedirectionHandler.redirectionPath(user, request);
             }
         }
 
