@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
@@ -212,7 +210,8 @@ public enum LegalMappingType implements ILegalMappingType {
         case GRADE:
             return new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, key);
         case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
-            return ((Degree) FenixFramework.getDomainObject(key)).getPresentationNameI18N();
+            final Degree degree = (Degree) FenixFramework.getDomainObject(key);
+            return new LocalizedString(I18N.getLocale(), "[" + degree.getCode() + "] " + degree.getPresentationName());
         default:
             return new LocalizedString();
         }

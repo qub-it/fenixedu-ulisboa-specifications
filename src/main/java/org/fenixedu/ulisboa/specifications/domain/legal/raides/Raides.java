@@ -24,7 +24,6 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.PersonalInformationBean;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.serviceRequests.documentRequests.EnrolmentCertificateRequest;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
@@ -34,9 +33,9 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
@@ -48,7 +47,6 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.Mobilidad
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlToBaseFileWriter;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlZipFileWriter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
@@ -56,7 +54,6 @@ import org.fenixedu.ulisboa.specifications.domain.legal.services.reportLog.trans
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
-import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
@@ -111,7 +108,8 @@ public class Raides {
                 return ULisboaSpecificationsUtil.bundleI18N(RegimeFrequencia.class.getSimpleName() + "." + key);
             }
 
-            return ((Degree) FenixFramework.getDomainObject(key)).getNameI18N().toLocalizedString();
+            final Degree degree = (Degree) FenixFramework.getDomainObject(key);
+            return new LocalizedString(I18N.getLocale(), "[" + degree.getCode() + "] " + degree.getPresentationName());
         }
 
     }
@@ -241,8 +239,8 @@ public class Raides {
                             continue;
                         }
 
-                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(),
-                                registration, raidesRequestParameter)) {
+                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(), registration,
+                                raidesRequestParameter)) {
                             continue;
                         }
 
@@ -261,8 +259,10 @@ public class Raides {
 
                         addMobilidadeInternacional(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final DomainException e) {
-
+                        LegalReportContext.addError("", e.getMessage(), e.getArgs());
+                        e.printStackTrace();
                     } catch (final Throwable e) {
+                        LegalReportContext.addError("", e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -310,6 +310,7 @@ public class Raides {
 
                         addGraduated(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final Throwable e) {
+                        LegalReportContext.addError("", e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -386,8 +387,8 @@ public class Raides {
                             continue;
                         }
 
-                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(),
-                                registration, raidesRequestParameter)) {
+                        if (!hadEnrolmentsInPeriod(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(), registration,
+                                raidesRequestParameter)) {
                             continue;
                         }
 
@@ -402,9 +403,9 @@ public class Raides {
                         if (!isActiveAtPeriod(enroledPeriod, registration, academicPeriod)) {
                             continue;
                         }
-                        
-                        if(!hasEnrolmentsInSecondMomentAndIsNotConcluded(enroledPeriod.getInterval(), enroledPeriod.getAcademicPeriod(),
-                                registration, raidesRequestParameter)) {
+
+                        if (!hasEnrolmentsInSecondMomentAndIsNotConcluded(enroledPeriod.getInterval(),
+                                enroledPeriod.getAcademicPeriod(), registration, raidesRequestParameter)) {
                             continue;
                         }
 
@@ -424,6 +425,7 @@ public class Raides {
                         LegalReportContext.addError("", e.getMessage(), e.getArgs());
                         e.printStackTrace();
                     } catch (final Throwable e) {
+                        LegalReportContext.addError("", e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -460,33 +462,34 @@ public class Raides {
 
         return false;
     }
-    
+
     protected boolean hasEnrolmentsInSecondMomentAndIsNotConcluded(final Interval interval, final ExecutionYear executionYear,
             final Registration registration, final RaidesRequestParameter raidesRequestParameter) {
-        if(!isInSecondMoment(raidesRequestParameter)) {
+        if (!isInSecondMoment(raidesRequestParameter)) {
             return true;
         }
-        
-        if(hasConcludedInYear(registration, executionYear)) {
-            final Set<RegistrationConclusionInformation> informationConclusionSet = RegistrationConclusionServices.inferConclusion(registration);
+
+        if (hasConcludedInYear(registration, executionYear)) {
+            final Set<RegistrationConclusionInformation> informationConclusionSet =
+                    RegistrationConclusionServices.inferConclusion(registration);
             boolean hadConcludedBeforeIntervalEnd = false;
             for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-                if(rci.isScholarPart()) {
+                if (rci.isScholarPart()) {
                     continue;
                 }
-                
-                if(isIntegratedMasterDegree(registration) )
-                
-                if (!rci.getConclusionDate().isAfter(interval.getEnd().toLocalDate())) {
-                    hadConcludedBeforeIntervalEnd = true;
-                }
+
+                if (isIntegratedMasterDegree(registration))
+
+                    if (!rci.getConclusionDate().isAfter(interval.getEnd().toLocalDate())) {
+                        hadConcludedBeforeIntervalEnd = true;
+                    }
             }
-            
-            if(hadConcludedBeforeIntervalEnd) {
+
+            if (hadConcludedBeforeIntervalEnd) {
                 return false;
             }
         }
-        
+
         final Collection<CurriculumLine> allCurriculumLines = Raides.getAllCurriculumLines(registration);
         for (final CurriculumLine curriculumLine : allCurriculumLines) {
             if (curriculumLine.getExecutionYear() != executionYear) {
@@ -511,19 +514,18 @@ public class Raides {
                     && interval.contains(enrolment.getApprovementDate().toLocalDate().toDateTimeAtStartOfDay())) {
                 return true;
             }
-            
-            if(enrolment.getExecutionPeriod().getSemester().intValue() == 2) {
+
+            if (enrolment.getExecutionPeriod().getSemester().intValue() == 2) {
                 return true;
             }
-            
-            if(enrolment.getCurricularCourse().isAnual(executionYear)) {
+
+            if (enrolment.getCurricularCourse().isAnual(executionYear)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
 
     protected boolean hadEnrolmentsInPeriod(final Interval interval, final ExecutionYear executionYear,
             final Registration registration, final RaidesRequestParameter raidesRequestParameter) {
@@ -1073,7 +1075,8 @@ public class Raides {
         return result;
     }
 
-    public static List<Registration> findActiveFirstTimeRegistrationsOrWithEnrolments(final ExecutionYear executionYear, final Student student) {
+    public static List<Registration> findActiveFirstTimeRegistrationsOrWithEnrolments(final ExecutionYear executionYear,
+            final Student student) {
         final List<Registration> result = Lists.newArrayList();
 
         for (final Registration registration : student.getRegistrationsSet()) {

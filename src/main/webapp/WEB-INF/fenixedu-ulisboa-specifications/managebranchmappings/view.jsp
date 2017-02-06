@@ -119,7 +119,7 @@ ${portal.angularToolkit()}
 </div>
 
 <h2>
-	<c:out value="${degreeCurricularPlan.presentationName}" />
+	<c:out value="[${degreeCurricularPlan.degree.code}] ${degreeCurricularPlan.presentationName}" />
 </h2>
 
 <c:choose>

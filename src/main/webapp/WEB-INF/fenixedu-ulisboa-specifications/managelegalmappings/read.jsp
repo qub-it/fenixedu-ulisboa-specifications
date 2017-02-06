@@ -44,6 +44,13 @@ function openDeleteModal(externalId) {
 }
 </script>
 
+<!-- Due to modal -->
+<style type="text/css">
+.select2-container--open{
+        z-index:9999999         
+    }
+</style>
+
 <div class="modal fade" id="createModal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -63,11 +70,18 @@ function openDeleteModal(externalId) {
                         <spring:message code="label.LegalMappingEntry.key" />
                     </div>
                     <div class="col-sm-7">
-                        <select id="legalMappingEntry_key" name="key" class="form-control">
+                        <select id="legalMappingEntry_key" name="key" class="js-example-basic-single">
                             <c:forEach var="legalMappingType" items="${ possibleLegalMappingEntryKeys }">
                                 <option value="${ legalMappingType.id }"><c:out value="${ legalMappingType.text }" /></option>
                             </c:forEach>
                         </select>
+                        
+	                    <script>
+		                	$(document).ready(function() {
+		                	     $("#legalMappingEntry_key").select2();
+		                	});
+	                	</script>
+                	
                     </div>
                 </div>
                 <div class="form-group row">

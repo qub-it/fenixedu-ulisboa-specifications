@@ -470,11 +470,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                             <td>{{ getDegreeTypeName(degree) }}</td>
                             <td>{{ getDegreeName(degree) }}</td>
                             <td>
-                                <a class="bnt btn-danger btn-xs" ng-click="deleteDegree($index)">
-                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            	<button type="button" class="bnt btn-danger btn-xs" role="button" ng-click="deleteDegree($index)">
+                           		    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                     &nbsp;
-                                    <spring:message code="label.remove" />
-                                </a>
+                            		<spring:message code="label.remove" />
+                            	</button>
                             </td>
                         </tr>
                     </tbody>

@@ -65,7 +65,7 @@ ${portal.angularToolkit()}
 				<c:forEach var="dcp" items="${dcpList}">
 					<tr>
 						<td><c:out value="${dcp.degreeType.name.content}" /></td>
-						<td><c:out value="${dcp.degree.presentationNameI18N.content}" /></td>
+						<td><c:out value="[${dcp.degree.code}] ${dcp.degree.presentationNameI18N.content}" /></td>
 						<td><c:out value="${dcp.name}" /></td>
 						<td>
 							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= ManageBranchMappingsController.VIEW_URL %>/${dcp.externalId}">
