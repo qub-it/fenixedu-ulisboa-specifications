@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: nuno.pinheiro@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu ULisboaSpecifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -98,7 +98,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     @RequestMapping
-    public String home(Model model, RedirectAttributes redirectAttributes) {
+    public String home(final Model model, final RedirectAttributes redirectAttributes) {
         return redirect(SEARCH_URL, model, redirectAttributes);
     }
 
@@ -107,8 +107,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             @RequestParam(required = false) Integer phase,
             @RequestParam(required = false) CandidacySituationType candidacySituationType,
             @RequestParam(required = false) IngressionType ingressType, @RequestParam(required = false) String beginDate,
-            @RequestParam(required = false) String endDate, @RequestParam(required = false) Boolean exportStatistics, Model model,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(required = false) String endDate, @RequestParam(required = false) Boolean exportStatistics,
+            final Model model, final RedirectAttributes redirectAttributes) {
         Map<String, ?> flashAttributes = redirectAttributes.getFlashAttributes();
 
         if (flashAttributes.get("executionYear") != null) {
@@ -161,8 +161,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return "registrationsdgesexport/search";
     }
 
-    private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(ExecutionYear executionYear, Integer phase,
-            CandidacySituationType candidacySituationType, IngressionType ingressType, LocalDate beginDate, LocalDate endDate) {
+    private List<RegistrationDGESStateBean> filterSearchRegistrationDGESStateBean(final ExecutionYear executionYear,
+            final Integer phase, final CandidacySituationType candidacySituationType, final IngressionType ingressType,
+            final LocalDate beginDate, final LocalDate endDate) {
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentPhase =
                 sc -> phase == null || sc.getEntryPhase() != null && sc.getEntryPhase().getPhaseNumber() == phase;
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentState = sc -> candidacySituationType == null
@@ -193,7 +194,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
     private List<StudentCandidacy> getAllStudentCandidacies() {
         return Bennu.getInstance().getCandidaciesSet().stream().filter(c -> c instanceof FirstTimeCandidacy)
-                .map(StudentCandidacy.class::cast).collect(Collectors.toList());
+                .map(StudentCandidacy.class::cast).filter(c -> c.getRegistration() != null).collect(Collectors.toList());
     }
 
     private List<TupleDataSourceBean> getExecutionYearDataSource() {
@@ -206,7 +207,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     public List<CandidacySituationType> getCandidacySituationTypes() {
-        List<CandidacySituationType> result = new ArrayList<CandidacySituationType>();
+        List<CandidacySituationType> result = new ArrayList<>();
 
         result.add(CandidacySituationType.CANCELLED);
         result.add(CandidacySituationType.STAND_BY);
@@ -236,12 +237,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static final String CANCEL_URL = CONTROLLER_URL + "/cancel";
 
     @RequestMapping(value = "/cancel")
-    public String cancelCandidacy(@RequestParam(value = "bean", required = true) CandidacyToProcessBean bean,
-            @RequestParam(required = false) ExecutionYear executionYear, @RequestParam(required = false) Integer phase,
-            @RequestParam(required = false) CandidacySituationType candidacySituationType,
-            @RequestParam(required = false) IngressionType ingressType, @RequestParam(required = false) String beginDate,
-            @RequestParam(required = false) String endDate, @RequestParam(required = false) Boolean exportStatistics, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String cancelCandidacy(@RequestParam(value = "bean", required = true) final CandidacyToProcessBean bean,
+            @RequestParam(required = false) final ExecutionYear executionYear,
+            @RequestParam(required = false) final Integer phase,
+            @RequestParam(required = false) final CandidacySituationType candidacySituationType,
+            @RequestParam(required = false) final IngressionType ingressType,
+            @RequestParam(required = false) final String beginDate, @RequestParam(required = false) final String endDate,
+            @RequestParam(required = false) final Boolean exportStatistics, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
         List<String> errors = cancelCandidacies(bean.getCandidaciesToCancel());
         for (String error : errors) {
@@ -254,7 +257,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     @Atomic
-    public List<String> cancelCandidacies(List<StudentCandidacy> candidacies) {
+    public List<String> cancelCandidacies(final List<StudentCandidacy> candidacies) {
         List<String> errors = new ArrayList<>();
 
         for (StudentCandidacy candidacy : candidacies) {
@@ -283,7 +286,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return errors;
     }
 
-    private String cancelCandidacy(StudentCandidacy candidacy) {
+    private String cancelCandidacy(final StudentCandidacy candidacy) {
         if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.CANCELLED)) {
             return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.cancelled",
                     candidacy.getPerson().getPresentationName());
@@ -310,9 +313,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return null;
     }
 
-    private void populateModel(ExecutionYear executionYear, Integer phase, CandidacySituationType candidacySituationType,
-            IngressionType ingressType, String beginDate, String endDate, Boolean exportStatistics,
-            RedirectAttributes redirectAttributes) {
+    private void populateModel(final ExecutionYear executionYear, final Integer phase,
+            final CandidacySituationType candidacySituationType, final IngressionType ingressType, final String beginDate,
+            final String endDate, final Boolean exportStatistics, final RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("executionYear", executionYear);
         redirectAttributes.addFlashAttribute("phase", phase);
         redirectAttributes.addFlashAttribute("candidacySituationType", candidacySituationType);
@@ -325,12 +328,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static final String REACTIVATE_URL = CONTROLLER_URL + "/reactivate";
 
     @RequestMapping(value = "/reactivate")
-    public String reactivateCandidacy(@RequestParam("bean") CandidacyToProcessBean bean,
-            @RequestParam(required = false) ExecutionYear executionYear, @RequestParam(required = false) Integer phase,
-            @RequestParam(required = false) CandidacySituationType candidacySituationType,
-            @RequestParam(required = false) IngressionType ingressType, @RequestParam(required = false) String beginDate,
-            @RequestParam(required = false) String endDate, @RequestParam(required = false) Boolean exportStatistics, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String reactivateCandidacy(@RequestParam("bean") final CandidacyToProcessBean bean,
+            @RequestParam(required = false) final ExecutionYear executionYear,
+            @RequestParam(required = false) final Integer phase,
+            @RequestParam(required = false) final CandidacySituationType candidacySituationType,
+            @RequestParam(required = false) final IngressionType ingressType,
+            @RequestParam(required = false) final String beginDate, @RequestParam(required = false) final String endDate,
+            @RequestParam(required = false) final Boolean exportStatistics, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
         List<String> errors = reactivateCandidacies(bean.getCandidaciesToReactivate());
 
@@ -343,7 +348,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     @Atomic
-    public List<String> reactivateCandidacies(List<StudentCandidacy> candidacies) {
+    public List<String> reactivateCandidacies(final List<StudentCandidacy> candidacies) {
         List<String> errors = new ArrayList<>();
 
         for (StudentCandidacy candidacy : candidacies) {
@@ -362,7 +367,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return errors;
     }
 
-    public String reactivate(StudentCandidacy candidacy) {
+    public String reactivate(final StudentCandidacy candidacy) {
         if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.STAND_BY)) {
             return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.standBy", candidacy.getPerson().getName());
         }
@@ -373,12 +378,14 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static final String REGISTER_URL = CONTROLLER_URL + "/register";
 
     @RequestMapping(value = "/register")
-    public String registerCandidacy(@RequestParam("bean") CandidacyToProcessBean bean,
-            @RequestParam(required = false) ExecutionYear executionYear, @RequestParam(required = false) Integer phase,
-            @RequestParam(required = false) CandidacySituationType candidacySituationType,
-            @RequestParam(required = false) IngressionType ingressType, @RequestParam(required = false) String beginDate,
-            @RequestParam(required = false) String endDate, @RequestParam(required = false) Boolean exportStatistics, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String registerCandidacy(@RequestParam("bean") final CandidacyToProcessBean bean,
+            @RequestParam(required = false) final ExecutionYear executionYear,
+            @RequestParam(required = false) final Integer phase,
+            @RequestParam(required = false) final CandidacySituationType candidacySituationType,
+            @RequestParam(required = false) final IngressionType ingressType,
+            @RequestParam(required = false) final String beginDate, @RequestParam(required = false) final String endDate,
+            @RequestParam(required = false) final Boolean exportStatistics, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
         List<String> errors = registerCandidacies(bean.getCandidaciesToRegister());
         for (String error : errors) {
@@ -391,7 +398,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     }
 
     @Atomic
-    public List<String> registerCandidacies(List<StudentCandidacy> candidacies) {
+    public List<String> registerCandidacies(final List<StudentCandidacy> candidacies) {
         List<String> errors = new ArrayList<>();
 
         for (StudentCandidacy candidacy : candidacies) {
@@ -413,7 +420,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return errors;
     }
 
-    public String register(StudentCandidacy candidacy) {
+    public String register(final StudentCandidacy candidacy) {
         if (candidacy.getActiveCandidacySituationType().equals(CandidacySituationType.REGISTERED)) {
             return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.already.registered",
                     candidacy.getPerson().getName());
@@ -432,8 +439,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return null;
     }
 
-    //TODO remove to DTO with RDGESSBean
-    public static PhysicalAddress getSchoolTimePhysicalAddress(Person person) {
+    // TODO remove to DTO with RDGESSBean
+    public static PhysicalAddress getSchoolTimePhysicalAddress(final Person person) {
         Predicate<PhysicalAddress> addressIsSchoolTime =
                 address -> !address.isDefault() && address.isValid() && address.getType().equals(PartyContactType.PERSONAL);
         return person.getPhysicalAddresses().stream().filter(addressIsSchoolTime).sorted(CONTACT_COMPARATOR_BY_MODIFIED_DATE)
@@ -442,19 +449,19 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
     public static Comparator<PartyContact> CONTACT_COMPARATOR_BY_MODIFIED_DATE = new Comparator<PartyContact>() {
         @Override
-        public int compare(PartyContact contact, PartyContact otherContact) {
+        public int compare(final PartyContact contact, final PartyContact otherContact) {
             int result = contact.getLastModifiedDate().compareTo(otherContact.getLastModifiedDate());
             return result == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(contact, otherContact) : result;
         }
     };
 
-    public static String getPrimaryBranchName(StudentCurricularPlan studentCurricularPlan) {
+    public static String getPrimaryBranchName(final StudentCurricularPlan studentCurricularPlan) {
         return studentCurricularPlan.getMajorBranchCurriculumGroups().stream().map(b -> b.getName().getContent())
                 .collect(Collectors.joining(","));
     }
 
-    /*TODO: Remove to DTO with RDGESSBean */
-    public static RegistrationDGESStateBean populateBean(StudentCandidacy studentCandidacy) {
+    /* TODO: Remove to DTO with RDGESSBean */
+    public static RegistrationDGESStateBean populateBean(final StudentCandidacy studentCandidacy) {
         String executionYear = studentCandidacy.getExecutionYear().getQualifiedName();
         Person person = studentCandidacy.getPerson();
         StudentCurricularPlan studentCurricularPlan =
@@ -462,7 +469,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         String degreeTypeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeTypeName();
         String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
         String degreeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getNameI18N().getContent();
-        //TODO send to a bundle and to a method in Util
+        // TODO send to a bundle and to a method in Util
         String degreeLevel = "";
         if (degreeTypeName.contains("Licenciatura")) {
             degreeLevel = "Licenciado";
@@ -711,7 +718,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         String institutionName =
                 studentCandidacy.getDegreeCurricularPlan().getDegree().getUnit().getParentUnitsPath().get(0).getName();
-        String cycleName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeType().getCycleType().getDescription();
+        String cycleName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeType().getFirstOrderedCycleType()
+                .getDescription();
 
         String institutionalEmail = studentCandidacy.getPerson().getInstitutionalEmailAddressValue();
         String defaultEmail = "";
@@ -789,7 +797,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return candidaciesToCancel;
         }
 
-        public void setCandidaciesToCancel(List<StudentCandidacy> candidaciesToCancel) {
+        public void setCandidaciesToCancel(final List<StudentCandidacy> candidaciesToCancel) {
             this.candidaciesToCancel = candidaciesToCancel;
         }
 
@@ -797,7 +805,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return candidaciesToReactivate;
         }
 
-        public void setCandidaciesToReactivate(List<StudentCandidacy> candidaciesToReactivate) {
+        public void setCandidaciesToReactivate(final List<StudentCandidacy> candidaciesToReactivate) {
             this.candidaciesToReactivate = candidaciesToReactivate;
         }
 
@@ -805,12 +813,12 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return candidaciesToRegister;
         }
 
-        public void setCandidaciesToRegister(List<StudentCandidacy> candidaciesToRegister) {
+        public void setCandidaciesToRegister(final List<StudentCandidacy> candidaciesToRegister) {
             this.candidaciesToRegister = candidaciesToRegister;
         }
     }
 
-    /*TODO: Extract to a file */
+    /* TODO: Extract to a file */
     public static class RegistrationDGESStateBean {
         private String executionYear;
         private String candidacyId;
@@ -891,27 +899,30 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         private String grantOwnerType;
         private String grantOwnerProvider;
 
-        public RegistrationDGESStateBean(String executionYear, String candidacyId, String degreeTypeName, String degreeCode,
-                String degreeName, String cycleName, String curricularYear, String degreeLevel, String degreeBranch,
-                String regimeType, String institutionName, String idNumber, String expirationDateOfIdDoc,
-                String emissionLocationOfIdDoc, String candidacyState, String name, String maritalStatus,
-                String registrationState, String nationality, String secondNationality, String birthYear, String countryOfBirth,
-                String districtOfBirth, String districtSubdivisionOfBirth, String parishOfBirth, String gender,
-                String ingressionType, Integer placingOption, String firstOptionDegree, String firstOptionInstitution,
-                String isDislocated, String dislocatedResidenceType, String countryOfResidence, String districtOfResidence,
-                String districtSubdivisionOfResidence, String parishOfResidence, String addressOfResidence,
-                String areaCodeOfResidence, String countryOfDislocated, String districtOfDislocated,
-                String districtSubdivisionOfDislocated, String parishOfDislocated, String addressOfDislocated,
-                String areaCodeOfDislocated, String profession, String professionTimeType, String professionalCondition,
-                String professionType, String fatherName, String fatherSchoolLevel, String fatherProfessionalCondition,
-                String fatherProfessionType, String motherName, String motherSchoolLevel, String motherProfessionalCondition,
-                String motherProfessionType, String salarySpan, String disabilityType, String needsDisabilitySupport,
-                String universityDiscoveryString, String universityChoiceString, String precedentCountry,
-                String precedentDistrict, String precedentDistrictSubdivision, String precedentSchoolLevel,
-                String precedentInstitution, String precedentDegreeDesignation, String precedentConclusionGrade,
-                String precedentConclusionYear, String precedentHighSchoolType, String precendentDegreeCycle,
-                String institutionalEmail, String defaultEmail, String phone, String telephone, String vaccinationValidity,
-                String grantOwnerType, String grantOwnerProvider) {
+        public RegistrationDGESStateBean(final String executionYear, final String candidacyId, final String degreeTypeName,
+                final String degreeCode, final String degreeName, final String cycleName, final String curricularYear,
+                final String degreeLevel, final String degreeBranch, final String regimeType, final String institutionName,
+                final String idNumber, final String expirationDateOfIdDoc, final String emissionLocationOfIdDoc,
+                final String candidacyState, final String name, final String maritalStatus, final String registrationState,
+                final String nationality, final String secondNationality, final String birthYear, final String countryOfBirth,
+                final String districtOfBirth, final String districtSubdivisionOfBirth, final String parishOfBirth,
+                final String gender, final String ingressionType, final Integer placingOption, final String firstOptionDegree,
+                final String firstOptionInstitution, final String isDislocated, final String dislocatedResidenceType,
+                final String countryOfResidence, final String districtOfResidence, final String districtSubdivisionOfResidence,
+                final String parishOfResidence, final String addressOfResidence, final String areaCodeOfResidence,
+                final String countryOfDislocated, final String districtOfDislocated, final String districtSubdivisionOfDislocated,
+                final String parishOfDislocated, final String addressOfDislocated, final String areaCodeOfDislocated,
+                final String profession, final String professionTimeType, final String professionalCondition,
+                final String professionType, final String fatherName, final String fatherSchoolLevel,
+                final String fatherProfessionalCondition, final String fatherProfessionType, final String motherName,
+                final String motherSchoolLevel, final String motherProfessionalCondition, final String motherProfessionType,
+                final String salarySpan, final String disabilityType, final String needsDisabilitySupport,
+                final String universityDiscoveryString, final String universityChoiceString, final String precedentCountry,
+                final String precedentDistrict, final String precedentDistrictSubdivision, final String precedentSchoolLevel,
+                final String precedentInstitution, final String precedentDegreeDesignation, final String precedentConclusionGrade,
+                final String precedentConclusionYear, final String precedentHighSchoolType, final String precendentDegreeCycle,
+                final String institutionalEmail, final String defaultEmail, final String phone, final String telephone,
+                final String vaccinationValidity, final String grantOwnerType, final String grantOwnerProvider) {
             super();
             this.setExecutionYear(StringUtils.trim(executionYear));
             this.candidacyId = StringUtils.trim(candidacyId);
@@ -997,7 +1008,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return idNumber;
         }
 
-        public void setIdNumber(String idNumber) {
+        public void setIdNumber(final String idNumber) {
             this.idNumber = idNumber;
         }
 
@@ -1005,7 +1016,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return name;
         }
 
-        public void setName(String name) {
+        public void setName(final String name) {
             this.name = name;
         }
 
@@ -1013,7 +1024,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return registrationState;
         }
 
-        public void setRegistrationState(String registrationState) {
+        public void setRegistrationState(final String registrationState) {
             this.registrationState = registrationState;
         }
 
@@ -1021,7 +1032,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return degreeCode;
         }
 
-        public void setDegreeCode(String degreeCode) {
+        public void setDegreeCode(final String degreeCode) {
             this.degreeCode = degreeCode;
         }
 
@@ -1029,7 +1040,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return candidacyState;
         }
 
-        public void setCandidacyState(String candidacyState) {
+        public void setCandidacyState(final String candidacyState) {
             this.candidacyState = candidacyState;
         }
 
@@ -1037,7 +1048,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return candidacyId;
         }
 
-        public void setCandidacyId(String candidacyId) {
+        public void setCandidacyId(final String candidacyId) {
             this.candidacyId = candidacyId;
         }
 
@@ -1045,7 +1056,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return placingOption;
         }
 
-        public void setPlacingOption(Integer placingOption) {
+        public void setPlacingOption(final Integer placingOption) {
             this.placingOption = placingOption;
         }
 
@@ -1053,7 +1064,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return firstOptionDegree;
         }
 
-        public void setFirstOptionDegree(String firstOptionDegree) {
+        public void setFirstOptionDegree(final String firstOptionDegree) {
             this.firstOptionDegree = firstOptionDegree;
         }
 
@@ -1061,7 +1072,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return firstOptionInstitution;
         }
 
-        public void setFirstOptionInstitution(String firstOptionInstitution) {
+        public void setFirstOptionInstitution(final String firstOptionInstitution) {
             this.firstOptionInstitution = firstOptionInstitution;
         }
 
@@ -1069,7 +1080,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return ingressionType;
         }
 
-        public void setIngressionType(String ingressionType) {
+        public void setIngressionType(final String ingressionType) {
             this.ingressionType = ingressionType;
         }
 
@@ -1077,7 +1088,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return nationality;
         }
 
-        public void setNationality(String nationality) {
+        public void setNationality(final String nationality) {
             this.nationality = nationality;
         }
 
@@ -1085,7 +1096,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return secondNationality;
         }
 
-        public void setSecondNationality(String secondNationality) {
+        public void setSecondNationality(final String secondNationality) {
             this.secondNationality = secondNationality;
         }
 
@@ -1093,7 +1104,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return dislocatedResidenceType;
         }
 
-        public void setDislocatedResidenceType(String dislocatedResidenceType) {
+        public void setDislocatedResidenceType(final String dislocatedResidenceType) {
             this.dislocatedResidenceType = dislocatedResidenceType;
         }
 
@@ -1101,7 +1112,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return profession;
         }
 
-        public void setProfession(String profession) {
+        public void setProfession(final String profession) {
             this.profession = profession;
         }
 
@@ -1109,7 +1120,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return professionTimeType;
         }
 
-        public void setProfessionTimeType(String professionTimeType) {
+        public void setProfessionTimeType(final String professionTimeType) {
             this.professionTimeType = professionTimeType;
         }
 
@@ -1117,7 +1128,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return professionalCondition;
         }
 
-        public void setProfessionalCondition(String professionalCondition) {
+        public void setProfessionalCondition(final String professionalCondition) {
             this.professionalCondition = professionalCondition;
         }
 
@@ -1125,7 +1136,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return professionType;
         }
 
-        public void setProfessionType(String professionType) {
+        public void setProfessionType(final String professionType) {
             this.professionType = professionType;
         }
 
@@ -1133,7 +1144,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return fatherName;
         }
 
-        public void setFatherName(String fatherName) {
+        public void setFatherName(final String fatherName) {
             this.fatherName = fatherName;
         }
 
@@ -1141,7 +1152,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return fatherSchoolLevel;
         }
 
-        public void setFatherSchoolLevel(String fatherSchoolLevel) {
+        public void setFatherSchoolLevel(final String fatherSchoolLevel) {
             this.fatherSchoolLevel = fatherSchoolLevel;
         }
 
@@ -1149,7 +1160,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return fatherProfessionalCondition;
         }
 
-        public void setFatherProfessionalCondition(String fatherProfessionalCondition) {
+        public void setFatherProfessionalCondition(final String fatherProfessionalCondition) {
             this.fatherProfessionalCondition = fatherProfessionalCondition;
         }
 
@@ -1157,7 +1168,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return fatherProfessionType;
         }
 
-        public void setFatherProfessionType(String fatherProfessionType) {
+        public void setFatherProfessionType(final String fatherProfessionType) {
             this.fatherProfessionType = fatherProfessionType;
         }
 
@@ -1165,7 +1176,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return motherName;
         }
 
-        public void setMotherName(String motherName) {
+        public void setMotherName(final String motherName) {
             this.motherName = motherName;
         }
 
@@ -1173,7 +1184,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return motherSchoolLevel;
         }
 
-        public void setMotherSchoolLevel(String motherSchoolLevel) {
+        public void setMotherSchoolLevel(final String motherSchoolLevel) {
             this.motherSchoolLevel = motherSchoolLevel;
         }
 
@@ -1181,7 +1192,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return motherProfessionalCondition;
         }
 
-        public void setMotherProfessionalCondition(String motherProfessionalCondition) {
+        public void setMotherProfessionalCondition(final String motherProfessionalCondition) {
             this.motherProfessionalCondition = motherProfessionalCondition;
         }
 
@@ -1189,7 +1200,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return motherProfessionType;
         }
 
-        public void setMotherProfessionType(String motherProfessionType) {
+        public void setMotherProfessionType(final String motherProfessionType) {
             this.motherProfessionType = motherProfessionType;
         }
 
@@ -1197,7 +1208,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return salarySpan;
         }
 
-        public void setSalarySpan(String salarySpan) {
+        public void setSalarySpan(final String salarySpan) {
             this.salarySpan = salarySpan;
         }
 
@@ -1205,7 +1216,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return disabilityType;
         }
 
-        public void setDisabilityType(String disabilityType) {
+        public void setDisabilityType(final String disabilityType) {
             this.disabilityType = disabilityType;
         }
 
@@ -1213,7 +1224,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return needsDisabilitySupport;
         }
 
-        public void setNeedsDisabilitySupport(String needsDisabilitySupport) {
+        public void setNeedsDisabilitySupport(final String needsDisabilitySupport) {
             this.needsDisabilitySupport = needsDisabilitySupport;
         }
 
@@ -1221,7 +1232,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return universityDiscoveryString;
         }
 
-        public void setUniversityDiscoveryString(String universityDiscoveryString) {
+        public void setUniversityDiscoveryString(final String universityDiscoveryString) {
             this.universityDiscoveryString = universityDiscoveryString;
         }
 
@@ -1229,7 +1240,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return universityChoiceString;
         }
 
-        public void setUniversityChoiceString(String universityChoiceString) {
+        public void setUniversityChoiceString(final String universityChoiceString) {
             this.universityChoiceString = universityChoiceString;
         }
 
@@ -1237,7 +1248,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return executionYear;
         }
 
-        public void setExecutionYear(String executionYear) {
+        public void setExecutionYear(final String executionYear) {
             this.executionYear = executionYear;
         }
 
@@ -1245,7 +1256,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return degreeTypeName;
         }
 
-        public void setDegreeTypeName(String degreeTypeName) {
+        public void setDegreeTypeName(final String degreeTypeName) {
             this.degreeTypeName = degreeTypeName;
         }
 
@@ -1253,7 +1264,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return degreeName;
         }
 
-        public void setDegreeName(String degreeName) {
+        public void setDegreeName(final String degreeName) {
             this.degreeName = degreeName;
         }
 
@@ -1261,7 +1272,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return birthYear;
         }
 
-        public void setBirthYear(String birthYear) {
+        public void setBirthYear(final String birthYear) {
             this.birthYear = birthYear;
         }
 
@@ -1269,7 +1280,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return gender;
         }
 
-        public void setGender(String gender) {
+        public void setGender(final String gender) {
             this.gender = gender;
         }
 
@@ -1277,7 +1288,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return countryOfBirth;
         }
 
-        public void setCountryOfBirth(String countryOfBirth) {
+        public void setCountryOfBirth(final String countryOfBirth) {
             this.countryOfBirth = countryOfBirth;
         }
 
@@ -1285,7 +1296,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return districtOfBirth;
         }
 
-        public void setDistrictOfBirth(String districtOfBirth) {
+        public void setDistrictOfBirth(final String districtOfBirth) {
             this.districtOfBirth = districtOfBirth;
         }
 
@@ -1293,7 +1304,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return districtSubdivisionOfBirth;
         }
 
-        public void setDistrictSubdivisionOfBirth(String districtSubdivisionOfBirth) {
+        public void setDistrictSubdivisionOfBirth(final String districtSubdivisionOfBirth) {
             this.districtSubdivisionOfBirth = districtSubdivisionOfBirth;
         }
 
@@ -1301,7 +1312,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return parishOfBirth;
         }
 
-        public void setParishOfBirth(String parishOfBirth) {
+        public void setParishOfBirth(final String parishOfBirth) {
             this.parishOfBirth = parishOfBirth;
         }
 
@@ -1309,7 +1320,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return isDislocated;
         }
 
-        public void setIsDislocated(String isDislocated) {
+        public void setIsDislocated(final String isDislocated) {
             this.isDislocated = isDislocated;
         }
 
@@ -1317,7 +1328,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return countryOfResidence;
         }
 
-        public void setCountryOfResidence(String countryOfResidence) {
+        public void setCountryOfResidence(final String countryOfResidence) {
             this.countryOfResidence = countryOfResidence;
         }
 
@@ -1325,7 +1336,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return districtOfResidence;
         }
 
-        public void setDistrictOfResidence(String districtOfResidence) {
+        public void setDistrictOfResidence(final String districtOfResidence) {
             this.districtOfResidence = districtOfResidence;
         }
 
@@ -1333,7 +1344,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return districtSubdivisionOfResidence;
         }
 
-        public void setDistrictSubdivisionOfResidence(String districtSubdivisionOfResidence) {
+        public void setDistrictSubdivisionOfResidence(final String districtSubdivisionOfResidence) {
             this.districtSubdivisionOfResidence = districtSubdivisionOfResidence;
         }
 
@@ -1341,7 +1352,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return parishOfResidence;
         }
 
-        public void setParishOfResidence(String parishOfResidence) {
+        public void setParishOfResidence(final String parishOfResidence) {
             this.parishOfResidence = parishOfResidence;
         }
 
@@ -1349,7 +1360,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentCountry;
         }
 
-        public void setPrecedentCountry(String precedentCountry) {
+        public void setPrecedentCountry(final String precedentCountry) {
             this.precedentCountry = precedentCountry;
         }
 
@@ -1357,7 +1368,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentDistrict;
         }
 
-        public void setPrecedentDistrict(String precedentDistrict) {
+        public void setPrecedentDistrict(final String precedentDistrict) {
             this.precedentDistrict = precedentDistrict;
         }
 
@@ -1365,7 +1376,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentDistrictSubdivision;
         }
 
-        public void setPrecedentDistrictSubdivision(String precedentDistrictSubdivision) {
+        public void setPrecedentDistrictSubdivision(final String precedentDistrictSubdivision) {
             this.precedentDistrictSubdivision = precedentDistrictSubdivision;
         }
 
@@ -1373,7 +1384,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentSchoolLevel;
         }
 
-        public void setPrecedentSchoolLevel(String precedentSchoolLevel) {
+        public void setPrecedentSchoolLevel(final String precedentSchoolLevel) {
             this.precedentSchoolLevel = precedentSchoolLevel;
         }
 
@@ -1381,7 +1392,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentInstitution;
         }
 
-        public void setPrecedentInstitution(String precedentInstitution) {
+        public void setPrecedentInstitution(final String precedentInstitution) {
             this.precedentInstitution = precedentInstitution;
         }
 
@@ -1389,7 +1400,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentDegreeDesignation;
         }
 
-        public void setPrecedentDegreeDesignation(String precedentDegreeDesignation) {
+        public void setPrecedentDegreeDesignation(final String precedentDegreeDesignation) {
             this.precedentDegreeDesignation = precedentDegreeDesignation;
         }
 
@@ -1397,7 +1408,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentConclusionGrade;
         }
 
-        public void setPrecedentConclusionGrade(String precedentConclusionGrade) {
+        public void setPrecedentConclusionGrade(final String precedentConclusionGrade) {
             this.precedentConclusionGrade = precedentConclusionGrade;
         }
 
@@ -1405,7 +1416,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentConclusionYear;
         }
 
-        public void setPrecedentConclusionYear(String precedentConclusionYear) {
+        public void setPrecedentConclusionYear(final String precedentConclusionYear) {
             this.precedentConclusionYear = precedentConclusionYear;
         }
 
@@ -1413,7 +1424,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precedentHighSchoolType;
         }
 
-        public void setPrecedentHighSchoolType(String precedentHighSchoolType) {
+        public void setPrecedentHighSchoolType(final String precedentHighSchoolType) {
             this.precedentHighSchoolType = precedentHighSchoolType;
         }
 
@@ -1421,7 +1432,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return addressOfResidence;
         }
 
-        public void setAddressOfResidence(String addressOfResidence) {
+        public void setAddressOfResidence(final String addressOfResidence) {
             this.addressOfResidence = addressOfResidence;
         }
 
@@ -1429,7 +1440,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return areaCodeOfResidence;
         }
 
-        public void setAreaCodeOfResidence(String areaCodeOfResidence) {
+        public void setAreaCodeOfResidence(final String areaCodeOfResidence) {
             this.areaCodeOfResidence = areaCodeOfResidence;
         }
 
@@ -1437,7 +1448,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return countryOfDislocated;
         }
 
-        public void setCountryOfDislocated(String countryOfDislocated) {
+        public void setCountryOfDislocated(final String countryOfDislocated) {
             this.countryOfDislocated = countryOfDislocated;
         }
 
@@ -1445,7 +1456,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return districtOfDislocated;
         }
 
-        public void setDistrictOfDislocated(String districtOfDislocated) {
+        public void setDistrictOfDislocated(final String districtOfDislocated) {
             this.districtOfDislocated = districtOfDislocated;
         }
 
@@ -1453,7 +1464,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return districtSubdivisionOfDislocated;
         }
 
-        public void setDistrictSubdivisionOfDislocated(String districtSubdivisionOfDislocated) {
+        public void setDistrictSubdivisionOfDislocated(final String districtSubdivisionOfDislocated) {
             this.districtSubdivisionOfDislocated = districtSubdivisionOfDislocated;
         }
 
@@ -1461,7 +1472,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return parishOfDislocated;
         }
 
-        public void setParishOfDislocated(String parishOfDislocated) {
+        public void setParishOfDislocated(final String parishOfDislocated) {
             this.parishOfDislocated = parishOfDislocated;
         }
 
@@ -1469,7 +1480,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return addressOfDislocated;
         }
 
-        public void setAddressOfDislocated(String addressOfDislocated) {
+        public void setAddressOfDislocated(final String addressOfDislocated) {
             this.addressOfDislocated = addressOfDislocated;
         }
 
@@ -1477,7 +1488,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return areaCodeOfDislocated;
         }
 
-        public void setAreaCodeOfDislocated(String areaCodeOfDislocated) {
+        public void setAreaCodeOfDislocated(final String areaCodeOfDislocated) {
             this.areaCodeOfDislocated = areaCodeOfDislocated;
         }
 
@@ -1485,7 +1496,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return expirationDateOfIdDoc;
         }
 
-        public void setExpirationDateOfIdDoc(String expirationDateOfIdDoc) {
+        public void setExpirationDateOfIdDoc(final String expirationDateOfIdDoc) {
             this.expirationDateOfIdDoc = expirationDateOfIdDoc;
         }
 
@@ -1493,7 +1504,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return emissionLocationOfIdDoc;
         }
 
-        public void setEmissionLocationOfIdDoc(String emissionLocationOfIdDoc) {
+        public void setEmissionLocationOfIdDoc(final String emissionLocationOfIdDoc) {
             this.emissionLocationOfIdDoc = emissionLocationOfIdDoc;
         }
 
@@ -1501,7 +1512,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return maritalStatus;
         }
 
-        public void setMaritalStatus(String maritalStatus) {
+        public void setMaritalStatus(final String maritalStatus) {
             this.maritalStatus = maritalStatus;
         }
 
@@ -1509,7 +1520,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return institutionalEmail;
         }
 
-        public void setInstitutionalEmail(String institutionalEmail) {
+        public void setInstitutionalEmail(final String institutionalEmail) {
             this.institutionalEmail = institutionalEmail;
         }
 
@@ -1517,7 +1528,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return defaultEmail;
         }
 
-        public void setDefaultEmail(String defaultEmail) {
+        public void setDefaultEmail(final String defaultEmail) {
             this.defaultEmail = defaultEmail;
         }
 
@@ -1525,7 +1536,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return phone;
         }
 
-        public void setPhone(String phone) {
+        public void setPhone(final String phone) {
             this.phone = phone;
         }
 
@@ -1533,7 +1544,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return telephone;
         }
 
-        public void setTelephone(String telephone) {
+        public void setTelephone(final String telephone) {
             this.telephone = telephone;
         }
 
@@ -1541,7 +1552,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return vaccinationValidity;
         }
 
-        public void setVaccinationValidity(String vaccinationValidity) {
+        public void setVaccinationValidity(final String vaccinationValidity) {
             this.vaccinationValidity = vaccinationValidity;
         }
 
@@ -1549,7 +1560,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return grantOwnerType;
         }
 
-        public void setGrantOwnerType(String grantOwnerType) {
+        public void setGrantOwnerType(final String grantOwnerType) {
             this.grantOwnerType = grantOwnerType;
         }
 
@@ -1557,7 +1568,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return grantOwnerProvider;
         }
 
-        public void setGrantOwnerProvider(String grantOwnerProvider) {
+        public void setGrantOwnerProvider(final String grantOwnerProvider) {
             this.grantOwnerProvider = grantOwnerProvider;
         }
 
@@ -1565,7 +1576,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return cycleName;
         }
 
-        public void setCycleName(String cycleName) {
+        public void setCycleName(final String cycleName) {
             this.cycleName = cycleName;
         }
 
@@ -1573,7 +1584,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return curricularYear;
         }
 
-        public void setCurricularYear(String curricularYear) {
+        public void setCurricularYear(final String curricularYear) {
             this.curricularYear = curricularYear;
         }
 
@@ -1581,7 +1592,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return institutionName;
         }
 
-        public void setInstitutionName(String institutionName) {
+        public void setInstitutionName(final String institutionName) {
             this.institutionName = institutionName;
         }
 
@@ -1589,7 +1600,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return precendentDegreeCycle;
         }
 
-        public void setPrecendentDegreeCycle(String precendentDegreeCycle) {
+        public void setPrecendentDegreeCycle(final String precendentDegreeCycle) {
             this.precendentDegreeCycle = precendentDegreeCycle;
         }
 
@@ -1597,7 +1608,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return degreeLevel;
         }
 
-        public void setDegreeLevel(String degreeLevel) {
+        public void setDegreeLevel(final String degreeLevel) {
             this.degreeLevel = degreeLevel;
         }
 
@@ -1605,7 +1616,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return degreeBranch;
         }
 
-        public void setDegreeBranch(String degreeBranch) {
+        public void setDegreeBranch(final String degreeBranch) {
             this.degreeBranch = degreeBranch;
         }
 
@@ -1613,7 +1624,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             return regimeType;
         }
 
-        public void setRegimeType(String regimeType) {
+        public void setRegimeType(final String regimeType) {
             this.regimeType = regimeType;
         }
     }
