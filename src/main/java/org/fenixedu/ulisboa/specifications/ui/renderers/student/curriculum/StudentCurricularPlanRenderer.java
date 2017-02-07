@@ -12,9 +12,9 @@ public class StudentCurricularPlanRenderer
 
         APPROVED,
         
-        ALL,
-
         APPROVED_OR_ENROLED,
+
+        ALL,
 
         ;
 
@@ -81,12 +81,40 @@ public class StudentCurricularPlanRenderer
 
     }
 
+    // qubExtension
+    public static enum DetailedType {
+
+        FALSE,
+
+        TRUE,
+
+        CURRENT
+
+        ;
+
+        public String getName() {
+            return name();
+        }
+
+        public String getFullyQualifiedName() {
+            return getClass() + "." + name();
+        }
+
+        public static DetailedType[] getValues() {
+            return values();
+        }
+
+    }
+
     private OrganizationType organizedBy = OrganizationType.GROUPS;
 
     private EnrolmentStateFilterType enrolmentStateFilter = EnrolmentStateFilterType.ALL;
 
+    private String detailedType = null;
+
     public StudentCurricularPlanRenderer() {
         super();
+        setDetailedType(DetailedType.CURRENT.toString());
     }
 
     @Override
@@ -130,6 +158,14 @@ public class StudentCurricularPlanRenderer
     @Override
     public boolean isToShowApprovedOrEnroledStatesOnly() {
         return this.enrolmentStateFilter == EnrolmentStateFilterType.APPROVED_OR_ENROLED;
+    }
+
+    public String getDetailedType() {
+        return detailedType;
+    }
+
+    public void setDetailedType(final String input) {
+        this.detailedType = input;
     }
 
     @Override

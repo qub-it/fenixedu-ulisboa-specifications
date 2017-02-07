@@ -80,6 +80,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -727,7 +728,7 @@ public class StudentCurricularPlanLayout extends Layout {
         // MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
         // }
 
-        if (renderer.isDetailed()) {
+        if (isDetailed(dismissal)) {
             generateDismissalDetails(mainTable, dismissal, level);
         }
 
@@ -816,7 +817,7 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateEnrolmentRow(HtmlTable mainTable, Enrolment enrolment, int level, boolean allowSelection,
-            boolean isFromDetail, boolean isDismissal) {
+            boolean isFromDetail, boolean isDismissalOrigin) {
         final HtmlTableRow enrolmentRow = mainTable.createRow();
         addTabsToRow(enrolmentRow, level);
         generateExternalId(enrolmentRow, enrolment);
@@ -846,7 +847,7 @@ public class StudentCurricularPlanLayout extends Layout {
             generateSpacerCellsIfRequired(enrolmentRow);
         }
 
-        if (!isDismissal && renderer.isDetailed()
+        if (isDetailed(enrolment, isDismissalOrigin)
         // qubExtension
         // && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)
         ) {
@@ -856,6 +857,42 @@ public class StudentCurricularPlanLayout extends Layout {
                 generateEnrolmentEvaluationRows(mainTable, iter, level + 1);
             }
         }
+    }
+
+    // qubExtension
+    private DetailedType getDetailedType() {
+        final org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer specific =
+                (org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer) renderer;
+        final String value = specific.getDetailedType();
+        return Strings.isNullOrEmpty(value) ? null : DetailedType.valueOf(value);
+    }
+
+    // qubExtension
+    private boolean isDetailed(final Dismissal dismissal) {
+        if (dismissal != null) {
+
+            final DetailedType detailedType = getDetailedType();
+            return detailedType == DetailedType.TRUE || (detailedType == DetailedType.CURRENT
+
+                    && dismissal.getExecutionYear().isCurrent());
+        }
+
+        return false;
+    }
+
+    // qubExtension
+    private boolean isDetailed(final Enrolment enrolment, final boolean isDismissalOrigin) {
+        if (!isDismissalOrigin && enrolment != null) {
+
+            final DetailedType detailedType = getDetailedType();
+            return detailedType == DetailedType.TRUE || (detailedType == DetailedType.CURRENT
+
+                    && (enrolment.getExecutionYear().isCurrent() || enrolment.getEvaluationsSet().stream()
+                            .anyMatch(evaluation -> evaluation.getExecutionPeriod() != null
+                                    && evaluation.getExecutionPeriod().getExecutionYear().isCurrent())));
+        }
+
+        return false;
     }
 
     // qubExtension

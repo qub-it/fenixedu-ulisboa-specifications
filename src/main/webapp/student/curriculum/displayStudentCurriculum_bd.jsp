@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <%@page import="org.fenixedu.academic.domain.StudentCurricularPlan"%>
 <%@page import="org.apache.commons.collections.comparators.ReverseComparator"%>
@@ -182,12 +183,14 @@
         </tr>
         <tr>
             <th style="vertical-align: middle;"><bean:message key="label.detailed" bundle="STUDENT_RESOURCES" /></th>
-            <td>
-                <html:radio style="vertical-align: middle;" property="detailed" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=Boolean.TRUE.toString()%>"/><bean:message  key="label.yes" bundle="STUDENT_RESOURCES"/>
-            </td>
-            <td>
-                <html:radio style="vertical-align: middle;" property="detailed" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=Boolean.FALSE.toString()%>"/><bean:message  key="label.no" bundle="STUDENT_RESOURCES"/>
-            </td>
+                <e:labelValues id="detailedTypes" enumeration="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer$DetailedType" bundle="APPLICATION_RESOURCES" />
+                <logic:iterate id="detailedType" name="detailedTypes">
+                    <bean:define id="label" name="detailedType" property="label" />
+                    <bean:define id="value" name="detailedType" property="value" />
+                    <td>
+                        <html:radio style="vertical-align: middle;" property="detailedType" altKey="radio.detailed" bundle="HTMLALT_RESOURCES" onclick="this.form.submit();" value="<%=value.toString()%>"/><bean:write name="label"/>
+                    </td>
+                </logic:iterate>
         </tr>
         <tr>
             <th style="vertical-align: middle;"></th>
@@ -210,7 +213,8 @@
     <logic:notEmpty name="selectedStudentCurricularPlans">
 		<bean:define id="organizedBy" name="studentCurricularPlanAndEnrollmentsSelectionForm" property="organizedBy" type="java.lang.String" />
 		<bean:define id="enrolmentStateFilterType" name="studentCurricularPlanAndEnrollmentsSelectionForm" property="select" type="java.lang.String" />
-		<bean:define id="detailed" name="studentCurricularPlanAndEnrollmentsSelectionForm" property="detailed" type="java.lang.Boolean" />
+		<%-- HACK, had to add this property to fenixedu-academic form. Sorry. --%>
+        <bean:define id="detailedType" name="studentCurricularPlanAndEnrollmentsSelectionForm" property="detailedType" type="java.lang.String" />
 		<bean:define id="viewType" name="studentCurricularPlanAndEnrollmentsSelectionForm" property="viewType" type="java.lang.String" />
     			
         <% 
@@ -227,7 +231,7 @@
     					<fr:property name="organizedBy" value="<%=organizedBy.toString()%>" />
     					<fr:property name="enrolmentStateFilter" value="<%=enrolmentStateFilterType.toString()%>" />
     					<fr:property name="viewType" value="<%=viewType.toString()%>" />
-    					<fr:property name="detailed" value="<%=detailed.toString()%>" />
+    					<fr:property name="detailedType" value="<%=detailedType.toString()%>" />
     			</fr:layout>
     		</fr:edit>
     
@@ -255,6 +259,9 @@ function load()
 
         var radio_enrolmentStateType="APPROVED_OR_ENROLED";
         $("input[type='radio'][name='select'][value='" + radio_enrolmentStateType + "']").attr('checked','checked');
+
+        var radio_detailedType="CURRENT";
+        $("input[type='radio'][name='detailedType'][value='" + radio_detailedType + "']").attr('checked','checked');
 
         $("#scpForm").submit();
     } 
