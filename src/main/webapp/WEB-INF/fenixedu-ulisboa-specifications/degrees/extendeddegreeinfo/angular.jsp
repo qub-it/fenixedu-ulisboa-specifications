@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.degrees.extendeddegreeinfo.CourseGroupDegreeInfoController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.degrees.extendeddegreeinfo.ExtendedDegreeInfoController"%>
 <%@page import="org.fenixedu.academic.domain.person.RoleType"%>
 <%@page import="org.fenixedu.bennu.core.security.Authenticate"%>
@@ -522,6 +523,25 @@ ${portal.angularToolkit()}
 		        		<button class="btn btn-xs btn-primary" ng-show="editMode['supplementOtherSources']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
 		        		<a href="" class="btn btn-xs btn-default" ng-show="!editMode['supplementOtherSources']" ng-click="toggleEditMode('supplementOtherSources')" data-toggle="tooltip" title="<spring:message code="label.edit" />"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
 		        	</div>
+	            </div>
+	            
+	            <div class="form-group row">
+	            	<div class="col-sm-2 control-label">
+	            		<spring:message code="label.title.courseGroupDegreeInfos" />
+	            	</div>
+	            	
+	            	<div class="col-sm-7">
+	            		<div id="extendedDegreeInformation_courseGroupDegreeInfos_read" class="form-control form-control-read-only" style="height: auto">
+		            		<ul>
+		            			<li ng-repeat="courseGroupInfo in object.courseGroupInfos">
+		            				<a target="#" href="${pageContext.request.contextPath}<%= CourseGroupDegreeInfoController.READ_URL %>/{{courseGroupInfo.externalId}}">
+			            				{{ courseGroupInfo.courseGroupName }}
+			            			    <div ng-if="courseGroupInfo.courseGroupName == undefined"><spring:message code="label.CourseGroupDegreeInfo.courseGroup.no.name"/></div>
+		            				</a>
+		            			</li>
+		            		</ul>
+	            		</div>
+	            	</div>
 	            </div>
 	            
 			</div>

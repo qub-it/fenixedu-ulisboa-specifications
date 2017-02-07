@@ -56,11 +56,14 @@ public class ExtendedDegreeInfoBean implements IBean {
     private LocalizedString supplementExtraInformation;
     private LocalizedString supplementOtherSources;
 
+    // Read only
+    private List<CourseGroupDegreeInfoBean> courseGroupInfos;
+
     public ExtendedDegreeInfoBean() {
         setExecutionYear(ExecutionYear.readCurrentExecutionYear());
         setExecutionYearOptions(ExecutionYear.readNotClosedExecutionYears());
 
-        Set<Degree> allDegrees = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
+        Set<Degree> allDegrees = new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
         allDegrees.addAll(Bennu.getInstance().getDegreesSet());
         setDegree(allDegrees.stream().findFirst().orElse(null));
         setDegreeOptions(allDegrees);
@@ -70,7 +73,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return executionYear;
     }
 
-    public void setExecutionYear(ExecutionYear executionYear) {
+    public void setExecutionYear(final ExecutionYear executionYear) {
         this.executionYear = executionYear;
     }
 
@@ -78,7 +81,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return executionYearOptions;
     }
 
-    public void setExecutionYearOptions(Collection<ExecutionYear> executionYearOptions) {
+    public void setExecutionYearOptions(final Collection<ExecutionYear> executionYearOptions) {
         this.executionYearOptions = executionYearOptions.stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(ey -> {
             TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
             tupleDataSourceBean.setId(ey.getExternalId());
@@ -91,7 +94,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return degree;
     }
 
-    public void setDegree(Degree degree) {
+    public void setDegree(final Degree degree) {
         this.degree = degree;
     }
 
@@ -99,7 +102,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return degreeOptions;
     }
 
-    public void setDegreeOptions(Collection<Degree> degreeOptions) {
+    public void setDegreeOptions(final Collection<Degree> degreeOptions) {
         this.degreeOptions = degreeOptions.stream().sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID).map(d -> {
             TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
             tupleDataSourceBean.setId(d.getExternalId());
@@ -112,7 +115,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return degreeType;
     }
 
-    public void setDegreeType(String degreeType) {
+    public void setDegreeType(final String degreeType) {
         this.degreeType = degreeType;
     }
 
@@ -120,7 +123,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return degreeAcron;
     }
 
-    public void setDegreeAcron(String degreeAcron) {
+    public void setDegreeAcron(final String degreeAcron) {
         this.degreeAcron = degreeAcron;
     }
 
@@ -128,7 +131,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return name;
     }
 
-    public void setName(LocalizedString name) {
+    public void setName(final LocalizedString name) {
         this.name = name;
     }
 
@@ -136,7 +139,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return description;
     }
 
-    public void setDescription(LocalizedString description) {
+    public void setDescription(final LocalizedString description) {
         this.description = description;
     }
 
@@ -144,7 +147,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return history;
     }
 
-    public void setHistory(LocalizedString history) {
+    public void setHistory(final LocalizedString history) {
         this.history = history;
     }
 
@@ -152,7 +155,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return objectives;
     }
 
-    public void setObjectives(LocalizedString objectives) {
+    public void setObjectives(final LocalizedString objectives) {
         this.objectives = objectives;
     }
 
@@ -160,7 +163,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return designedFor;
     }
 
-    public void setDesignedFor(LocalizedString designedFor) {
+    public void setDesignedFor(final LocalizedString designedFor) {
         this.designedFor = designedFor;
     }
 
@@ -168,7 +171,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return professionalExits;
     }
 
-    public void setProfessionalExits(LocalizedString professionalExits) {
+    public void setProfessionalExits(final LocalizedString professionalExits) {
         this.professionalExits = professionalExits;
     }
 
@@ -176,7 +179,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return operationalRegime;
     }
 
-    public void setOperationalRegime(LocalizedString operationalRegime) {
+    public void setOperationalRegime(final LocalizedString operationalRegime) {
         this.operationalRegime = operationalRegime;
     }
 
@@ -184,7 +187,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return gratuity;
     }
 
-    public void setGratuity(LocalizedString gratuity) {
+    public void setGratuity(final LocalizedString gratuity) {
         this.gratuity = gratuity;
     }
 
@@ -192,7 +195,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return additionalInfo;
     }
 
-    public void setAdditionalInfo(LocalizedString additionalInfo) {
+    public void setAdditionalInfo(final LocalizedString additionalInfo) {
         this.additionalInfo = additionalInfo;
     }
 
@@ -200,7 +203,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return links;
     }
 
-    public void setLinks(LocalizedString links) {
+    public void setLinks(final LocalizedString links) {
         this.links = links;
     }
 
@@ -208,7 +211,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return testIngression;
     }
 
-    public void setTestIngression(LocalizedString testIngression) {
+    public void setTestIngression(final LocalizedString testIngression) {
         this.testIngression = testIngression;
     }
 
@@ -216,7 +219,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return classifications;
     }
 
-    public void setClassifications(LocalizedString classifications) {
+    public void setClassifications(final LocalizedString classifications) {
         this.classifications = classifications;
     }
 
@@ -224,7 +227,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return accessRequisites;
     }
 
-    public void setAccessRequisites(LocalizedString accessRequisites) {
+    public void setAccessRequisites(final LocalizedString accessRequisites) {
         this.accessRequisites = accessRequisites;
     }
 
@@ -232,7 +235,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return candidacyDocuments;
     }
 
-    public void setCandidacyDocuments(LocalizedString candidacyDocuments) {
+    public void setCandidacyDocuments(final LocalizedString candidacyDocuments) {
         this.candidacyDocuments = candidacyDocuments;
     }
 
@@ -240,7 +243,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return driftsInitial;
     }
 
-    public void setDriftsInitial(Integer driftsInitial) {
+    public void setDriftsInitial(final Integer driftsInitial) {
         this.driftsInitial = driftsInitial;
     }
 
@@ -248,7 +251,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return driftsFirst;
     }
 
-    public void setDriftsFirst(Integer driftsFirst) {
+    public void setDriftsFirst(final Integer driftsFirst) {
         this.driftsFirst = driftsFirst;
     }
 
@@ -256,7 +259,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return driftsSecond;
     }
 
-    public void setDriftsSecond(Integer driftsSecond) {
+    public void setDriftsSecond(final Integer driftsSecond) {
         this.driftsSecond = driftsSecond;
     }
 
@@ -264,7 +267,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return markMin;
     }
 
-    public void setMarkMin(Double markMin) {
+    public void setMarkMin(final Double markMin) {
         this.markMin = markMin;
     }
 
@@ -272,7 +275,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return markMax;
     }
 
-    public void setMarkMax(Double markMax) {
+    public void setMarkMax(final Double markMax) {
         this.markMax = markMax;
     }
 
@@ -280,7 +283,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return markAverage;
     }
 
-    public void setMarkAverage(Double markAverage) {
+    public void setMarkAverage(final Double markAverage) {
         this.markAverage = markAverage;
     }
 
@@ -288,7 +291,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return qualificationLevel;
     }
 
-    public void setQualificationLevel(LocalizedString qualificationLevel) {
+    public void setQualificationLevel(final LocalizedString qualificationLevel) {
         this.qualificationLevel = qualificationLevel;
     }
 
@@ -296,7 +299,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return recognitions;
     }
 
-    public void setRecognitions(LocalizedString recognitions) {
+    public void setRecognitions(final LocalizedString recognitions) {
         this.recognitions = recognitions;
     }
 
@@ -304,7 +307,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return scientificAreas;
     }
 
-    public void setScientificAreas(LocalizedString scientificAreas) {
+    public void setScientificAreas(final LocalizedString scientificAreas) {
         this.scientificAreas = scientificAreas;
     }
 
@@ -312,7 +315,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return studyProgrammeDuration;
     }
 
-    public void setStudyProgrammeDuration(LocalizedString studyProgrammeDuration) {
+    public void setStudyProgrammeDuration(final LocalizedString studyProgrammeDuration) {
         this.studyProgrammeDuration = studyProgrammeDuration;
     }
 
@@ -320,7 +323,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return studyRegime;
     }
 
-    public void setStudyRegime(LocalizedString studyRegime) {
+    public void setStudyRegime(final LocalizedString studyRegime) {
         this.studyRegime = studyRegime;
     }
 
@@ -328,7 +331,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return studyProgrammeRequirements;
     }
 
-    public void setStudyProgrammeRequirements(LocalizedString studyProgrammeRequirements) {
+    public void setStudyProgrammeRequirements(final LocalizedString studyProgrammeRequirements) {
         this.studyProgrammeRequirements = studyProgrammeRequirements;
     }
 
@@ -336,7 +339,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return higherEducationAccess;
     }
 
-    public void setHigherEducationAccess(LocalizedString higherEducationAccess) {
+    public void setHigherEducationAccess(final LocalizedString higherEducationAccess) {
         this.higherEducationAccess = higherEducationAccess;
     }
 
@@ -344,7 +347,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return professionalStatus;
     }
 
-    public void setProfessionalStatus(LocalizedString professionalStatus) {
+    public void setProfessionalStatus(final LocalizedString professionalStatus) {
         this.professionalStatus = professionalStatus;
     }
 
@@ -352,7 +355,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         return supplementExtraInformation;
     }
 
-    public void setSupplementExtraInformation(LocalizedString supplementExtraInformation) {
+    public void setSupplementExtraInformation(final LocalizedString supplementExtraInformation) {
         this.supplementExtraInformation = supplementExtraInformation;
     }
 
@@ -360,7 +363,15 @@ public class ExtendedDegreeInfoBean implements IBean {
         return supplementOtherSources;
     }
 
-    public void setSupplementOtherSources(LocalizedString supplementOtherSources) {
+    public void setSupplementOtherSources(final LocalizedString supplementOtherSources) {
         this.supplementOtherSources = supplementOtherSources;
+    }
+
+    public List<CourseGroupDegreeInfoBean> getCourseGroupInfos() {
+        return courseGroupInfos;
+    }
+
+    public void setCourseGroupInfos(final List<CourseGroupDegreeInfoBean> courseGroupInfos) {
+        this.courseGroupInfos = courseGroupInfos;
     }
 }

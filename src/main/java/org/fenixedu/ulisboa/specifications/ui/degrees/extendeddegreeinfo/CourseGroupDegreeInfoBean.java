@@ -29,11 +29,15 @@ public class CourseGroupDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> courseGroupDataSource;
     private LocalizedString name;
 
+    // ReadOnly Objects
+    private String courseGroupName;
+    private String externalId;
+
     public CourseGroupDegreeInfoBean() {
         updateLists();
     }
 
-    public CourseGroupDegreeInfoBean(CourseGroupDegreeInfo degreeDocumentInfo) {
+    public CourseGroupDegreeInfoBean(final CourseGroupDegreeInfo degreeDocumentInfo) {
         DegreeInfo info = degreeDocumentInfo.getExtendedDegreeInfo().getDegreeInfo();
         CourseGroup courseGroup = degreeDocumentInfo.getCourseGroup();
         if (info != null) {
@@ -45,6 +49,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
             setCourseGroup(courseGroup);
         }
         setName(degreeDocumentInfo.getDegreeName());
+        this.externalId = degreeDocumentInfo.getExternalId();
 
         updateLists();
     }
@@ -53,7 +58,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return executionYear;
     }
 
-    public void setExecutionYear(ExecutionYear executionYear) {
+    public void setExecutionYear(final ExecutionYear executionYear) {
         this.executionYear = executionYear;
     }
 
@@ -61,7 +66,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return executionYearDataSource;
     }
 
-    public void setExecutionYearDataSource(Collection<ExecutionYear> executionYearDataSource) {
+    public void setExecutionYearDataSource(final Collection<ExecutionYear> executionYearDataSource) {
         this.executionYearDataSource = executionYearDataSource.stream().map(execYear -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(execYear.getExternalId());
@@ -74,7 +79,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return degree;
     }
 
-    public void setDegree(Degree degree) {
+    public void setDegree(final Degree degree) {
         this.degree = degree;
     }
 
@@ -82,20 +87,21 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return degreeDataSource;
     }
 
-    public void setDegreeDataSource(Collection<Degree> degreeDataSource) {
+    public void setDegreeDataSource(final Collection<Degree> degreeDataSource) {
         this.degreeDataSource = degreeDataSource.stream().map(degree -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(degree.getExternalId());
-            tuple.setText(degree.getMostRecentDegreeInfo(executionYear.getAcademicInterval()).getName().getContent());
+            tuple.setText(degree.getCode() + " - "
+                    + degree.getMostRecentDegreeInfo(executionYear.getAcademicInterval()).getName().getContent());
             return tuple;
-        }).collect(Collectors.toList());
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlan() {
         return degreeCurricularPlan;
     }
 
-    public void setDegreeCurricularPlan(DegreeCurricularPlan degreeCurricularPlan) {
+    public void setDegreeCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan) {
         this.degreeCurricularPlan = degreeCurricularPlan;
     }
 
@@ -103,7 +109,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return degreeCurricularPlanDataSource;
     }
 
-    public void setDegreeCurricularPlanDataSource(Collection<DegreeCurricularPlan> degreeCurricularPlanDataSource) {
+    public void setDegreeCurricularPlanDataSource(final Collection<DegreeCurricularPlan> degreeCurricularPlanDataSource) {
         this.degreeCurricularPlanDataSource = degreeCurricularPlanDataSource.stream().map(plan -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(plan.getExternalId());
@@ -116,15 +122,22 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return courseGroup;
     }
 
-    public void setCourseGroup(CourseGroup courseGroup) {
+    public void setCourseGroup(final CourseGroup courseGroup) {
         this.courseGroup = courseGroup;
+        if (courseGroup != null) {
+            this.courseGroupName = courseGroup.getName();
+        }
+    }
+
+    public String getCourseGroupName() {
+        return courseGroupName;
     }
 
     public List<TupleDataSourceBean> getCourseGroupDataSource() {
         return courseGroupDataSource;
     }
 
-    public void setCourseGroupDataSource(Collection<CourseGroup> courseGroupDataSource) {
+    public void setCourseGroupDataSource(final Collection<CourseGroup> courseGroupDataSource) {
         this.courseGroupDataSource = courseGroupDataSource.stream().map(group -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(group.getExternalId());
@@ -137,7 +150,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
         return name;
     }
 
-    public void setName(LocalizedString name) {
+    public void setName(final LocalizedString name) {
         this.name = name;
     }
 
@@ -147,7 +160,7 @@ public class CourseGroupDegreeInfoBean implements IBean {
                 executionYears.stream().sorted(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
         setExecutionYearDataSource(executionYears);
         if (executionYear != null) {
-            Set<Degree> allDegrees = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
+            Set<Degree> allDegrees = new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
             allDegrees.addAll(Bennu.getInstance().getDegreesSet().stream()
                     .filter(d -> d.getExecutionDegreesForExecutionYear(executionYear).size() > 0).collect(Collectors.toList()));
             setDegreeDataSource(allDegrees);
@@ -161,6 +174,10 @@ public class CourseGroupDegreeInfoBean implements IBean {
                 }
             }
         }
+    }
+
+    public String getExternalId() {
+        return externalId;
     }
 
 }
