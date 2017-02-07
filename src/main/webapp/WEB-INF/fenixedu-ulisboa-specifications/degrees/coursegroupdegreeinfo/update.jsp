@@ -80,7 +80,7 @@ ${portal.angularToolkit()}
 
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= ${degreeDocumentInfoBeanJson};
+    $scope.object= ${courseGroupDegreeInfoBeanJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [
@@ -153,7 +153,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             </div>
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
-                    <spring:message code="label.DegreeDocumentInfo.degreeName" />
+                    <spring:message code="label.CourseGroupDegreeInfo.degreeName" />
                 </div>
 
                 <div class="col-sm-10">

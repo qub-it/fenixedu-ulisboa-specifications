@@ -26,6 +26,9 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry"%>
+<%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType"%>
@@ -173,6 +176,54 @@ ${portal.toolkit()}
                                 </select>
                             </div>
                         </div>
+                        
+                        <c:forEach var="property" items="${ printProperties }">
+	                        <div class="form-group row">
+	                            <div class="col-sm-2 control-label">
+	                                ${ property.serviceRequestSlot.label.content }
+	                            </div>
+	                            <div class="col-sm-10 control-label">
+	                        		<input name="propertySlotEntry" value="${ property.externalId }" type="hidden">
+		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'DROP_DOWN_BOOLEAN'}">
+		                                <select id="propertyValue" name="propertyValue" class="form-control">
+		                                	<c:if test="${ property.defaultServiceRequestProperty.value }">
+												<option value="false"><spring:message code="label.no" /></option>
+												<option selected value="true"><spring:message code="label.yes" /></option>
+		                                	</c:if>
+		                                	<c:if test="${ not property.defaultServiceRequestProperty.value }">
+												<option selected value="false"><spring:message code="label.no" /></option>
+												<option value="true"><spring:message code="label.yes" /></option>
+		                                	</c:if>
+		                                </select>
+		                        	</c:if>
+		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'TEXT'}">
+					                    <input id="propertyValue" name="propertyValue" class="form-control" 
+					                           type="text" 
+					                           value='<c:out value='${property.defaultServiceRequestProperty.string}'/>'
+					                    />								                        		
+									</c:if>
+		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'NUMBER' }">
+					                    <input id="propertyValue" name="propertyValue" class="form-control" 
+					                           type="number" 
+					                           value='<c:out value='${property.defaultServiceRequestProperty.integer}'/>'
+					                    />								                        		
+									</c:if>
+		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'TEXT_LOCALIZED_STRING'}">
+					                    <input id="propertyValue" name="propertyValue" class="form-control" 
+					                           type="text" bennu-localized-string
+					                           value='<c:out value='${property.defaultServiceRequestProperty.localizedString.json()}'/>'
+					                    />								                        		
+									</c:if>
+		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'DATE'}">
+					                    <input id="propertyValue" name="propertyValue" class="form-control" 
+					                           type="text" bennu-date
+					                           value='<c:out value='${property.defaultServiceRequestProperty.dateTime}'/>'
+					                    />								                        		
+									</c:if>
+	                            </div>
+	                        </div>
+                        </c:forEach>
+                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -695,6 +746,10 @@ ${portal.toolkit()}
                         </td>
                     </tr>                
                     <c:forEach var="property" items="${ serviceRequest.sortedServiceRequestProperties }">
+                    <%
+                    	ServiceRequestSlotEntry entry = ServiceRequestSlotEntry.findByServiceRequestProperty((ServiceRequestProperty) pageContext.getAttribute("property"));
+                        if(entry != null && !entry.getIsPrintConfiguration()) {
+                    %>
                         <tr>
                             <th scope="row" class="col-xs-3"><spring:message code="${ property.serviceRequestSlot.label.content }" /></th>
                             <td>
@@ -732,6 +787,7 @@ ${portal.toolkit()}
                                 </c:choose>
                             </td>
                         </tr>                    
+                        <% } %>
                     </c:forEach>                
                 </tbody>
             </table>

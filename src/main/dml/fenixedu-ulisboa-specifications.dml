@@ -1321,6 +1321,7 @@ relation ServiceRequestSlotBennu {
 //======================= = Service Request Slot Entry = =========================
 class serviceRequests.ServiceRequestSlotEntry {
     Boolean required;
+    Boolean isPrintConfiguration;
     int orderNumber;
 }
 
@@ -1401,6 +1402,17 @@ relation ULisboaServiceRequestServiceRequestProperty {
         multiplicity *;
     }
 }
+
+relation ServiceRequestSlotEntryDefaultServiceRequestProperty {
+    public serviceRequests.ServiceRequestSlotEntry playsRole serviceRequestSlotEntry {
+        multiplicity 0..1;
+    }
+
+    public serviceRequests.ServiceRequestProperty playsRole defaultServiceRequestProperty {
+        multiplicity 0..1;
+    }
+}
+
 
 //slots
 relation DocumentPurposeTypeInstanceServiceRequestProperty {

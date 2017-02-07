@@ -302,14 +302,17 @@ $(document).ready( function() {
 	degree_options = [
         <c:forEach items="${degrees}" var="element"> 
             {
-                text :"<c:out value='${element.name}'/>", 
+                text :"<c:out value='${element.code} - ${element.name}'/>", 
                 id : "<c:out value='${element.externalId}'/>"
             },
         </c:forEach>
     ];
                         
+    var sortFunction = function(a,b) { return a.text.localeCompare(b.text) };
+
+	
     $("#degreeDocumentInfo_degree").select2({
-        data : degree_options,
+        data : degree_options.sort(sortFunction),
     });
                                 
     $("#degreeDocumentInfo_degree").select2().select2('val', '<c:out value='${param.extendedDegreeInfo}'/>');

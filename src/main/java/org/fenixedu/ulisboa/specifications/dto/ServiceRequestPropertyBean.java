@@ -48,12 +48,13 @@ public class ServiceRequestPropertyBean implements IBean {
     private CycleType cycleTypeValue;
     private boolean required;
     private boolean showMessage;
+    private String classname;
 
     public String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(final String code) {
         this.code = code;
     }
 
@@ -61,7 +62,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return uiComponentType;
     }
 
-    public void setUiComponentType(UIComponentType uiComponent) {
+    public void setUiComponentType(final UIComponentType uiComponent) {
         this.uiComponentType = uiComponent;
     }
 
@@ -69,7 +70,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return label;
     }
 
-    public void setLabel(LocalizedString label) {
+    public void setLabel(final LocalizedString label) {
         this.label = label;
     }
 
@@ -77,7 +78,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return dataSource;
     }
 
-    public void setDataSource(List<TupleDataSourceBean> dataSource) {
+    public void setDataSource(final List<TupleDataSourceBean> dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -85,7 +86,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return booleanValue;
     }
 
-    public void setBooleanValue(Boolean booleanValue) {
+    public void setBooleanValue(final Boolean booleanValue) {
         this.booleanValue = booleanValue;
     }
 
@@ -93,7 +94,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return integerValue;
     }
 
-    public void setIntegerValue(Integer integerValue) {
+    public void setIntegerValue(final Integer integerValue) {
         this.integerValue = integerValue;
     }
 
@@ -101,7 +102,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return stringValue;
     }
 
-    public void setStringValue(String stringValue) {
+    public void setStringValue(final String stringValue) {
         this.stringValue = stringValue;
     }
 
@@ -109,7 +110,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return localizedStringValue;
     }
 
-    public void setLocalizedStringValue(LocalizedString localizedStringValue) {
+    public void setLocalizedStringValue(final LocalizedString localizedStringValue) {
         this.localizedStringValue = localizedStringValue;
     }
 
@@ -117,7 +118,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return dateTimeValue;
     }
 
-    public void setDateTimeValue(DateTime dateTime) {
+    public void setDateTimeValue(final DateTime dateTime) {
         this.dateTimeValue = dateTime;
     }
 
@@ -125,7 +126,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return domainObjectListValue;
     }
 
-    public void setDomainObjectListValue(List<DomainObject> domainObjectListValue) {
+    public void setDomainObjectListValue(final List<DomainObject> domainObjectListValue) {
         this.domainObjectListValue = domainObjectListValue;
     }
 
@@ -133,7 +134,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return domainObjectValue;
     }
 
-    public void setDomainObjectValue(DomainObject domainObjectValue) {
+    public void setDomainObjectValue(final DomainObject domainObjectValue) {
         this.domainObjectValue = domainObjectValue;
     }
 
@@ -141,7 +142,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return localeValue;
     }
 
-    public void setLocaleValue(Locale localeValue) {
+    public void setLocaleValue(final Locale localeValue) {
         this.localeValue = localeValue;
     }
 
@@ -149,7 +150,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return cycleTypeValue;
     }
 
-    public void setCycleTypeValue(CycleType cycleTypeValue) {
+    public void setCycleTypeValue(final CycleType cycleTypeValue) {
         this.cycleTypeValue = cycleTypeValue;
     }
 
@@ -157,7 +158,7 @@ public class ServiceRequestPropertyBean implements IBean {
         return required;
     }
 
-    public void setRequired(boolean required) {
+    public void setRequired(final boolean required) {
         this.required = required;
     }
 
@@ -165,8 +166,16 @@ public class ServiceRequestPropertyBean implements IBean {
         return showMessage;
     }
 
-    public void setShowMessage(boolean showMessage) {
+    public void setShowMessage(final boolean showMessage) {
         this.showMessage = showMessage;
+    }
+
+    public String getClassname() {
+        return classname;
+    }
+
+    public void setClassname(final String classname) {
+        this.classname = classname;
     }
 
     public <T> T getValue() {
@@ -203,9 +212,10 @@ public class ServiceRequestPropertyBean implements IBean {
     public ServiceRequestPropertyBean() {
         setShowMessage(false);
         setDomainObjectListValue(new ArrayList<>());
+        setClassname(this.getClass().getName());
     }
 
-    public ServiceRequestPropertyBean(ServiceRequestSlotEntry serviceRequestSlotEntry) {
+    public ServiceRequestPropertyBean(final ServiceRequestSlotEntry serviceRequestSlotEntry) {
         this();
         ServiceRequestSlot serviceRequestSlot = serviceRequestSlotEntry.getServiceRequestSlot();
         setCode(serviceRequestSlot.getCode());
@@ -214,7 +224,7 @@ public class ServiceRequestPropertyBean implements IBean {
         setLabel(serviceRequestSlot.getLabel());
     }
 
-    public ServiceRequestPropertyBean(ServiceRequestProperty property) {
+    public ServiceRequestPropertyBean(final ServiceRequestProperty property) {
         this();
         ServiceRequestSlot slot = property.getServiceRequestSlot();
         setCode(slot.getCode());
@@ -230,7 +240,7 @@ public class ServiceRequestPropertyBean implements IBean {
         }
     }
 
-    private static String getPropertyName(ServiceRequestSlot slot) {
+    private static String getPropertyName(final ServiceRequestSlot slot) {
         Object propertyName = propertyNames.get(slot.getUiComponentType().toString());
         if (propertyName instanceof Map) {
             return ((Map<String, String>) propertyName).get(slot.getCode());

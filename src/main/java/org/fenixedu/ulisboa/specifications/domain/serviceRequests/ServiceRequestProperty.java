@@ -35,20 +35,16 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         initPropertyNames();
     }
 
-    public static final Comparator<ServiceRequestProperty> COMPARATE_BY_ENTRY_NUMBER = new Comparator<ServiceRequestProperty>() {
-
-        @Override
-        public int compare(ServiceRequestProperty o1, ServiceRequestProperty o2) {
-            ServiceRequestSlotEntry entry1 = ServiceRequestSlotEntry.findByServiceRequestProperty(o1);
-            ServiceRequestSlotEntry entry2 = ServiceRequestSlotEntry.findByServiceRequestProperty(o2);
-            if (entry1 == null) {
-                return 1;
-            }
-            if (entry2 == null) {
-                return -1;
-            }
-            return Integer.compare(entry1.getOrderNumber(), entry2.getOrderNumber());
+    public static final Comparator<ServiceRequestProperty> COMPARATE_BY_ENTRY_NUMBER = (o1, o2) -> {
+        ServiceRequestSlotEntry entry1 = ServiceRequestSlotEntry.findByServiceRequestProperty(o1);
+        ServiceRequestSlotEntry entry2 = ServiceRequestSlotEntry.findByServiceRequestProperty(o2);
+        if (entry1 == null) {
+            return 1;
         }
+        if (entry2 == null) {
+            return -1;
+        }
+        return Integer.compare(entry1.getOrderNumber(), entry2.getOrderNumber());
     };
 
     protected ServiceRequestProperty() {
@@ -56,7 +52,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         setBennu(Bennu.getInstance());
     }
 
-    protected ServiceRequestProperty(ServiceRequestSlot serviceRequestSlot) {
+    protected ServiceRequestProperty(final ServiceRequestSlot serviceRequestSlot) {
         this();
         setServiceRequestSlot(serviceRequestSlot);
         checkRules();
@@ -70,7 +66,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
     }
 
     @Override
-    protected void checkForDeletionBlockers(Collection<String> blockers) {
+    protected void checkForDeletionBlockers(final Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
     }
 
@@ -96,7 +92,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return Stream.concat(curriculumEntries, externalEntries).collect(Collectors.toList());
     }
 
-    public void setICurriculumEntriesSet(List<ICurriculumEntry> entries) {
+    public void setICurriculumEntriesSet(final List<ICurriculumEntry> entries) {
         getCurriculumLinesSet().clear();
         getExternalEnrolmentsSet().clear();
         for (ICurriculumEntry entry : entries) {
@@ -119,7 +115,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return (ExecutionYear) executionInterval;
     }
 
-    public void setExecutionYear(ExecutionYear executionYear) {
+    public void setExecutionYear(final ExecutionYear executionYear) {
         setExecutionInterval(executionYear);
     }
 
@@ -132,11 +128,11 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return (ExecutionSemester) executionInterval;
     }
 
-    public void setExecutionSemester(ExecutionSemester executionSemester) {
+    public void setExecutionSemester(final ExecutionSemester executionSemester) {
         setExecutionInterval(executionSemester);
     }
 
-    public void setValue(Object value) {
+    public void setValue(final Object value) {
         String propertyName = getPropertyName(getServiceRequestSlot());
         try {
             BeanUtils.setProperty(this, propertyName, value);
@@ -182,23 +178,23 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return Bennu.getInstance().getServiceRequestPropertiesSet().stream();
     }
 
-    public static Stream<ServiceRequestProperty> findByCode(String code) {
+    public static Stream<ServiceRequestProperty> findByCode(final String code) {
         return ServiceRequestProperty.findAll().filter(prop -> prop.getServiceRequestSlot().getCode().equals(code));
     }
-    
+
     public static Stream<ServiceRequestProperty> find(final ULisboaServiceRequest request, final ServiceRequestSlot slot) {
         return request.getServiceRequestPropertiesSet().stream().filter(p -> p.getServiceRequestSlot() == slot);
     }
 
     @Atomic
-    public static ServiceRequestProperty create(ServiceRequestSlot slot) {
+    public static ServiceRequestProperty create(final ServiceRequestSlot slot) {
         return new ServiceRequestProperty(slot);
     }
 
     @Atomic
     @Deprecated
     // This method should receive the service request
-    public static ServiceRequestProperty create(ServiceRequestSlot slot, Object value) {
+    public static ServiceRequestProperty create(final ServiceRequestSlot slot, final Object value) {
         if (value == null) {
             return create(slot);
         }
@@ -206,28 +202,29 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         property.setValue(value);
         return property;
     }
-    
+
     // This method should receive the service request
-    public static ServiceRequestProperty create(ULisboaServiceRequest request, ServiceRequestSlot slot, Object value) {
+    public static ServiceRequestProperty create(final ULisboaServiceRequest request, final ServiceRequestSlot slot,
+            final Object value) {
         if (value == null) {
             return create(slot);
         }
         ServiceRequestProperty property = new ServiceRequestProperty(slot);
         property.setValue(value);
-        
+
         property.setULisboaServiceRequest(request);
-        
+
         return property;
     }
 
     @Atomic
-    public static ServiceRequestProperty create(ServiceRequestPropertyBean bean) {
+    public static ServiceRequestProperty create(final ServiceRequestPropertyBean bean) {
         ServiceRequestSlot slot = ServiceRequestSlot.getByCode(bean.getCode());
         Object value = bean.getValue();
         return create(slot, value);
     }
 
-    private static String getPropertyName(ServiceRequestSlot slot) {
+    private static String getPropertyName(final ServiceRequestSlot slot) {
         Object propertyName = PROPERTY_NAMES.get(slot.getUiComponentType().toString());
         if (propertyName instanceof Map) {
             return ((Map<String, String>) propertyName).get(slot.getCode());

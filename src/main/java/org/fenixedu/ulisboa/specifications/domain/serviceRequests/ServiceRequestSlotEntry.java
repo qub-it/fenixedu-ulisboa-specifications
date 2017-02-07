@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
@@ -14,23 +15,26 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     public static final Comparator<ServiceRequestSlotEntry> COMPARE_BY_ORDER_NUMBER = new Comparator<ServiceRequestSlotEntry>() {
         @Override
-        public int compare(ServiceRequestSlotEntry o1, ServiceRequestSlotEntry o2) {
+        public int compare(final ServiceRequestSlotEntry o1, final ServiceRequestSlotEntry o2) {
             return Integer.compare(o1.getOrderNumber(), o2.getOrderNumber());
         }
     };
+
+    public static final Predicate<ServiceRequestSlotEntry> PRINT_PROPERTY = entry -> entry.getIsPrintConfiguration();
 
     protected ServiceRequestSlotEntry() {
         super();
         setBennu(Bennu.getInstance());
     }
 
-    protected ServiceRequestSlotEntry(ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
-            final Boolean required, final int orderNumber) {
+    protected ServiceRequestSlotEntry(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
+            final Boolean required, final int orderNumber, final Boolean isPrintConfiguration) {
         this();
         setServiceRequestType(serviceRequestType);
         setServiceRequestSlot(slot);
         setRequired(required);
         setOrderNumber(orderNumber);
+        setIsPrintConfiguration(isPrintConfiguration);
         checkRules();
     }
 
@@ -45,14 +49,22 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
         return super.getRequired() == null ? false : super.getRequired().booleanValue();
     }
 
+    @Override
+    public Boolean getIsPrintConfiguration() {
+        return super.getIsPrintConfiguration() == null ? false : super.getIsPrintConfiguration().booleanValue();
+    }
+
     @Atomic
-    public void edit(final Boolean required, final int orderNumber) {
+    public void edit(final Boolean required, final int orderNumber, final Boolean isPrintConfiguration,
+            final ServiceRequestProperty defaultProperty) {
         setRequired(required);
         setOrderNumber(orderNumber);
+        setIsPrintConfiguration(isPrintConfiguration);
+        setDefaultServiceRequestProperty(defaultProperty);
     }
 
     @Override
-    protected void checkForDeletionBlockers(Collection<String> blockers) {
+    protected void checkForDeletionBlockers(final Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
     }
 
@@ -70,7 +82,7 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
         return Bennu.getInstance().getServiceRequestSlotEntriesSet().stream();
     }
 
-    public static ServiceRequestSlotEntry findByServiceRequestProperty(ServiceRequestProperty property) {
+    public static ServiceRequestSlotEntry findByServiceRequestProperty(final ServiceRequestProperty property) {
         return property.getServiceRequestSlot().getServiceRequestSlotEntriesSet().stream().filter(
                 entry -> entry.getServiceRequestType().equals(property.getULisboaServiceRequest().getServiceRequestType()))
                 .findFirst().orElse(null);
@@ -79,6 +91,12 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
     @Atomic
     public static ServiceRequestSlotEntry create(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
             final Boolean required, final int orderNumber) {
-        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber);
+        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber, Boolean.FALSE);
+    }
+
+    @Atomic
+    public static ServiceRequestSlotEntry create(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
+            final Boolean required, final int orderNumber, final Boolean isPrintConfiguration) {
+        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber, isPrintConfiguration);
     }
 }

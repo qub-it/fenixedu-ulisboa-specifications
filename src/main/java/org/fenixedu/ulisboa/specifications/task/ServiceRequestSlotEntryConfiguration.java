@@ -14,7 +14,7 @@ public class ServiceRequestSlotEntryConfiguration implements Serializable {
     private boolean required;
     private int order;
 
-    public ServiceRequestSlotEntryConfiguration(String slot, boolean required, int order) {
+    public ServiceRequestSlotEntryConfiguration(final String slot, final boolean required, final int order) {
         //In CSV file, order number starts in 1 and not in 0
         this.slot = slot;
         this.required = required;
@@ -25,7 +25,7 @@ public class ServiceRequestSlotEntryConfiguration implements Serializable {
         return slot;
     }
 
-    public void setSlot(String slot) {
+    public void setSlot(final String slot) {
         this.slot = slot;
     }
 
@@ -33,7 +33,7 @@ public class ServiceRequestSlotEntryConfiguration implements Serializable {
         return required;
     }
 
-    public void setRequired(boolean required) {
+    public void setRequired(final boolean required) {
         this.required = required;
     }
 
@@ -41,11 +41,11 @@ public class ServiceRequestSlotEntryConfiguration implements Serializable {
         return order;
     }
 
-    public void setOrder(int order) {
+    public void setOrder(final int order) {
         this.order = order;
     }
 
-    public void execute(ServiceRequestType serviceRequestType) {
+    public void execute(final ServiceRequestType serviceRequestType) {
         ServiceRequestSlotEntry.create(serviceRequestType, ServiceRequestSlot.getByCode(slot), required, order);
     }
 

@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.servicerequesttype.ServiceRequestTypeController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -231,6 +232,7 @@ ${portal.angularToolkit()}
                     $('form[name="form"]').find('input[name="postback"]').attr('value', url);
                     $('form[name="form"]').find('input[name="required"]').attr('value', false);
                     $('form[name="form"]').find('input[name="orderNumber"]').attr('value', $scope.object.serviceRequestSlotEntries.length);
+                    $('form[name="form"]').find('input[name="isPrintConfiguration"]').attr('value', false);
                     $('form[name="form"]').find('input[name="serviceRequestSlot"]').attr('value', $scope.serviceRequestSlot);
                     $scope.postBack(model);
                     
@@ -260,10 +262,27 @@ ${portal.angularToolkit()}
                     $('form[name="form"]').find('input[name="postback"]').attr('value', url);
                     $scope.postBack(model);                 
                 }
-                $scope.changeRequired = function(slotEntry, model) {
+                $scope.processBeanBeforeSubmit = function() {
+                	angular.forEach($scope.object.serviceRequestSlotEntries, function(slotEntry, index) {
+	                    if (slotEntry.propertyBean.uiComponentType == '<%= UIComponentType.DATE %>') {
+	                        if(slotEntry.propertyBean.dateTimeValue.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}$") !== null) {
+	                        	slotEntry.propertyBean.dateTimeValue = slotEntry.propertyBean.dateTimeValue + "T00:00:00.000Z";
+	                        }
+	                        if(slotEntry.propertyBean.dateTimeValue.length === 0) {
+	                        	slotEntry.propertyBean.dateTimeValue = undefined;
+	                        }
+	                    }                		
+                	});
+                	$scope.$apply();
+                };
+                $scope.updateEntry = function(slotEntry, model) {
                     url = '${pageContext.request.contextPath}<%= ServiceRequestTypeController.UPDATE_PROPERTY_URL%>${serviceRequestType.externalId}/' + slotEntry.entry;
+                    $scope.processBeanBeforeSubmit(slotEntry);
                     $('form[name="form"]').find('input[name="postback"]').attr('value', url);
                     $('form[name="form"]').find('input[name="required"]').attr('value', slotEntry.required);
+                    $('form[name="form"]').find('input[name="isPrintConfiguration"]').attr('value', slotEntry.isPrintConfiguration);
+                    $('form[name="form"]').find('input[name="defaultProperty"]').attr('value', JSON.stringify(slotEntry.propertyBean));
+                    
                 	$scope.postBack(model);
                 }
             } ]);
@@ -286,6 +305,8 @@ ${portal.angularToolkit()}
         <input type="hidden" name="required" value="" />
         <input type="hidden" name="orderNumber" value="" />
         <input type="hidden" name="serviceRequestSlot" value="" />
+        <input type="hidden" name="isPrintConfiguration" value="" />
+        <input type="hidden" name="defaultProperty" value="" />
         
         <div class="panel panel-body">
             <div class="form-group row">
@@ -321,6 +342,10 @@ ${portal.angularToolkit()}
                                 code="label.ServiceRequestSlot.label" /></th>
                         <th style="width: 10%"><spring:message
                                 code="label.ServiceRequestSlotEntry.required" /></th>
+                        <th style="width: 10%"><spring:message
+                                code="label.ServiceRequestSlotEntry.isPrintConfiguration" /></th>
+                        <th><spring:message
+                                code="label.ServiceRequestSlotEntry.defaultProperty" /></th>
                         <!-- operation column -->
                         <th style="width: 25%"></th>
                     </tr>
@@ -349,8 +374,95 @@ ${portal.angularToolkit()}
                                 </ui-select-choices>
                             </ui-select>
                         </td>
+                        <td ng-hide="slotEntry.editing">
+                                <div ng-show="slotEntry.isPrintConfiguration">
+                                <spring:message code="label.true"/>
+                                </div>
+                                <div ng-hide="slotEntry.isPrintConfiguration">
+                                <spring:message code="label.false"/>
+                                </div>
+                        </td>
+                        <td ng-show="slotEntry.editing">
+                            <ui-select id="serviceRequestSlotEntry_isPrintConfiguration"
+                                ng-model="slotEntry.isPrintConfiguration"
+                                theme="bootstrap" > 
+                                <ui-select-match>
+                                    {{$select.selected.name}}
+                                </ui-select-match> 
+                                <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                                    <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>                        
+                        
+                        <td ng-hide="slotEntry.editing">
+								<div ng-show="slotEntry.propertyBean.uiComponentType == 'DROP_DOWN_ONE_VALUE'">
+									{{ slotEntry.propertyBean.value }}
+								</div>
+								<div ng-show="slotEntry.propertyBean.uiComponentType == 'DROP_DOWN_BOOLEAN'">
+									{{ slotEntry.propertyBean.booleanValue }}
+								</div>
+								<div ng-show="slotEntry.propertyBean.uiComponentType == 'TEXT'">
+									{{ slotEntry.propertyBean.stringValue }}
+								</div>
+								<div ng-show="slotEntry.propertyBean.uiComponentType == 'NUMBER'">
+									{{ slotEntry.propertyBean.integerValue }}
+								</div>
+								<div ng-show="slotEntry.propertyBean.uiComponentType == 'TEXT_LOCALIZED_STRING'">
+									{{ slotEntry.propertyBean.localizedStringValue }}
+								</div>
+								<div ng-show="slotEntry.propertyBean.uiComponentType == 'DATE'">
+									{{ slotEntry.propertyBean.dateTimeValue }}
+								</div>
+                        </td>
+                        <td ng-show="slotEntry.editing">
+							<ui-select id="{{ slotEntry.propertyBean.code}}" name="field" on-select="onDropDownChange($model)"
+		                        ng-model="slotEntry.propertyBean.value"
+		                        ng-if="slotEntry.propertyBean.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
+		                        theme="bootstrap" ng-required="slotEntry.propertyBean.required"> 
+		                        <ui-select-match allow-clear="true">
+		                            {{$select.selected.text}}
+		                        </ui-select-match> 
+		                        <ui-select-choices repeat="element.id as element in slotEntry.propertyBean.dataSource | filter: $select.search">
+		                            <span ng-bind-html="element.text | highlight: $select.search"></span>
+		                        </ui-select-choices>
+		                    </ui-select>    
+		                    <ui-select id="{{slotEntry.propertyBean.code}}" name="field"
+		                        ng-model="slotEntry.propertyBean.booleanValue"
+		                        ng-if="slotEntry.propertyBean.uiComponentType == 'DROP_DOWN_BOOLEAN'"
+		                        theme="bootstrap" ng-required="slotEntry.propertyBean.required"> 
+		                        <ui-select-match allow-clear="true">
+		                            {{$select.selected.name}}
+		                        </ui-select-match> 
+		                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+		                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+		                        </ui-select-choices>
+		                    </ui-select> 
+		                    <input id="{{ slotEntry.propertyBean.code }}" class="form-control" ng-if="slotEntry.propertyBean.uiComponentType == 'TEXT'"
+		                           type="text" ng-model="slotEntry.propertyBean.stringValue" name="field" ng-required="slotEntry.propertyBean.required" 
+		                           value='<c:out value='${requestScope[slotEntry.propertyBean.code]}'/>'
+		                    />
+		                    <input id="{{ slotEntry.propertyBean.code }}" class="form-control" ng-if="slotEntry.propertyBean.uiComponentType == 'NUMBER'"
+		                           type="number" ng-model="slotEntry.propertyBean.integerValue" name="field"  ng-required="slotEntry.propertyBean.required"
+		                           value='<c:out value='${requestScope[slotEntry.propertyBean.code]}'/>'
+		                    />
+		                    <input id="{{ slotEntry.propertyBean.code }}" class="form-control" ng-if="slotEntry.propertyBean.uiComponentType == 'TEXT_LOCALIZED_STRING'"
+		                           type="text" ng-localized-string="slotEntry.propertyBean.localizedStringValue" name="field" ng-required="slotEntry.propertyBean.required"
+		                           value='<c:out value='${requestScope[slotEntry.propertyBean.code]}'/>'
+		                    />
+		                    <input id="{{ slotEntry.propertyBean.code }}" class="form-control" ng-if="slotEntry.propertyBean.uiComponentType == 'DATE'"
+		                           type="text" bennu-date="slotEntry.propertyBean.dateTimeValue" name="field" ng-required="slotEntry.propertyBean.required"
+		                           value='<c:out value='${requestScope[slotEntry.propertyBean.code]}'/>'
+		                    />    
+		                    <div id="{{slotEntry.propertyBean.code}}" name="field" class="ui-select-container ui-select-bootstrap dropdown" 
+		                        ng-if="slotEntry.propertyBean.uiComponentType == 'DROP_DOWN_MULTIPLE'"
+		                        ng-dropdown-multiselect="" options="slotEntry.propertyBean.dataSource"
+		                        selected-model="slotEntry.propertyBean.domainObjectListValue" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
+		                    </div>
+                        </td>
+                        
                         <td>
-                            <a class="btn btn-default" ng-click="changeRequired(slotEntry)" ng-show="slotEntry.editing">
+                            <a class="btn btn-default" ng-click="updateEntry(slotEntry)" ng-show="slotEntry.editing">
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
                                 &nbsp;
                             </a>
