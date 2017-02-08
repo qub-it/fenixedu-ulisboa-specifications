@@ -66,6 +66,7 @@ public class RegistrationHistoryReport {
         this.registration = registration;
 
         if (getStudentCurricularPlan() == null) {
+
             throw new ULisboaSpecificationsDomainException(
                     "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
                     registration.getStudent().getNumber().toString(), registration.getDegree().getCode(),
@@ -83,8 +84,24 @@ public class RegistrationHistoryReport {
     }
 
     public StudentCurricularPlan getStudentCurricularPlan() {
-        return registration.getStudentCurricularPlansSet().size() == 1 ? registration
-                .getLastStudentCurricularPlan() : registration.getStudentCurricularPlan(executionYear);
+        if(registration.getStudentCurricularPlansSet().size() == 1) {
+            return registration
+                    .getLastStudentCurricularPlan();
+        }
+        
+        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
+        
+        if(studentCurricularPlan != null) {
+            return studentCurricularPlan;
+        }
+        
+        studentCurricularPlan = registration.getFirstStudentCurricularPlan();
+        
+        if(studentCurricularPlan.getStartExecutionYear().isAfterOrEquals(executionYear)) {
+           return studentCurricularPlan; 
+        }
+        
+        return null;
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlan() {
