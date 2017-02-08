@@ -54,6 +54,7 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
 
         setScientificAreas(olderEdi.getScientificAreas());
         setStudyRegime(olderEdi.getStudyRegime());
+        setStudyProgrammeDuration(olderEdi.getStudyProgrammeDuration());
         setStudyProgrammeRequirements(olderEdi.getStudyProgrammeRequirements());
         setHigherEducationAccess(olderEdi.getHigherEducationAccess());
         setProfessionalStatus(olderEdi.getProfessionalStatus());
