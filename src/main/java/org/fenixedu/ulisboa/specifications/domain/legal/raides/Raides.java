@@ -226,7 +226,7 @@ public class Raides {
 
         for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForInternationalMobility()) {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
-            for (final Degree degree : Bennu.getInstance().getDegreesSet()) {
+            for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
 
                     try {

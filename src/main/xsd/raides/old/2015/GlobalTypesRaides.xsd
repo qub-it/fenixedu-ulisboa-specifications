@@ -65,7 +65,7 @@
         </xs:restriction>
     </xs:simpleType>
     
-    <xs:complexType name="NumeroID">
+    <xs:complexType name="NumeroID">	<!-- Alteração -->
         <xs:simpleContent>
             <xs:extension base="NumeroIdentificacao">
                 <xs:attribute name="Tipo" use="required">
@@ -129,7 +129,12 @@
     <xs:simpleType name="Ramo">
         <xs:restriction base="xs:string">
             <xs:pattern value="[^\s]+"/>
-            <xs:length value="7" />
+            <xs:length value="2" />
+        </xs:restriction>
+    </xs:simpleType>
+	
+    <xs:simpleType name="AreaInvestigacao">	<!-- Alteração Área FOS-->
+        <xs:restriction base="xs:int">
         </xs:restriction>
     </xs:simpleType>
 	
@@ -199,10 +204,10 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="FormaIngresso"> 
+    <xs:simpleType name="FormaIngresso"> <!-- Alteração -->
         <xs:restriction base="xs:integer">
             <xs:minInclusive value="10"/>
-            <xs:maxInclusive value="35"/><!--Alterado-->
+            <xs:maxInclusive value="30"/>
         </xs:restriction>     
     </xs:simpleType>
 
@@ -240,7 +245,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="Escolaridade">
+    <xs:simpleType name="Escolaridade">	<!-- Alteração -->
         <xs:restriction base="xs:integer">
             <xs:minInclusive value="10"/>
             <xs:maxInclusive value="30"/>
@@ -261,7 +266,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="EscolaridadeAnterior"> 
+    <xs:simpleType name="EscolaridadeAnterior"> <!-- Alteração -->
         <xs:restriction base="xs:integer">
             <xs:minInclusive value="10"/>
             <xs:maxInclusive value="30"/>
@@ -320,11 +325,6 @@
 
     <!--  DIPLOMADOS-->
 
-	<xs:simpleType name="AreaInvestigacao">	
-        <xs:restriction base="xs:int">
-        </xs:restriction>
-    </xs:simpleType>
-	
     <xs:simpleType  name="NumInscConclusao">
         <xs:restriction base="xs:integer">          
             <xs:totalDigits value="2"/>
@@ -367,9 +367,10 @@
     
   <!-- MOBILIDADE INTERNACIONAL-->
 
-    <xs:simpleType name="AreaCientifica"><!--Alterado de int para string -> AreaCNAEF-->
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="4"/>
+    <xs:simpleType name="AreaCientifica">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="10"/>
+            <xs:maxInclusive value="32"/>
         </xs:restriction>
     </xs:simpleType>
 

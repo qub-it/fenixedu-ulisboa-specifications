@@ -41,8 +41,8 @@ import com.google.common.base.Strings;
 
 public class XmlToBaseFileWriter {
 
-    public static LegalReportResultFile write(final LegalReportRequest reportRequest, final RaidesRequestParameter raidesRequestParameter,
-            final Raides raides) {
+    public static LegalReportResultFile write(final LegalReportRequest reportRequest,
+            final RaidesRequestParameter raidesRequestParameter, final Raides raides) {
         try {
             final ObjectFactory factory = new ObjectFactory();
 
@@ -96,46 +96,46 @@ public class XmlToBaseFileWriter {
             final Collection<TblDiplomado> diplomadosForStudent = raides.diplomadosForStudent(student, raidesRequestParameter);
             final TblMobilidadeInternacional tblMobilidadeInternacional =
                     raides.mobilidadeInternacionalForStudent(student, raidesRequestParameter);
-            
+
             if (raidesRequestParameter.isFilterEntriesWithErrors() && !tblIdentificacao.isValid()) {
                 return null;
             }
-            
+
             if (raidesRequestParameter.isFilterEntriesWithErrors() && inscricoesForStudent.isEmpty()
                     && diplomadosForStudent.isEmpty() && tblMobilidadeInternacional == null) {
                 return null;
             }
-            
+
             final Aluno aluno = factory.createInformacaoAlunosAlunosAluno();
             aluno.setIdentificacao(fillIdentificacaoAluno(raides, factory, student));
-            
+
             if (!inscricoesForStudent.isEmpty()) {
                 final Inscricoes inscricoes = factory.createInformacaoAlunosAlunosAlunoInscricoes();
                 aluno.setInscricoes(inscricoes);
-                
+
                 for (final TblInscrito tblInscrito : inscricoesForStudent) {
                     inscricoes.getInscricao().add(fillInscricao(raides, factory, student, tblInscrito));
                 }
             }
-            
+
             if (!diplomadosForStudent.isEmpty()) {
                 final Diplomas diplomas = factory.createInformacaoAlunosAlunosAlunoDiplomas();
                 aluno.setDiplomas(diplomas);
-                
+
                 for (final TblDiplomado tblDiplomado : diplomadosForStudent) {
                     diplomas.getDiploma().add(fillDiploma(raides, factory, student, tblDiplomado));
                 }
             }
-            
+
             if (tblMobilidadeInternacional != null) {
                 final Mobilidade mobilidade = fillMobilidadeInternacional(raides, factory, student, tblMobilidadeInternacional);
                 aluno.setMobilidade(mobilidade);
-                
+
             }
-            
+
             return aluno;
-            
-        } catch(final Exception e) {
+
+        } catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -157,10 +157,10 @@ public class XmlToBaseFileWriter {
         mobilidade.setOutroPrograma(tblMobilidadeInternacional.getOutroPrograma());
         mobilidade.setProgMobilidade(longValueOf(tblMobilidadeInternacional.getProgMobilidade()));
 
-        mobilidade.setAreaCientifica(longValueOf(tblMobilidadeInternacional.getAreaCientifica()));
+        mobilidade.setAreaCientifica(tblMobilidadeInternacional.getAreaCientifica());
         mobilidade.setNivelCursoDestino(longValueOf(tblMobilidadeInternacional.getNivelCursoDestino()));
         mobilidade.setOutroNivelCurDestino(tblMobilidadeInternacional.getOutroNivelCursoDestino());
-        
+
         if (!Strings.isNullOrEmpty(tblMobilidadeInternacional.getRamo())) {
             mobilidade.setRamo(tblMobilidadeInternacional.getRamo());
         }
@@ -172,10 +172,10 @@ public class XmlToBaseFileWriter {
     }
 
     private static BigDecimal bigDecimalValueOf(final String value) {
-        if(Strings.isNullOrEmpty(value)) {
+        if (Strings.isNullOrEmpty(value)) {
             return null;
         }
-        
+
         return new BigDecimal(value);
     }
 
@@ -203,7 +203,7 @@ public class XmlToBaseFileWriter {
         diploma.setPaisMobilidadeCredito(tblDiplomado.getPaisMobilidadeCredito());
         diploma.setProgMobilidadeCredito(longValueOf(tblDiplomado.getProgMobilidadeCredito()));
         diploma.setAreaInvestigacao(integerValueOf(tblDiplomado.getAreaInvestigacao()));
-        
+
         if (!Strings.isNullOrEmpty(tblDiplomado.getRamo())) {
             diploma.setRamo(tblDiplomado.getRamo());
         } else {
@@ -231,20 +231,21 @@ public class XmlToBaseFileWriter {
         inscricao.setAnoCurricular(longValueOf(tblInscrito.getAnoCurricular()));
         inscricao.setPrimeiraVez(booleanValueOf(tblInscrito.getPrimeiraVez()));
         inscricao.setRegimeFrequencia(longValueOf(tblInscrito.getRegimeFrequencia()));
-        inscricao.setNumInscNesteCurso(tblInscrito.getNumInscNesteCurso() != null ? Long.valueOf((int) tblInscrito
-                .getNumInscNesteCurso()) : null);
-        inscricao.setECTSInscricao(tblInscrito.getEctsInscricao() != null ? tblInscrito.getEctsInscricao().setScale(2, RoundingMode.HALF_EVEN) : null);
+        inscricao.setNumInscNesteCurso(
+                tblInscrito.getNumInscNesteCurso() != null ? Long.valueOf((int) tblInscrito.getNumInscNesteCurso()) : null);
+        inscricao.setECTSInscricao(tblInscrito.getEctsInscricao() != null ? tblInscrito.getEctsInscricao().setScale(2,
+                RoundingMode.HALF_EVEN) : null);
         inscricao.setECTSAcumulados(tblInscrito.getEctsAcumulados().setScale(2, RoundingMode.HALF_EVEN));
         inscricao.setTempoParcial(booleanValueOf(tblInscrito.getTempoParcial()));
         inscricao.setBolseiro(longValueOf(tblInscrito.getBolseiro()));
         inscricao.setFormaIngresso(longValueOf(tblInscrito.getFormaIngresso()));
         inscricao.setEstabInscricaoAnt(tblInscrito.getEstabInscricaoAnt());
         inscricao.setOutroEstabInscAnt(tblInscrito.getOutroEstabInscAnt());
-        inscricao.setNotaIngresso(!Strings.isNullOrEmpty(tblInscrito.getNotaIngresso()) ? new BigDecimal(tblInscrito
-                .getNotaIngresso()) : null);
+        inscricao.setNotaIngresso(
+                !Strings.isNullOrEmpty(tblInscrito.getNotaIngresso()) ? new BigDecimal(tblInscrito.getNotaIngresso()) : null);
         inscricao.setOpcaoIngresso(longValueOf(tblInscrito.getOpcaoIngresso()));
-        inscricao
-                .setNumInscCursosAnt(tblInscrito.getNumInscCursosAnt() != null ? Long.valueOf(tblInscrito.getNumInscCursosAnt()) : null);
+        inscricao.setNumInscCursosAnt(
+                tblInscrito.getNumInscCursosAnt() != null ? Long.valueOf(tblInscrito.getNumInscCursosAnt()) : null);
         inscricao.setAnoUltimaInscricao(tblInscrito.getAnoUltimaInscricao());
         inscricao.setEstadoCivil(longValueOf(tblInscrito.getEstadoCivil()));
         inscricao.setTrabalhadorEstudante(booleanValueOf(tblInscrito.getEstudanteTrabalhador()));
@@ -389,7 +390,7 @@ public class XmlToBaseFileWriter {
 
         return Boolean.valueOf(value);
     }
-    
+
     protected static Integer integerValueOf(final String value) {
         if (Strings.isNullOrEmpty(value)) {
             return null;
