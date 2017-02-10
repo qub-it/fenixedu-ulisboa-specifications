@@ -748,7 +748,7 @@ ${portal.toolkit()}
                     <c:forEach var="property" items="${ serviceRequest.sortedServiceRequestProperties }">
                     <%
                     	ServiceRequestSlotEntry entry = ServiceRequestSlotEntry.findByServiceRequestProperty((ServiceRequestProperty) pageContext.getAttribute("property"));
-                        if(entry != null && !entry.getIsPrintConfiguration()) {
+                        if(entry == null || !entry.getIsPrintConfiguration()) {
                     %>
                         <tr>
                             <th scope="row" class="col-xs-3"><spring:message code="${ property.serviceRequestSlot.label.content }" /></th>
