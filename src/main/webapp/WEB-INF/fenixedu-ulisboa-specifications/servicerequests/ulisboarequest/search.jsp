@@ -143,27 +143,24 @@ function submit(url) {
         <div class="panel-body">
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
-                    <spring:message code="label.academicRequest.executionYear" />
+                    <spring:message code="label.academicRequest.civilYear" />
                 </div>
 
                 <div class="col-sm-6">
                     <%-- Relation to side 1 drop down rendered in input --%>
-                    <select id="academicRequest_executionYear"
+                    <select id="academicRequest_civilYear"
                         class="js-example-basic-single"
-                        name="executionYear">
+                        name="civilYear">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
-                        <c:forEach var="executionYear" items="${executionYearsList}">
-                        	<c:if test="${executionYear.externalId != param.executionYear}">
-                        		<option value="${executionYear.externalId}">${executionYear.qualifiedName}</option>
-                        	</c:if>
-                        	<c:if test="${executionYear.externalId == param.executionYear}">                    	
-	                        	<option value="${executionYear.externalId}" selected>${executionYear.qualifiedName}</option>
-                        	</c:if>
+                        <c:forEach var="civilYear" items="${civilYearsList}">
+                        		<option value="${civilYear}">${civilYear}</option>
                         </c:forEach>
                     </select>
                     <script type="text/javascript">
-		                $("#academicRequest_executionYear").select2();
+		                $("#academicRequest_civilYear").select2();
+                        $("#academicRequest_civilYear").val("${currentCivilYear}").trigger("change");
+		                $("#academicRequest_civilYear").val("${param.civilYear}").trigger("change");
                     </script>
                 </div>
             </div>
@@ -270,6 +267,21 @@ function submit(url) {
                     <select id="academicRequest_urgent"
                         class="js-example-basic-single"
                         name="urgent">
+                        <option value="false"><spring:message code="label.no" /></option>
+                        <option value="true"><spring:message code="label.yes" /></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.academicRequest.requestedOnline" />
+                </div>
+
+                <div class="col-sm-6">
+                    <%-- Relation to side 1 drop down rendered in input --%>
+                    <select id="academicRequest_selfIssued"
+                        class="js-example-basic-single"
+                        name="selfIssued">
                         <option value="false"><spring:message code="label.no" /></option>
                         <option value="true"><spring:message code="label.yes" /></option>
                     </select>

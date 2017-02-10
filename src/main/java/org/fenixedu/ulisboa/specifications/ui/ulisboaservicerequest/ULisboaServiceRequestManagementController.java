@@ -2,7 +2,10 @@ package org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -14,15 +17,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestYear;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -61,7 +65,9 @@ import pt.ist.fenixframework.FenixFramework;
 public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSpecificationsBaseController {
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/ulisboaservicerequest";
-    public static final int SEARCH_REQUEST_LIST_LIMIT_SIZE = 500;
+    public static final int SEARCH_REQUEST_LIST_LIMIT_SIZE = 300;
+    public static final int FIRST_CIVIL_YEAR = 2000;
+    public static final Comparator<Integer> INTEGER_COMPARATOR = (i1, i2) -> i1.compareTo(i2);
 
     private static final String ERROR_MESSAGE_ATTRIBUTE = "sessionErrorMessages";
 
@@ -90,18 +96,24 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     @RequestMapping(value = _SEARCH_URI)
-    public String search(@RequestParam(value = "executionYear", required = false) final ExecutionYear executionYear,
+    public String search(@RequestParam(value = "civilYear", required = false) Integer civilYear,
             @RequestParam(value = "degreeType", required = false) final DegreeType degreeType,
             @RequestParam(value = "degree", required = false) final Degree degree,
             @RequestParam(value = "serviceRequestType", required = false) final ServiceRequestType serviceRequestType,
             @RequestParam(value = "state", required = false) final AcademicServiceRequestSituationType situationType,
             @RequestParam(value = "urgent", required = false) final boolean isUrgent,
+            @RequestParam(value = "selfIssued", required = false) final boolean isSelfIssued,
             @RequestParam(value = "requestNumber", required = false) final String requestNumber,
             @RequestParam(value = "payed", required = false) final Boolean isPayed, final Model model) {
 
-        List<ExecutionYear> years = new ArrayList<>(ExecutionYear.readNotClosedExecutionYears());
-        Collections.sort(years, ExecutionYear.REVERSE_COMPARATOR_BY_YEAR);
-        model.addAttribute("executionYearsList", years);
+        Set<Integer> years = new HashSet<>();
+        Collection<AcademicServiceRequestYear> requestYears = Bennu.getInstance().getAcademicServiceRequestYearsSet();
+        for (AcademicServiceRequestYear requestYear : requestYears) {
+            years.add(requestYear.getYear());
+        }
+        List<Integer> yearsList = new ArrayList<>(years);
+        Collections.sort(yearsList, INTEGER_COMPARATOR.reversed());
+        model.addAttribute("civilYearsList", yearsList);
 
         List<DegreeType> degreeTypes = new ArrayList<>(DegreeType.all().collect(Collectors.toList()));
         Collections.sort(degreeTypes, (o1, o2) -> o1.getName().compareTo(o2.getName()));
@@ -116,23 +128,29 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         model.addAttribute("serviceRequestTypesList", serviceRequestTypes);
 
         model.addAttribute("states", ULisboaConstants.USED_SITUATION_TYPES);
-        model.addAttribute("searchServiceRequestsSet", filterSearchServiceRequest(executionYear, degreeType, degree,
-                serviceRequestType, situationType, isUrgent, requestNumber, isPayed));
+        if (civilYear == null) {
+            model.addAttribute("currentCivilYear", yearsList.get(0));
+            civilYear = yearsList.get(0);
+        }
+        model.addAttribute("searchServiceRequestsSet", filterSearchServiceRequest(civilYear, degreeType, degree,
+                serviceRequestType, situationType, isUrgent, isSelfIssued, requestNumber, isPayed));
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/search";
     }
 
-    private List<ULisboaServiceRequest> filterSearchServiceRequest(final ExecutionYear executionYear, final DegreeType degreeType,
+    private List<ULisboaServiceRequest> filterSearchServiceRequest(final int civilYear, final DegreeType degreeType,
             final Degree degree, final ServiceRequestType serviceRequestType,
-            final AcademicServiceRequestSituationType situationType, final boolean isUrgent, final String requestNumber,
-            final Boolean isPayed) {
-        return ULisboaServiceRequest.findAll()
-                .filter(req -> executionYear == null || req.hasExecutionYear() && req.getExecutionYear().equals(executionYear))
+            final AcademicServiceRequestSituationType situationType, final boolean isUrgent, final boolean isSelfIssued,
+            final String requestNumber, final Boolean isPayed) {
+        AcademicServiceRequestYear requestsYear = AcademicServiceRequestYear.readByYear(civilYear, false);
+
+        return requestsYear.getAcademicServiceRequestsSet().stream().filter(req -> req instanceof ULisboaServiceRequest)
+                .map(ULisboaServiceRequest.class::cast)
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
                 .filter(req -> degree == null || req.getRegistration().getDegree().equals(degree))
                 .filter(req -> serviceRequestType == null || req.getServiceRequestType().equals(serviceRequestType))
                 .filter(req -> situationType == null
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
-                .filter(req -> req.isUrgent() == isUrgent)
+                .filter(req -> req.isUrgent() == isUrgent).filter(req -> req.isSelfIssued() == isSelfIssued)
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
                 .filter(req -> isPayed == null || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
                         || !AcademicTreasuryEvent.findUnique(req).get().isCharged() && isPayed
