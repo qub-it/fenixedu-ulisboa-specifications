@@ -309,8 +309,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public String updateAcademicRequest(@PathVariable(value = "oid") final ULisboaServiceRequest serviceRequest,
             @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model,
             final RedirectAttributes redirectAttributes) {
-        model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
-        model.addAttribute("ulisboaServiceRequestBean", bean);
+        setULisboaServiceRequestBean(bean, model);
+        model.addAttribute("serviceRequest", serviceRequest);
 
         try {
             serviceRequest.update(bean);

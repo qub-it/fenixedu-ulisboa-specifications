@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -9,7 +9,7 @@
  * Contributors: diogo.simoes@qub-it.com
  *               jnpa@reitoria.ulisboa.pt
  *
- * 
+ *
  * This file is part of FenixEdu QubDocs.
  *
  * FenixEdu QubDocs is free software: you can redistribute it and/or modify
@@ -58,7 +58,9 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.domain.util.email.Message;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
@@ -114,16 +116,15 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         super();
     }
 
-    protected ULisboaServiceRequest(ServiceRequestType serviceRequestType, Registration registration, boolean requestedOnline,
-            DateTime requestDate) {
+    protected ULisboaServiceRequest(final ServiceRequestType serviceRequestType, final Registration registration,
+            final boolean requestedOnline, final DateTime requestDate) {
         this();
         setServiceRequestType(serviceRequestType);
         initAcademicServiceRequest(registration, requestDate);
         setRegistration(registration);
         setIsValid(true);
         setRequestedOnline(requestedOnline);
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<ULisboaServiceRequest>(this));
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
     }
 
     private void checkRules() {
@@ -134,13 +135,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             }
             if (entry.getRequired() && property.isNullOrEmpty()) {
                 throw new ULisboaSpecificationsDomainException(
-                        "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty", entry.getServiceRequestSlot()
-                                .getLabel().getContent());
+                        "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
+                        entry.getServiceRequestSlot().getLabel().getContent());
             }
         }
     }
 
-    protected void initAcademicServiceRequest(Registration registration, DateTime requestDate) {
+    protected void initAcademicServiceRequest(final Registration registration, final DateTime requestDate) {
         //Use the Academic Service Request init, because there is unaccessible methods
         AcademicServiceRequestCreateBean bean = new AcademicServiceRequestCreateBean(registration);
         bean.setRequestDate(requestDate);
@@ -156,8 +157,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      */
 
     @Atomic
-    public static ULisboaServiceRequest create(ServiceRequestType serviceRequestType, Registration registration,
-            boolean requestedOnline, DateTime requestDate) {
+    public static ULisboaServiceRequest create(final ServiceRequestType serviceRequestType, final Registration registration,
+            final boolean requestedOnline, final DateTime requestDate) {
         ULisboaServiceRequest request = new ULisboaServiceRequest(serviceRequestType, registration, requestedOnline, requestDate);
         if (!request.hasExecutionYear()) {
             ServiceRequestProperty property;
@@ -165,9 +166,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 property = request.findProperty(ULisboaConstants.EXECUTION_YEAR);
                 property.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
             } else {
-                property =
-                        ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
-                                ExecutionYear.readCurrentExecutionYear());
+                property = ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
+                        ExecutionYear.readCurrentExecutionYear());
                 request.addServiceRequestProperties(property);
             }
         }
@@ -177,15 +177,14 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public static ULisboaServiceRequest create(ULisboaServiceRequestBean bean) {
-        ULisboaServiceRequest request =
-                new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(),
-                        bean.getRequestDate());
+    public static ULisboaServiceRequest create(final ULisboaServiceRequestBean bean) {
+        ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(),
+                bean.isRequestedOnline(), bean.getRequestDate());
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
             if (propertyBean.isRequired() && propertyBean.isNullOrEmpty()) {
                 throw new ULisboaSpecificationsDomainException(
-                        "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty", propertyBean.getLabel()
-                                .getContent());
+                        "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
+                        propertyBean.getLabel().getContent());
             }
             ServiceRequestProperty property = ServiceRequestProperty.create(propertyBean);
             request.addServiceRequestProperties(property);
@@ -196,9 +195,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 property = request.findProperty(ULisboaConstants.EXECUTION_YEAR);
                 property.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
             } else {
-                property =
-                        ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
-                                ExecutionYear.readCurrentExecutionYear());
+                property = ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
+                        ExecutionYear.readCurrentExecutionYear());
                 request.addServiceRequestProperties(property);
             }
         }
@@ -208,7 +206,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public void update(ULisboaServiceRequestBean bean) {
+    public void update(final ULisboaServiceRequestBean bean) {
         setRequestDate(bean.getRequestDate());
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
             ServiceRequestProperty property = findProperty(propertyBean.getCode());
@@ -219,6 +217,15 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 property.setValue(propertyBean.getValue());
             }
         }
+
+        IAcademicServiceRequestAndAcademicTaxTreasuryEvent treasuryEvent =
+                TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
+        if (treasuryEvent != null && treasuryEvent.isExempted()) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.documentRequest.annul.not.possible.remove.exemption.on.debit.entry");
+        }
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
     }
 
     /*
@@ -254,11 +261,11 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     document.getData());
             return document;
         } catch (ReportGenerationException rge) {
-            String composedMessage =
-                    String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
-                            getServiceRequestNumberYear());
+            String composedMessage = String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
+                    getServiceRequestNumberYear());
             logger.error(composedMessage, rge.getCause());
-            throw new ULisboaSpecificationsDomainException(rge, "error.documentRequest.errorGeneratingDocument", rge.getMessage());
+            throw new ULisboaSpecificationsDomainException(rge, "error.documentRequest.errorGeneratingDocument",
+                    rge.getMessage());
         } catch (Throwable t) {
             logger.error(t.getMessage(), t.getCause());
             throw new ULisboaSpecificationsDomainException(t, "error.documentRequest.errorGeneratingDocument", t.getMessage());
@@ -283,7 +290,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public void setPrintSettings(DocumentSigner signer, AcademicServiceRequestTemplate template) {
+    public void setPrintSettings(final DocumentSigner signer, final AcademicServiceRequestTemplate template) {
         setDocumentSigner(signer);
         setAcademicServiceRequestTemplate(template);
     }
@@ -327,7 +334,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public String getOtherDocumentPurposeTypeDescription() {
-        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE).getString() : null;
+        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)
+                .getString() : null;
     }
 
     public boolean hasOtherDocumentPurposeTypeDescription() {
@@ -337,7 +345,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     @Override
     public boolean isDetailed() {
         ServiceRequestProperty detailedProperty = findProperty(ULisboaConstants.IS_DETAILED);
-        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
+        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty
+                .getBooleanValue() : false;
     }
 
     @Override
@@ -414,8 +423,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getApprovedExtraCurriculum() {
-        return hasApprovedExtraCurriculum() ? new HashSet<>(findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM)
-                .getICurriculumEntriesSet()) : null;
+        return hasApprovedExtraCurriculum() ? new HashSet<>(
+                findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).getICurriculumEntriesSet()) : null;
     }
 
     @Override
@@ -425,8 +434,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getApprovedStandaloneCurriculum() {
-        return hasApprovedStandaloneCurriculum() ? new HashSet<>(findProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM)
-                .getICurriculumEntriesSet()) : null;
+        return hasApprovedStandaloneCurriculum() ? new HashSet<>(
+                findProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM).getICurriculumEntriesSet()) : null;
     }
 
     @Override
@@ -436,8 +445,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getApprovedEnrolments() {
-        return hasApprovedEnrolments() ? new HashSet<>(findProperty(ULisboaConstants.APPROVED_ENROLMENTS)
-                .getICurriculumEntriesSet()) : null;
+        return hasApprovedEnrolments() ? new HashSet<>(
+                findProperty(ULisboaConstants.APPROVED_ENROLMENTS).getICurriculumEntriesSet()) : null;
     }
 
     @Override
@@ -457,7 +466,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getEnrolmentsByYear() {
-        return hasEnrolmentsByYear() ? new HashSet<>(findProperty(ULisboaConstants.ENROLMENTS_BY_YEAR).getICurriculumEntriesSet()) : null;
+        return hasEnrolmentsByYear() ? new HashSet<>(
+                findProperty(ULisboaConstants.ENROLMENTS_BY_YEAR).getICurriculumEntriesSet()) : null;
     }
 
     @Override
@@ -467,8 +477,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getStandaloneEnrolmentsByYear() {
-        return hasStandaloneEnrolmentsByYear() ? new HashSet<>(findProperty(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR)
-                .getICurriculumEntriesSet()) : null;
+        return hasStandaloneEnrolmentsByYear() ? new HashSet<>(
+                findProperty(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR).getICurriculumEntriesSet()) : null;
     }
 
     @Override
@@ -478,8 +488,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Override
     public Set<ICurriculumEntry> getExtracurricularEnrolmentsByYear() {
-        return hasExtracurricularEnrolmentsByYear() ? new HashSet<>(findProperty(
-                ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR).getICurriculumEntriesSet()) : null;
+        return hasExtracurricularEnrolmentsByYear() ? new HashSet<>(
+                findProperty(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR).getICurriculumEntriesSet()) : null;
     }
 
     @Override
@@ -493,7 +503,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Override
-    public boolean isFor(ExecutionYear executionYear) {
+    public boolean isFor(final ExecutionYear executionYear) {
         if (hasProperty(ULisboaConstants.EXECUTION_YEAR)) {
             return findProperty(ULisboaConstants.EXECUTION_YEAR).getExecutionYear().equals(executionYear);
         }
@@ -507,55 +517,54 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 || getPerson().getIdDocumentType() == null;
     }
 
-    public ServiceRequestProperty findProperty(String slotCode) {
-        Optional<ServiceRequestProperty> property =
-                getServiceRequestPropertiesSet().stream().filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode))
-                        .findFirst();
+    public ServiceRequestProperty findProperty(final String slotCode) {
+        Optional<ServiceRequestProperty> property = getServiceRequestPropertiesSet().stream()
+                .filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         if (property.isPresent()) {
             return property.get();
         }
         return null;
     }
-    
+
+    @Override
     public Map<String, String> getPropertyValuesMap() {
         final Map<String, String> result = Maps.newHashMap();
-        
+
         for (final ServiceRequestSlotEntry slotEntry : getServiceRequestType().getServiceRequestSlotEntriesSet()) {
             final ServiceRequestSlot slot = slotEntry.getServiceRequestSlot();
             Optional<ServiceRequestProperty> propertyOpt = ServiceRequestProperty.find(this, slot).findFirst();
-            if(propertyOpt.isPresent() && propertyOpt.get().getValue() != null) {
+            if (propertyOpt.isPresent() && propertyOpt.get().getValue() != null) {
                 String value = null;
-                if(slot.getUiComponentType().isBooleanDropDown()) {
+                if (slot.getUiComponentType().isBooleanDropDown()) {
                     value = propertyOpt.get().getValue().toString();
-                } else if(slot.getUiComponentType().isDateBox()) {
+                } else if (slot.getUiComponentType().isDateBox()) {
                     // TODO: Implement
-                } else if(slot.getUiComponentType().isNumberBox()) {
+                } else if (slot.getUiComponentType().isNumberBox()) {
                     value = propertyOpt.get().getValue().toString();
-                } else if(slot.getUiComponentType().isTextBox()) {
+                } else if (slot.getUiComponentType().isTextBox()) {
                     value = propertyOpt.get().getValue().toString();
-                } else if(slot.getUiComponentType().isSingleDropDown()) {
-                    if(ServiceRequestProperty.find(this, slot).count() > 0) {
+                } else if (slot.getUiComponentType().isSingleDropDown()) {
+                    if (ServiceRequestProperty.find(this, slot).count() > 0) {
                         ServiceRequestProperty prop = ServiceRequestProperty.find(this, slot).iterator().next();
-                        
-                        if(prop.getExecutionYear() != null) {
+
+                        if (prop.getExecutionYear() != null) {
                             value = prop.getExecutionYear().getQualifiedName();
                         }
                     }
                 }
-                
-                if(!Strings.isNullOrEmpty(value)) {
+
+                if (!Strings.isNullOrEmpty(value)) {
                     result.put(slot.getCode(), value);
                 }
             }
         }
-        
+
         return result;
     }
 
-    public boolean hasProperty(String slotCode) {
-        Optional<ServiceRequestProperty> optProperty =
-                getServiceRequestPropertiesSet().stream()
-                        .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+    public boolean hasProperty(final String slotCode) {
+        Optional<ServiceRequestProperty> optProperty = getServiceRequestPropertiesSet().stream()
+                .filter(property -> property.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
         return optProperty.isPresent() && optProperty.get().getValue() != null;
     }
 
@@ -566,7 +575,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     public List<AcademicServiceRequestSituation> getFilteredAcademicServiceRequestSituations() {
-        List<AcademicServiceRequestSituation> filteredSituations = new ArrayList<AcademicServiceRequestSituation>();
+        List<AcademicServiceRequestSituation> filteredSituations = new ArrayList<>();
         List<AcademicServiceRequestSituation> allSituations = getAcademicServiceRequestSituationsHistory();
         int i = 0;
         for (int j = 0; j < getAcademicServiceRequestSituationsSet().size(); j++) {
@@ -632,7 +641,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public void transitToCancelState(String justification) {
+    public void transitToCancelState(final String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
@@ -642,7 +651,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public void transitToRejectState(String justification) {
+    public void transitToRejectState(final String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
                     getAcademicServiceRequestSituationType().getLocalizedName(),
@@ -652,7 +661,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Atomic
-    public void revertState(boolean notifyRevertAction) {
+    public void revertState(final boolean notifyRevertAction) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.revert");
         }
@@ -668,13 +677,11 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         createAcademicServiceRequestSituations(bean);
     }
 
-    private void transitState(AcademicServiceRequestSituationType type, String justification) {
+    private void transitState(final AcademicServiceRequestSituationType type, final String justification) {
         if (type == AcademicServiceRequestSituationType.CANCELLED || type == AcademicServiceRequestSituationType.REJECTED) {
-            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
-                    new DomainObjectEvent<ULisboaServiceRequest>(this));
+            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<>(this));
         } else {
-            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                    new DomainObjectEvent<ULisboaServiceRequest>(this));
+            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
         }
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
         createAcademicServiceRequestSituations(bean);
@@ -682,13 +689,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     @Override
-    public AcademicServiceRequestSituation getSituationByType(AcademicServiceRequestSituationType type) {
+    public AcademicServiceRequestSituation getSituationByType(final AcademicServiceRequestSituationType type) {
         return getFilteredAcademicServiceRequestSituations().stream()
                 .filter(situation -> situation.getAcademicServiceRequestSituationType() == type).findFirst().orElse(null);
     }
 
-    public boolean isValidTransition(AcademicServiceRequestSituationType previousType,
-            AcademicServiceRequestSituationType currentType) {
+    public boolean isValidTransition(final AcademicServiceRequestSituationType previousType,
+            final AcademicServiceRequestSituationType currentType) {
         List<AcademicServiceRequestSituationType> anulledStates =
                 Lists.newArrayList(AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
         //Final states
@@ -719,42 +726,33 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     private void sendConclusionNotification() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(),
-                        getServiceRequestNumberYear());
-        String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, "message.ULisboaServiceRequest.salutation.female", getPerson()
-                                .getProfile().getDisplayName());
-        String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
-                        getServiceRequestNumberYear());
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(), getServiceRequestNumberYear());
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.salutation.male",
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
+                getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
     private void sendReversionApology() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject =
-                BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, getLanguage(),
-                                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(),
-                                getServiceRequestNumberYear());
-        String salutation =
-                getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.male", getPerson().getProfile().getDisplayName()) : BundleUtil
-                        .getString(ULisboaConstants.BUNDLE, getLanguage(), "message.ULisboaServiceRequest.salutation.female",
-                                getPerson().getProfile().getDisplayName());
-        String body =
-                BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
-                        getServiceRequestNumberYear());
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.reversionApology.subject", getDescription(), getServiceRequestNumberYear());
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.salutation.male",
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+                "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
+                getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
-    private void sendEmail(String emailAddress, String subject, String body) {
+    private void sendEmail(final String emailAddress, final String subject, final String body) {
         new Message(Bennu.getInstance().getSystemSender(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, subject, body,
                 emailAddress);
     }
@@ -768,21 +766,21 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 .filter(request -> request instanceof ULisboaServiceRequest).map(ULisboaServiceRequest.class::cast);
     }
 
-    public static Stream<ULisboaServiceRequest> findByRegistration(Registration registration) {
+    public static Stream<ULisboaServiceRequest> findByRegistration(final Registration registration) {
         return findAll().filter(request -> request.getRegistration().equals(registration));
     }
 
-    public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(Registration registration) {
-        return findByRegistration(registration).filter(
-                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
+    public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(final Registration registration) {
+        return findByRegistration(registration)
+                .filter(request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
     }
 
-    public static Stream<ULisboaServiceRequest> findProcessingAcademicServiceRequests(Registration registration) {
+    public static Stream<ULisboaServiceRequest> findProcessingAcademicServiceRequests(final Registration registration) {
         return findByRegistration(registration).filter(
                 request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.PROCESSING);
     }
 
-    public static Stream<ULisboaServiceRequest> findToDeliverAcademicServiceRequests(Registration registration) {
+    public static Stream<ULisboaServiceRequest> findToDeliverAcademicServiceRequests(final Registration registration) {
         return findByRegistration(registration).filter(
                 request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.CONCLUDED);
     }
@@ -797,7 +795,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         FenixFramework.getDomainModel().registerDeletionListener(Registration.class, new DeletionListener<Registration>() {
 
             @Override
-            public void deleting(Registration registration) {
+            public void deleting(final Registration registration) {
                 for (ULisboaServiceRequest request : registration.getULisboaServiceRequestsSet()) {
                     request.setRegistration(null);
                     request.setIsValid(false);
@@ -809,7 +807,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 new DeletionListener<DocumentPurposeTypeInstance>() {
 
                     @Override
-                    public void deleting(DocumentPurposeTypeInstance documentPurposeTypeInstance) {
+                    public void deleting(final DocumentPurposeTypeInstance documentPurposeTypeInstance) {
                         for (ServiceRequestProperty property : documentPurposeTypeInstance.getServiceRequestPropertiesSet()) {
                             property.setDocumentPurposeTypeInstance(null);
                             property.getULisboaServiceRequest().setIsValid(false);
@@ -820,7 +818,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         FenixFramework.getDomainModel().registerDeletionListener(ExecutionYear.class, new DeletionListener<ExecutionYear>() {
 
             @Override
-            public void deleting(ExecutionYear executionYear) {
+            public void deleting(final ExecutionYear executionYear) {
                 for (ServiceRequestProperty property : executionYear.getServiceRequestPropertiesSet()) {
                     property.setExecutionYear(null);
                     property.getULisboaServiceRequest().setIsValid(false);
@@ -832,7 +830,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 new DeletionListener<StudentCurricularPlan>() {
 
                     @Override
-                    public void deleting(StudentCurricularPlan studentCurricularPlan) {
+                    public void deleting(final StudentCurricularPlan studentCurricularPlan) {
                         for (ServiceRequestProperty property : studentCurricularPlan.getServiceRequestPropertiesSet()) {
                             property.setStudentCurricularPlan(null);
                             property.getULisboaServiceRequest().setIsValid(false);
@@ -844,7 +842,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 new DeletionListener<ExternalEnrolment>() {
 
                     @Override
-                    public void deleting(ExternalEnrolment externalEnrolment) {
+                    public void deleting(final ExternalEnrolment externalEnrolment) {
                         for (ServiceRequestProperty property : externalEnrolment.getServiceRequestPropertiesSet()) {
                             property.removeExternalEnrolments(externalEnrolment);
                             property.getULisboaServiceRequest().setIsValid(false);
@@ -855,7 +853,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         FenixFramework.getDomainModel().registerDeletionListener(CurriculumLine.class, new DeletionListener<CurriculumLine>() {
 
             @Override
-            public void deleting(CurriculumLine curriculumLine) {
+            public void deleting(final CurriculumLine curriculumLine) {
                 for (ServiceRequestProperty property : curriculumLine.getServiceRequestPropertiesSet()) {
                     property.removeCurriculumLines(curriculumLine);
                     property.getULisboaServiceRequest().setIsValid(false);
@@ -869,7 +867,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         FenixFramework.getDomainModel().registerDeletionListener(ServiceRequestType.class,
                 new DeletionListener<ServiceRequestType>() {
                     @Override
-                    public void deleting(ServiceRequestType serviceRequestType) {
+                    public void deleting(final ServiceRequestType serviceRequestType) {
                         serviceRequestType.getULisboaServiceRequestProcessorsSet().clear();
                         serviceRequestType.getServiceRequestSlotEntriesSet().clear();
                     }
@@ -884,19 +882,20 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      */
     @Deprecated
     @Override
-    public void edit(AcademicServiceRequestBean academicServiceRequestBean) {
+    public void edit(final AcademicServiceRequestBean academicServiceRequestBean) {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.workFlow");
     }
 
     @Deprecated
     @Override
-    protected String getDescription(AcademicServiceRequestType academicServiceRequestType, String specificServiceType) {
+    protected String getDescription(final AcademicServiceRequestType academicServiceRequestType,
+            final String specificServiceType) {
         return getDescription();
     }
 
     @Deprecated
     @Override
-    protected String getDescription(AcademicServiceRequestType academicServiceRequestType) {
+    protected String getDescription(final AcademicServiceRequestType academicServiceRequestType) {
         return getDescription();
     }
 
@@ -944,7 +943,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Deprecated
     @Override
-    protected void checkRulesToChangeState(AcademicServiceRequestSituationType situationType) {
+    protected void checkRulesToChangeState(final AcademicServiceRequestSituationType situationType) {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
@@ -956,19 +955,19 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     @Deprecated
     @Override
-    protected void internalChangeState(AcademicServiceRequestBean academicServiceRequestBean) {
+    protected void internalChangeState(final AcademicServiceRequestBean academicServiceRequestBean) {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
-    protected void verifyIsToDeliveredAndIsPayed(AcademicServiceRequestBean academicServiceRequestBean) {
+    protected void verifyIsToDeliveredAndIsPayed(final AcademicServiceRequestBean academicServiceRequestBean) {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
     @Deprecated
     @Override
-    protected void verifyIsToProcessAndHasPersonalInfo(AcademicServiceRequestBean academicServiceRequestBean) {
+    protected void verifyIsToProcessAndHasPersonalInfo(final AcademicServiceRequestBean academicServiceRequestBean) {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 

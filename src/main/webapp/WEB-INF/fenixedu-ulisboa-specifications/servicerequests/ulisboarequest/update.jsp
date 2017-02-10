@@ -94,7 +94,7 @@ ${portal.angularToolkit()}
 <%-- TITLE --%>
 <div class="page-header">
     <h1>
-        <spring:message code="label.servicerequests.ULisboaServiceRequest.createULisboaServiceRequest" />
+        <spring:message code="label.servicerequests.ULisboaServiceRequest.updateULisboaServiceRequest" />
         <small></small>
     </h1>
 </div>
