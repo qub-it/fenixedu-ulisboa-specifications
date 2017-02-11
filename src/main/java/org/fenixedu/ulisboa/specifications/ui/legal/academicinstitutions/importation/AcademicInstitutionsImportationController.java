@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SerializationUtils;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.bennu.core.domain.Bennu;

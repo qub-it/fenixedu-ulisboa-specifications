@@ -234,7 +234,8 @@ public class RaidesService {
         }
 
         if (bean.isTipoEstabSecSpecified()) {
-            if (lastCompletedQualification.getSchoolLevel().isHighSchoolOrEquivalent()) {
+            if (lastCompletedQualification.getSchoolLevel() != null
+                    && lastCompletedQualification.getSchoolLevel().isHighSchoolOrEquivalent()) {
 
                 if (highSchoolType(studentCandidacy) != null) {
                     bean.setTipoEstabSec(LegalMapping.find(report, LegalMappingType.HIGH_SCHOOL_TYPE)
