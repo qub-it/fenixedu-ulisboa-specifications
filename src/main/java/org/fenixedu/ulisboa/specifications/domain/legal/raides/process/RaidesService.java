@@ -20,6 +20,7 @@ import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.raides.DegreeClassification;
@@ -34,6 +35,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.IGrauPrecedenteCompleto;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.IMatricula;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.Ramo;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
@@ -101,6 +103,7 @@ public class RaidesService {
         final Set<CourseGroup> branches = branches(registration, executionYear);
         bean.setRamo(null);
         if (!branches.isEmpty()) {
+            
             if (branches.size() > 1) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.enrolled.more.than.one.branch",
@@ -109,6 +112,15 @@ public class RaidesService {
             }
 
             bean.setRamo(BranchMappingType.readMapping(report).translate(branches.iterator().next()));
+            
+        } else {
+
+            final RootCourseGroup rootCourseGroup =
+                    getStudentCurricularPlanForBranch(registration, executionYear).getRoot().getDegreeModule();
+            final LegalMapping branchMapping = BranchMappingType.readMapping(report);
+            bean.setRamo(
+                    branchMapping.isKeyDefined(rootCourseGroup) ? branchMapping.translate(rootCourseGroup) : Ramo.TRONCO_COMUM);
+
         }
 
     }
@@ -116,8 +128,7 @@ public class RaidesService {
     private Set<CourseGroup> branches(final Registration registration, final ExecutionYear executionYear) {
         final Set<CourseGroup> result = Sets.newHashSet();
 
-        final StudentCurricularPlan scp = registration.getStudentCurricularPlansSet().size() == 1 ? registration
-                .getLastStudentCurricularPlan() : registration.getStudentCurricularPlan(executionYear);
+        final StudentCurricularPlan scp = getStudentCurricularPlanForBranch(registration, executionYear);
 
         for (final CurriculumGroup curriculumGroup : scp.getAllCurriculumGroups()) {
             if (curriculumGroup.getDegreeModule() == null) {
@@ -131,6 +142,12 @@ public class RaidesService {
         }
 
         return result;
+    }
+
+    protected StudentCurricularPlan getStudentCurricularPlanForBranch(final Registration registration,
+            final ExecutionYear executionYear) {
+        return registration.getStudentCurricularPlansSet().size() == 1 ? registration
+                .getLastStudentCurricularPlan() : registration.getStudentCurricularPlan(executionYear);
     }
 
     protected class DEGREE_VALUE_COMPARATOR implements Comparator<Degree> {
