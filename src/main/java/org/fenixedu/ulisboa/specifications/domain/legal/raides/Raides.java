@@ -1249,6 +1249,8 @@ public class Raides {
     public static String[] formatArgs(Registration registration, ExecutionYear executionYear) {
         return new String[] {
 
+                String.valueOf(registration.getStudent().getNumber()),
+
                 String.valueOf(registration.getNumber()),
 
                 registration.getDegree().getCode(),

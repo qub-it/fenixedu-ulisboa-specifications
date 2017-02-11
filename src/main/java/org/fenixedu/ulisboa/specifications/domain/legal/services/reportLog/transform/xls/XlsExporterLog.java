@@ -23,7 +23,8 @@ import org.joda.time.DateTime;
 
 public class XlsExporterLog {
 
-    public static LegalReportResultFile write(final LegalReportRequest reportRequest, final LegalReportEntryData legalReportEntryData) {
+    public static LegalReportResultFile write(final LegalReportRequest reportRequest,
+            final LegalReportEntryData legalReportEntryData) {
         List<ReportEntry> compiledData = legalReportEntryData.getErrorEntries();
         compiledData.addAll(legalReportEntryData.getWarnEntries());
         compiledData.addAll(legalReportEntryData.getInfoEntries());
@@ -32,29 +33,33 @@ public class XlsExporterLog {
             @Override
             protected void makeLine(final ReportEntry reportEntry) {
 
-                String type =
-                        reportEntry.getType() == ReportEntryType.ERROR ? "Erro" : reportEntry.getType() == ReportEntryType.WARN ? "Aviso" : reportEntry
+                String type = reportEntry.getType() == ReportEntryType.ERROR ? "Erro" : reportEntry
+                        .getType() == ReportEntryType.WARN ? "Aviso" : reportEntry
                                 .getType() == ReportEntryType.INFO ? "Informação" : "";
 
                 addCell("Tipo", type);
                 addCell("Assunto", reportEntry.getTarget());
-                
+
                 final String[] fields = reportEntry.getMessage().split(";");
 
-                for(int i = 0; i < fields.length; i++) {
-                    if(i == 1) {
-                        addCell("Aluno", fields[i]);
-                    } else if(i == 3) {
+                for (int i = 0; i < fields.length; i++) {
+                    if (i == 1) {
+                        addCell("Nº de Aluno", fields[i]);
+                    } else if (i == 3) {
+                        addCell("Nº de Matrícula", fields[i]);
+                    } else if (i == 5) {
+                        addCell("Código de Curso", fields[i]);
+                    } else if (i == 7) {
                         addCell("Curso", fields[i]);
-                    } else if(i == 5) {
+                    } else if (i == 9) {
                         addCell("Ano", fields[i]);
-                    } else if(i == 6) {
-                        addCell("Mensagem", fields[i]);                            
-                    } else if(i > 6) {
+                    } else if (i == 10) {
+                        addCell("Mensagem", fields[i]);
+                    } else if (i > 10) {
                         addCell(String.format("[%d]", i), fields[i]);
                     }
-                 }
-                
+                }
+
             }
         };
 
@@ -67,10 +72,10 @@ public class XlsExporterLog {
 
             spreadsheetBuilder.build(WorkbookExportFormat.EXCEL, outputStream);
             final byte[] content = outputStream.toByteArray();
-            
-            final String fileName = "Logs_" + reportRequest.getLegalReport().getName().getContent() + "_" + new DateTime().toString("dd-MM-yyyy-HH-mm") + "." + 
-                    LegalReportResultFileType.XLS.toString().toLowerCase();
-            
+
+            final String fileName = "Logs_" + reportRequest.getLegalReport().getName().getContent() + "_"
+                    + new DateTime().toString("dd-MM-yyyy-HH-mm") + "." + LegalReportResultFileType.XLS.toString().toLowerCase();
+
             return new LegalReportResultFile(reportRequest, LegalReportResultFileType.XLS, fileName, content);
         } catch (final Exception e) {
             e.printStackTrace();
@@ -101,12 +106,13 @@ public class XlsExporterLog {
         return profession.getLocalizedName();
     }
 
-    protected static String professionalSituationConditionTypeLocalizedName(final ProfessionalSituationConditionType conditionType) {
+    protected static String professionalSituationConditionTypeLocalizedName(
+            final ProfessionalSituationConditionType conditionType) {
         return conditionType.getLocalizedName();
     }
 
     protected static String schoolPeriodDurationLocalizedName(final SchoolPeriodDuration duration) {
         return ULisboaSpecificationsUtil.bundle("label.SchoolPeriodDuration." + duration.name());
     }
-    
+
 }
