@@ -8,6 +8,7 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
@@ -55,10 +56,10 @@ public class IdentificacaoService extends RaidesService {
                 int digitControl =
                         IdentityCardUtils.generateBilheteIdentidadeDigitControl(student.getPerson().getDocumentIdNumber());
                 bean.setCheckDigitId(String.valueOf(digitControl));
-                
+
                 LegalReportContext.addWarn("", i18n("warn.Raides.identity.card.digit.control.generated",
                         String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(), ""));
-            } catch (final NumberFormatException e) {
+            } catch (NumberFormatException | ULisboaSpecificationsDomainException e) {
                 LegalReportContext.addError("", i18n("error.Raides.validation.cannot.generate.digit.control",
                         String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(), ""));
                 bean.markAsInvalid();
