@@ -15,7 +15,6 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
@@ -136,7 +135,8 @@ public class InscritoService extends RaidesService {
                 && RegistrationServices.canCollectAllPlansForCurriculum(registration)) {
             LegalReportContext.addWarn("",
                     i18n("warn.Raides.ects.acumulados.sum.of.student.curricular.plans", String.valueOf(registration.getNumber()),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
+                            executionYear.getQualifiedName()));
 
             return sumEctsAcumulados(registration, executionYear);
         }
@@ -155,8 +155,8 @@ public class InscritoService extends RaidesService {
         if (!isFirstTimeOnDegree(registration, executionYear) && new Integer(0).equals(bean.getNumInscNesteCurso())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.is.not.first.time.student.but.number.previous.enrolments.in.registration.is.zero",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             bean.markAsInvalid();
         }
     }
@@ -174,7 +174,8 @@ public class InscritoService extends RaidesService {
         if (Strings.isNullOrEmpty(bean.getNotaIngresso()) || Strings.isNullOrEmpty(bean.getOpcaoIngresso())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.general.access.regime.incomplete", String.valueOf(registration.getNumber()),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
+                            executionYear.getQualifiedName()));
             bean.markAsInvalid();
             return;
         }
@@ -185,16 +186,16 @@ public class InscritoService extends RaidesService {
                 if (value.compareTo(MIN_NOTA_INGRESSO) < 0 || value.compareTo(MAX_NOTA_INGRESSO) > 0) {
                     LegalReportContext.addError("",
                             i18n("error.Raides.validation.general.access.regime.notaIngresso.in.wrong.interval",
-                                    String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                                    executionYear.getQualifiedName()));
+                                    String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                                    registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
                     bean.markAsInvalid();
                     return;
                 }
             } catch (NumberFormatException e) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.general.access.regime.notaIngresso.wrong.format",
-                                String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
                 bean.markAsInvalid();
                 return;
             }
@@ -215,23 +216,23 @@ public class InscritoService extends RaidesService {
         if (Strings.isNullOrEmpty(bean.getEstabInscricaoAnt())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.degree.change.or.transfer.requires.information",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             bean.markAsInvalid();
         } else if (Raides.Estabelecimentos.OUTRO.equals(bean.getEstabInscricaoAnt())
                 && Strings.isNullOrEmpty(bean.getOutroEstabInscAnt())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.degree.change.or.transfer.requires.information",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             bean.markAsInvalid();
         }
 
         if (bean.getNumInscCursosAnt() == null) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.degree.change.or.transfer.requires.information",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             bean.markAsInvalid();
         }
     }

@@ -668,8 +668,8 @@ public class Raides {
         if (withHistoric) {
             LegalReportContext.addWarn("",
                     i18n("warn.Raides.enrolledInExecutionYear.with.historic.but.not.enrolments",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
         }
 
         return withHistoric;
@@ -960,8 +960,8 @@ public class Raides {
             if (registration.getStudent().getPersonalIngressionDataByExecutionYear(ex) != null) {
                 LegalReportContext.addWarn("",
                         i18n("warn.Raides.validation.using.personal.ingression.data.from.previous.year",
-                                String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
 
                 return registration.getStudent().getPersonalIngressionDataByExecutionYear(ex);
             }

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
@@ -107,15 +106,15 @@ public class MobilidadeInternacionalService extends RaidesService {
         if (Strings.isNullOrEmpty(bean.getNivelCursoOrigem())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.mobility.provenance.school.level.empty",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             bean.markAsInvalid();
         } else if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())
                 && Strings.isNullOrEmpty(bean.getOutroNivelCurOrigem())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.mobility.other.provenance.school.level.empty",
-                            String.valueOf(registration.getNumber()), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
+                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
             bean.markAsInvalid();
         }
     }

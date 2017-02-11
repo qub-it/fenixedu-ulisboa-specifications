@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.joda.time.DateTime;
 
 public class LegalReportContext {
