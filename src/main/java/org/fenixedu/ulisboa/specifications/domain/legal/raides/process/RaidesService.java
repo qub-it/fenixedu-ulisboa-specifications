@@ -116,7 +116,8 @@ public class RaidesService {
     private Set<CourseGroup> branches(final Registration registration, final ExecutionYear executionYear) {
         final Set<CourseGroup> result = Sets.newHashSet();
 
-        final StudentCurricularPlan scp = registration.getStudentCurricularPlan(executionYear);
+        final StudentCurricularPlan scp = registration.getStudentCurricularPlansSet().size() == 1 ? registration
+                .getLastStudentCurricularPlan() : registration.getStudentCurricularPlan(executionYear);
 
         for (final CurriculumGroup curriculumGroup : scp.getAllCurriculumGroups()) {
             if (curriculumGroup.getDegreeModule() == null) {
