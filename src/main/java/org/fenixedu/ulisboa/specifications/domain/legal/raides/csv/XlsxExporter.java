@@ -166,7 +166,7 @@ public class XlsxExporter {
 
                     @Override
                     protected void makeLine(final PersonalInformationBean personalInformationBean) {
-                        addCell("Nº Aluno", personalInformationBean.getRegistration().getStudent().getNumber());
+                        addCell("Nº Aluno", personalInformationBean.getRegistration().getNumber());
                         addCell(pdiLabel("executionYear"), personalInformationBean.getRegistration().getStudentCandidacy()
                                 .getExecutionYear().getQualifiedName());
                         addCell("Curso", personalInformationBean.getRegistration().getDegree().getPresentationName());
@@ -240,7 +240,7 @@ public class XlsxExporter {
                                 personalInformationBean.getRegistration().getStudent().getPersonalIngressionsDataSet();
                         for (final PersonalIngressionData personalIngressionData : personalIngressionsDataSet) {
 
-                            addCell("Nº Aluno", personalInformationBean.getRegistration().getStudent().getNumber());
+                            addCell("Nº Aluno", personalInformationBean.getRegistration().getNumber());
                             addCell(pdiLabel("executionYear"), personalIngressionData.getExecutionYear().getQualifiedName());
 
                             addCell(pidLabel("countryOfResidence"),
