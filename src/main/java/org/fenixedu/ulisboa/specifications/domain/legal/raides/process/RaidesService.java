@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 
+import static org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.formatArgs;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -106,9 +108,7 @@ public class RaidesService {
 
             if (branches.size() > 1) {
                 LegalReportContext.addError("",
-                        i18n("error.Raides.validation.enrolled.more.than.one.branch", String.valueOf(registration.getNumber()),
-                                registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                        i18n("error.Raides.validation.enrolled.more.than.one.branch", formatArgs(registration, executionYear)));
             }
 
             bean.setRamo(BranchMappingType.readMapping(report).translate(branches.iterator().next()));
@@ -263,9 +263,7 @@ public class RaidesService {
                 if (Strings.isNullOrEmpty(bean.getTipoEstabSec())) {
                     bean.setTipoEstabSec(Raides.TipoEstabSec.PUBLICO);
                     LegalReportContext.addWarn("",
-                            i18n("warn.Raides.highSchoolType.not.specified", String.valueOf(registration.getNumber()),
-                                    registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                                    executionYear.getQualifiedName()));
+                            i18n("warn.Raides.highSchoolType.not.specified", formatArgs(registration, executionYear)));
                 }
             }
         }
@@ -318,36 +316,28 @@ public class RaidesService {
             final IGrauPrecedenteCompleto bean) {
 
         if (Strings.isNullOrEmpty(bean.getEscolaridadeAnterior())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.school.level.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.school.level.missing",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
         if (Raides.NivelCursoOrigem.OUTRO.equals(Strings.isNullOrEmpty(bean.getOutroEscolaridadeAnterior()))) {
             if (Strings.isNullOrEmpty(bean.getOutroEscolaridadeAnterior())) {
-                LegalReportContext.addError("",
-                        i18n("error.Raides.validation.previous.complete.other.school.level.missing",
-                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.other.school.level.missing",
+                        formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
             }
         }
 
         if (Strings.isNullOrEmpty(bean.getPaisEscolaridadeAnt())) {
             LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.country.missing", String.valueOf(registration.getNumber()),
-                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                    i18n("error.Raides.validation.previous.complete.country.missing", formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
         if (Strings.isNullOrEmpty(bean.getAnoEscolaridadeAnt())) {
             LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.year.missing", String.valueOf(registration.getNumber()),
-                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                    i18n("error.Raides.validation.previous.complete.year.missing", formatArgs(registration, executionYear)));
 
             bean.markAsInvalid();
         }
@@ -376,10 +366,8 @@ public class RaidesService {
         if (lastCompletedQualification.getSchoolLevel() != null
                 && lastCompletedQualification.getSchoolLevel().isHighSchoolOrEquivalent()) {
             if (Strings.isNullOrEmpty(bean.getTipoEstabSec())) {
-                LegalReportContext.addError("",
-                        i18n("error.Raides.validation.previous.complete.highSchoolType.missing",
-                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.highSchoolType.missing",
+                        formatArgs(registration, executionYear)));
             }
         }
     }
@@ -397,25 +385,20 @@ public class RaidesService {
         }
 
         if (Strings.isNullOrEmpty(bean.getEstabEscolaridadeAnt())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.institution.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.institution.missing",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
         if (Raides.Estabelecimentos.OUTRO.equals(bean.getEstabEscolaridadeAnt())
                 && Strings.isNullOrEmpty(bean.getOutroEstabEscolarAnt())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.other.institution.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.other.institution.missing",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         } else if (Raides.Estabelecimentos.OUTRO.equals(bean.getEstabEscolaridadeAnt())) {
             LegalReportContext.addWarn("",
                     i18n("warn.Raides.validation.previous.complete.other.institution.given.instead.of.code",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
     }
@@ -448,8 +431,7 @@ public class RaidesService {
         if (!degreeDesignationContainsInstitution) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.official.precedent.degree.is.not.offered.by.institution",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
@@ -457,8 +439,7 @@ public class RaidesService {
                 && !isHigherEducation(lastCompletedQualification)) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.isMasterDoctoralOrSpecialization.but.completed.qualification.is.not.higher",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            formatArgs(registration, executionYear)));
         }
     }
 
@@ -475,19 +456,15 @@ public class RaidesService {
         }
 
         if (Strings.isNullOrEmpty(bean.getCursoEscolarAnt())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.degree.designation.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.degree.designation.missing",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
         if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getCursoEscolarAnt())
                 && Strings.isNullOrEmpty(bean.getOutroCursoEscolarAnt())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.previous.complete.other.degree.designation.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.previous.complete.other.degree.designation.missing",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
@@ -495,8 +472,7 @@ public class RaidesService {
                 && Raides.Cursos.OUTRO.equals(bean.getCursoEscolarAnt())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.previous.complete.other.degree.designation.set.even.if.level.is.portuguese.higher.education",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
     }
@@ -556,10 +532,8 @@ public class RaidesService {
             }
 
             if (!Strings.isNullOrEmpty(bean.getAlunoDeslocado())) {
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.validation.dislocated.from.residence.missing", String.valueOf(registration.getNumber()),
-                                registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                LegalReportContext.addWarn("", i18n("warn.Raides.validation.dislocated.from.residence.missing",
+                        formatArgs(registration, executionYear)));
             }
 
         }
@@ -620,17 +594,13 @@ public class RaidesService {
 
         if (Strings.isNullOrEmpty(bean.getEstadoCivil())) {
             LegalReportContext.addError("",
-                    i18n("error.Raides.validation.maritalStatus.missing", String.valueOf(registration.getNumber()),
-                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                    i18n("error.Raides.validation.maritalStatus.missing", formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
         if (Strings.isNullOrEmpty(bean.getAlunoDeslocado())) {
             LegalReportContext.addError("",
-                    i18n("error.Raides.validation.dislocated.from.residence.missing", String.valueOf(registration.getNumber()),
-                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                    i18n("error.Raides.validation.dislocated.from.residence.missing", formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
 
@@ -638,9 +608,7 @@ public class RaidesService {
                 && Raides.countryOfResidence(registration, executionYear).isDefaultCountry()) {
             if (Strings.isNullOrEmpty(bean.getResideConcelho())) {
                 LegalReportContext.addError("",
-                        i18n("error.Raides.validation.district.subdivision.missing", String.valueOf(registration.getNumber()),
-                                registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                        i18n("error.Raides.validation.district.subdivision.missing", formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
             }
         }

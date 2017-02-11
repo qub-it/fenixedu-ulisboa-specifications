@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 
+import static org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.formatArgs;
+
 import java.math.BigDecimal;
 
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -104,17 +106,13 @@ public class MobilidadeInternacionalService extends RaidesService {
     protected void validaNivelCursoOrigem(final ExecutionYear executionYear, final Registration registration,
             final TblMobilidadeInternacional bean) {
         if (Strings.isNullOrEmpty(bean.getNivelCursoOrigem())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.mobility.provenance.school.level.empty",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.mobility.provenance.school.level.empty",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         } else if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())
                 && Strings.isNullOrEmpty(bean.getOutroNivelCurOrigem())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.mobility.other.provenance.school.level.empty",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.mobility.other.provenance.school.level.empty",
+                    formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
     }

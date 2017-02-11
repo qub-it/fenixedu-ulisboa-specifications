@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides.process;
 
+import static org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.formatArgs;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
@@ -54,10 +56,8 @@ public class DiplomadoService extends RaidesService {
                     String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
 
             if (Raides.isDoctoralDegree(registration) && !registrationConclusionBean.isConclusionProcessed()) {
-                LegalReportContext.addError("",
-                        i18n("error.Raides.validation.doctoral.degree.without.conclusion.process",
-                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                LegalReportContext.addError("", i18n("error.Raides.validation.doctoral.degree.without.conclusion.process",
+                        formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
             }
 
@@ -67,9 +67,7 @@ public class DiplomadoService extends RaidesService {
                         .translate(finalGrade(registrationConclusionBean.getDescriptiveGrade().getValue())));
             } else if (registrationConclusionBean.getFinalGrade().isEmpty()) {
                 LegalReportContext.addError("",
-                        i18n("error.Raides.validation.finalGrade.set.but.empty", String.valueOf(registration.getNumber()),
-                                registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName()));
+                        i18n("error.Raides.validation.finalGrade.set.but.empty", formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
             } else {
                 bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
@@ -233,33 +231,25 @@ public class DiplomadoService extends RaidesService {
         }
 
         if (Strings.isNullOrEmpty(bean.getTipoMobilidadeCredito())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.graduated.mobility.credit.type.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.graduated.mobility.credit.type.missing",
+                    formatArgs(registration, executionYear)));
         }
 
         if (Strings.isNullOrEmpty(bean.getProgMobilidadeCredito())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.graduated.mobility.program.type.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.graduated.mobility.program.type.missing",
+                    formatArgs(registration, executionYear)));
         }
 
         if ((Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidadeCredito())
                 || Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidadeCredito()))
                 && Strings.isNullOrEmpty(bean.getOutroProgMobCredito())) {
-            LegalReportContext.addError("",
-                    i18n("error.Raides.validation.graduated.mobility.other.program.type.missing",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addError("", i18n("error.Raides.validation.graduated.mobility.other.program.type.missing",
+                    formatArgs(registration, executionYear)));
         }
 
         if (Strings.isNullOrEmpty(bean.getPaisMobilidadeCredito())) {
             LegalReportContext.addError("",
-                    i18n("error.Raides.validation.graduated.mobility.country.missing", String.valueOf(registration.getNumber()),
-                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                    i18n("error.Raides.validation.graduated.mobility.country.missing", formatArgs(registration, executionYear)));
         }
     }
 
@@ -270,8 +260,7 @@ public class DiplomadoService extends RaidesService {
             if (Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.masterOrDoctoral.scholarpart.classification.empty.or.zero",
-                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                                formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
             }
         }
@@ -280,17 +269,14 @@ public class DiplomadoService extends RaidesService {
                 || "0".equals(bean.getClassificacaoFinal())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.masterOrDoctoral.terminalpart.classification.empty.or.zero",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                            formatArgs(registration, executionYear)));
         }
     }
 
     private void validaAreaInvestigacao(ExecutionYear executionYear, Registration registration, TblDiplomado bean) {
         if (Raides.isDoctoralDegree(registration) && Strings.isNullOrEmpty(bean.getAreaInvestigacao())) {
             LegalReportContext.addError("",
-                    i18n("error.Raides.validation.doctoral.requires.research.area", String.valueOf(registration.getNumber()),
-                            registration.getDegree().getCode(), registration.getDegreeNameWithDescription(),
-                            executionYear.getQualifiedName()));
+                    i18n("error.Raides.validation.doctoral.requires.research.area", formatArgs(registration, executionYear)));
         }
     }
 

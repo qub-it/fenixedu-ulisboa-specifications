@@ -666,10 +666,8 @@ public class Raides {
         final boolean withHistoric = registrationData != null && registrationData.getEnrolmentDate() != null;
 
         if (withHistoric) {
-            LegalReportContext.addWarn("",
-                    i18n("warn.Raides.enrolledInExecutionYear.with.historic.but.not.enrolments",
-                            String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                            registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+            LegalReportContext.addWarn("", i18n("warn.Raides.enrolledInExecutionYear.with.historic.but.not.enrolments",
+                    formatArgs(registration, executionYear)));
         }
 
         return withHistoric;
@@ -958,10 +956,8 @@ public class Raides {
 
         for (ExecutionYear ex = executionYear; ex.getPreviousExecutionYear() != null; ex = ex.getPreviousExecutionYear()) {
             if (registration.getStudent().getPersonalIngressionDataByExecutionYear(ex) != null) {
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.validation.using.personal.ingression.data.from.previous.year",
-                                String.valueOf(registration.getNumber()), registration.getDegree().getCode(),
-                                registration.getDegreeNameWithDescription(), executionYear.getQualifiedName()));
+                LegalReportContext.addWarn("", i18n("warn.Raides.validation.using.personal.ingression.data.from.previous.year",
+                        formatArgs(registration, executionYear)));
 
                 return registration.getStudent().getPersonalIngressionDataByExecutionYear(ex);
             }
@@ -1247,6 +1243,21 @@ public class Raides {
 
     public static RegistrationProtocol findRegistrationProtocolByCode(final String code) {
         return Bennu.getInstance().getRegistrationProtocolsSet().stream().filter(r -> r.getCode().equals(code)).findAny().get();
+    }
+
+    //TODO: move to RaidesLegalReportUtil?
+    public static String[] formatArgs(Registration registration, ExecutionYear executionYear) {
+        return new String[] {
+
+                String.valueOf(registration.getNumber()),
+
+                registration.getDegree().getCode(),
+
+                registration.getDegreeNameWithDescription(),
+
+                executionYear == null ? "" : executionYear.getQualifiedName()
+
+        };
     }
 
 }
