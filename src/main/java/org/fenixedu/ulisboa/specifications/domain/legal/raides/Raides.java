@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.legal.raides;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.District;
@@ -229,6 +231,8 @@ public class Raides {
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
 
+                    final String[] messageArgs = formatArgs(registration, academicPeriod);
+
                     try {
                         if (!isAgreementPartOfMobilityReport(raidesRequestParameter, registration)) {
                             continue;
@@ -259,11 +263,11 @@ public class Raides {
 
                         addMobilidadeInternacional(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final DomainException e) {
-                        LegalReportContext.addError("", e.getMessage(), e.getArgs());
-                        e.printStackTrace();
+                        LegalReportContext.addError("",
+                                i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getKey())));
                     } catch (final Throwable e) {
-                        LegalReportContext.addError("", e.getMessage());
-                        e.printStackTrace();
+                        LegalReportContext.addError("", i18n("error.Raides.unexpected.error.occured",
+                                concatArgs(messageArgs, ExceptionUtils.getFullStackTrace(e))));
                     }
                 }
             }
@@ -277,6 +281,8 @@ public class Raides {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
+
+                    final String[] messageArgs = formatArgs(registration, academicPeriod);
 
                     try {
                         if (enroledPeriod.isEnrolledInAcademicPeriod()
@@ -310,8 +316,8 @@ public class Raides {
 
                         addGraduated(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final Throwable e) {
-                        LegalReportContext.addError("", e.getMessage());
-                        e.printStackTrace();
+                        LegalReportContext.addError("", i18n("error.Raides.unexpected.error.occured",
+                                concatArgs(messageArgs, ExceptionUtils.getFullStackTrace(e))));
                     }
                 }
             }
@@ -371,11 +377,14 @@ public class Raides {
     }
 
     public void processEnrolled(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
+
         for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForEnrolled()) {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
 
                 for (final Registration registration : degree.getRegistrationsSet()) {
+
+                    final String[] messageArgs = formatArgs(registration, academicPeriod);
 
                     try {
                         if (!isAgreementPartOfEnrolledReport(raidesRequestParameter, registration)) {
@@ -422,11 +431,11 @@ public class Raides {
                         addEnrolledStudent(report, raidesRequestParameter, academicPeriod, registration);
 
                     } catch (final DomainException e) {
-                        LegalReportContext.addError("", e.getMessage(), e.getArgs());
-                        e.printStackTrace();
+                        LegalReportContext.addError("",
+                                i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getKey())));
                     } catch (final Throwable e) {
-                        LegalReportContext.addError("", e.getMessage());
-                        e.printStackTrace();
+                        LegalReportContext.addError("", i18n("error.Raides.unexpected.error.occured",
+                                concatArgs(messageArgs, ExceptionUtils.getFullStackTrace(e))));
                     }
                 }
             }
@@ -1260,6 +1269,14 @@ public class Raides {
                 executionYear == null ? "" : executionYear.getQualifiedName()
 
         };
+    }
+
+    private static String[] concatArgs(String[] left, String... right) {
+        final List<String> result = new ArrayList<String>();
+        result.addAll(Arrays.asList(left));
+        result.addAll(Arrays.asList(right));
+
+        return result.toArray(new String[] {});
     }
 
 }

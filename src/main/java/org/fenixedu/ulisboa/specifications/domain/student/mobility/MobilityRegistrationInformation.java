@@ -220,6 +220,11 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     @Deprecated
     private Country getCountryByForeignInstitutionUnit() {
 
+        //legacy
+        if (getForeignInstitutionUnit() == null) {
+            return null;
+        }
+
         Collection<? extends Party> parentParties =
                 getForeignInstitutionUnit().getParentParties(AccountabilityTypeEnum.GEOGRAPHIC, CountryUnit.class);
 
