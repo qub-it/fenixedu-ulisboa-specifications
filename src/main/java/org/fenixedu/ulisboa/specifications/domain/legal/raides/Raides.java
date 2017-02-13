@@ -167,6 +167,7 @@ public class Raides {
 
     public static class Ramo {
         public static final String TRONCO_COMUM = "1000017";
+        public static final String OUTRO = "0000000";
     }
 
     public static class NivelEscolaridade {

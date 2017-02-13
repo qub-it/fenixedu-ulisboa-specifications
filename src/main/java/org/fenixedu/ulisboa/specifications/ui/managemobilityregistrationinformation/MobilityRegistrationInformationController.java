@@ -179,6 +179,28 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
         return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
     }
 
+    private static final String _MARK_AS_MAIN_URI = "/markAsMain";
+    public static final String MARK_AS_MAIN_URL = CONTROLLER_URL + _MARK_AS_MAIN_URI;
+
+    @RequestMapping(value = _MARK_AS_MAIN_URI + "/{mobilityRegistrationInformationId}")
+    public String markAsMain(
+            @PathVariable("mobilityRegistrationInformationId") final MobilityRegistrationInformation mobilityRegistrationInformation,
+            final Model model, RedirectAttributes redirectAttributes) {
+
+        try {
+
+            mobilityRegistrationInformation.markAsMainInformation();
+
+            return redirect(SEARCH_URL + "/" + mobilityRegistrationInformation.getRegistration().getExternalId(), model,
+                    redirectAttributes);
+        } catch (final DomainException ex) {
+            addErrorMessage(ex.getLocalizedMessage(), model);
+        }
+
+        return search(mobilityRegistrationInformation.getRegistration(), model);
+
+    }
+
     private void setRegistration(final Registration registration, final Model model) {
         model.addAttribute("registration", registration);
     }

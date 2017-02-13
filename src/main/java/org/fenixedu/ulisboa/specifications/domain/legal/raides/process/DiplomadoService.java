@@ -120,23 +120,23 @@ public class DiplomadoService extends RaidesService {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
         }
 
-        if (MobilityRegistrationInformation.hasBeenInMobility(registration)) {
-            final MobilityRegistrationInformation mobilityRegistrationInformation =
-                    MobilityRegistrationInformation.findOutgoingInformation(registration);
-            bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
+        if (MobilityRegistrationInformation.hasAnyInternationalOutgoingMobility(registration)) {
 
+            final MobilityRegistrationInformation mobility = findOutgoingMobility(registration);
+
+            bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
             bean.setTipoMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY)
-                    .translate(mobilityRegistrationInformation.getMobilityActivityType()));
+                    .translate(mobility.getMobilityActivityType()));
             bean.setProgMobilidadeCredito(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM)
-                    .translate(mobilityRegistrationInformation.getMobilityProgramType()));
+                    .translate(mobility.getMobilityProgramType()));
 
             if (Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidadeCredito())
                     || Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidadeCredito())) {
-                bean.setOutroProgMobCredito(mobilityRegistrationInformation.getMobilityProgramType().getName().getContent());
+                bean.setOutroProgMobCredito(mobility.getMobilityProgramType().getName().getContent());
             }
 
-            if (mobilityRegistrationInformation.hasCountry()) {
-                bean.setPaisMobilidadeCredito(mobilityRegistrationInformation.getCountry().getCode());
+            if (mobility.hasCountry()) {
+                bean.setPaisMobilidadeCredito(mobility.getCountry().getCode());
             }
         }
 
@@ -147,6 +147,18 @@ public class DiplomadoService extends RaidesService {
         validaAreaInvestigacao(executionYear, registration, bean);
 
         return bean;
+    }
+
+    private MobilityRegistrationInformation findOutgoingMobility(Registration registration) {
+
+        final MobilityRegistrationInformation mainInformation =
+                MobilityRegistrationInformation.findMainInternationalOutgoingInformation(registration);
+        if (mainInformation != null) {
+            return mainInformation;
+        }
+
+        return MobilityRegistrationInformation.findInternationalOutgoingInformations(registration).stream()
+                .sorted((x, y) -> x.getExternalId().compareTo(y.getExternalId())).findFirst().orElse(null);
     }
 
     private String finalGrade(final String value) {
@@ -226,8 +238,15 @@ public class DiplomadoService extends RaidesService {
 
     protected void validaMobilidadeCredito(final ExecutionYear executionYear, final Registration registration,
             final TblDiplomado bean) {
-        if (!MobilityRegistrationInformation.hasBeenInMobility(registration)) {
+
+        if (!MobilityRegistrationInformation.hasAnyInternationalOutgoingMobility(registration)) {
             return;
+        }
+
+        if (MobilityRegistrationInformation.findInternationalOutgoingInformations(registration).size() > 1
+                && MobilityRegistrationInformation.findMainInternationalOutgoingInformation(registration) == null) {
+            LegalReportContext.addError("", i18n("error.Raides.validation.graduated.mobility.mainInformation.missing",
+                    formatArgs(registration, executionYear)));
         }
 
         if (Strings.isNullOrEmpty(bean.getTipoMobilidadeCredito())) {
@@ -251,6 +270,7 @@ public class DiplomadoService extends RaidesService {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.graduated.mobility.country.missing", formatArgs(registration, executionYear)));
         }
+
     }
 
     protected void validaClassificacao(final ExecutionYear executionYear, final Registration registration,

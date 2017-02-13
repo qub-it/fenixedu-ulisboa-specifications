@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain.student.mobility;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -273,6 +274,14 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
 
     }
 
+    @Atomic
+    public void markAsMainInformation() {
+        getRegistration().getMobilityRegistrationInformationsSet().stream()
+                .filter(m -> m.isIncoming() == isIncoming() && m.getNational() == getNational())
+                .forEach(m -> m.setMainInformation(false));
+        setMainInformation(true);
+    }
+
     // Creates a mobility registration for an internal student which is going to other institution
     @Atomic
     public static MobilityRegistrationInformation create(final MobilityRegistrationInformationBean bean) {
@@ -286,18 +295,24 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         return registration.getMobilityRegistrationInformationsSet();
     }
 
-    public static boolean hasBeenInMobility(final Registration registration) {
-        return registration.getMobilityRegistrationInformationsSet().stream().anyMatch(m -> !m.isIncoming());
+    public static boolean hasAnyInternationalOutgoingMobility(final Registration registration) {
+        return registration.getMobilityRegistrationInformationsSet().stream().anyMatch(m -> !m.isIncoming() && !m.getNational());
     }
 
-    public static MobilityRegistrationInformation findOutgoingInformation(final Registration registration) {
-        return findAll(registration).iterator().next();
+    public static Collection<MobilityRegistrationInformation> findInternationalOutgoingInformations(Registration registration) {
+        return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> !m.isIncoming() && !m.getNational())
+                .collect(Collectors.toSet());
     }
 
-    public static MobilityRegistrationInformation findIncomingInformation(final Registration registration,
+    public static MobilityRegistrationInformation findMainInternationalOutgoingInformation(Registration registration) {
+        return findInternationalOutgoingInformations(registration).stream().filter(m -> m.getMainInformation()).findFirst()
+                .orElse(null);
+    }
+
+    public static MobilityRegistrationInformation findInternationalIncomingInformation(final Registration registration,
             final ExecutionYear executionYear) {
         return registration.getMobilityRegistrationInformationsSet().stream()
-                .filter(m -> m.isIncoming() && m.isValid(executionYear)).findFirst().orElse(null);
+                .filter(m -> m.isIncoming() && !m.getNational() && m.isValid(executionYear)).findFirst().orElse(null);
     }
 
 }

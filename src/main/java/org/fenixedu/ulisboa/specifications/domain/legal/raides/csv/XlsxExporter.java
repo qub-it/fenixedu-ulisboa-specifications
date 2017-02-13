@@ -146,7 +146,6 @@ public class XlsxExporter {
                         addCell("AnoLetivo", tblMobilidadeInternacional.getAnoLectivo());
                         addCell("AreaCientifica", tblMobilidadeInternacional.getAreaCientifica());
                         addCell("AnoCurricular", tblMobilidadeInternacional.getAnoCurricular());
-                        addCell("PrimeiraVez", tblMobilidadeInternacional.getPrimeiraVez());
                         addCell("RegimeFrequencia", tblMobilidadeInternacional.getRegimeFrequencia());
                         addCell("ECTSInscricao", tblMobilidadeInternacional.getEctsInscrito());
                         addCell("ProgMobilidade", tblMobilidadeInternacional.getProgMobilidade());

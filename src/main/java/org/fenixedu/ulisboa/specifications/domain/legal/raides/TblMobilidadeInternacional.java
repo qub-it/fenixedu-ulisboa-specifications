@@ -1,15 +1,13 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides;
 
-
 public class TblMobilidadeInternacional extends RaidesData implements IMatricula {
-    
+
     protected String idEstab;
     protected String idAluno;
     protected String curso;
     protected String ramo;
     protected String anoLectivo;
     protected String anoCurricular;
-    protected String primeiraVez;
     protected String regimeFrequencia;
     protected String ectsInscrito;
     protected String progMobilidade;
@@ -18,13 +16,12 @@ public class TblMobilidadeInternacional extends RaidesData implements IMatricula
     protected String duracaoPrograma;
     protected String nivelCursoOrigem;
     protected String outroNivelCurOrigem;
-    
+
     protected String areaCientifica;
     protected String nivelCursoDestino;
     protected String outroNivelCursoDestino;
-    
-    protected boolean valid = true;
 
+    protected boolean valid = true;
 
     @Override
     public void markAsInvalid() {
@@ -86,14 +83,6 @@ public class TblMobilidadeInternacional extends RaidesData implements IMatricula
 
     public void setAnoCurricular(String anoCurricular) {
         this.anoCurricular = anoCurricular;
-    }
-
-    public String getPrimeiraVez() {
-        return primeiraVez;
-    }
-
-    public void setPrimeiraVez(String primeiraVez) {
-        this.primeiraVez = primeiraVez;
     }
 
     public String getRegimeFrequencia() {
@@ -159,27 +148,27 @@ public class TblMobilidadeInternacional extends RaidesData implements IMatricula
     public void setOutroNivelCurOrigem(String outroNivelCurOrigem) {
         this.outroNivelCurOrigem = outroNivelCurOrigem;
     }
-    
+
     public String getAreaCientifica() {
         return areaCientifica;
     }
-    
+
     public void setAreaCientifica(String areaCientifica) {
         this.areaCientifica = areaCientifica;
     }
-    
+
     public String getNivelCursoDestino() {
         return nivelCursoDestino;
     }
-    
+
     public void setNivelCursoDestino(String nivelCursoDestino) {
         this.nivelCursoDestino = nivelCursoDestino;
     }
-    
+
     public String getOutroNivelCursoDestino() {
         return outroNivelCursoDestino;
     }
-    
+
     public void setOutroNivelCursoDestino(String outroNivelCursoDestino) {
         this.outroNivelCursoDestino = outroNivelCursoDestino;
     }

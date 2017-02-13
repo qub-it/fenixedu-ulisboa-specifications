@@ -55,13 +55,12 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         createTipoProgramaMobilidadeMapping();
         createTipoBolsaMapping();
     }
-    
-    
 
     private void createTipoBolsaMapping() {
-        if(LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.GRANT_OWNER_TYPE) == null) {
-            EnumerationLegalMapping legalMapping = (EnumerationLegalMapping) LegalMapping.create(LegalMappingType.GRANT_OWNER_TYPE, RaidesInstance.getInstance());
-            
+        if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.GRANT_OWNER_TYPE) == null) {
+            EnumerationLegalMapping legalMapping = (EnumerationLegalMapping) LegalMapping
+                    .create(LegalMappingType.GRANT_OWNER_TYPE, RaidesInstance.getInstance());
+
             legalMapping.addEntry(GrantOwnerType.FCT_GRANT_OWNER, "12");
             legalMapping.addEntry(GrantOwnerType.HIGHER_EDUCATION_NOT_SAS_GRANT_OWNER, "16");
             legalMapping.addEntry(GrantOwnerType.HIGHER_EDUCATION_SAS_GRANT_OWNER, "15");
@@ -76,7 +75,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY) == null) {
             final DomainObjectLegalMapping legalMapping = (DomainObjectLegalMapping) LegalMapping
                     .create(LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY, RaidesInstance.getInstance());
-            
+
             legalMapping.addEntry(MobilityActivityType.findByCode("1"), "1");
             legalMapping.addEntry(MobilityActivityType.findByCode("2"), "2");
         }
@@ -115,8 +114,8 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
 
     private void createTipoDocumentoMapping() {
         if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.ID_DOCUMENT_TYPE) == null) {
-            final EnumerationLegalMapping legalMapping =
-                    (EnumerationLegalMapping) LegalMapping.create(LegalMappingType.ID_DOCUMENT_TYPE, RaidesInstance.getInstance());
+            final EnumerationLegalMapping legalMapping = (EnumerationLegalMapping) LegalMapping
+                    .create(LegalMappingType.ID_DOCUMENT_TYPE, RaidesInstance.getInstance());
 
             legalMapping.addEntry(IDDocumentType.AIR_FORCE_IDENTITY_CARD, "7");
             legalMapping.addEntry(IDDocumentType.CITIZEN_CARD, "1");
@@ -167,7 +166,8 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             final DomainObjectLegalMapping legalMapping = (DomainObjectLegalMapping) LegalMapping
                     .create(LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT, RaidesInstance.getInstance());
 
-            legalMapping.addEntry(Raides.findRegistrationProtocolByCode("ERASMUS"), "1");
+            //legacy: mobility information now has programtype
+//            legalMapping.addEntry(Raides.findRegistrationProtocolByCode("ERASMUS"), "1");
         }
     }
 
@@ -213,16 +213,16 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             VETERINARIA_QualitativeGrades(legalMapping);
             DENTARIA_QualitativeGrades(legalMapping);
             REITORIA_QualitativeGrades(legalMapping);
-            
+
         }
     }
 
     private void REITORIA_QualitativeGrades(final StringLegalMapping legalMapping) {
         final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
-        if(!"510739024".equals(finantialInstitution.getFiscalNumber())) {
+        if (!"510739024".equals(finantialInstitution.getFiscalNumber())) {
             return;
         }
-        
+
         final String BOM_DISTINCAO = "BD";
         final String DISTINCAO = "D";
         final String BOM = "B";
@@ -232,7 +232,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         final String SUFICIENTE = "SU";
         final String EXCELENTE = "E";
         final String CREDITACAO = "C";
-        
+
         legalMapping.addEntry(BOM, "21");
         legalMapping.addEntry(BOM_DISTINCAO, "22");
         legalMapping.addEntry(MUITO_BOM, "23");
@@ -241,17 +241,15 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         legalMapping.addEntry(DISTINCAO, "26");
         legalMapping.addEntry(DISTINCAO_LOUVOR, "27");
         legalMapping.addEntry(SUFICIENTE, "28");
-        
+
     }
-
-
 
     private void DENTARIA_QualitativeGrades(final StringLegalMapping legalMapping) {
         final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
-        if(!"503013366".equals(finantialInstitution.getFiscalNumber())) {
+        if (!"503013366".equals(finantialInstitution.getFiscalNumber())) {
             return;
         }
-        
+
         final String NAO_APTO = "NAPT";
         final String APTO = "APT";
         final String INSUFICIENTE = "I";
@@ -262,7 +260,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         final String COM_APROVEITAMENTO = "CA";
         final String DISTINCAO_LOUVOR = "DL";
         final String APROVADO = "A";
-        
+
         legalMapping.addEntry(BOM, "21");
         legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
         legalMapping.addEntry(MUITO_BOM, "23");
@@ -273,10 +271,10 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
 
     private void VETERINARIA_QualitativeGrades(final StringLegalMapping legalMapping) {
         final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
-        if(!"502286326".equals(finantialInstitution.getFiscalNumber())) {
+        if (!"502286326".equals(finantialInstitution.getFiscalNumber())) {
             return;
         }
-        
+
         final String BOM = "B";
         final String MUITO_BOM = "MB";
         final String SUFICIENTE = "SU";
@@ -286,7 +284,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         final String APROVADO_MUITO_BOM = "AMB";
         final String APROVADO = "A";
         final String APROVADO_DISTINCAO_LOUVOR = "ADL";
-        
+
         legalMapping.addEntry(BOM, "21");
         legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
         legalMapping.addEntry(MUITO_BOM, "23");
@@ -297,10 +295,10 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
 
     private void FARMACIA_QualitativeGrades(final StringLegalMapping legalMapping) {
         final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
-        if(!"502659807".equals(finantialInstitution.getFiscalNumber())) {
+        if (!"502659807".equals(finantialInstitution.getFiscalNumber())) {
             return;
         }
-        
+
         final String INSUFICIENTE = "I";
         final String SUFICIENTE = "SU";
         final String BOM = "B";
@@ -313,7 +311,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         final String APROVADO_COM_DISTINCAO_LOUVOR = "ADL";
         final String APROVADO = "A";
         final String APROVADO_COM_MUITO_BOM = "AMB";
-        
+
         legalMapping.addEntry(BOM, "21");
         legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
         legalMapping.addEntry(MUITO_BOM, "23");
@@ -327,10 +325,10 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
 
     private void LETRAS_QualitativeGrades(final StringLegalMapping legalMapping) {
         final FinantialInstitution finantialInstitution = FinantialInstitution.findAll().findFirst().get();
-        if(!"502657456".equals(finantialInstitution.getFiscalNumber())) {
+        if (!"502657456".equals(finantialInstitution.getFiscalNumber())) {
             return;
         }
-        
+
         final String INSUFIENTE = "I";
         final String SUFICIENTE = "SU";
         final String BOM = "B";
@@ -345,7 +343,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         final String REPROVADO = "RE";
         final String APROVADO_COM_DISTINCAO_E_LOUVOR = "ADL";
         final String APROVADO_COM_DISTINCAO = "AD";
-        
+
         legalMapping.addEntry(BOM, "21");
         legalMapping.addEntry(BOM_COM_DISTINCAO, "22");
         legalMapping.addEntry(MUITO_BOM, "23");
@@ -354,15 +352,13 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         legalMapping.addEntry(APROVADO_COM_DISTINCAO, "26");
         legalMapping.addEntry(APROVADO_COM_DISTINCAO_E_LOUVOR, "27");
         legalMapping.addEntry(SUFICIENTE, "28");
-        
+
     }
-
-
 
     private void createNivelEscolarMapping() {
         if (LegalMapping.find(RaidesInstance.getInstance(), LegalMappingType.SCHOOL_LEVEL) == null) {
-            final EnumerationLegalMapping legalMapping = (EnumerationLegalMapping) LegalMapping
-                    .create(LegalMappingType.SCHOOL_LEVEL, RaidesInstance.getInstance());
+            final EnumerationLegalMapping legalMapping =
+                    (EnumerationLegalMapping) LegalMapping.create(LegalMappingType.SCHOOL_LEVEL, RaidesInstance.getInstance());
 
             legalMapping.addEntry(SchoolLevelType.BACHELOR_DEGREE, "18");
             legalMapping.addEntry(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA, "18");
@@ -526,9 +522,9 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
         if (RaidesInstance.getInstance() == null) {
             LegalReport.createReport(RaidesInstance.class);
             RaidesInstance.getInstance().edit(new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, "RAIDES"),
-                    Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", 
-                    Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), 
-                    false, new LocalizedString(), "", "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null);
+                    Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", Sets.newHashSet(),
+                    Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), false, new LocalizedString(), "",
+                    "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null);
         }
     }
 

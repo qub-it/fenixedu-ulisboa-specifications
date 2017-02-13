@@ -1913,6 +1913,7 @@ class student.mobility.MobilityRegistrationInformation {
 	LocalDate endDate;
 	String remarks;
 	boolean national;
+	boolean mainInformation;
 }
 
 	relation MobilityRegistrationInformationBennu {

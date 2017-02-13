@@ -210,6 +210,9 @@ ${portal.angularToolkit()}
 					<th>
 						<spring:message code="label.MobilityRegistrationInformation.foreignInstitutionUnit" />
 					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.mainInformation" />
+					</th>
 					<%-- Operations Column --%>
 					<th></th>
 				</tr>
@@ -233,11 +236,21 @@ ${portal.angularToolkit()}
 							<c:out value='${information.foreignInstitutionUnit.nameI18n.content}' />
 						</td>
 						<td>
+							<spring:message code="label.${information.mainInformation ? 'yes' : 'no'}" />
+						</td>
+						<td>
 							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.UPDATE_URL %>/${information.externalId}">
 								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 								&nbsp;
 								<spring:message code='label.edit' />
 							</a>
+							<c:if test="${not information.mainInformation}">
+								<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%= MobilityRegistrationInformationController.MARK_AS_MAIN_URL %>/${information.externalId}">
+									<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+									&nbsp;
+									<spring:message code='label.manageMobilityRegistrationInformation.searchMobilityRegistrationInformation.markAsDefault' />
+								</a>
+							</c:if>
 							<a class="btn btn-xs btn-danger" href="#" onclick="javascript:processDelete('${information.externalId}')">
 								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								&nbsp;

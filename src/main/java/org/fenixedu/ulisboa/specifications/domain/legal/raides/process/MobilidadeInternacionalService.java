@@ -11,6 +11,8 @@ import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblMobilidadeInternacional;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.Cursos;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
@@ -33,13 +35,11 @@ public class MobilidadeInternacionalService extends RaidesService {
         bean.setRegistration(registration);
         preencheInformacaoMatricula(report, bean, institutionUnit, executionYear, registration);
 
-        bean.setCurso(Raides.Cursos.OUTRO);
-        bean.setRamo(Raides.Ramo.TRONCO_COMUM);
+        bean.setCurso(null);
+        bean.setRamo(null);
+
         bean.setAnoCurricular(
                 LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.NAO_APLICAVEL_CODE));
-
-        bean.setPrimeiraVez(
-                LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isFirstTimeOnDegree(registration, executionYear)));
 
         final BigDecimal enrolledEcts = enrolledEcts(executionYear, registration);
         if (enrolledEcts != null && enrolledEcts.compareTo(BigDecimal.ZERO) > 0) {
@@ -50,65 +50,123 @@ public class MobilidadeInternacionalService extends RaidesService {
 
         bean.setRegimeFrequencia(regimeFrequencia(registration, executionYear));
 
-        if (registration.getRegistrationProtocol() != null) {
-            bean.setProgMobilidade(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT)
-                    .translate(registration.getRegistrationProtocol()));
+        final MobilityRegistrationInformation mobility =
+                MobilityRegistrationInformation.findInternationalIncomingInformation(registration, executionYear);
 
+        if (mobility == null) {
+            LegalReportContext.addError("",
+                    i18n("error.Raides.validation.mobility.information.is.missing", formatArgs(registration, executionYear)));
+            bean.markAsInvalid();
+
+            return bean;
+        }
+
+        if (mobility.getMobilityProgramType() != null) {
+
+            bean.setProgMobilidade(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM)
+                    .translate(mobility.getMobilityProgramType()));
+
+            if (Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidade())
+                    || Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidade())) {
+                bean.setOutroPrograma(mobility.getMobilityProgramType().getName().getContent());
+            }
+
+        } else {
+
+            //TODO: legacy to remove later
+            final LegalMapping agreementMapping =
+                    LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT);
+            bean.setProgMobilidade(agreementMapping != null
+                    && agreementMapping.isKeyDefined(registration.getRegistrationProtocol()) ? agreementMapping
+                            .translate(registration.getRegistrationProtocol()) : null);
             if (Raides.ProgramaMobilidade.OUTRO_DOIS.equals(bean.getProgMobilidade())
                     || Raides.ProgramaMobilidade.OUTRO_TRES.equals(bean.getProgMobilidade())) {
                 bean.setOutroPrograma(registration.getRegistrationProtocol().getDescription().getContent());
             }
+
         }
 
-        if (registration.getRegistrationProtocol() != null
-                && Raides.isAgreementPartOfMobilityReport(raidesRequestParameter, registration)) {
-            MobilityRegistrationInformation mobilityInformation =
-                    MobilityRegistrationInformation.findIncomingInformation(registration, executionYear);
-            if (mobilityInformation != null) {
-                if (mobilityInformation.getMobilityActivityType() != null) {
-                    bean.setTipoProgMobilidade(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY)
-                            .translate(mobilityInformation.getMobilityActivityType()));
-                } else {
-                    bean.setTipoProgMobilidade(Raides.ActividadeMobilidade.MOBILIDADE_ESTUDO);
-                }
+        if (mobility.getMobilityActivityType() != null) {
+            bean.setTipoProgMobilidade(LegalMapping.find(report, LegalMappingType.INTERNATIONAL_MOBILITY_ACTIVITY)
+                    .translate(mobility.getMobilityActivityType()));
+        } else {
+            bean.setTipoProgMobilidade(Raides.ActividadeMobilidade.MOBILIDADE_ESTUDO);
+        }
 
-                if (mobilityInformation.getProgramDuration() != null) {
-                    bean.setDuracaoPrograma(LegalMapping.find(report, LegalMappingType.SCHOOL_PERIOD_DURATION)
-                            .translate(mobilityInformation.getProgramDuration()));
-                }
+        if (mobility.getProgramDuration() != null) {
+            bean.setDuracaoPrograma(
+                    LegalMapping.find(report, LegalMappingType.SCHOOL_PERIOD_DURATION).translate(mobility.getProgramDuration()));
+        }
 
-                if (mobilityInformation.getOriginMobilityProgrammeLevel() != null) {
-                    bean.setNivelCursoOrigem(mobilityInformation.getOriginMobilityProgrammeLevel().getCode());
+        if (mobility.getOriginMobilityProgrammeLevel() != null) {
+            bean.setNivelCursoOrigem(mobility.getOriginMobilityProgrammeLevel().getCode());
 
-                    if (mobilityInformation.getOriginMobilityProgrammeLevel().isOtherLevel()) {
-                        bean.setOutroNivelCurOrigem(mobilityInformation.getOtherOriginMobilityProgrammeLevel());
-                    }
-                }
+            if (mobility.getOriginMobilityProgrammeLevel().isOtherLevel()) {
+                bean.setOutroNivelCurOrigem(mobility.getOtherOriginMobilityProgrammeLevel());
+            }
+        }
 
-                if (mobilityInformation.getMobilityScientificArea() != null) {
-                    bean.setAreaCientifica(mobilityInformation.getMobilityScientificArea().getCode());
-                }
+        if (mobility.getDegreeBased()) {
+            bean.setCurso(mobility.getDegree().getMinistryCode());
+            bean.setRamo(mobility.getBranchCourseGroup() != null ? BranchMappingType.readMapping(report)
+                    .translate(mobility.getBranchCourseGroup()) : Raides.Ramo.TRONCO_COMUM);
+            bean.setAreaCientifica(null);
+            bean.setNivelCursoDestino(null);
+            bean.setOutroNivelCursoDestino(null);
 
-                if (mobilityInformation.getIncomingMobilityProgrammeLevel() != null) {
-                    bean.setNivelCursoDestino(mobilityInformation.getIncomingMobilityProgrammeLevel().getCode());
+        } else {
+            bean.setCurso(Raides.Cursos.OUTRO);
+            bean.setRamo(Raides.Ramo.OUTRO);
 
-                    if (mobilityInformation.getIncomingMobilityProgrammeLevel().isOtherLevel()) {
-                        bean.setOutroNivelCursoDestino(mobilityInformation.getOtherIncomingMobilityProgrammeLevel());
-                    }
+            if (mobility.getMobilityScientificArea() != null) {
+                bean.setAreaCientifica(mobility.getMobilityScientificArea().getCode());
+            }
+
+            if (mobility.getIncomingMobilityProgrammeLevel() != null) {
+                bean.setNivelCursoDestino(mobility.getIncomingMobilityProgrammeLevel().getCode());
+
+                if (mobility.getIncomingMobilityProgrammeLevel().isOtherLevel()) {
+                    bean.setOutroNivelCursoDestino(mobility.getOtherIncomingMobilityProgrammeLevel());
                 }
             }
         }
 
+        validaProgramaMobilidade(executionYear, registration, bean);
+        validaDuracaoPrograma(executionYear, registration, bean);
         validaNivelCursoOrigem(executionYear, registration, bean);
+        validaCursoAreaCientificaNivelCursoDestino(executionYear, registration, bean);
+
         return bean;
+    }
+
+    private void validaProgramaMobilidade(ExecutionYear executionYear, Registration registration,
+            TblMobilidadeInternacional bean) {
+
+        if (Strings.isNullOrEmpty(bean.getProgMobilidade())) {
+            LegalReportContext.addError("",
+                    i18n("error.Raides.validation.mobility.program.type.empty", formatArgs(registration, executionYear)));
+            bean.markAsInvalid();
+        }
+
+    }
+
+    private void validaDuracaoPrograma(ExecutionYear executionYear, Registration registration, TblMobilidadeInternacional bean) {
+        if (Strings.isNullOrEmpty(bean.getDuracaoPrograma())) {
+            LegalReportContext.addError("",
+                    i18n("error.Raides.validation.mobility.program.duration.empty", formatArgs(registration, executionYear)));
+            bean.markAsInvalid();
+        }
+
     }
 
     protected void validaNivelCursoOrigem(final ExecutionYear executionYear, final Registration registration,
             final TblMobilidadeInternacional bean) {
+
         if (Strings.isNullOrEmpty(bean.getNivelCursoOrigem())) {
             LegalReportContext.addError("", i18n("error.Raides.validation.mobility.provenance.school.level.empty",
                     formatArgs(registration, executionYear)));
             bean.markAsInvalid();
+
         } else if (Raides.NivelCursoOrigem.OUTRO.equals(bean.getNivelCursoOrigem())
                 && Strings.isNullOrEmpty(bean.getOutroNivelCurOrigem())) {
             LegalReportContext.addError("", i18n("error.Raides.validation.mobility.other.provenance.school.level.empty",
@@ -117,17 +175,27 @@ public class MobilidadeInternacionalService extends RaidesService {
         }
     }
 
-    protected boolean isFirstTimeOnDegree(final Registration registration, final ExecutionYear executionYear) {
-        /*
-        if (!registration.getDegree().isEmpty()) {
-            return isFirstTimeOnDegree(registration, executionYear);
-        }
-        
-        if (Raides.getRootRegistration(registration) != registration) {
-            return false;
-        }
-        */
+    private void validaCursoAreaCientificaNivelCursoDestino(ExecutionYear executionYear, Registration registration,
+            TblMobilidadeInternacional bean) {
 
-        return executionYear == registration.getStartExecutionYear();
+        if (Cursos.OUTRO.equals(bean.getCurso())) {
+
+            if (Strings.isNullOrEmpty(bean.getAreaCientifica())) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.mobility.scientifica.area.cannot.be.empty.for.other.degree",
+                                formatArgs(registration, executionYear)));
+                bean.markAsInvalid();
+            }
+
+            if (Strings.isNullOrEmpty(bean.getNivelCursoDestino())) {
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.mobility.incoming.mobility.program.level.cannot.be.empty.for.other.degree",
+                                formatArgs(registration, executionYear)));
+                bean.markAsInvalid();
+            }
+
+        }
+
     }
+
 }
