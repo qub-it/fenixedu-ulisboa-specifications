@@ -1325,7 +1325,9 @@ public class StudentCurricularPlanLayout extends Layout {
             final HtmlTableCell cell = enrolmentRow.createCell();
             cell.setClasses(renderer.getDegreeCurricularPlanCellClass());
             final DegreeCurricularPlan plan = enrolment.getDegreeCurricularPlanOfDegreeModule();
-            cell.setBody(createDegreeCurricularPlanNameLink(plan, enrolment.getExecutionPeriod(), plan.getName(), false));
+            // qubExtension, show degree code
+            final String text = plan.getDegree().getCode();
+            cell.setBody(createDegreeCurricularPlanNameLink(plan, enrolment.getExecutionPeriod(), text, false));
         }
 
     }
