@@ -180,6 +180,14 @@ ${portal.angularToolkit()}
 							<c:out value='${registration.degree.presentationName}' />
 						</td>
 					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.MobilityRegistrationInformation.lastEnrolmentYear" />
+						</th>
+						<td>
+							<c:out value="${empty registration.lastEnrolmentExecutionYear ? '' : registration.lastEnrolmentExecutionYear.qualifiedName}" />
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</form>

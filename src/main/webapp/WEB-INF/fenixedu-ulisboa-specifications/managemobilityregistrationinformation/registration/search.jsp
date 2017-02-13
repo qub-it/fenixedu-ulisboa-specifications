@@ -155,6 +155,9 @@ ${portal.angularToolkit()}
 					<th>
 						<spring:message code="label.MobilityRegistrationInformation.mobilityInformationCount" />
 					</th>
+					<th>
+						<spring:message code="label.MobilityRegistrationInformation.lastEnrolmentYear" />
+					</th>
 					<%-- Operations Column --%>
 					<th></th>
 				</tr>
@@ -175,6 +178,9 @@ ${portal.angularToolkit()}
 							</td>
 							<td>
 								<c:out value="${fn:length(registration.mobilityRegistrationInformationsSet)}" />
+							</td>
+							<td>
+								<c:out value="${empty registration.lastEnrolmentExecutionYear ? '' : registration.lastEnrolmentExecutionYear.qualifiedName}" />
 							</td>
 							<td>
 								<a class="btn btn-default btn-xs"
@@ -222,8 +228,8 @@ ${portal.angularToolkit()}
 											} ],
 											//Documentation: https://datatables.net/reference/option/dom
 											//"dom": '<"col-sm-6"l><"col-sm-3"f><"col-sm-3"T>rtip', //FilterBox = YES && ExportOptions = YES
-											"dom" : 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
-											//"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
+											//"dom" : 'T<"clear">lrtip', //FilterBox = NO && ExportOptions = YES
+											"dom": '<"col-sm-6"l><"col-sm-6"f>rtip', //FilterBox = YES && ExportOptions = NO
 											//"dom": '<"col-sm-6"l>rtip', // FilterBox = NO && ExportOptions = NO
 											"tableTools" : {
 												"sSwfPath" : "${pageContext.request.contextPath}/webjars/datatables-tools/2.2.4/swf/copy_csv_xls_pdf.swf"
