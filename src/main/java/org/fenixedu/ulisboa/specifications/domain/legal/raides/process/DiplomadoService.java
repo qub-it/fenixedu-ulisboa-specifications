@@ -120,6 +120,8 @@ public class DiplomadoService extends RaidesService {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
         }
 
+        bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
+
         if (MobilityRegistrationInformation.hasAnyInternationalOutgoingMobility(registration)) {
 
             final MobilityRegistrationInformation mobility = findOutgoingMobility(registration);

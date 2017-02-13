@@ -1,10 +1,8 @@
 package org.fenixedu.ulisboa.specifications.domain.legal.raides.xml;
 
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
@@ -14,46 +12,51 @@ import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResult
 
 import com.google.common.base.Strings;
 
-public class XmlZipFileWriter {
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.io.ZipOutputStream;
+import net.lingala.zip4j.model.ZipModel;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
 
-    private static final int TIMEOUT = 2000;
+public class XmlZipFileWriter {
 
     public static LegalReportResultFile write(final LegalReportRequest reportRequest,
             final RaidesRequestParameter raidesRequestParameter, final Raides raides, final LegalReportResultFile xmlResultFile) {
 
-        if (Strings.isNullOrEmpty(((RaidesInstance) reportRequest.getLegalReport()).getPasswordToZip())) {
+        final String passwordToZip = ((RaidesInstance) reportRequest.getLegalReport()).getPasswordToZip();
+        if (Strings.isNullOrEmpty(passwordToZip)) {
             return null;
         }
 
         try {
-            long currentTimeMillis = System.currentTimeMillis();
-            byte[] content = IOUtils.toByteArray(xmlResultFile.getStream());
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            final String xmlTempFileName = "/tmp/A" + currentTimeMillis;
-            FileWriter fw = new FileWriter(xmlTempFileName);
+            final ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+            parameters.setEncryptFiles(true);
+            parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_STANDARD);
+            parameters.setPassword(passwordToZip);
+            parameters.setFileNameInZip(xmlResultFile.getFilename());
+            parameters.setSourceExternalStream(true);
 
-            IOUtils.write(content, fw);
+            final ZipOutputStream zOut = new ZipOutputStream(baos, new ZipModel());
+            zOut.putNextEntry(null, parameters);
+            zOut.write(xmlResultFile.getContent());
+            zOut.closeEntry();
 
-            fw.close();
+            zOut.finish();
+            zOut.close();
 
-            final String zipFilename =
-                    "A0" + raidesRequestParameter.getMoment() + raidesRequestParameter.getInstitutionCode() + ".zip";
+            return new LegalReportResultFile(reportRequest, LegalReportResultFileType.ZIP,
+                    xmlResultFile.getFilename().replace(".xml", ".zip"), baos.toByteArray());
 
-            Process outprocess = new ProcessBuilder("zip", "--password", ((RaidesInstance) reportRequest.getLegalReport()).getPasswordToZip(),
-                    "/tmp/" + zipFilename, xmlTempFileName).start();
-
-            outprocess.wait(TIMEOUT);
-            
-            FileInputStream zippedContenrFIS = new FileInputStream("/tmp/" + zipFilename);
-            byte[] zippedContent = IOUtils.toByteArray(zippedContenrFIS);
-            
-            zippedContenrFIS.close();
-            
-            return new LegalReportResultFile(reportRequest, LegalReportResultFileType.ZIP, zipFilename, zippedContent);
-        } catch (Exception e) {
+        } catch (ZipException | IOException e) {
+            //TODO: improve error handling
             e.printStackTrace();
         }
-        
+
         return null;
+
     }
 }

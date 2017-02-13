@@ -49,6 +49,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.Mobilidad
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlToBaseFileWriter;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.xml.XmlZipFileWriter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
@@ -220,7 +221,7 @@ public class Raides {
         XlsExporterLog.write(reportRequest, LegalReportContext.getReport());
 
         // XML password protected zip
-//        XmlZipFileWriter.write(reportRequest, raidesRequestParameter, this, xml);
+        XmlZipFileWriter.write(reportRequest, raidesRequestParameter, this, xml);
 
         reportRequest.markAsProcessed();
     }
