@@ -18,12 +18,21 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="com.google.common.collect.Lists"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html"%>
-<html:xhtml />
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
+<html:xhtml />
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
+<%@page import="java.util.List"%>
+<%@page import="org.fenixedu.academic.domain.Degree"%>
+<%@page import="org.fenixedu.academic.domain.DegreeCurricularPlan"%>
+<%@page import="org.fenixedu.academic.domain.degree.DegreeType"%>
+<%@page import="org.fenixedu.academic.ui.renderers.providers.enrollment.bolonha.BolonhaDegreeTypesProviderForOptionalEnrollment"%>
+<%@page import="org.fenixedu.academic.ui.renderers.providers.enrollment.bolonha.DegreesByDegreeTypeForOptionalEnrollment"%>
+<%@page import="org.fenixedu.academic.ui.renderers.providers.enrollment.bolonha.DegreeCurricularPlansForDegreeForOptionalEnrollment"%>
+<%@page import="org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentBean"%>
 
 <%-- TITLE --%>
 <div class="page-header">
@@ -39,7 +48,36 @@
 
 	<input type="hidden" name="method" value="" />
 
-	<fr:edit id="optionalEnrolment" name="optionalEnrolmentBean">
+    <%-- qubExtension, avoid choosing values in drop-downs if only one option is be available --%>
+    <% 
+    final BolonhaStudentOptionalEnrollmentBean bean = (BolonhaStudentOptionalEnrollmentBean) request.getAttribute("optionalEnrolmentBean");
+    
+    final BolonhaDegreeTypesProviderForOptionalEnrollment typeProvider = new BolonhaDegreeTypesProviderForOptionalEnrollment();
+    
+    final List<DegreeType> types = (List<DegreeType>) typeProvider.provide(bean, bean.getDegreeType());
+    List<Degree> degrees = Lists.newArrayList();
+    List<DegreeCurricularPlan> dcps = Lists.newArrayList();
+    
+    if (types.size() == 1) {
+        bean.setDegreeType(types.iterator().next());
+        
+        final DegreesByDegreeTypeForOptionalEnrollment degreesProvider = new DegreesByDegreeTypeForOptionalEnrollment();
+        degrees = (List<Degree>) degreesProvider.provide(bean, bean.getDegree());
+
+        if (degrees.size() == 1) {
+            bean.setDegree(degrees.iterator().next());
+            
+            final DegreeCurricularPlansForDegreeForOptionalEnrollment dcpsProvider = new DegreeCurricularPlansForDegreeForOptionalEnrollment();
+            dcps = (List<DegreeCurricularPlan>) dcpsProvider.provide(bean, bean.getDegreeCurricularPlan());
+            
+            if (dcps.size() == 1) {
+                bean.setDegreeCurricularPlan(dcps.iterator().next());
+            }
+        }
+    }
+    %>
+
+	<fr:edit id="optionalEnrolment" name="optionalEnrolmentBean" visible="<%= !(types.size() == 1 && degrees.size() == 1 && dcps.size() == 1)%>">
 
 		<%-- qubExtension --%>	
 		<fr:schema bundle="STUDENT_RESOURCES"
