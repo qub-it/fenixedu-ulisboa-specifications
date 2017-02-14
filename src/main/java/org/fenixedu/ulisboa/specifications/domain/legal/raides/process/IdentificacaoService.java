@@ -14,10 +14,14 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.Idade;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblIdentificacao;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.util.IdentityCardUtils;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.Years;
 
 import com.google.common.base.Strings;
 
@@ -33,7 +37,7 @@ public class IdentificacaoService extends RaidesService {
 
         bean.setIdAluno(registration.getStudent().getNumber());
         bean.setNome(student.getName());
-
+        
         bean.setNumId(student.getPerson().getDocumentIdNumber());
 
         if (student.getPerson().getIdDocumentType() != null) {
@@ -45,26 +49,25 @@ public class IdentificacaoService extends RaidesService {
             bean.setTipoIdDescr(student.getPerson().getIdDocumentType().getLocalizedName());
         }
 
-        bean.setCheckDigitId(student.getPerson().getIdentificationDocumentSeriesNumberValue());
-
-        if (Strings.isNullOrEmpty(bean.getCheckDigitId())) {
-            bean.setCheckDigitId(student.getPerson().getIdentificationDocumentExtraDigitValue());
-        }
-
-        if (Strings.isNullOrEmpty(bean.getCheckDigitId())
-                && student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
-            // Try to generate digitControl from identity card
-            try {
-                int digitControl =
-                        IdentityCardUtils.generateBilheteIdentidadeDigitControl(student.getPerson().getDocumentIdNumber());
-                bean.setCheckDigitId(String.valueOf(digitControl));
-
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.identity.card.digit.control.generated", formatArgs(registration, null)));
-            } catch (NumberFormatException | ULisboaSpecificationsDomainException e) {
-                LegalReportContext.addError("",
-                        i18n("error.Raides.validation.cannot.generate.digit.control", formatArgs(registration, null)));
-                bean.markAsInvalid();
+        if(student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+            String digitControlPerson = IdentityCardUtils.getDigitControlFromPerson(student.getPerson());
+            bean.setCheckDigitId(digitControlPerson);
+            
+            if (Strings.isNullOrEmpty(bean.getCheckDigitId())
+                    && student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+                // Try to generate digitControl from identity card
+                try {
+                    int digitControl =
+                            IdentityCardUtils.generateBilheteIdentidadeDigitControl(student.getPerson().getDocumentIdNumber());
+                    bean.setCheckDigitId(String.valueOf(digitControl));
+                    
+                    LegalReportContext.addWarn("", i18n("warn.Raides.identity.card.digit.control.generated",
+                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(), ""));
+                } catch (final NumberFormatException e) {
+                    LegalReportContext.addError("", i18n("error.Raides.validation.cannot.generate.digit.control",
+                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(), ""));
+                    bean.markAsInvalid();
+                }
             }
         }
 
@@ -125,6 +128,18 @@ public class IdentificacaoService extends RaidesService {
                     i18n("error.Raides.validation.birth.date.missing", formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
+        
+        if (bean.getDataNasc() != null) {
+            
+            LocalDate december31BeginExecYear = new LocalDate(executionYear.getBeginCivilYear(), DateTimeConstants.DECEMBER, 31);
+            long age = Years.yearsBetween(bean.getDataNasc(), december31BeginExecYear).getYears();
+            
+            if(age < Idade.MIN || age > Idade.MAX){
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.birth.date.invalid", formatArgs(registration, executionYear)));
+                bean.markAsInvalid();
+            }
+        }
     }
 
     protected void validaDocumentoIdentificacao(final TblIdentificacao bean, final Unit institution, final Student student,
@@ -144,6 +159,18 @@ public class IdentificacaoService extends RaidesService {
                 LegalReportContext.addError("", i18n("error.Raides.validation.national.document.id.contains.other.than.spaces",
                         formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
+            }
+            
+            if(student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD &&
+                    student.getPerson().getDocumentIdNumber().length() != 9){
+                
+                LegalReportContext.addError("",
+                        i18n("error.Raides.validation.document.id.invalid", String.valueOf(registration.getStudent().getNumber()),
+                                registration.getDegreeNameWithDescription(),
+                                executionYear.getQualifiedName(), bean.getNumId()));
+                
+                bean.markAsInvalid();
+                
             }
         }
     }

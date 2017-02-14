@@ -188,6 +188,11 @@ public class Raides {
     public static class DocumentoIdentificacao {
         public static final String OUTRO = "7";
     }
+    
+    public static class Idade {
+        public static final Integer MIN = 16;
+        public static final Integer MAX = 95;
+    }
 
     public static class TipoEstabSec {
         public static final String PUBLICO = "1";
