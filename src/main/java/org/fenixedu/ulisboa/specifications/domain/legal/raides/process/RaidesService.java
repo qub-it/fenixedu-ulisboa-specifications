@@ -215,7 +215,7 @@ public class RaidesService {
                     .translate(lastCompletedQualification.getSchoolLevel()));
 
             if (SchoolLevelType.OTHER.equals(lastCompletedQualification.getSchoolLevel())) {
-                bean.setOutroEscolaridadeAnterior(lastCompletedQualification.getOtherSchoolLevel());
+                bean.setOutroEscolaridadeAnterior(lastCompletedQualification.getOtherSchoolLevel().substring(0, 80));
             }
         }
 
