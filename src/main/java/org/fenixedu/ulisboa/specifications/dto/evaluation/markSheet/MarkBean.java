@@ -48,6 +48,8 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
+import com.google.common.base.Strings;
+
 import pt.ist.fenixframework.Atomic;
 
 public class MarkBean implements IBean, Comparable<MarkBean> {
@@ -64,6 +66,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     private String statutes;
     private LocalDate gradeAvailableDate;
     private String errorMessage;
+    private String infoMessage;
 
     public MarkBean(final CompetenceCourseMarkSheet markSheet, final EnrolmentEvaluation evaluation) {
         this(markSheet, evaluation.getEnrolment());
@@ -133,13 +136,17 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     public void setGradeValueSuggested() {
-        Grade suggestion = evaluation == null ? null : evaluation.getGrade();
-        if (suggestion == null || suggestion.isEmpty()) {
-
-            suggestion = getGradeSuggestedByAggregation();
+        // info message caches suggestion
+        String suggestionValue = null;
+        if (Strings.isNullOrEmpty(getInfoMessage())) {
+            final Grade suggestion = getGradeSuggestedByAggregation();
+            suggestionValue = suggestion == null || suggestion.isEmpty() ? null : suggestion.getValue();
+            if (suggestionValue != null) {
+                setInfoMessage(ULisboaSpecificationsUtil.bundle("info.MarkBean.gradeValue.suggestion", suggestionValue));
+            }
         }
 
-        setGradeValue(suggestion == null ? null : suggestion.getValue());
+        setGradeValue(evaluation != null ? evaluation.getGrade().getValue() : suggestionValue != null ? suggestionValue : null);
     }
 
     private Grade getGradeSuggestedByAggregation() {
@@ -228,6 +235,14 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getInfoMessage() {
+        return infoMessage;
+    }
+
+    public void setInfoMessage(final String input) {
+        this.infoMessage = input;
     }
 
     public void validate() {
