@@ -10,7 +10,6 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
@@ -37,7 +36,7 @@ public class IdentificacaoService extends RaidesService {
 
         bean.setIdAluno(registration.getStudent().getNumber());
         bean.setNome(student.getName());
-        
+
         bean.setNumId(student.getPerson().getDocumentIdNumber());
 
         if (student.getPerson().getIdDocumentType() != null) {
@@ -49,10 +48,10 @@ public class IdentificacaoService extends RaidesService {
             bean.setTipoIdDescr(student.getPerson().getIdDocumentType().getLocalizedName());
         }
 
-        if(student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+        if (student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
             String digitControlPerson = IdentityCardUtils.getDigitControlFromPerson(student.getPerson());
             bean.setCheckDigitId(digitControlPerson);
-            
+
             if (Strings.isNullOrEmpty(bean.getCheckDigitId())
                     && student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
                 // Try to generate digitControl from identity card
@@ -60,12 +59,13 @@ public class IdentificacaoService extends RaidesService {
                     int digitControl =
                             IdentityCardUtils.generateBilheteIdentidadeDigitControl(student.getPerson().getDocumentIdNumber());
                     bean.setCheckDigitId(String.valueOf(digitControl));
+
+                    LegalReportContext.addWarn("",
+                            i18n("warn.Raides.identity.card.digit.control.generated", formatArgs(registration, executionYear)));
                     
-                    LegalReportContext.addWarn("", i18n("warn.Raides.identity.card.digit.control.generated",
-                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(), ""));
                 } catch (final NumberFormatException e) {
                     LegalReportContext.addError("", i18n("error.Raides.validation.cannot.generate.digit.control",
-                            String.valueOf(registration.getStudent().getNumber()), registration.getDegreeNameWithDescription(), ""));
+                            formatArgs(registration, executionYear)));
                     bean.markAsInvalid();
                 }
             }
@@ -128,13 +128,13 @@ public class IdentificacaoService extends RaidesService {
                     i18n("error.Raides.validation.birth.date.missing", formatArgs(registration, executionYear)));
             bean.markAsInvalid();
         }
-        
+
         if (bean.getDataNasc() != null) {
-            
+
             LocalDate december31BeginExecYear = new LocalDate(executionYear.getBeginCivilYear(), DateTimeConstants.DECEMBER, 31);
             long age = Years.yearsBetween(bean.getDataNasc(), december31BeginExecYear).getYears();
-            
-            if(age < Idade.MIN || age > Idade.MAX){
+
+            if (age < Idade.MIN || age > Idade.MAX) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.birth.date.invalid", formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
@@ -160,17 +160,15 @@ public class IdentificacaoService extends RaidesService {
                         formatArgs(registration, executionYear)));
                 bean.markAsInvalid();
             }
-            
-            if(student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD &&
-                    student.getPerson().getDocumentIdNumber().length() != 9){
-                
+
+            if (student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD
+                    && student.getPerson().getDocumentIdNumber().length() != 9) {
+
                 LegalReportContext.addError("",
-                        i18n("error.Raides.validation.document.id.invalid", String.valueOf(registration.getStudent().getNumber()),
-                                registration.getDegreeNameWithDescription(),
-                                executionYear.getQualifiedName(), bean.getNumId()));
-                
+                        i18n("error.Raides.validation.document.id.invalid", formatArgs(registration, executionYear)));
+
                 bean.markAsInvalid();
-                
+
             }
         }
     }
