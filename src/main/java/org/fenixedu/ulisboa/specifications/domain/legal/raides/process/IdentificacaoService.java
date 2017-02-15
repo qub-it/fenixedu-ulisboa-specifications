@@ -62,7 +62,7 @@ public class IdentificacaoService extends RaidesService {
 
                     LegalReportContext.addWarn("",
                             i18n("warn.Raides.identity.card.digit.control.generated", formatArgs(registration, executionYear)));
-                    
+
                 } catch (final NumberFormatException e) {
                     LegalReportContext.addError("", i18n("error.Raides.validation.cannot.generate.digit.control",
                             formatArgs(registration, executionYear)));
@@ -162,7 +162,7 @@ public class IdentificacaoService extends RaidesService {
             }
 
             if (student.getPerson().getIdDocumentType() == IDDocumentType.IDENTITY_CARD
-                    && student.getPerson().getDocumentIdNumber().length() != 9) {
+                    && student.getPerson().getDocumentIdNumber().length() != 8) {
 
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.document.id.invalid", formatArgs(registration, executionYear)));
