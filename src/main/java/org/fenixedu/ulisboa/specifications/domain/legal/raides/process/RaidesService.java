@@ -51,6 +51,7 @@ import com.google.common.collect.Sets;
 
 public class RaidesService {
 
+    private static final int MAX_OTHER_SCHOOL_LEVEL_LENGTH = 80;
     protected LegalReport report;
 
     public RaidesService(final LegalReport report) {
@@ -215,7 +216,8 @@ public class RaidesService {
                     .translate(lastCompletedQualification.getSchoolLevel()));
 
             if (SchoolLevelType.OTHER.equals(lastCompletedQualification.getSchoolLevel())) {
-                bean.setOutroEscolaridadeAnterior(lastCompletedQualification.getOtherSchoolLevel().substring(0, 80));
+                bean.setOutroEscolaridadeAnterior(lastCompletedQualification.getOtherSchoolLevel().substring(0,
+                        Math.min(MAX_OTHER_SCHOOL_LEVEL_LENGTH, lastCompletedQualification.getOtherSchoolLevel().length())));
             }
         }
 

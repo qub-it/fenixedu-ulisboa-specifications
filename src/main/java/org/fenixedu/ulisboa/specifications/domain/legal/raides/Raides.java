@@ -188,7 +188,7 @@ public class Raides {
     public static class DocumentoIdentificacao {
         public static final String OUTRO = "7";
     }
-    
+
     public static class Idade {
         public static final Integer MIN = 16;
         public static final Integer MAX = 95;
@@ -271,7 +271,7 @@ public class Raides {
                         addMobilidadeInternacional(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final DomainException e) {
                         LegalReportContext.addError("",
-                                i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getKey())));
+                                i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getLocalizedMessage())));
                     } catch (final Throwable e) {
                         LegalReportContext.addError("", i18n("error.Raides.unexpected.error.occured",
                                 concatArgs(messageArgs, ExceptionUtils.getFullStackTrace(e))));
@@ -439,7 +439,7 @@ public class Raides {
 
                     } catch (final DomainException e) {
                         LegalReportContext.addError("",
-                                i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getKey())));
+                                i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getLocalizedMessage())));
                     } catch (final Throwable e) {
                         LegalReportContext.addError("", i18n("error.Raides.unexpected.error.occured",
                                 concatArgs(messageArgs, ExceptionUtils.getFullStackTrace(e))));
