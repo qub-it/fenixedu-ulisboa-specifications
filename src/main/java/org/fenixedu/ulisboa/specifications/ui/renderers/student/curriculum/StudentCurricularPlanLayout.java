@@ -1184,7 +1184,7 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     // qubExtension
-    static private String getCurricularPeriodLabel(final ICurriculumEntry entry) {
+    static protected String getCurricularPeriodLabel(final ICurriculumEntry entry) {
 
         // qubExtension, show curricularYear
         final Integer curricularYear = getCurricularYearFor(entry);

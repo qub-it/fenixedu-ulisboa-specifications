@@ -205,7 +205,9 @@ public class CurriculumLayout extends Layout {
 
     private void generateExternalEnrolmentLabelCell(final HtmlTableRow externalEnrolmentRow,
             final ExternalEnrolment externalEnrolment, final int level) {
-        generateCellWithText(externalEnrolmentRow, externalEnrolment.getDescription(), renderer.getLabelCellClass(), 1);
+
+        StudentCurricularPlanLayout.generateCellWithText(externalEnrolmentRow, externalEnrolment.getDescription(),
+                renderer.getLabelCellClass(), 1);
     }
 
     private void generateGradeCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
@@ -279,15 +281,14 @@ public class CurriculumLayout extends Layout {
                 renderer.getEnrolmentExecutionYearCellClass());
     }
 
-    private void generateSemesterCell(final HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
-        final String semester = entry.getExecutionPeriod() == null ? "-" : entry.getExecutionPeriod().getSemester().toString()
-                + " " + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
+    private void generateSemesterCell(final HtmlTableRow row, final ICurriculumEntry entry) {
 
-        generateCellWithText(enrolmentRow, semester, renderer.getEnrolmentSemesterCellClass());
+        StudentCurricularPlanLayout.generateCellWithText(row, StudentCurricularPlanLayout.getCurricularPeriodLabel(entry),
+                this.renderer.getEnrolmentSemesterCellClass()).setStyle("font-size: xx-small");
     }
 
-    private void generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
-        generateCellWithText(row, text, cssClass, 1);
+    private HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
+        return StudentCurricularPlanLayout.generateCellWithText(row, text, cssClass);
     }
 
     private void generateCellWithLink(final HtmlTableRow row, final ExecutionYear executionYear, final String linkText) {
@@ -296,13 +297,6 @@ public class CurriculumLayout extends Layout {
         final HtmlTableCell cell = row.createCell();
         cell.setClasses(renderer.getGradeCellClass());
         cell.setBody(inlineContainer);
-    }
-
-    private void generateCellWithText(final HtmlTableRow row, final String text, final String cssClass, Integer colSpan) {
-        final HtmlTableCell cell = row.createCell();
-        cell.setClasses(cssClass);
-        cell.setText(text);
-        cell.setColspan(colSpan);
     }
 
     private void generateCurricularYearRows(final HtmlTable table) {
