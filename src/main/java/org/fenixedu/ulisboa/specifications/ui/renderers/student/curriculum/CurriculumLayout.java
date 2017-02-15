@@ -109,7 +109,7 @@ public class CurriculumLayout extends Layout {
                 new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
         sortedIAverageEntries.addAll(this.curriculum.getEnrolmentRelatedEntries());
         if (!sortedIAverageEntries.isEmpty()) {
-            generateGroupRowWithText(mainTable, "Inscrições", true, 0);
+            generateAverageGroupRowWithText(mainTable, "Inscrições", true, 0);
             generateRows(mainTable, sortedIAverageEntries, 0);
         }
 
@@ -126,17 +126,18 @@ public class CurriculumLayout extends Layout {
         }
 
         if (!sortedSubstitutionsEntries.isEmpty()) {
-            generateGroupRowWithText(mainTable, "Substituições", true, 0);
+            generateAverageGroupRowWithText(mainTable, "Substituições", true, 0);
             generateRows(mainTable, sortedSubstitutionsEntries, 0);
         }
 
         if (!sortedEquivalenceEntries.isEmpty()) {
-            generateGroupRowWithText(mainTable, "Equivalências", true, 0);
+            generateAverageGroupRowWithText(mainTable, "Equivalências", true, 0);
             generateRows(mainTable, sortedEquivalenceEntries, 0);
         }
     }
 
-    private void generateGroupRowWithText(final HtmlTable mainTable, final String text, boolean addHeaders, final int level) {
+    private void generateAverageGroupRowWithText(final HtmlTable mainTable, final String text, boolean addHeaders,
+            final int level) {
 
         final HtmlTableRow groupRow = mainTable.createRow();
         groupRow.setClasses(renderer.getHeaderRowClass());
@@ -146,10 +147,10 @@ public class CurriculumLayout extends Layout {
         textCell.setClasses(renderer.getLabelCellClass());
         textCell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
 
-        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
         generateCellWithText(groupRow,
                 BundleUtil.getString(ULisboaSpecificationsUtil.BUNDLE, "label.gradingTables.curriculumRenderer.ectsGrade"),
                 renderer.getGradeCellClass());
+        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
         generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.weight"),
                 renderer.getEctsCreditsCellClass());
 
@@ -173,8 +174,8 @@ public class CurriculumLayout extends Layout {
         if (entry instanceof ExternalEnrolment) {
             generateExternalEnrolmentLabelCell(enrolmentRow, (ExternalEnrolment) entry, level);
         }
-        generateGradeCell(enrolmentRow, entry);
         generateEctsGradeCell(enrolmentRow, entry);
+        generateGradeCell(enrolmentRow, entry);
         generateWeightCell(enrolmentRow, entry);
         generateExecutionYearCell(enrolmentRow, entry);
         generateSemesterCell(enrolmentRow, entry);
