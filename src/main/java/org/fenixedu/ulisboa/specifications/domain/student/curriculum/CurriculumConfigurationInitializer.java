@@ -86,12 +86,19 @@ abstract public class CurriculumConfigurationInitializer {
         Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
         logger.info("CurriculumEntryPredicate: Overriding default");
 
-        CurriculumGroup.setCurriculumSupplier(CURRICULUM_SUPPLIER);
+        CurriculumGroup.setCurriculumSupplier(GROUP_CURRICULUM_SUPPLIER);
         logger.info("CurriculumSuppliers: Overriding default");
 
-        CurriculumGroup.setConclusionProcessEnabler(CONCLUSION_PROCESS_ENABLER);
+        CurriculumGroup.setConclusionProcessEnabler(GROUP_CONCLUSION_ENABLER);
         logger.info("ConclusionProcessEnabler: Overriding default");
     }
+
+    /* ======================================================================================================
+     * 
+     * CurricularYearCalculator
+     * 
+     * ======================================================================================================
+     */
 
     static private Supplier<CurricularYearCalculator> CURRICULAR_YEAR_CALCULATOR = () -> new CurricularYearCalculator() {
 
@@ -106,8 +113,7 @@ abstract public class CurriculumConfigurationInitializer {
         @Override
         public Integer curricularYear(final Curriculum curriculum) {
             if (curricularYear == null) {
-
-                curricularYear = calculateCurricularYear(curriculum);
+                curricularYear = calculateCurricularYear(curriculum).getResult();
             }
 
             return curricularYear;
@@ -116,7 +122,7 @@ abstract public class CurriculumConfigurationInitializer {
         @Override
         public Integer totalCurricularYears(final Curriculum curriculum) {
             if (totalCurricularYears == null) {
-                totalCurricularYears = CurriculumConfigurationInitializer.totalCurricularYears(curriculum);
+                totalCurricularYears = calculateTotalCurricularYears(curriculum);
             }
 
             return totalCurricularYears;
@@ -156,7 +162,7 @@ abstract public class CurriculumConfigurationInitializer {
         }
 
         private void accountForDirectIngressions(final Curriculum curriculum) {
-            if (getCycleType(curriculum) != null) {
+            if (calculateCycleType(curriculum) != null) {
                 return;
             }
             if (!curriculum.getStudentCurricularPlan().getDegreeCurricularPlan().isBolonhaDegree()) {
@@ -177,14 +183,6 @@ abstract public class CurriculumConfigurationInitializer {
             }
         }
 
-        private CycleType getCycleType(final Curriculum curriculum) {
-            return CurriculumConfigurationInitializer.getCycleType(curriculum);
-        }
-
-        private Integer calculateCurricularYear(final Curriculum curriculum) {
-            return CurriculumConfigurationInitializer.calculateCurricularYear(curriculum).getResult();
-        }
-
     };
 
     static public CurricularYearResult calculateCurricularYear(final Curriculum curriculum) {
@@ -194,7 +192,7 @@ abstract public class CurriculumConfigurationInitializer {
 
         final DegreeCurricularPlan dcp = curriculum.getStudentCurricularPlan().getDegreeCurricularPlan();
         RuleResult justification = null;
-        for (int i = totalCurricularYears(curriculum); i > 1; i--) {
+        for (int i = calculateTotalCurricularYears(curriculum); i > 1; i--) {
 
             final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
             final CurricularPeriodConfiguration configuration =
@@ -237,12 +235,12 @@ abstract public class CurriculumConfigurationInitializer {
         return calculated;
     }
 
-    static private int totalCurricularYears(final Curriculum curriculum) {
+    static private int calculateTotalCurricularYears(final Curriculum curriculum) {
         return curriculum.getStudentCurricularPlan() == null ? 0 : curriculum.getStudentCurricularPlan().getDegreeCurricularPlan()
-                .getDurationInYears(getCycleType(curriculum));
+                .getDurationInYears(calculateCycleType(curriculum));
     }
 
-    static private CycleType getCycleType(final Curriculum curriculum) {
+    static private CycleType calculateCycleType(final Curriculum curriculum) {
         if (!curriculum.hasCurriculumModule() || !curriculum.isBolonha()) {
             return null;
         }
@@ -293,6 +291,13 @@ abstract public class CurriculumConfigurationInitializer {
         }
     }
 
+    /* ======================================================================================================
+     * 
+     * CurriculumEntryPredicate
+     * 
+     * ======================================================================================================
+     */
+
     static private Supplier<CurriculumEntryPredicate> CURRICULUM_ENTRY_PREDICATE = () -> new CurriculumEntryPredicate() {
 
         @Override
@@ -315,7 +320,14 @@ abstract public class CurriculumConfigurationInitializer {
         }
     };
 
-    static public Supplier<CurriculumSupplier> CURRICULUM_SUPPLIER = () -> new CurriculumSupplier() {
+    /* ======================================================================================================
+     * 
+     * CurriculumGroup CurriculumSupplier
+     * 
+     * ======================================================================================================
+     */
+
+    static public Supplier<CurriculumSupplier> GROUP_CURRICULUM_SUPPLIER = () -> new CurriculumSupplier() {
 
         @Override
         public Curriculum get(final CurriculumGroup curriculumGroup, final DateTime when, final ExecutionYear executionYear) {
@@ -370,7 +382,14 @@ abstract public class CurriculumConfigurationInitializer {
 
     };
 
-    static private Supplier<ConclusionProcessEnabler> CONCLUSION_PROCESS_ENABLER = () -> new ConclusionProcessEnabler() {
+    /* ======================================================================================================
+     * 
+     * CurriculumGroup ConclusionProcessEnabler
+     * 
+     * ======================================================================================================
+     */
+
+    static private Supplier<ConclusionProcessEnabler> GROUP_CONCLUSION_ENABLER = () -> new ConclusionProcessEnabler() {
 
         @Override
         public boolean isAllowed(final CurriculumGroup input) {
