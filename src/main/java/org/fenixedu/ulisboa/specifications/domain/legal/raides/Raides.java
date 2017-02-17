@@ -14,6 +14,7 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.District;
@@ -238,6 +239,10 @@ public class Raides {
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
 
+                    if (!matchesStudent(raidesRequestParameter, registration)) {
+                        continue;
+                    }
+
                     final String[] messageArgs = formatArgs(registration, academicPeriod);
 
                     try {
@@ -288,6 +293,10 @@ public class Raides {
             final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
+
+                    if (!matchesStudent(raidesRequestParameter, registration)) {
+                        continue;
+                    }
 
                     final String[] messageArgs = formatArgs(registration, academicPeriod);
 
@@ -391,6 +400,10 @@ public class Raides {
 
                 for (final Registration registration : degree.getRegistrationsSet()) {
 
+                    if (!matchesStudent(raidesRequestParameter, registration)) {
+                        continue;
+                    }
+
                     final String[] messageArgs = formatArgs(registration, academicPeriod);
 
                     try {
@@ -447,6 +460,12 @@ public class Raides {
                 }
             }
         }
+    }
+
+    protected boolean matchesStudent(final RaidesRequestParameter raidesRequestParameter, final Registration registration) {
+        return !NumberUtils.isNumber(raidesRequestParameter.getStudentNumber()) || registration.getStudent().getNumber()
+                .intValue() == Integer.valueOf(raidesRequestParameter.getStudentNumber()).intValue();
+
     }
 
     protected boolean isActiveAtPeriod(final RaidesRequestPeriodParameter enroledPeriod, final Registration registration,

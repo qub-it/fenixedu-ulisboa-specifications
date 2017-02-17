@@ -1,4 +1,6 @@
 
+<%@page import="org.fenixedu.academic.domain.person.RoleType"%>
+<%@page import="org.fenixedu.bennu.core.security.Authenticate"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesPeriodInputType"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.legal.report.raides.RaidesRequestsController"%>
 
@@ -540,6 +542,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<input class="form-control" type="text" ng-model="object.interlocutorEmail" name="code" />
 				</div>
 			</div>
+			<% if (RoleType.MANAGER.isMember(Authenticate.getUser())) {%>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesRequests.studentNumber" />
+				</div>
+
+				<div class="col-sm-10">
+					<input class="form-control" type="text" ng-model="object.studentNumber" name="studentNumber" />
+				</div>
+			</div>
+			<% } %>
 			
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">

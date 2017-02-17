@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.bennu.core.security.Authenticate"%>
+<%@page import="org.fenixedu.academic.domain.person.RoleType"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest"%>
 <%@page import="com.google.gson.Gson"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter"%>
@@ -143,7 +145,17 @@ request.setAttribute("parameter", parameter);
                         <td>
                             <c:out value='${ parameter.interlocutorEmail }' />
                         </td>
-                    </tr>                    
+                    </tr>
+                    <% if (RoleType.MANAGER.isMember(Authenticate.getUser())) {%>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.RaidesRequests.studentNumber" />
+                        </th>
+                        <td>
+                            <c:out value='${ parameter.studentNumber }' />
+                        </td>
+                    </tr>
+                    <% } %>                    
                     <tr>
                         <th scope="row" class="col-xs-3">
                             <spring:message code="label.RaidesRequests.filterEntriesWithErrors" />
