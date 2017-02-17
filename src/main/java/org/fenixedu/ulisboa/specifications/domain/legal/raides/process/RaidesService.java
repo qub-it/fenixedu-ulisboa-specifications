@@ -98,7 +98,7 @@ public class RaidesService {
             final ExecutionYear executionYear, final Registration registration) {
 
         bean.setIdEstab(institutionUnit.getCode());
-        bean.setIdAluno(registration.getNumber().toString());
+        bean.setIdAluno(registration.getStudent().getNumber().toString());
 
         bean.setAnoLectivo(executionYear.getQualifiedName());
         bean.setCurso(degree(registration).getMinistryCode());
