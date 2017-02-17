@@ -118,6 +118,16 @@ ${portal.toolkit()}
 	    $("#deleteForm").attr("action", url);
 	    $('#deleteModal').modal('toggle')
 	  }
+      function processAnnul(externalId) {
+          url = "${pageContext.request.contextPath}<%=LooseEvaluationController.ANNUL_URL%>${studentCurricularPlan.externalId}/" + externalId + "/${executionSemester.externalId}";
+          $("#annulForm").attr("action", url);
+          $('#annulModal').modal('toggle')
+      }
+      function processActivate(externalId) {
+          url = "${pageContext.request.contextPath}<%=LooseEvaluationController.ACTIVATE_URL%>${studentCurricularPlan.externalId}/" + externalId + "/${executionSemester.externalId}";
+          $("#activateForm").attr("action", url);
+          $('#activateModal').modal('toggle')
+      }
 </script>
 
 <div class="modal fade" id="deleteModal">
@@ -155,6 +165,75 @@ ${portal.toolkit()}
 </div>
 <!-- /.modal -->
 
+<div class="modal fade" id="annulModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="annulForm" action="#" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <spring:message
+                            code="label.manage.createLooseEvaluationBean.confirmAnnul" />
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="annulButton" class="btn btn-info" type="submit">
+                        <spring:message code="label.annul" />
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="activateModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="activateForm" action="#" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <spring:message
+                            code="label.manage.createLooseEvaluationBean.confirmActivate" />
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.close" />
+                    </button>
+                    <button id="activateButton" class="btn btn-danger" type="submit">
+                        <spring:message code="label.activate" />
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
@@ -333,17 +412,20 @@ $(document).ready(function() {
 
 	var evaluationsDataSet = [
 	                           			<c:forEach items="${evaluationsSet}" var="searchResult">
-	                           				<%-- Field access / formatting  here CHANGE_ME --%>
+                                           <%
+                                            final EnrolmentEvaluation evaluation = ((EnrolmentEvaluation) pageContext.getAttribute("searchResult"));
+                                           %>
+
+                                           <%-- Field access / formatting  here CHANGE_ME --%>
 	                           				{
 	                           				"DT_RowId" : '<c:out value='${searchResult.externalId}'/>',
 	                           "code" : "<c:out value='${searchResult.enrolment.code}'/>",
-	                           "enrolment" : "<%=((EnrolmentEvaluation) pageContext.getAttribute("searchResult")).getEnrolment().getName().getContent().replace("'", " ").replace("\"", " ")%>",
+	                           "enrolment" : "<%=evaluation.getEnrolment().getName().getContent().replace("'", " ").replace("\"", " ")%>",
 	                           <%--"executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",--%>
-	                           "grade" : "<c:out value='${searchResult.grade.value}'/> <span class='color888 smalltxt'>(<span class='smalltxt'><c:out value='${searchResult.grade.extendedValue.content}' />, </span><c:out value='${searchResult.grade.gradeScale.description}' />)</span>",
+	                           "grade" : "<c:out value='${searchResult.grade.value}'/><%if (!evaluation.getGrade().isEmpty()) {%> <span class='color888 smalltxt'>(<span class='smalltxt'><c:out value='${searchResult.grade.extendedValue.content}' />, </span><c:out value='${searchResult.grade.gradeScale.description}' />)</span><%}%>",
 	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
 	                           "improvementSemester" : 
                                    "<%
-                                        final EnrolmentEvaluation evaluation = ((EnrolmentEvaluation) pageContext.getAttribute("searchResult"));
 	                                    if (EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(evaluation.getEvaluationSeason())) {
                                             out.append(evaluation.getExecutionPeriod().getQualifiedName());
                                         } else {
@@ -353,8 +435,23 @@ $(document).ready(function() {
 	                           "examDate" : "<c:out value='${searchResult.examDateYearMonthDay}'/>",
 	                           "gradeAvailableDate" : "<c:out value='${searchResult.gradeAvailableDateYearMonthDay}'/>",
 	                           "actions" :
-	                           " <a  class=\"btn btn-xs btn-danger\" href=\"#\" onClick=\"javascript:processDelete('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span>&nbsp;<spring:message code='label.delete'/></a>" +
-	                                           "" 
+                                   <%
+                                       if (evaluation.isFinal()) {
+                                   %>
+                                       " <a  class=\"btn btn-xs btn-danger\" href=\"#\" onClick=\"javascript:processDelete('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span>&nbsp;<spring:message code='label.delete'/></a>"
+                                   <%
+                                       } else if (evaluation.isAnnuled()) {
+                                    %>
+                                        " <a  class=\"btn btn-xs btn-info\" href=\"#\" onClick=\"javascript:processActivate('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-play\" aria-hidden=\"true\"></span>&nbsp;<spring:message code='label.activate'/></a>"
+                                    <%
+                                        } else {
+                                    %>
+                                        " <a  class=\"btn btn-xs btn-warning\" href=\"#\" onClick=\"javascript:processAnnul('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-stop\" aria-hidden=\"true\"></span>&nbsp;<spring:message code='label.annul'/></a>"
+                                    <%
+                                        }
+                                    %>
+                                   ,
+	                               
 	                           			},
 	                                       </c:forEach>
 	                               ];

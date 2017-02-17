@@ -975,7 +975,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
                     // we want to show the temporary enrolment evaluation
                     final EnrolmentEvaluation latestEvaluation = enrolment.getLatestEnrolmentEvaluationBySeason(season);
-                    if (latestEvaluation != null) {
+                    if (latestEvaluation != null && !latestEvaluation.isAnnuled()) {
                         result.add(latestEvaluation);
                     }
                 }

@@ -28,6 +28,7 @@
 package org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,7 +69,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
@@ -99,14 +99,14 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
     @RequestMapping(value = _CREATE_URI + "{scpId}/{executionSemesterId}", method = RequestMethod.GET)
     public String create(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
-            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester, final Model model) {
+            @PathVariable("executionSemesterId") final ExecutionSemester semester, final Model model) {
 
         model.addAttribute("studentCurricularPlan", studentCurricularPlan);
         model.addAttribute("LooseEvaluationBean_enrolment_options",
-                studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
+                studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == semester)
                         .sorted(CurriculumLineServices.COMPARATOR).collect(Collectors.toList()));
 
-        final boolean possibleOldData = executionSemester.getExecutionYear().getEndCivilYear() < 2016;
+        final boolean possibleOldData = semester.getExecutionYear().getEndCivilYear() < 2016;
         final Stream<EvaluationSeason> evaluationSeasons =
                 possibleOldData ? EvaluationSeasonServices.findAll() : EvaluationSeasonServices.findByActive(true);
         model.addAttribute("typeValues",
@@ -120,22 +120,35 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         model.addAttribute("improvementSemesterValues", ExecutionSemester.readNotClosedPublicExecutionPeriods().stream()
                 .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList()));
 
-        model.addAttribute("executionSemester", executionSemester);
+        model.addAttribute("executionSemester", semester);
 
         final String url = String.format(
                 "/academicAdministration/studentEnrolmentsExtended.do?scpID=%s&executionSemesterID=%s&method=prepare",
-                studentCurricularPlan.getExternalId(), executionSemester.getExternalId());
+                studentCurricularPlan.getExternalId(), semester.getExternalId());
 
         final String backUrl = GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session);
         model.addAttribute("backUrl", backUrl);
 
+        // comparators
+        final Comparator<EnrolmentEvaluation> c1 =
+                (x, y) -> CurriculumLineServices.COMPARATOR.compare(x.getEnrolment(), y.getEnrolment());
+        final Comparator<EnrolmentEvaluation> c2 = (x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR
+                .compare(x.getEvaluationSeason(), y.getEvaluationSeason());
+
         final List<EnrolmentEvaluation> evaluations =
-                studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == executionSemester)
-                        .map(l -> l.getEvaluationsSet()).reduce((a, c) -> Sets.union(a, c)).orElse(Sets.newHashSet()).stream()
-                        .filter(l -> l.getMarkSheet() == null && l.getCompetenceCourseMarkSheet() == null && l.getGrade() != null
-                                && !l.getGrade().isEmpty() && l.isFinal())
-                        .sorted((x, y) -> CurriculumLineServices.COMPARATOR.compare(x.getEnrolment(), y.getEnrolment()))
-                        .collect(Collectors.toList());
+                studentCurricularPlan.getEnrolmentsSet().stream().flatMap(enr -> enr.getEvaluationsSet().stream())
+                        .filter(ev -> ev.getExecutionPeriod() == semester || ev.getEnrolment().getExecutionPeriod() == semester)
+                        .filter(
+                                // not in any mark sheet
+                                ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null
+
+                                // not automatic
+                                        && EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
+
+                        // HACK!!! removing this, in order to allow anulling enrolment evaluations in this UI
+                        // && ev.isFinal() && ev.getGrade() != null && !ev.getGrade().isEmpty()
+
+                        ).sorted(c1.thenComparing(c2)).collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
 
@@ -247,6 +260,44 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);
+    }
+
+    private static final String _ANNUL_URI = "/annul/";
+    public static final String ANNUL_URL = CONTROLLER_URL + _ANNUL_URI;
+
+    @RequestMapping(value = _ANNUL_URI + "{scpId}/{evaluationId}/{executionSemesterId}", method = RequestMethod.POST)
+    public String annul(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
+            @PathVariable("evaluationId") EnrolmentEvaluation enrolmentEvaluation,
+            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester, Model model,
+            final RedirectAttributes redirectAttributes) {
+
+        try {
+            EnrolmentEvaluationServices.annul(enrolmentEvaluation);
+        } catch (final DomainException e) {
+            addErrorMessage(e, model);
+        }
+
+        return redirect(CREATE_URL + studentCurricularPlan.getExternalId() + "/" + executionSemester.getExternalId(), model,
+                redirectAttributes);
+    }
+
+    private static final String _ACTIVATE_URI = "/activate/";
+    public static final String ACTIVATE_URL = CONTROLLER_URL + _ACTIVATE_URI;
+
+    @RequestMapping(value = _ACTIVATE_URI + "{scpId}/{evaluationId}/{executionSemesterId}", method = RequestMethod.POST)
+    public String activate(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
+            @PathVariable("evaluationId") EnrolmentEvaluation enrolmentEvaluation,
+            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester, Model model,
+            final RedirectAttributes redirectAttributes) {
+
+        try {
+            EnrolmentEvaluationServices.activate(enrolmentEvaluation);
+        } catch (final DomainException e) {
+            addErrorMessage(e, model);
+        }
+
+        return redirect(CREATE_URL + studentCurricularPlan.getExternalId() + "/" + executionSemester.getExternalId(), model,
+                redirectAttributes);
     }
 
 }

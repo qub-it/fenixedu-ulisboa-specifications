@@ -4,11 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.joda.time.DateTime;
+
+import pt.ist.fenixframework.Atomic;
 
 public class EnrolmentEvaluationServices {
 
@@ -77,6 +84,32 @@ public class EnrolmentEvaluationServices {
         }
 
         return result;
+    }
+
+    @Atomic
+    static public void annul(final EnrolmentEvaluation evaluation) {
+        if (!evaluation.isAnnuled()) {
+            final Enrolment enrolment = evaluation.getEnrolment();
+
+            evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.ANNULED_OBJ);
+            EnrolmentEvaluationServices.onStateChange(evaluation);
+            EnrolmentServices.updateState(enrolment);
+            CurriculumLineServices.updateAggregatorEvaluation(enrolment);
+        }
+    }
+
+    @Atomic
+    static public void activate(final EnrolmentEvaluation evaluation) {
+        if (evaluation.isAnnuled()) {
+            final Enrolment enrolment = evaluation.getEnrolment();
+
+            final Grade grade = evaluation.getGrade();
+            evaluation.setEnrolmentEvaluationState(
+                    grade.isEmpty() ? EnrolmentEvaluationState.TEMPORARY_OBJ : EnrolmentEvaluationState.FINAL_OBJ);
+            EnrolmentEvaluationServices.onStateChange(evaluation);
+            EnrolmentServices.updateState(enrolment);
+            CurriculumLineServices.updateAggregatorEvaluation(enrolment);
+        }
     }
 
 }
