@@ -82,20 +82,19 @@ public class DiplomadoService extends RaidesService {
         if (Raides.isMasterDegreeOrDoctoralDegree(registration) && isScholarPartConcluded(registration, executionYear)) {
             final RegistrationConclusionInformation scholarPartConclusionInfo =
                     scholarPartConclusionInformation(registration, executionYear);
-            final RegistrationConclusionBean conclusionBean =
-                    scholarPartConclusionInfo.getRegistrationConclusionBean();
+            final RegistrationConclusionBean conclusionBean = scholarPartConclusionInfo.getRegistrationConclusionBean();
 
             bean.setAnoLectivo(conclusionBean.getConclusionYear().getQualifiedName());
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
             bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
                     .translate(finalGrade(conclusionBean.getFinalGrade().getValue())));
-            
-            if(Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
-                if(Raides.isDoctoralDegree(registration) && conclusionBean.getDescriptiveGrade() != null) {
+
+            if (Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
+                if (Raides.isDoctoralDegree(registration) && conclusionBean.getDescriptiveGrade() != null) {
                     bean.setClassificacaoFinalMd(finalGrade(conclusionBean.getDescriptiveGrade().getValue()));
                 }
             }
-            
+
         } else if (Raides.isIntegratedMasterDegree(registration) && isScholarPartConcluded(registration, executionYear)
                 && !isTerminalConcluded(registration, executionYear)) {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
@@ -114,8 +113,8 @@ public class DiplomadoService extends RaidesService {
                         .translate(registration.getDegree()));
                 bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
                 bean.setAnoLectivo(scholarPartConclusionBean.getConclusionYear().getQualifiedName());
-                bean.setNumInscConclusao(
-                        String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
+                bean.setNumInscConclusao(String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration,
+                        scholarPartConclusionBean.getConclusionYear()).size()));
 
                 bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
                         .translate(finalGrade(scholarPartConclusionBean.getFinalGrade().getValue())));
