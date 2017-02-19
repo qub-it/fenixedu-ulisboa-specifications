@@ -54,7 +54,7 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
         return jspPage(_UPDATE_URI);
     }    
     
-    @RequestMapping(value = _UPDATE_URI + "/{executionYearId}/{registrationId}", method = RequestMethod.POST)
+    @RequestMapping(value = _UPDATE_URI + "/{registrationId}", method = RequestMethod.POST)
     public String update(@PathVariable("registrationId") final Registration registration, final PreviousDegreeInformationForm form,
             final Model model) {
         try {
