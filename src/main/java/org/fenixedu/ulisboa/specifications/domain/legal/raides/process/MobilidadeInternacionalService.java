@@ -10,8 +10,8 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblMobilidadeInternacional;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.Cursos;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblMobilidadeInternacional;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
@@ -43,7 +43,14 @@ public class MobilidadeInternacionalService extends RaidesService {
 
         final BigDecimal enrolledEcts = enrolledEcts(executionYear, registration);
         if (enrolledEcts != null && enrolledEcts.compareTo(BigDecimal.ZERO) > 0) {
-            bean.setEctsInscrito(enrolledEcts.toString());
+            //HACK HACK: some institutions declare ECTS that are not multiple of 0.5
+            final Double enrollectsEctsAsDouble = enrolledEcts.doubleValue();
+            if (enrollectsEctsAsDouble != enrollectsEctsAsDouble.intValue()
+                    && !enrollectsEctsAsDouble.toString().endsWith(".5")) {
+                bean.setEctsInscrito(String.valueOf(Math.round(enrollectsEctsAsDouble)));
+            } else {
+                bean.setEctsInscrito(enrolledEcts.toString());
+            }
         } else {
             bean.setEctsInscrito(null);
         }
