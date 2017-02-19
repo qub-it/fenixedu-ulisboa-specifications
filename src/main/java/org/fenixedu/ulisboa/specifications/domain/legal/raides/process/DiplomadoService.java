@@ -4,10 +4,8 @@ import static org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.for
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
@@ -19,6 +17,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblDiplomado;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
@@ -34,8 +33,10 @@ public class DiplomadoService extends RaidesService {
         super(report);
     }
 
-    public TblDiplomado create(final RaidesRequestParameter raidesRequestParameter, final ExecutionYear executionYear,
+    public TblDiplomado createNormal(final RaidesRequestParameter raidesRequestParameter,
+            final RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear,
             final Registration registration) {
+
         final Unit institutionUnit = raidesRequestParameter.getInstitution();
 
         final TblDiplomado bean = new TblDiplomado();
@@ -45,9 +46,10 @@ public class DiplomadoService extends RaidesService {
 
         bean.setAreaInvestigacao(registration.getResearchArea() != null ? registration.getResearchArea().getCode() : "");
 
-        if (isTerminalConcluded(registration, executionYear)) {
+        if (isTerminalConcluded(registration, graduatedPeriod, executionYear)) {
+
             final RegistrationConclusionInformation terminalConclusionInfo =
-                    terminalConclusionInformation(registration, executionYear);
+                    terminalConclusionInformation(registration, graduatedPeriod, executionYear);
             final RegistrationConclusionBean registrationConclusionBean = terminalConclusionInfo.getRegistrationConclusionBean();
 
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
@@ -75,13 +77,16 @@ public class DiplomadoService extends RaidesService {
             }
 
             bean.setDataDiploma(registrationConclusionBean.getConclusionDate().toLocalDate());
+
         } else {
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
         }
 
-        if (Raides.isMasterDegreeOrDoctoralDegree(registration) && isScholarPartConcluded(registration, executionYear)) {
+        if (Raides.isMasterDegreeOrDoctoralDegree(registration)
+                && isScholarPartConcluded(registration, graduatedPeriod, executionYear)) {
+
             final RegistrationConclusionInformation scholarPartConclusionInfo =
-                    scholarPartConclusionInformation(registration, executionYear);
+                    scholarPartConclusionInformation(registration, graduatedPeriod, executionYear);
             final RegistrationConclusionBean conclusionBean = scholarPartConclusionInfo.getRegistrationConclusionBean();
 
             bean.setAnoLectivo(conclusionBean.getConclusionYear().getQualifiedName());
@@ -95,36 +100,60 @@ public class DiplomadoService extends RaidesService {
                 }
             }
 
-        } else if (Raides.isIntegratedMasterDegree(registration) && isScholarPartConcluded(registration, executionYear)
-                && !isTerminalConcluded(registration, executionYear)) {
-            bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
-
-            if (((RaidesInstance) report).isToReportAllIntegratedMasterFirstCycleGraduatedStudents()
-                    || (((RaidesInstance) report).isToReportIntegratedMasterFirstCycleGraduatedStudentsOnlyWithConclusionProcess()
-                            && scholarPartConclusionInformation(registration, executionYear).getRegistrationConclusionBean()
-                                    .isConclusionProcessed())) {
-
-                final RegistrationConclusionInformation scholarPartConclusionInfo =
-                        scholarPartConclusionInformation(registration, executionYear);
-                final RegistrationConclusionBean scholarPartConclusionBean =
-                        scholarPartConclusionInfo.getRegistrationConclusionBean();
-
-                bean.setCurso(LegalMapping.find(report, LegalMappingType.INTEGRATED_MASTER_FIRST_CYCLE_CODES)
-                        .translate(registration.getDegree()));
-                bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
-                bean.setAnoLectivo(scholarPartConclusionBean.getConclusionYear().getQualifiedName());
-                bean.setNumInscConclusao(String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration,
-                        scholarPartConclusionBean.getConclusionYear()).size()));
-
-                bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
-                        .translate(finalGrade(scholarPartConclusionBean.getFinalGrade().getValue())));
-
-                bean.setDataDiploma(scholarPartConclusionBean.getConclusionDate().toLocalDate());
-            }
-
         } else {
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
         }
+
+        preencheMobilidadeCredito(registration, bean);
+        preencheGrauPrecedentCompleto(bean, institutionUnit, executionYear, registration);
+
+        validaClassificacao(executionYear, graduatedPeriod, registration, bean);
+        validaMobilidadeCredito(executionYear, registration, bean);
+        validaAreaInvestigacao(executionYear, registration, bean);
+
+        return bean;
+    }
+
+    public TblDiplomado createIntegratedCycleFirstCyle(final RaidesRequestParameter raidesRequestParameter,
+            final RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear,
+            final Registration registration) {
+
+        final TblDiplomado bean = new TblDiplomado();
+        bean.setRegistration(registration);
+
+        preencheInformacaoMatricula(report, bean, raidesRequestParameter.getInstitution(), executionYear, registration);
+
+        bean.setAreaInvestigacao(registration.getResearchArea() != null ? registration.getResearchArea().getCode() : "");
+
+        bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
+
+        final RegistrationConclusionInformation scholarPartConclusionInfo =
+                scholarPartConclusionInformation(registration, graduatedPeriod, executionYear);
+        final RegistrationConclusionBean scholarPartConclusionBean = scholarPartConclusionInfo.getRegistrationConclusionBean();
+
+        bean.setCurso(LegalMapping.find(report, LegalMappingType.INTEGRATED_MASTER_FIRST_CYCLE_CODES)
+                .translate(registration.getDegree()));
+        bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
+        bean.setAnoLectivo(scholarPartConclusionBean.getConclusionYear().getQualifiedName());
+        bean.setNumInscConclusao(String.valueOf(Raides
+                .getEnrolmentYearsIncludingPrecedentRegistrations(registration, scholarPartConclusionBean.getConclusionYear())
+                .size()));
+
+        bean.setClassificacaoFinal(LegalMapping.find(report, LegalMappingType.GRADE)
+                .translate(finalGrade(scholarPartConclusionBean.getFinalGrade().getValue())));
+
+        bean.setDataDiploma(scholarPartConclusionBean.getConclusionDate().toLocalDate());
+
+        preencheMobilidadeCredito(registration, bean);
+        preencheGrauPrecedentCompleto(bean, raidesRequestParameter.getInstitution(), executionYear, registration);
+
+        validaClassificacao(executionYear, graduatedPeriod, registration, bean);
+        validaMobilidadeCredito(executionYear, registration, bean);
+
+        return bean;
+    }
+
+    protected void preencheMobilidadeCredito(final Registration registration, final TblDiplomado bean) {
 
         bean.setMobilidadeCredito(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
 
@@ -147,14 +176,6 @@ public class DiplomadoService extends RaidesService {
                 bean.setPaisMobilidadeCredito(mobility.getCountry().getCode());
             }
         }
-
-        preencheGrauPrecedentCompleto(bean, institutionUnit, executionYear, registration);
-
-        validaClassificacao(executionYear, registration, bean);
-        validaMobilidadeCredito(executionYear, registration, bean);
-        validaAreaInvestigacao(executionYear, registration, bean);
-
-        return bean;
     }
 
     private MobilityRegistrationInformation findOutgoingMobility(Registration registration) {
@@ -177,11 +198,19 @@ public class DiplomadoService extends RaidesService {
         return value;
     }
 
-    private RegistrationConclusionInformation scholarPartConclusionInformation(final Registration registration,
+    private boolean isScholarPartConcluded(final Registration registration, RaidesRequestPeriodParameter graduatedPeriod,
             final ExecutionYear executionYear) {
+        return scholarPartConclusionInformation(registration, graduatedPeriod, executionYear) != null;
+    }
+
+    private RegistrationConclusionInformation scholarPartConclusionInformation(final Registration registration,
+            RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear) {
+
         final Set<RegistrationConclusionInformation> conclusionInfoSet =
                 RegistrationConclusionServices.inferConclusion(registration);
+
         for (final RegistrationConclusionInformation rci : conclusionInfoSet) {
+
             if (!rci.isConcluded()) {
                 continue;
             }
@@ -190,7 +219,11 @@ public class DiplomadoService extends RaidesService {
                 continue;
             }
 
-            if (Raides.scholarPartConclusionYear(rci) != executionYear) {
+            if (rci.getConclusionYear() != executionYear) {
+                continue;
+            }
+
+            if (!graduatedPeriod.getInterval().contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
                 continue;
             }
 
@@ -200,15 +233,16 @@ public class DiplomadoService extends RaidesService {
         return null;
     }
 
-    private boolean isScholarPartConcluded(final Registration registration, final ExecutionYear executionYear) {
-        return scholarPartConclusionInformation(registration, executionYear) != null;
+    private boolean isTerminalConcluded(final Registration registration, RaidesRequestPeriodParameter graduatedPeriod,
+            final ExecutionYear executionYear) {
+        return terminalConclusionInformation(registration, graduatedPeriod, executionYear) != null;
     }
 
     private RegistrationConclusionInformation terminalConclusionInformation(final Registration registration,
-            final ExecutionYear executionYear) {
-        final Set<RegistrationConclusionInformation> conclusionInfoSet =
-                RegistrationConclusionServices.inferConclusion(registration);
-        for (final RegistrationConclusionInformation rci : conclusionInfoSet) {
+            RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear) {
+
+        for (final RegistrationConclusionInformation rci : RegistrationConclusionServices.inferConclusion(registration)) {
+
             if (!rci.isConcluded()) {
                 continue;
             }
@@ -221,24 +255,11 @@ public class DiplomadoService extends RaidesService {
                 continue;
             }
 
-            return rci;
-        }
-
-        return null;
-    }
-
-    private boolean isTerminalConcluded(final Registration registration, final ExecutionYear executionYear) {
-        return terminalConclusionInformation(registration, executionYear) != null;
-    }
-
-    private String thesisFinalGrade(final Registration registration) {
-        final Collection<Enrolment> dissertationEnrolments =
-                registration.getLastStudentCurricularPlan().getDissertationEnrolments();
-
-        for (final Enrolment enrolment : dissertationEnrolments) {
-            if (enrolment.isApproved()) {
-                return enrolment.getGradeValue();
+            if (!graduatedPeriod.getInterval().contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
+                continue;
             }
+
+            return rci;
         }
 
         return null;
@@ -281,10 +302,11 @@ public class DiplomadoService extends RaidesService {
 
     }
 
-    protected void validaClassificacao(final ExecutionYear executionYear, final Registration registration,
-            final TblDiplomado bean) {
+    protected void validaClassificacao(final ExecutionYear executionYear, RaidesRequestPeriodParameter graduatedPeriod,
+            final Registration registration, final TblDiplomado bean) {
 
-        if (isScholarPartConcluded(registration, executionYear) && Raides.isMasterDegreeOrDoctoralDegree(registration)) {
+        if (isScholarPartConcluded(registration, graduatedPeriod, executionYear)
+                && Raides.isMasterDegreeOrDoctoralDegree(registration)) {
             if (Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.masterOrDoctoral.scholarpart.classification.empty.or.zero",
@@ -293,8 +315,8 @@ public class DiplomadoService extends RaidesService {
             }
         }
 
-        if (isTerminalConcluded(registration, executionYear) && Strings.isNullOrEmpty(bean.getClassificacaoFinal())
-                || "0".equals(bean.getClassificacaoFinal())) {
+        if (isTerminalConcluded(registration, graduatedPeriod, executionYear)
+                && Strings.isNullOrEmpty(bean.getClassificacaoFinal()) || "0".equals(bean.getClassificacaoFinal())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.masterOrDoctoral.terminalpart.classification.empty.or.zero",
                             formatArgs(registration, executionYear)));
@@ -306,6 +328,36 @@ public class DiplomadoService extends RaidesService {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.doctoral.requires.research.area", formatArgs(registration, executionYear)));
         }
+    }
+
+    public boolean isToReportNormal(final RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear,
+            final Registration registration) {
+        return isTerminalConcluded(registration, graduatedPeriod, executionYear)
+                || (Raides.isMasterDegreeOrDoctoralDegree(registration)
+                        && isScholarPartConcluded(registration, graduatedPeriod, executionYear));
+    }
+
+    public boolean isToReportIntegratedCycleFirstCycle(final RaidesRequestPeriodParameter graduatedPeriod,
+            final ExecutionYear executionYear, final Registration registration) {
+
+        if (Raides.isIntegratedMasterDegree(registration)
+                && isScholarPartConcluded(registration, graduatedPeriod, executionYear)) {
+
+            final RaidesInstance instance = (RaidesInstance) report;
+
+            if (instance.isToReportAllIntegratedMasterFirstCycleGraduatedStudents()) {
+                return true;
+            }
+
+            if (instance.isToReportIntegratedMasterFirstCycleGraduatedStudentsOnlyWithConclusionProcess()
+                    && scholarPartConclusionInformation(registration, graduatedPeriod, executionYear)
+                            .getRegistrationConclusionBean().isConclusionProcessed()) {
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
 }

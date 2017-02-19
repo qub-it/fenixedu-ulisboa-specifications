@@ -289,8 +289,8 @@ public class Raides {
 
     public void processGraduated(final LegalReport report, final RaidesRequestParameter raidesRequestParameter) {
 
-        for (final RaidesRequestPeriodParameter enroledPeriod : raidesRequestParameter.getPeriodsForGraduated()) {
-            final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
+        for (final RaidesRequestPeriodParameter graduatedPeriod : raidesRequestParameter.getPeriodsForGraduated()) {
+            final ExecutionYear academicPeriod = graduatedPeriod.getAcademicPeriod();
             for (final Degree degree : raidesRequestParameter.getDegrees()) {
                 for (final Registration registration : degree.getRegistrationsSet()) {
 
@@ -301,27 +301,24 @@ public class Raides {
                     final String[] messageArgs = formatArgs(registration, academicPeriod);
 
                     try {
-                        if (enroledPeriod.isEnrolledInAcademicPeriod()
-                                && !isEnrolledInExecutionYear(enroledPeriod.getAcademicPeriod(), registration, true)) {
+                        if (graduatedPeriod.isEnrolledInAcademicPeriod()
+                                && !isEnrolledInExecutionYear(graduatedPeriod.getAcademicPeriod(), registration, true)) {
                             continue;
-                        } else if (!enroledPeriod.isEnrolledInAcademicPeriod()
-                                && isEnrolledInExecutionYear(enroledPeriod.getAcademicPeriod(), registration, true)) {
-                            continue;
-                        }
-
-                        if (!hasConcludedInYear(registration, academicPeriod)) {
+                            
+                        } else if (!graduatedPeriod.isEnrolledInAcademicPeriod()
+                                && isEnrolledInExecutionYear(graduatedPeriod.getAcademicPeriod(), registration, true)) {
                             continue;
                         }
 
-                        if (!hasConcludedInPeriod(enroledPeriod.getInterval(), academicPeriod, registration)) {
+                        if (!hasConcludedInPeriod(graduatedPeriod.getInterval(), academicPeriod, registration)) {
                             continue;
                         }
 
-                        if (!isInEnrolledEctsLimit(enroledPeriod, registration, academicPeriod)) {
+                        if (!isInEnrolledEctsLimit(graduatedPeriod, registration, academicPeriod)) {
                             continue;
                         }
 
-                        if (!isInEnrolledYearsLimit(enroledPeriod, registration, academicPeriod)) {
+                        if (!isInEnrolledYearsLimit(graduatedPeriod, registration, academicPeriod)) {
                             continue;
                         }
 
@@ -330,7 +327,7 @@ public class Raides {
                                     academicPeriod);
                         }
 
-                        addGraduated(report, raidesRequestParameter, academicPeriod, registration);
+                        addGraduated(report, raidesRequestParameter, graduatedPeriod, academicPeriod, registration);
                     } catch (final Throwable e) {
                         LegalReportContext.addError("", i18n("error.Raides.unexpected.error.occured",
                                 concatArgs(messageArgs, ExceptionUtils.getFullStackTrace(e))));
@@ -378,13 +375,13 @@ public class Raides {
         return true;
     }
 
-    protected boolean hasConcludedInPeriod(final Interval interval, final ExecutionYear academicPeriod,
+    protected boolean hasConcludedInPeriod(final Interval interval, final ExecutionYear executionYear,
             final Registration registration) {
 
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if (interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
+            if (rci.getConclusionYear() == executionYear && interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
                 return true;
             }
         }
@@ -504,6 +501,7 @@ public class Raides {
             return true;
         }
 
+        //TODO: review
         if (hasConcludedInYear(registration, executionYear)) {
             final Set<RegistrationConclusionInformation> informationConclusionSet =
                     RegistrationConclusionServices.inferConclusion(registration);
@@ -606,10 +604,22 @@ public class Raides {
     }
 
     protected void addGraduated(final LegalReport report, final RaidesRequestParameter raidesRequestParameter,
-            final ExecutionYear executionYear, final Registration registration) {
-        final TblDiplomado diplomado = (new DiplomadoService(report)).create(raidesRequestParameter, executionYear, registration);
-        diplomados.put(registration.getStudent(), diplomado);
-        registrationList.add(registration);
+            RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear, final Registration registration) {
+
+        final DiplomadoService diplomadoService = new DiplomadoService(report);
+
+        if (diplomadoService.isToReportNormal(graduatedPeriod, executionYear, registration)) {
+            diplomados.put(registration.getStudent(),
+                    diplomadoService.createNormal(raidesRequestParameter, graduatedPeriod, executionYear, registration));
+            registrationList.add(registration);
+        }
+
+        if (diplomadoService.isToReportIntegratedCycleFirstCycle(graduatedPeriod, executionYear, registration)) {
+            diplomados.put(registration.getStudent(), diplomadoService.createIntegratedCycleFirstCyle(raidesRequestParameter,
+                    graduatedPeriod, executionYear, registration));
+            registrationList.add(registration);
+        }
+
     }
 
     protected void addMobilidadeInternacional(final LegalReport report, final RaidesRequestParameter raidesRequestParameter,
@@ -633,43 +643,12 @@ public class Raides {
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if (!rci.isScholarPart() && rci.getConclusionYear() == executionYear) {
-                return true;
-            }
-        }
-
-        return hadScholarPartApprovement(registration, executionYear);
-    }
-
-    public static boolean hadScholarPartApprovement(final Registration registration, final ExecutionYear executionYear) {
-        final Set<RegistrationConclusionInformation> informationConclusionSet =
-                RegistrationConclusionServices.inferConclusion(registration);
-        for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if (rci.isScholarPart() && scholarPartConclusionYear(rci) == executionYear) {
+            if (rci.getConclusionYear() == executionYear) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    public static ExecutionYear scholarPartConclusionYear(final RegistrationConclusionInformation rci) {
-        if (!Raides.isMasterDegreeOrDoctoralDegree(rci.getRegistrationConclusionBean().getRegistration())) {
-            return rci.getConclusionYear();
-        }
-
-        if (!rci.getRegistrationConclusionBean().isConclusionProcessed()) {
-            return rci.getConclusionYear();
-        }
-
-        final ExecutionYear conclusionYearByDate = ExecutionYear.readByDateTime(rci.getConclusionDate());
-        final ExecutionYear conclusionYearByInformation = rci.getConclusionYear();
-
-        if (conclusionYearByDate.isBefore(conclusionYearByInformation)) {
-            return conclusionYearByDate;
-        }
-
-        return rci.getConclusionYear();
     }
 
     protected boolean containsStudentIdentification(final Student student) {
