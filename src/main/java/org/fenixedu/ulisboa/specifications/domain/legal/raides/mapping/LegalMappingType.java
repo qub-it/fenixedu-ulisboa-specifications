@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
@@ -43,7 +44,8 @@ public enum LegalMappingType implements ILegalMappingType {
     BOOLEAN, GENDER, ID_DOCUMENT_TYPE, CYCLE_TYPE, REGIME_TYPE, GRANT_OWNER_TYPE, REGISTRATION_INGRESSION_TYPE, MARITAL_STATUS,
     SCHOOL_LEVEL, PROFESSIONAL_SITUATION_CONDITION, PROFESSION_TYPE, HIGH_SCHOOL_TYPE, SCHOOL_PERIOD_DURATION,
     INTERNATIONAL_MOBILITY_PROGRAM, INTERNATIONAL_MOBILITY_ACTIVITY, CURRICULAR_YEAR, REGIME_FREQUENCIA, PRECEDENT_SCHOOL_LEVEL,
-    MOBILITY_SCHOOL_LEVEL, INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT, GRADE, INTEGRATED_MASTER_FIRST_CYCLE_CODES;
+    MOBILITY_SCHOOL_LEVEL, INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT, GRADE, INTEGRATED_MASTER_FIRST_CYCLE_CODES,
+    DEGREE_CURRICULAR_PLAN_DEGREE_OFICIAL_CODE;
 
     private static final String ENUMERATION_RESOURCES = "resources.EnumerationResources";
 
@@ -101,6 +103,10 @@ public enum LegalMappingType implements ILegalMappingType {
         case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
             return Sets.newHashSet(Bennu.getInstance().getDegreesSet().stream()
                     .filter(d -> d.getDegreeType().isIntegratedMasterDegree()).collect(Collectors.toSet()));
+
+        case DEGREE_CURRICULAR_PLAN_DEGREE_OFICIAL_CODE:
+            return Bennu.getInstance().getDegreesSet().stream().flatMap(d -> d.getDegreeCurricularPlansSet().stream())
+                    .collect(Collectors.toSet());
         default:
             return Collections.EMPTY_SET;
         }
@@ -137,6 +143,7 @@ public enum LegalMappingType implements ILegalMappingType {
         case INTERNATIONAL_MOBILITY_ACTIVITY:
         case INTERNATIONAL_MOBILITY_PROGRAM_AGREEMENT:
         case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
+        case DEGREE_CURRICULAR_PLAN_DEGREE_OFICIAL_CODE:
             return new DomainObjectLegalMapping(report, this);
         case BOOLEAN:
         case CURRICULAR_YEAR:
@@ -212,6 +219,10 @@ public enum LegalMappingType implements ILegalMappingType {
         case INTEGRATED_MASTER_FIRST_CYCLE_CODES:
             final Degree degree = (Degree) FenixFramework.getDomainObject(key);
             return new LocalizedString(I18N.getLocale(), "[" + degree.getCode() + "] " + degree.getPresentationName());
+        case DEGREE_CURRICULAR_PLAN_DEGREE_OFICIAL_CODE:
+            final DegreeCurricularPlan degreeCurricularPlan = FenixFramework.getDomainObject(key);
+            return new LocalizedString(I18N.getLocale(),
+                    "[" + degreeCurricularPlan.getDegree().getCode() + "] " + degreeCurricularPlan.getPresentationName());
         default:
             return new LocalizedString();
         }

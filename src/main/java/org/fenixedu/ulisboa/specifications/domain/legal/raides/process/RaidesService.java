@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -101,7 +102,17 @@ public class RaidesService {
         bean.setIdAluno(registration.getStudent().getNumber().toString());
 
         bean.setAnoLectivo(executionYear.getQualifiedName());
-        bean.setCurso(degree(registration).getMinistryCode());
+
+        //HACK HACK: some institutions the same degree and each degree curricular plan is mapped to ministry code
+        final DegreeCurricularPlan degreeCurricularPlan =
+                getStudentCurricularPlanForBranch(registration, executionYear).getDegreeCurricularPlan();
+        final LegalMapping oficialDegreeMapping =
+                LegalMapping.find(report, LegalMappingType.DEGREE_CURRICULAR_PLAN_DEGREE_OFICIAL_CODE);
+        if (oficialDegreeMapping != null && oficialDegreeMapping.isKeyDefined(degreeCurricularPlan)) {
+            bean.setCurso(oficialDegreeMapping.translate(degreeCurricularPlan));
+        } else {
+            bean.setCurso(degree(registration).getMinistryCode());
+        }
 
         final Set<CourseGroup> branches = branches(registration, executionYear);
         bean.setRamo(null);
