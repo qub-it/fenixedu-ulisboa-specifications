@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -142,13 +143,16 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                                 // not in any mark sheet
                                 ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null
 
-                                // not automatic
-                                        && EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
+                        // not automatic
+                        // TODO legidio     && EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
 
                         // HACK!!! removing this, in order to allow anulling enrolment evaluations in this UI
                         // && ev.isFinal() && ev.getGrade() != null && !ev.getGrade().isEmpty()
 
-                        ).sorted(c1.thenComparing(c2)).collect(Collectors.toList());
+                        ).sorted(c1
+                                // TODO legidio.thenComparing(c2)
+                                .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                        .collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
 
