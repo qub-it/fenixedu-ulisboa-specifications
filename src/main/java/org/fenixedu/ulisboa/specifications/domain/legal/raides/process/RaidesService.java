@@ -47,7 +47,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequ
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -651,12 +651,13 @@ public class RaidesService {
         return LegalMapping.find(report, LegalMappingType.REGIME_FREQUENCIA).translate(registration.getDegree().getExternalId());
     }
 
-    protected LocalDate findMaximumAnnulmentDate(final List<RaidesRequestPeriodParameter> periods, final ExecutionYear executionYear) {
+    protected DateTime findMaximumAnnulmentDate(final List<RaidesRequestPeriodParameter> periods, final ExecutionYear executionYear) {
         return periods.stream().filter(p -> p.getAcademicPeriod() == executionYear)
-                .max(Comparator.comparing(RaidesRequestPeriodParameter::getEnd)).get().getEnd();
+                .max(Comparator.comparing(RaidesRequestPeriodParameter::getEnd)).get().getEnd()
+                .plusDays(1).toDateTimeAtStartOfDay().minusSeconds(1);
     }
 
-    protected BigDecimal enrolledEcts(final ExecutionYear executionYear, final Registration registration, final LocalDate maximumAnnulmentDate) {
+    protected BigDecimal enrolledEcts(final ExecutionYear executionYear, final Registration registration, final DateTime maximumAnnulmentDate) {
         final StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
         double result = 0.0;
 
@@ -692,7 +693,7 @@ public class RaidesService {
         return result;
     }
 
-    protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration, final LocalDate maximumAnnulmentDate) {
+    protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration, final DateTime maximumAnnulmentDate) {
         if (BigDecimal.ZERO.compareTo(enrolledEcts(executionYear, registration, maximumAnnulmentDate)) != 0) {
             final BigDecimal enrolledEcts = enrolledEcts(executionYear, registration, maximumAnnulmentDate);
 

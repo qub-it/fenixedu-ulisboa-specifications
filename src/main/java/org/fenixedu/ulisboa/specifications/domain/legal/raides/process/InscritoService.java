@@ -5,7 +5,6 @@ import static org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.for
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,10 +24,9 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -58,7 +56,7 @@ public class InscritoService extends RaidesService {
 
         bean.setRegimeFrequencia(regimeFrequencia(registration, executionYear));
 
-        final LocalDate maximumAnnulmentDate = findMaximumAnnulmentDate(raidesRequestParameter.getPeriodsForEnrolled(), executionYear);
+        final DateTime maximumAnnulmentDate = findMaximumAnnulmentDate(raidesRequestParameter.getPeriodsForEnrolled(), executionYear);
         if (Raides.isDoctoralDegree(registration)) {
             bean.setEctsInscricao(doctoralEnrolledEcts(executionYear, registration, maximumAnnulmentDate));
         } else {

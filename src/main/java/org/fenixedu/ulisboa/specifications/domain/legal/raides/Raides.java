@@ -58,6 +58,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.services.reportLog.trans
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
@@ -465,7 +466,7 @@ public class Raides {
         
         final Collection<Enrolment> enrolments = registration.getEnrolments(academicPeriod);
         for (final Enrolment enrolment : enrolments) {
-            if(!isEnrolmentAnnuled(enrolment, interval)) {
+            if(!isEnrolmentAnnuled(enrolment, interval.getEnd())) {
                 return true;
             }
         }
@@ -473,7 +474,7 @@ public class Raides {
         return false;
     }
     
-    public static boolean isEnrolmentAnnuled(final Enrolment enrolment, final LocalDate annulmentEndDate) {
+    public static boolean isEnrolmentAnnuled(final Enrolment enrolment, final DateTime annulmentEndDate) {
         if(enrolment.isAnnulled() && enrolment.getAnnulmentDate() != null) {
             return !enrolment.getAnnulmentDate().isAfter(annulmentEndDate);
         }
@@ -653,7 +654,7 @@ public class Raides {
     protected Collection<Enrolment> filterAnnulledEnrolments(final Collection<Enrolment> enrolments, final Interval periodInterval) {
         final Set<Enrolment> result = Sets.newHashSet();
         for (final Enrolment enrolment : enrolments) {
-            if (!isEnrolmentAnnuled(enrolment, periodInterval)) {
+            if (!isEnrolmentAnnuled(enrolment, periodInterval.getEnd())) {
                 result.add(enrolment);
             }
         }
