@@ -567,6 +567,23 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </select>
 				</div>
 			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesRequests.graduatedExecutionYear" />
+				</div>
+				
+				<div class="col-sm-10">
+					<ui-select	id="graduatedExecutionYear" name="graduatedExecutionYear" ng-model="$parent.object.graduatedExecutionYear" theme="bootstrap">
+						<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
+						<ui-select-choices	repeat="executionYear.id as executionYear in object.executionYearsDataSource | filter: $select.search">
+							<span ng-bind-html="executionYear.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
+				</div>
+			</div>			
+			
+			
 		</div>
 		<div class="panel-footer">
 			<button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>

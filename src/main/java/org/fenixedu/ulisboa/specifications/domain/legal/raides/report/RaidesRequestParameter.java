@@ -42,10 +42,13 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
     private List<IngressionType> ingressionsForDegreeTransfer = Lists.newArrayList();
     private List<IngressionType> ingressionsForGeneralAccessRegime = Lists.newArrayList();
 
+    private ExecutionYear graduatedExecutionYear;
+
     private List<Degree> degrees = Lists.newArrayList();
 
     private List<TupleDataSourceBean> registrationProtocolsDataSource;
     private List<TupleDataSourceBean> ingressionTypesDataSource;
+    private List<TupleDataSourceBean> executionYearsDataSource;
 
     /**
      * Used to display data with Angular
@@ -80,6 +83,7 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
     private void loadDataSources() {
         loadRegistrationProtocolsDataSource();
         loadIngressionTypesDataSource();
+        loadExecutionYearsDataSource();
     }
 
     private void loadIngressionTypesDataSource() {
@@ -100,6 +104,15 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
                 Bennu.getInstance().getRegistrationProtocolsSet().stream().sorted(RegistrationProtocol.AGREEMENT_COMPARATOR)
                         .map(r -> new TupleDataSourceBean(r.getExternalId(), r.getDescription().getContent()))
                         .collect(Collectors.toList()));
+    }
+
+    private void loadExecutionYearsDataSource() {
+        this.executionYearsDataSource = Lists.newArrayList();
+
+        this.executionYearsDataSource.addAll(ExecutionYear.readNotClosedExecutionYears().stream()
+                .sorted(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed())
+                .map(ey -> new TupleDataSourceBean(ey.getExternalId(), ey.getQualifiedName())).collect(Collectors.toList()));
+
     }
 
     public void checkRules() {
@@ -299,6 +312,14 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
         this.studentNumber = studentNumber;
     }
 
+    public ExecutionYear getGraduatedExecutionYear() {
+        return graduatedExecutionYear;
+    }
+
+    public void setGraduatedExecutionYear(ExecutionYear graduatedExecutionYear) {
+        this.graduatedExecutionYear = graduatedExecutionYear;
+    }
+
     public RaidesRequestParameter copy() {
         final RaidesRequestParameter result = new RaidesRequestParameter();
         result.setAgreementsForEnrolled(getAgreementsForEnrolled());
@@ -315,6 +336,7 @@ public class RaidesRequestParameter extends LegalReportRequestParameters impleme
         result.setInterlocutorPhone(getInterlocutorPhone());
         result.setMoment(getMoment());
         result.setPeriods(getPeriods().stream().map(p -> p.copy()).collect(Collectors.toList()));
+        result.setGraduatedExecutionYear(getGraduatedExecutionYear());
 
         return result;
     }

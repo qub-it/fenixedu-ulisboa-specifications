@@ -53,7 +53,9 @@ public class DiplomadoService extends RaidesService {
             final RegistrationConclusionBean registrationConclusionBean = terminalConclusionInfo.getRegistrationConclusionBean();
 
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
-            bean.setAnoLectivo(terminalConclusionInfo.getConclusionYear().getQualifiedName());
+            bean.setAnoLectivo(raidesRequestParameter.getGraduatedExecutionYear() != null ? raidesRequestParameter
+                    .getGraduatedExecutionYear()
+                    .getQualifiedName() : terminalConclusionInfo.getConclusionYear().getQualifiedName());
             bean.setNumInscConclusao(
                     String.valueOf(Raides.getEnrolmentYearsIncludingPrecedentRegistrations(registration).size()));
 
@@ -89,7 +91,8 @@ public class DiplomadoService extends RaidesService {
                     scholarPartConclusionInformation(registration, graduatedPeriod, executionYear);
             final RegistrationConclusionBean conclusionBean = scholarPartConclusionInfo.getRegistrationConclusionBean();
 
-            bean.setAnoLectivo(conclusionBean.getConclusionYear().getQualifiedName());
+            bean.setAnoLectivo(raidesRequestParameter.getGraduatedExecutionYear() != null ? raidesRequestParameter
+                    .getGraduatedExecutionYear().getQualifiedName() : conclusionBean.getConclusionYear().getQualifiedName());
             bean.setConclusaoMd(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
             bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
                     .translate(finalGrade(conclusionBean.getFinalGrade().getValue())));
@@ -134,7 +137,9 @@ public class DiplomadoService extends RaidesService {
         bean.setCurso(LegalMapping.find(report, LegalMappingType.INTEGRATED_MASTER_FIRST_CYCLE_CODES)
                 .translate(registration.getDegree()));
         bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
-        bean.setAnoLectivo(scholarPartConclusionBean.getConclusionYear().getQualifiedName());
+        bean.setAnoLectivo(
+                raidesRequestParameter.getGraduatedExecutionYear() != null ? raidesRequestParameter.getGraduatedExecutionYear()
+                        .getQualifiedName() : scholarPartConclusionBean.getConclusionYear().getQualifiedName());
         bean.setNumInscConclusao(String.valueOf(Raides
                 .getEnrolmentYearsIncludingPrecedentRegistrations(registration, scholarPartConclusionBean.getConclusionYear())
                 .size()));

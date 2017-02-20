@@ -171,6 +171,14 @@ request.setAttribute("parameter", parameter);
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3">
+                            <spring:message code="label.RaidesRequests.graduatedExecutionYear" />
+                        </th>
+                        <td>
+                        	<c:out value="${empty parameter.graduatedExecutionYear ? '' : parameter.graduatedExecutionYear.qualifiedName}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
                             <spring:message code="label.RaidesRequests.agreementsForEnrolled" />
                         </th>
                         <td>
