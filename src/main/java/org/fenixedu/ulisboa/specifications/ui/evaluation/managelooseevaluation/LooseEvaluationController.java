@@ -143,16 +143,13 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                                 // not in any mark sheet
                                 ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null
 
-                        // not automatic
-                        // TODO legidio     && EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
+                                // not automatic
+                                        && EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
 
                         // HACK!!! removing this, in order to allow anulling enrolment evaluations in this UI
                         // && ev.isFinal() && ev.getGrade() != null && !ev.getGrade().isEmpty()
 
-                        ).sorted(c1
-                                // TODO legidio.thenComparing(c2)
-                                .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
-                        .collect(Collectors.toList());
+                        ).sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID)).collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
 
