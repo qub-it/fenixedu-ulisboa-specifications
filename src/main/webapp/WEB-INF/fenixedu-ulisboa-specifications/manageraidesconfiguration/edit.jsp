@@ -266,6 +266,21 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 					</ui-select>
 				</div>
 			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.reportGraduatedWithoutConclusionProcess" />
+				</div>
+
+				<div class="col-sm-10">
+                    <select
+                        name="reportGraduatedWithoutConclusionProcess" class="form-control"
+                        ng-model="object.reportGraduatedWithoutConclusionProcess"
+                        ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+                    </select>
+				</div>
+			</div>
+			
 		</div>
 		
 		<div class="panel-body">

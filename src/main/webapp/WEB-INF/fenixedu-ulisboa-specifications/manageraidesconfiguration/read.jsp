@@ -176,6 +176,14 @@ ${portal.angularToolkit()}
 							${raidesInstance.blueRecordStartMessageContent.content}
 						</td>
 					</tr>
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.reportGraduatedWithoutConclusionProcess" />
+						</th>
+						<td>
+							<spring:message code='${raidesInstance.reportGraduatedWithoutConclusionProcess ? "label.true" : "label.false"}' />
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</form>

@@ -58,7 +58,8 @@ public class RaidesConfigurationController extends FenixeduUlisboaSpecifications
                     bean.getIngressionsForGeneralAccessRegime(), bean.isFormsAvailableToStudents(),
                     bean.getBlueRecordStartMessageContentLocalizedString(), bean.getInstitutionCode(),
                     bean.getInterlocutorPhone(), bean.getIntegratedMasterFirstCycleGraduatedReportOption(),
-                    bean.getDefaultDistrictOfResidence());
+                    bean.getDefaultDistrictOfResidence(), 
+                    bean.isReportGraduatedWithoutConclusionProcess());
 
             return "redirect:" + READ_URL;
         } catch (final DomainException e) {

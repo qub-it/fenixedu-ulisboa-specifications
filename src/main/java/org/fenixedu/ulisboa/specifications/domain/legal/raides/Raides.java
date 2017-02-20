@@ -251,7 +251,7 @@ public class Raides {
                         }
 
                         if (enroledPeriod.isEnrolledInAcademicPeriod()
-                                && !isEnrolledInExecutionYear(enroledPeriod.getAcademicPeriod(), registration, false)) {
+                                && !isEnrolledInExecutionYear(enroledPeriod, registration, false)) {
                             continue;
                         }
 
@@ -302,11 +302,10 @@ public class Raides {
 
                     try {
                         if (graduatedPeriod.isEnrolledInAcademicPeriod()
-                                && !isEnrolledInExecutionYear(graduatedPeriod.getAcademicPeriod(), registration, true)) {
+                                && !isEnrolledInExecutionYear(graduatedPeriod, registration, true)) {
                             continue;
-                            
                         } else if (!graduatedPeriod.isEnrolledInAcademicPeriod()
-                                && isEnrolledInExecutionYear(graduatedPeriod.getAcademicPeriod(), registration, true)) {
+                                && isEnrolledInExecutionYear(graduatedPeriod, registration, true)) {
                             continue;
                         }
 
@@ -409,7 +408,7 @@ public class Raides {
                         }
 
                         if (enroledPeriod.isEnrolledInAcademicPeriod()
-                                && !isEnrolledInExecutionYear(enroledPeriod.getAcademicPeriod(), registration, false)) {
+                                && !isEnrolledInExecutionYear(enroledPeriod, registration, false)) {
                             continue;
                         }
 
@@ -430,23 +429,12 @@ public class Raides {
                             continue;
                         }
 
-                        if (!hasEnrolmentsInSecondMomentAndIsNotConcluded(enroledPeriod.getInterval(),
-                                enroledPeriod.getAcademicPeriod(), registration, raidesRequestParameter)) {
-                            continue;
-                        }
-
                         if (!containsStudentIdentification(registration.getStudent())) {
                             addStudent(report, raidesRequestParameter.getInstitution(), registration.getStudent(), registration,
                                     academicPeriod);
                         }
 
-                        if (!academicPeriod.isCurrent() && isEnrolledInDissertation(registration, academicPeriod)
-                                && isEnrolled(registration, academicPeriod)) {
-                            continue;
-                        }
-
                         addEnrolledStudent(report, raidesRequestParameter, academicPeriod, registration);
-
                     } catch (final DomainException e) {
                         LegalReportContext.addError("",
                                 i18n("error.Raides.unexpected.error.occured", concatArgs(messageArgs, e.getLocalizedMessage())));
@@ -471,35 +459,30 @@ public class Raides {
         return stateInDate != null && (stateInDate.isActive() || stateInDate.getStateType() == RegistrationStateType.CONCLUDED);
     }
 
-    protected boolean isEnrolledInDissertation(Registration registration, ExecutionYear academicPeriod) {
-        Collection<Enrolment> enrolments = registration.getEnrolments(academicPeriod);
-
+    protected boolean isEnrolled(Registration registration, final RaidesRequestPeriodParameter enroledPeriod) {
+        final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
+        final Interval interval = enroledPeriod.getInterval();
+        
+        final Collection<Enrolment> enrolments = registration.getEnrolments(academicPeriod);
         for (final Enrolment enrolment : enrolments) {
-            if (enrolment.isDissertation()) {
+            if(!isEnrolmentAnnuled(enrolment, interval)) {
                 return true;
             }
         }
 
         return false;
     }
-
-    protected boolean isEnrolled(Registration registration, ExecutionYear academicPeriod) {
-        Collection<Enrolment> enrolments = registration.getEnrolments(academicPeriod);
-
-        for (final Enrolment enrolment : enrolments) {
-            if (!enrolment.isAnnulled()) {
-                return true;
-            }
+    
+    public static boolean isEnrolmentAnnuled(final Enrolment enrolment, final LocalDate annulmentEndDate) {
+        if(enrolment.isAnnulled() && enrolment.getAnnulmentDate() != null) {
+            return !enrolment.getAnnulmentDate().isAfter(annulmentEndDate);
         }
-
-        return false;
+        
+        return enrolment.isAnnulled();
     }
 
-    protected boolean hasEnrolmentsInSecondMomentAndIsNotConcluded(final Interval interval, final ExecutionYear executionYear,
+    protected boolean hadEnrolmentsInPeriod(final Interval interval, final ExecutionYear executionYear,
             final Registration registration, final RaidesRequestParameter raidesRequestParameter) {
-        if (!isInSecondMoment(raidesRequestParameter)) {
-            return true;
-        }
 
         //TODO: review
         if (hasConcludedInYear(registration, executionYear)) {
@@ -521,79 +504,39 @@ public class Raides {
             if (hadConcludedBeforeIntervalEnd) {
                 return false;
             }
-        }
-
-        final Collection<CurriculumLine> allCurriculumLines = Raides.getAllCurriculumLines(registration);
-        for (final CurriculumLine curriculumLine : allCurriculumLines) {
-            if (curriculumLine.getExecutionYear() != executionYear) {
-                continue;
-            }
-
-            if (!curriculumLine.isEnrolment()) {
-                continue;
-            }
-
-            final Enrolment enrolment = (Enrolment) curriculumLine;
-
-            if (enrolment.isExtraCurricular()) {
-                continue;
-            }
-
-            if (enrolment.isDissertation() && enrolment.isEnroled()) {
-                return true;
-            }
-
-            if (enrolment.isDissertation() && enrolment.isApproved()
-                    && interval.contains(enrolment.getApprovementDate().toLocalDate().toDateTimeAtStartOfDay())) {
-                return true;
-            }
-
-            if (enrolment.getExecutionPeriod().getSemester().intValue() == 2) {
-                return true;
-            }
-
-            if (enrolment.getCurricularCourse().isAnual(executionYear)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    protected boolean hadEnrolmentsInPeriod(final Interval interval, final ExecutionYear executionYear,
-            final Registration registration, final RaidesRequestParameter raidesRequestParameter) {
-        final Collection<CurriculumLine> allCurriculumLines = Raides.getAllCurriculumLines(registration);
-        for (final CurriculumLine curriculumLine : allCurriculumLines) {
-            if (curriculumLine.getExecutionYear() != executionYear) {
-                continue;
-            }
-
-            if (!curriculumLine.isEnrolment()) {
-                continue;
-            }
-
-            final Enrolment enrolment = (Enrolment) curriculumLine;
-
-            if (enrolment.isExtraCurricular()) {
-                continue;
-            }
-
-            if (interval.contains(enrolment.getCreationDateDateTime())) {
-                return true;
-            }
-
-            if (enrolment.isDissertation() && enrolment.isEnroled()) {
-                return true;
-            }
-
-            if (enrolment.isDissertation() && enrolment.isApproved()
-                    && interval.contains(enrolment.getApprovementDate().toLocalDate().toDateTimeAtStartOfDay())) {
-                return true;
-            }
-        }
-
+		// TODO: End review block
+		
         final LocalDate enrolmentDate = getEnrolmentDate(registration, executionYear);
-        return enrolmentDate != null && interval.contains(enrolmentDate.toDateTimeAtStartOfDay());
+        if(enrolmentDate == null || !interval.contains(enrolmentDate.toDateTimeAtStartOfDay())) {
+            return false;
+
+        }
+    
+        // Check if it has at least one enrolment
+        final Collection<CurriculumLine> allCurriculumLines = Raides.getAllCurriculumLines(registration);
+        for (final CurriculumLine curriculumLine : allCurriculumLines) {
+            if (curriculumLine.getExecutionYear() != executionYear) {
+                continue;
+            }
+
+            if (!curriculumLine.isEnrolment()) {
+                continue;
+            }
+
+            final Enrolment enrolment = (Enrolment) curriculumLine;
+
+            if (enrolment.isExtraCurricular()) {
+                continue;
+            }
+            
+            if(isEnrolmentAnnuled(enrolment, interval.getEnd())) {
+                continue;
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
 
     protected void addEnrolledStudent(final LegalReport report, final RaidesRequestParameter raidesRequestParameter,
@@ -640,9 +583,15 @@ public class Raides {
     }
 
     protected boolean hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
+        final boolean reportGraduatedWithoutConclusionProcess = RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess();
+        
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
+            if(!reportGraduatedWithoutConclusionProcess && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
+                continue;
+            }
+            
             if (rci.getConclusionYear() == executionYear) {
                 return true;
             }
@@ -665,9 +614,12 @@ public class Raides {
         return raidesRequestParameter.getAgreementsForEnrolled().contains(registration.getRegistrationProtocol());
     }
 
-    protected boolean isEnrolledInExecutionYear(final ExecutionYear executionYear, final Registration registration,
+    protected boolean isEnrolledInExecutionYear(final RaidesRequestPeriodParameter period, final Registration registration,
             final boolean lookupAtRegistrationDataByExecutionYear) {
-        final Set<ExecutionYear> executionYearsSet = filterExtraCurricularCourses(registration.getEnrolments(executionYear))
+        final ExecutionYear executionYear = period.getAcademicPeriod();
+        
+        final Set<ExecutionYear> executionYearsSet = filterAnnulledEnrolments(
+                filterExtraCurricularCourses(registration.getEnrolments(executionYear)), period.getInterval())
                 .stream().map(r -> r.getExecutionYear()).collect(Collectors.toSet());
 
         if (!lookupAtRegistrationDataByExecutionYear) {
@@ -691,6 +643,17 @@ public class Raides {
         final Set<Enrolment> result = Sets.newHashSet();
         for (final Enrolment enrolment : enrolments) {
             if (!enrolment.isExtraCurricular()) {
+                result.add(enrolment);
+            }
+        }
+
+        return result;
+    }
+
+    protected Collection<Enrolment> filterAnnulledEnrolments(final Collection<Enrolment> enrolments, final Interval periodInterval) {
+        final Set<Enrolment> result = Sets.newHashSet();
+        for (final Enrolment enrolment : enrolments) {
+            if (!isEnrolmentAnnuled(enrolment, periodInterval)) {
                 result.add(enrolment);
             }
         }

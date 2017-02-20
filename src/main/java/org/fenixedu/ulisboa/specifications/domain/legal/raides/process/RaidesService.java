@@ -43,9 +43,11 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblInscrito;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.LocalDate;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -649,11 +651,20 @@ public class RaidesService {
         return LegalMapping.find(report, LegalMappingType.REGIME_FREQUENCIA).translate(registration.getDegree().getExternalId());
     }
 
-    protected BigDecimal enrolledEcts(final ExecutionYear executionYear, final Registration registration) {
+    protected LocalDate findMaximumAnnulmentDate(final List<RaidesRequestPeriodParameter> periods, final ExecutionYear executionYear) {
+        return periods.stream().filter(p -> p.getAcademicPeriod() == executionYear)
+                .max(Comparator.comparing(RaidesRequestPeriodParameter::getEnd)).get().getEnd();
+    }
+
+    protected BigDecimal enrolledEcts(final ExecutionYear executionYear, final Registration registration, final LocalDate maximumAnnulmentDate) {
         final StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
         double result = 0.0;
 
         for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
+            if(Raides.isEnrolmentAnnuled(enrolment, maximumAnnulmentDate)) {
+                continue;
+            }
+            
             if (enrolment.isValid(executionYear)) {
                 result += enrolment.getEctsCredits();
             }
@@ -661,7 +672,7 @@ public class RaidesService {
 
         return new BigDecimal(result);
     }
-
+    
     protected Set<Enrolment> scholarPartEnrolments(final ExecutionYear executionYear, final Registration registration) {
         final StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
 
@@ -681,9 +692,9 @@ public class RaidesService {
         return result;
     }
 
-    protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration) {
-        if (BigDecimal.ZERO.compareTo(enrolledEcts(executionYear, registration)) != 0) {
-            BigDecimal enrolledEcts = enrolledEcts(executionYear, registration);
+    protected BigDecimal doctoralEnrolledEcts(final ExecutionYear executionYear, final Registration registration, final LocalDate maximumAnnulmentDate) {
+        if (BigDecimal.ZERO.compareTo(enrolledEcts(executionYear, registration, maximumAnnulmentDate)) != 0) {
+            final BigDecimal enrolledEcts = enrolledEcts(executionYear, registration, maximumAnnulmentDate);
 
             CurricularCourse dissertation = phdDissertation(executionYear, registration);
             if (dissertation != null && enrolledEcts.compareTo(new BigDecimal(dissertation.getEctsCredits())) >= 0) {

@@ -52,6 +52,8 @@ public class RaidesInstanceBean implements IBean {
     private IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption;
 
     private District defaultDistrictOfResidence;
+    
+    private boolean reportGraduatedWithoutConclusionProcess;
 
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setPasswordToZip(raidesInstance.getPasswordToZip());
@@ -211,7 +213,15 @@ public class RaidesInstanceBean implements IBean {
     public void setDefaultDistrictOfResidence(District defaultDistrictOfResidence) {
         this.defaultDistrictOfResidence = defaultDistrictOfResidence;
     }
-
+    
+    public boolean isReportGraduatedWithoutConclusionProcess() {
+        return reportGraduatedWithoutConclusionProcess;
+    }
+    
+    public void setReportGraduatedWithoutConclusionProcess(boolean reportGraduatedWithoutConclusionProcess) {
+        this.reportGraduatedWithoutConclusionProcess = reportGraduatedWithoutConclusionProcess;
+    }
+    
     public static final Locale LOCALE_EN = new Locale("EN");
 
     public LocalizedString getBlueRecordStartMessageContentLocalizedString() {

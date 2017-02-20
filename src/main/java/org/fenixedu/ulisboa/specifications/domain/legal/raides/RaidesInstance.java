@@ -101,7 +101,8 @@ public class RaidesInstance extends RaidesInstance_Base {
             final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent,
             final String institutionCode, final String interlocutorPhone,
             final IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption,
-            final District defaultDistrictOfResidence) {
+            final District defaultDistrictOfResidence,
+            final boolean reportGraduatedWithoutConclusionProcess) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -129,6 +130,7 @@ public class RaidesInstance extends RaidesInstance_Base {
 
         setIntegratedMasterFirstCycleGraduatedReportOption(integratedMasterFirstCycleGraduatedReportOption);
         setDefaultDistrictOfResidence(defaultDistrictOfResidence);
+        setReportGraduatedWithoutConclusionProcess(reportGraduatedWithoutConclusionProcess);
     }
 
     public boolean isToReportAllIntegratedMasterFirstCycleGraduatedStudents() {
@@ -146,6 +148,10 @@ public class RaidesInstance extends RaidesInstance_Base {
     
     public boolean isSumEctsCreditsBetweenPlans() {
         return getSumEctsCreditsBetweenPlans();
+    }
+    
+    public boolean isReportGraduatedWithoutConclusionProcess() {
+        return getReportGraduatedWithoutConclusionProcess();
     }
 
     @Override
