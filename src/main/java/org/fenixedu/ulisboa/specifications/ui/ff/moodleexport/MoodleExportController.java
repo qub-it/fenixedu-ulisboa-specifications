@@ -26,6 +26,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.ff.moodleexport;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -101,10 +103,20 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         moodleExportBean.setRole1("student");
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         String yearName = calculateYearName(currentExecutionYear);
-        List<String> coursesNames = student.getActiveRegistrations().stream()
-                .flatMap(r -> r.getEnrolments(currentExecutionYear).stream()).flatMap(en -> en.getExecutionCourses().stream())
-                .map(ec -> ec.getName() + " " + yearName).collect(Collectors.toList());
+
+        List<String> coursesNames = new ArrayList<>();
+        List<String> roles = new ArrayList<>();
+//        List<String> coursesNames = student.getActiveRegistrations().stream()
+//                .flatMap(r -> r.getEnrolments(currentExecutionYear).stream()).flatMap(en -> en.getExecutionCourses().stream())
+//                .map(ec -> ec.getName() + " " + yearName).collect(Collectors.toList());
+        student.getActiveRegistrations().stream().flatMap(r -> r.getEnrolments(currentExecutionYear).stream())
+                .flatMap(en -> en.getExecutionCourses().stream()).forEach(ec -> {
+                    coursesNames.add(ec.getName() + " " + yearName);
+                    roles.add("student");
+                });
         moodleExportBean.setCourses(coursesNames);
+        moodleExportBean.setRoles(roles);
+
         return moodleExportBean;
     }
 
@@ -133,9 +145,16 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         moodleExportBean.setRole1("teacher");
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         String yearName = calculateYearName(currentExecutionYear);
-        List<String> coursesNames = person.getProfessorships(currentExecutionYear).stream()
-                .map(p -> p.getExecutionCourse().getName() + " " + yearName).collect(Collectors.toList());
+        List<String> coursesNames = new ArrayList<>();
+        List<String> roles = new ArrayList<>();
+//        List<String> coursesNames = person.getProfessorships(currentExecutionYear).stream()
+//                .map(p -> p.getExecutionCourse().getName() + " " + yearName).collect(Collectors.toList());
+        for (Professorship professorship : person.getProfessorships(currentExecutionYear)) {
+            coursesNames.add(professorship.getExecutionCourse().getName() + " " + yearName);
+            roles.add(professorship.isResponsibleFor() ? "editingteacher" : "teacher");
+        }
         moodleExportBean.setCourses(coursesNames);
+        moodleExportBean.setRoles(roles);
         return moodleExportBean;
     }
 
@@ -167,6 +186,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
     public static class MoodleExportBean {
         String username, firstname, lastname, email, role1, auth;
         Collection<String> courses;
+        Collection<String> roles;
 
         public String getUsername() {
             return username;
@@ -223,5 +243,14 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         public void setCourses(Collection<String> courses) {
             this.courses = courses;
         }
+
+        public Collection<String> getRoles() {
+            return roles;
+        }
+
+        public void setRoles(Collection<String> roles) {
+            this.roles = roles;
+        }
+
     }
 }

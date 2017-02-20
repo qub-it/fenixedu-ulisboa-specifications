@@ -83,8 +83,9 @@ ${portal.toolkit()}
 					 <c:forEach var="i" begin="0" end="${numberOfCourseColumns}">
 						<th>course${i}</th>					
 			         </c:forEach>
-					 
-					 <th>role1</th>
+					 <c:forEach var="i" begin="0" end="${numberOfCourseColumns}">
+						<th>role${i}</th>					
+			         </c:forEach>					 
 					 <th>auth</th>
 				</tr>
 			</thead>
@@ -114,7 +115,6 @@ ${portal.toolkit()}
  					"firstname"	: "<c:out value='${searchResult.firstname}'/>",
  					"lastname" 	: "<c:out value='${searchResult.lastname}'/>",
  					"email"		: "<c:out value='${searchResult.email}'/>",
- 					"role1"		: "<c:out value='${searchResult.role1}'/>",
  					"auth"		: "<c:out value='${searchResult.auth}'/>",
 					<!-- Iterate courses-->
 					<c:set var="count" value="0" scope="page" />
@@ -125,6 +125,15 @@ ${portal.toolkit()}
 					<c:forEach var="i" begin="${count}" end="${numberOfCourseColumns}">
 						"course${i}" : 	"",					
 	         		</c:forEach>
+						
+					<c:set var="count" value="0" scope="page" />
+					<c:forEach items="${searchResult.roles}" var="role">
+						"role${count}" : 	"${role}",
+						<c:set var="count" value="${count + 1}" scope="page"/>
+					</c:forEach>
+					<c:forEach var="i" begin="${count}" end="${numberOfCourseColumns}">
+						"role${i}" : 	"",					
+	         		</c:forEach>						
 				
 			},
             </c:forEach>
@@ -143,7 +152,9 @@ ${portal.toolkit()}
 			<c:forEach var="i" begin="0" end="${numberOfCourseColumns}">
 				{ data: 'course${i}' },					
          	</c:forEach>
-			{ data: 'role1' },
+			<c:forEach var="i" begin="0" end="${numberOfCourseColumns}">
+				{ data: 'role${i}' },					
+         	</c:forEach>				
 			{ data: 'auth' },
 			
 		],
