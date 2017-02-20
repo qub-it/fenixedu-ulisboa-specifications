@@ -9,7 +9,9 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.treasury.util.Constants;
 
-public class RAIDES_CheckVersioningUpdateDateOfAnnulledEnrolments extends CustomTask {
+public class RAIDES_WriteVersioningUpdateDateOfAnnulledEnrolments extends CustomTask {
+
+    private static final String T = Constants.DATE_TIME_FORMAT_YYYY_MM_DD;
 
     @Override
     public void runTask() throws Exception {
@@ -27,13 +29,27 @@ public class RAIDES_CheckVersioningUpdateDateOfAnnulledEnrolments extends Custom
                     continue;
                 }
                 
-                taskLog("I\tANNULLED ENROLMENT\t%s\t%s\t%s\t%s\t%s\n", 
+                taskLog("I\tANNULLED ENROLMENT\t%s\t%s\t%s\t%s\t%s\t%s\n", 
                         enrolment.getExternalId(),
                         enrolment.getCode(),
                         enrolment.getExecutionPeriod().getQualifiedName(),
                         enrolment.getStudent().getNumber(),
-                        enrolment.getVersioningUpdateDate().getDate().toString(Constants.DATE_TIME_FORMAT_YYYY_MM_DD));
+                        enrolment.getAnnulmentDate() != null ? enrolment.getAnnulmentDate().toString(T) : "",
+                        enrolment.getVersioningUpdateDate().getDate().toString(T));
+                
+                if(enrolment.getAnnulmentDate() == null) {
+                    enrolment.setAnnulmentDate(enrolment.getVersioningUpdateDate().getDate());
+                    
+                    taskLog("C\tSET ANNULMENT DATE\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+                            enrolment.getExternalId(),
+                            enrolment.getCode(),
+                            enrolment.getExecutionPeriod().getQualifiedName(),
+                            enrolment.getStudent().getNumber(),
+                            enrolment.getAnnulmentDate() != null ? enrolment.getAnnulmentDate().toString(T) : "",
+                            enrolment.getVersioningUpdateDate().getDate().toString(T));
+                }
             }
         }
     }
+    
 }
