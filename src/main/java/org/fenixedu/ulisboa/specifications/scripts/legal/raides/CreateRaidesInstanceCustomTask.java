@@ -524,7 +524,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             RaidesInstance.getInstance().edit(new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, "RAIDES"),
                     Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", Sets.newHashSet(),
                     Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), false, new LocalizedString(), "",
-                    "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null);
+                    "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null, false);
         }
     }
 

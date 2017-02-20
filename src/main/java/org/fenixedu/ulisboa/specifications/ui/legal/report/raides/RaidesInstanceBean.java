@@ -56,6 +56,9 @@ public class RaidesInstanceBean implements IBean {
     private boolean reportGraduatedWithoutConclusionProcess;
 
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
+        setInstitutionCode(raidesInstance.getInstitutionCode());
+        setInterlocutorPhone(raidesInstance.getInterlocutorPhone());
+        
         setPasswordToZip(raidesInstance.getPasswordToZip());
 
         setMobilityAgreements(Sets.newHashSet(raidesInstance.getMobilityAgreementsSet()));
@@ -73,7 +76,8 @@ public class RaidesInstanceBean implements IBean {
 
         setIntegratedMasterFirstCycleGraduatedReportOption(raidesInstance.getIntegratedMasterFirstCycleGraduatedReportOption());
         setDefaultDistrictOfResidence(raidesInstance.getDefaultDistrictOfResidence());
-
+        setReportGraduatedWithoutConclusionProcess(raidesInstance.isReportGraduatedWithoutConclusionProcess());
+        
         loadDataSources();
     }
 

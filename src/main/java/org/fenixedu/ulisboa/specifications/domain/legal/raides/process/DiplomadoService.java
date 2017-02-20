@@ -345,7 +345,7 @@ public class DiplomadoService extends RaidesService {
 
             final RaidesInstance instance = (RaidesInstance) report;
 
-            if (instance.isToReportAllIntegratedMasterFirstCycleGraduatedStudents()) {
+            if (instance.isReportGraduatedWithoutConclusionProcess() && instance.isToReportAllIntegratedMasterFirstCycleGraduatedStudents()) {
                 return true;
             }
 

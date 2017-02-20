@@ -310,7 +310,7 @@ public class Raides {
                             continue;
                         }
 
-                        if (!hasConcludedInPeriod(graduatedPeriod.getInterval(), academicPeriod, registration)) {
+                        if (!hasConcludedInPeriodAndAcademicPeriod(graduatedPeriod, registration)) {
                             continue;
                         }
 
@@ -375,12 +375,18 @@ public class Raides {
         return true;
     }
 
-    protected boolean hasConcludedInPeriod(final Interval interval, final ExecutionYear executionYear,
+    protected boolean hasConcludedInPeriodAndAcademicPeriod(final RaidesRequestPeriodParameter period,
             final Registration registration) {
-
+        final Interval interval = period.getInterval();
+        final ExecutionYear executionYear = period.getAcademicPeriod();
+        
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
+            if(!RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess() && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
+                continue;
+            }
+            
             if (rci.getConclusionYear() == executionYear && interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
                 return true;
             }
@@ -484,28 +490,6 @@ public class Raides {
 
     protected boolean hadEnrolmentsInPeriod(final Interval interval, final ExecutionYear executionYear,
             final Registration registration, final RaidesRequestParameter raidesRequestParameter) {
-
-        //TODO: review
-        if (hasConcludedInYear(registration, executionYear)) {
-            final Set<RegistrationConclusionInformation> informationConclusionSet =
-                    RegistrationConclusionServices.inferConclusion(registration);
-            boolean hadConcludedBeforeIntervalEnd = false;
-            for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-                if (rci.isScholarPart()) {
-                    continue;
-                }
-
-                if (isIntegratedMasterDegree(registration))
-
-                    if (!rci.getConclusionDate().isAfter(interval.getEnd().toLocalDate())) {
-                        hadConcludedBeforeIntervalEnd = true;
-                    }
-            }
-
-            if (hadConcludedBeforeIntervalEnd) {
-                return false;
-            }
-		// TODO: End review block
 		
         final LocalDate enrolmentDate = getEnrolmentDate(registration, executionYear);
         if(enrolmentDate == null || !interval.contains(enrolmentDate.toDateTimeAtStartOfDay())) {
@@ -583,7 +567,9 @@ public class Raides {
         return aluno;
     }
 
-    protected boolean hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
+    @Deprecated
+    // Not being used
+    protected boolean deprecated_hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
         final boolean reportGraduatedWithoutConclusionProcess = RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess();
         
         final Set<RegistrationConclusionInformation> informationConclusionSet =
