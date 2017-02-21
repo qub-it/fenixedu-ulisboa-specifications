@@ -16,6 +16,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMap
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 import org.joda.time.DateTime;
 
@@ -42,7 +43,8 @@ public class MobilidadeInternacionalService extends RaidesService {
         bean.setAnoCurricular(
                 LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.NAO_APLICAVEL_CODE));
 
-        final DateTime maximumAnnulmentDate = findMaximumAnnulmentDate(raidesRequestParameter.getPeriodsForInternationalMobility(), executionYear);
+        final DateTime maximumAnnulmentDate =
+                findMaximumAnnulmentDate(raidesRequestParameter.getPeriodsForInternationalMobility(), executionYear);
         final BigDecimal enrolledEcts = enrolledEcts(executionYear, registration, maximumAnnulmentDate);
         if (enrolledEcts != null && enrolledEcts.compareTo(BigDecimal.ZERO) > 0) {
             //HACK HACK: some institutions declare ECTS that are not multiple of 0.5
@@ -122,6 +124,8 @@ public class MobilidadeInternacionalService extends RaidesService {
             bean.setAreaCientifica(null);
             bean.setNivelCursoDestino(null);
             bean.setOutroNivelCursoDestino(null);
+            bean.setAnoCurricular(LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR)
+                    .translate(String.valueOf(RegistrationServices.getCurricularYear(registration, executionYear).getResult())));
 
         } else {
             bean.setCurso(Raides.Cursos.OUTRO);
