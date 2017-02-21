@@ -269,6 +269,10 @@ public class Raides {
                             continue;
                         }
 
+                        if (!isActiveAtPeriod(enroledPeriod, registration, academicPeriod)) {
+                            continue;
+                        }
+
                         if (!containsStudentIdentification(registration.getStudent())) {
                             addStudent(report, raidesRequestParameter.getInstitution(), registration.getStudent(), registration,
                                     academicPeriod);
@@ -437,16 +441,16 @@ public class Raides {
                             continue;
                         }
 
-                        if (!containsStudentIdentification(registration.getStudent())) {
-                            addStudent(report, raidesRequestParameter.getInstitution(), registration.getStudent(), registration,
-                                    academicPeriod);
-                        }
-
                         if (isTerminalConcluded(registration, raidesRequestParameter)) {
                             LegalReportContext.addWarn("",
                                     i18n("warn.Raides.skiping.enroled.because.is.already.declared.as.terminal.concluded",
                                             concatArgs(messageArgs)));
                             continue;
+                        }
+
+                        if (!containsStudentIdentification(registration.getStudent())) {
+                            addStudent(report, raidesRequestParameter.getInstitution(), registration.getStudent(), registration,
+                                    academicPeriod);
                         }
 
                         addEnrolledStudent(report, raidesRequestParameter, academicPeriod, registration);
