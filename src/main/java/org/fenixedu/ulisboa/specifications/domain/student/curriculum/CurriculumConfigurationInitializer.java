@@ -26,18 +26,14 @@
 package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -46,7 +42,6 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.curriculum.AverageType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurricularYearCalculator;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumEntryPredicate;
@@ -89,7 +84,12 @@ abstract public class CurriculumConfigurationInitializer {
             logger.info("CurricularYearCalculator: Using default");
         }
 
-        Curriculum.setCurriculumGradeCalculator(CURRICULUM_GRADE_CALCULATOR);
+        // CurriculumGradeCalculator
+        final CurriculumGradeCalculator calculator = FenixeduUlisboaSpecificationsInitializer.loadClass(null,
+                ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculator());
+        if (calculator != null) {
+            Curriculum.setCurriculumGradeCalculator(() -> calculator);
+        }
         logger.info("CurriculumGradeCalculator: Overriding default");
 
         Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
@@ -299,80 +299,6 @@ abstract public class CurriculumConfigurationInitializer {
             this.executionYear = executionYear;
         }
     }
-
-    /* ======================================================================================================
-     * 
-     * CurriculumGradeCalculator
-     * 
-     * ======================================================================================================
-     */
-
-    private static Supplier<CurriculumGradeCalculator> CURRICULUM_GRADE_CALCULATOR = () -> new CurriculumGradeCalculator() {
-        private BigDecimal sumPiCi;
-
-        private BigDecimal sumPi;
-
-        private Grade rawGrade;
-
-        private Grade finalGrade;
-
-        private void doCalculus(Curriculum curriculum) {
-            sumPiCi = BigDecimal.ZERO;
-            sumPi = BigDecimal.ZERO;
-            countAverage(curriculum.getEnrolmentRelatedEntries(), curriculum.getAverageType());
-            countAverage(curriculum.getDismissalRelatedEntries(), curriculum.getAverageType());
-            BigDecimal avg = calculateAverage();
-            rawGrade = Grade.createGrade(avg.setScale(2, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
-            finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
-        }
-
-        private void countAverage(final Set<ICurriculumEntry> entries, AverageType averageType) {
-            for (final ICurriculumEntry entry : entries) {
-                if (entry.getGrade().isNumeric()) {
-                    final BigDecimal weigth = entry.getWeigthForCurriculum();
-
-                    if (averageType == AverageType.WEIGHTED) {
-                        sumPi = sumPi.add(weigth);
-                        sumPiCi = sumPiCi.add(entry.getWeigthForCurriculum().multiply(entry.getGrade().getNumericValue()));
-                    } else if (averageType == AverageType.SIMPLE) {
-                        sumPi = sumPi.add(BigDecimal.ONE);
-                        sumPiCi = sumPiCi.add(entry.getGrade().getNumericValue());
-                    } else {
-                        throw new DomainException("Curriculum.average.type.not.supported");
-                    }
-                }
-            }
-        }
-
-        private BigDecimal calculateAverage() {
-            return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, 2 * 2 + 1,
-                    RoundingMode.HALF_UP);
-        }
-
-        @Override
-        public Grade rawGrade(Curriculum curriculum) {
-            if (rawGrade == null) {
-                doCalculus(curriculum);
-            }
-            return rawGrade;
-        }
-
-        @Override
-        public Grade finalGrade(Curriculum curriculum) {
-            if (finalGrade == null) {
-                doCalculus(curriculum);
-            }
-            return finalGrade;
-        }
-
-        @Override
-        public BigDecimal weigthedGradeSum(Curriculum curriculum) {
-            if (sumPiCi == null) {
-                doCalculus(curriculum);
-            }
-            return sumPiCi;
-        }
-    };
 
     /* ======================================================================================================
      * 

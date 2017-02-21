@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications;
 import org.fenixedu.commons.configuration.ConfigurationInvocationHandler;
 import org.fenixedu.commons.configuration.ConfigurationManager;
 import org.fenixedu.commons.configuration.ConfigurationProperty;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator;
 
 public class ULisboaConfiguration {
 
@@ -30,6 +31,10 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "domain.academic.curricularYearCalculator.cached", defaultValue = "true")
         public Boolean getCurricularYearCalculatorCached();
+
+        @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.override",
+                defaultValue = "org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator")
+        public String getCurriculumGradeCalculator();
 
         @ConfigurationProperty(key = "domain.academic.curricularYearConfiguration.initialize", defaultValue = "false")
         public Boolean getCurricularPeriodConfigurationInitialize();

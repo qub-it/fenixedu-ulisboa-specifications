@@ -277,7 +277,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     @SuppressWarnings("unchecked")
-    static private <T> T loadClass(final String key, final String value) {
+    static public <T> T loadClass(final String key, final String value) {
         T result = null;
 
         try {
