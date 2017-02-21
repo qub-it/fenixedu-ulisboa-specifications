@@ -12,7 +12,6 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
@@ -44,7 +43,7 @@ public class InscritoService extends RaidesService {
     public TblInscrito create(final RaidesRequestParameter raidesRequestParameter, final ExecutionYear executionYear,
             final Registration registration) {
         final Unit institutionUnit = raidesRequestParameter.getInstitution();
-        
+
         final TblInscrito bean = new TblInscrito();
         bean.setRegistration(registration);
 
@@ -56,7 +55,8 @@ public class InscritoService extends RaidesService {
 
         bean.setRegimeFrequencia(regimeFrequencia(registration, executionYear));
 
-        final DateTime maximumAnnulmentDate = findMaximumAnnulmentDate(raidesRequestParameter.getPeriodsForEnrolled(), executionYear);
+        final DateTime maximumAnnulmentDate =
+                findMaximumAnnulmentDate(raidesRequestParameter.getPeriodsForEnrolled(), executionYear);
         if (Raides.isDoctoralDegree(registration)) {
             bean.setEctsInscricao(doctoralEnrolledEcts(executionYear, registration, maximumAnnulmentDate));
         } else {
@@ -69,7 +69,7 @@ public class InscritoService extends RaidesService {
                 LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isInPartialRegime(executionYear, registration)));
         bean.setBolseiro(bolseiro(registration, executionYear));
 
-        if (isFirstCycle(executionYear, registration) && isFirstTimeOnDegree(registration, executionYear)) {
+        if (isFirstCycle(registration) && isFirstTimeOnDegree(registration, executionYear)) {
             bean.setFormaIngresso(LegalMapping.find(report, LegalMappingType.REGISTRATION_INGRESSION_TYPE)
                     .translate(registration.getIngressionType()));
 
@@ -164,7 +164,7 @@ public class InscritoService extends RaidesService {
 
     protected void validaInformacaoRegimeGeralAcesso(final RaidesRequestParameter raidesRequestParameter, final TblInscrito bean,
             final Unit institutionUnit, final ExecutionYear executionYear, final Registration registration) {
-        if (!isFirstCycle(executionYear, registration) || !isFirstTimeOnDegree(registration, executionYear)) {
+        if (!isFirstCycle(registration) || !isFirstTimeOnDegree(registration, executionYear)) {
             return;
         }
 
@@ -201,7 +201,7 @@ public class InscritoService extends RaidesService {
     protected void validaInformacaoMudancaCursoTransferencia(final RaidesRequestParameter raidesRequestParameter,
             final TblInscrito bean, final Unit institutionUnit, final ExecutionYear executionYear,
             final Registration registration) {
-        if (!isFirstCycle(executionYear, registration) || !isFirstTimeOnDegree(registration, executionYear)) {
+        if (!isFirstCycle(registration) || !isFirstTimeOnDegree(registration, executionYear)) {
             return;
         }
 
@@ -227,8 +227,8 @@ public class InscritoService extends RaidesService {
         }
     }
 
-    protected boolean isFirstCycle(final ExecutionYear executionYear, final Registration registration) {
-        return registration.getCycleType(executionYear) == CycleType.FIRST_CYCLE;
+    protected boolean isFirstCycle(final Registration registration) {
+        return registration.getDegreeType().isFirstCycle();
     }
 
     protected String bolseiro(final Registration registration, final ExecutionYear executionYear) {
