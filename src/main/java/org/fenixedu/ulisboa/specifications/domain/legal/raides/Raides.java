@@ -379,14 +379,15 @@ public class Raides {
             final Registration registration) {
         final Interval interval = period.getInterval();
         final ExecutionYear executionYear = period.getAcademicPeriod();
-        
+
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if(!RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess() && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
+            if (!RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess()
+                    && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
                 continue;
             }
-            
+
             if (rci.getConclusionYear() == executionYear && interval.contains(rci.getConclusionDate().toDateTimeAtStartOfDay())) {
                 return true;
             }
@@ -441,6 +442,13 @@ public class Raides {
                                     academicPeriod);
                         }
 
+                        if (isTerminalConcluded(registration, raidesRequestParameter)) {
+                            LegalReportContext.addWarn("",
+                                    i18n("warn.Raides.skiping.enroled.because.is.already.declared.as.terminal.concluded",
+                                            concatArgs(messageArgs)));
+                            continue;
+                        }
+
                         addEnrolledStudent(report, raidesRequestParameter, academicPeriod, registration);
                     } catch (final DomainException e) {
                         LegalReportContext.addError("",
@@ -452,6 +460,12 @@ public class Raides {
                 }
             }
         }
+    }
+
+    private boolean isTerminalConcluded(Registration registration, RaidesRequestParameter raidesRequestParameter) {
+        //TODO: optimize to use graduated information (avoid double calculations)
+        return raidesRequestParameter.getPeriodsForGraduated().stream()
+                .anyMatch(p -> DiplomadoService.isTerminalConcluded(registration, p, p.getAcademicPeriod()));
     }
 
     protected boolean matchesStudent(final RaidesRequestParameter raidesRequestParameter, final Registration registration) {
@@ -469,34 +483,34 @@ public class Raides {
     protected boolean isEnrolled(Registration registration, final RaidesRequestPeriodParameter enroledPeriod) {
         final ExecutionYear academicPeriod = enroledPeriod.getAcademicPeriod();
         final Interval interval = enroledPeriod.getInterval();
-        
+
         final Collection<Enrolment> enrolments = registration.getEnrolments(academicPeriod);
         for (final Enrolment enrolment : enrolments) {
-            if(!isEnrolmentAnnuled(enrolment, interval.getEnd())) {
+            if (!isEnrolmentAnnuled(enrolment, interval.getEnd())) {
                 return true;
             }
         }
 
         return false;
     }
-    
+
     public static boolean isEnrolmentAnnuled(final Enrolment enrolment, final DateTime annulmentEndDate) {
-        if(enrolment.isAnnulled() && enrolment.getAnnulmentDate() != null) {
+        if (enrolment.isAnnulled() && enrolment.getAnnulmentDate() != null) {
             return !enrolment.getAnnulmentDate().isAfter(annulmentEndDate);
         }
-        
+
         return enrolment.isAnnulled();
     }
 
     protected boolean hadEnrolmentsInPeriod(final Interval interval, final ExecutionYear executionYear,
             final Registration registration, final RaidesRequestParameter raidesRequestParameter) {
-		
+
         final LocalDate enrolmentDate = getEnrolmentDate(registration, executionYear);
-        if(enrolmentDate == null || !interval.contains(enrolmentDate.toDateTimeAtStartOfDay())) {
+        if (enrolmentDate == null || !interval.contains(enrolmentDate.toDateTimeAtStartOfDay())) {
             return false;
 
         }
-    
+
         // Check if it has at least one enrolment
         final Collection<CurriculumLine> allCurriculumLines = Raides.getAllCurriculumLines(registration);
         for (final CurriculumLine curriculumLine : allCurriculumLines) {
@@ -513,14 +527,14 @@ public class Raides {
             if (enrolment.isExtraCurricular()) {
                 continue;
             }
-            
-            if(isEnrolmentAnnuled(enrolment, interval.getEnd())) {
+
+            if (isEnrolmentAnnuled(enrolment, interval.getEnd())) {
                 continue;
             }
-            
+
             return true;
         }
-        
+
         return false;
     }
 
@@ -570,15 +584,16 @@ public class Raides {
     @Deprecated
     // Not being used
     protected boolean deprecated_hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
-        final boolean reportGraduatedWithoutConclusionProcess = RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess();
-        
+        final boolean reportGraduatedWithoutConclusionProcess =
+                RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess();
+
         final Set<RegistrationConclusionInformation> informationConclusionSet =
                 RegistrationConclusionServices.inferConclusion(registration);
         for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if(!reportGraduatedWithoutConclusionProcess && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
+            if (!reportGraduatedWithoutConclusionProcess && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
                 continue;
             }
-            
+
             if (rci.getConclusionYear() == executionYear) {
                 return true;
             }
@@ -604,10 +619,10 @@ public class Raides {
     protected boolean isEnrolledInExecutionYear(final RaidesRequestPeriodParameter period, final Registration registration,
             final boolean lookupAtRegistrationDataByExecutionYear) {
         final ExecutionYear executionYear = period.getAcademicPeriod();
-        
-        final Set<ExecutionYear> executionYearsSet = filterAnnulledEnrolments(
-                filterExtraCurricularCourses(registration.getEnrolments(executionYear)), period.getInterval())
-                .stream().map(r -> r.getExecutionYear()).collect(Collectors.toSet());
+
+        final Set<ExecutionYear> executionYearsSet =
+                filterAnnulledEnrolments(filterExtraCurricularCourses(registration.getEnrolments(executionYear)),
+                        period.getInterval()).stream().map(r -> r.getExecutionYear()).collect(Collectors.toSet());
 
         if (!lookupAtRegistrationDataByExecutionYear) {
             return !executionYearsSet.isEmpty();
@@ -637,7 +652,8 @@ public class Raides {
         return result;
     }
 
-    protected Collection<Enrolment> filterAnnulledEnrolments(final Collection<Enrolment> enrolments, final Interval periodInterval) {
+    protected Collection<Enrolment> filterAnnulledEnrolments(final Collection<Enrolment> enrolments,
+            final Interval periodInterval) {
         final Set<Enrolment> result = Sets.newHashSet();
         for (final Enrolment enrolment : enrolments) {
             if (!isEnrolmentAnnuled(enrolment, periodInterval.getEnd())) {

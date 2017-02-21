@@ -238,12 +238,12 @@ public class DiplomadoService extends RaidesService {
         return null;
     }
 
-    private boolean isTerminalConcluded(final Registration registration, RaidesRequestPeriodParameter graduatedPeriod,
+    public static boolean isTerminalConcluded(final Registration registration, RaidesRequestPeriodParameter graduatedPeriod,
             final ExecutionYear executionYear) {
         return terminalConclusionInformation(registration, graduatedPeriod, executionYear) != null;
     }
 
-    private RegistrationConclusionInformation terminalConclusionInformation(final Registration registration,
+    private static RegistrationConclusionInformation terminalConclusionInformation(final Registration registration,
             RaidesRequestPeriodParameter graduatedPeriod, final ExecutionYear executionYear) {
 
         for (final RegistrationConclusionInformation rci : RegistrationConclusionServices.inferConclusion(registration)) {
