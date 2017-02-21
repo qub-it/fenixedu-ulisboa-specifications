@@ -844,18 +844,23 @@ public class Raides {
     }
 
     public static Country countryOfResidence(final Registration registration, final ExecutionYear executionYear) {
-        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
-
-        if (pid != null) {
-            if (pid.getCountryOfResidence() != null) {
-                return pid.getCountryOfResidence();
-            }
-        }
-
+        
         if (registration.getPerson().getDefaultPhysicalAddress() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null) {
             return registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence();
 
+        }
+        
+        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
+
+        if (pid != null) {
+            if (pid.getCountryOfResidence() != null) {
+                
+                LegalReportContext.addWarn("",
+                        i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
+                
+                return pid.getCountryOfResidence();
+            }
         }
 
         return null;
@@ -863,14 +868,7 @@ public class Raides {
 
     public static DistrictSubdivision districtSubdivisionOfResidence(final Registration registration,
             final ExecutionYear executionYear) {
-        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
-
-        if (pid != null) {
-            if (pid.getDistrictSubdivisionOfResidence() != null) {
-                return pid.getDistrictSubdivisionOfResidence();
-            }
-        }
-
+        
         if (registration.getPerson().getDefaultPhysicalAddress() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence().isDefaultCountry()
@@ -885,19 +883,24 @@ public class Raides {
 
             return districtSubdivision;
         }
+        
+        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
+
+        if (pid != null) {
+            if (pid.getDistrictSubdivisionOfResidence() != null) {
+                
+                LegalReportContext.addWarn("",
+                        i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
+                
+                return pid.getDistrictSubdivisionOfResidence();
+            }
+        }
 
         return null;
     }
 
     public static District districtOfResidence(final Registration registration, final ExecutionYear executionYear) {
-        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
-
-        if (pid != null) {
-            if (pid.getDistrictSubdivisionOfResidence() != null) {
-                return pid.getDistrictSubdivisionOfResidence().getDistrict();
-            }
-        }
-
+        
         if (registration.getPerson().getDefaultPhysicalAddress() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence().isDefaultCountry()
@@ -908,6 +911,18 @@ public class Raides {
                     findDistrictByName(registration.getPerson().getDefaultPhysicalAddress().getDistrictOfResidence());
 
             return district;
+        }
+        
+        final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
+
+        if (pid != null) {
+            if (pid.getDistrictSubdivisionOfResidence() != null) {
+                
+                LegalReportContext.addWarn("",
+                        i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
+                
+                return pid.getDistrictSubdivisionOfResidence().getDistrict();
+            }
         }
 
         return null;
