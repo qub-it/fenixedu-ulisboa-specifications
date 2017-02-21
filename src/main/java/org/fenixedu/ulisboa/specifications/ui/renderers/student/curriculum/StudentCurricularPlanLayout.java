@@ -607,8 +607,9 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateDismissalGradeCell(HtmlTableRow dismissalRow, Dismissal dismissal) {
-        final String gradeValue =
-                !StringUtils.isEmpty(dismissal.getCredits().getGivenGrade()) ? dismissal.getCredits().getGivenGrade() : null;
+        final Grade grade = dismissal.getCredits().getGrade();
+        final String gradeValue = grade == null || grade.isEmpty() ? null : grade.getValue();
+
         final String gradeString;
         if (gradeValue != null && NumberUtils.isNumber(gradeValue)) {
             final DecimalFormat decimalFormat = new DecimalFormat("##.##");
@@ -617,11 +618,18 @@ public class StudentCurricularPlanLayout extends Layout {
             gradeString = gradeValue != null ? gradeValue : EMPTY_INFO;
         }
 
+        String title = getGradeDescription(grade);
+
+        final YearMonthDay available = dismissal.getApprovementDate();
+        if (available != null) {
+            title = (title.isEmpty() ? "" : title + "; ")
+                    + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                    + available.toString(DATE_FORMAT);
+        }
+
         // qubExtension
-        final HtmlTableCell cell = dismissalRow.createCell();
-        cell.setText(gradeString);
+        final HtmlTableCell cell = generateCellWithSpan(dismissalRow, gradeString, title, null, !Strings.isNullOrEmpty(title));
         cell.setStyle(GRADE_APPROVED_STYLE);
-        cell.setColspan(1);
     }
 
     protected void generateCellsBetweenLabelAndGradeCell(final HtmlTableRow row) {
@@ -1043,8 +1051,10 @@ public class StudentCurricularPlanLayout extends Layout {
         final String text = isToShow ? grade.getValue() : EMPTY_INFO;
         String title = null;
         if (isToShow) {
+            title = getGradeDescription(grade);
+
             if (availableDate != null) {
-                title = ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                title = title + "; " + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
                         + availableDate.toString(DATE_FORMAT);
             }
         }
@@ -1086,6 +1096,22 @@ public class StudentCurricularPlanLayout extends Layout {
 
         generateRemarksCell(enrolmentRow, evaluation);
         generateSpacerCellsIfRequired(enrolmentRow);
+    }
+
+    // qubExtension
+    static private String getGradeDescription(final Grade grade) {
+        String result = "";
+
+        if (grade != null && !grade.isEmpty()) {
+
+            if (!grade.isNumeric()) {
+                result = StringUtils.capitalize(grade.getExtendedValue().getContent()) + ", ";
+            }
+
+            result = result + grade.getGradeScale().getDescription();
+        }
+
+        return result;
     }
 
     protected void generateEnrolmentWithStateEnroled(HtmlTableRow enrolmentRow, Enrolment enrolment, int level,
@@ -1288,9 +1314,13 @@ public class StudentCurricularPlanLayout extends Layout {
         if (enrolment instanceof Enrolment) {
             final Enrolment specific = (Enrolment) enrolment;
             final EnrolmentEvaluation evaluation = specific.getFinalEnrolmentEvaluation();
+
+            title = getGradeDescription(grade);
+
             final YearMonthDay available = evaluation != null ? evaluation.getGradeAvailableDateYearMonthDay() : null;
             if (available != null) {
-                title = ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                title = (title.isEmpty() ? "" : title + "; ")
+                        + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
                         + available.toString(DATE_FORMAT);
             }
         }
