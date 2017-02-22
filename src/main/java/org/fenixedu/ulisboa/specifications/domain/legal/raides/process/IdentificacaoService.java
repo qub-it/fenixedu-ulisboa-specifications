@@ -44,7 +44,7 @@ public class IdentificacaoService extends RaidesService {
                     .translate(student.getPerson().getIdDocumentType()));
         }
 
-        if (Raides.DocumentoIdentificacao.OUTRO.equals(student.getPerson().getIdDocumentType())) {
+        if (Raides.DocumentoIdentificacao.OUTRO.equals(bean.getTipoId())) {
             bean.setTipoIdDescr(student.getPerson().getIdDocumentType().getLocalizedName());
         }
 
