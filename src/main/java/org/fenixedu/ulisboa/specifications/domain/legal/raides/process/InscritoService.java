@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -29,7 +28,6 @@ import org.joda.time.DateTime;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class InscritoService extends RaidesService {
 
@@ -97,17 +95,10 @@ public class InscritoService extends RaidesService {
             }
         }
 
-        if (!registration.isFirstTime(executionYear)) {
-            final List<ExecutionYear> enrolmentsExecutionYears = Lists.newArrayList(Sets.union(
-                    registration.getRegistrationDataByExecutionYearSet().stream().filter(l -> l.getEnrolmentDate() != null)
-                            .map(l -> l.getExecutionYear()).collect(Collectors.toSet()),
-                    Sets.newHashSet(registration.getEnrolmentsExecutionYears())));
+        if (!isFirstTimeOnDegree(registration, executionYear)) {
 
-            Collections.sort(enrolmentsExecutionYears, ExecutionYear.COMPARATOR_BY_YEAR);
-
-            for (ExecutionYear it = executionYear; it != null; it = it.getNextExecutionYear()) {
-                enrolmentsExecutionYears.remove(it);
-            }
+            final List<ExecutionYear> enrolmentsExecutionYears = Lists.newArrayList(Raides
+                    .getEnrolmentYearsIncludingPrecedentRegistrations(registration, executionYear.getPreviousExecutionYear()));
 
             if (enrolmentsExecutionYears.size() >= 1) {
                 bean.setAnoUltimaInscricao(
