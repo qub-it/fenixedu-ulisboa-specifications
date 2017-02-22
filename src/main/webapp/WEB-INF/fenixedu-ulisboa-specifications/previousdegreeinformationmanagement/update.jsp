@@ -78,6 +78,33 @@ ${portal.toolkit()}
 	</div>
 </c:if>
 
+<table class="table">
+	<tbody>
+		<tr class="row">
+			<th scope="row" class="col-xs-1"><spring:message
+					code="label.OriginInformationForm.studentNumber" /></th>
+			<td>${registration.number}</td>
+		</tr>
+
+		<tr class="row">
+			<th scope="row" class="col-xs-2"><spring:message
+					code="label.OriginInformationForm.studentName" /></th>
+			<td><c:out value="${registration.student.person.name}" /></td>
+		</tr>
+		<tr class="row">
+			<th scope="row" class="col-xs-1"><spring:message
+					code="label.OriginInformationForm.registration.name" /></th>
+			<td>${registration.degree.presentationNameI18N.content}</td>
+		</tr>
+
+		<tr class="row">
+			<th scope="row" class="col-xs-2"><spring:message
+					code="label.OriginInformationForm.registration.startDate" /></th>
+			<td><c:out value="${registration.startDate.year}" /></td>
+		</tr>
+	</tbody>
+</table>
+
 <form method="post" class="form-horizontal">
 	<div class="panel panel-default">
 		<div class="panel-body">
