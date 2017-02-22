@@ -1214,7 +1214,7 @@ public class Raides {
     public static District findDistrictByName(final String name) {
         final String n = name;
         for (final District district : Bennu.getInstance().getDistrictsSet()) {
-            if (district.getName().equals(n.trim())) {
+            if (district.getName().equalsIgnoreCase(n.trim())) {
                 return district;
             }
         }
