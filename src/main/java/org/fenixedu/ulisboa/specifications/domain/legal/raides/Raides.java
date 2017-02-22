@@ -887,7 +887,9 @@ public class Raides {
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
 
         if (pid != null) {
-            if (pid.getDistrictSubdivisionOfResidence() != null) {
+            if (pid.getCountryOfResidence() != null && 
+                    pid.getCountryOfResidence().isDefaultCountry() && 
+                    pid.getDistrictSubdivisionOfResidence() != null) {
                 
                 LegalReportContext.addWarn("",
                         i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
@@ -916,7 +918,9 @@ public class Raides {
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
 
         if (pid != null) {
-            if (pid.getDistrictSubdivisionOfResidence() != null) {
+            if (pid.getCountryOfResidence() != null && 
+                    pid.getCountryOfResidence().isDefaultCountry() && 
+                    pid.getDistrictSubdivisionOfResidence() != null) {
                 
                 LegalReportContext.addWarn("",
                         i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
