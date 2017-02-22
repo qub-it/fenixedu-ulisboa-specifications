@@ -30,11 +30,6 @@ ${portal.toolkit()}
 	</h1>
 </div>
 
-<%-- NAVIGATION --%>
-<div class="well well-sm" style="display:inline-block">
-	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class="" href="${pageContext.request.contextPath}${controllerURL}/back"><spring:message code="label.back"/></a>	
-</div>
-
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
 
@@ -74,6 +69,17 @@ ${portal.toolkit()}
 
 <table class="table">
 	<tbody>
+		<tr class="row">
+			<th scope="row" class="col-xs-1"><spring:message
+					code="label.OriginInformationForm.studentNumber" /></th>
+			<td>${registration.number}</td>
+		</tr>
+
+		<tr class="row">
+			<th scope="row" class="col-xs-2"><spring:message
+					code="label.OriginInformationForm.studentName" /></th>
+			<td><c:out value="${registration.student.person.name}" /></td>
+		</tr>
 		<tr class="row">
 			<th scope="row" class="col-xs-1"><spring:message
 					code="label.OriginInformationForm.registration.name" /></th>

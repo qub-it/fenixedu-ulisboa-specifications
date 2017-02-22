@@ -1,16 +1,19 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
+import org.fenixedu.academic.domain.organizationalStructure.UnitName.ExternalAcademicUnitNameLimitedOrderedSet;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -37,8 +40,10 @@ public class AutoCompletesController {
     public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
         assureLoggedInUser();
         Function<Unit, UnitBean> createUnitBean = un -> new UnitBean(un.getExternalId(), un.getName());
-        return UnitName.findExternalUnit(namePart, 50).stream().filter(i -> i.getUnit().isNoOfficialExternal())
-                .map(i -> i.getUnit()).map(createUnitBean).collect(Collectors.toList());
+        return findExternalUnit(namePart, 50).stream()
+                .filter(i -> i.getUnit().isNoOfficialExternal())
+                .map(i -> i.getUnit()).map(createUnitBean)
+                .collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/externalUnitFreeOption", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
@@ -53,7 +58,7 @@ public class AutoCompletesController {
     public @ResponseBody List<UnitBean> readAcademicUnits(@RequestParam("namePart") String namePart, Model model) {
         assureLoggedInUser();
         Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
-        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
+        return findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
@@ -128,8 +133,34 @@ public class AutoCompletesController {
             }
         };
 
-        return UnitName.findExternalAcademicUnit(namePart, 50).stream().map(i -> i.getUnit())
+        return findExternalAcademicUnit(namePart, 50).stream().map(i -> i.getUnit())
                 .filter(i -> !i.getDegreeDesignationSet().isEmpty()).map(createUnitBean).collect(Collectors.toList());
+    }
+    
+    private static Collection<UnitName> findExternalUnit(final String name, final int size) {
+        return Bennu.getInstance().getUnitNameSet().stream()
+            .filter(u -> u.getIsExternalUnit())
+            .filter(u -> normalize(u.getName()).contains(normalize(name)))
+            .sorted(Comparator.comparing(UnitName::getName))
+                    .collect(Collectors.toList());
+    }
+
+    private static Collection<UnitName> findExternalAcademicUnit(final String name, final int size) {
+        return Bennu.getInstance().getUnitNameSet().stream()
+            .filter(u -> u.getIsExternalUnit())
+            .filter(u -> !Strings.isNullOrEmpty(u.getUnit().getCode()))
+            .filter(u -> StringUtils.isNumeric(u.getUnit().getCode()))
+            .filter(u -> normalize(u.getName()).contains(normalize(name)))
+            .sorted(Comparator.comparing(UnitName::getName))
+            .collect(Collectors.toList());
+    }
+
+    private static String normalize(final String value) {
+        if(Strings.isNullOrEmpty(value)) {
+            return "";
+        }
+        
+        return StringNormalizer.normalize(value.trim()).toLowerCase();
     }
 
     private static String getFullDescription(DegreeDesignation designation) {
