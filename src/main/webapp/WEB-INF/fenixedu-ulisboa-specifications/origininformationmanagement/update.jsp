@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.OriginInformationManagementController"%>
 <%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -28,6 +29,15 @@ ${portal.toolkit()}
 	<h1><spring:message code="label.firstTimeCandidacy.fillOriginInformation" />
 		<small></small>
 	</h1>
+</div>
+
+<%-- NAVIGATION --%>
+<div class="well well-sm" style="display:inline-block">
+	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+	&nbsp;
+	<a class="" href="${pageContext.request.contextPath}<%= OriginInformationManagementController.READ_URL %>/${registration.externalId}">
+		<spring:message code="label.back"/>
+	</a>	
 </div>
 
 <c:if test="${not empty infoMessages}">
