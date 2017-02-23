@@ -594,7 +594,9 @@ public class StudentCurricularPlanLayout extends Layout {
         generateCellWithText(dismissalRow, EMPTY_SPACE, renderer.getLastEnrolmentEvaluationTypeCellClass()).setStyle(EMPTY_WIDTH);
         generateExecutionYearCell(dismissalRow, dismissal);
         generateSemesterCell(dismissalRow, dismissal);
-        generateDismissalApprovementlDateIfRequired(dismissalRow, dismissal.getApprovementDate());
+        if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
+            generateApprovementDate(dismissal, dismissalRow, getEvaluationDateCellClass());
+        }
         generateCreatorIfRequired(dismissalRow, dismissal.getCreatedBy());
         generateRemarksCell(dismissalRow, dismissal);
         generateSpacerCellsIfRequired(dismissalRow);
@@ -622,8 +624,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         final YearMonthDay available = dismissal.getApprovementDate();
         if (available != null) {
-            title = (title.isEmpty() ? "" : title + "; ")
-                    + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+            title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
                     + available.toString(DATE_FORMAT);
         }
 
@@ -646,30 +647,19 @@ public class StudentCurricularPlanLayout extends Layout {
                 renderer.getEctsCreditsCellClass());
     }
 
-    protected void generateDismissalApprovementlDateIfRequired(HtmlTableRow enrolmentRow, YearMonthDay approvementDate) {
-        if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
-            if (approvementDate != null) {
-                generateCellWithSpan(enrolmentRow, approvementDate.toString(DATE_FORMAT),
-                        BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), getEvaluationDateCellClass());
-            } else {
-                // qubExtension, show tooltip
-                generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
-                        getEvaluationDateCellClass());
-            }
-        }
+    static protected HtmlTableCell generateApprovementDate(final ICurriculumEntry input, final HtmlTableRow row,
+            final String classes) {
+        return generateDate(input.getApprovementDate(), row, classes, "label.data.avaliacao");
     }
 
-    protected void generateEvaluationDateIfRequired(HtmlTableRow externalEnrolmentRow, YearMonthDay evaluationDate) {
-        if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
-            if (evaluationDate != null) {
-                generateCellWithSpan(externalEnrolmentRow, evaluationDate.toString(DATE_FORMAT),
-                        BundleUtil.getString(Bundle.APPLICATION, "creationDate"), getEvaluationDateCellClass());
-            } else {
-                // qubExtension, show tooltip
-                generateCellWithSpan(externalEnrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creationDate"),
-                        getEvaluationDateCellClass());
-            }
-        }
+    static protected HtmlTableCell generateEvaluationDate(final ExternalEnrolment input, final HtmlTableRow row,
+            final String classes) {
+        return generateDate(input.getEvaluationDate(), row, classes, "creationDate");
+    }
+
+    static protected HtmlTableCell generateDate(final YearMonthDay date, final HtmlTableRow row, final String classes,
+            final String titleLabel) {
+        return generateCellWithSpan(row, date != null ? date.toString(DATE_FORMAT) : EMPTY_INFO, titleLabel, classes);
     }
 
     protected void generateCreatorIfRequired(HtmlTableRow enrolmentRow, String createdBy) {
@@ -770,7 +760,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 .setStyle(EMPTY_WIDTH);
         generateExecutionYearCell(externalEnrolmentRow, externalEnrolment);
         generateSemesterCell(externalEnrolmentRow, externalEnrolment);
-        generateEvaluationDateIfRequired(externalEnrolmentRow, externalEnrolment.getEvaluationDate());
+        if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
+            generateEvaluationDate(externalEnrolment, externalEnrolmentRow, getEvaluationDateCellClass());
+        }
         generateCreatorIfRequired(externalEnrolmentRow, externalEnrolment.getCreatedBy());
         generateSpacerCellsIfRequired(externalEnrolmentRow);
 
@@ -1054,7 +1046,7 @@ public class StudentCurricularPlanLayout extends Layout {
             title = getGradeDescription(grade);
 
             if (availableDate != null) {
-                title = title + "; " + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
                         + availableDate.toString(DATE_FORMAT);
             }
         }
@@ -1104,11 +1096,14 @@ public class StudentCurricularPlanLayout extends Layout {
 
         if (grade != null && !grade.isEmpty()) {
 
-            if (!grade.isNumeric()) {
-                result = StringUtils.capitalize(grade.getExtendedValue().getContent()) + ", ";
+            if (grade.isNumeric()) {
+                result = grade.getGradeScale().getDescription();
+
+            } else {
+                result = StringUtils.capitalize(grade.getExtendedValue().getContent());
             }
 
-            result = result + grade.getGradeScale().getDescription();
+            result = "(" + result + ") ";
         }
 
         return result;
@@ -1319,8 +1314,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
             final YearMonthDay available = evaluation != null ? evaluation.getGradeAvailableDateYearMonthDay() : null;
             if (available != null) {
-                title = (title.isEmpty() ? "" : title + "; ")
-                        + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
                         + available.toString(DATE_FORMAT);
             }
         }
@@ -1518,12 +1512,12 @@ public class StudentCurricularPlanLayout extends Layout {
         return cell;
     }
 
-    protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
+    static protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
             final String cssClass) {
         return generateCellWithSpan(row, text, title, cssClass, false);
     }
 
-    protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
+    static protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
             final String cssClass, final boolean forceDots) {
 
         final HtmlTableCell cell = row.createCell();

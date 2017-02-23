@@ -24,6 +24,7 @@ import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DefaultGradingTable;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixWebFramework.renderers.components.HtmlBlockContainer;
 import pt.ist.fenixWebFramework.renderers.components.HtmlComponent;
@@ -46,6 +47,9 @@ public class CurriculumLayout extends Layout {
 
     public CurriculumLayout(CurriculumRenderer renderer) {
         this.renderer = renderer;
+
+        // qubExtension, SCPLayout is better for this purpose
+        this.renderer.setVisibleCurricularYearEntries(false);
     }
 
     // qubExtension
@@ -54,6 +58,7 @@ public class CurriculumLayout extends Layout {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public HtmlComponent createComponent(Object object, Class type) {
         this.curriculum = (Curriculum) object;
 
@@ -61,13 +66,11 @@ public class CurriculumLayout extends Layout {
 
         if (this.curriculum == null) {
             container.addChild(createHtmlTextItalic(BundleUtil.getString(Bundle.STUDENT, "message.no.average")));
-
             return container;
         }
 
         if (this.curriculum.isEmpty()) {
             container.addChild(createHtmlTextItalic(BundleUtil.getString(Bundle.STUDENT, "message.no.approvals")));
-
             return container;
         }
 
@@ -77,10 +80,12 @@ public class CurriculumLayout extends Layout {
             final HtmlContainer averageContainer = new HtmlBlockContainer();
             averageContainer.setStyle("padding-bottom: 3.5em;");
             container.addChild(averageContainer);
+
             final HtmlTable averageEntriesTable = new HtmlTable();
             averageContainer.addChild(averageEntriesTable);
             averageEntriesTable.setClasses(renderer.getTableClass());
-            generateAverageRows(averageEntriesTable);
+
+            generateAverageTableRows(averageEntriesTable);
         }
 
         if (renderer.isVisibleCurricularYearEntries()) {
@@ -89,7 +94,7 @@ public class CurriculumLayout extends Layout {
             final HtmlTable curricularYearTable = new HtmlTable();
             curricularYearContainer.addChild(curricularYearTable);
             curricularYearTable.setClasses(renderer.getTableClass());
-            generateCurricularYearRows(curricularYearTable);
+            generateCurricularYearTableRows(curricularYearTable);
             generateCurricularYearSums(curricularYearTable);
         }
 
@@ -103,93 +108,90 @@ public class CurriculumLayout extends Layout {
         return htmlText;
     }
 
-    private void generateAverageRows(final HtmlTable mainTable) {
+    private void generateAverageTableRows(final HtmlTable mainTable) {
 
-        final Set<ICurriculumEntry> sortedIAverageEntries =
+        final Set<ICurriculumEntry> enrolmentEntries =
                 new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        sortedIAverageEntries.addAll(this.curriculum.getEnrolmentRelatedEntries());
-        if (!sortedIAverageEntries.isEmpty()) {
-            generateAverageGroupRowWithText(mainTable, "Inscrições", true, 0);
-            generateRows(mainTable, sortedIAverageEntries, 0);
+        enrolmentEntries.addAll(this.curriculum.getEnrolmentRelatedEntries());
+        if (!enrolmentEntries.isEmpty()) {
+            generateAverageTableHeader(mainTable, ULisboaSpecificationsUtil.bundle("label.enrolment.approvals"));
+            generateAverageRows(mainTable, enrolmentEntries);
         }
 
-        final Set<ICurriculumEntry> sortedEquivalenceEntries =
+        final Set<ICurriculumEntry> equivalenceEntries =
                 new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        final Set<ICurriculumEntry> sortedSubstitutionsEntries =
+        final Set<ICurriculumEntry> substitutionsEntries =
                 new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
         for (final ICurriculumEntry entry : this.curriculum.getDismissalRelatedEntries()) {
             if (entry instanceof Dismissal) {
-                sortedEquivalenceEntries.add(entry);
+                equivalenceEntries.add(entry);
             } else {
-                sortedSubstitutionsEntries.add(entry);
+                substitutionsEntries.add(entry);
             }
         }
 
-        if (!sortedSubstitutionsEntries.isEmpty()) {
-            generateAverageGroupRowWithText(mainTable, "Substituições", true, 0);
-            generateRows(mainTable, sortedSubstitutionsEntries, 0);
+        if (!substitutionsEntries.isEmpty()) {
+            generateAverageTableHeader(mainTable, ULisboaSpecificationsUtil.bundle("label.substitution.approvals"));
+            generateAverageRows(mainTable, substitutionsEntries);
         }
 
-        if (!sortedEquivalenceEntries.isEmpty()) {
-            generateAverageGroupRowWithText(mainTable, "Equivalências", true, 0);
-            generateRows(mainTable, sortedEquivalenceEntries, 0);
+        if (!equivalenceEntries.isEmpty()) {
+            generateAverageTableHeader(mainTable, ULisboaSpecificationsUtil.bundle("label.equivalence.approvals"));
+            generateAverageRows(mainTable, equivalenceEntries);
         }
     }
 
-    private void generateAverageGroupRowWithText(final HtmlTable mainTable, final String text, boolean addHeaders,
-            final int level) {
+    private void generateAverageTableHeader(final HtmlTable mainTable, final String text) {
+        final HtmlTableRow row = mainTable.createRow();
+        row.setClasses(renderer.getHeaderRowClass());
 
-        final HtmlTableRow groupRow = mainTable.createRow();
-        groupRow.setClasses(renderer.getHeaderRowClass());
-
-        final HtmlTableCell textCell = groupRow.createCell();
+        final HtmlTableCell textCell = row.createCell();
         textCell.setText(text);
-        textCell.setClasses(renderer.getLabelCellClass());
+        textCell.setClasses(renderer.getGradeCellClass());
         textCell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
 
-        generateCellWithText(groupRow,
-                BundleUtil.getString(ULisboaSpecificationsUtil.BUNDLE, "label.gradingTables.curriculumRenderer.ectsGrade"),
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"),
                 renderer.getGradeCellClass());
-        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
-        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.weight"),
-                renderer.getEctsCreditsCellClass());
-
-        final HtmlTableCell executionYearCell = groupRow.createCell();
-        executionYearCell.setText("Ano Lectivo");
-        executionYearCell.setClasses(renderer.getGradeCellClass());
-        executionYearCell.setColspan(2);
+        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
+        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.weight"), renderer.getGradeCellClass());
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.executionInterval"), renderer.getGradeCellClass());
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularPeriod"), renderer.getGradeCellClass());
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvementDate"), renderer.getGradeCellClass());
     }
 
-    private void generateRows(HtmlTable mainTable, Set<ICurriculumEntry> entries, int level) {
+    private void generateAverageRows(HtmlTable mainTable, Set<ICurriculumEntry> entries) {
         for (final ICurriculumEntry entry : entries) {
-            generateRow(mainTable, entry, level, true);
+            generateAverageRow(mainTable, entry);
         }
     }
 
-    private void generateRow(HtmlTable mainTable, final ICurriculumEntry entry, int level, boolean allowSelection) {
-        final HtmlTableRow enrolmentRow = mainTable.createRow();
-        enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
+    private void generateAverageRow(HtmlTable mainTable, final ICurriculumEntry entry) {
+        final HtmlTableRow row = mainTable.createRow();
+        row.setClasses(renderer.getEnrolmentRowClass());
 
-        generateCodeAndNameCell(enrolmentRow, entry, level, allowSelection);
+        generateCodeAndNameCell(row, entry);
         if (entry instanceof ExternalEnrolment) {
-            generateExternalEnrolmentLabelCell(enrolmentRow, (ExternalEnrolment) entry, level);
+            generateExternalEnrolmentLabelCell(row, (ExternalEnrolment) entry);
         }
-        generateEctsGradeCell(enrolmentRow, entry);
-        generateGradeCell(enrolmentRow, entry);
-        generateWeightCell(enrolmentRow, entry);
-        generateExecutionYearCell(enrolmentRow, entry);
-        generateSemesterCell(enrolmentRow, entry);
+        generateEctsGradeCell(row, entry);
+        generateGradeCell(row, entry);
+        generateWeightCell(row, entry);
+        generateExecutionYearCell(row, entry);
+        generateSemesterCell(row, entry);
+        StudentCurricularPlanLayout.generateDate(
+                entry.getCurriculumLinesForCurriculum().stream().filter(i -> i.getApprovementDate() != null)
+                        .map(i -> i.getApprovementDate()).max(YearMonthDay::compareTo).orElse(null),
+                row, (String) null, (String) null);
     }
 
-    private void generateCodeAndNameCell(final HtmlTableRow enrolmentRow, final ICurriculumEntry entry, final int level,
-            boolean allowSelection) {
+    private void generateCodeAndNameCell(final HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
 
         final HtmlInlineContainer inlineContainer = new HtmlInlineContainer();
         inlineContainer.addChild(new HtmlText(getPresentationNameFor(entry)));
 
         final HtmlTableCell cell = enrolmentRow.createCell();
         cell.setClasses(renderer.getLabelCellClass());
-        cell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - (entry instanceof ExternalEnrolment ? 1 : 0) - level);
+        cell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - (entry instanceof ExternalEnrolment ? 1 : 0));
         cell.setBody(inlineContainer);
     }
 
@@ -205,10 +207,9 @@ public class CurriculumLayout extends Layout {
     }
 
     private void generateExternalEnrolmentLabelCell(final HtmlTableRow externalEnrolmentRow,
-            final ExternalEnrolment externalEnrolment, final int level) {
+            final ExternalEnrolment externalEnrolment) {
 
-        StudentCurricularPlanLayout.generateCellWithText(externalEnrolmentRow, externalEnrolment.getDescription(),
-                renderer.getLabelCellClass(), 1);
+        generateCellWithText(externalEnrolmentRow, externalEnrolment.getDescription(), renderer.getLabelCellClass());
     }
 
     private void generateGradeCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
@@ -284,11 +285,11 @@ public class CurriculumLayout extends Layout {
 
     private void generateSemesterCell(final HtmlTableRow row, final ICurriculumEntry entry) {
 
-        StudentCurricularPlanLayout.generateCellWithText(row, StudentCurricularPlanLayout.getCurricularPeriodLabel(entry),
+        generateCellWithText(row, StudentCurricularPlanLayout.getCurricularPeriodLabel(entry),
                 this.renderer.getEnrolmentSemesterCellClass()).setStyle("font-size: xx-small");
     }
 
-    private HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
+    static private HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
         return StudentCurricularPlanLayout.generateCellWithText(row, text, cssClass);
     }
 
@@ -300,57 +301,42 @@ public class CurriculumLayout extends Layout {
         cell.setBody(inlineContainer);
     }
 
-    private void generateCurricularYearRows(final HtmlTable table) {
+    private void generateCurricularYearTableRows(final HtmlTable table) {
         final Set<ICurriculumEntry> sortedEntries =
                 new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
         sortedEntries.addAll(this.curriculum.getCurricularYearEntries());
         if (!sortedEntries.isEmpty()) {
-            generateCurricularYearHeaderRowWithText(table, "", true, 0);
-            generateCurricularYearRows(table, sortedEntries, 0);
+            generateCurricularYearTableHeader(table);
+            generateCurricularYearRows(table, sortedEntries);
         }
     }
 
-    private void generateCurricularYearHeaderRowWithText(final HtmlTable table, final String text, boolean addHeaders,
-            final int level) {
-        final HtmlTableRow groupRow = table.createRow();
-        groupRow.setClasses(renderer.getHeaderRowClass());
+    private void generateCurricularYearTableHeader(final HtmlTable table) {
+        final HtmlTableRow row = table.createRow();
+        row.setClasses(renderer.getHeaderRowClass());
 
-        final HtmlTableCell textCell = groupRow.createCell();
-        textCell.setText(text);
-        textCell.setClasses(renderer.getLabelCellClass());
-        textCell.setRowspan(2);
+        final HtmlTableCell textCell = row.createCell();
+        textCell.setClasses(renderer.getGradeCellClass());
         textCell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
 
-        final HtmlTableCell curricularYearCell = groupRow.createCell();
-        curricularYearCell.setText("Ano Curricular");
-        curricularYearCell.setClasses(renderer.getGradeCellClass());
-        curricularYearCell.setColspan(1);
-
-        final HtmlTableCell executionYearCell = groupRow.createCell();
-        executionYearCell.setText("Ano Lectivo");
-        executionYearCell.setClasses(renderer.getGradeCellClass());
-        executionYearCell.setColspan(2);
-        executionYearCell.setRowspan(2);
-
-        final HtmlTableRow groupSubRow = table.createRow();
-        groupSubRow.setClasses(renderer.getHeaderRowClass());
-        generateCellWithText(groupSubRow, BundleUtil.getString(Bundle.APPLICATION, "label.ects"),
-                renderer.getEctsCreditsCellClass());
+        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.ects"), renderer.getGradeCellClass());
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.executionInterval"), renderer.getGradeCellClass());
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularPeriod"), renderer.getGradeCellClass());
     }
 
-    private void generateCurricularYearRows(HtmlTable mainTable, Set<ICurriculumEntry> entries, int level) {
+    private void generateCurricularYearRows(HtmlTable mainTable, Set<ICurriculumEntry> entries) {
         for (final ICurriculumEntry entry : entries) {
-            generateCurricularYearRow(mainTable, entry, level, true);
+            generateCurricularYearRow(mainTable, entry);
         }
     }
 
-    private void generateCurricularYearRow(HtmlTable mainTable, final ICurriculumEntry entry, int level, boolean allowSelection) {
+    private void generateCurricularYearRow(HtmlTable mainTable, final ICurriculumEntry entry) {
         final HtmlTableRow enrolmentRow = mainTable.createRow();
         enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
 
-        generateCodeAndNameCell(enrolmentRow, entry, level, allowSelection);
+        generateCodeAndNameCell(enrolmentRow, entry);
         if (entry instanceof ExternalEnrolment) {
-            generateExternalEnrolmentLabelCell(enrolmentRow, (ExternalEnrolment) entry, level);
+            generateExternalEnrolmentLabelCell(enrolmentRow, (ExternalEnrolment) entry);
         }
         generateEctsCreditsCell(enrolmentRow, entry);
         generateExecutionYearCell(enrolmentRow, entry);
