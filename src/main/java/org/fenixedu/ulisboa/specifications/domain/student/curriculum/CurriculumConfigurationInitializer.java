@@ -78,9 +78,7 @@ abstract public class CurriculumConfigurationInitializer {
             logger.info("CurricularYearCalculator: Using default");
         }
 
-        // CurriculumGradeCalculator
-        final String clazz = ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculator();
-        Curriculum.setCurriculumGradeCalculator(() -> FenixeduUlisboaSpecificationsInitializer.loadClass(null, clazz));
+        Curriculum.setCurriculumGradeCalculator(CURRICULUM_GRADE_CALCULATOR);
         logger.info("CurriculumGradeCalculator: Overriding default");
 
         Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
@@ -290,6 +288,17 @@ abstract public class CurriculumConfigurationInitializer {
             this.executionYear = executionYear;
         }
     }
+
+    /* ======================================================================================================
+     * 
+     * CurriculumGradeCalculator
+     * 
+     * ======================================================================================================
+     */
+
+    static private Supplier<CurriculumGradeCalculator> CURRICULUM_GRADE_CALCULATOR =
+            () -> FenixeduUlisboaSpecificationsInitializer.loadClass(null,
+                    ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculator());
 
     /* ======================================================================================================
      * 
