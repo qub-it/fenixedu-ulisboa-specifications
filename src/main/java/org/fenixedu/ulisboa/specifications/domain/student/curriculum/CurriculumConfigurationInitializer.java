@@ -27,19 +27,14 @@ package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
@@ -63,13 +58,12 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServi
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 abstract public class CurriculumConfigurationInitializer {
 
@@ -85,11 +79,8 @@ abstract public class CurriculumConfigurationInitializer {
         }
 
         // CurriculumGradeCalculator
-        final CurriculumGradeCalculator calculator = FenixeduUlisboaSpecificationsInitializer.loadClass(null,
-                ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculator());
-        if (calculator != null) {
-            Curriculum.setCurriculumGradeCalculator(() -> calculator);
-        }
+        final String clazz = ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculator();
+        Curriculum.setCurriculumGradeCalculator(() -> FenixeduUlisboaSpecificationsInitializer.loadClass(null, clazz));
         logger.info("CurriculumGradeCalculator: Overriding default");
 
         Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
@@ -349,44 +340,15 @@ abstract public class CurriculumConfigurationInitializer {
                 }
             }
 
-            final StudentCurricularPlan scp = curriculumGroup.getStudentCurricularPlan();
-            final Registration registration = scp.getRegistration();
-            if (RegistrationServices.isCurriculumAccumulated(registration)) {
+            for (final CurriculumGroup otherGroup : RegistrationConclusionServices
+                    .getCurriculumGroupsForConclusion(curriculumGroup)) {
 
-                for (final StudentCurricularPlan otherScp : registration.getSortedStudentCurricularPlans()) {
-                    if (otherScp.getStartDateYearMonthDay().isBefore(scp.getStartDateYearMonthDay())) {
-
-                        for (final CurriculumGroup otherGroup : otherGroups(otherScp, curriculumGroup)) {
-                            result.add(otherGroup.getCurriculum(when, executionYear));
-                        }
-                    }
+                if (otherGroup != curriculumGroup) {
+                    result.add(otherGroup.getCurriculum(when, executionYear));
                 }
             }
 
             return result;
-        }
-
-        private List<CurriculumGroup> otherGroups(final StudentCurricularPlan otherScp, final CurriculumGroup originalGroup) {
-
-            final List<CurriculumGroup> result = Lists.newArrayList();
-            result.add(otherScp.getRoot());
-            result.addAll(otherScp.getAllCurriculumGroups());
-
-            final Predicate<CurriculumGroup> predicate;
-            final ProgramConclusion programConclusion = originalGroup.getDegreeModule().getProgramConclusion();
-            if (programConclusion == null) {
-
-                // take into account this special case: we might be dealing with all of curriculum, not a specific program conclusion
-                // eg: integrated master in IST
-                predicate = otherGroup -> originalGroup.isRoot() && otherGroup.isRoot();
-
-            } else {
-
-                predicate = otherGroup -> otherGroup.getDegreeModule() != null
-                        && otherGroup.getDegreeModule().getProgramConclusion() == programConclusion;
-            }
-
-            return result.stream().filter(predicate).collect(Collectors.toList());
         }
 
     };
