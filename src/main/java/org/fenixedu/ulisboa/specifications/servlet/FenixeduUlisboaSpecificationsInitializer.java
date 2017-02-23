@@ -299,7 +299,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
 
         if (result != null) {
-            logger.info("Using " + result.getClass().getSimpleName());
+            logger.debug("Using " + result.getClass().getSimpleName());
         }
 
         return result;
