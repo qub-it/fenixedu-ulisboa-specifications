@@ -198,7 +198,7 @@ public class RaidesRequestPeriodParameter implements Serializable, IBean {
         result.setEnrolledInAcademicPeriod(this.enrolledInAcademicPeriod);
         result.setEnrolmentEctsConstraint(this.enrolmentEctsConstraint);
         result.setEnrolmentYearsConstraint(this.enrolmentYearsConstraint);
-        result.setMinEnrolmentEcts(getMaxEnrolmentEcts());
+        result.setMinEnrolmentEcts(getMinEnrolmentEcts());
         result.setMaxEnrolmentEcts(getMaxEnrolmentEcts());
         result.setMinEnrolmentYears(getMinEnrolmentYears());
         result.setMaxEnrolmentYears(getMaxEnrolmentYears());
