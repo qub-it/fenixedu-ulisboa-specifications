@@ -229,8 +229,11 @@ public class RaidesService {
                     .translate(lastCompletedQualification.getSchoolLevel()));
 
             if (SchoolLevelType.OTHER.equals(lastCompletedQualification.getSchoolLevel())) {
-                bean.setOutroEscolaridadeAnterior(lastCompletedQualification.getOtherSchoolLevel().substring(0,
-                        Math.min(MAX_OTHER_SCHOOL_LEVEL_LENGTH, lastCompletedQualification.getOtherSchoolLevel().length())));
+                
+                if(!Strings.isNullOrEmpty(lastCompletedQualification.getOtherSchoolLevel())){
+                    bean.setOutroEscolaridadeAnterior(lastCompletedQualification.getOtherSchoolLevel().substring(0,
+                            Math.min(MAX_OTHER_SCHOOL_LEVEL_LENGTH, lastCompletedQualification.getOtherSchoolLevel().length())));    
+                }
             }
         }
 
