@@ -14,6 +14,7 @@ public class TblIdentificacao extends RaidesData {
     protected LocalDate dataNasc;
     protected String sexo;
     protected String nacionalidade;
+    protected String outroPaisDeNacionalidade;
     protected String residePais;
     protected String paisEnsinoSecundario;
     protected String observId;
@@ -110,6 +111,14 @@ public class TblIdentificacao extends RaidesData {
 
     public void setNacionalidade(String nacionalidade) {
         this.nacionalidade = nacionalidade;
+    }
+    
+    public String getOutroPaisDeNacionalidade() {
+        return outroPaisDeNacionalidade;
+    }
+    
+    public void setOutroPaisDeNacionalidade(String outroPaisDeNacionalidade) {
+        this.outroPaisDeNacionalidade = outroPaisDeNacionalidade;
     }
 
     public String getResidePais() {

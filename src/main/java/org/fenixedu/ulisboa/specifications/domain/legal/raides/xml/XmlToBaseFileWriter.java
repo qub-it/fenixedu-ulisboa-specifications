@@ -329,10 +329,13 @@ public class XmlToBaseFileWriter {
         numeroID.setDigitosControlo(tblIdentificacao.getCheckDigitId());
 
         identificacao.setNumeroID(numeroID);
-        identificacao.setOutroPaisDeNacionalidade("");
         identificacao.setOutroTipoID(tblIdentificacao.getTipoIdDescr());
         identificacao.setPaisDeNacionalidade(tblIdentificacao.getNacionalidade());
 
+        if(!Strings.isNullOrEmpty(tblIdentificacao.getOutroPaisDeNacionalidade())) {
+            identificacao.setOutroPaisDeNacionalidade(tblIdentificacao.getOutroPaisDeNacionalidade());
+        }
+        
         if (!Strings.isNullOrEmpty(tblIdentificacao.getPaisEnsinoSecundario())) {
             identificacao.setPaisEnsinoSec(tblIdentificacao.getPaisEnsinoSecundario());
         } else {

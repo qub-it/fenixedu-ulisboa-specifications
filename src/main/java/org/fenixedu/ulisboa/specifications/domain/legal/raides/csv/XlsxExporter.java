@@ -44,6 +44,7 @@ public class XlsxExporter {
                 addCell("OutroPaisDeNacionalidade", "");
                 addCell("OutroTipoID", tblIdentificacao.getTipoIdDescr());
                 addCell("PaisDeNacionalidade", tblIdentificacao.getNacionalidade());
+                addCell("OutroPaisDeNacionalidade", tblIdentificacao.getOutroPaisDeNacionalidade());
                 addCell("PaisEnsinoSec", tblIdentificacao.getPaisEnsinoSecundario());
                 addCell("PaisResidencia", tblIdentificacao.getResidePais());
                 addCell("Sexo", tblIdentificacao.getSexo());

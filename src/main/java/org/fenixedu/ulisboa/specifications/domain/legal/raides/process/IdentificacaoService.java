@@ -79,9 +79,7 @@ public class IdentificacaoService extends RaidesService {
             bean.setSexo(LegalMapping.find(report, LegalMappingType.GENDER).translate(student.getPerson().getGender()));
         }
 
-        if (student.getPerson().getCountry() != null) {
-            bean.setNacionalidade(student.getPerson().getCountry().getCode());
-        }
+        preencheNacionalidade(student, bean);
         
         final Country countryOfResidence = Raides.countryOfResidence(registration, executionYear);
         if (countryOfResidence != null) {
@@ -95,6 +93,47 @@ public class IdentificacaoService extends RaidesService {
         validaDataNascimento(bean, institution, student, registration, executionYear);
 
         return bean;
+    }
+
+    private void preencheNacionalidade(final Student student, final TblIdentificacao bean) {
+        final Country firstNationality = student.getPerson().getCountry();
+        Country secondNationality = null;
+        
+        if(student.getPerson().getPersonUlisboaSpecifications() != null) {
+            secondNationality = student.getPerson().getPersonUlisboaSpecifications().getSecondNationality();
+        }
+        
+        if(firstNationality == null && secondNationality == null) {
+           return; 
+        }
+        
+        if(firstNationality != null && secondNationality == null) {
+            bean.setNacionalidade(firstNationality.getCode());
+            bean.setOutroPaisDeNacionalidade(null);
+            return;
+        } 
+
+        if(firstNationality == null && secondNationality != null) {
+            bean.setNacionalidade(secondNationality.getCode());
+            bean.setOutroPaisDeNacionalidade(null);
+            return;
+        }
+        
+        // The two nationalities are not null
+
+        if(firstNationality != null && firstNationality == secondNationality) {
+            bean.setNacionalidade(firstNationality.getCode());
+            bean.setOutroPaisDeNacionalidade(null);
+            return;
+        } 
+        
+        if(secondNationality.isDefaultCountry()) {
+            bean.setNacionalidade(secondNationality.getCode());
+            bean.setOutroPaisDeNacionalidade(firstNationality.getCode());
+        } else {
+            bean.setNacionalidade(firstNationality.getCode());
+            bean.setOutroPaisDeNacionalidade(secondNationality.getCode());
+        }
     }
 
     protected String countryHighSchool(final Registration registration) {
