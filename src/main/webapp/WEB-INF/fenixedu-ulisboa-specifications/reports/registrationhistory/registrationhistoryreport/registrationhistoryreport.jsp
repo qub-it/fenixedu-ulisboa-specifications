@@ -152,13 +152,14 @@ ${portal.angularToolkit()}
 
 					if (field == 'degreeTypes') {
 						$scope.object.degrees = [];
+						$scope.object.programConclusions = [];
 					}
 
 					$scope.postBack(model);
 				}
 
 				$scope.search = function() {
-
+					
 					if ($scope.object.executionYears.length != 0) {
 						$('#searchParamsForm').attr('action', '${pageContext.request.contextPath}<%=RegistrationHistoryReportController.CONTROLLER_URL%>/search')
 						$('#searchParamsForm').submit();

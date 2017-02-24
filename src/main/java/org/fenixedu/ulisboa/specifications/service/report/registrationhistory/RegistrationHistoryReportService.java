@@ -42,6 +42,7 @@ public class RegistrationHistoryReportService {
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
     private Integer studentNumber;
+    private Collection<ProgramConclusion> programConclusionsToFilter = Sets.newHashSet();
 
     private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
@@ -119,6 +120,10 @@ public class RegistrationHistoryReportService {
         this.graduationPeriodEndDate = endDate;
     }
 
+    public void filterProgramConclusions(Set<ProgramConclusion> programConclusions) {
+        this.programConclusionsToFilter.addAll(programConclusions);
+    }
+
     public boolean isDetailed() {
         return detailed;
     }
@@ -129,7 +134,9 @@ public class RegistrationHistoryReportService {
 
     public Collection<RegistrationHistoryReport> generateReport() {
 
-        this.programConclusions = calculateProgramConclusions();
+        this.programConclusions = calculateProgramConclusions().stream()
+                .filter(pc -> this.programConclusionsToFilter.isEmpty() || this.programConclusionsToFilter.contains(pc))
+                .collect(Collectors.toSet());
 
         final Set<RegistrationHistoryReport> enrolmentResult = new HashSet<RegistrationHistoryReport>();
         for (final ExecutionYear executionYear : this.enrolmentExecutionYears) {
@@ -169,10 +176,6 @@ public class RegistrationHistoryReportService {
 
         for (RegistrationHistoryReport reportEntry : enrolmentResult) {
             for (final ProgramConclusion programConclusion : this.programConclusions) {
-
-                if (!this.programConclusions.isEmpty() && !this.programConclusions.contains(programConclusion)) {
-                    continue;
-                }
 
                 final RegistrationConclusionBean conclusionBean = reportEntry.getConclusionReportFor(programConclusion);
 

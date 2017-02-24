@@ -189,6 +189,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterGraduatedExecutionYears(bean.getGraduatedExecutionYears());
         service.filterGraduationPeriodStartDate(bean.getGraduationPeriodStartDate());
         service.filterGraduationPeriodEndDate(bean.getGraduationPeriodEndDate());
+        service.filterProgramConclusions(bean.getProgramConclusions());
 
         final Comparator<RegistrationHistoryReport> byYear =
                 (x, y) -> ExecutionYear.COMPARATOR_BY_BEGIN_DATE.compare(x.getExecutionYear(), y.getExecutionYear());
