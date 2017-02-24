@@ -82,7 +82,7 @@ public class IdentificacaoService extends RaidesService {
         if (student.getPerson().getCountry() != null) {
             bean.setNacionalidade(student.getPerson().getCountry().getCode());
         }
-
+        
         final Country countryOfResidence = Raides.countryOfResidence(registration, executionYear);
         if (countryOfResidence != null) {
             bean.setResidePais(countryOfResidence.getCode());

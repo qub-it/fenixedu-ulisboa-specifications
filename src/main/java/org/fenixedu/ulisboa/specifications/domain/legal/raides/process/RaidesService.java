@@ -46,6 +46,8 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMapp
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 
@@ -116,8 +118,18 @@ public class RaidesService {
             bean.setCurso(degree(registration).getMinistryCode());
         }
 
-        final Set<CourseGroup> branches = branches(registration, executionYear);
-        bean.setRamo(null);
+        preencheRamo(report, bean, executionYear, registration, false);
+
+    }
+
+    protected void preencheRamo(final LegalReport report, final IMatricula bean,  final ExecutionYear executionYear, 
+            final Registration registration, final boolean forScholarPart) {
+        final Set<CourseGroup> branches = forScholarPart ? scholarPartBranches(registration, executionYear) : branches(registration, executionYear);
+        
+        if(!forScholarPart) {
+            bean.setRamo(null);
+        }
+        
         if (!branches.isEmpty()) {
 
             if (branches.size() > 1) {
@@ -126,17 +138,15 @@ public class RaidesService {
             }
 
             bean.setRamo(BranchMappingType.readMapping(report).translate(branches.iterator().next()));
-
         } else {
 
             final RootCourseGroup rootCourseGroup =
                     getStudentCurricularPlanForBranch(registration, executionYear).getRoot().getDegreeModule();
             final LegalMapping branchMapping = BranchMappingType.readMapping(report);
+
             bean.setRamo(
                     branchMapping.isKeyDefined(rootCourseGroup) ? branchMapping.translate(rootCourseGroup) : Ramo.TRONCO_COMUM);
-
         }
-
     }
 
     private Set<CourseGroup> branches(final Registration registration, final ExecutionYear executionYear) {
@@ -149,6 +159,40 @@ public class RaidesService {
                 continue;
             }
 
+            final CourseGroup courseGroup = curriculumGroup.getDegreeModule();
+            if (BranchMappingType.readMapping(report).isKeyDefined(courseGroup)) {
+                result.add(courseGroup);
+            }
+        }
+
+        return result;
+    }
+
+    private Set<CourseGroup> scholarPartBranches(final Registration registration, final ExecutionYear executionYear) {
+        final Set<CourseGroup> result = Sets.newHashSet();
+
+        
+        RegistrationConclusionInformation conclusionInfoToUse = null;
+        for (RegistrationConclusionInformation conclusionInfo : RegistrationConclusionServices.inferConclusion(registration)) {
+            if(!conclusionInfo.isScholarPart()) {
+                continue;
+            }
+            
+            if(!conclusionInfo.isConcluded()) {
+                continue;
+            }
+            
+            conclusionInfoToUse = conclusionInfo;
+            
+            
+            break;
+        }
+
+        for (final CurriculumGroup curriculumGroup : conclusionInfoToUse.getCurriculumGroup().getAllCurriculumGroups()) {
+            if (curriculumGroup.getDegreeModule() == null) {
+                continue;
+            }
+            
             final CourseGroup courseGroup = curriculumGroup.getDegreeModule();
             if (BranchMappingType.readMapping(report).isKeyDefined(courseGroup)) {
                 result.add(courseGroup);

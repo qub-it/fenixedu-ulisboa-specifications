@@ -7,6 +7,8 @@ import java.math.RoundingMode;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
@@ -15,6 +17,8 @@ import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblDiplomado;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.Ramo;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
@@ -149,6 +153,9 @@ public class DiplomadoService extends RaidesService {
 
         bean.setDataDiploma(scholarPartConclusionBean.getConclusionDate().toLocalDate());
 
+        /* Override Ramo to report the branch open inside first cycle curriculum group */
+        preencheRamo(report, bean, executionYear, registration, true);
+        
         preencheMobilidadeCredito(registration, bean);
         preencheGrauPrecedentCompleto(bean, raidesRequestParameter.getInstitution(), executionYear, registration);
 
