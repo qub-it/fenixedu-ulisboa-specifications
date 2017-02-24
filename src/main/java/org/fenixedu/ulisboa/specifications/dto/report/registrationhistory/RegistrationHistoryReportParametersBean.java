@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.dto.report.registrationhistory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.StatuteType;
@@ -35,6 +37,10 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
     private Integer studentNumber;
+    private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
+    private LocalDate graduationPeriodStartDate;
+    private LocalDate graduationPeriodEndDate;
+    private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
     private List<TupleDataSourceBean> executionYearsDataSource;
     private List<TupleDataSourceBean> degreeTypesDataSource;
@@ -44,11 +50,8 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private List<TupleDataSourceBean> ingressionTypesDataSource;
     private List<TupleDataSourceBean> registrationStateTypesDataSource;
     private List<TupleDataSourceBean> statuteTypesDataSource;
-    
-    private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
-    private LocalDate graduationPeriodStartDate;
-    private LocalDate graduationPeriodEndDate;
-    
+    private List<TupleDataSourceBean> programConclusionsDataSource;
+
     public Set<ExecutionYear> getExecutionYears() {
         return executionYears;
     }
@@ -60,27 +63,27 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     public Set<DegreeType> getDegreeTypes() {
         return degreeTypes;
     }
-    
+
     public Set<ExecutionYear> getGraduatedExecutionYears() {
         return graduatedExecutionYears;
     }
-    
+
     public void setGraduatedExecutionYears(Set<ExecutionYear> graduatedExecutionYears) {
         this.graduatedExecutionYears = graduatedExecutionYears;
     }
-    
+
     public LocalDate getGraduationPeriodStartDate() {
         return graduationPeriodStartDate;
     }
-    
+
     public void setGraduationPeriodStartDate(LocalDate graduationPeriodStartDate) {
         this.graduationPeriodStartDate = graduationPeriodStartDate;
     }
-    
+
     public LocalDate getGraduationPeriodEndDate() {
         return graduationPeriodEndDate;
     }
-    
+
     public void setGraduationPeriodEndDate(LocalDate graduationPeriodEndDate) {
         this.graduationPeriodEndDate = graduationPeriodEndDate;
     }
@@ -137,6 +140,14 @@ public class RegistrationHistoryReportParametersBean implements IBean {
         this.degrees = degrees;
     }
 
+    public Set<ProgramConclusion> getProgramConclusions() {
+        return programConclusions;
+    }
+
+    public void setProgramConclusions(Set<ProgramConclusion> programConclusions) {
+        this.programConclusions = programConclusions;
+    }
+
     public List<TupleDataSourceBean> getExecutionYearsDataSource() {
         return executionYearsDataSource;
     }
@@ -167,6 +178,10 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     public List<TupleDataSourceBean> getStatuteTypesDataSource() {
         return statuteTypesDataSource;
+    }
+
+    public List<TupleDataSourceBean> getProgramConclusionsDataSource() {
+        return programConclusionsDataSource;
     }
 
     public Boolean getFirstTimeOnly() {
@@ -219,7 +234,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                         .sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)
                         .map(x -> new TupleDataSourceBean(x.getExternalId(),
                                 "[" + x.getCode() + "] " + x.getPresentationNameI18N().getContent()))
-                .collect(Collectors.toList());
+                        .collect(Collectors.toList());
 
         this.regimeTypesDataSource = Arrays.asList(RegistrationRegimeType.values()).stream()
                 .map(x -> new TupleDataSourceBean(x.getName(), x.getLocalizedName())).collect(Collectors.toList());
@@ -241,6 +256,18 @@ public class RegistrationHistoryReportParametersBean implements IBean {
         this.statuteTypesDataSource = Bennu.getInstance().getStatuteTypesSet().stream().sorted(StatuteType.COMPARATOR_BY_NAME)
                 .map(x -> new TupleDataSourceBean(x.getExternalId(), "[" + x.getCode() + "] " + x.getName().getContent()))
                 .collect(Collectors.toList());
+
+        if (getDegreeTypes() == null) {
+            this.programConclusionsDataSource = Collections.emptyList();
+        } else {
+            this.programConclusionsDataSource =
+                    getDegreeTypes().stream().flatMap(dt -> dt.getDegreeSet().stream())
+                            .flatMap(d -> d.getDegreeCurricularPlansSet().stream())
+                            .flatMap(dcp -> ProgramConclusion.conclusionsFor(dcp)).distinct()
+                            .map(pc -> new TupleDataSourceBean(pc.getExternalId(),
+                                    pc.getName().getContent() + " - " + pc.getDescription().getContent()))
+                            .collect(Collectors.toList());
+        }
 
     }
 

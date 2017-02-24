@@ -50,8 +50,7 @@ public class RegistrationHistoryReportService {
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
     private LocalDate graduationPeriodEndDate;
-    
-    
+
     public RegistrationHistoryReportService() {
 
     }
@@ -59,7 +58,7 @@ public class RegistrationHistoryReportService {
     public void filterEnrolmentExecutionYears(Collection<ExecutionYear> executionYears) {
         this.enrolmentExecutionYears.addAll(executionYears);
     }
-    
+
     public void filterGraduatedExecutionYears(Collection<ExecutionYear> executionYears) {
         this.graduatedExecutionYears.addAll(executionYears);
     }
@@ -111,11 +110,11 @@ public class RegistrationHistoryReportService {
     public void filterStudentNumber(Integer studentNumber) {
         this.studentNumber = studentNumber;
     }
-    
+
     public void filterGraduationPeriodStartDate(final LocalDate startDate) {
         this.graduationPeriodStartDate = startDate;
     }
-    
+
     public void filterGraduationPeriodEndDate(final LocalDate endDate) {
         this.graduationPeriodEndDate = endDate;
     }
@@ -136,14 +135,14 @@ public class RegistrationHistoryReportService {
         for (final ExecutionYear executionYear : this.enrolmentExecutionYears) {
             enrolmentResult.addAll(processEnrolled(executionYear));
         }
-        
-        if(this.graduatedExecutionYears.isEmpty()) {
+
+        if (this.graduatedExecutionYears.isEmpty()) {
             return enrolmentResult;
         }
-        
-        
-        
-        final Set<RegistrationHistoryReport> finalResult = new HashSet<RegistrationHistoryReport>(processGraduated(enrolmentResult));
+
+        final Set<RegistrationHistoryReport> finalResult =
+                new HashSet<RegistrationHistoryReport>(processGraduated(enrolmentResult));
+
         return finalResult;
     }
 
@@ -167,42 +166,46 @@ public class RegistrationHistoryReportService {
     private Collection<RegistrationHistoryReport> processGraduated(final Set<RegistrationHistoryReport> enrolmentResult) {
 
         final Set<RegistrationHistoryReport> graduatedResultSet = Sets.newHashSet();
-        
+
         for (RegistrationHistoryReport reportEntry : enrolmentResult) {
             for (final ProgramConclusion programConclusion : this.programConclusions) {
+
+                if (!this.programConclusions.isEmpty() && !this.programConclusions.contains(programConclusion)) {
+                    continue;
+                }
+
                 final RegistrationConclusionBean conclusionBean = reportEntry.getConclusionReportFor(programConclusion);
-                
-                if(conclusionBean == null) {
+
+                if (conclusionBean == null) {
                     continue;
                 }
-                
-                if(!conclusionBean.isConcluded()) {
+
+                if (!conclusionBean.isConcluded()) {
                     continue;
                 }
-                
+
                 final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
                 final LocalDate conclusionDate = conclusionBean.getConclusionDate().toLocalDate();
-                
-                if(!this.graduatedExecutionYears.contains(conclusionYear)) {
+
+                if (!this.graduatedExecutionYears.contains(conclusionYear)) {
                     continue;
                 }
-                
-                if(graduationPeriodStartDate != null && conclusionDate.isBefore(graduationPeriodStartDate)) {
+
+                if (graduationPeriodStartDate != null && conclusionDate.isBefore(graduationPeriodStartDate)) {
                     continue;
                 }
-                
-                if(graduationPeriodEndDate != null && conclusionDate.isAfter(graduationPeriodEndDate)) {
+
+                if (graduationPeriodEndDate != null && conclusionDate.isAfter(graduationPeriodEndDate)) {
                     continue;
                 }
-                
+
                 graduatedResultSet.add(reportEntry);
             }
         }
-        
+
         return graduatedResultSet;
     }
 
-    
     private Collection<RegistrationHistoryReport> processEnrolled(final ExecutionYear executionYear) {
 
         //TODO: common filters should be cached

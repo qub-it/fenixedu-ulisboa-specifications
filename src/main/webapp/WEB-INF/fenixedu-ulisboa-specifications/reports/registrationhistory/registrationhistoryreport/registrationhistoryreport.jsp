@@ -295,6 +295,39 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
+				</div>
+				<div class="col-sm-6">
+					<ui-select id="degreeTypesSelect" name="degreeTypes"
+						ng-model="$parent.object.degreeTypes" theme="bootstrap"
+						on-select="onBeanChange($model,'degreeTypes')"
+						on-remove="onBeanChange($model,'degreeTypes')" multiple="true">
+					<ui-select-match>{{$item.text}}</ui-select-match> <ui-select-choices
+						repeat="degreeType.id as degreeType in object.degreeTypesDataSource | filter: $select.search">
+					<span ng-bind-html="degreeType.text | highlight: $select.search"></span>
+					</ui-select-choices> </ui-select>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.degrees" />
+				</div>
+				<div class="col-sm-6">
+					<ui-select id="degreesSelect" name="degrees"
+						ng-model="$parent.object.degrees" theme="bootstrap"
+						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
+					<ui-select-choices
+						repeat="degree.id as degree in object.degreesDataSource | filter: $select.search">
+					<span ng-bind-html="degree.text | highlight: $select.search"></span>
+					</ui-select-choices> </ui-select>
+				</div>
+			</div>
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
@@ -331,38 +364,19 @@ ${portal.angularToolkit()}
                 </div>
             </div>
             
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
-				</div>
-				<div class="col-sm-6">
-					<ui-select id="degreeTypesSelect" name="degreeTypes"
-						ng-model="$parent.object.degreeTypes" theme="bootstrap"
-						on-select="onBeanChange($model,'degreeTypes')"
-						on-remove="onBeanChange($model,'degreeTypes')" multiple="true">
-					<ui-select-match>{{$item.text}}</ui-select-match> <ui-select-choices
-						repeat="degreeType.id as degreeType in object.degreeTypesDataSource | filter: $select.search">
-					<span ng-bind-html="degreeType.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
-				</div>
-			</div>
-
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.degrees" />
-				</div>
-				<div class="col-sm-6">
-					<ui-select id="degreesSelect" name="degrees"
-						ng-model="$parent.object.degrees" theme="bootstrap"
-						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
-					<ui-select-choices
-						repeat="degree.id as degree in object.degreesDataSource | filter: $select.search">
-					<span ng-bind-html="degree.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
-				</div>
-			</div>
+	  	   	<div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.RegistrationHistoryReportParametersBean.programConclusions" />
+                </div>
+                <div class="col-sm-4">
+                	<ui-select	id="programConclusionsSelect" name="programConclusions" ng-model="$parent.object.programConclusions" theme="bootstrap"  multiple="true">
+						<ui-select-match>{{$item.text}}</ui-select-match> 
+						<ui-select-choices	repeat="programConclusion.id as programConclusion in object.programConclusionsDataSource | filter: $select.search">
+							<span ng-bind-html="programConclusion.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
+                </div>
+            </div>
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
