@@ -29,7 +29,7 @@ public class RAIDES_WriteVersioningUpdateDateOfAnnulledEnrolments extends Custom
                     continue;
                 }
                 
-                taskLog("I\tANNULLED ENROLMENT\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+                taskLog("I\tANNULLED ENROLMENT\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
                         enrolment.getExternalId(),
                         enrolment.getCode(),
                         enrolment.getEnrollmentState(),
@@ -38,21 +38,24 @@ public class RAIDES_WriteVersioningUpdateDateOfAnnulledEnrolments extends Custom
                         enrolment.getStudent().getNumber(),
                         enrolment.getRegistration().getDegree().getPresentationNameI18N().getContent(),
                         enrolment.getEctsCredits(),
+                        enrolment.getAnnulmentDate() != null ? enrolment.getAnnulmentDate().toString(T) : "",                        
                         enrolment.getVersioningUpdateDate().getDate().toString(T));
                 
-//                if(enrolment.getAnnulmentDate() == null) {
-//                    enrolment.setAnnulmentDate(enrolment.getVersioningUpdateDate().getDate());
-//                    
-//                    taskLog("C\tSET ANNULMENT DATE\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
-//                            enrolment.getExternalId(),
-//                            enrolment.getCode(),
-//                            enrolment.getExecutionPeriod().getQualifiedName(),
-//                            enrolment.getStudent().getNumber(),
-//                            enrolment.getRegistration().getDegree().getPresentationNameI18N().getContent(),
-//                            enrolment.getEctsCredits(),
-//                            enrolment.getAnnulmentDate() != null ? enrolment.getAnnulmentDate().toString(T) : "",
-//                            enrolment.getVersioningUpdateDate().getDate().toString(T));
-//                }
+                if(enrolment.getAnnulmentDate() == null) {
+                    enrolment.setAnnulmentDate(enrolment.getVersioningUpdateDate().getDate());
+                    
+                    taskLog("C\tSET ANNULMENT DATE\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+                            enrolment.getExternalId(),
+                            enrolment.getCode(),
+                            enrolment.getEnrollmentState(),
+                            enrolment.getName().getContent(),
+                            enrolment.getExecutionPeriod().getQualifiedName(),
+                            enrolment.getStudent().getNumber(),
+                            enrolment.getRegistration().getDegree().getPresentationNameI18N().getContent(),
+                            enrolment.getEctsCredits(),
+                            enrolment.getAnnulmentDate() != null ? enrolment.getAnnulmentDate().toString(T) : "",
+                            enrolment.getVersioningUpdateDate().getDate().toString(T));
+                }
             }
         }
     }
