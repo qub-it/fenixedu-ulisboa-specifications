@@ -16,6 +16,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.joda.time.LocalDate;
 
 import com.google.common.collect.Sets;
 
@@ -43,7 +44,11 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private List<TupleDataSourceBean> ingressionTypesDataSource;
     private List<TupleDataSourceBean> registrationStateTypesDataSource;
     private List<TupleDataSourceBean> statuteTypesDataSource;
-
+    
+    private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
+    private LocalDate graduationPeriodStartDate;
+    private LocalDate graduationPeriodEndDate;
+    
     public Set<ExecutionYear> getExecutionYears() {
         return executionYears;
     }
@@ -54,6 +59,30 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     public Set<DegreeType> getDegreeTypes() {
         return degreeTypes;
+    }
+    
+    public Set<ExecutionYear> getGraduatedExecutionYears() {
+        return graduatedExecutionYears;
+    }
+    
+    public void setGraduatedExecutionYears(Set<ExecutionYear> graduatedExecutionYears) {
+        this.graduatedExecutionYears = graduatedExecutionYears;
+    }
+    
+    public LocalDate getGraduationPeriodStartDate() {
+        return graduationPeriodStartDate;
+    }
+    
+    public void setGraduationPeriodStartDate(LocalDate graduationPeriodStartDate) {
+        this.graduationPeriodStartDate = graduationPeriodStartDate;
+    }
+    
+    public LocalDate getGraduationPeriodEndDate() {
+        return graduationPeriodEndDate;
+    }
+    
+    public void setGraduationPeriodEndDate(LocalDate graduationPeriodEndDate) {
+        this.graduationPeriodEndDate = graduationPeriodEndDate;
     }
 
     public void setDegreeTypes(Set<DegreeType> degreeTypes) {

@@ -299,6 +299,41 @@ ${portal.angularToolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.graduatedExecutionYears" />
+				</div>
+
+				<div class="col-sm-6">
+					<ui-select id="executionYearsSelect" name="graduatedExecutionYears"
+						ng-model="$parent.object.graduatedExecutionYears" theme="bootstrap"
+						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
+					<ui-select-choices
+						repeat="executionYear.id as executionYear in object.executionYearsDataSource | filter: $select.search">
+					<span ng-bind-html="executionYear.text | highlight: $select.search"></span>
+					</ui-select-choices> </ui-select>
+				</div>
+			</div>
+
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.RegistrationHistoryReportParametersBean.graduationPeriodStartDate" />
+                </div>
+                <div class="col-sm-4">
+                    <input class="form-control" type="text" bennu-date="object.graduationPeriodStartDate" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.RegistrationHistoryReportParametersBean.graduationPeriodEndDate" />
+                </div>
+                <div class="col-sm-4">
+                    <input class="form-control" type="text" bennu-date="object.graduationPeriodEndDate" />
+                </div>
+            </div>
+            
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
 						code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
 				</div>
 				<div class="col-sm-6">

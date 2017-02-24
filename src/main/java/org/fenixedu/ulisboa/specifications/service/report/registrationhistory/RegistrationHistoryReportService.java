@@ -23,12 +23,13 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReportService {
 
-    private Set<ExecutionYear> executionYears = Sets.newHashSet();
+    private Set<ExecutionYear> enrolmentExecutionYears = Sets.newHashSet();
     private Set<DegreeType> degreeTypes = Sets.newHashSet();
     private Set<Degree> degrees = Sets.newHashSet();
     private Set<RegistrationRegimeType> regimeTypes = Sets.newHashSet();
@@ -46,12 +47,21 @@ public class RegistrationHistoryReportService {
 
     private boolean detailed = true;
 
+    private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
+    private LocalDate graduationPeriodStartDate;
+    private LocalDate graduationPeriodEndDate;
+    
+    
     public RegistrationHistoryReportService() {
 
     }
 
-    public void filterExecutionYears(Collection<ExecutionYear> executionYears) {
-        this.executionYears.addAll(executionYears);
+    public void filterEnrolmentExecutionYears(Collection<ExecutionYear> executionYears) {
+        this.enrolmentExecutionYears.addAll(executionYears);
+    }
+    
+    public void filterGraduatedExecutionYears(Collection<ExecutionYear> executionYears) {
+        this.graduatedExecutionYears.addAll(executionYears);
     }
 
     public void filterDegreeTypes(Collection<DegreeType> degreeTypes) {
@@ -101,6 +111,14 @@ public class RegistrationHistoryReportService {
     public void filterStudentNumber(Integer studentNumber) {
         this.studentNumber = studentNumber;
     }
+    
+    public void filterGraduationPeriodStartDate(final LocalDate startDate) {
+        this.graduationPeriodStartDate = startDate;
+    }
+    
+    public void filterGraduationPeriodEndDate(final LocalDate endDate) {
+        this.graduationPeriodEndDate = endDate;
+    }
 
     public boolean isDetailed() {
         return detailed;
@@ -114,12 +132,19 @@ public class RegistrationHistoryReportService {
 
         this.programConclusions = calculateProgramConclusions();
 
-        final Set<RegistrationHistoryReport> result = new HashSet<RegistrationHistoryReport>();
-        for (final ExecutionYear executionYear : this.executionYears) {
-            result.addAll(process(executionYear));
+        final Set<RegistrationHistoryReport> enrolmentResult = new HashSet<RegistrationHistoryReport>();
+        for (final ExecutionYear executionYear : this.enrolmentExecutionYears) {
+            enrolmentResult.addAll(processEnrolled(executionYear));
         }
-
-        return result;
+        
+        if(this.graduatedExecutionYears.isEmpty()) {
+            return enrolmentResult;
+        }
+        
+        
+        
+        final Set<RegistrationHistoryReport> finalResult = new HashSet<RegistrationHistoryReport>(processGraduated(enrolmentResult));
+        return finalResult;
     }
 
     private Set<ProgramConclusion> calculateProgramConclusions() {
@@ -139,7 +164,46 @@ public class RegistrationHistoryReportService {
 
     }
 
-    private Collection<RegistrationHistoryReport> process(final ExecutionYear executionYear) {
+    private Collection<RegistrationHistoryReport> processGraduated(final Set<RegistrationHistoryReport> enrolmentResult) {
+
+        final Set<RegistrationHistoryReport> graduatedResultSet = Sets.newHashSet();
+        
+        for (RegistrationHistoryReport reportEntry : enrolmentResult) {
+            for (final ProgramConclusion programConclusion : this.programConclusions) {
+                final RegistrationConclusionBean conclusionBean = reportEntry.getConclusionReportFor(programConclusion);
+                
+                if(conclusionBean == null) {
+                    continue;
+                }
+                
+                if(!conclusionBean.isConcluded()) {
+                    continue;
+                }
+                
+                final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
+                final LocalDate conclusionDate = conclusionBean.getConclusionDate().toLocalDate();
+                
+                if(!this.graduatedExecutionYears.contains(conclusionYear)) {
+                    continue;
+                }
+                
+                if(graduationPeriodStartDate != null && conclusionDate.isBefore(graduationPeriodStartDate)) {
+                    continue;
+                }
+                
+                if(graduationPeriodEndDate != null && conclusionDate.isAfter(graduationPeriodEndDate)) {
+                    continue;
+                }
+                
+                graduatedResultSet.add(reportEntry);
+            }
+        }
+        
+        return graduatedResultSet;
+    }
+
+    
+    private Collection<RegistrationHistoryReport> processEnrolled(final ExecutionYear executionYear) {
 
         //TODO: common filters should be cached
         final Predicate<Registration> degreeTypeFilter =

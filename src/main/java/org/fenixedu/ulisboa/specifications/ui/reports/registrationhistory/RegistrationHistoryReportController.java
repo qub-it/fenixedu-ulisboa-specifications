@@ -113,7 +113,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     public String search(@RequestParam("bean") RegistrationHistoryReportParametersBean bean, Model model,
             RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
-        setResults(generateReport(bean, false), model);
+        
+        setResults(generateReport(bean, !bean.getGraduatedExecutionYears().isEmpty()), model);
 
         return jspPage("registrationhistoryreport");
     }
@@ -170,7 +171,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     protected Collection<RegistrationHistoryReport> generateReport(RegistrationHistoryReportParametersBean bean,
             boolean detailed) {
         final RegistrationHistoryReportService service = new RegistrationHistoryReportService();
-        service.filterExecutionYears(bean.getExecutionYears());
+        service.filterEnrolmentExecutionYears(bean.getExecutionYears());
         service.filterDegrees(bean.getDegrees());
         service.filterDegreeTypes(bean.getDegreeTypes());
         service.filterIngressionTypes(bean.getIngressionTypes());
@@ -184,6 +185,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterImprovementEnrolmentsOnly(bean.getImprovementEnrolmentsOnly());
         service.filterStudentNumber(bean.getStudentNumber());
         service.setDetailed(detailed);
+        
+        service.filterGraduatedExecutionYears(bean.getGraduatedExecutionYears());
+        service.filterGraduationPeriodStartDate(bean.getGraduationPeriodStartDate());
+        service.filterGraduationPeriodEndDate(bean.getGraduationPeriodEndDate());
 
         final Comparator<RegistrationHistoryReport> byYear =
                 (x, y) -> ExecutionYear.COMPARATOR_BY_BEGIN_DATE.compare(x.getExecutionYear(), y.getExecutionYear());
