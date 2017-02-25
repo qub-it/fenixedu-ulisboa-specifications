@@ -7,8 +7,6 @@ import java.math.RoundingMode;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
@@ -17,8 +15,6 @@ import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.TblDiplomado;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides.Ramo;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.BranchMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestPeriodParameter;
@@ -50,10 +46,11 @@ public class DiplomadoService extends RaidesService {
 
         bean.setAreaInvestigacao(registration.getResearchArea() != null ? registration.getResearchArea().getCode() : "");
 
-        if (isTerminalConcluded(registration, graduatedPeriod, executionYear)) {
+        final RegistrationConclusionInformation terminalConclusionInfo =
+                terminalConclusionInformation(registration, graduatedPeriod, executionYear);
+        if (terminalConclusionInfo != null && (RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess()
+                || terminalConclusionInfo.getRegistrationConclusionBean().isConclusionProcessed())) {
 
-            final RegistrationConclusionInformation terminalConclusionInfo =
-                    terminalConclusionInformation(registration, graduatedPeriod, executionYear);
             final RegistrationConclusionBean registrationConclusionBean = terminalConclusionInfo.getRegistrationConclusionBean();
 
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true));
@@ -88,11 +85,12 @@ public class DiplomadoService extends RaidesService {
             bean.setConcluiGrau(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false));
         }
 
-        if (Raides.isMasterDegreeOrDoctoralDegree(registration)
-                && isScholarPartConcluded(registration, graduatedPeriod, executionYear)) {
+        final RegistrationConclusionInformation scholarPartConclusionInfo =
+                scholarPartConclusionInformation(registration, graduatedPeriod, executionYear);
+        if (Raides.isMasterDegreeOrDoctoralDegree(registration) && scholarPartConclusionInfo != null
+                && (RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess()
+                        || scholarPartConclusionInfo.getRegistrationConclusionBean().isConclusionProcessed())) {
 
-            final RegistrationConclusionInformation scholarPartConclusionInfo =
-                    scholarPartConclusionInformation(registration, graduatedPeriod, executionYear);
             final RegistrationConclusionBean conclusionBean = scholarPartConclusionInfo.getRegistrationConclusionBean();
 
             bean.setAnoLectivo(raidesRequestParameter.getGraduatedExecutionYear() != null ? raidesRequestParameter
@@ -103,7 +101,8 @@ public class DiplomadoService extends RaidesService {
 
             if (Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
                 if (Raides.isDoctoralDegree(registration) && conclusionBean.getDescriptiveGrade() != null) {
-                    bean.setClassificacaoFinalMd(finalGrade(conclusionBean.getDescriptiveGrade().getValue()));
+                    bean.setClassificacaoFinalMd(LegalMapping.find(report, LegalMappingType.GRADE)
+                            .translate(finalGrade(conclusionBean.getDescriptiveGrade().getValue())));
                 }
             }
 
@@ -155,7 +154,7 @@ public class DiplomadoService extends RaidesService {
 
         /* Override Ramo to report the branch open inside first cycle curriculum group */
         preencheRamo(report, bean, executionYear, registration, true);
-        
+
         preencheMobilidadeCredito(registration, bean);
         preencheGrauPrecedentCompleto(bean, raidesRequestParameter.getInstitution(), executionYear, registration);
 
@@ -317,8 +316,7 @@ public class DiplomadoService extends RaidesService {
     protected void validaClassificacao(final ExecutionYear executionYear, RaidesRequestPeriodParameter graduatedPeriod,
             final Registration registration, final TblDiplomado bean) {
 
-        if (isScholarPartConcluded(registration, graduatedPeriod, executionYear)
-                && Raides.isMasterDegreeOrDoctoralDegree(registration)) {
+        if (bean.getConclusaoMd().equals(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true))) {
             if (Strings.isNullOrEmpty(bean.getClassificacaoFinalMd()) || "0".equals(bean.getClassificacaoFinalMd())) {
                 LegalReportContext.addError("",
                         i18n("error.Raides.validation.masterOrDoctoral.scholarpart.classification.empty.or.zero",
@@ -327,7 +325,7 @@ public class DiplomadoService extends RaidesService {
             }
         }
 
-        if (isTerminalConcluded(registration, graduatedPeriod, executionYear)
+        if (bean.getConcluiGrau().equals(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true))
                 && Strings.isNullOrEmpty(bean.getClassificacaoFinal()) || "0".equals(bean.getClassificacaoFinal())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.masterOrDoctoral.terminalpart.classification.empty.or.zero",
@@ -357,7 +355,8 @@ public class DiplomadoService extends RaidesService {
 
             final RaidesInstance instance = (RaidesInstance) report;
 
-            if (instance.isReportGraduatedWithoutConclusionProcess() && instance.isToReportAllIntegratedMasterFirstCycleGraduatedStudents()) {
+            if (instance.isReportGraduatedWithoutConclusionProcess()
+                    && instance.isToReportAllIntegratedMasterFirstCycleGraduatedStudents()) {
                 return true;
             }
 
