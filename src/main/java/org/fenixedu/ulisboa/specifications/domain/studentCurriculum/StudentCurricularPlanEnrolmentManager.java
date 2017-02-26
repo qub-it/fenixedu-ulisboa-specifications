@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
@@ -48,6 +50,38 @@ public class StudentCurricularPlanEnrolmentManager
         checkCurriculumAggregatorParticipants();
     }
 
+    /**
+     * Bypasses org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager
+     */
+    @Override
+    protected void assertEnrolmentPreConditions() {
+
+        if (!getRegistration().isRegistered(getExecutionSemester())
+                && !AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
+                        getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())) {
+            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
+        }
+
+        if (isResponsiblePersonManager()) {
+            return;
+        }
+
+        checkDebts();
+
+        if (isResponsiblePersonAllowedToEnrolStudents() || isResponsibleInternationalRelationOffice()) {
+            assertAcademicAdminOfficePreConditions();
+
+        } else if (isResponsiblePersonStudent()) {
+            assertStudentEnrolmentPreConditions();
+
+        } else {
+            assertOtherRolesPreConditions();
+        }
+    }
+
+    /**
+     * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment
+     */
     @Override
     protected void assertStudentEnrolmentPreConditions() {
 
