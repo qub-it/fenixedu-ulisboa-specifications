@@ -211,7 +211,10 @@ public class DiplomadoService extends RaidesService {
 
     private boolean isScholarPartConcluded(final Registration registration, RaidesRequestPeriodParameter graduatedPeriod,
             final ExecutionYear executionYear) {
-        return scholarPartConclusionInformation(registration, graduatedPeriod, executionYear) != null;
+        final RegistrationConclusionInformation conclusionInfo =
+                scholarPartConclusionInformation(registration, graduatedPeriod, executionYear);
+        return conclusionInfo != null && (RaidesInstance.getInstance().getReportGraduatedWithoutConclusionProcess()
+                || conclusionInfo.getRegistrationConclusionBean().isConclusionProcessed());
     }
 
     private RegistrationConclusionInformation scholarPartConclusionInformation(final Registration registration,
@@ -246,7 +249,10 @@ public class DiplomadoService extends RaidesService {
 
     public static boolean isTerminalConcluded(final Registration registration, RaidesRequestPeriodParameter graduatedPeriod,
             final ExecutionYear executionYear) {
-        return terminalConclusionInformation(registration, graduatedPeriod, executionYear) != null;
+        final RegistrationConclusionInformation conclusionInfo =
+                terminalConclusionInformation(registration, graduatedPeriod, executionYear);
+        return conclusionInfo != null && (RaidesInstance.getInstance().getReportGraduatedWithoutConclusionProcess()
+                || conclusionInfo.getRegistrationConclusionBean().isConclusionProcessed());
     }
 
     private static RegistrationConclusionInformation terminalConclusionInformation(final Registration registration,
@@ -347,6 +353,7 @@ public class DiplomadoService extends RaidesService {
                         && isScholarPartConcluded(registration, graduatedPeriod, executionYear));
     }
 
+    //TODO: clean logic and remove integrated cycle first cycle conclusion report option
     public boolean isToReportIntegratedCycleFirstCycle(final RaidesRequestPeriodParameter graduatedPeriod,
             final ExecutionYear executionYear, final Registration registration) {
 
