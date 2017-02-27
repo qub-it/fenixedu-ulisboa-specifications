@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -24,6 +23,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMapp
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.report.RaidesRequestParameter;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Strings;
@@ -61,7 +61,9 @@ public class InscritoService extends RaidesService {
             bean.setEctsInscricao(enrolledEcts(executionYear, registration, maximumAnnulmentDate));
         }
 
-        bean.setEctsAcumulados(ectsAcumulados(registration, executionYear));
+        if (!isFirstTimeOnDegree(registration, executionYear)) {
+            bean.setEctsAcumulados(ectsAcumulados(registration, executionYear));
+        }
 
         bean.setTempoParcial(
                 LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(isInPartialRegime(executionYear, registration)));
@@ -236,13 +238,7 @@ public class InscritoService extends RaidesService {
     }
 
     protected boolean isWorkingStudent(final Registration registration, final ExecutionYear executionYear) {
-        boolean result = false;
-
-        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
-            result |= registration.getStudent().hasWorkingStudentStatuteInPeriod(executionSemester);
-        }
-
-        return result;
+        return StatuteServices.findStatuteTypes(registration, executionYear).stream().anyMatch(s -> s.isWorkingStudentStatute());
     }
 
     protected boolean isInPartialRegime(final ExecutionYear executionYear, final Registration registration) {
