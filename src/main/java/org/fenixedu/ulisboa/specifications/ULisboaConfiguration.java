@@ -36,6 +36,9 @@ public class ULisboaConfiguration {
                 defaultValue = "org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator")
         public String getCurriculumGradeCalculator();
 
+        @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.rawGradeRoundingMode", defaultValue = "HALF_UP")
+        public String getCurriculumGradeCalculatorRawGradeRoundingMode();
+
         @ConfigurationProperty(key = "domain.academic.curricularYearConfiguration.initialize", defaultValue = "false")
         public Boolean getCurricularPeriodConfigurationInitialize();
 

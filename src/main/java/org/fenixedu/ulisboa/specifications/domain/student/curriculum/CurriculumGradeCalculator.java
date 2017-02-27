@@ -35,9 +35,14 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.AverageType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CurriculumGradeCalculator
         implements org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumGradeCalculator {
+
+    static private final Logger logger = LoggerFactory.getLogger(CurriculumGradeCalculator.class);
 
     private BigDecimal sumPiCi;
 
@@ -53,8 +58,21 @@ public class CurriculumGradeCalculator
         countAverage(curriculum.getEnrolmentRelatedEntries(), curriculum.getAverageType());
         countAverage(curriculum.getDismissalRelatedEntries(), curriculum.getAverageType());
         BigDecimal avg = calculateAverage();
-        rawGrade = Grade.createGrade(avg.setScale(2, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
+        rawGrade = Grade.createGrade(avg.setScale(2, getRawGradeRoundingMode()).toString(), GradeScale.TYPE20);
         finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
+    }
+
+    static private RoundingMode getRawGradeRoundingMode() {
+        RoundingMode result = RoundingMode.HALF_UP;
+
+        try {
+            result = RoundingMode
+                    .valueOf(ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculatorRawGradeRoundingMode());
+        } catch (final Throwable t) {
+            logger.warn("Failed to read Curriculum Grade Calculator Raw Grade Rounding Mode");
+        }
+
+        return result;
     }
 
     private void countAverage(final Set<ICurriculumEntry> entries, AverageType averageType) {
