@@ -235,7 +235,8 @@ public class XmlToBaseFileWriter {
                 tblInscrito.getNumInscNesteCurso() != null ? Long.valueOf((int) tblInscrito.getNumInscNesteCurso()) : null);
         inscricao.setECTSInscricao(tblInscrito.getEctsInscricao() != null ? tblInscrito.getEctsInscricao().setScale(2,
                 RoundingMode.HALF_EVEN) : null);
-        inscricao.setECTSAcumulados(tblInscrito.getEctsAcumulados().setScale(2, RoundingMode.HALF_EVEN));
+        inscricao.setECTSAcumulados(tblInscrito.getEctsAcumulados() != null ? tblInscrito.getEctsAcumulados().setScale(2,
+                RoundingMode.HALF_EVEN) : null);
         inscricao.setTempoParcial(booleanValueOf(tblInscrito.getTempoParcial()));
         inscricao.setBolseiro(longValueOf(tblInscrito.getBolseiro()));
         inscricao.setFormaIngresso(longValueOf(tblInscrito.getFormaIngresso()));
@@ -332,10 +333,10 @@ public class XmlToBaseFileWriter {
         identificacao.setOutroTipoID(tblIdentificacao.getTipoIdDescr());
         identificacao.setPaisDeNacionalidade(tblIdentificacao.getNacionalidade());
 
-        if(!Strings.isNullOrEmpty(tblIdentificacao.getOutroPaisDeNacionalidade())) {
+        if (!Strings.isNullOrEmpty(tblIdentificacao.getOutroPaisDeNacionalidade())) {
             identificacao.setOutroPaisDeNacionalidade(tblIdentificacao.getOutroPaisDeNacionalidade());
         }
-        
+
         if (!Strings.isNullOrEmpty(tblIdentificacao.getPaisEnsinoSecundario())) {
             identificacao.setPaisEnsinoSec(tblIdentificacao.getPaisEnsinoSecundario());
         } else {
