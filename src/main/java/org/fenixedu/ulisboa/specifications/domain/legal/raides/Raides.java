@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,7 +43,9 @@ import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
+import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.csv.XlsxExporter;
+import org.fenixedu.ulisboa.specifications.domain.legal.raides.mapping.LegalMappingType;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.DiplomadoService;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.IdentificacaoService;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.process.InscritoService;
@@ -339,6 +342,42 @@ public class Raides {
                 }
             }
         }
+
+        mergeSchoolPartWithGraduationLines(report, raidesRequestParameter);
+    }
+
+    //required due to graduations in different execution years reported as same execution year
+    private void mergeSchoolPartWithGraduationLines(LegalReport report, RaidesRequestParameter raidesRequestParameter) {
+
+        if (raidesRequestParameter.getGraduatedExecutionYear() == null) {
+            return;
+        }
+
+        final Map<Student, TblDiplomado> toRemove = new HashMap<>();
+
+        for (final Map.Entry<Student, TblDiplomado> entry : diplomados.entries()) {
+
+            final TblDiplomado diplomado = entry.getValue();
+
+            if (diplomado.getConclusaoMd().equals(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(false))) {
+                continue;
+            }
+
+            final TblDiplomado otherLine = diplomados.values().stream()
+                    .filter(d -> d != diplomado && d.getIdAluno().equals(diplomado.getIdAluno())
+                            && d.getCurso().equals(diplomado.getCurso()) && d.getAnoLectivo().equals(diplomado.getAnoLectivo())
+                            && d.getConcluiGrau().equals(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true)))
+                    .findFirst().orElse(null);
+
+            if (otherLine != null) {
+                otherLine.setConclusaoMd(diplomado.getConclusaoMd());
+                otherLine.setClassificacaoFinalMd(diplomado.getClassificacaoFinalMd());
+                toRemove.put(entry.getKey(), diplomado);
+            }
+        }
+
+        toRemove.entrySet().forEach(line -> diplomados.remove(line.getKey(), line.getValue()));
+
     }
 
     protected boolean isInEnrolledEctsLimit(final RaidesRequestPeriodParameter enroledPeriod, final Registration registration,
@@ -844,21 +883,20 @@ public class Raides {
     }
 
     public static Country countryOfResidence(final Registration registration, final ExecutionYear executionYear) {
-        
+
         if (registration.getPerson().getDefaultPhysicalAddress() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null) {
             return registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence();
 
         }
-        
+
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
 
         if (pid != null) {
             if (pid.getCountryOfResidence() != null) {
-                
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
-                
+
+                LegalReportContext.addWarn("", i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
+
                 return pid.getCountryOfResidence();
             }
         }
@@ -868,7 +906,7 @@ public class Raides {
 
     public static DistrictSubdivision districtSubdivisionOfResidence(final Registration registration,
             final ExecutionYear executionYear) {
-        
+
         if (registration.getPerson().getDefaultPhysicalAddress() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence().isDefaultCountry()
@@ -883,17 +921,15 @@ public class Raides {
 
             return districtSubdivision;
         }
-        
+
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
 
         if (pid != null) {
-            if (pid.getCountryOfResidence() != null && 
-                    pid.getCountryOfResidence().isDefaultCountry() && 
-                    pid.getDistrictSubdivisionOfResidence() != null) {
-                
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
-                
+            if (pid.getCountryOfResidence() != null && pid.getCountryOfResidence().isDefaultCountry()
+                    && pid.getDistrictSubdivisionOfResidence() != null) {
+
+                LegalReportContext.addWarn("", i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
+
                 return pid.getDistrictSubdivisionOfResidence();
             }
         }
@@ -902,7 +938,7 @@ public class Raides {
     }
 
     public static District districtOfResidence(final Registration registration, final ExecutionYear executionYear) {
-        
+
         if (registration.getPerson().getDefaultPhysicalAddress() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence() != null
                 && registration.getPerson().getDefaultPhysicalAddress().getCountryOfResidence().isDefaultCountry()
@@ -914,17 +950,15 @@ public class Raides {
 
             return district;
         }
-        
+
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
 
         if (pid != null) {
-            if (pid.getCountryOfResidence() != null && 
-                    pid.getCountryOfResidence().isDefaultCountry() && 
-                    pid.getDistrictSubdivisionOfResidence() != null) {
-                
-                LegalReportContext.addWarn("",
-                        i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
-                
+            if (pid.getCountryOfResidence() != null && pid.getCountryOfResidence().isDefaultCountry()
+                    && pid.getDistrictSubdivisionOfResidence() != null) {
+
+                LegalReportContext.addWarn("", i18n("warn.Raides.techWarning", formatArgs(registration, executionYear)));
+
                 return pid.getDistrictSubdivisionOfResidence().getDistrict();
             }
         }
