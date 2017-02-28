@@ -69,6 +69,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
@@ -143,8 +144,13 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                                 // not in any mark sheet
                                 ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null
 
-                                // not automatic
-                                        && EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
+                                        && (
+                                        // not automatic
+                                        EvaluationSeasonServices.isRequiredEnrolmentEvaluation(ev.getEvaluationSeason())
+
+                                                // HACK!!! imported automatically
+                                                || (!Strings.isNullOrEmpty(ev.getObservation())
+                                                        && ev.getObservation().contains("utomatic")))
 
                         // HACK!!! removing this, in order to allow anulling enrolment evaluations in this UI
                         // && ev.isFinal() && ev.getGrade() != null && !ev.getGrade().isEmpty()
