@@ -624,27 +624,6 @@ public class Raides {
         return aluno;
     }
 
-    @Deprecated
-    // Not being used
-    protected boolean deprecated_hasConcludedInYear(final Registration registration, final ExecutionYear executionYear) {
-        final boolean reportGraduatedWithoutConclusionProcess =
-                RaidesInstance.getInstance().isReportGraduatedWithoutConclusionProcess();
-
-        final Set<RegistrationConclusionInformation> informationConclusionSet =
-                RegistrationConclusionServices.inferConclusion(registration);
-        for (final RegistrationConclusionInformation rci : informationConclusionSet) {
-            if (!reportGraduatedWithoutConclusionProcess && !rci.getRegistrationConclusionBean().isConclusionProcessed()) {
-                continue;
-            }
-
-            if (rci.getConclusionYear() == executionYear) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     protected boolean containsStudentIdentification(final Student student) {
         return alunos.containsKey(student);
     }
