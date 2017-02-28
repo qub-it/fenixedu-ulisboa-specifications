@@ -340,7 +340,9 @@ public class DiplomadoService extends RaidesService {
     }
 
     private void validaAreaInvestigacao(ExecutionYear executionYear, Registration registration, TblDiplomado bean) {
-        if (Raides.isDoctoralDegree(registration) && Strings.isNullOrEmpty(bean.getAreaInvestigacao())) {
+        if (Raides.isDoctoralDegree(registration)
+                && bean.getConcluiGrau().equals(LegalMapping.find(report, LegalMappingType.BOOLEAN).translate(true))
+                && Strings.isNullOrEmpty(bean.getAreaInvestigacao())) {
             LegalReportContext.addError("",
                     i18n("error.Raides.validation.doctoral.requires.research.area", formatArgs(registration, executionYear)));
         }
