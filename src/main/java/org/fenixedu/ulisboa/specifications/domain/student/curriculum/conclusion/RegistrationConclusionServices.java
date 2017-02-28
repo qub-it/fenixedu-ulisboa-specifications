@@ -1,7 +1,8 @@
 package org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,66 +16,52 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServi
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.joda.time.YearMonthDay;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 abstract public class RegistrationConclusionServices {
 
-    public static Set<RegistrationConclusionInformation> inferConclusion(final Registration registration) {
-        final Set<RegistrationConclusionInformation> result = Sets.newHashSet();
+    public static final Comparator<RegistrationConclusionBean> CONCLUSION_BEAN_COMPARATOR = (x, y) -> {
 
+        if (x.isConclusionProcessed() && !y.isConclusionProcessed()) {
+            return 1;
+        }
+
+        if (!x.isConclusionProcessed() && y.isConclusionProcessed()) {
+            return -1;
+        }
+
+        return StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE.compare(x.getStudentCurricularPlan(),
+                y.getStudentCurricularPlan());
+    };
+
+    //TODO: refactor to allow usage from RegistrationHistoryReportService.addConclusion (allow not concluded to be returned)
+    public static Set<RegistrationConclusionInformation> inferConclusion(final Registration registration) {
+
+        final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
+        
         for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
-            for (final ProgramConclusion programConclusion : getProgramConclusions(studentCurricularPlan)) {
+            for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
+                    .collect(Collectors.toSet())) {
                 final RegistrationConclusionBean conclusionBean =
                         new RegistrationConclusionBean(studentCurricularPlan, programConclusion);
-
                 if (conclusionBean.isConcluded()) {
-                    result.add(new RegistrationConclusionInformation(conclusionBean));
+                    conclusions.put(programConclusion, conclusionBean);
                 }
             }
         }
 
-        return result;
-    }
+        final Set<RegistrationConclusionInformation> result = Sets.newHashSet();
 
-    public static Map<Registration, Set<RegistrationConclusionInformation>> inferConclusion(
-            final Set<Registration> registrationsSet) {
-        final Map<Registration, Set<RegistrationConclusionInformation>> mapResult = Maps.newHashMap();
-
-        for (final Registration registration : registrationsSet) {
-            final Set<RegistrationConclusionInformation> result = Sets.newHashSet();
-
-            for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
-                for (final ProgramConclusion programConclusion : getProgramConclusions(studentCurricularPlan)) {
-                    final RegistrationConclusionBean conclusionBean =
-                            new RegistrationConclusionBean(studentCurricularPlan, programConclusion);
-
-                    if (conclusionBean.isConcluded()) {
-                        result.add(new RegistrationConclusionInformation(conclusionBean));
-                    }
-                }
-            }
-
-            mapResult.put(registration, result);
-        }
-
-        return mapResult;
-    }
-
-    private static Set<ProgramConclusion> getProgramConclusions(final StudentCurricularPlan studentCurricularPlan) {
-        final Set<ProgramConclusion> result = Sets.newHashSet();
-
-        final Set<CurriculumGroup> allCurriculumGroups = Sets.newHashSet(studentCurricularPlan.getAllCurriculumGroups());
-        allCurriculumGroups.add(studentCurricularPlan.getRoot());
-
-        for (final CurriculumGroup curriculumGroup : allCurriculumGroups) {
-            if (curriculumGroup.getDegreeModule() == null) {
-                continue;
-            }
-
-            if (curriculumGroup.getDegreeModule().getProgramConclusion() != null) {
-                result.add(curriculumGroup.getDegreeModule().getProgramConclusion());
+        for (final ProgramConclusion programConclusion : conclusions.keySet()) {
+            final Collection<RegistrationConclusionBean> conclusionsByProgramConclusion = conclusions.get(programConclusion);
+            if (conclusionsByProgramConclusion.size() == 1) {
+                result.add(new RegistrationConclusionInformation(conclusionsByProgramConclusion.iterator().next()));
+            } else {
+                result.add(new RegistrationConclusionInformation(conclusionsByProgramConclusion.stream()
+                        .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get()));
             }
         }
 

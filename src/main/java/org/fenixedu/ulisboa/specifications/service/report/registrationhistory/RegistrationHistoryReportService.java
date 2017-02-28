@@ -24,6 +24,7 @@ import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -55,20 +56,6 @@ public class RegistrationHistoryReportService {
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
     private LocalDate graduationPeriodEndDate;
-
-    private static final Comparator<RegistrationConclusionBean> CONCLUSION_BEAN_COMPARATOR = (x, y) -> {
-
-        if (x.isConclusionProcessed() && !y.isConclusionProcessed()) {
-            return 1;
-        }
-
-        if (!x.isConclusionProcessed() && y.isConclusionProcessed()) {
-            return -1;
-        }
-
-        return StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE.compare(x.getStudentCurricularPlan(),
-                y.getStudentCurricularPlan());
-    };
 
     public RegistrationHistoryReportService() {
 
@@ -394,6 +381,7 @@ public class RegistrationHistoryReportService {
         result.setCurriculum(result.getStudentCurricularPlan().getCurriculum(new DateTime(), result.getExecutionYear()));
     }
 
+    //TODO: refactor to use RegistrationConclusionServices.inferConclusion => refactor method to allow return non conclued 
     private void addConclusion(final RegistrationHistoryReport result) {
 
         final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
@@ -414,7 +402,7 @@ public class RegistrationHistoryReportService {
                     result.addConclusion(programConclusion, conclusionsByProgramConclusion.iterator().next());
                 } else {
                     result.addConclusion(programConclusion, conclusionsByProgramConclusion.stream()
-                            .sorted(CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
+                            .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
                 }
             }
 
