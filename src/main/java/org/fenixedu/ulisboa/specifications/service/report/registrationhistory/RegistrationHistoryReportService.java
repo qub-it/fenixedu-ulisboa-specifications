@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -13,6 +14,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -25,6 +27,8 @@ import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReportService {
@@ -51,6 +55,20 @@ public class RegistrationHistoryReportService {
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
     private LocalDate graduationPeriodEndDate;
+
+    private static final Comparator<RegistrationConclusionBean> CONCLUSION_BEAN_COMPARATOR = (x, y) -> {
+
+        if (x.isConclusionProcessed() && !y.isConclusionProcessed()) {
+            return 1;
+        }
+
+        if (!x.isConclusionProcessed() && y.isConclusionProcessed()) {
+            return -1;
+        }
+
+        return StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE.compare(x.getStudentCurricularPlan(),
+                y.getStudentCurricularPlan());
+    };
 
     public RegistrationHistoryReportService() {
 
@@ -377,15 +395,27 @@ public class RegistrationHistoryReportService {
     }
 
     private void addConclusion(final RegistrationHistoryReport result) {
+
+        final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
+        for (final StudentCurricularPlan studentCurricularPlan : result.getRegistration().getStudentCurricularPlansSet()) {
+            for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
+                    .collect(Collectors.toSet())) {
+                conclusions.put(programConclusion, new RegistrationConclusionBean(studentCurricularPlan, programConclusion));
+            }
+        }
+
         for (final ProgramConclusion programConclusion : this.programConclusions) {
 
-            if (ProgramConclusion.conclusionsFor(result.getRegistration().getLastDegreeCurricularPlan())
-                    .collect(Collectors.toSet()).isEmpty()
-                    || !programConclusion.groupFor(result.getRegistration().getLastStudentCurricularPlan()).isPresent()) {
+            if (!conclusions.containsKey(programConclusion)) {
                 result.addEmptyConclusion(programConclusion);
             } else {
-                result.addConclusion(programConclusion,
-                        new RegistrationConclusionBean(result.getRegistration(), programConclusion));
+                final Collection<RegistrationConclusionBean> conclusionsByProgramConclusion = conclusions.get(programConclusion);
+                if (conclusionsByProgramConclusion.size() == 1) {
+                    result.addConclusion(programConclusion, conclusionsByProgramConclusion.iterator().next());
+                } else {
+                    result.addConclusion(programConclusion, conclusionsByProgramConclusion.stream()
+                            .sorted(CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
+                }
             }
 
         }
