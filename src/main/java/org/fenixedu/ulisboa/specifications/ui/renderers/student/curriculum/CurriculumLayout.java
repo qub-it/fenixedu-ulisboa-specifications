@@ -47,9 +47,6 @@ public class CurriculumLayout extends Layout {
 
     public CurriculumLayout(CurriculumRenderer renderer) {
         this.renderer = renderer;
-
-        // qubExtension, SCPLayout is better for this purpose
-        this.renderer.setVisibleCurricularYearEntries(false);
     }
 
     // qubExtension
@@ -86,16 +83,6 @@ public class CurriculumLayout extends Layout {
             averageEntriesTable.setClasses(renderer.getTableClass());
 
             generateAverageTableRows(averageEntriesTable);
-        }
-
-        if (renderer.isVisibleCurricularYearEntries()) {
-            final HtmlContainer curricularYearContainer = new HtmlBlockContainer();
-            container.addChild(curricularYearContainer);
-            final HtmlTable curricularYearTable = new HtmlTable();
-            curricularYearContainer.addChild(curricularYearTable);
-            curricularYearTable.setClasses(renderer.getTableClass());
-            generateCurricularYearTableRows(curricularYearTable);
-            generateCurricularYearSums(curricularYearTable);
         }
 
         return container;
@@ -274,10 +261,6 @@ public class CurriculumLayout extends Layout {
                 renderer.getWeightCellClass());
     }
 
-    private void generateEctsCreditsCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
-        generateCellWithText(enrolmentRow, entry.getEctsCreditsForCurriculum().toString(), renderer.getEctsCreditsCellClass());
-    }
-
     private void generateExecutionYearCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
         generateCellWithText(enrolmentRow, entry.getExecutionYear() == null ? "-" : entry.getExecutionYear().getYear(),
                 renderer.getEnrolmentExecutionYearCellClass());
@@ -299,66 +282,6 @@ public class CurriculumLayout extends Layout {
         final HtmlTableCell cell = row.createCell();
         cell.setClasses(renderer.getGradeCellClass());
         cell.setBody(inlineContainer);
-    }
-
-    private void generateCurricularYearTableRows(final HtmlTable table) {
-        final Set<ICurriculumEntry> sortedEntries =
-                new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        sortedEntries.addAll(this.curriculum.getCurricularYearEntries());
-        if (!sortedEntries.isEmpty()) {
-            generateCurricularYearTableHeader(table);
-            generateCurricularYearRows(table, sortedEntries);
-        }
-    }
-
-    private void generateCurricularYearTableHeader(final HtmlTable table) {
-        final HtmlTableRow row = table.createRow();
-        row.setClasses(renderer.getHeaderRowClass());
-
-        final HtmlTableCell textCell = row.createCell();
-        textCell.setClasses(renderer.getGradeCellClass());
-        textCell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
-
-        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.ects"), renderer.getGradeCellClass());
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.executionInterval"), renderer.getGradeCellClass());
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularPeriod"), renderer.getGradeCellClass());
-    }
-
-    private void generateCurricularYearRows(HtmlTable mainTable, Set<ICurriculumEntry> entries) {
-        for (final ICurriculumEntry entry : entries) {
-            generateCurricularYearRow(mainTable, entry);
-        }
-    }
-
-    private void generateCurricularYearRow(HtmlTable mainTable, final ICurriculumEntry entry) {
-        final HtmlTableRow enrolmentRow = mainTable.createRow();
-        enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
-
-        generateCodeAndNameCell(enrolmentRow, entry);
-        if (entry instanceof ExternalEnrolment) {
-            generateExternalEnrolmentLabelCell(enrolmentRow, (ExternalEnrolment) entry);
-        }
-        generateEctsCreditsCell(enrolmentRow, entry);
-        generateExecutionYearCell(enrolmentRow, entry);
-        generateSemesterCell(enrolmentRow, entry);
-    }
-
-    private void generateCurricularYearSums(final HtmlTable mainTable) {
-        final HtmlTableRow row = mainTable.createRow();
-        row.setClasses(renderer.getHeaderRowClass());
-
-        final HtmlTableCell sumsCell = row.createCell();
-        sumsCell.setText("Somatórios");
-        sumsCell.setStyle("text-align: right;");
-        sumsCell.setColspan(14);
-
-        final HtmlTableCell sumEctsCreditsCell = row.createCell();
-        sumEctsCreditsCell.setText(this.curriculum.getSumEctsCredits().toString());
-        sumEctsCreditsCell.setClasses(renderer.getGradeCellClass());
-
-        final HtmlTableCell emptyCell = row.createCell();
-        emptyCell.setClasses(renderer.getGradeCellClass());
-        emptyCell.setColspan(2);
     }
 
     protected HtmlLink createGradingTableGeneratorLink(final String text, final ExecutionYear executionYear) {
