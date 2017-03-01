@@ -420,7 +420,7 @@ $(document).ready(function() {
 	                           				{
 	                           				"DT_RowId" : '<c:out value='${searchResult.externalId}'/>',
 	                           "code" : "<c:out value='${searchResult.enrolment.code}'/>",
-	                           "enrolment" : "<%=evaluation.getEnrolment().getName().getContent().replace("'", " ").replace("\"", " ")%>",
+	                           "enrolment" : "<%=evaluation.getEnrolment().getPresentationName().getContent().replace("'", " ").replace("\"", " ")%>",
 	                           <%--"executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",--%>
 	                           "grade" : "<c:out value='${searchResult.grade.value}'/><%if (!evaluation.getGrade().isEmpty()) {%> <span class='color888 smalltxt'>(<span class='smalltxt'><c:out value='${searchResult.grade.extendedValue.content}' />, </span><c:out value='${searchResult.grade.gradeScale.description}' />)</span><%}%>",
 	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
@@ -461,7 +461,7 @@ $(document).ready(function() {
 		enrolment_options = [
 			<c:forEach items="${LooseEvaluationBean_enrolment_options}" var="element"> 
 				{
-					text : "${element.code} - <%=((Enrolment) pageContext.getAttribute("element")).getName().getContent().replace("'", " ").replace("\"", " ")%>",
+					text : "${element.code} - <%=((Enrolment) pageContext.getAttribute("element")).getPresentationName().getContent().replace("'", " ").replace("\"", " ")%>",
 					id : "${element.externalId}"
 				},
 			</c:forEach>
