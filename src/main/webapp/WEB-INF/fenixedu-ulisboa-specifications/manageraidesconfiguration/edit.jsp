@@ -281,6 +281,21 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 				</div>
 			</div>
 			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RaidesInstance.grantOwnerStatuteTypes" />
+				</div>
+
+				<div class="col-sm-10">
+					<ui-select	id="grantOwnerStatuteTypesSelect" name="grantOwnerStatuteTypes" ng-model="$parent.object.grantOwnerStatuteTypes" theme="bootstrap" multiple="true">
+						<ui-select-match>{{$item.text}}</ui-select-match> 
+						<ui-select-choices	repeat="statute.id as statute in object.grantOwnerStatuteTypesDataSource | filter: $select.search">
+							<span ng-bind-html="statute.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
+				</div>
+			</div>
+			
 		</div>
 		
 		<div class="panel-body">

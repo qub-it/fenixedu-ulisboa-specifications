@@ -184,6 +184,17 @@ ${portal.angularToolkit()}
 							<spring:message code='${raidesInstance.reportGraduatedWithoutConclusionProcess ? "label.true" : "label.false"}' />
 						</td>
 					</tr>
+					
+					<tr>
+						<th scope="row" class="col-xs-3">
+							<spring:message code="label.RaidesInstance.grantOwnerStatuteTypes" />
+						</th>
+						<td>
+							<c:forEach var="statuteType" items="${raidesInstance.grantOwnerStatuteTypes}">
+								<c:out escapeXml="false" value="${statuteType.code} - ${statuteType.name.content} <br/>" />
+							</c:forEach>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</form>

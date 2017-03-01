@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -30,6 +31,7 @@ public class RaidesInstanceBean implements IBean {
     private Set<IngressionType> degreeChangeIngressions;
     private Set<IngressionType> degreeTransferIngressions;
     private Set<IngressionType> ingressionsForGeneralAccessRegime;
+    private Set<StatuteType> grantOwnerStatuteTypes;
 
     private List<TupleDataSourceBean> ingressionTypesDataSource;
 
@@ -38,6 +40,8 @@ public class RaidesInstanceBean implements IBean {
     private List<TupleDataSourceBean> integratedMasterFirstCycleGraduatedReportOptionsDataSource;
 
     private List<TupleDataSourceBean> defaultDistrictOfResidenceDataSource;
+
+    private List<TupleDataSourceBean> grantOwnerStatuteTypesDataSource;
 
     private boolean formsAvailableToStudents;
 
@@ -52,13 +56,13 @@ public class RaidesInstanceBean implements IBean {
     private IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption;
 
     private District defaultDistrictOfResidence;
-    
+
     private boolean reportGraduatedWithoutConclusionProcess;
 
     public RaidesInstanceBean(final RaidesInstance raidesInstance) {
         setInstitutionCode(raidesInstance.getInstitutionCode());
         setInterlocutorPhone(raidesInstance.getInterlocutorPhone());
-        
+
         setPasswordToZip(raidesInstance.getPasswordToZip());
 
         setMobilityAgreements(Sets.newHashSet(raidesInstance.getMobilityAgreementsSet()));
@@ -77,7 +81,8 @@ public class RaidesInstanceBean implements IBean {
         setIntegratedMasterFirstCycleGraduatedReportOption(raidesInstance.getIntegratedMasterFirstCycleGraduatedReportOption());
         setDefaultDistrictOfResidence(raidesInstance.getDefaultDistrictOfResidence());
         setReportGraduatedWithoutConclusionProcess(raidesInstance.isReportGraduatedWithoutConclusionProcess());
-        
+        setGrantOwnerStatuteTypes(Sets.newHashSet(raidesInstance.getGrantOwnerStatuteTypesSet()));
+
         loadDataSources();
     }
 
@@ -106,6 +111,12 @@ public class RaidesInstanceBean implements IBean {
         this.defaultDistrictOfResidenceDataSource = Lists.newArrayList();
         this.defaultDistrictOfResidenceDataSource.addAll(Bennu.getInstance().getDistrictsSet().stream()
                 .map(i -> new TupleDataSourceBean(i.getExternalId(), i.getName())).collect(Collectors.toSet()));
+
+        this.grantOwnerStatuteTypesDataSource = Lists.newArrayList();
+        this.grantOwnerStatuteTypesDataSource
+                .addAll(Bennu.getInstance().getStatuteTypesSet().stream().sorted(StatuteType.COMPARATOR_BY_NAME)
+                        .map(s -> new TupleDataSourceBean(s.getExternalId(), s.getCode() + " - " + s.getName().getContent()))
+                        .collect(Collectors.toList()));
 
     }
 
@@ -159,6 +170,18 @@ public class RaidesInstanceBean implements IBean {
 
     public void setIngressionsForGeneralAccessRegime(Set<IngressionType> ingressionsForGeneralAccessRegime) {
         this.ingressionsForGeneralAccessRegime = ingressionsForGeneralAccessRegime;
+    }
+
+    public Set<StatuteType> getGrantOwnerStatuteTypes() {
+        return grantOwnerStatuteTypes;
+    }
+
+    public void setGrantOwnerStatuteTypes(Set<StatuteType> grantOwnerStatuteTypes) {
+        this.grantOwnerStatuteTypes = grantOwnerStatuteTypes;
+    }
+
+    public List<TupleDataSourceBean> getGrantOwnerStatuteTypesDataSource() {
+        return grantOwnerStatuteTypesDataSource;
     }
 
     public boolean isFormsAvailableToStudents() {
@@ -217,15 +240,15 @@ public class RaidesInstanceBean implements IBean {
     public void setDefaultDistrictOfResidence(District defaultDistrictOfResidence) {
         this.defaultDistrictOfResidence = defaultDistrictOfResidence;
     }
-    
+
     public boolean isReportGraduatedWithoutConclusionProcess() {
         return reportGraduatedWithoutConclusionProcess;
     }
-    
+
     public void setReportGraduatedWithoutConclusionProcess(boolean reportGraduatedWithoutConclusionProcess) {
         this.reportGraduatedWithoutConclusionProcess = reportGraduatedWithoutConclusionProcess;
     }
-    
+
     public static final Locale LOCALE_EN = new Locale("EN");
 
     public LocalizedString getBlueRecordStartMessageContentLocalizedString() {

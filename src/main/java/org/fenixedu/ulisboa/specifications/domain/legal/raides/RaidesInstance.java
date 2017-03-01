@@ -5,6 +5,7 @@ import java.util.Set;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
+import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -101,8 +102,8 @@ public class RaidesInstance extends RaidesInstance_Base {
             final boolean formsAvailableToStudents, final LocalizedString blueRecordStartMessageContent,
             final String institutionCode, final String interlocutorPhone,
             final IntegratedMasterFirstCycleGraduatedReportOption integratedMasterFirstCycleGraduatedReportOption,
-            final District defaultDistrictOfResidence,
-            final boolean reportGraduatedWithoutConclusionProcess) {
+            final District defaultDistrictOfResidence, final boolean reportGraduatedWithoutConclusionProcess,
+            final Set<StatuteType> grantOwnerStatuteTypes) {
         edit(name, group, synchronous, hasMappings);
 
         setPasswordToZip(passwordToZip);
@@ -131,6 +132,9 @@ public class RaidesInstance extends RaidesInstance_Base {
         setIntegratedMasterFirstCycleGraduatedReportOption(integratedMasterFirstCycleGraduatedReportOption);
         setDefaultDistrictOfResidence(defaultDistrictOfResidence);
         setReportGraduatedWithoutConclusionProcess(reportGraduatedWithoutConclusionProcess);
+
+        getGrantOwnerStatuteTypesSet().clear();
+        getGrantOwnerStatuteTypesSet().addAll(grantOwnerStatuteTypes);
     }
 
     public boolean isToReportAllIntegratedMasterFirstCycleGraduatedStudents() {
@@ -145,11 +149,11 @@ public class RaidesInstance extends RaidesInstance_Base {
         return getIntegratedMasterFirstCycleGraduatedReportOption() == null
                 || getIntegratedMasterFirstCycleGraduatedReportOption() == IntegratedMasterFirstCycleGraduatedReportOption.NONE;
     }
-    
+
     public boolean isSumEctsCreditsBetweenPlans() {
         return getSumEctsCreditsBetweenPlans();
     }
-    
+
     public boolean isReportGraduatedWithoutConclusionProcess() {
         return getReportGraduatedWithoutConclusionProcess();
     }

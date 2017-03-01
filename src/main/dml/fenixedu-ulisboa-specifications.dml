@@ -2362,6 +2362,17 @@ class legal.raides.RaidesInstance extends legal.report.LegalReport {
 			multiplicity 0..1;
 		}
 	}
+	
+	relation RaidesInstanceGrantOwnerStatuteTypes {
+		legal.raides.RaidesInstance playsRole {
+			multiplicity *;
+		}
+		
+		.org.fenixedu.academic.domain.student.StatuteType playsRole grantOwnerStatuteTypes {
+			multiplicity *;
+		}
+	}
+	
 
 class legal.raides.RaidesFormPeriod {
 	boolean active;

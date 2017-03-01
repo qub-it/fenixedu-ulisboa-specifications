@@ -106,7 +106,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             final EnumerationLegalMapping legalMapping = (EnumerationLegalMapping) LegalMapping
                     .create(LegalMappingType.HIGH_SCHOOL_TYPE, RaidesInstance.getInstance());
 
-            legalMapping.addEntry(AcademicalInstitutionType.NATIONAL_PRIVATE_INSTITUTION, "1");
+            legalMapping.addEntry(AcademicalInstitutionType.PUBLIC_HIGH_SCHOOL, "1");
             legalMapping.addEntry(AcademicalInstitutionType.PRIVATE_AND_PUBLIC_HIGH_SCHOOL, "3");
             legalMapping.addEntry(AcademicalInstitutionType.PRIVATE_HIGH_SCHOOL, "2");
         }
@@ -524,7 +524,7 @@ public class CreateRaidesInstanceCustomTask extends CustomTask {
             RaidesInstance.getInstance().edit(new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, "RAIDES"),
                     Group.parse("#academicAdmOffice").toPersistentGroup(), false, true, "CSgPqCgfupvKqqFQsk6J", Sets.newHashSet(),
                     Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), Sets.newHashSet(), false, new LocalizedString(), "",
-                    "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null, false);
+                    "", IntegratedMasterFirstCycleGraduatedReportOption.ALL, null, false, Sets.newHashSet());
         }
     }
 
