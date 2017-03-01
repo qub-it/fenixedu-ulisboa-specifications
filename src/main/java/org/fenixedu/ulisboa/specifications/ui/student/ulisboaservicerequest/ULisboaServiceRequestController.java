@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academictreasury.util.Constants;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.treasury.domain.document.DebitEntry;
@@ -39,18 +41,18 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/student/ulisboaservicerequest";
 
-    private ULisboaServiceRequestBean getULisboaServiceRequestBean(Model model) {
+    private ULisboaServiceRequestBean getULisboaServiceRequestBean(final Model model) {
         return (ULisboaServiceRequestBean) model.asMap().get("ulisboaServiceRequestBean");
     }
 
-    private void setULisboaServiceRequestBean(ULisboaServiceRequestBean bean, Model model) {
+    private void setULisboaServiceRequestBean(final ULisboaServiceRequestBean bean, final Model model) {
         bean.updateModelLists();
         model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
         model.addAttribute("ulisboaServiceRequestBean", bean);
     }
 
     @RequestMapping
-    public String home(Model model, RedirectAttributes redirectAttributes) {
+    public String home(final Model model, final RedirectAttributes redirectAttributes) {
         return redirect(CHOOSE_REGISTRATION_URL, model, redirectAttributes);
     }
 
@@ -58,7 +60,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String CHOOSE_REGISTRATION_URL = CONTROLLER_URL + _CHOOSE_REGISTRATION_URI;
 
     @RequestMapping(value = _CHOOSE_REGISTRATION_URI, method = RequestMethod.GET)
-    public String chooseRegistration(Model model, RedirectAttributes redirectAttributes) {
+    public String chooseRegistration(final Model model, final RedirectAttributes redirectAttributes) {
         List<Registration> registrations =
                 AccessControl.getPerson().getStudent().getRegistrationsSet().stream().collect(Collectors.toList());
         if (registrations.size() == 1) {
@@ -72,7 +74,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String READ_REGISTRATION_URL = CONTROLLER_URL + _READ_REGISTRATION_URI;
 
     @RequestMapping(value = _READ_REGISTRATION_URI + "{oid}", method = RequestMethod.GET)
-    public String read(@PathVariable("oid") Registration registration, Model model) {
+    public String read(@PathVariable("oid") final Registration registration, final Model model) {
         model.addAttribute("registration", registration);
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/student/read";
     }
@@ -81,7 +83,8 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String CREATE_SERVICE_REQUEST_URL = CONTROLLER_URL + _CREATE_SERVICE_REQUEST_URI;
 
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.GET)
-    public String create(@PathVariable("oid") Registration registration, Model model, RedirectAttributes redirectAttributes) {
+    public String create(@PathVariable("oid") final Registration registration, final Model model,
+            final RedirectAttributes redirectAttributes) {
         if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
             addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
             return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
@@ -93,9 +96,9 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     }
 
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.POST)
-    public String createAcademicRequest(@PathVariable(value = "oid") Registration registration,
-            @RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String createAcademicRequest(@PathVariable(value = "oid") final Registration registration,
+            @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
         setULisboaServiceRequestBean(bean, model);
         try {
             if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
@@ -115,8 +118,8 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_POSTBACK_URI, method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public @ResponseBody String createpostback(@RequestParam(value = "bean", required = true) ULisboaServiceRequestBean bean,
-            Model model) {
+    public @ResponseBody String createpostback(
+            @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model) {
         setULisboaServiceRequestBean(bean, model);
         return getBeanJson(bean);
     }
@@ -125,7 +128,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String READ_SERVICE_REQUEST_URL = CONTROLLER_URL + _READ_SERVICE_REQUEST_URI;
 
     @RequestMapping(value = _READ_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.GET)
-    public String readServiceRequest(@PathVariable("oid") ULisboaServiceRequest serviceRequest, Model model) {
+    public String readServiceRequest(@PathVariable("oid") final ULisboaServiceRequest serviceRequest, final Model model) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
 
@@ -133,7 +136,9 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             List<DebitEntry> activeDebitEntries =
                     DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.<DebitEntry> toList());
             model.addAttribute("activeDebitEntries", activeDebitEntries);
-            if (isAnyPaymentCodeInUsedState(activeDebitEntries)) {
+            model.addAttribute("paymentCodesWithOpenAmountsDebts", getAllOpenPaymentCodes(activeDebitEntries));
+
+            if (isAnyPaymentLeft(activeDebitEntries)) {
                 addWarningMessage(
                         BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.need.to.do.the.payment"),
                         model);
@@ -145,17 +150,21 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
     }
 
-    private boolean isAnyPaymentCodeInUsedState(List<DebitEntry> activeDebitEntries) {
-        List<PaymentReferenceCode> paymentReferenceCodes = activeDebitEntries.stream().map(e -> e.getPaymentCodesSet())
-                .flatMap(x -> x.stream()).map(pc -> pc.getPaymentReferenceCode()).collect(Collectors.toList());
-        return paymentReferenceCodes.stream().filter(p -> p.getState().isUsed()).count() > 0;
+    private Collection<PaymentReferenceCode> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
+        return activeDebitEntries.stream().filter(entry -> !Constants.isZero(entry.getOpenAmount()))
+                .flatMap(entry -> entry.getPaymentCodesSet().stream()).map(payCode -> payCode.getPaymentReferenceCode())
+                .collect(Collectors.toList());
+    }
+
+    private boolean isAnyPaymentLeft(final List<DebitEntry> activeDebitEntries) {
+        return activeDebitEntries.stream().filter(entry -> !Constants.isZero(entry.getOpenAmount())).count() > 0;
     }
 
     private static final String _HISTORY_SERVICE_REQUEST_URI = "/history/";
     public static final String HISTORY_SERVICE_REQUEST_URL = CONTROLLER_URL + _HISTORY_SERVICE_REQUEST_URI;
 
     @RequestMapping(value = _HISTORY_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.GET)
-    public String viewRequestHistory(@PathVariable(value = "oid") Registration registration, Model model) {
+    public String viewRequestHistory(@PathVariable(value = "oid") final Registration registration, final Model model) {
         model.addAttribute("registration", registration);
         model.addAttribute("uLisboaServiceRequestList",
                 ULisboaServiceRequest.findByRegistration(registration).collect(Collectors.toList()));
@@ -167,8 +176,8 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public void download(@PathVariable(value = "oid") ULisboaServiceRequest serviceRequest, Model model,
-            HttpServletResponse response) {
+    public void download(@PathVariable(value = "oid") final ULisboaServiceRequest serviceRequest, final Model model,
+            final HttpServletResponse response) {
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {

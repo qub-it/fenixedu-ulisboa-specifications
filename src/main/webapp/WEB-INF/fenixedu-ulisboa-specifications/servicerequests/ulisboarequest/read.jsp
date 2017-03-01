@@ -542,10 +542,8 @@ ${portal.toolkit()}
     </div>
 </c:if>
 
-<c:forEach var="activeDebitEntry" items="${ activeDebitEntries }">
-    <c:forEach var="paymentCode" items="${ activeDebitEntry.paymentCodesSet }">
-        <c:set var="paymentReferenceCode" value="${ paymentCode.paymentReferenceCode }" />
-        <c:if test="${paymentReferenceCode.state=='USED'}">
+<c:forEach var="paymentReferenceCode" items="${ paymentCodesWithOpenAmountsDebts }">
+    <c:if test="${paymentReferenceCode.state=='USED'}">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">
@@ -638,8 +636,7 @@ ${portal.toolkit()}
                 </form>
             </div>
         </div>
-        </c:if>
-    </c:forEach>
+    </c:if>
 </c:forEach>
 
 <div class="panel panel-primary">

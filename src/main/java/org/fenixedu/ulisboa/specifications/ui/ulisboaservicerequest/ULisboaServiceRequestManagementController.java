@@ -26,6 +26,7 @@ import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
+import org.fenixedu.academictreasury.util.Constants;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -239,7 +240,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             List<DebitEntry> activeDebitEntries =
                     DebitEntry.findActive(serviceRequest.getAcademicTreasuryEvent()).collect(Collectors.<DebitEntry> toList());
             model.addAttribute("activeDebitEntries", activeDebitEntries);
-            if (isAnyPaymentCodeInUsedState(activeDebitEntries)) {
+            model.addAttribute("paymentCodesWithOpenAmountsDebts", getAllOpenPaymentCodes(activeDebitEntries));
+
+            if (isAnyPaymentLeft(activeDebitEntries)) {
                 addWarningMessage(
                         BundleUtil.getString(ULisboaConstants.BUNDLE, "label.ULisboaServiceRequest.need.to.do.the.payment"),
                         model);
@@ -259,10 +262,14 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
     }
 
-    private boolean isAnyPaymentCodeInUsedState(final List<DebitEntry> activeDebitEntries) {
-        List<PaymentReferenceCode> paymentReferenceCodes = activeDebitEntries.stream().map(e -> e.getPaymentCodesSet())
-                .flatMap(x -> x.stream()).map(pc -> pc.getPaymentReferenceCode()).collect(Collectors.toList());
-        return paymentReferenceCodes.stream().filter(p -> p.getState().isUsed()).count() > 0;
+    private Collection<PaymentReferenceCode> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
+        return activeDebitEntries.stream().filter(entry -> !Constants.isZero(entry.getOpenAmount()))
+                .flatMap(entry -> entry.getPaymentCodesSet().stream()).map(payCode -> payCode.getPaymentReferenceCode())
+                .collect(Collectors.toList());
+    }
+
+    private boolean isAnyPaymentLeft(final List<DebitEntry> activeDebitEntries) {
+        return activeDebitEntries.stream().filter(entry -> !Constants.isZero(entry.getOpenAmount())).count() > 0;
     }
 
     private void addDocumentTemplatesToModel(final ULisboaServiceRequest serviceRequest, final Model model) {
