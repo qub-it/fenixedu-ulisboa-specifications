@@ -124,8 +124,11 @@ public class MobilidadeInternacionalService extends RaidesService {
             bean.setAreaCientifica(null);
             bean.setNivelCursoDestino(null);
             bean.setOutroNivelCursoDestino(null);
-            bean.setAnoCurricular(LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR)
-                    .translate(String.valueOf(RegistrationServices.getCurricularYear(registration, executionYear).getResult())));
+
+            if (!Raides.isDoctoralDegree(registration)) {
+                bean.setAnoCurricular(LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(
+                        String.valueOf(RegistrationServices.getCurricularYear(registration, executionYear).getResult())));
+            }
 
         } else {
             bean.setCurso(Raides.Cursos.OUTRO);
