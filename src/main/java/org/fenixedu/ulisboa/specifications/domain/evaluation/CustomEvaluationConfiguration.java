@@ -23,18 +23,21 @@ public class CustomEvaluationConfiguration extends CustomEvaluationConfiguration
         setRoot(Bennu.getInstance());
     }
 
+    @Override
     public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment) {
         final Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
         final Predicate<EnrolmentEvaluation> isSpecialAuthorization = getSpecialAuthorizationFilter(enrolment);
         return enrolment.getEvaluationsSet().stream().filter(isFinal.and(isSpecialAuthorization)).max(ENROLMENT_EVALUATION_ORDER);
     }
 
+    @Override
     public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season) {
         final Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
         final Predicate<EnrolmentEvaluation> isSeason = e -> e.getEvaluationSeason().equals(season);
         return enrolment.getEvaluationsSet().stream().filter(isFinal.and(isSeason)).max(ENROLMENT_EVALUATION_ORDER);
     }
 
+    @Override
     public Optional<EnrolmentEvaluation> getEnrolmentEvaluationForConclusionDate(Enrolment enrolment) {
         Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
         Predicate<EnrolmentEvaluation> isImprovement = e -> e.getEvaluationSeason().isImprovement();
@@ -53,9 +56,11 @@ public class CustomEvaluationConfiguration extends CustomEvaluationConfiguration
         return ENROLMENT_FILTER.test(enrolment);
     }
 
+    @Override
     public Optional<EnrolmentEvaluation> getCurrentEnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season) {
         Predicate<EnrolmentEvaluation> isSeason = e -> e.getEvaluationSeason().equals(season);
-        return enrolment.getEvaluationsSet().stream().filter(isSeason).max(EnrolmentEvaluation.COMPARATORY_BY_WHEN);
+        Predicate<EnrolmentEvaluation> hasWhen = e -> e.getWhenDateTime() != null;
+        return enrolment.getEvaluationsSet().stream().filter(isSeason.and(hasWhen)).max(EnrolmentEvaluation.COMPARATORY_BY_WHEN);
     }
 
 }
