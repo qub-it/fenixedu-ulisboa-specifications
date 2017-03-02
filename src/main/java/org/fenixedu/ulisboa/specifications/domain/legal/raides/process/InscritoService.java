@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
@@ -228,11 +229,8 @@ public class InscritoService extends RaidesService {
     protected String bolseiro(final Registration registration, final ExecutionYear executionYear) {
 
         final PersonalIngressionData pid = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
-        if (pid == null) {
-            return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
-        }
-
-        if (pid.getGrantOwnerType() == null) {
+        if (pid == null || pid.getGrantOwnerType() == null
+                || pid.getGrantOwnerType() == GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP) {
             return LegalMapping.find(report, LegalMappingType.GRANT_OWNER_TYPE).translate(Raides.Bolseiro.NAO_BOLSEIRO);
         }
 
