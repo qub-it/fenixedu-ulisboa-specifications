@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.CompetenceCourseType;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
@@ -19,6 +21,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -33,6 +36,7 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.ulisboa.specifications.domain.legal.LegalReportContext;
 import org.fenixedu.ulisboa.specifications.domain.legal.mapping.LegalMapping;
 import org.fenixedu.ulisboa.specifications.domain.legal.raides.IGrauPrecedenteCompleto;
@@ -52,7 +56,10 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.reflect.TypeToken.TypeSet;
 
 public class RaidesService {
 
@@ -68,25 +75,37 @@ public class RaidesService {
             return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.NAO_APLICAVEL_CODE);
         }
 
-        if (isOnlyEnrolledOnDissertation(registration, executionYear)) {
+        if (isOnlyEnrolledOnCompetenceCourseType(registration, executionYear, CompetenceCourseType.DISSERTATION)) {
             return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.DISSERTACAO_CODE);
+        } else if(isOnlyEnrolledOnCompetenceCourseType(registration, executionYear, CompetenceCourseType.INTERNSHIP)) {
+            return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.ESTAGIO_FINAL_CODE);
+        } else if(isOnlyEnrolledOnCompetenceCourseType(registration, executionYear, CompetenceCourseType.PROJECT_WORK)) {
+            return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR).translate(Raides.AnoCurricular.TRABALHO_PROJECTO_CODE);
         }
 
         return LegalMapping.find(report, LegalMappingType.CURRICULAR_YEAR)
                 .translate(String.valueOf(RegistrationServices.getCurricularYear(registration, executionYear).getResult()));
     }
 
-    protected boolean isOnlyEnrolledOnDissertation(final Registration registration, final ExecutionYear executionYear) {
-        Collection<Enrolment> enrolments = registration.getEnrolments(executionYear);
+    protected boolean isOnlyEnrolledOnCompetenceCourseType(final Registration registration, final ExecutionYear executionYear, 
+            final CompetenceCourseType competenceCourseType) {
+        final Collection<Enrolment> enrolments = registration.getEnrolments(executionYear);
 
-        if (enrolments.size() > 1) {
+        final Set<CompetenceCourseType> typesSet = Sets.newHashSet();
+        for (final Enrolment enrolment : enrolments) {
+            final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
+            final CompetenceCourseType type = curricularCourse != null ? curricularCourse.getCompetenceCourse().getType() : CompetenceCourseType.REGULAR;
+            
+            typesSet.add(type);
+        }
+        
+        if (typesSet.size() != 1) {
             return false;
         }
-
-        return registration.getStudentCurricularPlan(executionYear).getDissertationEnrolments()
-                .contains(enrolments.iterator().next());
+        
+        return typesSet.iterator().next() == competenceCourseType;
     }
-
+    
     protected boolean isFirstTimeOnDegree(final Registration registration, final ExecutionYear executionYear) {
         if (!Raides.getPrecedentDegreeRegistrations(registration).isEmpty()) {
             return false;
@@ -691,7 +710,11 @@ public class RaidesService {
     }
 
     protected String regimeFrequencia(final Registration registration, final ExecutionYear executionYear) {
-        if (isOnlyEnrolledOnDissertation(registration, executionYear)) {
+        final boolean onlyEnrolledOnDissertation = isOnlyEnrolledOnCompetenceCourseType(registration, executionYear, CompetenceCourseType.DISSERTATION);
+        final boolean onlyEnrolledOnInternship = isOnlyEnrolledOnCompetenceCourseType(registration, executionYear, CompetenceCourseType.INTERNSHIP);
+        final boolean onlyEnrolledOnProjectWork = isOnlyEnrolledOnCompetenceCourseType(registration, executionYear, CompetenceCourseType.PROJECT_WORK);
+
+        if (onlyEnrolledOnDissertation || onlyEnrolledOnInternship || onlyEnrolledOnProjectWork) {
             return LegalMapping.find(report, LegalMappingType.REGIME_FREQUENCIA).translate(Raides.RegimeFrequencia.ETD_CODE);
         }
 
