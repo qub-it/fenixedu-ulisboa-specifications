@@ -51,6 +51,7 @@ import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
@@ -69,7 +70,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
@@ -141,6 +141,8 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 .flatMap(enr -> enr.getEvaluationsSet().stream())
                 .filter(ev -> ev.getExecutionPeriod() == semester || ev.getEnrolment().getExecutionPeriod() == semester)
                 .filter(ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null)
+                .filter(ev -> EvaluationServices
+                        .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty())
                 .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID)).collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
