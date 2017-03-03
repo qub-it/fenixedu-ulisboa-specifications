@@ -25,9 +25,11 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
@@ -41,6 +43,7 @@ import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
@@ -53,7 +56,6 @@ public class AverageEntry implements Comparable<AverageEntry> {
     private ICurriculumEntry entry;
     private Integer curricularYear;
     private Integer curricularSemester;
-    private ExecutionYear executionYear;
     private String entryInfo;
     private String entryCurriculumLinesInfo;
 
@@ -62,7 +64,6 @@ public class AverageEntry implements Comparable<AverageEntry> {
         this.entry = entry;
         this.curricularYear = getCurricularYear(entry);
         this.curricularSemester = getCurricularSemester(entry);
-        this.executionYear = entry.getExecutionYear();
         this.entryInfo = getEntryInfo(entry);
         this.entryCurriculumLinesInfo = getEntryCurriculumLinesInfo(entry);
     }
@@ -71,8 +72,38 @@ public class AverageEntry implements Comparable<AverageEntry> {
         return approvalType;
     }
 
+    public String getApprovalTypeDescription() {
+        String label = null;
+
+        if (getApprovalType() == Enrolment.class) {
+            label = "label.approvalType.Enrolment";
+        }
+
+        if (getApprovalType() == Substitution.class) {
+            label = "label.approvalType.Substitution";
+        }
+
+        if (getApprovalType() == Equivalence.class) {
+            label = "label.approvalType.Equivalence";
+        }
+
+        return Strings.isNullOrEmpty(label) ? "-" : ULisboaSpecificationsUtil.bundle(label);
+    }
+
     public ICurriculumEntry getEntry() {
         return entry;
+    }
+
+    public ExecutionYear getExecutionYear() {
+        return getEntry().getExecutionYear();
+    }
+
+    public BigDecimal getEcts() {
+        return getEntry().getEctsCreditsForCurriculum();
+    }
+
+    public BigDecimal getGradeValue() {
+        return BigDecimal.valueOf(Long.valueOf(getEntry().getGradeValue()));
     }
 
     public Integer getCurricularYear() {
@@ -83,16 +114,53 @@ public class AverageEntry implements Comparable<AverageEntry> {
         return curricularSemester;
     }
 
-    public ExecutionYear getExecutionYear() {
-        return executionYear;
-    }
-
     public String getEntryInfo() {
         return entryInfo;
     }
 
     public String getEntryCurriculumLinesInfo() {
         return entryCurriculumLinesInfo;
+    }
+
+    @Override
+    public int compareTo(final AverageEntry o) {
+        int result = 0;
+
+        if (getCurricularYear() != null && o.getCurricularYear() != null) {
+            result = getEntryInfo().compareTo(o.getEntryInfo());
+        }
+
+        if (result == 0) {
+            result = getCurricularYear() != null ? -1 : 1;
+        }
+
+        if (result == 0) {
+            result = getEntryInfo().compareTo(o.getEntryInfo());
+        }
+
+        if (result == 0) {
+            result = CurriculumLayout.getPresentationNameFor(getEntry())
+                    .compareTo(CurriculumLayout.getPresentationNameFor(o.getEntry()));
+        }
+
+        return result;
+    }
+
+    static public List<AverageEntry> getAverageEntries(final Curriculum curriculum) {
+        final List<AverageEntry> result = Lists.newLinkedList();
+
+        final Predicate<ICurriculumEntry> predicate =
+                i -> i.getGrade().isNumeric() && !i.getWeigthForCurriculum().equals(BigDecimal.ZERO);
+
+        curriculum.getEnrolmentRelatedEntries().stream().filter(predicate).map(i -> new AverageEntry(Enrolment.class, i))
+                .collect(Collectors.toCollection(() -> result));
+
+        curriculum.getDismissalRelatedEntries().stream().filter(predicate)
+                .map(i -> new AverageEntry(i instanceof Dismissal ? Equivalence.class : Substitution.class, i))
+                .collect(Collectors.toCollection(() -> result));
+
+        Collections.sort(result);
+        return result;
     }
 
     static private Integer getCurricularYear(final ICurriculumEntry entry) {
@@ -139,63 +207,8 @@ public class AverageEntry implements Comparable<AverageEntry> {
             return Dismissal.class.isAssignableFrom(entry.getClass()) ? "Idem" : "-";
         }
 
-        return lines.stream().map(line -> getEntryInfo((ICurriculumEntry) line)).collect(Collectors.joining(" <br/> "));
-    }
-
-    @Override
-    public int compareTo(final AverageEntry o) {
-        int result = 0;
-
-        if (getCurricularYear() != null && o.getCurricularYear() != null) {
-            result = getEntryInfo().compareTo(o.getEntryInfo());
-        }
-
-        if (result == 0) {
-            result = getCurricularYear() != null ? -1 : 1;
-        }
-
-        if (result == 0) {
-            result = getEntryInfo().compareTo(o.getEntryInfo());
-        }
-
-        if (result == 0) {
-            result = CurriculumLayout.getPresentationNameFor(getEntry())
-                    .compareTo(CurriculumLayout.getPresentationNameFor(o.getEntry()));
-        }
-
-        return result;
-    }
-
-    public String getApprovalTypeDescription() {
-        String label = null;
-
-        if (getApprovalType() == Enrolment.class) {
-            label = "label.approvalType.Enrolment";
-        }
-
-        if (getApprovalType() == Substitution.class) {
-            label = "label.approvalType.Substitution";
-        }
-
-        if (getApprovalType() == Equivalence.class) {
-            label = "label.approvalType.Equivalence";
-        }
-
-        return Strings.isNullOrEmpty(label) ? "-" : ULisboaSpecificationsUtil.bundle(label);
-    }
-
-    static public List<AverageEntry> getAverageEntries(final Curriculum curriculum) {
-        final List<AverageEntry> result = Lists.newLinkedList();
-
-        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(Enrolment.class, i))
-                .collect(Collectors.toCollection(() -> result));
-
-        curriculum.getDismissalRelatedEntries().stream()
-                .map(i -> new AverageEntry(i instanceof Dismissal ? Equivalence.class : Substitution.class, i))
-                .collect(Collectors.toCollection(() -> result));
-
-        Collections.sort(result);
-        return result;
+        return CurriculumLineServices.getSubstitutionForCurriculum(entry).stream()
+                .map(line -> getEntryInfo((ICurriculumEntry) line)).collect(Collectors.joining(" <br/> "));
     }
 
 }

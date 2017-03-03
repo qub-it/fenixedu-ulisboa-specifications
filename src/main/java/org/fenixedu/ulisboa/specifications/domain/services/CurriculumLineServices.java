@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
@@ -18,6 +19,7 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
@@ -26,6 +28,7 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLi
 import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class CurriculumLineServices {
 
@@ -95,6 +98,11 @@ public class CurriculumLineServices {
 
     static public BigDecimal getWeight(CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getWeight();
+    }
+
+    static public Set<CurriculumLine> getSubstitutionForCurriculum(final ICurriculumEntry input) {
+        return input == null ? Sets.newHashSet() : input.getCurriculumLinesForCurriculum().stream()
+                .filter(i -> Substitution.class.isAssignableFrom(i.getClass())).collect(Collectors.toSet());
     }
 
     static private Comparator<CurriculumLine> COMPARATOR_CONTEXT = (o1, o2) -> {
