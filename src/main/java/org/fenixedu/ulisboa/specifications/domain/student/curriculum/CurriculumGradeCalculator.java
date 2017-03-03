@@ -31,8 +31,6 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
-import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.curriculum.AverageType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -44,6 +42,8 @@ public class CurriculumGradeCalculator
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumGradeCalculator.class);
 
+    private Curriculum curriculum;
+
     private BigDecimal sumPiCi;
 
     private BigDecimal sumPi;
@@ -53,13 +53,14 @@ public class CurriculumGradeCalculator
     private Grade finalGrade;
 
     private void doCalculus(Curriculum curriculum) {
-        sumPiCi = BigDecimal.ZERO;
-        sumPi = BigDecimal.ZERO;
-        countAverage(curriculum.getEnrolmentRelatedEntries(), curriculum.getAverageType());
-        countAverage(curriculum.getDismissalRelatedEntries(), curriculum.getAverageType());
+        this.curriculum = curriculum;
+        this.sumPiCi = BigDecimal.ZERO;
+        this.sumPi = BigDecimal.ZERO;
+        countAverage(curriculum.getEnrolmentRelatedEntries());
+        countAverage(curriculum.getDismissalRelatedEntries());
         BigDecimal avg = calculateAverage();
-        rawGrade = Grade.createGrade(avg.setScale(2, getRawGradeRoundingMode()).toString(), GradeScale.TYPE20);
-        finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
+        this.rawGrade = Grade.createGrade(avg.setScale(2, getRawGradeRoundingMode()).toString(), GradeScale.TYPE20);
+        this.finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
     }
 
     static private RoundingMode getRawGradeRoundingMode() {
@@ -75,25 +76,18 @@ public class CurriculumGradeCalculator
         return result;
     }
 
-    private void countAverage(final Set<ICurriculumEntry> entries, AverageType averageType) {
+    private void countAverage(final Set<ICurriculumEntry> entries) {
         for (final ICurriculumEntry entry : entries) {
             if (entry.getGrade().isNumeric()) {
                 final BigDecimal weigth = entry.getWeigthForCurriculum();
 
-                if (averageType == AverageType.WEIGHTED) {
-                    sumPi = sumPi.add(weigth);
-                    sumPiCi = sumPiCi.add(entry.getWeigthForCurriculum().multiply(entry.getGrade().getNumericValue()));
-                } else if (averageType == AverageType.SIMPLE) {
-                    sumPi = sumPi.add(BigDecimal.ONE);
-                    sumPiCi = sumPiCi.add(entry.getGrade().getNumericValue());
-                } else {
-                    throw new DomainException("Curriculum.average.type.not.supported");
-                }
+                sumPi = sumPi.add(weigth);
+                sumPiCi = sumPiCi.add(entry.getWeigthForCurriculum().multiply(entry.getGrade().getNumericValue()));
             }
         }
     }
 
-    private BigDecimal calculateAverage() {
+    protected BigDecimal calculateAverage() {
         return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, 2 * 2 + 1, RoundingMode.HALF_UP);
     }
 
@@ -119,6 +113,18 @@ public class CurriculumGradeCalculator
             doCalculus(curriculum);
         }
         return sumPiCi;
+    }
+
+    public Curriculum getCurriculum() {
+        return curriculum;
+    }
+    
+    public BigDecimal getSumPiCi() {
+        return sumPiCi;
+    }
+
+    public BigDecimal getSumPi() {
+        return sumPi;
     }
 
 }
