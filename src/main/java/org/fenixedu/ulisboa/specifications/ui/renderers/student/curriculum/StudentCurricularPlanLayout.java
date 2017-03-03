@@ -60,6 +60,7 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
+import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -975,7 +976,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
                     // we want to show the temporary enrolment evaluation
                     final EnrolmentEvaluation latestEvaluation = enrolment.getLatestEnrolmentEvaluationBySeason(season);
-                    if (latestEvaluation != null && !latestEvaluation.isAnnuled()) {
+                    if (latestEvaluation != null) {
                         result.add(latestEvaluation);
                     }
                 }
@@ -1002,14 +1003,14 @@ public class StudentCurricularPlanLayout extends Layout {
             return;
         }
 
-        final HtmlTableRow enrolmentRow = mainTable.createRow();
-        addTabsToRow(enrolmentRow, level);
-        generateExternalId(enrolmentRow, evaluation);
-        enrolmentRow.setClasses(renderer.getEnrolmentRowClass());
+        final HtmlTableRow row = mainTable.createRow();
+        addTabsToRow(row, level);
+        generateExternalId(row, evaluation);
+        row.setClasses(renderer.getEnrolmentRowClass());
 
         final EvaluationSeason season = evaluation.getEvaluationSeason();
         final ExecutionSemester semester = evaluation.getExecutionPeriod();
-        generateCellWithText(enrolmentRow, season.getName().getContent(), renderer.getLabelCellClass(),
+        generateCellWithText(row, season.getName().getContent(), renderer.getLabelCellClass(),
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
 
         // qubExtension, show course evaluations
@@ -1020,17 +1021,25 @@ public class StudentCurricularPlanLayout extends Layout {
                     courseEvaluations.stream().sorted(DomainObjectUtil.COMPARATOR_BY_ID.reversed())
                             .map(x -> x.getPresentationName()).collect(Collectors.joining(", "));
 
-            generateCellWithSpan(enrolmentRow, courseEvaluationsPresentation,
+            generateCellWithSpan(row, courseEvaluationsPresentation,
                     ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
                     renderer.getCreatorCellClass());
         } else {
-            generateCellWithSpan(enrolmentRow, EMPTY_INFO,
+            generateCellWithSpan(row, EMPTY_INFO,
                     ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
                     renderer.getCreatorCellClass());
         }
 
+        final String stateText = !evaluation.isAnnuled() ? "" : EnrollmentState.ANNULED.getDescription();
+
         // qubExtension, removed unnecessary columns
-        generateCellWithText(enrolmentRow, "", "", COLUMNS_BETWEEN_TEXT_AND_GRADE - 1);
+        generateCellWithText(row, "", "",
+                COLUMNS_BETWEEN_TEXT_AND_GRADE - 1 /* course evaluation */ - (stateText.isEmpty() ? 0 : 1));
+
+        // qubExtension, EnrolmentEvaluationState
+        if (!stateText.isEmpty()) {
+            generateCellWithText(row, stateText, renderer.getEnrolmentStateCellClass()).setStyle(EMPTY_WIDTH);
+        }
 
         final Grade grade = evaluation.getGrade();
 
@@ -1050,27 +1059,26 @@ public class StudentCurricularPlanLayout extends Layout {
                         + availableDate.toString(DATE_FORMAT);
             }
         }
-        generateCellWithSpan(enrolmentRow, text, title, renderer.getGradeCellClass(), true);
+        generateCellWithSpan(row, text, title, renderer.getGradeCellClass(), true);
 
-        generateCellWithText(enrolmentRow, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
+        generateCellWithText(row, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
         if (semester != null && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)) {
-            generateCellWithText(enrolmentRow, semester.getExecutionYear().getYear(),
-                    renderer.getEnrolmentExecutionYearCellClass());
-            generateCellWithText(enrolmentRow,
+            generateCellWithText(row, semester.getExecutionYear().getYear(), renderer.getEnrolmentExecutionYearCellClass());
+            generateCellWithText(row,
                     semester.getSemester().toString() + " " + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short"),
                     renderer.getEnrolmentSemesterCellClass());
         } else {
-            generateCellWithText(enrolmentRow, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
+            generateCellWithText(row, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
         }
 
         final String examDatePresentation = EnrolmentEvaluationServices.getExamDatePresentation(evaluation);
         if (!Strings.isNullOrEmpty(examDatePresentation)) {
-            generateCellWithSpan(enrolmentRow, examDatePresentation,
-                    BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"), getEvaluationDateCellClass());
+            generateCellWithSpan(row, examDatePresentation, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+                    getEvaluationDateCellClass());
         } else {
             // qubExtension, show tooltip
-            generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
+            generateCellWithSpan(row, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
                     getEvaluationDateCellClass());
         }
 
@@ -1078,20 +1086,20 @@ public class StudentCurricularPlanLayout extends Layout {
                 && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             final Person person = evaluation.getPersonResponsibleForGrade();
             final String username = person.getUsername();
-            generateCellWithSpan(enrolmentRow, username, BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson")
-                    + ": " + PersonServices.getDisplayName(person), renderer.getCreatorCellClass());
+            generateCellWithSpan(row, username, BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson") + ": "
+                    + PersonServices.getDisplayName(person), renderer.getCreatorCellClass());
         } else {
             // qubExtension, show tooltip
-            generateCellWithSpan(enrolmentRow, EMPTY_INFO,
-                    BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"), renderer.getCreatorCellClass());
+            generateCellWithSpan(row, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"),
+                    renderer.getCreatorCellClass());
         }
 
-        generateRemarksCell(enrolmentRow, evaluation);
-        generateSpacerCellsIfRequired(enrolmentRow);
+        generateRemarksCell(row, evaluation);
+        generateSpacerCellsIfRequired(row);
     }
 
     // qubExtension
-    static private String getGradeDescription(final Grade grade) {
+    static protected String getGradeDescription(final Grade grade) {
         String result = "";
 
         if (grade != null && !grade.isEmpty()) {
@@ -1326,11 +1334,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateEnrolmentStateCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
         // qubExtension, empty space
-        generateCellWithText(enrolmentRow,
-                enrolment.isApproved() ? EMPTY_SPACE : BundleUtil.getString(Bundle.ENUMERATION,
-                        enrolment.getEnrollmentState().getQualifiedName()),
+        generateCellWithText(enrolmentRow, enrolment.isApproved() ? EMPTY_SPACE : enrolment.getEnrollmentState().getDescription(),
                 renderer.getEnrolmentStateCellClass()).setStyle(EMPTY_WIDTH);
-
     }
 
     protected void generateEnrolmentTypeCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
