@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,7 +13,6 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.ui.renderers.student.curriculum.CurriculumRenderer;
 import org.fenixedu.academic.util.Bundle;
@@ -22,6 +20,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DefaultGradingTable;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.AverageEntry;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
@@ -73,89 +72,60 @@ public class CurriculumLayout extends Layout {
 
         if (this.curriculum.getCurriculumEntries().isEmpty()) {
             container.addChild(createHtmlTextItalic(BundleUtil.getString(Bundle.STUDENT, "message.empty.curriculum")));
-        } else {
-            final HtmlContainer averageContainer = new HtmlBlockContainer();
-            averageContainer.setStyle("padding-bottom: 3.5em;");
-            container.addChild(averageContainer);
-
-            final HtmlTable averageEntriesTable = new HtmlTable();
-            averageContainer.addChild(averageEntriesTable);
-            averageEntriesTable.setClasses(renderer.getTableClass());
-
-            generateAverageTableRows(averageEntriesTable);
+            return container;
         }
+
+        container.setStyle("padding-bottom: 3.5em;");
+
+        final HtmlTable table = new HtmlTable();
+        container.addChild(table);
+        table.setClasses(renderer.getTableClass());
+
+        generateAverageRows(table);
 
         return container;
     }
 
-    private HtmlText createHtmlTextItalic(final String message) {
+    static private HtmlText createHtmlTextItalic(final String message) {
         final HtmlText htmlText = new HtmlText(message);
         htmlText.setClasses("italic");
-
         return htmlText;
     }
 
-    private void generateAverageTableRows(final HtmlTable mainTable) {
+    private void generateAverageRows(final HtmlTable mainTable) {
 
-        final Set<ICurriculumEntry> enrolmentEntries =
-                new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        enrolmentEntries.addAll(this.curriculum.getEnrolmentRelatedEntries());
-        if (!enrolmentEntries.isEmpty()) {
-            generateAverageTableHeader(mainTable, ULisboaSpecificationsUtil.bundle("label.enrolment.approvals"));
-            generateAverageRows(mainTable, enrolmentEntries);
-        }
+        final List<AverageEntry> entries = AverageEntry.getAverageEntries(this.curriculum);
 
-        final Set<ICurriculumEntry> equivalenceEntries =
-                new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        final Set<ICurriculumEntry> substitutionsEntries =
-                new TreeSet<ICurriculumEntry>(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID);
-        for (final ICurriculumEntry entry : this.curriculum.getDismissalRelatedEntries()) {
-            if (entry instanceof Dismissal) {
-                equivalenceEntries.add(entry);
-            } else {
-                substitutionsEntries.add(entry);
+        if (!entries.isEmpty()) {
+            generateAverageTableHeader(mainTable);
+
+            for (final AverageEntry entry : entries) {
+                generateAverageRow(mainTable, entry);
             }
         }
-
-        if (!substitutionsEntries.isEmpty()) {
-            generateAverageTableHeader(mainTable, ULisboaSpecificationsUtil.bundle("label.substitution.approvals"));
-            generateAverageRows(mainTable, substitutionsEntries);
-        }
-
-        if (!equivalenceEntries.isEmpty()) {
-            generateAverageTableHeader(mainTable, ULisboaSpecificationsUtil.bundle("label.equivalence.approvals"));
-            generateAverageRows(mainTable, equivalenceEntries);
-        }
     }
 
-    private void generateAverageTableHeader(final HtmlTable mainTable, final String text) {
-        final HtmlTableRow row = mainTable.createRow();
+    private void generateAverageTableHeader(final HtmlTable table) {
+        final HtmlTableRow row = table.createRow();
         row.setClasses(renderer.getHeaderRowClass());
 
-        final HtmlTableCell textCell = row.createCell();
-        textCell.setText(text);
-        textCell.setClasses(renderer.getGradeCellClass());
-        textCell.setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
-
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"),
-                renderer.getGradeCellClass());
-        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
-        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.weight"), renderer.getGradeCellClass());
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.executionInterval"), renderer.getGradeCellClass());
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularPeriod"), renderer.getGradeCellClass());
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvementDate"), renderer.getGradeCellClass());
+        final String classes = renderer.getGradeCellClass();
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularUnit"), classes)
+                .setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"), classes);
+        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), classes).setStyle("width: 35px");
+        generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.weight"), classes).setStyle("width: 35px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvalType"), classes).setStyle("width: 75px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvalInfo"), classes).setStyle("width: 115px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.creditsInfo"), classes).setStyle("width: 115px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvementDate"), classes).setStyle("width: 80px");;
     }
 
-    private void generateAverageRows(HtmlTable mainTable, Set<ICurriculumEntry> entries) {
-        for (final ICurriculumEntry entry : entries) {
-            generateAverageRow(mainTable, entry);
-        }
-    }
-
-    private void generateAverageRow(HtmlTable mainTable, final ICurriculumEntry entry) {
+    private void generateAverageRow(final HtmlTable mainTable, final AverageEntry averageEntry) {
         final HtmlTableRow row = mainTable.createRow();
         row.setClasses(renderer.getEnrolmentRowClass());
 
+        final ICurriculumEntry entry = averageEntry.getEntry();
         generateCodeAndNameCell(row, entry);
         if (entry instanceof ExternalEnrolment) {
             generateExternalEnrolmentLabelCell(row, (ExternalEnrolment) entry);
@@ -163,8 +133,10 @@ public class CurriculumLayout extends Layout {
         generateEctsGradeCell(row, entry);
         generateGradeCell(row, entry);
         generateWeightCell(row, entry);
-        generateExecutionYearCell(row, entry);
-        generateSemesterCell(row, entry);
+        generateCellWithText(row, averageEntry.getApprovalTypeDescription(), null).setStyle("font-size: xx-small");
+        generateCellWithText(row, averageEntry.getEntryInfo(), null).setStyle("font-size: xx-small");
+        generateCellWithText(row, averageEntry.getEntryCurriculumLinesInfo(), null).setStyle("font-size: xx-small");
+
         StudentCurricularPlanLayout.generateDate(
                 entry.getCurriculumLinesForCurriculum().stream().filter(i -> i.getApprovementDate() != null)
                         .map(i -> i.getApprovementDate()).max(YearMonthDay::compareTo).orElse(null),
@@ -182,7 +154,7 @@ public class CurriculumLayout extends Layout {
         cell.setBody(inlineContainer);
     }
 
-    private String getPresentationNameFor(final ICurriculumEntry entry) {
+    static public String getPresentationNameFor(final ICurriculumEntry entry) {
         final String code = !StringUtils.isEmpty(entry.getCode()) ? entry.getCode() + " - " : "";
 
         if (entry instanceof OptionalEnrolment) {
@@ -259,17 +231,6 @@ public class CurriculumLayout extends Layout {
     private void generateWeightCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
         generateCellWithText(enrolmentRow, entry.getGrade().isNumeric() ? entry.getWeigthForCurriculum().toString() : "-",
                 renderer.getWeightCellClass());
-    }
-
-    private void generateExecutionYearCell(HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {
-        generateCellWithText(enrolmentRow, entry.getExecutionYear() == null ? "-" : entry.getExecutionYear().getYear(),
-                renderer.getEnrolmentExecutionYearCellClass());
-    }
-
-    private void generateSemesterCell(final HtmlTableRow row, final ICurriculumEntry entry) {
-
-        generateCellWithText(row, StudentCurricularPlanLayout.getCurricularPeriodLabel(entry),
-                this.renderer.getEnrolmentSemesterCellClass()).setStyle("font-size: xx-small");
     }
 
     static private HtmlTableCell generateCellWithText(final HtmlTableRow row, final String text, final String cssClass) {
