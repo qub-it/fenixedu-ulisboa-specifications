@@ -208,7 +208,7 @@ public class AverageEntry implements Comparable<AverageEntry> {
         }
 
         return CurriculumLineServices.getSubstitutionForCurriculum(entry).stream()
-                .map(line -> getEntryInfo((ICurriculumEntry) line)).collect(Collectors.joining(" <br/> "));
+                .map(line -> getEntryInfo((ICurriculumEntry) line)).collect(Collectors.joining(" "));
     }
 
 }
