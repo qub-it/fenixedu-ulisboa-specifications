@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -41,6 +42,14 @@ public class CurriculumGradeCalculator
         implements org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumGradeCalculator {
 
     static private final Logger logger = LoggerFactory.getLogger(CurriculumGradeCalculator.class);
+
+    static final public RoundingMode ROUNDING_DEFAULT = RoundingMode.HALF_UP;
+
+    static final public RoundingMode ROUNDING_TRUNCATE = RoundingMode.DOWN;
+
+    static final private int FULL_SCALE = 2 * 2 + 1;
+
+    static final public int RAW_SCALE = 2;
 
     private Curriculum curriculum;
 
@@ -59,12 +68,12 @@ public class CurriculumGradeCalculator
         countAverage(curriculum.getEnrolmentRelatedEntries());
         countAverage(curriculum.getDismissalRelatedEntries());
         BigDecimal avg = calculateAverage();
-        this.rawGrade = Grade.createGrade(avg.setScale(2, getRawGradeRoundingMode()).toString(), GradeScale.TYPE20);
-        this.finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), GradeScale.TYPE20);
+        this.rawGrade = Grade.createGrade(avg.setScale(RAW_SCALE, getRawGradeRoundingMode()).toString(), GradeScale.TYPE20);
+        this.finalGrade = Grade.createGrade(avg.setScale(0, ROUNDING_DEFAULT).toString(), GradeScale.TYPE20);
     }
 
     static private RoundingMode getRawGradeRoundingMode() {
-        RoundingMode result = RoundingMode.HALF_UP;
+        RoundingMode result = ROUNDING_DEFAULT;
 
         try {
             result = RoundingMode
@@ -88,7 +97,7 @@ public class CurriculumGradeCalculator
     }
 
     protected BigDecimal calculateAverage() {
-        return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, 2 * 2 + 1, RoundingMode.HALF_UP);
+        return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, FULL_SCALE, ROUNDING_DEFAULT);
     }
 
     @Override
@@ -118,13 +127,21 @@ public class CurriculumGradeCalculator
     public Curriculum getCurriculum() {
         return curriculum;
     }
-    
+
     public BigDecimal getSumPiCi() {
         return sumPiCi;
     }
 
     public BigDecimal getSumPi() {
         return sumPi;
+    }
+    
+    public boolean isCalculatorForDegree() {
+        return true;
+    }
+
+    public StudentCurricularPlan getStudentCurricularPlan() {
+        return getCurriculum() == null ? null : getCurriculum().getStudentCurricularPlan();
     }
 
 }
