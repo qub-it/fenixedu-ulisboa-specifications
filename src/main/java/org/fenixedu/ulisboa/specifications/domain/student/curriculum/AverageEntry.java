@@ -131,7 +131,7 @@ public class AverageEntry implements Comparable<AverageEntry> {
         }
 
         if (result == 0) {
-            result = getCurricularYear() != null ? -1 : 1;
+            result = getCurricularYear() != null ? -1 : o.getCurricularYear() != null ? 1 : 0;
         }
 
         if (result == 0) {
