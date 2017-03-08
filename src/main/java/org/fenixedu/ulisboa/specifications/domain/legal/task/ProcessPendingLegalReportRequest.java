@@ -12,6 +12,9 @@ public class ProcessPendingLegalReportRequest extends CronTask {
 
     private String pendingRequestId;
     
+    public ProcessPendingLegalReportRequest() {
+    }
+    
     public ProcessPendingLegalReportRequest(final String pendingRequestId) {
         this.pendingRequestId = pendingRequestId;
     }
