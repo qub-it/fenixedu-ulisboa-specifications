@@ -135,7 +135,7 @@ public class CurriculumGradeCalculator
     public BigDecimal getSumPi() {
         return sumPi;
     }
-    
+
     public boolean isCalculatorForDegree() {
         return true;
     }

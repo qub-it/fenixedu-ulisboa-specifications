@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
@@ -103,7 +102,7 @@ public class AverageEntry implements Comparable<AverageEntry> {
     }
 
     public BigDecimal getGradeValue() {
-        return BigDecimal.valueOf(Long.valueOf(getEntry().getGradeValue()));
+        return getEntry().getGrade().getNumericValue();
     }
 
     public Integer getCurricularYear() {
@@ -149,13 +148,10 @@ public class AverageEntry implements Comparable<AverageEntry> {
     static public List<AverageEntry> getAverageEntries(final Curriculum curriculum) {
         final List<AverageEntry> result = Lists.newLinkedList();
 
-        final Predicate<ICurriculumEntry> predicate =
-                i -> i.getGrade().isNumeric() && !i.getWeigthForCurriculum().equals(BigDecimal.ZERO);
-
-        curriculum.getEnrolmentRelatedEntries().stream().filter(predicate).map(i -> new AverageEntry(Enrolment.class, i))
+        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(Enrolment.class, i))
                 .collect(Collectors.toCollection(() -> result));
 
-        curriculum.getDismissalRelatedEntries().stream().filter(predicate)
+        curriculum.getDismissalRelatedEntries().stream()
                 .map(i -> new AverageEntry(i instanceof Dismissal ? Equivalence.class : Substitution.class, i))
                 .collect(Collectors.toCollection(() -> result));
 
