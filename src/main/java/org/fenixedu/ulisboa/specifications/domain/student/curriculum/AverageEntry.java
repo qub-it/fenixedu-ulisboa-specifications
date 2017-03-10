@@ -123,18 +123,14 @@ public class AverageEntry implements Comparable<AverageEntry> {
 
     @Override
     public int compareTo(final AverageEntry o) {
-        int result = 0;
-
-        if (getCurricularYear() != null && o.getCurricularYear() != null) {
-            result = getEntryInfo().compareTo(o.getEntryInfo());
-        }
+        int result = getEntryInfo().compareTo(o.getEntryInfo());
 
         if (result == 0) {
-            result = getCurricularYear() != null ? -1 : o.getCurricularYear() != null ? 1 : 0;
-        }
-
-        if (result == 0) {
-            result = getEntryInfo().compareTo(o.getEntryInfo());
+            if (getCurricularYear() != null && o.getCurricularYear() != null) {
+                result = 0;
+            } else {
+                result = getCurricularYear() != null ? -1 : 1;
+            }
         }
 
         if (result == 0) {
