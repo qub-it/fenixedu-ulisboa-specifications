@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -9,7 +9,7 @@
  * Contributors: diogo.simoes@qub-it.com
  *               jnpa@reitoria.ulisboa.pt
  *
- * 
+ *
  * This file is part of FenixEdu QubDocs.
  *
  * FenixEdu QubDocs is free software: you can redistribute it and/or modify
@@ -71,7 +71,7 @@ import pt.ist.fenixframework.Atomic;
 
 public class DocumentPrinter {
 
-    public static PrintedDocument print(ULisboaServiceRequest serviceRequest) {
+    public static PrintedDocument print(final ULisboaServiceRequest serviceRequest) {
 
         if (!serviceRequest.getServiceRequestType().isPrintable()) {
             throw new ULisboaSpecificationsDomainException(
@@ -114,6 +114,7 @@ public class DocumentPrinter {
         InstitutionReportConfiguration reportConfiguration = InstitutionReportConfiguration.getInstance();
         if (!reportConfiguration.getName().isEmpty() && reportConfiguration.getInstitutionLogo() != null) {
             generator.registerDataProvider(new InstitutionConfigurationReportDataProvider(reportConfiguration.getName(),
+                    reportConfiguration.getShortName(), reportConfiguration.getAddress(), reportConfiguration.getSite(),
                     reportConfiguration.getInstitutionLogo().getContent()));
         }
 
@@ -193,7 +194,7 @@ public class DocumentPrinter {
     }
 
     @Atomic
-    private static void resetDocumentSigner(ULisboaServiceRequest documentRequest) {
+    private static void resetDocumentSigner(final ULisboaServiceRequest documentRequest) {
         documentRequest.setDocumentSigner(DocumentSigner.findDefaultDocumentSignature());
     }
 
@@ -210,7 +211,8 @@ public class DocumentPrinter {
         private final String fileExtension;
         private final String fileName;
 
-        public PrintedDocument(ULisboaServiceRequest serviceRequest, byte[] data, String contentType, String fileExtension) {
+        public PrintedDocument(final ULisboaServiceRequest serviceRequest, final byte[] data, final String contentType,
+                final String fileExtension) {
             this.serviceRequest = serviceRequest;
             this.data = data;
             this.contentType = contentType;
