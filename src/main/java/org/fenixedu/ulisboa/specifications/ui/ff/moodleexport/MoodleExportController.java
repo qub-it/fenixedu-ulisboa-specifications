@@ -109,8 +109,10 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
 //        List<String> coursesNames = student.getActiveRegistrations().stream()
 //                .flatMap(r -> r.getEnrolments(currentExecutionYear).stream()).flatMap(en -> en.getExecutionCourses().stream())
 //                .map(ec -> ec.getName() + " " + yearName).collect(Collectors.toList());
-        student.getActiveRegistrations().stream().flatMap(r -> r.getEnrolments(currentExecutionYear).stream())
-                .flatMap(en -> en.getExecutionCourses().stream()).forEach(ec -> {
+        student.getActiveRegistrations()
+                .stream().flatMap(r -> r.getEnrolments(currentExecutionYear).stream()).flatMap(en -> en.getExecutionCourses()
+                        .stream().filter(ec -> ec.getExecutionPeriod().getExecutionYear() == currentExecutionYear))
+                .forEach(ec -> {
                     coursesNames.add(ec.getName() + " " + yearName);
                     roles.add("student");
                 });
