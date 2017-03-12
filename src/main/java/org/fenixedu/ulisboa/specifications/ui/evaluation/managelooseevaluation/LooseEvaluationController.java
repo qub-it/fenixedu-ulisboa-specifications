@@ -44,6 +44,9 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule.AcademicAccessTarget;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -137,13 +140,18 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         final Comparator<EnrolmentEvaluation> c2 = (x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR
                 .compare(x.getEvaluationSeason(), y.getEvaluationSeason());
 
-        final List<EnrolmentEvaluation> evaluations = studentCurricularPlan.getEnrolmentsSet().stream()
-                .flatMap(enr -> enr.getEvaluationsSet().stream())
-                .filter(ev -> ev.getExecutionPeriod() == semester || ev.getEnrolment().getExecutionPeriod() == semester)
-                .filter(ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null)
-                .filter(ev -> EvaluationServices
-                        .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty())
-                .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID)).collect(Collectors.toList());
+        final List<EnrolmentEvaluation> evaluations =
+                studentCurricularPlan.getEnrolmentsSet().stream().flatMap(enr -> enr.getEvaluationsSet().stream())
+                        .filter(ev -> ev.getExecutionPeriod() == semester || ev.getEnrolment().getExecutionPeriod() == semester)
+                        .filter(ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null)
+                        .filter(ev -> EvaluationServices
+                                .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(),
+                                        semester)
+                                .isEmpty()
+                                || AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
+                                        studentCurricularPlan.getDegree(), Authenticate.getUser()))
+                        .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
+                        .collect(Collectors.toList());
 
         model.addAttribute("evaluationsSet", evaluations);
 
