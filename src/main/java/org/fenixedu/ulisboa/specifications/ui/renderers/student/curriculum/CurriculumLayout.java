@@ -112,12 +112,12 @@ public class CurriculumLayout extends Layout {
         final String classes = renderer.getGradeCellClass();
         generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularUnit"), classes)
                 .setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"), classes);
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"), classes).setStyle("width: 60px");
         generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), classes).setStyle("width: 35px");
         generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.weight"), classes).setStyle("width: 35px");
         generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvalType"), classes).setStyle("width: 75px");
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvalInfo"), classes).setStyle("width: 115px");
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.creditsInfo"), classes).setStyle("width: 115px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvalInfo"), classes).setStyle("width: 120px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.creditsInfo"), classes).setStyle("width: 120px");
         generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvementDate"), classes).setStyle("width: 80px");;
     }
 
