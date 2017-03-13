@@ -1347,13 +1347,16 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateDegreeCurricularPlanCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment) {
 
-        if (enrolment.isFor(studentCurricularPlan.getRegistration())) {
+        // qubExtension, generate not only when enrolment's registration is different but also when the degree module's degree is different
+        final DegreeCurricularPlan plan = enrolment.getDegreeCurricularPlanOfDegreeModule();
+        if (plan == null || plan.getDegree() == studentCurricularPlan.getDegree()) {
+
             // qubExtension, empty space
             generateCellWithText(enrolmentRow, EMPTY_SPACE, renderer.getDegreeCurricularPlanCellClass()).setStyle(EMPTY_WIDTH);
+
         } else {
             final HtmlTableCell cell = enrolmentRow.createCell();
             cell.setClasses(renderer.getDegreeCurricularPlanCellClass());
-            final DegreeCurricularPlan plan = enrolment.getDegreeCurricularPlanOfDegreeModule();
             // qubExtension, show degree code
             final String text = plan.getDegree().getCode();
             cell.setBody(createDegreeCurricularPlanNameLink(plan, enrolment.getExecutionPeriod(), text, false));
