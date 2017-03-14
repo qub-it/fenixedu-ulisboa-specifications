@@ -362,7 +362,7 @@ ${portal.angularToolkit()}
 	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.markMin" /></div>	
 	                <div class="col-sm-7">
-	                	<input id="extendedDegreeInformation_markMin" class="form-control" type="number" ng-readonly="!editMode['markMin']" ng-model="object.markMin" />
+	                	<input id="extendedDegreeInformation_markMin" class="form-control" type="number" pattern="[0-9]+(\.[0-9][0-9]?[0-9]?)?" min="0" step="0.01" ng-readonly="!editMode['markMin']" ng-model="object.markMin" />
 	                </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['markMin']" ng-click="toggleEditMode('markMin')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
@@ -374,7 +374,7 @@ ${portal.angularToolkit()}
 	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.markMax" /></div>	
 	                <div class="col-sm-7">
-	                	<input id="extendedDegreeInformation_markMax" class="form-control" type="number" ng-readonly="!editMode['markMax']" ng-model="object.markMax" />
+	                	<input id="extendedDegreeInformation_markMax" class="form-control" type="number" pattern="[0-9]+(\.[0-9][0-9]?[0-9]?)?" min="0" step="0.01" ng-readonly="!editMode['markMax']" ng-model="object.markMax" />
 	                </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['markMax']" ng-click="toggleEditMode('markMax')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
@@ -386,7 +386,7 @@ ${portal.angularToolkit()}
 	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.markAverage" /></div>	
 	                <div class="col-sm-7">
-	                	<input id="extendedDegreeInformation_markAverage" class="form-control" type="number" ng-readonly="!editMode['markAverage']" ng-model="object.markAverage" />
+	                	<input id="extendedDegreeInformation_markAverage" class="form-control" type="number" pattern="[0-9]+(\.[0-9][0-9]?[0-9]?)?" min="0" step="0.01" ng-readonly="!editMode['markAverage']" ng-model="object.markAverage" />
 	                </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['markAverage']" ng-click="toggleEditMode('markAverage')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
