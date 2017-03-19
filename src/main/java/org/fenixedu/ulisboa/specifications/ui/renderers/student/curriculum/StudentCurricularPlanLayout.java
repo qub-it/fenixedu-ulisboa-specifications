@@ -87,6 +87,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -1217,13 +1218,14 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // qubExtension, show curricularYear
         final Integer curricularYear = getCurricularYearFor(entry);
-        final String yearPart = curricularYear != null ? curricularYear + " "
-                + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year") + ", " : "";
+        final String year = curricularYear == null ? "" : curricularYear + " "
+                + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year");
 
-        final String semester = getCurricularSemesterFor(entry).toString() + " "
+        final Integer curricularSemester = getCurricularSemesterFor(entry);
+        final String semester = curricularSemester == null ? "" : curricularSemester.toString() + " "
                 + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
 
-        return yearPart + semester;
+        return Strings.isNullOrEmpty(year) ? semester : Strings.isNullOrEmpty(semester) ? year : year + ", " + semester;
     }
 
     /**
@@ -1241,8 +1243,18 @@ public class StudentCurricularPlanLayout extends Layout {
      * qubExtension, show curricularSemester
      */
     static private Integer getCurricularSemesterFor(final ICurriculumEntry entry) {
-        return (entry instanceof CurriculumLine) ? CurricularPeriodServices.getCurricularSemester((CurriculumLine) entry) : entry
-                .getExecutionPeriod().getSemester();
+        if (entry instanceof CurriculumLine) {
+            final CurriculumLine line = (CurriculumLine) entry;
+            final CurricularCourse curricularCourse = line.getCurricularCourse();
+            if (curricularCourse != null && curricularCourse.isAnual()) {
+                return null;
+            }
+
+            return CurricularPeriodServices.getCurricularSemester(line);
+
+        } else {
+            return entry.getExecutionPeriod().getSemester();
+        }
     }
 
     protected void generateStatisticsLinkCell(final HtmlTableRow row, final Enrolment enrolment) {
