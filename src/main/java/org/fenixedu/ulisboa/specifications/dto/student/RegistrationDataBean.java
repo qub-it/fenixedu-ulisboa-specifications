@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.RootCurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.academic.dto.student.RegistrationCurriculumBean;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
@@ -119,38 +120,32 @@ public class RegistrationDataBean implements Serializable {
     }
 
     public Double getCreditsConcluded() {
-        return Math.max(0,
-                getCreditsConcluded(getExecutionYear()) - getCreditsConcluded(getExecutionYear().getPreviousExecutionYear()));
+        // don't forget: Curriculum reports ECTS at the beginning of the year
+        final ExecutionYear current = getExecutionYear();
+        final ExecutionYear next = current.getNextExecutionYear();
+
+        return Math.max(0, getCreditsConcluded(next) - getCreditsConcluded(current));
     }
 
     private Double getCreditsConcluded(final ExecutionYear input) {
-        Double result = 0d;
-
-        for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
-            final RootCurriculumGroup curriculumGroup = iter.getRoot();
-            result += curriculumGroup.getCreditsConcluded(input);
-        }
-
-        return result;
+        return new RegistrationCurriculumBean(getRegistration()).getCurriculum(input).getSumEctsCredits().doubleValue();
     }
 
     public BigDecimal getEnroledEcts() {
-        return getEnroledEcts(getExecutionYear());
-    }
-
-    private BigDecimal getEnroledEcts(final ExecutionYear input) {
         BigDecimal result = BigDecimal.ZERO;
 
+        final ExecutionYear year = getExecutionYear();
+        
         if (RegistrationServices.isCurriculumAccumulated(getRegistration())) {
             for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
                 final RootCurriculumGroup curriculumGroup = iter.getRoot();
-                result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, input));
+                result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, year));
             }
 
         } else {
             final StudentCurricularPlan plan = getStudentCurricularPlan();
             final RootCurriculumGroup curriculumGroup = plan.getRoot();
-            result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, input));
+            result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, year));
         }
 
         return result;

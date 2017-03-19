@@ -123,14 +123,30 @@ public class CurriculumModuleServices {
     static private BigDecimal getEnroledAndNotApprovedEctsCreditsFor(final Enrolment toInspect,
             final ExecutionSemester semester) {
 
-        BigDecimal result = BigDecimal.ZERO;
+        // several if conditions to help debugging
 
-        if ((toInspect.isEnroled() || toInspect.isNotEvaluated() || toInspect.isFlunked()) && !toInspect.isAnnulled()
-                && (toInspect.isValid(semester) && (!toInspect.isAnual() || semester.isFirstOfYear()))) {
-            result = toInspect.getEctsCreditsForCurriculum();
-            logger.debug("{}#UC {}#{} ECTS", toInspect.getCode(), semester.getQualifiedName(), result.toPlainString());
+        if (CurriculumLineServices.isExcludedFromCurriculum(toInspect)) {
+            return BigDecimal.ZERO;
         }
 
+        if (toInspect.isAnnulled()) {
+            return BigDecimal.ZERO;
+        }
+
+        if (!toInspect.isEnroled() && !toInspect.isNotEvaluated() && !toInspect.isFlunked()) {
+            return BigDecimal.ZERO;
+        }
+
+        if (!toInspect.isValid(semester)) {
+            return BigDecimal.ZERO;
+        }
+
+        if (toInspect.isAnual() && !semester.isFirstOfYear()) {
+            return BigDecimal.ZERO;
+        }
+
+        final BigDecimal result = toInspect.getEctsCreditsForCurriculum();
+        logger.debug("{}#UC {}#{} ECTS", toInspect.getCode(), semester.getQualifiedName(), result.toPlainString());
         return result;
     }
 
