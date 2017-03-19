@@ -14,7 +14,6 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.RootCurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
-import org.fenixedu.academic.dto.student.RegistrationCurriculumBean;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
@@ -128,14 +127,14 @@ public class RegistrationDataBean implements Serializable {
     }
 
     private Double getCreditsConcluded(final ExecutionYear input) {
-        return new RegistrationCurriculumBean(getRegistration()).getCurriculum(input).getSumEctsCredits().doubleValue();
+        return RegistrationServices.getCurriculum(getRegistration(), input).getSumEctsCredits().doubleValue();
     }
 
     public BigDecimal getEnroledEcts() {
         BigDecimal result = BigDecimal.ZERO;
 
         final ExecutionYear year = getExecutionYear();
-        
+
         if (RegistrationServices.isCurriculumAccumulated(getRegistration())) {
             for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
                 final RootCurriculumGroup curriculumGroup = iter.getRoot();
