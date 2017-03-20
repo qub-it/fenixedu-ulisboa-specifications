@@ -110,16 +110,18 @@ public class OptionalEnrolmentLayout extends Layout {
         // qubExtension
         htmlTableRow.createCell().setBody(new HtmlText(courseGroup.getNameI18N().getContent()));
 
+        if (isAllowedCourseGroup(courseGroup)) {
+            final List<Context> childCurricularCourseContexts =
+                    courseGroup.getValidChildContexts(CurricularCourse.class, bean.getExecutionPeriod());
+            Collections.sort(childCurricularCourseContexts, new BeanComparator("childOrder"));
+
+            generateCurricularCourses(blockContainer, childCurricularCourseContexts,
+                    depth + getRenderer().getWidthDecreasePerLevel());
+        }
+
         final List<Context> childCourseGroupContexts =
                 courseGroup.getValidChildContexts(CourseGroup.class, bean.getExecutionPeriod());
-        final List<Context> childCurricularCourseContexts =
-                courseGroup.getValidChildContexts(CurricularCourse.class, bean.getExecutionPeriod());
-
         Collections.sort(childCourseGroupContexts, new BeanComparator("childOrder"));
-        Collections.sort(childCurricularCourseContexts, new BeanComparator("childOrder"));
-
-        generateCurricularCourses(blockContainer, childCurricularCourseContexts,
-                depth + getRenderer().getWidthDecreasePerLevel());
 
         for (final Context context : childCourseGroupContexts) {
             generateCourseGroup(blockContainer, (CourseGroup) context.getChildDegreeModule(),
@@ -257,16 +259,11 @@ public class OptionalEnrolmentLayout extends Layout {
             return BundleUtil.getString(Bundle.ENUMERATION, "approved");
         }
 
-        if (!isAllowedCourseGroup(input)) {
-            return ULisboaSpecificationsUtil
-                    .bundle("curricularRules.ruleExecutors.AnyCurricularCourseRestrictions.not.offered.label");
-        }
-
         return null;
     }
 
-    private boolean isAllowedCourseGroup(final Context input) {
-        return allowedGroups.isEmpty() || allowedGroups.contains(input.getParentCourseGroup());
+    private boolean isAllowedCourseGroup(final CourseGroup courseGroup) {
+        return allowedGroups.isEmpty() || allowedGroups.contains(courseGroup);
     }
 
     private Set<CourseGroup> providePossibleCourseGroups() {
