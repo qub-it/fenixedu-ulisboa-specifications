@@ -101,7 +101,7 @@ ${portal.angularToolkit()}
 		//Begin here of Custom Screen business JS - code
 		
 		$scope.isUndefinedOrNull = function(val){
-			return angular.isUndefined(val) || val === null
+			return angular.isUndefined(val) || val === null || val == ''
 		}
 
 		$scope.addInterval = function() {
