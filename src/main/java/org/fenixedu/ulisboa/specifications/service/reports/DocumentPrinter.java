@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ApprovedCurriculumEntriesDataProvider;
@@ -42,6 +43,7 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.ConcludedCurricu
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumInformationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DegreeCurricularPlanInformationDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentFooterDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentSignerDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ExtraCurriculumEntriesDataProvider;
@@ -123,6 +125,18 @@ public class DocumentPrinter {
                 new CourseGroupDegreeInfoDataProvider(registration, executionYear, serviceRequest.getProgramConclusion()));
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
+
+        boolean showFooter =
+                serviceRequest.hasProperty("showFooter") ? serviceRequest.findProperty("showFooter").getValue() : false;
+        boolean showIssued =
+                serviceRequest.hasProperty("showIssued") ? serviceRequest.findProperty("showIssued").getValue() : false;
+        boolean fillIssued =
+                serviceRequest.hasProperty("fillIssued") ? serviceRequest.findProperty("fillIssued").getValue() : false;
+        boolean showCheckBy =
+                serviceRequest.hasProperty("showCheckedBy") ? serviceRequest.findProperty("showCheckedBy").getValue() : false;
+        generator.registerDataProvider(new DocumentFooterDataProvider(showFooter, showIssued,
+                fillIssued ? Authenticate.getUser().getUsername() : "_____________", showCheckBy));
+
         generator.registerDataProvider(
                 new DegreeCurricularPlanInformationDataProvider(registration, requestedCycle, executionYear));
         if (serviceRequest.hasEnrolmentsByYear() || serviceRequest.hasStandaloneEnrolmentsByYear()
