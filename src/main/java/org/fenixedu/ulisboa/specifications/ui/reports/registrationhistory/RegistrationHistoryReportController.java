@@ -41,8 +41,7 @@ import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
-import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
-import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilderForXls;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -113,7 +112,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     public String search(@RequestParam("bean") RegistrationHistoryReportParametersBean bean, Model model,
             RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
-        
+
         setResults(generateReport(bean, !bean.getGraduatedExecutionYears().isEmpty()), model);
 
         return jspPage("registrationhistoryreport");
@@ -164,8 +163,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
         final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
                 ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
-        writeFile(response, "Report_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls", "application/vnd.ms-excel",
-                temporaryFile.get().getContent());
+        writeFile(response, "Report_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", temporaryFile.get().getContent());
     }
 
     protected Collection<RegistrationHistoryReport> generateReport(RegistrationHistoryReportParametersBean bean,
@@ -185,7 +184,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterImprovementEnrolmentsOnly(bean.getImprovementEnrolmentsOnly());
         service.filterStudentNumber(bean.getStudentNumber());
         service.setDetailed(detailed);
-        
+
         service.filterGraduatedExecutionYears(bean.getGraduatedExecutionYears());
         service.filterGraduationPeriodStartDate(bean.getGraduationPeriodStartDate());
         service.filterGraduationPeriodEndDate(bean.getGraduationPeriodEndDate());
@@ -209,7 +208,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final Collection<RegistrationHistoryReport> toExport = generateReport(bean, true);
 
-        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.students"),
                 new SheetData<RegistrationHistoryReport>(toExport) {
 
@@ -487,7 +486,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
-            builder.build(WorkbookExportFormat.EXCEL, result);
+            builder.build(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -500,7 +499,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         try {
 
-            final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+            final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
             builder.addSheet("Registrations", new SheetData<String>(Collections.singleton(error)) {
                 @Override
                 protected void makeLine(String item) {
@@ -509,7 +508,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             });
 
             final ByteArrayOutputStream result = new ByteArrayOutputStream();
-            builder.build(WorkbookExportFormat.EXCEL, result);
+            builder.build(result);
 
             return result.toByteArray();
 
@@ -562,7 +561,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final ExecutionYear executionYearForCurricularYear =
                 bean.getExecutionYears().stream().max(ExecutionYear.COMPARATOR_BY_BEGIN_DATE).get();
 
-        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
                 new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
 
@@ -629,7 +628,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
-            builder.build(WorkbookExportFormat.EXCEL, result);
+            builder.build(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -666,7 +665,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             });
         });
 
-        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.enrolments"),
                 new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(enrolments.entries()) {
 
@@ -743,7 +742,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
-            builder.build(WorkbookExportFormat.EXCEL, result);
+            builder.build(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -795,7 +794,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         }
 
-        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.statutes"),
                 new SheetData<RegistrationHistoryReport>(registrations) {
 
@@ -820,7 +819,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
-            builder.build(WorkbookExportFormat.EXCEL, result);
+            builder.build(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -851,7 +850,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             }
         }
 
-        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.blueRecord"),
                 new SheetData<RegistrationDGESStateBean>(candidacies) {
 
@@ -950,7 +949,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         try {
-            builder.build(WorkbookExportFormat.EXCEL, result);
+            builder.build(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
