@@ -75,8 +75,10 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
         setBennu(null);
         setServiceRequestSlot(null);
         setServiceRequestType(null);
-        if (getDefaultServiceRequestProperty() != null) {
-            getDefaultServiceRequestProperty().delete();
+        ServiceRequestProperty property = getDefaultServiceRequestProperty();
+        if (property != null) {
+            setDefaultServiceRequestProperty(null);
+            property.delete();
         }
         deleteDomainObject();
     }
