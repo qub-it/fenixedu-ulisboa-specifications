@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.poi.ss.formula.Formula;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -26,6 +28,17 @@ import org.fenixedu.commons.spreadsheet.converters.excel.IntegerCellConverter;
 import org.fenixedu.commons.spreadsheet.converters.excel.LocalDateCellConverter;
 import org.fenixedu.commons.spreadsheet.converters.excel.MultiLanguageStringCellConverter;
 import org.fenixedu.commons.spreadsheet.converters.excel.YearMonthDayCellConverter;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellAlignment;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellBorder;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellFillForegroundColor;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellFillPattern;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellStyle;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellVerticalAlignment;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XCellWrapText;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XComposedCellStyle;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XFontColor;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XFontHeight;
+import org.fenixedu.commons.spreadsheet.styles.xssf.XFontWeight;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -43,6 +56,29 @@ class DocxBuilder extends AbstractSheetBuilder {
         BASE_CONVERTERS.put(BigDecimal.class, new BigDecimalCellConverter());
         BASE_CONVERTERS.put(MultiLanguageStringCellConverter.class, new MultiLanguageStringCellConverter());
     }
+
+    private static XCellStyle HEADER_STYLE = new XComposedCellStyle() {
+        {
+            IndexedColors black = IndexedColors.BLACK;
+            IndexedColors gray = IndexedColors.GREY_25_PERCENT;
+
+            merge(new XFontColor(black));
+            merge(new XFontWeight(XSSFFont.BOLDWEIGHT_BOLD));
+            merge(new XFontHeight((short) 8));
+            merge(new XCellAlignment(XSSFCellStyle.ALIGN_CENTER));
+            merge(new XCellFillForegroundColor(gray));
+            merge(new XCellFillPattern(XSSFCellStyle.SOLID_FOREGROUND));
+            merge(new XCellBorder(XSSFCellStyle.BORDER_THIN));
+            merge(new XCellVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER));
+            merge(new XCellWrapText(true));
+        }
+    };
+
+    {
+        converters.putAll(BASE_CONVERTERS);
+    }
+
+    private XCellStyle headerStyle = HEADER_STYLE;
 
     int usefulAreaStart;
 
@@ -94,11 +130,13 @@ class DocxBuilder extends AbstractSheetBuilder {
 
                 SheetData<?> data = entry.getValue();
                 if (!data.headers.get(0).isEmpty()) {
+                    final XSSFCellStyle style = headerStyle.getStyle(book);
+
                     for (List<Cell> headerRow : data.headers) {
                         colnum = 0;
                         final XSSFRow row = sheet.createRow(rownum++);
                         for (Cell cell : headerRow) {
-                            setValue(book, row.createCell(colnum++), cell.value, cell.span, null);
+                            setValue(book, row.createCell(colnum++), cell.value, cell.span, style);
                             colnum = colnum + cell.span - 1;
                         }
                     }
@@ -131,4 +169,5 @@ class DocxBuilder extends AbstractSheetBuilder {
             output.close();
         }
     }
+
 }
