@@ -17,14 +17,14 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
     @Override
     public int compare(final EnrolmentEvaluation left, final EnrolmentEvaluation right) {
 
-        if (hasConfirmedMarkSheet(left) && !hasConfirmedMarkSheet(right)) {
+        if (isFinalInAnyMarkSheet(left) && !isFinalInAnyMarkSheet(right)) {
 
             if (!isSpecialAuthorization(right)) {
                 return 1;
             }
         }
 
-        if (!hasConfirmedMarkSheet(left) && hasConfirmedMarkSheet(right)) {
+        if (!isFinalInAnyMarkSheet(left) && isFinalInAnyMarkSheet(right)) {
 
             if (!isSpecialAuthorization(left)) {
                 return -1;
@@ -39,14 +39,14 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
 
         if (isSpecialAuthorization(left) && !isSpecialAuthorization(right)) {
 
-            if (!hasConfirmedMarkSheet(right)) {
+            if (!isFinalInAnyMarkSheet(right)) {
                 return 1;
             }
         }
 
         if (!isSpecialAuthorization(left) && isSpecialAuthorization(right)) {
 
-            if (!hasConfirmedMarkSheet(left)) {
+            if (!isFinalInAnyMarkSheet(left)) {
                 return -1;
             }
         }
@@ -54,9 +54,8 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
         return compareByStateAndGradeAndEvaluationDate(left, right);
     }
 
-    static private boolean hasConfirmedMarkSheet(final EnrolmentEvaluation input) {
-        return input != null && input.getCompetenceCourseMarkSheet() != null
-                && input.getCompetenceCourseMarkSheet().isConfirmed();
+    static private boolean isFinalInAnyMarkSheet(final EnrolmentEvaluation input) {
+        return input != null && input.getCompetenceCourseMarkSheet() != null && input.isFinal();
     }
 
     static private boolean isSpecialAuthorization(final EnrolmentEvaluation input) {
