@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import org.fenixedu.commons.spreadsheet.converters.CellConverter;
 
-public class SpreadsheetBuilderForXls extends SpreadsheetBuilder {
+public class SpreadsheetBuilderForXLSX extends SpreadsheetBuilder {
 
     private Map<String, SheetData<?>> getSheets() {
         return (Map<String, SheetData<?>>) getField("sheets");

@@ -41,7 +41,7 @@ import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
-import org.fenixedu.commons.spreadsheet.SpreadsheetBuilderForXls;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilderForXLSX;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -208,7 +208,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final Collection<RegistrationHistoryReport> toExport = generateReport(bean, true);
 
-        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
+        final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.students"),
                 new SheetData<RegistrationHistoryReport>(toExport) {
 
@@ -499,7 +499,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         try {
 
-            final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
+            final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
             builder.addSheet("Registrations", new SheetData<String>(Collections.singleton(error)) {
                 @Override
                 protected void makeLine(String item) {
@@ -561,7 +561,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final ExecutionYear executionYearForCurricularYear =
                 bean.getExecutionYears().stream().max(ExecutionYear.COMPARATOR_BY_BEGIN_DATE).get();
 
-        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
+        final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
                 new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
 
@@ -665,7 +665,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             });
         });
 
-        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
+        final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.enrolments"),
                 new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(enrolments.entries()) {
 
@@ -794,7 +794,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         }
 
-        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
+        final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.statutes"),
                 new SheetData<RegistrationHistoryReport>(registrations) {
 
@@ -850,7 +850,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             }
         }
 
-        final SpreadsheetBuilderForXls builder = new SpreadsheetBuilderForXls();
+        final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.blueRecord"),
                 new SheetData<RegistrationDGESStateBean>(candidacies) {
 
