@@ -115,9 +115,11 @@ public class DocumentPrinter {
         generator.registerDataProvider(new PersonReportDataProvider(serviceRequest.getPerson()));
         InstitutionReportConfiguration reportConfiguration = InstitutionReportConfiguration.getInstance();
         if (!reportConfiguration.getName().isEmpty() && reportConfiguration.getInstitutionLogo() != null) {
+            boolean showLogo =
+                    serviceRequest.hasProperty("showLogo") ? serviceRequest.findProperty("showLogo").getValue() : false;
             generator.registerDataProvider(new InstitutionConfigurationReportDataProvider(reportConfiguration.getName(),
                     reportConfiguration.getShortName(), reportConfiguration.getAddress(), reportConfiguration.getSite(),
-                    reportConfiguration.getInstitutionLogo().getContent()));
+                    reportConfiguration.getInstitutionLogo().getContent(), showLogo));
         }
 
         generator.registerDataProvider(new RegistrationDataProvider(registration, serviceRequest.getLanguage()));
