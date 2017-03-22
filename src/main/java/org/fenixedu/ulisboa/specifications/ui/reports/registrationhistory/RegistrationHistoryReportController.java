@@ -651,7 +651,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final Collection<RegistrationHistoryReport> reports = generateReport(bean, true);
         final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
-        reports.stream().forEach(r -> enrolments.putAll(r, r.getRegistration().getEnrolments(r.getExecutionYear())));
+        reports.stream().forEach(r -> enrolments.putAll(r, r.getEnrolments()));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
         reports.stream().forEach(r -> {

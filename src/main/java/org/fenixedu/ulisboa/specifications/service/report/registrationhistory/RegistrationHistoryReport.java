@@ -32,10 +32,13 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReport {
+
+    private Collection<Enrolment> enrolments = null;
 
     private ExecutionYear executionYear;
 
@@ -83,24 +86,32 @@ public class RegistrationHistoryReport {
         return registration;
     }
 
-    public StudentCurricularPlan getStudentCurricularPlan() {
-        if(registration.getStudentCurricularPlansSet().size() == 1) {
-            return registration
-                    .getLastStudentCurricularPlan();
+    public Collection<Enrolment> getEnrolments() {
+        if (this.enrolments == null) {
+            final StudentCurricularPlan scp = getStudentCurricularPlan();
+            this.enrolments = scp == null ? Lists.newArrayList() : scp.getEnrolmentsByExecutionYear(this.executionYear);
         }
-        
+
+        return this.enrolments;
+    }
+
+    public StudentCurricularPlan getStudentCurricularPlan() {
+        if (registration.getStudentCurricularPlansSet().size() == 1) {
+            return registration.getLastStudentCurricularPlan();
+        }
+
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
-        
-        if(studentCurricularPlan != null) {
+
+        if (studentCurricularPlan != null) {
             return studentCurricularPlan;
         }
-        
+
         studentCurricularPlan = registration.getFirstStudentCurricularPlan();
-        
-        if(studentCurricularPlan.getStartExecutionYear().isAfterOrEquals(executionYear)) {
-           return studentCurricularPlan; 
+
+        if (studentCurricularPlan.getStartExecutionYear().isAfterOrEquals(executionYear)) {
+            return studentCurricularPlan;
         }
-        
+
         return null;
     }
 
@@ -199,7 +210,7 @@ public class RegistrationHistoryReport {
     }
 
     public Integer getCurricularYear() {
-        return curriculum.getCurricularYear();
+        return RegistrationServices.getCurricularYear(registration, executionYear).getResult();
     }
 
     public Integer getPreviousYearCurricularYear() {
@@ -229,9 +240,11 @@ public class RegistrationHistoryReport {
 
     public boolean hasImprovementEvaluations() {
 
-        final Predicate<Enrolment> improvementEvaluationForYear = e -> e.getEvaluationsSet().stream()
-                .anyMatch(ev -> ev.getEvaluationSeason() != null && ev.getEvaluationSeason().isImprovement()
-                        && ev.getExecutionPeriod() != null && ev.getExecutionPeriod().getExecutionYear() == executionYear);
+        final Predicate<Enrolment> improvementEvaluationForYear =
+                e -> e.getEvaluationsSet().stream()
+                        .anyMatch(ev -> ev.getEvaluationSeason() != null && ev.getEvaluationSeason().isImprovement()
+                                && ev.getExecutionPeriod() != null
+                                && ev.getExecutionPeriod().getExecutionYear() == executionYear);
 
         return getRegistration().getStudentCurricularPlansSet().stream()
                 .anyMatch(scp -> scp.getEnrolmentsSet().stream().anyMatch(improvementEvaluationForYear));

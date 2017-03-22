@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -22,13 +22,16 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.StatuteType;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -59,6 +62,32 @@ public class RegistrationHistoryReportService {
 
     public RegistrationHistoryReportService() {
 
+    }
+
+    private List<Integer> getStudentNumbers() {
+        final List<Integer> result = Lists.newArrayList();
+
+        if (this.studentNumber != null) {
+            result.add(this.studentNumber);
+        }
+
+        return result;
+    }
+
+    private Set<Registration> getRegistrations() {
+        final Set<Registration> result = Sets.newHashSet();
+
+        for (final Integer number : getStudentNumbers()) {
+            List<Registration> registrations = Registration.readByNumber(number);
+            if (registrations.isEmpty()) {
+                final Student student = Student.readStudentByNumber(number);
+                registrations = Lists.newArrayList(student.getRegistrationsSet());
+            }
+
+            result.addAll(registrations);
+        }
+
+        return result;
     }
 
     public void filterEnrolmentExecutionYears(Collection<ExecutionYear> executionYears) {
@@ -245,13 +274,7 @@ public class RegistrationHistoryReportService {
                 r -> this.firstTimeOnly == null || this.firstTimeOnly.booleanValue() && r.getRegistrationYear() == executionYear
                         || !this.firstTimeOnly.booleanValue() && r.getRegistrationYear() != executionYear;
 
-        final Predicate<Registration> studentNumberFilter =
-                r -> this.studentNumber == null || this.studentNumber.intValue() == r.getStudent().getNumber().intValue()
-                        || this.studentNumber.intValue() == r.getNumber().intValue();
-
         return buildSearchUniverse(executionYear).stream()
-
-                .filter(studentNumberFilter)
 
                 .filter(firstTimeFilter).filter(degreeTypeFilter)
 
@@ -269,25 +292,34 @@ public class RegistrationHistoryReportService {
 
         final Set<Registration> result = Sets.newHashSet();
 
+        final Set<Registration> chosen = getRegistrations();
+        final Predicate<Registration> studentNumberFilter = r -> chosen.isEmpty() || chosen.contains(r);
+
         if (this.dismissalsOnly != null && this.dismissalsOnly.booleanValue()) {
             result.addAll(executionYear.getExecutionPeriodsSet().stream().flatMap(ep -> ep.getCreditsSet().stream())
-                    .map(c -> c.getStudentCurricularPlan().getRegistration()).collect(Collectors.toSet()));
+                    .map(c -> c.getStudentCurricularPlan().getRegistration()).filter(studentNumberFilter)
+                    .collect(Collectors.toSet()));
         }
 
         if (this.improvementEnrolmentsOnly != null && this.improvementEnrolmentsOnly.booleanValue()) {
             result.addAll(executionYear.getExecutionPeriodsSet().stream()
                     .flatMap(e -> e.getEnrolmentEvaluationsSet().stream().map(ev -> ev.getRegistration()))
-                    .collect(Collectors.toSet()));
+                    .filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
         if (this.withEnrolments == null || !this.withEnrolments.booleanValue()) {
             // registration/start execution year relation
-            result.addAll(executionYear.getStudentsSet());
+            result.addAll(executionYear.getStudentsSet().stream().filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
-        result.addAll(executionYear.getRegistrationDataByExecutionYearSet().stream()
-                .filter(r -> !r.getRegistration().getEnrolments(executionYear).isEmpty()).map(r -> r.getRegistration())
-                .collect(Collectors.toSet()));
+        result.addAll(
+                executionYear.getExecutionPeriodsSet().stream()
+                        .flatMap(
+                                semester -> semester.getEnrolmentsSet().stream().filter(enrolment -> !enrolment.isAnnulled())
+                                        .map(enrolment -> enrolment.getRegistration())
+                                        .filter(studentNumberFilter).filter(registration -> RegistrationDataServices
+                                                .getRegistrationData(registration, executionYear) != null))
+                        .collect(Collectors.toSet()));
 
         return result;
     }
@@ -298,7 +330,7 @@ public class RegistrationHistoryReportService {
         if (detailed) {
             addConclusion(result);
             addCurriculum(result);
-            final Collection<Enrolment> enrolmentsByYear = result.getRegistration().getEnrolments(result.getExecutionYear());
+            final Collection<Enrolment> enrolmentsByYear = result.getEnrolments();
             addEnrolmentsAndCreditsCount(result, enrolmentsByYear);
             addExecutionYearAverages(result, enrolmentsByYear);
         }
@@ -378,7 +410,7 @@ public class RegistrationHistoryReportService {
     }
 
     private void addCurriculum(RegistrationHistoryReport result) {
-        result.setCurriculum(result.getStudentCurricularPlan().getCurriculum(new DateTime(), result.getExecutionYear()));
+        result.setCurriculum(RegistrationServices.getCurriculum(result.getRegistration(), result.getExecutionYear()));
     }
 
     //TODO: refactor to use RegistrationConclusionServices.inferConclusion => refactor method to allow return non conclued 
