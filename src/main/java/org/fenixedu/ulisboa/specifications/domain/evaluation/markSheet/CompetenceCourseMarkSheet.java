@@ -558,6 +558,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return result;
         }
 
+        if (EvaluationServices.isCourseEvaluationIgnoredInMarkSheet(getCourseEvaluation())) {
+            return result;
+        }
+
         for (final Iterator<Enrolment> iterator = result.iterator(); iterator.hasNext();) {
             final Enrolment enrolment = iterator.next();
 

@@ -15,6 +15,19 @@ import com.google.common.collect.Sets;
 
 abstract public class EvaluationServices {
 
+    // CourseEvaluationIgnoredInMarkSheet
+
+    static private Function<Evaluation, Boolean> COURSE_EVALUATION_IGNORED_IN_MARK_SHEET = null;
+
+    static public void setCourseEvaluationIgnoredInMarkSheet(final Function<Evaluation, Boolean> input) {
+        COURSE_EVALUATION_IGNORED_IN_MARK_SHEET = input;
+    }
+
+    static public Boolean isCourseEvaluationIgnoredInMarkSheet(final Evaluation input) {
+        return COURSE_EVALUATION_IGNORED_IN_MARK_SHEET == null ? Boolean.FALSE : COURSE_EVALUATION_IGNORED_IN_MARK_SHEET
+                .apply(input);
+    }
+
     // ExecutionCourseEvaluationsFinder
 
     static private BiFunction<ExecutionCourse, EvaluationSeason, Set<Evaluation>> EXECUTION_COURSE_EVALUATION_FINDER = null;
