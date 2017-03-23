@@ -820,7 +820,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         }
 
         if (result.size() > 1) {
-            logger.warn("Mark sheet {} has more than one GradeScaleValidator configured, returning the oldest", this);
+            logger.debug("Mark sheet {} has more than one GradeScaleValidator configured, returning the oldest", this);
         }
 
         return result.isEmpty() ? null : result.first();
