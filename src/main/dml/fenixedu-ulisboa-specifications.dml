@@ -748,7 +748,7 @@ relation EvaluationSeasonOccupationPeriod {
         multiplicity *;
     }
 
-    protected .org.fenixedu.academic.domain.OccupationPeriod playsRole occupationPeriod {
+    .org.fenixedu.academic.domain.OccupationPeriod playsRole occupationPeriod {
         multiplicity 1;
     }
 }

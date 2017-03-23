@@ -244,8 +244,8 @@ ${portal.angularToolkit()}
 				<tbody>
 					<c:forEach var="item" items="${bean.period.intervals}">
 						<tr>
-							<td><joda:format value="${item.start}" pattern="yyyy-MM-dd"/></td>
-							<td><joda:format value="${item.end}" pattern="yyyy-MM-dd"/></td>
+							<td><joda:format value="${item.start}" pattern="dd/MM/yyyy"/></td>
+							<td><joda:format value="${item.end}" pattern="dd/MM/yyyy"/></td>
 							<td>
 								<button class="btn btn-danger btn-xs" type="button" role="button" ng-click="removeInterval('${item.start.toLocalDate()}','${item.end.toLocalDate()}')"> 
 									<spring:message	code='label.remove' />
