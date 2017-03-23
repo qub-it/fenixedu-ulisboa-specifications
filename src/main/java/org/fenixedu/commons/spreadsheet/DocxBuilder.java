@@ -20,8 +20,10 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.spreadsheet.SheetData.Cell;
 import org.fenixedu.commons.spreadsheet.converters.CellConverter;
+import org.fenixedu.commons.spreadsheet.converters.LocalizedStringCellConverter;
 import org.fenixedu.commons.spreadsheet.converters.excel.BigDecimalCellConverter;
 import org.fenixedu.commons.spreadsheet.converters.excel.DateTimeCellConverter;
 import org.fenixedu.commons.spreadsheet.converters.excel.IntegerCellConverter;
@@ -55,6 +57,7 @@ class DocxBuilder extends AbstractSheetBuilder {
         BASE_CONVERTERS.put(LocalDate.class, new LocalDateCellConverter());
         BASE_CONVERTERS.put(BigDecimal.class, new BigDecimalCellConverter());
         BASE_CONVERTERS.put(MultiLanguageStringCellConverter.class, new MultiLanguageStringCellConverter());
+        BASE_CONVERTERS.put(LocalizedString.class, new LocalizedStringCellConverter());
     }
 
     private static XCellStyle HEADER_STYLE = new XComposedCellStyle() {
