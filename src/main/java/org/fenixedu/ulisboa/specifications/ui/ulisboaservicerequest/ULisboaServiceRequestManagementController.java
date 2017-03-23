@@ -58,6 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.gson.JsonParser;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageULisboaServiceRequest",
@@ -485,7 +486,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         response.sendRedirect(request.getContextPath() + READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId());
     }
 
-    @Atomic
+    @Atomic(mode = TxMode.WRITE)
     private void updatePrintConfiguration(final ULisboaServiceRequest serviceRequest, final List<ServiceRequestSlotEntry> entries,
             final List<String> propertiesValues) {
         Iterator<String> propertiesIterator = propertiesValues.iterator();

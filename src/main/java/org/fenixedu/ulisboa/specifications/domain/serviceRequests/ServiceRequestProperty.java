@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +26,7 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import com.google.common.base.Strings;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.FenixFramework;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
@@ -134,21 +133,12 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         setExecutionInterval(executionSemester);
     }
 
+    @Atomic(mode = TxMode.WRITE)
     public void setValue(final Object value) {
         String propertyName = getPropertyName(getServiceRequestSlot());
         try {
-            FenixFramework.atomic(new Callable<Boolean>() {
-
-                @Override
-                public Boolean call() throws Exception {
-                    BeanUtils.setProperty(this, propertyName, value);
-                    return Boolean.TRUE;
-                }
-            });
+            BeanUtils.setProperty(this, propertyName, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ULisboaSpecificationsDomainException(e, "error.serviceRequests.ServiceRequestProperty.write.slot",
-                    getServiceRequestSlot().getCode(), getServiceRequestSlot().getUiComponentType().toString(), propertyName);
-        } catch (Exception e) {
             throw new ULisboaSpecificationsDomainException(e, "error.serviceRequests.ServiceRequestProperty.write.slot",
                     getServiceRequestSlot().getCode(), getServiceRequestSlot().getUiComponentType().toString(), propertyName);
         }
