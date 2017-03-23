@@ -582,6 +582,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
                         addData("ICurriculumEntry.ectsCreditsForCurriculum", curriculumEntry.getEctsCreditsForCurriculum());
                         addData("ICurriculumEntry.executionPeriod", curriculumEntry.getExecutionPeriod().getQualifiedName());
+                        addData("creationDate", curriculumEntry.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
                         addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil
                                 .bundle(isDismissal(entry.getKey(), entry.getValue()) ? "label.yes" : "label.no"));
                         addData("ICurriculumEntry.curricularYear", getCurricularYear(entry.getKey(), curriculumEntry));
@@ -693,6 +694,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
                         addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
                         addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
+                        addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
                         addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
