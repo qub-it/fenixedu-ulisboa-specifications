@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -89,6 +91,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
@@ -554,24 +557,33 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         final Set<Enrolment> result = Sets.newHashSet(getExecutionCourseEnrolmentsNotInAnyMarkSheet(getExecutionSemester(),
                 getCompetenceCourse(), getExecutionCourse(), getEvaluationSeason(), getEvaluationDate(), getShiftSet()));
 
+        // mark sheet has no course evaluation, nothing to be done
         if (getCourseEvaluation() == null) {
-            return result;
-        }
-
-        if (EvaluationServices.isCourseEvaluationIgnoredInMarkSheet(getCourseEvaluation())) {
             return result;
         }
 
         for (final Iterator<Enrolment> iterator = result.iterator(); iterator.hasNext();) {
             final Enrolment enrolment = iterator.next();
 
+            // student hasn't enroled in any course evaluation (manual creation of EnrolmentEvaluation
             if (!EvaluationServices.isEnroledInAnyCourseEvaluation(enrolment, getEvaluationSeason(), getExecutionSemester())) {
                 continue;
             }
 
-            if (EvaluationServices.isEnroledInCourseEvaluation(enrolment, getEvaluationSeason(), getExecutionSemester(),
-                    getCourseEvaluation())) {
+            final Set<Evaluation> courseEvaluations =
+                    EvaluationServices.findEnrolmentCourseEvaluations(enrolment, getEvaluationSeason(), getExecutionSemester());
+            if (courseEvaluations.contains(getCourseEvaluation())) {
+
+                // student enroled in mark sheet's course evaluation
                 continue;
+
+            } else {
+
+                // student enroled in other course evaluation but it's type is marked as to be ignored in this mark sheet filtering
+                if (courseEvaluations.stream().anyMatch(
+                        courseEvaluation -> EvaluationServices.isCourseEvaluationIgnoredInMarkSheet(courseEvaluation))) {
+                    continue;
+                }
             }
 
             iterator.remove();
@@ -812,59 +824,93 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            if (validator.getAppliesToCurriculumAggregatorEntry() && !isCurriculumAggregatorEntryScaleConsistent()) {
-                continue;
+            // ugly, but that life sometimes.
+            final Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> data = getCurriculumAggregationData();
+            final Entry<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> entry =
+                    data.isEmpty() ? null : data.entrySet().iterator().next();
+
+            final Set<CurriculumAggregator> aggregators = entry == null ? Sets.newHashSet() : entry.getKey();
+            final Set<CurriculumAggregatorEntry> entries = entry == null ? Sets.newHashSet() : entry.getValue();
+            if (!aggregators.isEmpty() || !entries.isEmpty()) {
+
+                if (!validator.getAppliesToCurriculumAggregatorEntry()) {
+                    continue;
+                }
+
+                if (!isCurriculumAggregatorEntryScaleConsistent(aggregators, entries)) {
+                    continue;
+                }
+
+            } else {
+
+                if (validator.getAppliesToCurriculumAggregatorEntry()) {
+                    continue;
+                }
             }
 
             result.add(validator);
         }
 
         if (result.size() > 1) {
-            logger.debug("Mark sheet {} has more than one GradeScaleValidator configured, returning the oldest", this);
+            logger.warn("Mark sheet {} has more than one GradeScaleValidator configured, returning the oldest", this);
         }
 
         return result.isEmpty() ? null : result.first();
     }
 
-    private boolean isCurriculumAggregatorEntryScaleConsistent() {
-        return CurriculumAggregatorServices.isAggregationsActive(getExecutionYear())
-                && getCurriculumAggregatorEntryScale() != null;
+    private Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> getCurriculumAggregationData() {
+        final Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> result = Maps.newHashMap();
+
+        if (CurriculumAggregatorServices.isAggregationsActive(getExecutionYear())) {
+
+            // try to find context for each CC
+            final Set<Context> contexts = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                    .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionYear())).filter(i -> i != null)
+                    .collect(Collectors.toSet());
+
+            if (!contexts.isEmpty()) {
+                // we don't know if we are dealing with aggregators or entries...
+                // the CurricularCourses may even be configured with both status...
+                // so...let's search everything.
+                final Set<CurriculumAggregator> aggregators = contexts.stream().map(i -> i.getCurriculumAggregator())
+                        .filter(i -> i != null && i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
+                final Set<CurriculumAggregatorEntry> entries = contexts.stream().map(i -> i.getCurriculumAggregatorEntry())
+                        .filter(i -> i != null && i.isCandidateForEvaluation()).collect(Collectors.toSet());
+
+                result.put(aggregators, entries);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean isCurriculumAggregatorEntryScaleConsistent(final Set<CurriculumAggregator> aggregators,
+            final Set<CurriculumAggregatorEntry> entries) {
+
+        return getCurriculumAggregatorEntryScale(aggregators, entries) != null;
     }
 
     /**
      * Strange method, just to make sure we have consistency across the execution course's curricular courses.
      */
-    private Integer getCurriculumAggregatorEntryScale() {
+    private Integer getCurriculumAggregatorEntryScale(final Set<CurriculumAggregator> aggregators,
+            final Set<CurriculumAggregatorEntry> entries) {
+
         Integer result = null;
 
-        // try to find context for each CC
-        final Set<Context> contexts = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionYear())).filter(i -> i != null)
-                .collect(Collectors.toSet());
-        if (!contexts.isEmpty()) {
+        if (!aggregators.isEmpty() || !entries.isEmpty()) {
 
-            // we don't know if we are dealing with aggregators or entries...
-            // the CurricularCourses may even be configured with both status...
-            // so...let's search everything.
-            final Set<CurriculumAggregator> aggregators = contexts.stream().map(i -> i.getCurriculumAggregator())
-                    .filter(i -> i != null && i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
-            final Set<CurriculumAggregatorEntry> entries = contexts.stream().map(i -> i.getCurriculumAggregatorEntry())
-                    .filter(i -> i != null && i.isCandidateForEvaluation()).collect(Collectors.toSet());
+            // let's find a candidate for grade value scale 
+            final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next()
+                    .getGradeValueScale() : !entries.isEmpty() ? entries.iterator().next().getGradeValueScale() : null;
 
-            if (!aggregators.isEmpty() || !entries.isEmpty()) {
+            if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)
+                    && entries.stream().allMatch(i -> i.getGradeValueScale() == temp.intValue())) {
+                result = temp;
+            }
 
-                // let's find a candidate for grade value scale 
-                final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next()
-                        .getGradeValueScale() : !entries.isEmpty() ? entries.iterator().next().getGradeValueScale() : null;
-
-                if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)
-                        && entries.stream().allMatch(i -> i.getGradeValueScale() == temp.intValue())) {
-                    result = temp;
-                }
-
-                if (result == null) {
-                    logger.warn("Unable to find grade value scale for {}", this);
-                }
+            if (result == null) {
+                logger.warn("Unable to find grade value scale for {}", this);
             }
         }
 
