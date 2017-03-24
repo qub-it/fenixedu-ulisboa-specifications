@@ -27,6 +27,8 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,9 +51,12 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 
 abstract public class CurriculumAggregatorServices {
@@ -136,26 +141,50 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
+    static final private Cache<String, Context> CACHE_CONTEXTS =
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(5, TimeUnit.MINUTES).build();
+
     /**
      * ExecutionYear should be as close as possible to the business logic being addressed
      */
     static public Context getContext(final DegreeModule input, final ExecutionYear executionYear) {
-        Context result = null;
+        final String key =
+                String.format("%s#%s", input.getExternalId(), executionYear == null ? "null" : executionYear.getExternalId());
 
-        if (input != null) {
-            final List<Context> parentContexts =
-                    input.getParentContextsSet().stream().filter(i -> executionYear == null || i.isValid(executionYear))
-                            .sorted((x, y) -> -x.getBeginExecutionPeriod().compareExecutionInterval(y.getEndExecutionPeriod()))
-                            .collect(Collectors.toList());
-            result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
-            if (parentContexts.size() != 1 && result != null) {
-                logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
-                        result.getBeginExecutionPeriod().getQualifiedName(),
-                        result.getEndExecutionPeriod() == null ? "X" : result.getEndExecutionPeriod().getQualifiedName(), result);
-            }
+        try {
+            return CACHE_CONTEXTS.get(key, new Callable<Context>() {
+                @Override
+                public Context call() {
+                    logger.debug(String.format("Miss on Context cache [%s %s]", new DateTime(), key));
+
+                    Context result = null;
+
+                    if (input != null) {
+                        final List<Context> parentContexts =
+                                input.getParentContextsSet().stream()
+                                        .filter(i -> executionYear == null || i.isValid(executionYear))
+                                        .sorted((x,
+                                                y) -> -x.getBeginExecutionPeriod()
+                                                        .compareExecutionInterval(y.getEndExecutionPeriod()))
+                                        .collect(Collectors.toList());
+                        result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
+                        if (parentContexts.size() != 1 && result != null) {
+                            logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
+                                    result.getBeginExecutionPeriod().getQualifiedName(),
+                                    result.getEndExecutionPeriod() == null ? "X" : result.getEndExecutionPeriod()
+                                            .getQualifiedName(),
+                                    result);
+                        }
+                    }
+
+                    return result;
+                }
+            });
+
+        } catch (final Throwable t) {
+            logger.debug(String.format("Unable to get Context [%s %s %s]", new DateTime(), key, t.getLocalizedMessage()));
+            return null;
         }
-
-        return result;
     }
 
     static private Set<Context> collectEnrolmentMasterContexts(final Context context) {
