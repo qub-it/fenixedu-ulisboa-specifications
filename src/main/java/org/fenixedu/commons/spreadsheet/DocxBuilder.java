@@ -126,6 +126,8 @@ class DocxBuilder extends AbstractSheetBuilder {
     public void build(Map<String, SheetData<?>> sheets, OutputStream output) throws IOException {
         try {
             XSSFWorkbook book = new XSSFWorkbook();
+            final XSSFCellStyle xssfHeaderStyle = headerStyle.getStyle(book);
+
             for (Entry<String, SheetData<?>> entry : sheets.entrySet()) {
                 final XSSFSheet sheet = book.createSheet(entry.getKey());
                 int rownum = 0;
@@ -133,13 +135,12 @@ class DocxBuilder extends AbstractSheetBuilder {
 
                 SheetData<?> data = entry.getValue();
                 if (!data.headers.get(0).isEmpty()) {
-                    final XSSFCellStyle style = headerStyle.getStyle(book);
 
                     for (List<Cell> headerRow : data.headers) {
                         colnum = 0;
                         final XSSFRow row = sheet.createRow(rownum++);
                         for (Cell cell : headerRow) {
-                            setValue(book, row.createCell(colnum++), cell.value, cell.span, style);
+                            setValue(book, row.createCell(colnum++), cell.value, cell.span, xssfHeaderStyle);
                             colnum = colnum + cell.span - 1;
                         }
                     }
@@ -161,9 +162,6 @@ class DocxBuilder extends AbstractSheetBuilder {
                         setValue(book, row.createCell(colnum++), cell.value, cell.span);
                         colnum = colnum + cell.span - 1;
                     }
-                }
-                for (int i = 0; i < sheet.getLastRowNum(); i++) {
-                    sheet.autoSizeColumn(i);
                 }
             }
             book.write(output);
