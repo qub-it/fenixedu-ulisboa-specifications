@@ -32,6 +32,7 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -549,13 +550,13 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
 
-        final Collection<Curriculum> curriculums =
-                reports.stream().map(r -> r.getRegistration().getLastStudentCurricularPlan().getCurriculum(new DateTime(), null))
+        final Collection<ICurriculum> curriculums =
+                reports.stream().map(r -> RegistrationServices.getCurriculum(r.getRegistration(), r.getExecutionYear()))
                         .sorted((x, y) -> x.getStudentCurricularPlan().getRegistration().getNumber()
                                 .compareTo(x.getStudentCurricularPlan().getRegistration().getNumber()))
                         .distinct().collect(Collectors.toList());
 
-        final Multimap<Curriculum, ICurriculumEntry> approvalsByCurriculum = HashMultimap.create();
+        final Multimap<ICurriculum, ICurriculumEntry> approvalsByCurriculum = HashMultimap.create();
         curriculums.stream().forEach(c -> approvalsByCurriculum.putAll(c, c.getCurriculumEntries()));
 
         final ExecutionYear executionYearForCurricularYear =
@@ -563,10 +564,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
-                new SheetData<Map.Entry<Curriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
+                new SheetData<Map.Entry<ICurriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
 
                     @Override
-                    protected void makeLine(Entry<Curriculum, ICurriculumEntry> entry) {
+                    protected void makeLine(Entry<ICurriculum, ICurriculumEntry> entry) {
                         final Registration registration = entry.getKey().getStudentCurricularPlan().getRegistration();
                         final ICurriculumEntry curriculumEntry = entry.getValue();
 
@@ -596,27 +597,27 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                     }
 
-                    private boolean isDismissal(Curriculum curriculum, ICurriculumEntry entry) {
-                        return curriculum.getDismissalRelatedEntries().contains(entry);
+                    private boolean isDismissal(ICurriculum curriculum, ICurriculumEntry entry) {
+                        return ((Curriculum) curriculum).getDismissalRelatedEntries().contains(entry);
                     }
 
-                    private Integer getCurricularSemester(Curriculum curriculum, ICurriculumEntry entry) {
+                    private Integer getCurricularSemester(ICurriculum curriculum, ICurriculumEntry entry) {
                         return belongsToStudentCurricularPlan(curriculum, entry) ? CurricularPeriodServices
                                 .getCurricularSemester((CurriculumLine) entry) : null;
                     }
 
-                    private Integer getCurricularYear(Curriculum curriculum, ICurriculumEntry entry) {
+                    private Integer getCurricularYear(ICurriculum curriculum, ICurriculumEntry entry) {
                         return belongsToStudentCurricularPlan(curriculum, entry) ? CurricularPeriodServices
                                 .getCurricularYear((CurriculumLine) entry) : null;
                     }
 
-                    private String getGroupPath(Curriculum curriculum, ICurriculumEntry entry) {
+                    private String getGroupPath(ICurriculum curriculum, ICurriculumEntry entry) {
                         return belongsToStudentCurricularPlan(curriculum, entry) ? ((CurriculumLine) entry).getCurriculumGroup()
                                 .getFullPath() : null;
 
                     }
 
-                    protected boolean belongsToStudentCurricularPlan(Curriculum curriculum, ICurriculumEntry entry) {
+                    protected boolean belongsToStudentCurricularPlan(ICurriculum curriculum, ICurriculumEntry entry) {
                         return entry instanceof Dismissal || entry instanceof Enrolment
                                 && ((Enrolment) entry).getStudentCurricularPlan() == curriculum.getStudentCurricularPlan();
                     }
@@ -650,7 +651,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
     private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
 
-        final Collection<RegistrationHistoryReport> reports = generateReport(bean, true);
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
         final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
         reports.stream().forEach(r -> enrolments.putAll(r, r.getEnrolments()));
 
@@ -659,7 +660,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev -> {
                 enrolments.put(r, ev.getEnrolment());
 
-                if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
+                if (!ev.isAnnuled() && ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
                     improvementsOnly.put(ev.getEnrolment(), ev.getExecutionPeriod());
                 }
 
@@ -677,30 +678,34 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         final Registration registration = report.getRegistration();
                         final Enrolment enrolment = entry.getValue();
 
-                        final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
-                        final ExecutionSemester enrolmentPeriod =
-                                improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+                        if (!enrolment.isAnnulled()) {
 
-                        final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
+                            final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
+                            final ExecutionSemester enrolmentPeriod =
+                                    improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
 
-                        addData("Student.number", registration.getStudent().getNumber());
-                        addData("Registration.number", registration.getNumber().toString());
-                        addData("Person.name", registration.getStudent().getPerson().getName());
-                        addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
-                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
-                        addData("Enrolment.code", enrolment.getCode());
-                        addData("Enrolment.name", enrolment.getPresentationName().getContent());
-                        addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
-                        addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
-                        addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
-                        addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
-                        addData("Enrolment.improvementOnly",
-                                ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
-                        addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
-                        addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
-                        addData("Enrolment.numberOfEnrolments", CompetenceCourseServices.countEnrolmentsUntil(
-                                report.getStudentCurricularPlan(), enrolment.getCurricularCourse(), report.getExecutionYear()));
+                            final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
+
+                            addData("Student.number", registration.getStudent().getNumber());
+                            addData("Registration.number", registration.getNumber().toString());
+                            addData("Person.name", registration.getStudent().getPerson().getName());
+                            addData("Degree.code", registration.getDegree().getCode());
+                            addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                            addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
+                            addData("Enrolment.code", enrolment.getCode());
+                            addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                            addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
+                            addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
+                            addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
+                            addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
+                            addData("Enrolment.improvementOnly",
+                                    ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
+                            addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
+                            addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
+                            addData("Enrolment.numberOfEnrolments",
+                                    CompetenceCourseServices.countEnrolmentsUntil(report.getStudentCurricularPlan(),
+                                            enrolment.getCurricularCourse(), report.getExecutionYear()));
+                        }
                     }
 
                     private void addData(String key, Object data) {
