@@ -6,6 +6,6 @@ import org.joda.time.YearMonthDay;
 public class YearMonthDayCellConverter implements CellConverter {
     @Override
     public Object convert(Object source) {
-        return (source != null) ? ((YearMonthDay) source).toDateTimeAtMidnight().toDate() : null;
+        return (source != null) ? ((YearMonthDay) source).toString("yyyy-MM-dd") : null;
     }
 }
