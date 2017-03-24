@@ -78,13 +78,16 @@ public class RegistrationHistoryReportService {
         final Set<Registration> result = Sets.newHashSet();
 
         for (final Integer number : getStudentNumbers()) {
-            List<Registration> registrations = Registration.readByNumber(number);
-            if (registrations.isEmpty()) {
-                final Student student = Student.readStudentByNumber(number);
-                registrations = Lists.newArrayList(student.getRegistrationsSet());
-            }
 
-            result.addAll(registrations);
+            result.addAll(Registration.readByNumber(number));
+            if (result.isEmpty()) {
+
+                final Student student = Student.readStudentByNumber(number);
+                if (student != null) {
+
+                    result.addAll(student.getRegistrationsSet());
+                }
+            }
         }
 
         return result;
