@@ -67,7 +67,7 @@ public class IGOTTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public boolean isNotApproved(Grade grade) {
-        return false;
+        return R.equals(grade.getValue());
     }
 
     @Override
