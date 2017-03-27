@@ -116,7 +116,9 @@ abstract public class EnrolmentPredicateInitializer {
             }
 
             final DegreeModule degreeModule = enrolment.getDegreeModule();
-            if (!degreeModule.hasAnyParentContexts(improvementSemester)) {
+            if (!enrolment.getCurriculumGroup().isNoCourseGroupCurriculumGroup()
+                    && !degreeModule.hasAnyParentContexts(improvementSemester)) {
+
                 throw new DomainException(
                         "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.has.no.context.in.present.execution.period",
                         name, improvementSemester.getQualifiedName());
