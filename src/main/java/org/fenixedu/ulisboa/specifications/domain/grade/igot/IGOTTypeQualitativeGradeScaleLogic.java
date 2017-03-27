@@ -21,13 +21,15 @@ public class IGOTTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String E = "E";
     private static final String AD = "AD";
     private static final String ADL = "ADL";
+    private static final String R = "R";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(A, AD, ADL, SU, B, BD, MB, E);
+    private static final List<String> SORTED_GRADES = Arrays.asList(A, AD, ADL, SU, B, BD, MB, E, R);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
     static {
+        CONFIGURATION.put(R, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
         CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
