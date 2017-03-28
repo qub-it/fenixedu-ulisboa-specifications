@@ -117,6 +117,7 @@ abstract public class EnrolmentPredicateInitializer {
 
             final DegreeModule degreeModule = enrolment.getDegreeModule();
             if (!enrolment.getCurriculumGroup().isNoCourseGroupCurriculumGroup()
+                    && !enrolment.getCurriculumGroup().getDegreeModule().isOptionalCourseGroup()
                     && !degreeModule.hasAnyParentContexts(improvementSemester)) {
 
                 throw new DomainException(
