@@ -453,7 +453,15 @@ ${portal.toolkit()}
                 <a class="" href="#" onclick="openModal('${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.PRINT_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }', 'uLisboaServiceRequestPrint')">
             </c:otherwise>
         </c:choose>
-        <spring:message code="label.print" />
+        <c:choose>
+            <c:when test="${ serviceRequest.academicServiceRequestSituationType == 'CONCLUDED' || serviceRequest.academicServiceRequestSituationType == 'DELIVERED' }">
+                <spring:message code="label.download" />
+            </c:when>
+            <c:otherwise>
+                <spring:message code="label.print" />
+            </c:otherwise>
+        </c:choose>
+
 	    </a>
     </c:if>
 
