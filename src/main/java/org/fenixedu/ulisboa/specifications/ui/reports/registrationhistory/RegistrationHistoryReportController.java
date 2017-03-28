@@ -551,7 +551,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
 
         final Collection<ICurriculum> curriculums =
-                reports.stream().map(r -> RegistrationServices.getCurriculum(r.getRegistration(), r.getExecutionYear()))
+                reports.stream().map(r -> RegistrationServices.getCurriculum(r.getRegistration(), (ExecutionYear) null))
                         .sorted((x, y) -> x.getStudentCurricularPlan().getRegistration().getNumber()
                                 .compareTo(x.getStudentCurricularPlan().getRegistration().getNumber()))
                         .distinct().collect(Collectors.toList());
