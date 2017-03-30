@@ -73,21 +73,22 @@ public class RegistrationServices {
                     }
 
                     final Dismissal dismissal = (Dismissal) curriculumModule;
-                    final StudentCurricularPlan plan = dismissal.getStudentCurricularPlan();
-                    final Registration registration = plan.getRegistration();
+                    final StudentCurricularPlan dismissalPlan = dismissal.getStudentCurricularPlan();
+                    final Registration dismissalReg = dismissalPlan.getRegistration();
 
-                    if (!isCurriculumAccumulated(registration)) {
+                    if (!isCurriculumAccumulated(dismissalReg)) {
                         return;
                     }
 
-                    //  hasIntertwinedCredits
+                    //  hasIntertwinedCredits BUT from the same Registration
                     for (final IEnrolment iEnrolment : dismissal.getSourceIEnrolments()) {
                         if (iEnrolment instanceof Enrolment) {
                             final Enrolment enrolment = (Enrolment) iEnrolment;
                             if (!CurriculumLineServices.isExcludedFromCurriculum(enrolment)) {
 
-                                if (plan != enrolment.getStudentCurricularPlan()) {
-                                    setCurriculumAccumulated(registration, false);
+                                final StudentCurricularPlan enrolmentPlan = enrolment.getStudentCurricularPlan();
+                                if (dismissalReg == enrolmentPlan.getRegistration() && dismissalPlan != enrolmentPlan) {
+                                    setCurriculumAccumulated(dismissalReg, false);
                                     return;
                                 }
                             }
