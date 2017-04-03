@@ -27,13 +27,13 @@ package org.fenixedu.ulisboa.specifications.domain.student;
 
 import java.util.function.Supplier;
 
+import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
-import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -69,19 +69,26 @@ abstract public class EnrolmentPredicateInitializer {
 
             if (enrolment.isEvaluatedInSeason(getEvaluationSeason(), getExecutionSemester())) {
                 throw new DomainException("error.EvaluationSeason.enrolment.evaluated.in.this.season",
-                        enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
+                        enrolment.getPresentationName().getContent(), getEvaluationSeason().getName().getContent());
             }
 
             if (getContext() == EnrolmentEvaluationContext.MARK_SHEET_EVALUATION) {
                 if (enrolment.isEnroledInSeason(getEvaluationSeason(), getExecutionSemester())) {
                     throw new DomainException("error.EvaluationSeason.already.enroled.in.this.season",
-                            enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
+                            enrolment.getPresentationName().getContent(), getEvaluationSeason().getName().getContent());
                 }
 
                 if (enrolment.isApproved() && !EvaluationSeasonServices.isForApprovedEnrolments(getEvaluationSeason())) {
                     throw new DomainException("error.EvaluationSeason.evaluation.already.approved",
-                            enrolment.getName().getContent(), getEvaluationSeason().getName().getContent());
+                            enrolment.getPresentationName().getContent(), getEvaluationSeason().getName().getContent());
                 }
+            }
+
+            if (enrolment.getEvaluationsSet().stream()
+                    .anyMatch(evaluation -> evaluation.getEvaluationSeason() == getEvaluationSeason() && evaluation.isFinal()
+                            && evaluation.isApproved())) {
+                throw new DomainException("error.EvaluationSeason.already.approved.in.this.season",
+                        enrolment.getPresentationName().getContent(), getEvaluationSeason().getName().getContent());
             }
 
             return true;
@@ -96,11 +103,11 @@ abstract public class EnrolmentPredicateInitializer {
             final ExecutionSemester improvementSemester = getExecutionSemester();
 
             final ExecutionSemester enrolmentSemester = enrolment.getExecutionPeriod();
-            final String name = enrolment.getName().getContent();
+            final String name = enrolment.getPresentationName().getContent();
 
             if (improvementSemester.isBefore(enrolmentSemester)) {
-                throw new ULisboaSpecificationsDomainException(
-                        "error.EnrolmentEvaluation.improvement.semester.must.be.after.or.equal.enrolment", name);
+                throw new DomainException("error.EnrolmentEvaluation.improvement.semester.must.be.after.or.equal.enrolment",
+                        name);
             }
 
             // qubExtension
@@ -115,14 +122,11 @@ abstract public class EnrolmentPredicateInitializer {
                         name);
             }
 
-            final DegreeModule degreeModule = enrolment.getDegreeModule();
-            if (!enrolment.getCurriculumGroup().isNoCourseGroupCurriculumGroup()
-                    && !enrolment.getCurriculumGroup().getDegreeModule().isOptionalCourseGroup()
-                    && !degreeModule.hasAnyParentContexts(improvementSemester)) {
+            final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
+            if (curricularCourse.getCompetenceCourse().getExecutionCoursesByExecutionPeriod(improvementSemester).isEmpty()) {
 
-                throw new DomainException(
-                        "curricularRules.ruleExecutors.ImprovementOfApprovedEnrolmentExecutor.degree.module.has.no.context.in.present.execution.period",
-                        name, improvementSemester.getQualifiedName());
+                throw new DomainException("error.EnrolmentEvaluation.improvement.required.ExecutionCourse", name,
+                        improvementSemester.getQualifiedName());
             }
 
             // qubExtension
@@ -145,19 +149,19 @@ abstract public class EnrolmentPredicateInitializer {
             final ExecutionSemester enrolmentSemester = enrolment.getExecutionPeriod();
             if (specialSeasonSemester != enrolmentSemester) {
                 throw new DomainException("error.EnrolmentEvaluation.special.season.semester.must.be",
-                        enrolment.getName().getContent());
+                        enrolment.getPresentationName().getContent());
             }
 
             if (enrolment.isApproved()) {
                 throw new DomainException(
                         "curricularRules.ruleExecutors.EnrolmentInSpecialSeasonEvaluationExecutor.degree.module.has.been.approved",
-                        enrolment.getName().getContent());
+                        enrolment.getPresentationName().getContent());
             }
 
             if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
-                        enrolment.getName().getContent());
+                        enrolment.getPresentationName().getContent());
             }
 
             PREDICATE_SEASON.get().fill(getEvaluationSeason(), getExecutionSemester(), getContext()).test(enrolment);
