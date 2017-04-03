@@ -87,7 +87,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -1340,7 +1339,7 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, text, title, null, !Strings.isNullOrEmpty(title));
-        cell.setStyle(grade.isApproved()
+        cell.setStyle(enrolment.isApproved()
                 && !isFromDetail ? GRADE_APPROVED_STYLE : grade.isNotApproved() ? GRADE_NOT_APPROVED_STYLE : GRADE_EMPTY_STYLE);
     }
 
