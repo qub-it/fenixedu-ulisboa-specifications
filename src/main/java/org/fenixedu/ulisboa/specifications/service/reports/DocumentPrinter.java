@@ -65,6 +65,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.CourseGroupDegreeInfoDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.DiplomaRequestDataProvider;
+import org.fenixedu.ulisboa.specifications.service.reports.providers.MobilityInfomationDataProvider;
 import org.joda.time.DateTime;
 
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
@@ -129,6 +130,7 @@ public class DocumentPrinter {
         generator.registerDataProvider(new LocalizedDatesProvider());
         generator.registerDataProvider(new ServiceRequestDataProvider(serviceRequest, executionYear));
         generator.registerDataProvider(new DiplomaRequestDataProvider(registration));
+        generator.registerDataProvider(new MobilityInfomationDataProvider(registration, executionYear));
 
         boolean showFooter =
                 serviceRequest.hasProperty("showFooter") ? serviceRequest.findProperty("showFooter").getValue() : false;
