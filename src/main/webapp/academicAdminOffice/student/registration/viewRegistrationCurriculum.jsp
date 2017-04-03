@@ -27,6 +27,7 @@
 <%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.ICurriculum"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <html:xhtml />
 
 <h2><bean:message key="registration.curriculum" bundle="ACADEMIC_OFFICE_RESOURCES"/></h2>
@@ -85,20 +86,28 @@
 </fr:view>
 </logic:notPresent>
 
-<p class="mtop15 mbottom025"><strong>Visualizar Currículo:</strong></p>
 <fr:form action="/registration.do?method=viewRegistrationCurriculum">
 	<fr:edit id="registrationCurriculumBean" 
 		name="registrationCurriculumBean"
 		visible="false"/>
-	<fr:edit id="registrationCurriculumBean-executionYear" name="registrationCurriculumBean" schema="registration-select-execution-year" >
+	<fr:edit id="registrationCurriculumBean-executionYear" name="registrationCurriculumBean">
+        <fr:schema type="org.fenixedu.academic.dto.student.RegistrationSelectExecutionYearBean" bundle="APPLICATION_RESOURCES">
+            <fr:slot name="executionYear" layout="menu-select-postback" key="label.curriculum">
+                <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ExecutionYearsFromRegistrationCurriculumLines"/>
+                <fr:property name="format" value="\${qualifiedName}"/>
+                <fr:property name="sortBy" value="qualifiedName=desc" />
+                <fr:property name="destination" value="executionYearPostBack" />
+                <fr:property name="defaultText" value="label.COMPLETED" />
+                <fr:property name="key" value="true" />
+                <fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
+            </fr:slot>
+        </fr:schema>
+        <fr:destination name="executionYearPostBack" path="/registration.do?method=viewRegistrationCurriculum"/>
 		<fr:layout name="tabular">
 			<fr:property name="classes" value="tstyle5 thright thlight mtop025 thmiddle"/>
 			<fr:property name="columnClasses" value=",,tdclear"/>
 		</fr:layout>
 	</fr:edit>
-	<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit">
-		<bean:message bundle="APPLICATION_RESOURCES" key="label.submit"/>
-	</html:submit>
 </fr:form>
 
 <%
@@ -107,6 +116,7 @@
 
 	request.setAttribute("rawGrade", curriculum.getRawGrade());
 	request.setAttribute("sumEctsCredits", curriculum.getSumEctsCredits());
+	final Integer curricularYear = curriculum.getCurricularYear();
 	request.setAttribute("curricularYear", curriculum.getCurricularYear());
 	request.setAttribute("totalCurricularYears", curriculum.getTotalCurricularYears());
 %>
@@ -133,12 +143,12 @@
 			<td><bean:write name="sumEctsCredits"/></td>
 			<logic:notEmpty name="executionYear">
                 <td><bean:write name="rawGrade" property="value"/></td>
-        		<td><bean:write name="curricularYear"/></td>
+        		<td><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.curricularYear.begin.executionYear" arg0="<%=executionYear.getQualifiedName()%>" arg1="<%=String.valueOf(curricularYear)%>"/></td>
 			</logic:notEmpty>
 			<logic:empty name="executionYear">
 				<logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="false">
 	                <td><bean:write name="rawGrade" property="value"/></td>
-				    <td><bean:write name="curricularYear"/></td>
+				    <td><%=RegistrationServices.getCurricularYear(registration, (ExecutionYear) null).getResult()%></td>
 				</logic:equal>
 				<logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="true">
 					<td><bean:write name="registrationCurriculumBean" property="finalGrade.value"/></td>

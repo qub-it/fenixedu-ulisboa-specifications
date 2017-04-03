@@ -36,21 +36,15 @@
 	final Registration registration = ((RegistrationCurriculumBean) registrationCurriculumBean).getRegistration();
 	request.setAttribute("registration", registration);
 
-	ICurriculum curriculum = registrationCurriculumBean.getCurriculum();
+	final ICurriculum curriculum = registrationCurriculumBean.getCurriculum();
 	request.setAttribute("curriculum", curriculum);
-
-    // rawGrade
+	request.setAttribute("sumEctsCredits", curriculum.getSumEctsCredits());
 	request.setAttribute("rawGrade", curriculum.getRawGrade());
-	
-	// curricular year
+
+    // qubExtension, only curricular year is searched at the beginning of the year
 	final ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
 	request.setAttribute("currentExecutionYear", currentExecutionYear);
-	curriculum = registrationCurriculumBean.getCurriculum(currentExecutionYear);
-	
-	final BigDecimal sumEctsCredits = curriculum.getSumEctsCredits();
-	request.setAttribute("sumEctsCredits", sumEctsCredits);
-		
-	final Integer curricularYear = curriculum.getCurricularYear();
+	final Integer curricularYear = registrationCurriculumBean.getCurriculum(currentExecutionYear).getCurricularYear();
 	request.setAttribute("curricularYear", curricularYear);
 %>
 
@@ -97,20 +91,14 @@
             <bean:size id="curricularEntriesCount" name="curriculum" property="curriculumEntries"/>
             <td><bean:write name="curricularEntriesCount"/></td>
             <td><bean:write name="sumEctsCredits"/></td>
-            <logic:notEmpty name="executionYear">
+            <logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="false">
                 <td><bean:write name="rawGrade" property="value"/></td>
-                <td><bean:write name="curricularYear"/></td>
-            </logic:notEmpty>
-            <logic:empty name="executionYear">
-                <logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="false">
-                    <td><bean:write name="rawGrade" property="value"/></td>
-                    <td><bean:write name="curricularYear"/></td>
-                </logic:equal>
-                <logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="true">
-                    <td><bean:write name="registrationCurriculumBean" property="finalGrade.value"/></td>
-                    <td>-</td>
-                </logic:equal>          
-            </logic:empty>
+                <td><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.curricularYear.begin.executionYear" arg0="<%=currentExecutionYear.getQualifiedName()%>" arg1="<%=String.valueOf(curricularYear)%>"/></td>
+            </logic:equal>
+            <logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="true">
+                <td><bean:write name="registrationCurriculumBean" property="finalGrade.value"/></td>
+                <td>-</td>
+            </logic:equal>          
         </tr>
     </table>
 
