@@ -357,8 +357,11 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
                         if (curriculumModule.isEnrolment()) {
                             final Enrolment enrolment = (Enrolment) curriculumModule;
 
-                            if (Enrolment.getPredicateImprovement().fill(getEvaluationSeason(), executionSemester,
-                                    EnrolmentEvaluationContext.MARK_SHEET_EVALUATION).testExceptionless(enrolment)) {
+                            if (enrolment.isApproved()
+                                    && Enrolment.getPredicateSeason()
+                                            .fill(getEvaluationSeason(), executionSemester,
+                                                    EnrolmentEvaluationContext.MARK_SHEET_EVALUATION)
+                                            .testExceptionless(enrolment)) {
 
                                 if (enrolment.parentCurriculumGroupIsNoCourseGroupCurriculumGroup()) {
                                     result.add(new NoCourseGroupEnroledCurriculumModuleWrapper(enrolment,
