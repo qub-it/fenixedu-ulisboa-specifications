@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
@@ -88,8 +88,13 @@ public class RegistrationHistoryReport {
 
     public Collection<Enrolment> getEnrolments() {
         if (this.enrolments == null) {
+            this.enrolments = Lists.newArrayList();
+
             final StudentCurricularPlan scp = getStudentCurricularPlan();
-            this.enrolments = scp == null ? Lists.newArrayList() : scp.getEnrolmentsByExecutionYear(this.executionYear);
+            if (scp != null) {
+                scp.getEnrolmentsByExecutionYear(this.executionYear).stream().filter(e -> !e.isAnnulled())
+                        .collect(Collectors.toCollection(() -> this.enrolments));
+            }
         }
 
         return this.enrolments;
@@ -238,16 +243,12 @@ public class RegistrationHistoryReport {
                 .anyMatch(c -> c.getExecutionPeriod().getExecutionYear() == executionYear);
     }
 
+    public Collection<EnrolmentEvaluation> getImprovementEvaluations() {
+        return RegistrationServices.getImprovementEvaluations(getRegistration(), getExecutionYear(), ev -> !ev.isAnnuled());
+    }
+
     public boolean hasImprovementEvaluations() {
-
-        final Predicate<Enrolment> improvementEvaluationForYear =
-                e -> e.getEvaluationsSet().stream()
-                        .anyMatch(ev -> ev.getEvaluationSeason() != null && ev.getEvaluationSeason().isImprovement()
-                                && ev.getExecutionPeriod() != null
-                                && ev.getExecutionPeriod().getExecutionYear() == executionYear);
-
-        return getRegistration().getStudentCurricularPlansSet().stream()
-                .anyMatch(scp -> scp.getEnrolmentsSet().stream().anyMatch(improvementEvaluationForYear));
+        return RegistrationServices.hasImprovementEvaluations(getRegistration(), getExecutionYear(), ev -> !ev.isAnnuled());
     }
 
     public boolean hasAnnulledEnrolments() {

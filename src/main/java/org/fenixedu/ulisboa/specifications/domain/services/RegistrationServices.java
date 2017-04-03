@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -329,18 +330,37 @@ public class RegistrationServices {
     }
 
     public static Collection<EnrolmentEvaluation> getImprovementEvaluations(final Registration registration,
-            final ExecutionYear executionYear) {
+            final ExecutionYear executionYear, final Predicate<EnrolmentEvaluation> predicate) {
+
         final Collection<EnrolmentEvaluation> result = Sets.newHashSet();
 
         for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
             for (final EnrolmentEvaluation evaluation : executionSemester.getEnrolmentEvaluationsSet()) {
-                if (evaluation.getEvaluationSeason().isImprovement() && evaluation.getRegistration() == registration) {
+
+                if (evaluation.getEvaluationSeason().isImprovement() && evaluation.getRegistration() == registration
+                        && (predicate == null || predicate.test(evaluation))) {
                     result.add(evaluation);
                 }
             }
         }
 
         return result;
+    }
+
+    public static boolean hasImprovementEvaluations(final Registration registration, final ExecutionYear executionYear,
+            final Predicate<EnrolmentEvaluation> predicate) {
+
+        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
+            for (final EnrolmentEvaluation evaluation : executionSemester.getEnrolmentEvaluationsSet()) {
+
+                if (evaluation.getEvaluationSeason().isImprovement() && evaluation.getRegistration() == registration
+                        && (predicate == null || predicate.test(evaluation))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static boolean hasCreditsBetweenPlans(final Registration registration) {

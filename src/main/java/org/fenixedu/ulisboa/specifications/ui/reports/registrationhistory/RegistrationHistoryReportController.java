@@ -652,18 +652,18 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
 
         final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
+
         final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
         reports.stream().forEach(r -> enrolments.putAll(r, r.getEnrolments()));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
         reports.stream().forEach(r -> {
-            RegistrationServices.getImprovementEvaluations(r.getRegistration(), r.getExecutionYear()).forEach(ev -> {
+            r.getImprovementEvaluations().forEach(ev -> {
                 enrolments.put(r, ev.getEnrolment());
 
-                if (!ev.isAnnuled() && ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
+                if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
                     improvementsOnly.put(ev.getEnrolment(), ev.getExecutionPeriod());
                 }
-
             });
         });
 
@@ -678,34 +678,30 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         final Registration registration = report.getRegistration();
                         final Enrolment enrolment = entry.getValue();
 
-                        if (!enrolment.isAnnulled()) {
+                        final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
+                        final ExecutionSemester enrolmentPeriod =
+                                improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
 
-                            final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
-                            final ExecutionSemester enrolmentPeriod =
-                                    improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+                        final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
-                            final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
-
-                            addData("Student.number", registration.getStudent().getNumber());
-                            addData("Registration.number", registration.getNumber().toString());
-                            addData("Person.name", registration.getStudent().getPerson().getName());
-                            addData("Degree.code", registration.getDegree().getCode());
-                            addData("Degree.presentationName", registration.getDegree().getPresentationName());
-                            addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
-                            addData("Enrolment.code", enrolment.getCode());
-                            addData("Enrolment.name", enrolment.getPresentationName().getContent());
-                            addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
-                            addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
-                            addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
-                            addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
-                            addData("Enrolment.improvementOnly",
-                                    ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
-                            addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
-                            addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
-                            addData("Enrolment.numberOfEnrolments",
-                                    CompetenceCourseServices.countEnrolmentsUntil(report.getStudentCurricularPlan(),
-                                            enrolment.getCurricularCourse(), report.getExecutionYear()));
-                        }
+                        addData("Student.number", registration.getStudent().getNumber());
+                        addData("Registration.number", registration.getNumber().toString());
+                        addData("Person.name", registration.getStudent().getPerson().getName());
+                        addData("Degree.code", registration.getDegree().getCode());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
+                        addData("Enrolment.code", enrolment.getCode());
+                        addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                        addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
+                        addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
+                        addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
+                        addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
+                        addData("Enrolment.improvementOnly",
+                                ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
+                        addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
+                        addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
+                        addData("Enrolment.numberOfEnrolments", CompetenceCourseServices.countEnrolmentsUntil(
+                                report.getStudentCurricularPlan(), enrolment.getCurricularCourse(), report.getExecutionYear()));
                     }
 
                     private void addData(String key, Object data) {
