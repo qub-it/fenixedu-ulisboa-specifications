@@ -217,6 +217,9 @@ public class CurriculumLineServices {
     }
 
     static private YearMonthDay getAcademicActDate(final Enrolment input) {
+        if (input.isAnnulled()) {
+            return null;
+        }
         if (input.isApproved()) {
             return input.calculateConclusionDate();
         }
@@ -225,8 +228,8 @@ public class CurriculumLineServices {
     }
 
     static private EnrolmentEvaluation getLatestEnrolmentEvaluation(final Collection<EnrolmentEvaluation> evaluations) {
-        return ((evaluations == null || evaluations.isEmpty()) ? null : Collections.<EnrolmentEvaluation> max(evaluations,
-                new EvaluationComparator()));
+        return evaluations == null ? null : evaluations.stream().filter(i -> !i.isAnnuled()).max(new EvaluationComparator())
+                .orElse(null);
     }
 
 }
