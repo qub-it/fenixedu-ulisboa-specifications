@@ -7,34 +7,45 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.RootCurriculumGroup;
-import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class RegistrationDataBean implements Serializable {
-
-    static final private Logger logger = LoggerFactory.getLogger(RegistrationDataBean.class);
 
     private RegistrationDataByExecutionYear data;
 
     private LocalDate enrolmentDate;
 
+    private StudentCurricularPlan studentCurricularPlan;
+
+    private SchoolClass schoolClass;
+
+    private Boolean notApproved;
+
+    private Integer enrolmentsCount;
+
+    private Double creditsConcluded;
+
+    private BigDecimal enroledEcts;
+
+    private RegistrationStateType lastRegistrationStateType;
+
+    private YearMonthDay lastAcademicActDate;
+
     public RegistrationDataBean(final RegistrationDataByExecutionYear data) {
         this.setData(data);
-        this.setEnrolmentDate(data == null ? null : data.getEnrolmentDate());
     }
 
     public RegistrationDataByExecutionYear getData() {
@@ -58,7 +69,11 @@ public class RegistrationDataBean implements Serializable {
     }
 
     public LocalDate getEnrolmentDate() {
-        return enrolmentDate;
+        if (this.enrolmentDate == null) {
+            this.enrolmentDate = getData() == null ? null : getData().getEnrolmentDate();
+        }
+
+        return this.enrolmentDate;
     }
 
     public void setEnrolmentDate(LocalDate enrolmentDate) {
@@ -70,19 +85,27 @@ public class RegistrationDataBean implements Serializable {
     }
 
     public StudentCurricularPlan getStudentCurricularPlan() {
-        final Registration registration = getRegistration();
-        final StudentCurricularPlan plan =
-                registration == null ? null : registration.getStudentCurricularPlan(getExecutionYear());
+        if (this.studentCurricularPlan == null) {
+            final Registration registration = getRegistration();
+            final StudentCurricularPlan plan =
+                    registration == null ? null : registration.getStudentCurricularPlan(getExecutionYear());
 
-        // better to return last than have a NPE
-        return plan == null ? registration.getLastStudentCurricularPlan() : plan;
+            // better to return last than have a NPE
+            this.studentCurricularPlan = plan == null ? registration.getLastStudentCurricularPlan() : plan;
+        }
+
+        return this.studentCurricularPlan;
     }
 
     private SchoolClass getSchoolClass() {
-        final ExecutionSemester executionSemester = getExecutionYear().isCurrent() ? ExecutionSemester
-                .readActualExecutionSemester() : getExecutionYear().getFirstExecutionPeriod();
+        if (this.schoolClass == null) {
+            final ExecutionSemester executionSemester = getExecutionYear().isCurrent() ? ExecutionSemester
+                    .readActualExecutionSemester() : getExecutionYear().getFirstExecutionPeriod();
 
-        return RegistrationServices.getSchoolClassBy(getRegistration(), executionSemester).orElse(null);
+            this.schoolClass = RegistrationServices.getSchoolClassBy(getRegistration(), executionSemester).orElse(null);
+        }
+
+        return this.schoolClass;
     }
 
     public String getSchoolClassPresentation() {
@@ -108,46 +131,71 @@ public class RegistrationDataBean implements Serializable {
         return getCurricularYearResult().getJustificationPresentation();
     }
 
-    public boolean getNotApproved() {
-        final Registration registration = getRegistration();
-        final ExecutionYear executionYear = getExecutionYear();
-        return RegistrationServices.isFlunkedUsingCurricularYear(registration, executionYear);
+    public Boolean getNotApproved() {
+        if (this.notApproved == null) {
+            final Registration registration = getRegistration();
+            final ExecutionYear executionYear = getExecutionYear();
+            this.notApproved = RegistrationServices.isFlunkedUsingCurricularYear(registration, executionYear);
+        }
+
+        return this.notApproved;
     }
 
     public Integer getEnrolmentsCount() {
-        return getRegistration().getEnrolments(getExecutionYear()).size();
+        if (this.enrolmentsCount == null) {
+            final StudentCurricularPlan plan = getStudentCurricularPlan();
+            this.enrolmentsCount = plan == null ? null : Long
+                    .valueOf(plan.getEnrolmentsByExecutionYear(getExecutionYear()).stream().filter(i -> !i.isAnnulled()).count())
+                    .intValue();
+        }
+
+        return this.enrolmentsCount;
     }
 
     public Double getCreditsConcluded() {
-        // don't forget: Curriculum reports ECTS at the beginning of the year
-        final ExecutionYear current = getExecutionYear();
-        final ExecutionYear next = current.getNextExecutionYear();
+        if (this.creditsConcluded == null) {
+            final ICurriculum next =
+                    RegistrationServices.getCurriculum(getRegistration(), getExecutionYear().getNextExecutionYear());
+            final ICurriculum current = RegistrationServices.getCurriculum(getRegistration(), getExecutionYear());
+            // this is quite ugly and unfortunate, but don't forget: 
 
-        return Math.max(0, getCreditsConcluded(next) - getCreditsConcluded(current));
-    }
+            // 1) Curriculum reports ECTS at the beginning of the year => next - current
+            final double nextCreditsConcluded = next.getSumEctsCredits().doubleValue();
+            final double currentCreditsConcluded = current.getSumEctsCredits().doubleValue();
 
-    private Double getCreditsConcluded(final ExecutionYear input) {
-        return RegistrationServices.getCurriculum(getRegistration(), input).getSumEctsCredits().doubleValue();
+            // 2) Credits are accounted for at the beginning of the year => adding their ECTS back
+            final double currentRemainingCredits = ((Curriculum) current).getDismissalRelatedEntries().stream()
+                    .filter(i -> i.getExecutionYear() == getExecutionYear()).map(ICurriculumEntry::getEctsCreditsForCurriculum)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue();
+
+            this.creditsConcluded = Math.max(0, nextCreditsConcluded - currentCreditsConcluded + currentRemainingCredits);
+        }
+
+        return this.creditsConcluded;
     }
 
     public BigDecimal getEnroledEcts() {
-        BigDecimal result = BigDecimal.ZERO;
+        if (this.enroledEcts == null) {
+            BigDecimal result = BigDecimal.ZERO;
 
-        final ExecutionYear year = getExecutionYear();
+            final ExecutionYear year = getExecutionYear();
 
-        if (RegistrationServices.isCurriculumAccumulated(getRegistration())) {
-            for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
-                final RootCurriculumGroup curriculumGroup = iter.getRoot();
+            if (RegistrationServices.isCurriculumAccumulated(getRegistration())) {
+                for (final StudentCurricularPlan iter : getRegistration().getStudentCurricularPlansSet()) {
+                    final RootCurriculumGroup curriculumGroup = iter.getRoot();
+                    result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, year));
+                }
+
+            } else {
+                final StudentCurricularPlan plan = getStudentCurricularPlan();
+                final RootCurriculumGroup curriculumGroup = plan.getRoot();
                 result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, year));
             }
 
-        } else {
-            final StudentCurricularPlan plan = getStudentCurricularPlan();
-            final RootCurriculumGroup curriculumGroup = plan.getRoot();
-            result = result.add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(curriculumGroup, year));
+            this.enroledEcts = result;
         }
 
-        return result;
+        return this.enroledEcts;
     }
 
     public String getRegimePresentation() {
@@ -155,40 +203,23 @@ public class RegistrationDataBean implements Serializable {
     }
 
     public String getLastRegistrationStatePresentation() {
-        RegistrationStateType result = null;
-
-        final Registration registration = getRegistration();
-        if (registration.isConcluded() && getData() == RegistrationDataServices.getLastRegistrationData(registration)) {
-
-            ExecutionYear conclusionYear = null;
-            try {
-
-                final ProgramConclusion programConclusion =
-                        ProgramConclusion.conclusionsFor(getRegistration()).filter(i -> i.isTerminal()).findFirst().get();
-
-                conclusionYear = new RegistrationConclusionBean(registration, programConclusion).getConclusionYear();
-            } catch (final Throwable t) {
-                logger.error("Error trying to determine ConclusionYear: {}#{}", getData().toString(), t.getMessage());
-            }
-
-            // ATTENTION: conclusion state year != conclusion year
-            if (conclusionYear != null && getExecutionYear().isAfterOrEquals(conclusionYear)) {
-                result = RegistrationStateType.CONCLUDED;
-            }
+        if (this.lastRegistrationStateType == null) {
+            final RegistrationStateBean bean =
+                    RegistrationServices.getLastRegistrationState(getRegistration(), getExecutionYear());
+            this.lastRegistrationStateType = bean == null ? null : bean.getStateType();
         }
 
-        // what it should be in a perfect world
-        if (result == null) {
-            final RegistrationState state = registration.getLastRegistrationState(getExecutionYear());
-            result = state == null ? null : state.getStateType();
-        }
-
-        return result == null ? "-" : result.getDescription();
+        return this.lastRegistrationStateType == null ? "-" : lastRegistrationStateType.getDescription();
     }
 
     public YearMonthDay getLastAcademicActDate() {
-        final StudentCurricularPlan scp = getStudentCurricularPlan();
-        return scp == null ? null : CurriculumModuleServices.calculateLastAcademicActDate(scp.getRoot(), getExecutionYear());
+        if (this.lastAcademicActDate == null) {
+            final StudentCurricularPlan plan = getStudentCurricularPlan();
+            this.lastAcademicActDate = plan == null ? null : CurriculumModuleServices.calculateLastAcademicActDate(plan.getRoot(),
+                    getExecutionYear());
+        }
+
+        return this.lastAcademicActDate;
     }
 
 }

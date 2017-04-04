@@ -29,22 +29,30 @@ import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
+import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.YearMonthDay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,6 +158,48 @@ public class RegistrationServices {
                     t.getLocalizedMessage()));
             return null;
         }
+    }
+
+    /**
+     * HACK until RegistrationState is finally connected to ExecutionYear instead of searching for it with the state date
+     */
+    static public RegistrationStateBean getLastRegistrationState(final Registration registration, final ExecutionYear year) {
+        RegistrationStateBean result = null;
+
+        final RegistrationDataByExecutionYear data = RegistrationDataServices.getRegistrationData(registration, year);
+        if (registration.isConcluded() && data == RegistrationDataServices.getLastRegistrationData(registration)) {
+
+            ExecutionYear conclusionYear = null;
+            YearMonthDay conclusionDate = null;
+            try {
+
+                final ProgramConclusion conclusion =
+                        ProgramConclusion.conclusionsFor(registration).filter(i -> i.isTerminal()).findFirst().get();
+
+                final RegistrationConclusionBean bean = new RegistrationConclusionBean(registration, conclusion);
+                conclusionYear = bean.getConclusionYear();
+                conclusionDate = bean.getConclusionDate();
+            } catch (final Throwable t) {
+                logger.error("Error trying to determine ConclusionYear: {}#{}", data.toString(), t.getMessage());
+            }
+
+            // ATTENTION: conclusion state year != conclusion year
+            if (conclusionYear != null && year.isAfterOrEquals(conclusionYear)) {
+                result = new RegistrationStateBean(RegistrationStateType.CONCLUDED);
+                result.setStateDate(conclusionDate);
+            }
+        }
+
+        // what it should be in a perfect world
+        if (result == null) {
+            final RegistrationState state = registration.getLastRegistrationState(year);
+            if (state != null) {
+                result = new RegistrationStateBean(state.getStateType());
+                result.setStateDateTime(state.getStateDate());
+            }
+        }
+
+        return result;
     }
 
     static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
