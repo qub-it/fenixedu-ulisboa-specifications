@@ -25,6 +25,10 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Set;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -52,6 +56,8 @@ import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.learning.domain.degree.DegreeSite;
+import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
+import org.fenixedu.treasury.domain.paymentcodes.pool.PaymentCodePool;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
@@ -180,6 +186,62 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
+        initTreasuryNextReferenceCode();
+
+    }
+
+    static private void initTreasuryNextReferenceCode() {
+        PaymentCodePool.findAll().forEach(pool -> {
+
+            if (pool.getNextReferenceCode() == null) {
+
+                logger.info("Initializing Payment code pool next reference code: " + pool.getExternalId());
+
+                final PaymentReferenceCode lastCode = findLastPaymentReferenceCode(pool);
+                if (lastCode != null) {
+                    final String code = pool.getUseCheckDigit() ? lastCode
+                            .getReferenceCodeWithoutCheckDigits() : getSequentialNumber(lastCode);
+                    pool.setNextReferenceCode(Long.valueOf(code + 1));
+                } else {
+                    logger.warn("Payment code pool initialized with minReferenceCode attribute: " + pool.getExternalId());
+                    pool.setNextReferenceCode(pool.getMinReferenceCode());
+                }
+            }
+        });
+    }
+
+    static private PaymentReferenceCode findLastPaymentReferenceCode(final PaymentCodePool referenceCodePool) {
+        if (referenceCodePool.getUseCheckDigit()) {
+
+            //Sort the payment referenceCodes
+            return referenceCodePool.getPaymentReferenceCodesSet().stream()
+                    .max((x, y) -> Long.valueOf(x.getReferenceCodeWithoutCheckDigits())
+                            .compareTo(Long.valueOf(y.getReferenceCodeWithoutCheckDigits())))
+                    .orElse(null);
+
+        } else {
+
+            final Set<PaymentReferenceCode> paymentCodes = referenceCodePool.getPaymentReferenceCodesSet();
+            return paymentCodes.isEmpty() ? null : Collections.max(paymentCodes, COMPARATOR_BY_PAYMENT_SEQUENTIAL_DIGITS);
+        }
+    }
+
+    static private Comparator<PaymentReferenceCode> COMPARATOR_BY_PAYMENT_SEQUENTIAL_DIGITS =
+            new Comparator<PaymentReferenceCode>() {
+                @Override
+                public int compare(PaymentReferenceCode leftPaymentCode, PaymentReferenceCode rightPaymentCode) {
+                    final String leftSequentialNumber = getSequentialNumber(leftPaymentCode);
+                    final String rightSequentialNumber = getSequentialNumber(rightPaymentCode);
+
+                    int comparationResult = leftSequentialNumber.compareTo(rightSequentialNumber);
+
+                    return comparationResult == 0 ? leftPaymentCode.getExternalId()
+                            .compareTo(rightPaymentCode.getExternalId()) : comparationResult;
+                }
+            };
+
+    static private String getSequentialNumber(PaymentReferenceCode paymentCode) {
+        return paymentCode.getReferenceCode().substring(0, paymentCode.getReferenceCode().length() - 2);
     }
 
     private void setupListenerForDegreeDelete() {
