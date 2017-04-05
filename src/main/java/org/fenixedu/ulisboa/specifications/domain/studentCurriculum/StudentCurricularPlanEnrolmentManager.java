@@ -49,7 +49,7 @@ public class StudentCurricularPlanEnrolmentManager
     }
 
     /**
-     * Bypasses org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager
+     * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager
      */
     @Override
     protected void assertEnrolmentPreConditions() {
@@ -68,6 +68,19 @@ public class StudentCurricularPlanEnrolmentManager
 
         } else {
             assertOtherRolesPreConditions();
+        }
+    }
+
+    /**
+     * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment
+     */
+    @Override
+    protected void assertAcademicAdminOfficePreConditions() {
+
+        checkEnrolmentWithoutRules();
+
+        if (updateRegistrationAfterConclusionProcessPermissionEvaluated()) {
+            return;
         }
     }
 
