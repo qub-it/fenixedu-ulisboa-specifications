@@ -16,6 +16,7 @@ public class FCTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String I = "I";
     private static final String SU = "SU";
     private static final String A = "A";
+    private static final String AE = "AE";
     private static final String B = "B";
     private static final String BD = "BD";
     private static final String MB = "MB";
@@ -24,7 +25,7 @@ public class FCTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String MH = "MH";
     private static final String E = "E";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(I, SU, A, B, BD, MB, AD, ADL, MH, E);
+    private static final List<String> SORTED_GRADES = Arrays.asList(I, SU, A, AE, B, BD, MB, AD, ADL, MH, E);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
@@ -32,6 +33,7 @@ public class FCTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     static {
         CONFIGURATION.put(I, new LocalizedString(Locale.getDefault(), "Insuficiente").with(Locale.ENGLISH, "Not Enough"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
+        CONFIGURATION.put(AE, new LocalizedString(Locale.getDefault(), "Aprovado no estrangeiro").with(Locale.ENGLISH, "Approved in foreign institution"));
         CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
         CONFIGURATION.put(BD,
