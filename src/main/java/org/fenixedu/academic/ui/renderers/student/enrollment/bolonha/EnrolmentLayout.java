@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
@@ -49,6 +50,7 @@ import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -61,7 +63,6 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.ConditionedRoute;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
@@ -399,11 +400,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             aggregationCell.setBody(generateAggregationInfo(degreeModuleToEvaluate.getContext(),
                     getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), executionSemester));
 
-            // Year
-            final HtmlTableCell yearCell = htmlTableRow.createCell();
-            yearCell.setClasses(getRenderer().getCurricularCourseToEnrolYearClasses());
-            yearCell.setColspan(1);
-            yearCell.setBody(new HtmlText(degreeModuleToEvaluate.getYearFullLabel()));
+            // qubExtension, Curricular Period
+            final HtmlTableCell curricularPeriodCell = htmlTableRow.createCell();
+            curricularPeriodCell.setClasses(getRenderer().getCurricularCourseToEnrolYearClasses());
+            curricularPeriodCell.setColspan(1);
+            curricularPeriodCell.setBody(new HtmlText(getCurricularPeriodLabel(degreeModuleToEvaluate)));
 
             if (!degreeModuleToEvaluate.isOptionalCurricularCourse()) {
                 // Ects
@@ -452,6 +453,25 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 encodeCurricularRules(groupTable, degreeModuleToEvaluate);
             }
         }
+    }
+
+    // qubExtension, Curricular Period
+    private String getCurricularPeriodLabel(final IDegreeModuleToEvaluate input) {
+        if (input.getClass() == DegreeModuleToEnrol.class) {
+
+            final Context context = input.getContext();
+            final CurricularPeriod curricularPeriod;
+
+            if (input.isAnnualCurricularCourse(getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear())) {
+                curricularPeriod = context.getCurricularPeriod().getParent();
+            } else {
+                curricularPeriod = context.getCurricularPeriod();
+            }
+
+            return curricularPeriod.getFullLabel();
+        }
+
+        return input.getYearFullLabel();
     }
 
     /**
@@ -658,22 +678,20 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         aggregationCell.setBody(generateAggregationInfo(CurriculumAggregatorServices.getContext(enrolment),
                 getBolonhaStudentEnrollmentBean().getStudentCurricularPlan(), enrolment.getExecutionPeriod()));
 
-        // qubExtension, Year and Semester
-        final HtmlTableCell yearAndSemesterCell = htmlTableRow.createCell();
-        yearAndSemesterCell.setClasses(enrolmentYearClasses);
+        // qubExtension, Curricular Period
+        final HtmlTableCell curricularPeriodCell = htmlTableRow.createCell();
+        curricularPeriodCell.setClasses(enrolmentYearClasses);
 
-        final String yearAndSemester = CurricularPeriodServices.getCurricularYear(enrolment) + " "
-                + BundleUtil.getString(Bundle.ENUMERATION, "YEAR") + ", " + enrolment.getExecutionPeriod().getQualifiedName();
-        yearAndSemesterCell.setBody(new HtmlText(yearAndSemester));
+        final String curricularPeriod = StudentCurricularPlanLayout.getCurricularPeriodLabel(enrolment);
+        curricularPeriodCell.setBody(new HtmlText(curricularPeriod));
 
         // Ects
         final HtmlTableCell ectsCell = htmlTableRow.createCell();
         ectsCell.setClasses(enrolmentEctsClasses);
 
         final StringBuilder ects = new StringBuilder();
-        final double ectsCredits =
-                (enrolment.isBolonhaDegree() && getBolonhaStudentEnrollmentBean().getCurricularRuleLevel().isNormal()) ? enrolment
-                        .getAccumulatedEctsCredits(enrolment.getExecutionPeriod()) : enrolment.getEctsCredits();
+        // qubExtensions, don't show accumulated ECTS for the given semester, show all
+        final double ectsCredits = enrolment.getEctsCredits();
         ects.append(ectsCredits).append(" ").append(BundleUtil.getString(Bundle.STUDENT, "label.credits.abbreviation"));
 
         ectsCell.setBody(new HtmlText(ects.toString()));
