@@ -201,7 +201,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 if (lastCode != null) {
                     final String code = pool.getUseCheckDigit() ? lastCode
                             .getReferenceCodeWithoutCheckDigits() : getSequentialNumber(lastCode);
-                    pool.setNextReferenceCode(Long.valueOf(code + 1));
+                    pool.setNextReferenceCode(Long.valueOf(code) + 1);
                 } else {
                     logger.warn("Payment code pool initialized with minReferenceCode attribute: " + pool.getExternalId());
                     pool.setNextReferenceCode(pool.getMinReferenceCode());
