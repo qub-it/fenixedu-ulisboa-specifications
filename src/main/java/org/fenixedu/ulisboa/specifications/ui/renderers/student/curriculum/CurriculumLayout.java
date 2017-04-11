@@ -21,7 +21,6 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DefaultGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.AverageEntry;
-import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 
@@ -112,7 +111,8 @@ public class CurriculumLayout extends Layout {
         final String classes = renderer.getGradeCellClass();
         generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.curricularUnit"), classes)
                 .setColspan(MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES);
-        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"), classes).setStyle("width: 60px");
+        generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.ectsGrade"), classes)
+                .setStyle("width: 100px");
         generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), classes).setStyle("width: 35px");
         generateCellWithText(row, BundleUtil.getString(Bundle.APPLICATION, "label.weight"), classes).setStyle("width: 35px");
         generateCellWithText(row, ULisboaSpecificationsUtil.bundle("label.approvalType"), classes).setStyle("width: 75px");
@@ -188,8 +188,7 @@ public class CurriculumLayout extends Layout {
                 if (!isConclusionDocument() && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
                         .isMember(Authenticate.getUser())) {
                     generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
-                            BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                                    "label.gradingTables.curriculumRenderer.generateInstitutionTable"));
+                            ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.generateInstitutionTable"));
                     return;
                 }
             }
@@ -197,8 +196,8 @@ public class CurriculumLayout extends Layout {
         } else if (entry instanceof CurriculumLine) {
             CurriculumLine line = (CurriculumLine) entry;
             if (line.getCurricularCourse() == null) {
-                ectsGrade = BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                        "label.gradingTables.curriculumRenderer.lineWithoutCurricularCourse");
+                ectsGrade =
+                        ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.lineWithoutCurricularCourse");
             } else {
                 CourseGradingTable table = CourseGradingTable.find(line);
                 if (table != null) {
@@ -207,8 +206,7 @@ public class CurriculumLayout extends Layout {
                     if (!isConclusionDocument() && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
                             .isMember(Authenticate.getUser())) {
                         generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
-                                BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
-                                        "label.gradingTables.curriculumRenderer.generateCourseTable"));
+                                ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.generateCourseTable"));
                         return;
                     }
                 }
