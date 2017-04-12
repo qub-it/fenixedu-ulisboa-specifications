@@ -43,10 +43,10 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule.AcademicAccessTarget;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -214,16 +214,19 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
     @Atomic
     public void createLooseEvaluation(Enrolment enrolment, LocalDate examDate, Grade grade, LocalDate availableDate,
-            EvaluationSeason type, ExecutionSemester improvementSemester) {
+            EvaluationSeason season, ExecutionSemester improvementSemester) {
 
-        final EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolment, type);
-        if (type.isImprovement()) {
-            evaluation.setExecutionPeriod(improvementSemester);
+        EnrolmentEvaluation evaluation = enrolment.getEnrolmentEvaluation(season, improvementSemester, false).orElse(null);
+        if (evaluation == null || evaluation.getCompetenceCourseMarkSheet() != null) {
+            evaluation = new EnrolmentEvaluation(enrolment, season);
+            if (season.isImprovement()) {
+                evaluation.setExecutionPeriod(improvementSemester);
+            }
         }
 
-        evaluation.edit(Authenticate.getUser().getPerson(), grade, availableDate.toDate(),
-                examDate.toDateTimeAtStartOfDay().toDate());
-        evaluation.confirmSubmission(Authenticate.getUser().getPerson(), "");
+        final Person person = Authenticate.getUser().getPerson();
+        evaluation.edit(person, grade, availableDate.toDate(), examDate.toDateTimeAtStartOfDay().toDate());
+        evaluation.confirmSubmission(person, "");
         EnrolmentEvaluationServices.onStateChange(evaluation);
         EnrolmentServices.updateState(enrolment);
         CurriculumLineServices.updateAggregatorEvaluation(enrolment);
