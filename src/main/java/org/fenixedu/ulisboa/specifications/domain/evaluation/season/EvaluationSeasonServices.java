@@ -96,8 +96,7 @@ abstract public class EvaluationSeasonServices {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.name.required");
         }
 
-        if (!checkNTrue(1, evaluationSeason.getNormal(), evaluationSeason.getImprovement(),
-                evaluationSeason.getSpecialAuthorization(), evaluationSeason.getSpecial())) {
+        if (!checkNTrue(1, evaluationSeason.getNormal(), evaluationSeason.getImprovement(), evaluationSeason.getSpecial())) {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.type.not.unique");
         }
 
