@@ -69,5 +69,14 @@ public class FirstTimeCandidacy extends FirstTimeCandidacy_Base {
     public boolean isFirstCycleCandidacy() {
         return true;
     }
+    
+    public void delete() {
+        if(getSummaryFile() != null) {
+            getSummaryFile().setStudentCandidacy(null);
+            getSummaryFile().delete();
+        }
+        
+        super.delete();
+    }
 
 }
