@@ -134,8 +134,17 @@ ${portal.angularToolkit()}
 	    <div class="panel panel-primary">
 	        <div class="panel-heading">
 	            <h3 class="panel-title panel-title-with-actions">
-	        		<span class="pane-title-header"><spring:message code="label.extendedDegreeInformation.backoffice.edit" /></span> <span ng-bind="year"></span> <span ng-bind="degreeType"></span> <span ng-bind="object.degreeAcron"></span>
+	        		<span class="pane-title-header">
+                        <spring:message code="label.extendedDegreeInformation.backoffice.edit" />
+                    </span>
 	        	</h3>
+                
+                <br/><span>
+                        <a target="_blank" style="color: white; text-decoration: none;" href="${pageContext.request.contextPath}/{{object.degreeSiteUrl}}">
+                            <spring:message code="link.degreeSite" />
+                        </a>
+                    </span>
+                <br/><span ng-bind="year"></span> - <span ng-bind="object.auditInfo"></span>
 	    	</div>
 	    	<div class="panel panel-body">
 	    		
@@ -525,6 +534,7 @@ ${portal.angularToolkit()}
 		        	</div>
 	            </div>
 	            
+                <%-- TODO legidio, test for empty courseGroupDegreeInfos --%>
 	            <div class="form-group row">
 	            	<div class="col-sm-2 control-label">
 	            		<spring:message code="label.title.courseGroupDegreeInfos" />

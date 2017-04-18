@@ -3,15 +3,19 @@ package org.fenixedu.ulisboa.specifications.ui.degrees.extendeddegreeinfo;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
+import org.fenixedu.ulisboa.specifications.domain.services.AuditingServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Strings;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -69,74 +73,40 @@ public class ExtendedDegreeInfoController extends FenixeduUlisboaSpecificationsB
     }
 
     private void load(final ExtendedDegreeInfoBean bean) {
-        ExtendedDegreeInfo edi = ExtendedDegreeInfo.getMostRecent(bean.getExecutionYear(), bean.getDegree());
+        final Degree degree = bean.getDegree();
+        final ExtendedDegreeInfo edi = ExtendedDegreeInfo.getMostRecent(bean.getExecutionYear(), degree);
+        final DegreeInfo di = edi.getDegreeInfo();
 
-        if (edi.getDegreeInfo().getName() != null) {
-            bean.setName(edi.getDegreeInfo().getName().toLocalizedString());
+        final String degreeSiteUrl = degree.getSiteUrl();
+        if (!Strings.isNullOrEmpty(degreeSiteUrl)) {
+            final String manageUrl = "degrees/" + degreeSiteUrl.substring(degreeSiteUrl.lastIndexOf("/") + 1);
+            bean.setDegreeSiteUrl(manageUrl);
         }
-        if (edi.getDegreeInfo().getDescription() != null) {
-            bean.setDescription(edi.getDegreeInfo().getDescription().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getHistory() != null) {
-            bean.setHistory(edi.getDegreeInfo().getHistory().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getObjectives() != null) {
-            bean.setObjectives(edi.getDegreeInfo().getObjectives().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getDesignedFor() != null) {
-            bean.setDesignedFor(edi.getDegreeInfo().getDesignedFor().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getProfessionalExits() != null) {
-            bean.setProfessionalExits(edi.getDegreeInfo().getProfessionalExits().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getOperationalRegime() != null) {
-            bean.setOperationalRegime(edi.getDegreeInfo().getOperationalRegime().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getGratuity() != null) {
-            bean.setGratuity(edi.getDegreeInfo().getGratuity().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getAdditionalInfo() != null) {
-            bean.setAdditionalInfo(edi.getDegreeInfo().getAdditionalInfo().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getLinks() != null) {
-            bean.setLinks(edi.getDegreeInfo().getLinks().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getTestIngression() != null) {
-            bean.setTestIngression(edi.getDegreeInfo().getTestIngression().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getClassifications() != null) {
-            bean.setClassifications(edi.getDegreeInfo().getClassifications().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getAccessRequisites() != null) {
-            bean.setAccessRequisites(edi.getDegreeInfo().getAccessRequisites().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getCandidacyDocuments() != null) {
-            bean.setCandidacyDocuments(edi.getDegreeInfo().getCandidacyDocuments().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getDriftsInitial() != null) {
-            bean.setDriftsInitial(edi.getDegreeInfo().getDriftsInitial());
-        }
-        if (edi.getDegreeInfo().getDriftsFirst() != null) {
-            bean.setDriftsFirst(edi.getDegreeInfo().getDriftsFirst());
-        }
-        if (edi.getDegreeInfo().getDriftsSecond() != null) {
-            bean.setDriftsSecond(edi.getDegreeInfo().getDriftsSecond());
-        }
-        if (edi.getDegreeInfo().getMarkMin() != null) {
-            bean.setMarkMin(edi.getDegreeInfo().getMarkMin());
-        }
-        if (edi.getDegreeInfo().getMarkMax() != null) {
-            bean.setMarkMax(edi.getDegreeInfo().getMarkMax());
-        }
-        if (edi.getDegreeInfo().getMarkAverage() != null) {
-            bean.setMarkAverage(edi.getDegreeInfo().getMarkAverage());
-        }
-        if (edi.getDegreeInfo().getQualificationLevel() != null) {
-            bean.setQualificationLevel(edi.getDegreeInfo().getQualificationLevel().toLocalizedString());
-        }
-        if (edi.getDegreeInfo().getRecognitions() != null) {
-            bean.setRecognitions(edi.getDegreeInfo().getRecognitions().toLocalizedString());
-        }
+        bean.setAuditInfo(
+                edi.getDegreeInfo().getExecutionYear() == bean.getExecutionYear() ? AuditingServices.getAuditInfo(edi) : null);
+
+        bean.setName(di.getName() != null ? di.getName().toLocalizedString() : null);
+        bean.setDescription(di.getDescription() != null ? edi.getDegreeInfo().getDescription().toLocalizedString() : null);
+        bean.setHistory(di.getHistory() != null ? di.getHistory().toLocalizedString() : null);
+        bean.setObjectives(di.getObjectives() != null ? di.getObjectives().toLocalizedString() : null);
+        bean.setDesignedFor(di.getDesignedFor() != null ? di.getDesignedFor().toLocalizedString() : null);
+        bean.setProfessionalExits(di.getProfessionalExits() != null ? di.getProfessionalExits().toLocalizedString() : null);
+        bean.setOperationalRegime(di.getOperationalRegime() != null ? di.getOperationalRegime().toLocalizedString() : null);
+        bean.setGratuity(di.getGratuity() != null ? di.getGratuity().toLocalizedString() : null);
+        bean.setAdditionalInfo(di.getAdditionalInfo() != null ? di.getAdditionalInfo().toLocalizedString() : null);
+        bean.setLinks(di.getLinks() != null ? di.getLinks().toLocalizedString() : null);
+        bean.setTestIngression(di.getTestIngression() != null ? di.getTestIngression().toLocalizedString() : null);
+        bean.setClassifications(di.getClassifications() != null ? di.getClassifications().toLocalizedString() : null);
+        bean.setAccessRequisites(di.getAccessRequisites() != null ? di.getAccessRequisites().toLocalizedString() : null);
+        bean.setCandidacyDocuments(di.getCandidacyDocuments() != null ? di.getCandidacyDocuments().toLocalizedString() : null);
+        bean.setDriftsInitial(di.getDriftsInitial() != null ? di.getDriftsInitial() : null);
+        bean.setDriftsFirst(di.getDriftsFirst() != null ? di.getDriftsFirst() : null);
+        bean.setDriftsSecond(di.getDriftsSecond() != null ? di.getDriftsSecond() : null);
+        bean.setMarkMin(di.getMarkMin() != null ? di.getMarkMin() : null);
+        bean.setMarkMax(di.getMarkMax() != null ? di.getMarkMax() : null);
+        bean.setMarkAverage(di.getMarkAverage() != null ? di.getMarkAverage() : null);
+        bean.setQualificationLevel(di.getQualificationLevel() != null ? di.getQualificationLevel().toLocalizedString() : null);
+        bean.setRecognitions(di.getRecognitions() != null ? di.getRecognitions().toLocalizedString() : null);
 
         bean.setScientificAreas(edi.getScientificAreas());
         bean.setStudyProgrammeDuration(edi.getStudyProgrammeDuration());
@@ -154,8 +124,8 @@ public class ExtendedDegreeInfoController extends FenixeduUlisboaSpecificationsB
 
     @Atomic
     private void store(final ExtendedDegreeInfoBean bean) {
-        ExtendedDegreeInfo edi = ExtendedDegreeInfo.getOrCreate(bean.getExecutionYear(), bean.getDegree());
-        DegreeInfo di = edi.getDegreeInfo();
+        final ExtendedDegreeInfo edi = ExtendedDegreeInfo.getOrCreate(bean.getExecutionYear(), bean.getDegree());
+        final DegreeInfo di = edi.getDegreeInfo();
 
         di.setName(MultiLanguageString.fromLocalizedString(bean.getName()));
         di.setDescription(MultiLanguageString.fromLocalizedString(bean.getDescription()));

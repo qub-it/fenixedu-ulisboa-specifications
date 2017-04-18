@@ -21,6 +21,8 @@ public class ExtendedDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> degreeOptions;
     private String degreeType;
     private String degreeAcron;
+    private String degreeSiteUrl;
+    private String auditInfo;
 
     // DegreeInfo fields
     private LocalizedString name;
@@ -125,6 +127,22 @@ public class ExtendedDegreeInfoBean implements IBean {
 
     public void setDegreeAcron(final String degreeAcron) {
         this.degreeAcron = degreeAcron;
+    }
+
+    public String getDegreeSiteUrl() {
+        return degreeSiteUrl;
+    }
+
+    public void setDegreeSiteUrl(String degreeSiteUrl) {
+        this.degreeSiteUrl = degreeSiteUrl;
+    }
+
+    public String getAuditInfo() {
+        return auditInfo;
+    }
+
+    public void setAuditInfo(String auditInfo) {
+        this.auditInfo = auditInfo;
     }
 
     public LocalizedString getName() {
@@ -374,4 +392,5 @@ public class ExtendedDegreeInfoBean implements IBean {
     public void setCourseGroupInfos(final List<CourseGroupDegreeInfoBean> courseGroupInfos) {
         this.courseGroupInfos = courseGroupInfos;
     }
+
 }
