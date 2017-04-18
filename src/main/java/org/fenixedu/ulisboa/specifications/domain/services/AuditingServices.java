@@ -50,9 +50,9 @@ public class AuditingServices {
     static private String getAuditInfoUsername(final String input) {
         String result = input;
 
-        if (StringUtils.isNotBlank(input) && result.contains(".") && !result.contains("@")) {
-            result = StringUtils.substringAfterLast(result, ".");
-        }
+//        if (StringUtils.isNotBlank(input) && result.contains(".") && !result.contains("@")) {
+//            result = StringUtils.substringAfterLast(result, ".");
+//        }
 
         return StringUtils.abbreviate(result, 60);
     }
