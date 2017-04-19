@@ -138,13 +138,14 @@ ${portal.angularToolkit()}
                         <spring:message code="label.extendedDegreeInformation.backoffice.edit" />
                     </span>
 	        	</h3>
-                
-                <br/><span>
-                        <a target="_blank" style="color: white; text-decoration: none;" href="${pageContext.request.contextPath}/{{object.degreeSiteUrl}}">
-                            <spring:message code="link.degreeSite" />
-                        </a>
-                    </span>
-                <br/><span ng-bind="year"></span> - <span ng-bind="object.auditInfo"></span>
+                <a ng-if="object.degreeSitePublicUrl != null" href="${pageContext.request.contextPath}/{{object.degreeSitePublicUrl}}" target="_blank" style="color: white; text-decoration: none;">
+                    <spring:message code="link.degreeSite" /> 
+                </a>
+                <a ng-if="object.degreeSiteManagementUrl != null" href="${pageContext.request.contextPath}/{{object.degreeSiteManagementUrl}}" target="_blank" style="color: white; text-decoration: none;">
+                     | <spring:message code="link.degreeSite.management" />
+                </a>
+                    
+                <br/><span ng-bind="year"></span><span ng-if="object.auditInfo != null"> - {{object.auditInfo}}</span>
 	    	</div>
 	    	<div class="panel panel-body">
 	    		

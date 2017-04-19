@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -21,7 +22,8 @@ public class ExtendedDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> degreeOptions;
     private String degreeType;
     private String degreeAcron;
-    private String degreeSiteUrl;
+    private String degreeSitePublicUrl;
+    private String degreeSiteManagementUrl;
     private String auditInfo;
 
     // DegreeInfo fields
@@ -65,7 +67,33 @@ public class ExtendedDegreeInfoBean implements IBean {
         setExecutionYear(ExecutionYear.readCurrentExecutionYear());
         setExecutionYearOptions(ExecutionYear.readNotClosedExecutionYears());
 
-        Set<Degree> allDegrees = new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
+        final Set<Degree> allDegrees = new TreeSet<>((x, y) -> {
+
+            int result = 0;
+
+            final CycleType xFirstCycle = x.getDegreeType().getFirstOrderedCycleType();
+            final CycleType yFirstCycle = y.getDegreeType().getFirstOrderedCycleType();
+            if (xFirstCycle != null && yFirstCycle != null) {
+                result = CycleType.COMPARATOR_BY_LESS_WEIGHT.compare(xFirstCycle, yFirstCycle);
+            } else if (xFirstCycle != null) {
+                result = -1;
+            } else if (yFirstCycle != null) {
+                result = 1;
+            }
+
+            if (result == 0) {
+                result = x.getDegreeType().compareTo(y.getDegreeType());
+            }
+
+            if (result == 0) {
+                if (x.getCode() != null && y.getCode() != null) {
+                    result = x.getCode().compareTo(y.getCode());
+                }
+            }
+
+            return result;
+
+        });
         allDegrees.addAll(Bennu.getInstance().getDegreesSet());
         setDegree(allDegrees.stream().findFirst().orElse(null));
         setDegreeOptions(allDegrees);
@@ -87,7 +115,7 @@ public class ExtendedDegreeInfoBean implements IBean {
         this.executionYearOptions = executionYearOptions.stream().sorted(ExecutionYear.REVERSE_COMPARATOR_BY_YEAR).map(ey -> {
             TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
             tupleDataSourceBean.setId(ey.getExternalId());
-            tupleDataSourceBean.setText(ey.getBeginCivilYear() + "/" + ey.getEndCivilYear());
+            tupleDataSourceBean.setText(ey.getQualifiedName());
             return tupleDataSourceBean;
         }).collect(Collectors.toList());
     }
@@ -105,10 +133,11 @@ public class ExtendedDegreeInfoBean implements IBean {
     }
 
     public void setDegreeOptions(final Collection<Degree> degreeOptions) {
-        this.degreeOptions = degreeOptions.stream().sorted(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID).map(d -> {
+        this.degreeOptions = degreeOptions.stream().map(d -> {
             TupleDataSourceBean tupleDataSourceBean = new TupleDataSourceBean();
             tupleDataSourceBean.setId(d.getExternalId());
-            tupleDataSourceBean.setText(d.getDegreeTypeName() + "-" + d.getNameI18N(getExecutionYear()).getContent());
+            tupleDataSourceBean
+                    .setText((d.getCode() != null ? d.getCode() + " - " : "") + d.getPresentationName(getExecutionYear()));
             return tupleDataSourceBean;
         }).collect(Collectors.toList());
     }
@@ -129,12 +158,20 @@ public class ExtendedDegreeInfoBean implements IBean {
         this.degreeAcron = degreeAcron;
     }
 
-    public String getDegreeSiteUrl() {
-        return degreeSiteUrl;
+    public String getDegreeSitePublicUrl() {
+        return degreeSitePublicUrl;
     }
 
-    public void setDegreeSiteUrl(String degreeSiteUrl) {
-        this.degreeSiteUrl = degreeSiteUrl;
+    public void setDegreeSitePublicUrl(String degreeSiteUrl) {
+        this.degreeSitePublicUrl = degreeSiteUrl;
+    }
+
+    public String getDegreeSiteManagementUrl() {
+        return degreeSiteManagementUrl;
+    }
+
+    public void setDegreeSiteManagementUrl(String degreeSiteManagementUrl) {
+        this.degreeSiteManagementUrl = degreeSiteManagementUrl;
     }
 
     public String getAuditInfo() {

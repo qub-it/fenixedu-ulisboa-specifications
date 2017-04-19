@@ -77,10 +77,14 @@ public class ExtendedDegreeInfoController extends FenixeduUlisboaSpecificationsB
         final ExtendedDegreeInfo edi = ExtendedDegreeInfo.getMostRecent(bean.getExecutionYear(), degree);
         final DegreeInfo di = edi.getDegreeInfo();
 
-        final String degreeSiteUrl = degree.getSiteUrl();
-        if (!Strings.isNullOrEmpty(degreeSiteUrl)) {
-            final String manageUrl = "degrees/" + degreeSiteUrl.substring(degreeSiteUrl.lastIndexOf("/") + 1);
-            bean.setDegreeSiteUrl(manageUrl);
+        String degreeSiteUrl = degree.getSiteUrl();
+        if (Strings.isNullOrEmpty(degreeSiteUrl)) {
+            bean.setDegreeSitePublicUrl(null);
+            bean.setDegreeSiteManagementUrl(null);
+        } else {
+            degreeSiteUrl = degreeSiteUrl.substring(degreeSiteUrl.lastIndexOf("/") + 1);
+            bean.setDegreeSitePublicUrl("degrees/" + degreeSiteUrl);
+            bean.setDegreeSiteManagementUrl("cms/sites/" + degreeSiteUrl);
         }
         bean.setAuditInfo(
                 edi.getDegreeInfo().getExecutionYear() == bean.getExecutionYear() ? AuditingServices.getAuditInfo(edi) : null);
