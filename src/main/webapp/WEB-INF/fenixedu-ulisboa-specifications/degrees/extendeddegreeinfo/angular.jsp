@@ -192,10 +192,14 @@ ${portal.angularToolkit()}
 	            
 	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.objectives" /></div>	
-	                <div class="col-sm-7">
-	                	<textarea id="extendedDegreeInformation_objectives_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['objectives']" ng-readonly="true" ng-model="objectives" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
-	                	<textarea id="extendedDegreeInformation_objectives" rows="6" class="form-control" ng-show="editMode['objectives']" ng-readonly="false" ng-localized-string="object.objectives" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
-	                </div>
+                    <div class="col-sm-7">
+                        <div ng-show="!editMode['objectives'] && objectives != null" ng-bind-html="objectives" style="border: 1px solid #ccc; padding: 4px; color: #666;" /></div>
+                        <em ng-show="!editMode['objectives'] && objectives == null" style="border: 1px solid #ccc; padding: 4px; color: #666;"><spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" /></em>
+                        <div ng-show="editMode['objectives']">
+                            <textarea toolbar="size,style,lists,align,links,table,undo,fullscreen,source" 
+                                id="extendedDegreeInformation_objectives" rows="6" class="form-control" ng-readonly="false" bennu-localized-string ng-html-editor="object.objectives" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>                           
+                        </div>
+                    </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['objectives']" ng-click="toggleEditMode('objectives')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
 		        		<button class="btn btn-xs btn-primary" ng-show="editMode['objectives']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
@@ -245,8 +249,12 @@ ${portal.angularToolkit()}
 	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.gratuity" /></div>	
 	                <div class="col-sm-7">
-	                	<textarea id="extendedDegreeInformation_gratuity_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['gratuity']" ng-readonly="true" ng-model="gratuity" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
-	                	<textarea id="extendedDegreeInformation_gratuity" rows="6" class="form-control" ng-show="editMode['gratuity']" ng-readonly="false" ng-localized-string="object.gratuity" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+                        <div ng-show="!editMode['gratuity'] && gratuity != null" ng-bind-html="gratuity" style="border: 1px solid #ccc; padding: 4px; color: #666;" /></div>
+                        <em ng-show="!editMode['gratuity'] && gratuity == null" style="border: 1px solid #ccc; padding: 4px; color: #666;"><spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" /></em>
+                        <div ng-show="editMode['gratuity']">
+                            <textarea toolbar="size,style,lists,align,links,table,undo,fullscreen,source" 
+                                id="extendedDegreeInformation_gratuity" rows="6" class="form-control" ng-readonly="false" bennu-localized-string ng-html-editor="object.gratuity" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>                           
+                        </div>
 	                </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['gratuity']" ng-click="toggleEditMode('gratuity')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
@@ -257,10 +265,14 @@ ${portal.angularToolkit()}
 
 				<div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.additionalInfo" /></div>	
-	                <div class="col-sm-7">
-	                	<textarea id="extendedDegreeInformation_additionalInfo_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['additionalInfo']" ng-readonly="true" ng-model="additionalInfo" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
-	                	<textarea id="extendedDegreeInformation_additionalInfo" rows="6" class="form-control" ng-show="editMode['additionalInfo']" ng-readonly="false" ng-localized-string="object.additionalInfo" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
-	                </div>
+                    <div class="col-sm-7">
+                        <div ng-show="!editMode['additionalInfo'] && additionalInfo != null" ng-bind-html="additionalInfo" style="border: 1px solid #ccc; padding: 4px; color: #666;" /></div>
+                        <em ng-show="!editMode['additionalInfo'] && additionalInfo == null" style="border: 1px solid #ccc; padding: 4px; color: #666;"><spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" /></em>
+                        <div ng-show="editMode['additionalInfo']">
+                            <textarea toolbar="size,style,lists,align,links,table,undo,fullscreen,source" 
+                                id="extendedDegreeInformation_additionalInfo" rows="6" class="form-control" ng-readonly="false" bennu-localized-string ng-html-editor="object.additionalInfo" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>                           
+                        </div>
+                    </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['additionalInfo']" ng-click="toggleEditMode('additionalInfo')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
 		        		<button class="btn btn-xs btn-primary" ng-show="editMode['additionalInfo']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
@@ -270,10 +282,14 @@ ${portal.angularToolkit()}
 	            
 	            <div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.links" /></div>	
-	                <div class="col-sm-7">
-	                	<textarea id="extendedDegreeInformation_links_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['links']" ng-readonly="true" ng-model="links" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
-	                	<textarea id="extendedDegreeInformation_links" rows="6" class="form-control" ng-show="editMode['links']" ng-readonly="false" ng-localized-string="object.links" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
-	                </div>
+                    <div class="col-sm-7">
+                        <div ng-show="!editMode['links'] && links != null" ng-bind-html="links" style="border: 1px solid #ccc; padding: 4px; color: #666;" /></div>
+                        <em ng-show="!editMode['links'] && links == null" style="border: 1px solid #ccc; padding: 4px; color: #666;"><spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" /></em>
+                        <div ng-show="editMode['links']">
+                            <textarea toolbar="size,style,lists,align,links,table,undo,fullscreen,source" 
+                                id="extendedDegreeInformation_links" rows="6" class="form-control" ng-readonly="false" bennu-localized-string ng-html-editor="object.links" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>                           
+                        </div>
+                    </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['links']" ng-click="toggleEditMode('links')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
 		        		<button class="btn btn-xs btn-primary" ng-show="editMode['links']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
@@ -283,10 +299,14 @@ ${portal.angularToolkit()}
 
 				<div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.testIngression" /></div>	
-	                <div class="col-sm-7">
-	                	<textarea id="extendedDegreeInformation_testIngression_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['testIngression']" ng-readonly="true" ng-model="testIngression" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
-	                	<textarea id="extendedDegreeInformation_testIngression" rows="6" class="form-control" ng-show="editMode['testIngression']" ng-readonly="false" ng-localized-string="object.testIngression" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
-	                </div>
+                    <div class="col-sm-7">
+                        <div ng-show="!editMode['testIngression'] && testIngression != null" ng-bind-html="testIngression" style="border: 1px solid #ccc; padding: 4px; color: #666;" /></div>
+                        <em ng-show="!editMode['testIngression'] && testIngression == null" style="border: 1px solid #ccc; padding: 4px; color: #666;"><spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" /></em>
+                        <div ng-show="editMode['testIngression']">
+                            <textarea toolbar="size,style,lists,align,links,table,undo,fullscreen,source" 
+                                id="extendedDegreeInformation_testIngression" rows="6" class="form-control" ng-readonly="false" bennu-localized-string ng-html-editor="object.testIngression" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>                           
+                        </div>
+                    </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['testIngression']" ng-click="toggleEditMode('testIngression')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
 		        		<button class="btn btn-xs btn-primary" ng-show="editMode['testIngression']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
@@ -296,10 +316,14 @@ ${portal.angularToolkit()}
 
 				<div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.classifications" /></div>	
-	                <div class="col-sm-7">
-	                	<textarea id="extendedDegreeInformation_classifications_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['classifications']" ng-readonly="true" ng-model="classifications" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
-	                	<textarea id="extendedDegreeInformation_classifications" rows="6" class="form-control" ng-show="editMode['classifications']" ng-readonly="false" ng-localized-string="object.classifications" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
-	                </div>
+                    <div class="col-sm-7">
+                        <div ng-show="!editMode['classifications'] && classifications != null" ng-bind-html="classifications" style="border: 1px solid #ccc; padding: 4px; color: #666;" /></div>
+                        <em ng-show="!editMode['classifications'] && classifications == null" style="border: 1px solid #ccc; padding: 4px; color: #666;"><spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" /></em>
+                        <div ng-show="editMode['classifications']">
+                            <textarea toolbar="size,style,lists,align,links,table,undo,fullscreen,source" 
+                                id="extendedDegreeInformation_classifications" rows="6" class="form-control" ng-readonly="false" bennu-localized-string ng-html-editor="object.classifications" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>                           
+                        </div>
+                    </div>
 	                <div class="col-sm-3">
 		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['classifications']" ng-click="toggleEditMode('classifications')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
 		        		<button class="btn btn-xs btn-primary" ng-show="editMode['classifications']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
@@ -641,6 +665,7 @@ ${portal.angularToolkit()}
                 };
                 
                 $scope.edit = function () {
+                    $("input[name='bean']").attr('value', $("input[name='bean']").attr('value').replace(/\\"/g,"'"));
                 	$('form').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.UPDATE_URL %>');
                 }
                 
