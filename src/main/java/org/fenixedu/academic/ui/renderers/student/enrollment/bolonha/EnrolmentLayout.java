@@ -507,13 +507,13 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean filterByAggregationApproval(final CurricularCourse input) {
-        final ExecutionYear executionYear = getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear();
-        if (!CurriculumAggregatorServices.isAggregationsActive(executionYear)) {
+        final ExecutionSemester semester = getBolonhaStudentEnrollmentBean().getExecutionPeriod();
+        if (!CurriculumAggregatorServices.isAggregationsActive(semester.getExecutionYear())) {
             return false;
         }
 
         final StudentCurricularPlan scp = getBolonhaStudentEnrollmentBean().getStudentCurricularPlan();
-        final Context context = CurriculumAggregatorServices.getContext(input, executionYear);
+        final Context context = CurriculumAggregatorServices.getContext(input, semester);
         final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context);
 
         return aggregator != null && aggregator.isAggregationConcluded(scp);

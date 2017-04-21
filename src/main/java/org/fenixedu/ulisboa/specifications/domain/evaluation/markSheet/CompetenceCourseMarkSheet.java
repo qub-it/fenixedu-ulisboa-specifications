@@ -865,7 +865,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
             // try to find context for each CC
             final Set<Context> contexts = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                    .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionYear())).filter(i -> i != null)
+                    .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionSemester())).filter(i -> i != null)
                     .collect(Collectors.toSet());
 
             if (!contexts.isEmpty()) {

@@ -116,11 +116,17 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    /**
-     * WARNING: CurriculumAggregator specific implementation,
-     * makes no sense to pull this method to a ContextService or any other Service
-     */
     static public Context getContext(final CurriculumModule input) {
+        Context result = null;
+
+        if (input != null) {
+            result = input.isLeaf() ? getContext((CurriculumLine) input) : getContext((CurriculumGroup) input);
+        }
+
+        return result;
+    }
+
+    static private Context getContext(final CurriculumLine input) {
         Context result = null;
 
         if (input != null) {
@@ -134,8 +140,19 @@ abstract public class CurriculumAggregatorServices {
                         degreeModule == null ? null : degreeModule.getOneFullName());
             }
 
-            // Passing an execution year just to try to capture less possible contexts
-            result = getContext(degreeModule, input.getApprovedCurriculumLinesLastExecutionYear());
+            // Passing an execution semester just to try to capture less possible contexts
+            result = getContext(degreeModule, input.getExecutionPeriod());
+        }
+
+        return result;
+    }
+
+    static private Context getContext(final CurriculumGroup input) {
+        Context result = null;
+
+        if (input != null) {
+            result = getContext(input.getDegreeModule(),
+                    input.getApprovedCurriculumLinesLastExecutionYear().getFirstExecutionPeriod());
         }
 
         return result;
@@ -145,11 +162,17 @@ abstract public class CurriculumAggregatorServices {
             CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(5, TimeUnit.MINUTES).build();
 
     /**
-     * ExecutionYear should be as close as possible to the business logic being addressed
+     * WARNING: CurriculumAggregator specific implementation,
+     * makes no sense to pull this method to a ContextService or any other Service
+     * 
+     * ExecutionSemester should be as close as possible to the business logic being addressed
      */
-    static public Context getContext(final DegreeModule input, final ExecutionYear executionYear) {
-        final String key =
-                String.format("%s#%s", input.getExternalId(), executionYear == null ? "null" : executionYear.getExternalId());
+    static public Context getContext(final DegreeModule input, final ExecutionSemester semester) {
+        if (input == null) {
+            return null;
+        }
+
+        final String key = String.format("%s#%s", input.getExternalId(), semester == null ? "null" : semester.getExternalId());
 
         try {
             return CACHE_CONTEXTS.get(key, new Callable<Context>() {
@@ -161,11 +184,10 @@ abstract public class CurriculumAggregatorServices {
 
                     if (input != null) {
                         final List<Context> parentContexts =
-                                input.getParentContextsSet().stream()
-                                        .filter(i -> executionYear == null || i.isValid(executionYear))
+                                input.getParentContextsSet().stream().filter(i -> semester == null || i.isValid(semester))
                                         .sorted((x,
                                                 y) -> -x.getBeginExecutionPeriod()
-                                                        .compareExecutionInterval(y.getEndExecutionPeriod()))
+                                                        .compareExecutionInterval(y.getBeginExecutionPeriod()))
                                         .collect(Collectors.toList());
                         result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
                         if (parentContexts.size() != 1 && result != null) {
