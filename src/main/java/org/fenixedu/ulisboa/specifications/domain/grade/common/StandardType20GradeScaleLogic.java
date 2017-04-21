@@ -128,10 +128,11 @@ public class StandardType20GradeScaleLogic implements GradeScaleLogic {
             return 1;
         } else if (!leftIsNumber && rightIsNumber) {
             return -1;
+        } else if (leftIsNumber && rightIsNumber) {
+            return left.getNumericValue().compareTo(right.getNumericValue());
         }
 
         return left.getValue().compareTo(right.getValue());
-
     }
 
 }
