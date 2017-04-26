@@ -23,17 +23,20 @@ public class FillAllPlansApprovementsPropertyProcessor extends FillAllPlansAppro
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new FillAllPlansApprovementsPropertyProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
+        if (forceUpdate && request.hasApprovedEnrolments()) {
+            request.findProperty(ULisboaConstants.APPROVED_ENROLMENTS).delete();
+        }
+
         if (!request.hasApprovedEnrolments()) {
             List<ICurriculumEntry> approvements = ULisboaConstants.getAllPlansApprovements(request.getRegistration());
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_ENROLMENTS),
-                            approvements);
+            ServiceRequestProperty property = ServiceRequestProperty
+                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_ENROLMENTS), approvements);
             request.addServiceRequestProperties(property);
         }
     }

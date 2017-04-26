@@ -38,7 +38,7 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
             if (findByName(getName().getContent(l)).count() > 1) {
                 throw new ULisboaSpecificationsDomainException("error.ULisboaServiceRequestValidator.name.duplicated",
                         l.toString());
-            };
+            } ;
         });
     }
 
@@ -49,7 +49,7 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
     }
 
     @Override
-    protected void checkForDeletionBlockers(Collection<String> blockers) {
+    protected void checkForDeletionBlockers(final Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getServiceRequestTypesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(ULisboaConstants.BUNDLE,
@@ -159,6 +159,6 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
 //        }
     }
 
-    public abstract void process(ULisboaServiceRequest request);
+    public abstract void process(ULisboaServiceRequest request, boolean forceUpdate);
 
 }

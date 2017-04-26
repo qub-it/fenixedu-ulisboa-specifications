@@ -25,12 +25,16 @@ public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearP
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new FillEnrolmentsByYearPropertyProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
+        if (forceUpdate && request.hasEnrolmentsByYear()) {
+            request.findProperty(ULisboaConstants.ENROLMENTS_BY_YEAR).delete();
+        }
+
         if (!request.hasEnrolmentsByYear()) {
             ExecutionYear executionYear =
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
@@ -48,7 +52,7 @@ public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearP
         }
     }
 
-    private boolean validate(List<ICurriculumEntry> enrolments) {
+    private boolean validate(final List<ICurriculumEntry> enrolments) {
         return !enrolments.isEmpty();
     }
 

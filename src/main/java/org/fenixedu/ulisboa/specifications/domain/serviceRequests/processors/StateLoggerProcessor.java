@@ -21,7 +21,7 @@ public class StateLoggerProcessor extends StateLoggerProcessor_Base {
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         System.out.println("ULisboaServiceRequest id: " + request.getExternalId());
         List<AcademicServiceRequestSituation> situations = request.getAcademicServiceRequestSituationsSet().stream()
                 .sorted(AcademicServiceRequestSituation.COMPARATOR_BY_MOST_RECENT_SITUATION_DATE_AND_ID)
@@ -43,7 +43,7 @@ public class StateLoggerProcessor extends StateLoggerProcessor_Base {
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new StateLoggerProcessor(name);
     }
 }

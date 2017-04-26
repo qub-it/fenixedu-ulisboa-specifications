@@ -22,12 +22,12 @@ public class ValidateProgramConclusionProcessor extends ValidateProgramConclusio
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new ValidateProgramConclusionProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         Registration registration = request.getRegistration();
         ProgramConclusion programConclusion = request.getProgramConclusion();
         if (request.isNewRequest() || request.isCancelled() || request.isRejected()) {

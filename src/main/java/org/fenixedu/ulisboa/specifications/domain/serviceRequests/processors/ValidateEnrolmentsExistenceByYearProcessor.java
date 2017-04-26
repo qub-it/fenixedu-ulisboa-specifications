@@ -24,23 +24,19 @@ public class ValidateEnrolmentsExistenceByYearProcessor extends ValidateEnrolmen
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new ValidateEnrolmentsExistenceByYearProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (!request.hasEnrolmentsByYear()) {
             ExecutionYear executionYear =
                     request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
-            List<ICurriculumEntry> enrolments =
-                    request.getRegistration()
-                            .getStudentCurricularPlan(executionYear)
-                            .getEnrolmentsByExecutionYear(executionYear)
-                            .stream()
-                            .filter(ULisboaConstants.isNormalEnrolment.or(ULisboaConstants.isExtraCurricular).or(
-                                    ULisboaConstants.isStandalone)).map(ICurriculumEntry.class::cast)
-                            .collect(Collectors.toList());
+            List<ICurriculumEntry> enrolments = request.getRegistration().getStudentCurricularPlan(executionYear)
+                    .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isNormalEnrolment
+                            .or(ULisboaConstants.isExtraCurricular).or(ULisboaConstants.isStandalone))
+                    .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (!validate(enrolments)) {
                 throw new ULisboaSpecificationsDomainException("error.serviceRequest.hasNoEnrolments.forExecutionYear",
                         executionYear.getYear());
@@ -48,7 +44,7 @@ public class ValidateEnrolmentsExistenceByYearProcessor extends ValidateEnrolmen
         }
     }
 
-    private boolean validate(List<ICurriculumEntry> enrolments) {
+    private boolean validate(final List<ICurriculumEntry> enrolments) {
         return !enrolments.isEmpty();
     }
 

@@ -17,12 +17,12 @@ public class AutomaticOnlineRequestProcessor extends AutomaticOnlineRequestProce
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new AutomaticOnlineRequestProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (request.isNewRequest() && request.getRequestedOnline()) {
             request.transitToProcessState();
             request.generateDocument();

@@ -23,12 +23,16 @@ public class FillCurriculumPropertyProcessor extends FillCurriculumPropertyProce
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new FillCurriculumPropertyProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
+        if (forceUpdate && request.hasCurriculum()) {
+            request.findProperty(ULisboaConstants.CURRICULUM).delete();
+        }
+
         if (!request.hasCurriculum()) {
             List<ICurriculumEntry> curriculum =
                     ULisboaConstants.getConclusionCurriculum(request.getRegistration(), request.getProgramConclusion());

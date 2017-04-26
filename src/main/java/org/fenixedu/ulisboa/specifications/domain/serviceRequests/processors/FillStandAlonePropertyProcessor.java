@@ -23,12 +23,16 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new FillStandAlonePropertyProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
+        if (forceUpdate && request.hasApprovedStandaloneCurriculum()) {
+            request.findProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM).delete();
+        }
+
         if (!request.hasApprovedStandaloneCurriculum()) {
             if (request.getRegistration() == null) {
                 return;

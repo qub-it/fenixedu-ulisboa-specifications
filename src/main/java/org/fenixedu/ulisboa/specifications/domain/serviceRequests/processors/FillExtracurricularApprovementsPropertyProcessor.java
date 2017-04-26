@@ -23,12 +23,16 @@ public class FillExtracurricularApprovementsPropertyProcessor extends FillExtrac
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
         return new FillExtracurricularApprovementsPropertyProcessor(name);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
+        if (forceUpdate && request.hasApprovedExtraCurriculum()) {
+            request.findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).delete();
+        }
+
         if (!request.hasApprovedExtraCurriculum()) {
             if (request.getRegistration() == null) {
                 return;
@@ -41,9 +45,8 @@ public class FillExtracurricularApprovementsPropertyProcessor extends FillExtrac
             }
             List<ICurriculumEntry> approvedExtraCurriculum =
                     ULisboaConstants.getLastPlanExtracurricularApprovements(request.getRegistration());
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM),
-                            approvedExtraCurriculum);
+            ServiceRequestProperty property = ServiceRequestProperty
+                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM), approvedExtraCurriculum);
             request.addServiceRequestProperties(property);
         }
     }

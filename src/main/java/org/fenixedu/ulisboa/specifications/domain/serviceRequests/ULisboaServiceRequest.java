@@ -171,7 +171,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 request.addServiceRequestProperties(property);
             }
         }
-        request.processRequest();
+        request.processRequest(false);
         request.checkRules();
         return request;
     }
@@ -200,7 +200,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 request.addServiceRequestProperties(property);
             }
         }
-        request.processRequest();
+        request.processRequest(false);
         request.checkRules();
         return request;
     }
@@ -217,6 +217,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 property.setValue(propertyBean.getValue());
             }
         }
+
+        processRequest(true);
 
         IAcademicServiceRequestAndAcademicTaxTreasuryEvent treasuryEvent =
                 TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
@@ -685,7 +687,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
         createAcademicServiceRequestSituations(bean);
-        processRequest();
+        processRequest(false);
     }
 
     @Override
@@ -717,10 +719,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return false;
     }
 
-    private void processRequest() {
+    private void processRequest(final boolean forceUpdate) {
         for (ULisboaServiceRequestProcessor uLisboaServiceRequestValidator : getServiceRequestType()
                 .getULisboaServiceRequestProcessorsSet()) {
-            uLisboaServiceRequestValidator.process(this);
+            uLisboaServiceRequestValidator.process(this, forceUpdate);
         }
     }
 

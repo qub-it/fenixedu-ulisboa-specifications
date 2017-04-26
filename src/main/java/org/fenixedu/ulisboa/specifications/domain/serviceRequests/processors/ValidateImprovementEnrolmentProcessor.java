@@ -34,13 +34,13 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(LocalizedString name, EvaluationSeason evaluationSeason,
-            String curricularEntriesPropertyName) {
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final EvaluationSeason evaluationSeason,
+            final String curricularEntriesPropertyName) {
         return new ValidateImprovementEnrolmentProcessor(name, evaluationSeason, curricularEntriesPropertyName);
     }
 
     @Override
-    public void process(ULisboaServiceRequest request) {
+    public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (request.isNewRequest()) {
             checkProcessorRules(request);
         }
@@ -50,7 +50,7 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
         }
     }
 
-    private void checkProcessorRules(ULisboaServiceRequest request) {
+    private void checkProcessorRules(final ULisboaServiceRequest request) {
         ServiceRequestProperty curriculumLineSlot = request.findProperty(getCurricularEntriesPropertyName());
         ServiceRequestProperty executionSemesterSlot = request.findProperty(ULisboaConstants.EXECUTION_SEMESTER);
         ServiceRequestProperty studentCurricularPlanSlot = request.findProperty(ULisboaConstants.CURRICULAR_PLAN);
@@ -72,7 +72,7 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
         }
     }
 
-    private void enrolCurricularCourse(ULisboaServiceRequest request) {
+    private void enrolCurricularCourse(final ULisboaServiceRequest request) {
         Enrolment enrolment = request.findProperty(getCurricularEntriesPropertyName()).getValue();
         IDegreeModuleToEvaluate enrolmentWrapper = null;
         ExecutionSemester executionSemester = request.findProperty(ULisboaConstants.EXECUTION_SEMESTER).getValue();
