@@ -469,14 +469,14 @@ abstract public class EvaluationSeasonServices {
     }
 
     static private EnrolmentEvaluationType getEnrolmentEvaluationType(final EvaluationSeason input) {
-        if (input.isNormal()) {
+        if (input.isSpecialAuthorization()) {
+            return EnrolmentEvaluationType.SPECIAL_AUTHORIZATION;
+        } else if (input.isNormal()) {
             return EnrolmentEvaluationType.NORMAL;
         } else if (input.isSpecial()) {
             return EnrolmentEvaluationType.SPECIAL_SEASON;
         } else if (input.isImprovement()) {
             return EnrolmentEvaluationType.IMPROVEMENT;
-        } else if (input.isSpecialAuthorization()) {
-            return EnrolmentEvaluationType.SPECIAL_AUTHORIZATION;
         }
 
         throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.missing.type");
