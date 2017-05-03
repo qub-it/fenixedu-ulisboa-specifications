@@ -150,13 +150,10 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     private Grade getGradeSuggestedByAggregation() {
-        if (CurriculumAggregatorServices.isAggregationsActive(getEnrolment().getExecutionYear())) {
-
-            final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
-            final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
-            if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
-                return aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
-            }
+        final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
+        final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
+        if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
+            return aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
         }
 
         return null;
