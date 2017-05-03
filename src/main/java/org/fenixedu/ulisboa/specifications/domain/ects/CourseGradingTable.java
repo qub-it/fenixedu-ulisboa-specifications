@@ -58,7 +58,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         final String grade =
                 ((ICurriculumEntry) line).getGrade().isEmpty() ? "-" : ((ICurriculumEntry) line).getGrade().getValue();
         //Return the table associated with this line if and only if it has a valid value for the final grade
-        if (line.getCourseGradingTable().getEctsGrade(grade) != null) {
+        if (line.getCourseGradingTable() != null && line.getCourseGradingTable().getEctsGrade(grade) != null) {
             return line.getCourseGradingTable();
         }
 
