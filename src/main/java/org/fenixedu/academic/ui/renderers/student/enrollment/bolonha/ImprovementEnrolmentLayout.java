@@ -54,6 +54,11 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
     }
 
     @Override
+    protected boolean isToDisableEnrolmentOptionBasedOnCurriculumAggregator() {
+        return false;
+    }
+
+    @Override
     public HtmlComponent createComponent(Object object, Class type) {
         setBolonhaStudentEnrollmentBean((BolonhaStudentEnrollmentBean) object);
 

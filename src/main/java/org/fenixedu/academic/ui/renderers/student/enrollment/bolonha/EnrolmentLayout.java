@@ -553,15 +553,21 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         // qubExtension
-        final Context context = input.getContext();
-        if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context,
-                getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear())
-                // optional entries must be manually enroled
-                && !CurriculumAggregatorServices.isOptionalEntryRelated(context)) {
-            return true;
+        if (isToDisableEnrolmentOptionBasedOnCurriculumAggregator()) {
+            final Context context = input.getContext();
+            if (CurriculumAggregatorServices.isToDisableEnrolmentOption(context,
+                    getBolonhaStudentEnrollmentBean().getExecutionPeriod().getExecutionYear())
+                    // optional entries must be manually enroled
+                    && !CurriculumAggregatorServices.isOptionalEntryRelated(context)) {
+                return true;
+            }
         }
 
         return false;
+    }
+    
+    protected boolean isToDisableEnrolmentOptionBasedOnCurriculumAggregator() {
+        return true;
     }
 
     @SafeVarargs
