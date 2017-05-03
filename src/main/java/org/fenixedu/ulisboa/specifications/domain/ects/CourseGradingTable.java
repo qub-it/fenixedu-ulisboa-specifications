@@ -44,7 +44,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         return find(ey, false);
     }
 
-    public static Set<CourseGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
+    public static Set<CourseGradingTable> find(final ExecutionYear ey, final boolean includeLegacy) {
         return ey.getGradingTablesSet().stream().filter(CourseGradingTable.class::isInstance).map(CourseGradingTable.class::cast)
                 .filter(cgt -> (includeLegacy || cgt.getCurriculumLine() == null)).collect(Collectors.toSet());
     }
@@ -54,14 +54,20 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                 .filter(cgt -> cgt.getExecutionYear() == ey).findAny().orElse(null);
     }
 
-    public static CourseGradingTable find(CurriculumLine line) {
+    public static CourseGradingTable find(final CurriculumLine line) {
+        final String grade =
+                ((ICurriculumEntry) line).getGrade().isEmpty() ? "-" : ((ICurriculumEntry) line).getGrade().getValue();
+        //Return the table associated with this line if and only if it has a valid value for the final grade
+        if (line.getCourseGradingTable().getEctsGrade(grade) != null) {
+            return line.getCourseGradingTable();
+        }
+
         ExecutionYear year = line instanceof Enrolment ? ((Enrolment) line).getFinalEnrolmentEvaluation().getExecutionPeriod()
                 .getExecutionYear() : line.getExecutionYear();
-        return line.getCourseGradingTable() != null ? line.getCourseGradingTable() : find(year,
-                line.getCurricularCourse().getCompetenceCourse());
+        return find(year, line.getCurricularCourse().getCompetenceCourse());
     }
 
-    public static String getEctsGrade(ICurriculumEntry entry) {
+    public static String getEctsGrade(final ICurriculumEntry entry) {
         final String grade = entry.getGrade().isEmpty() ? "-" : entry.getGrade().getValue();
         String ectsGrade = null;
         if (entry instanceof ExternalEnrolment) {
@@ -85,12 +91,12 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         CurriculumEntry.setCourseEctsGradeProviderProvider(entry -> CourseGradingTable.getEctsGrade(entry));
     }
 
-    public static boolean isApplicable(CurriculumLine line) {
+    public static boolean isApplicable(final CurriculumLine line) {
         return GradingTableSettings.getApplicableDegreeTypes().contains(line.getCurricularCourse().getDegreeType());
     }
 
     public static Set<CourseGradingTable> generate(final ExecutionYear executionYear) {
-        Set<CourseGradingTable> allTables = new HashSet<CourseGradingTable>();
+        Set<CourseGradingTable> allTables = new HashSet<>();
         for (CompetenceCourse cc : Bennu.getInstance().getCompetenceCoursesSet()) {
             if (cc.hasActiveScopesInExecutionYear(executionYear)) {
                 CourseGradingTable table = CourseGradingTable.find(executionYear, cc);
@@ -106,7 +112,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                                     return table;
                                 }
                             };
-                    GeneratorWorker<CourseGradingTable> worker = new GeneratorWorker<CourseGradingTable>(workerLogic);
+                    GeneratorWorker<CourseGradingTable> worker = new GeneratorWorker<>(workerLogic);
                     worker.start();
                     try {
                         worker.join();
@@ -136,7 +142,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
     }
 
     private List<BigDecimal> harvestSample() {
-        List<BigDecimal> sample = new ArrayList<BigDecimal>();
+        List<BigDecimal> sample = new ArrayList<>();
         int coveredYears = 0;
         boolean sampleOK = false;
         for (ExecutionYear year = getExecutionYear().getPreviousExecutionYear(); year != null; year =
@@ -172,7 +178,7 @@ public class CourseGradingTable extends CourseGradingTable_Base {
         return sampleOK ? sample : null;
     }
 
-    private boolean isNumeric(Grade grade) {
+    private boolean isNumeric(final Grade grade) {
         if (grade == null) {
             return false;
         }
