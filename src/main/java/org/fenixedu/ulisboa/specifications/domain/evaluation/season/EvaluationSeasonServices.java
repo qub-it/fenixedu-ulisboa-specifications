@@ -79,28 +79,29 @@ abstract public class EvaluationSeasonServices {
         checkRules(evaluationSeason);
     }
 
-    static private void checkRules(final EvaluationSeason evaluationSeason) {
-        if (evaluationSeason.getInformation() == null) {
+    static private void checkRules(final EvaluationSeason season) {
+        if (season.getInformation() == null) {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.evaluationSeasonInformation.required");
         }
 
-        if (Strings.isNullOrEmpty(evaluationSeason.getCode())) {
+        if (Strings.isNullOrEmpty(season.getCode())) {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.code.required");
         }
 
-        if (LocalizedStringUtil.isTrimmedEmpty(evaluationSeason.getAcronym())) {
+        if (LocalizedStringUtil.isTrimmedEmpty(season.getAcronym())) {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.acronym.required");
         }
 
-        if (LocalizedStringUtil.isTrimmedEmpty(evaluationSeason.getName())) {
+        if (LocalizedStringUtil.isTrimmedEmpty(season.getName())) {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.name.required");
         }
 
-        if (!checkNTrue(1, evaluationSeason.getNormal(), evaluationSeason.getImprovement(), evaluationSeason.getSpecial())) {
+        if (!checkNTrue(1, season.getNormal(), season.getImprovement(), season.getSpecial())
+                && !season.getSpecialAuthorization()) {
             throw new ULisboaSpecificationsDomainException("error.EvaluationSeason.type.not.unique");
         }
 
-        checkSeasonExistsForName(evaluationSeason, evaluationSeason.getName());
+        checkSeasonExistsForName(season, season.getName());
     }
 
     static private void checkSeasonExistsForName(final EvaluationSeason evaluationSeason, final LocalizedString name) {
