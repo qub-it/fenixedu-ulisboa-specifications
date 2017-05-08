@@ -79,7 +79,7 @@ ${portal.angularToolkit()}
 	    </div>
 	</c:if>
 	
-	<form name="form" method="post" class="form-horizontal" action="#">
+	<form id="extendedDegreeInfoForm" method="post" class="form-horizontal" action="#">
 	
 		<input type="hidden" name="postback" value='#' />
         <input name="bean" type="hidden" value="{{ object }}" />
@@ -94,10 +94,10 @@ ${portal.angularToolkit()}
 	    	<div class="panel panel-body">
 	    	
 		        <div class="form-group row">
-		        	<div class="col-sm-1"></div>
+                    <div class="col-sm-1"></div>
 					<div class="col-sm-1 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.executionYear"/></div>
-					<div class="col-sm-6">
-						<ui-select id="extendedDegreeInformation_executionYear" class="" name="executionYear" ng-model="$parent.object.executionYear" on-select="onDegreeTypeChange($item, $model)" theme="bootstrap" ng-disabled="disabled" >
+					<div class="col-sm-2">
+						<ui-select id="extendedDegreeInformation_executionYear" class="" name="executionYear" ng-model="$parent.object.executionYear" ng-change="$parent.search()" theme="bootstrap" ng-disabled="disabled" >
 							<ui-select-match allow-clear="false">{{$select.selected.text}}</ui-select-match>
 							<ui-select-choices repeat="executionYear.id as executionYear in object.executionYearOptions | filter: $select.search">
 								<span ng-bind-html="executionYear.text | highlight: $select.search"></span>
@@ -106,27 +106,19 @@ ${portal.angularToolkit()}
 					</div>
 				</div>
 				
-				<div class="form-group row">
-		        	<div class="col-sm-1"></div>
-					<div class="col-sm-1 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.degree"/></div>
-					<div class="col-sm-6">
-						<ui-select id="extendedDegreeInformation_degree" class="" name="degree" ng-model="$parent.object.degree" on-select="onDegreeTypeChange($item, $model)" theme="bootstrap" ng-disabled="disabled" >
-							<ui-select-match allow-clear="false">{{$select.selected.text}}</ui-select-match>
-							<ui-select-choices repeat="degree.id as degree in object.degreeOptions | filter: $select.search">
-								<span ng-bind-html="degree.text | highlight: $select.search"></span>
-							</ui-select-choices>
-						</ui-select>				
-					</div>
-				</div>
-				
-				<div class="form-group row">
-		        	<div class="col-sm-1"></div>
-					<div class="col-sm-1 control-label"></div>
-					<div class="col-sm-6">
-						<button ng-click="search()" class="btn btn-default"><spring:message code="label.search" /></button>
-					</div>
-				</div>
-				
+                <div class="form-group row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-1 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.degree"/></div>
+                    <div class="col-sm-8">
+                        <ui-select id="extendedDegreeInformation_degree" class="" name="degree" ng-model="$parent.object.degree" ng-change="$parent.search()" theme="bootstrap" ng-disabled="disabled" >
+                            <ui-select-match allow-clear="false">{{$select.selected.text}}</ui-select-match>
+                            <ui-select-choices repeat="degree.id as degree in object.degreeOptions | filter: $select.search">
+                                <span ng-bind-html="degree.text | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>                
+                    </div>
+                </div>
+                
 			</div>
 	    </div>
 	    
@@ -637,9 +629,6 @@ ${portal.angularToolkit()}
                 		$scope.year = $scope.object.executionYearOptions[y].text
                 	}
                 }
-                $scope.degreeType = $scope.object.degreeType.match(/[A-Z][^\s]*/g).reduce( function (previous, current) {
-                	return previous + current.substring(0,3);
-                }, "");
                 
                 $scope.editMode = {};
                 for (var id = 0; id < $scope.fieldIds.length; id++) {
@@ -661,12 +650,16 @@ ${portal.angularToolkit()}
         		}
                 
                 $scope.search = function () {
-                	$('form').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.SEARCH_URL %>');
+                    $scope.$apply();
+                	$('#extendedDegreeInfoForm').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.SEARCH_URL %>');
+                    if ($scope.object.executionYear != '' && $scope.object.degree != '') {
+                        $('#extendedDegreeInfoForm').submit(); 
+                    }
                 };
                 
                 $scope.edit = function () {
                     $("input[name='bean']").attr('value', $("input[name='bean']").attr('value').replace(/\\"/g,"'"));
-                	$('form').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.UPDATE_URL %>');
+                	$('#extendedDegreeInfoForm').attr('action', '${pageContext.request.contextPath}<%= ExtendedDegreeInfoController.UPDATE_URL %>');
                 }
                 
                 $scope.onload = function () {
