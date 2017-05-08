@@ -154,24 +154,36 @@ public class RegistrationDataBean implements Serializable {
 
     public Double getCreditsConcluded() {
         if (this.creditsConcluded == null) {
+
+            // this method is quite ugly and unfortunate, but don't forget:
+
+            // 1) Only Curriculum deals correctly with accumulated registrations and is cached
             final ICurriculum next =
                     RegistrationServices.getCurriculum(getRegistration(), getExecutionYear().getNextExecutionYear());
             final ICurriculum current = RegistrationServices.getCurriculum(getRegistration(), getExecutionYear());
-            // this is quite ugly and unfortunate, but don't forget: 
 
-            // 1) Curriculum reports ECTS at the beginning of the year => next - current
+            // 2) Curriculum reports ECTS at the beginning of the year => result = next year value - current year value
             final double nextCreditsConcluded = next.getSumEctsCredits().doubleValue();
             final double currentCreditsConcluded = current.getSumEctsCredits().doubleValue();
 
-            // 2) Credits are accounted for at the beginning of the year => adding their ECTS back
-            final double currentRemainingCredits = ((Curriculum) current).getDismissalRelatedEntries().stream()
-                    .filter(i -> i.getExecutionYear() == getExecutionYear()).map(ICurriculumEntry::getEctsCreditsForCurriculum)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue();
+            // 2) Dismissals are accounted for at the beginning of the year => 
+            //      2a) adding dismissals ECTS to current year value
+            final double currentDismissalCredits = getDismissalCredits(current);
 
-            this.creditsConcluded = Math.max(0, nextCreditsConcluded - currentCreditsConcluded + currentRemainingCredits);
+            //      2b) removing dismissals ECTS from next year value
+            final double nextDismissalCredits = getDismissalCredits(next);
+
+            this.creditsConcluded = Math.max(0,
+                    (nextCreditsConcluded - nextDismissalCredits) - currentCreditsConcluded + currentDismissalCredits);
         }
 
         return this.creditsConcluded;
+    }
+
+    static private double getDismissalCredits(final ICurriculum input) {
+        final Curriculum curriculum = (Curriculum) input;
+        return curriculum.getDismissalRelatedEntries().stream().filter(i -> i.getExecutionYear() == curriculum.getExecutionYear())
+                .map(ICurriculumEntry::getEctsCreditsForCurriculum).reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue();
     }
 
     public BigDecimal getEnroledEcts() {
