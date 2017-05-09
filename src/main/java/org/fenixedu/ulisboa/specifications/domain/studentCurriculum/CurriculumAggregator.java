@@ -285,12 +285,13 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     private void updateMarkSheet(final CompetenceCourseMarkSheet markSheet, final Enrolment enrolment,
             final Grade conclusionGrade) {
 
-        if (markSheet != null) {
+        if (markSheet != null && !markSheet.isEdition()) {
             final Registration registration = enrolment.getRegistration();
 
-            final String reason = ULisboaSpecificationsUtil.bundle(
-                    "CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason", registration.getNumber().toString(),
-                    PersonServices.getDisplayName(registration.getPerson()), getDescriptionDefault().getContent(), conclusionGrade.getValue());
+            final String reason =
+                    ULisboaSpecificationsUtil.bundle("CurriculumAggregator.CompetenceCourseMarkSheetChangeRequest.reason",
+                            registration.getNumber().toString(), PersonServices.getDisplayName(registration.getPerson()),
+                            getDescriptionDefault().getContent(), conclusionGrade.getValue());
 
             CompetenceCourseMarkSheetChangeRequest.create(markSheet, Authenticate.getUser().getPerson(), reason);
         }
