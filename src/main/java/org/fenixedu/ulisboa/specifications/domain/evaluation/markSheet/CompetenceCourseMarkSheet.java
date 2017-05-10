@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -1093,9 +1094,10 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return Optional.of(lastStateChange.isPresent() ? lastStateChange.get().getSnapshot() : null);
     }
 
-    public Collection<CompetenceCourseMarkSheetSnapshot> getSnapshots() {
-        return getStateChangeSet().stream().filter(s -> s.getState() == CompetenceCourseMarkSheetStateEnum.findSubmited())
-                .map(s -> s.getSnapshot()).collect(Collectors.toSet());
+    public List<CompetenceCourseMarkSheetSnapshot> getSnapshots() {
+        return getStateChangeSet().stream().sorted()
+                .filter(s -> s.getState() == CompetenceCourseMarkSheetStateEnum.findSubmited()).map(s -> s.getSnapshot())
+                .collect(Collectors.toList());
 
     }
 

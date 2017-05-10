@@ -2,18 +2,24 @@ package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.DomainObjectUtil;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.util.FenixDigestUtils;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.MarkBean;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
@@ -185,6 +191,123 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
         } else {
             return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
         }
+    }
+
+    public List<MarkBean> getDifferencesToNextGradeValues() {
+        final CompetenceCourseMarkSheetSnapshot next = getNextSnapshot();
+        return next != null ? compare(next) : compare(getMarkSheet());
+    }
+
+    private CompetenceCourseMarkSheetSnapshot getNextSnapshot() {
+        final List<CompetenceCourseMarkSheetSnapshot> snapshots = getMarkSheet().getSnapshots();
+        final int thisIndex = snapshots.indexOf(this);
+        return thisIndex < 0 || thisIndex >= snapshots.size() ? null : snapshots.get(thisIndex + 1);
+    }
+
+    private CompetenceCourseMarkSheet getMarkSheet() {
+        return getStateChange().getCompetenceCourseMarkSheet();
+    }
+
+    private List<MarkBean> compare(final CompetenceCourseMarkSheetSnapshot other) {
+        final List<MarkBean> result = Lists.newArrayList();
+
+        final Set<CompetenceCourseMarkSheetSnapshotEntry> thisMarks = Sets.newHashSet(getEntrySet());
+        final Set<CompetenceCourseMarkSheetSnapshotEntry> otherMarks = Sets.newHashSet(other.getEntrySet());
+
+        for (final Iterator<CompetenceCourseMarkSheetSnapshotEntry> thisIterator = thisMarks.iterator(); thisIterator
+                .hasNext();) {
+            final CompetenceCourseMarkSheetSnapshotEntry thisMark = thisIterator.next();
+
+            for (final Iterator<CompetenceCourseMarkSheetSnapshotEntry> otherIterator = otherMarks.iterator(); otherIterator
+                    .hasNext();) {
+                final CompetenceCourseMarkSheetSnapshotEntry otherMark = otherIterator.next();
+
+                if (thisMark.getStudentNumber().intValue() == otherMark.getStudentNumber().intValue()) {
+                    thisIterator.remove();
+                    otherIterator.remove();
+
+                    if (!otherMark.getGrade().equals(thisMark.getGrade())) {
+                        final MarkBean bean = new MarkBean();
+                        bean.setStudentNumber(otherMark.getStudentNumber());
+                        bean.setStudentName(otherMark.getStudentName());
+                        bean.setGradeValue(otherMark.getGrade().getValue());
+                        bean.setInfoMessage("Nota anterior: " + thisMark.getGrade());
+                        result.add(bean);
+                    }
+                }
+            }
+        }
+
+        for (final CompetenceCourseMarkSheetSnapshotEntry thisMark : thisMarks) {
+            final MarkBean bean = new MarkBean();
+            bean.setStudentNumber(thisMark.getStudentNumber());
+            bean.setStudentName(thisMark.getStudentName());
+            bean.setInfoMessage("Nota removida: " + thisMark.getGrade());
+            result.add(bean);
+        }
+
+        for (final CompetenceCourseMarkSheetSnapshotEntry otherMark : otherMarks) {
+            final MarkBean bean = new MarkBean();
+            bean.setStudentNumber(otherMark.getStudentNumber());
+            bean.setStudentName(otherMark.getStudentName());
+            bean.setGradeValue(otherMark.getGrade().getValue());
+            bean.setInfoMessage("Nota adicionada");
+            result.add(bean);
+        }
+
+        return result;
+    }
+
+    private List<MarkBean> compare(final CompetenceCourseMarkSheet other) {
+        final List<MarkBean> result = Lists.newArrayList();
+
+        final Set<CompetenceCourseMarkSheetSnapshotEntry> thisMarks = Sets.newHashSet(getEntrySet());
+        final Set<EnrolmentEvaluation> otherMarks = Sets.newHashSet(other.getEnrolmentEvaluationSet());
+
+        for (final Iterator<CompetenceCourseMarkSheetSnapshotEntry> thisIterator = thisMarks.iterator(); thisIterator
+                .hasNext();) {
+            final CompetenceCourseMarkSheetSnapshotEntry thisMark = thisIterator.next();
+
+            for (final Iterator<EnrolmentEvaluation> otherIterator = otherMarks.iterator(); otherIterator.hasNext();) {
+                final EnrolmentEvaluation otherMark = otherIterator.next();
+
+                final Registration registration = otherMark.getRegistration();
+                if (thisMark.getStudentNumber().intValue() == registration.getNumber().intValue()) {
+                    thisIterator.remove();
+                    otherIterator.remove();
+
+                    if (!otherMark.getGrade().equals(thisMark.getGrade())) {
+                        final MarkBean bean = new MarkBean();
+                        bean.setStudentNumber(registration.getNumber());
+                        bean.setStudentName(registration.getName());
+                        bean.setGradeValue(otherMark.getGrade().getValue());
+                        bean.setInfoMessage("Nota anterior: " + thisMark.getGrade());
+                        result.add(bean);
+                    }
+                }
+            }
+        }
+
+        for (final CompetenceCourseMarkSheetSnapshotEntry thisMark : thisMarks) {
+            final MarkBean bean = new MarkBean();
+            bean.setStudentNumber(thisMark.getStudentNumber());
+            bean.setStudentName(thisMark.getStudentName());
+            bean.setInfoMessage("Nota removida: " + thisMark.getGrade());
+            result.add(bean);
+        }
+
+        for (final EnrolmentEvaluation otherMark : otherMarks) {
+            final Registration registration = otherMark.getRegistration();
+
+            final MarkBean bean = new MarkBean();
+            bean.setStudentNumber(registration.getNumber());
+            bean.setStudentName(registration.getName());
+            bean.setGradeValue(otherMark.getGrade().getValue());
+            bean.setInfoMessage("Nota adicionada");
+            result.add(bean);
+        }
+
+        return result;
     }
 
 }

@@ -68,6 +68,9 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     private String errorMessage;
     private String infoMessage;
 
+    public MarkBean() {
+    }
+
     public MarkBean(final CompetenceCourseMarkSheet markSheet, final EnrolmentEvaluation evaluation) {
         this(markSheet, evaluation.getEnrolment());
         setEvaluation(evaluation);

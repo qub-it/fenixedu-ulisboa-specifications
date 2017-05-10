@@ -85,15 +85,20 @@ ${portal.angularToolkit()}
 								'<spring:message code="label.remove" />');
 					}
 					
-					$scope.showConfirmation = function(url,message,actionText) {
-						$('#confirmationForm').attr('action', url);
-						$('#confirmationMessage').html(message);
-						$('#confirmationButton').html(actionText);
-						$('#confirmationModal').modal('toggle')
-					}
-					
-					
+                    $scope.showConfirmation = function(url,message,actionText) {
+                        $('#confirmationForm').attr('action', url);
+                        $('#confirmationMessage').html(message);
+                        $('#confirmationButton').html(actionText);
+                        $('#confirmationModal').modal('toggle')
+                    }
 
+
+                    
+                    $scope.snapshotDifference = function(snapshotId) {
+                        $scope.snaoshotS
+                           $('#snapshotDifferenceModal').modal('toggle')
+                    }
+                    
 			   }]);
 </script>
 
@@ -135,6 +140,50 @@ ${portal.angularToolkit()}
 		<!-- /.modal-content -->
 	</div>
 	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="snapshotDifferenceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">
+                    <spring:message code="label.snapshotDifference" />
+                </h4>
+            </div>
+            <div class="modal-body">
+                <p id="snapshotDifferenceMessage"></p>
+                
+                <table id="evaluationTable" class="table responsive table-bordered table-hover" width="100%">
+                    <thead>
+                        <tr>
+                            <th><spring:message code="label.MarkBean.studentNumber" /></th>
+                            <th><spring:message code="label.MarkBean.studentName" /></th>
+                            <th><spring:message code="label.MarkBean.gradeValue" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="evaluation in object.differencesToNextGradeValues">
+                            <td>{{evaluation.studentNumber}}</td>
+                            <td>{{evaluation.studentName}}</td>
+                            <td>{{evaluation.gradeValue}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <spring:message code="label.close" />
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
 <%-- NAVIGATION --%>
@@ -323,12 +372,12 @@ ${portal.angularToolkit()}
 		</tr>
 	</thead>
 	<tbody>
-		<c:forEach var="each" items="${competenceCourseMarkSheet.stateChangeSet}">
+		<c:forEach var="state" items="${competenceCourseMarkSheet.stateChangeSet}">
 		<tr>
-			<td><joda:format value="${each.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
-			<td><c:out value="${each.state.descriptionI18N.content}"></c:out></td>
-			<td><c:out value="<%=CompetenceCourseMarkSheetBean.getPersonDescription(((CompetenceCourseMarkSheetStateChange)pageContext.getAttribute("each")).getResponsible())%>"></c:out></td>
-			<td><c:out value="${each.byTeacher ? yesLabel : noLabel}"></c:out></td>
+			<td><joda:format value="${state.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+			<td><c:out value="${state.state.descriptionI18N.content}"></c:out></td>
+			<td><c:out value="<%=CompetenceCourseMarkSheetBean.getPersonDescription(((CompetenceCourseMarkSheetStateChange)pageContext.getAttribute("state")).getResponsible())%>"></c:out></td>
+			<td><c:out value="${state.byTeacher ? yesLabel : noLabel}"></c:out></td>
 		</tr>
 		</c:forEach>
 	</tbody>
@@ -347,13 +396,18 @@ ${portal.angularToolkit()}
 		</tr>
 	</thead>
 	<tbody>
-		<c:forEach var="each" items="${competenceCourseMarkSheet.previousSnapshots}">
+		<c:forEach var="snapshot" items="${competenceCourseMarkSheet.previousSnapshots}">
 		<tr>
-			<td><joda:format value="${each.stateChange.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+			<td><joda:format value="${snapshot.stateChange.date}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 			<td>
-				<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.PRINT_SNAPSHOT_URL%>${each.externalId}">
-					<spring:message code='label.event.evaluation.manageMarkSheet.print'/>
-				</a>
+                <a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.PRINT_SNAPSHOT_URL%>${snapshot.externalId}">
+                    <spring:message code='label.event.evaluation.manageMarkSheet.print'/>
+                </a>
+                <%-- WIP legidio
+                <a  class="btn btn-default btn-xs" href="#" ng-click="snapshotDifference('${snapshot.differencesToNextGradeValues}')">
+                    <spring:message code='label.event.evaluation.manageMarkSheet.snapshotDifference'/>
+                </a>
+                 --%>
 			</td>
 		</tr>
 		</c:forEach>
