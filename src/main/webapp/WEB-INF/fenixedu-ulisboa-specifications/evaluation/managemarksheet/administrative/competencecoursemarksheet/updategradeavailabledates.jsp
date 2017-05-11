@@ -235,7 +235,7 @@ ${portal.angularToolkit()}
                 </thead>
                 <tbody>
                     <tr ng-repeat="evaluation in object.updateGradeAvailableDateBeans">
-                        <td>{{evaluation.studentNumber}}</td>
+                        <td><a target="_blank" href="{{evaluation.viewStudentCurriculum}}">{{evaluation.studentNumber}}</a></td>
                         <td>{{evaluation.studentName}}</td>
                         <td>{{evaluation.degreeCode}}</td>
                         <td>{{evaluation.shifts}}</td>
