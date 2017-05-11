@@ -60,7 +60,6 @@ import pt.ist.fenixframework.Atomic;
 
 public class MarkBean implements IBean, Comparable<MarkBean> {
 
-    private HttpServletRequest request;
     private CompetenceCourseMarkSheet markSheet;
     private Enrolment enrolment;
     private EnrolmentEvaluation evaluation;
@@ -104,17 +103,6 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         this.statutes =
                 StatuteServices.getVisibleStatuteTypesDescription(enrolment.getRegistration(), enrolment.getExecutionPeriod())
                         .replace("'", " ").replace("\"", " ");
-    }
-
-    public HttpServletRequest getHttpServletRequest() {
-        return request;
-    }
-
-    public void setHttpServletRequest(final HttpServletRequest input) {
-        this.request = input;
-        if (input != null && getEnrolment() != null) {
-            updateViewStudentCurriculum(getEnrolment().getRegistration().getExternalId());
-        }
     }
 
     public CompetenceCourseMarkSheet getMarkSheet() {
@@ -165,16 +153,16 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         this.viewStudentCurriculum = input;
     }
 
-    private void updateViewStudentCurriculum(final String registrationId) {
-        if (!Strings.isNullOrEmpty(registrationId)
+    public void updateViewStudentCurriculum(final HttpServletRequest request) {
+        if (getEnrolment() != null
                 && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_REGISTRATIONS).isMember(Authenticate.getUser())) {
 
-            final String url =
-                    "/academicAdministration/viewStudentCurriculum.do?method=prepare&registrationOID=" + registrationId;
+            final String url = "/academicAdministration/viewStudentCurriculum.do?method=prepare&registrationOID="
+                    + getEnrolment().getRegistration().getExternalId();
 
-            final HttpServletRequest request = getHttpServletRequest();
-            this.viewStudentCurriculum = request.getContextPath()
-                    + GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
+            final String contextPath = request.getContextPath();
+            this.viewStudentCurriculum =
+                    contextPath + GenericChecksumRewriter.injectChecksumInUrl(contextPath, url, request.getSession());
         }
     }
 

@@ -35,8 +35,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.Evaluation;
@@ -77,7 +75,6 @@ import com.google.common.collect.Sets;
 
 public class CompetenceCourseMarkSheetBean implements IBean {
 
-    private HttpServletRequest request;
     private CompetenceCourseMarkSheet competenceCourseMarkSheet;
 
     private EvaluationSeason evaluationSeason;
@@ -126,16 +123,6 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     private String changeRequestReason;
 
     private String changeRequestComments;
-
-    public HttpServletRequest getHttpServletRequest() {
-        return request;
-    }
-
-    public void setHttpServletRequest(final HttpServletRequest input) {
-        this.request = input;
-        getUpdateGradeBeans().forEach(i -> i.setHttpServletRequest(getHttpServletRequest()));
-        getUpdateGradeAvailableDateBeans().forEach(i -> i.setHttpServletRequest(getHttpServletRequest()));
-    }
 
     public CompetenceCourseMarkSheet getCompetenceCourseMarkSheet() {
         return competenceCourseMarkSheet;
