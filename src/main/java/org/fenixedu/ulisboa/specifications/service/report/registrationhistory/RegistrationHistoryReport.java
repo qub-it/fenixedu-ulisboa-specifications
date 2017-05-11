@@ -64,6 +64,8 @@ public class RegistrationHistoryReport {
 
     private BigDecimal executionYearWeightedAverage;
 
+    private BigDecimal currentAverage;
+
     public RegistrationHistoryReport(final Registration registration, final ExecutionYear executionYear) {
         this.executionYear = executionYear;
         this.registration = registration;
@@ -318,6 +320,14 @@ public class RegistrationHistoryReport {
 
     public void setExecutionYearWeightedAverage(BigDecimal executionYearWeightedAverage) {
         this.executionYearWeightedAverage = executionYearWeightedAverage;
+    }
+
+    public BigDecimal getCurrentAverage() {
+        return currentAverage;
+    }
+
+    public void setCurrentAverage(BigDecimal currentAverage) {
+        this.currentAverage = currentAverage;
     }
 
     public RegistrationRegimeType getRegimeType() {

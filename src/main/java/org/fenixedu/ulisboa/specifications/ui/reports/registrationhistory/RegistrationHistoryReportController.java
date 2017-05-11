@@ -256,6 +256,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
                         addData("RegistrationHistoryReport.average",
                                 report.getAverage() != null ? report.getAverage().getValue() : null);
+                        addData("RegistrationHistoryReport.currentAverage",
+                                report.getCurrentAverage() != null ? report.getCurrentAverage().toPlainString() : null);
                         addData("RegistrationHistoryReport.enrolmentYears", report.getEnrolmentYears().toString());
 
                         addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());

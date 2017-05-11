@@ -23,6 +23,8 @@ import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
@@ -315,14 +317,11 @@ public class RegistrationHistoryReportService {
             result.addAll(executionYear.getStudentsSet().stream().filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
-        result.addAll(
-                executionYear.getExecutionPeriodsSet().stream()
-                        .flatMap(
-                                semester -> semester.getEnrolmentsSet().stream().filter(enrolment -> !enrolment.isAnnulled())
-                                        .map(enrolment -> enrolment.getRegistration())
-                                        .filter(studentNumberFilter).filter(registration -> RegistrationDataServices
-                                                .getRegistrationData(registration, executionYear) != null))
-                        .collect(Collectors.toSet()));
+        result.addAll(executionYear.getExecutionPeriodsSet().stream().flatMap(semester -> semester.getEnrolmentsSet().stream()
+                .filter(enrolment -> !enrolment.isAnnulled()).map(enrolment -> enrolment.getRegistration())
+                .filter(studentNumberFilter)
+                .filter(registration -> RegistrationDataServices.getRegistrationData(registration, executionYear) != null))
+                .collect(Collectors.toSet()));
 
         return result;
     }
@@ -331,11 +330,15 @@ public class RegistrationHistoryReportService {
         final RegistrationHistoryReport result = new RegistrationHistoryReport(registration, executionYear);
 
         if (detailed) {
+            
             addConclusion(result);
             addCurriculum(result);
+            
             final Collection<Enrolment> enrolmentsByYear = result.getEnrolments();
             addEnrolmentsAndCreditsCount(result, enrolmentsByYear);
             addExecutionYearAverages(result, enrolmentsByYear);
+            
+            result.setCurrentAverage(calculateCurrentAverage(registration));
         }
 
         return result;
@@ -410,6 +413,27 @@ public class RegistrationHistoryReportService {
 
         return gradesSum.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradesSum
                 .divide(BigDecimal.valueOf(total), MathContext.DECIMAL128).setScale(3, RoundingMode.HALF_UP);
+    }
+
+    protected BigDecimal calculateCurrentAverage(Registration registration) {
+
+        final ICurriculum curriculum = RegistrationServices.getCurriculum(registration, null);
+
+        BigDecimal totalEcts = BigDecimal.ZERO;
+        BigDecimal gradeTimesEcts = BigDecimal.ZERO;
+
+        for (final ICurriculumEntry entry : curriculum.getCurriculumEntries()) {
+            if (!entry.getGrade().isNumeric()) {
+                continue;
+            }
+
+            gradeTimesEcts = gradeTimesEcts.add(entry.getGrade().getNumericValue().multiply(entry.getEctsCreditsForCurriculum()));
+            totalEcts = totalEcts.add(entry.getEctsCreditsForCurriculum());
+        }
+
+        return totalEcts.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : gradeTimesEcts.divide(totalEcts, 3,
+                RoundingMode.DOWN);
+
     }
 
     private void addCurriculum(RegistrationHistoryReport result) {
