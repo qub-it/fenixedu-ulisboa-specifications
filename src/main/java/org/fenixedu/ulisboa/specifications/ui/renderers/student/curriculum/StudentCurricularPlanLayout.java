@@ -56,6 +56,7 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
@@ -81,6 +82,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative.CompetenceCourseMarkSheetController;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
@@ -630,7 +632,8 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         // qubExtension
-        final HtmlTableCell cell = generateCellWithSpan(dismissalRow, gradeString, title, null, !Strings.isNullOrEmpty(title));
+        final HtmlTableCell cell =
+                generateCellWithSpan(dismissalRow, new HtmlText(gradeString), title, null, !Strings.isNullOrEmpty(title));
         cell.setStyle(GRADE_APPROVED_STYLE);
     }
 
@@ -945,8 +948,8 @@ public class StudentCurricularPlanLayout extends Layout {
             text = EMPTY_INFO;
         }
 
-        final HtmlTableCell cell =
-                generateCellWithSpan(enrolmentRow, text, ULisboaSpecificationsUtil.bundle("label.Enrolment.shifts"), null, true);
+        final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, new HtmlText(text),
+                ULisboaSpecificationsUtil.bundle("label.Enrolment.shifts"), null, true);
         if (!shifts.isEmpty()) {
             cell.setStyle("font-size: xx-small");
         }
@@ -1059,7 +1062,20 @@ public class StudentCurricularPlanLayout extends Layout {
                         + availableDate.toString(DATE_FORMAT);
             }
         }
-        generateCellWithSpan(row, text, title, renderer.getGradeCellClass(), true);
+        final HtmlComponent component;
+        if (evaluation.getCompetenceCourseMarkSheet() == null
+                || !AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser())) {
+            component = new HtmlText(text);
+        } else {
+            component = new HtmlLink();
+
+            ((HtmlLink) component).setText(text);
+            ((HtmlLink) component).setModuleRelative(false);
+            ((HtmlLink) component).setTarget("_blank");
+            ((HtmlLink) component).setUrl(
+                    CompetenceCourseMarkSheetController.READ_URL + evaluation.getCompetenceCourseMarkSheet().getExternalId());
+        }
+        generateCellWithSpan(row, component, title, renderer.getGradeCellClass(), true);
 
         generateCellWithText(row, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
@@ -1338,7 +1354,8 @@ public class StudentCurricularPlanLayout extends Layout {
             }
         }
 
-        final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, text, title, null, !Strings.isNullOrEmpty(title));
+        final HtmlTableCell cell =
+                generateCellWithSpan(enrolmentRow, new HtmlText(text), title, null, !Strings.isNullOrEmpty(title));
         cell.setStyle(enrolment.isApproved()
                 && !isFromDetail ? GRADE_APPROVED_STYLE : grade.isNotApproved() ? GRADE_NOT_APPROVED_STYLE : GRADE_EMPTY_STYLE);
     }
@@ -1533,17 +1550,17 @@ public class StudentCurricularPlanLayout extends Layout {
 
     static protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
             final String cssClass) {
-        return generateCellWithSpan(row, text, title, cssClass, false);
+        return generateCellWithSpan(row, new HtmlText(text), title, cssClass, false);
     }
 
-    static protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final String text, final String title,
+    static protected HtmlTableCell generateCellWithSpan(final HtmlTableRow row, final HtmlComponent component, final String title,
             final String cssClass, final boolean forceDots) {
 
         final HtmlTableCell cell = row.createCell();
         cell.setClasses(cssClass);
 
         final HtmlInlineContainer span = new HtmlInlineContainer();
-        span.addChild(new HtmlText(text));
+        span.addChild(component);
         span.setTitle(title);
         if (forceDots) {
             span.setStyle(TOOLTIP_DOT);

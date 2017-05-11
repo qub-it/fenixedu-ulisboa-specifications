@@ -29,6 +29,8 @@ package org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet;
 
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.fenixedu.academic.domain.Enrolment;
@@ -36,9 +38,12 @@ import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.IBean;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
@@ -50,15 +55,18 @@ import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
 
+import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
 public class MarkBean implements IBean, Comparable<MarkBean> {
 
+    private HttpServletRequest request;
     private CompetenceCourseMarkSheet markSheet;
     private Enrolment enrolment;
     private EnrolmentEvaluation evaluation;
     private Integer studentNumber;
     private String studentName;
+    private String viewStudentCurriculum;
     private String gradeValue;
     private String degreeName;
     private String degreeCode;
@@ -96,6 +104,17 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         this.statutes =
                 StatuteServices.getVisibleStatuteTypesDescription(enrolment.getRegistration(), enrolment.getExecutionPeriod())
                         .replace("'", " ").replace("\"", " ");
+    }
+
+    public HttpServletRequest getHttpServletRequest() {
+        return request;
+    }
+
+    public void setHttpServletRequest(final HttpServletRequest input) {
+        this.request = input;
+        if (input != null && getEnrolment() != null) {
+            updateViewStudentCurriculum(getEnrolment().getRegistration().getExternalId());
+        }
     }
 
     public CompetenceCourseMarkSheet getMarkSheet() {
@@ -136,6 +155,27 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     public void setStudentName(String studentName) {
         this.studentName = studentName;
+    }
+
+    public String getViewStudentCurriculum() {
+        return viewStudentCurriculum;
+    }
+
+    public void setViewStudentCurriculum(final String input) {
+        this.viewStudentCurriculum = input;
+    }
+
+    private void updateViewStudentCurriculum(final String registrationId) {
+        if (!Strings.isNullOrEmpty(registrationId)
+                && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_REGISTRATIONS).isMember(Authenticate.getUser())) {
+
+            final String url =
+                    "/academicAdministration/viewStudentCurriculum.do?method=prepare&registrationOID=" + registrationId;
+
+            final HttpServletRequest request = getHttpServletRequest();
+            this.viewStudentCurriculum = request.getContextPath()
+                    + GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, request.getSession());
+        }
     }
 
     public void setGradeValueSuggested() {
