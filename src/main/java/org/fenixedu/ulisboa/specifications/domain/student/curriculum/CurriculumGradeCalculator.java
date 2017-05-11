@@ -96,7 +96,7 @@ public class CurriculumGradeCalculator
         }
     }
 
-    protected BigDecimal calculateAverage() {
+    public BigDecimal calculateAverage() {
         return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, FULL_SCALE, ROUNDING_DEFAULT);
     }
 
