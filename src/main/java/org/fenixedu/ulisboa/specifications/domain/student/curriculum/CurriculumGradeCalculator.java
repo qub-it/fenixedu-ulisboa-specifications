@@ -96,7 +96,7 @@ public class CurriculumGradeCalculator
         }
     }
 
-    public BigDecimal calculateAverage() {
+    protected BigDecimal calculateAverage() {
         return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, FULL_SCALE, ROUNDING_DEFAULT);
     }
 
@@ -122,6 +122,14 @@ public class CurriculumGradeCalculator
             doCalculus(curriculum);
         }
         return sumPiCi;
+    }
+
+    public BigDecimal rawAverage(Curriculum curriculum) {
+        if (sumPiCi == null) {
+            doCalculus(curriculum);
+        }
+
+        return calculateAverage();
     }
 
     public Curriculum getCurriculum() {

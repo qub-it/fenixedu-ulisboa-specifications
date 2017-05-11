@@ -317,14 +317,11 @@ public class RegistrationHistoryReportService {
             result.addAll(executionYear.getStudentsSet().stream().filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
-        result.addAll(
-                executionYear.getExecutionPeriodsSet().stream()
-                        .flatMap(
-                                semester -> semester.getEnrolmentsSet().stream().filter(enrolment -> !enrolment.isAnnulled())
-                                        .map(enrolment -> enrolment.getRegistration())
-                                        .filter(studentNumberFilter).filter(registration -> RegistrationDataServices
-                                                .getRegistrationData(registration, executionYear) != null))
-                        .collect(Collectors.toSet()));
+        result.addAll(executionYear.getExecutionPeriodsSet().stream().flatMap(semester -> semester.getEnrolmentsSet().stream()
+                .filter(enrolment -> !enrolment.isAnnulled()).map(enrolment -> enrolment.getRegistration())
+                .filter(studentNumberFilter)
+                .filter(registration -> RegistrationDataServices.getRegistrationData(registration, executionYear) != null))
+                .collect(Collectors.toSet()));
 
         return result;
     }
@@ -419,9 +416,9 @@ public class RegistrationHistoryReportService {
     }
 
     protected BigDecimal calculateCurrentAverage(Registration registration) {
-
         final Curriculum curriculum = (Curriculum) RegistrationServices.getCurriculum(registration, null);
-        return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).calculateAverage().setScale(3, RoundingMode.DOWN);
+        return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(3,
+                RoundingMode.DOWN);
     }
 
     private void addCurriculum(RegistrationHistoryReport result) {
