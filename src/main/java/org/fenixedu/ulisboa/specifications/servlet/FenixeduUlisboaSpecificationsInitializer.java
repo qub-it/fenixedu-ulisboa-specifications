@@ -74,6 +74,8 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluation
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20AbsoluteGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20GradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
@@ -330,12 +332,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureType20GradeScaleLogic() {
-        final GradeScaleLogic logic =
-                loadClass("gradescale.type20.logic.class", ULisboaConfiguration.getConfiguration().type20GradeScaleLogic());
-
-        if (logic != null) {
-            GradeScale.TYPE20.setLogic(logic);
-        }
+        GradeScale.TYPE20_ABSOLUTE.setLogic(new StandardType20AbsoluteGradeScaleLogic());
+        GradeScale.TYPE20.setLogic(new StandardType20GradeScaleLogic());
     }
 
     @SuppressWarnings("unchecked")

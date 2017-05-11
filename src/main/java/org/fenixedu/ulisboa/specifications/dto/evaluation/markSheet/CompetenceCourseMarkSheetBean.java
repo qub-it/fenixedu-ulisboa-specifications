@@ -673,7 +673,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         setMarkSheetStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetStateEnum.values()));
 
-        setGradeScaleDataSource(Lists.newArrayList(GradeScale.TYPE20, GradeScale.TYPEQUALITATIVE, GradeScale.TYPEAPT));
+        setGradeScaleDataSource(Lists.newArrayList(GradeScale.TYPE20, GradeScale.TYPE20_ABSOLUTE, GradeScale.TYPEQUALITATIVE,
+                GradeScale.TYPEAPT));
 
         setChangeRequestStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetChangeRequestStateEnum.values()));
     }

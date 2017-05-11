@@ -373,8 +373,9 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             final LocalDate evaluationDate, final Person certifier, final Set<Shift> shifts, final boolean byTeacher) {
 
         final CompetenceCourseMarkSheet result = new CompetenceCourseMarkSheet();
-        result.init(semester, competence, execution, season, courseEvaluation, evaluationDate, GradeScale.TYPE20, certifier,
-                shifts, null);
+        final GradeScale gradeScale = competence.getGradeScale() == null ? GradeScale.TYPE20 : competence.getGradeScale();
+        result.init(semester, competence, execution, season, courseEvaluation, evaluationDate, gradeScale, certifier, shifts,
+                null);
 
         if (byTeacher && !EvaluationSeasonServices.isSupportsEmptyGrades(season)
                 && findBy(semester, competence, execution, season, result.getEvaluationDateTime(), shifts,
