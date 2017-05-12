@@ -210,7 +210,7 @@ abstract public class EvaluationSeasonServices {
                 final Grade blocking = rule.getBlocking();
                 final Grade inspect = evaluation.getGrade();
 
-                if (blocking.compareTo(inspect) == 0) {
+                if (blocking.toString().equals(inspect.toString())) {
                     return true;
                 }
             }
