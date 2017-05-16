@@ -44,6 +44,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilderForXLSX;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
@@ -741,6 +742,14 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.executionPeriod", item.getExecutionPeriod().getQualifiedName());
                         addData("EnrolmentEvaluation.grade", item.getGradeValue());
+
+                        if (item.getEvaluationSeason().isImprovement() && item.isFinal()) {
+                            addData("Enrolment.gradeImproved", gradeWasImproved(item) ? ULisboaSpecificationsUtil
+                                    .bundle("label.yes") : ULisboaSpecificationsUtil.bundle("label.no"));
+                        } else {
+                            addData("Enrolment.gradeImproved", "");
+                        }
+
                         addData("EnrolmentEvaluation.season", item.getEvaluationSeason().getName().getContent());
                     }
 
@@ -758,6 +767,16 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         }
 
         return result.toByteArray();
+    }
+
+    //Report specific. Cannot be at service level (depends on instance logic to calculate final grade)
+    private boolean gradeWasImproved(final EnrolmentEvaluation improvement) {
+        final EnrolmentEvaluation previousEvaluation = improvement.getEnrolment().getEvaluationsSet().stream()
+                .filter(ev -> ev.getEvaluationSeason() != improvement.getEvaluationSeason() && ev.isFinal() && ev.isApproved()
+                        && !ev.getEvaluationSeason().isImprovement())
+                .sorted(new EvaluationComparator().reversed()).findFirst().orElse(null);
+
+        return previousEvaluation != null && improvement.getGrade().compareTo(previousEvaluation.getGrade()) > 0;
     }
 
     @RequestMapping(value = "/exportregistrationsbystatute", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
