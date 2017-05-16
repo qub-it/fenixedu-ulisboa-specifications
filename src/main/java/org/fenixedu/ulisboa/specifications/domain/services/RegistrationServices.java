@@ -519,7 +519,15 @@ public class RegistrationServices {
         return input.getExtendedInformation() != null && input.getExtendedInformation().getCurriculumAccumulated();
     }
 
-    public static Collection<ExecutionYear> getEnrolmentYears(Registration registration, boolean includeDismissals) {
+    public static Collection<ExecutionYear> getEnrolmentYears(Registration registration) {
+        return getEnrolmentYears(registration, false);
+    }
+
+    public static Collection<ExecutionYear> getEnrolmentYearsWithDismissals(Registration registration) {
+        return getEnrolmentYears(registration, true);
+    }
+
+    private static Collection<ExecutionYear> getEnrolmentYears(Registration registration, boolean includeDismissals) {
 
         final Set<ExecutionYear> result = Sets.newHashSet();
 

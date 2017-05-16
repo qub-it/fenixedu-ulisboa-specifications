@@ -256,7 +256,7 @@ public class InscritoService extends RaidesService {
     //TODO: replace with scholarship module
     private boolean requiresStatuteToReportGrantOwner(final Registration registration, final ExecutionYear executionYear) {
         return registration.getStudent().getRegistrationsSet().stream()
-                .anyMatch(r -> r != registration && RegistrationServices.getEnrolmentYears(r, false).contains(executionYear));
+                .anyMatch(r -> r != registration && RegistrationServices.getEnrolmentYears(r).contains(executionYear));
     }
 
     //TODO: replace with scholarship module
