@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.reports.registrationhistory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -260,6 +261,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.currentAverage",
                                 report.getCurrentAverage() != null ? report.getCurrentAverage().toPlainString() : null);
                         addData("RegistrationHistoryReport.enrolmentYears", report.getEnrolmentYears().toString());
+                        final BigDecimal enrolmentYearsForPrescription = report.getEnrolmentYearsForPrescription();
+                        addData("RegistrationHistoryReport.enrolmentYearsForPrescription",
+                                enrolmentYearsForPrescription == null ? "-" : enrolmentYearsForPrescription.toString());
 
                         addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
 

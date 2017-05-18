@@ -2691,3 +2691,71 @@ class tuitionpenalty.TuitionPenaltyConfiguration {
 class evaluation.CustomEvaluationConfiguration extends .org.fenixedu.academic.domain.EvaluationConfiguration {
 
 }
+
+/* Prescriptions */
+class degree.prescription.PrescriptionConfig {
+	String name;
+	BigDecimal partialRegimeBonus;
+}
+
+relation BennuPrescriptionConfig {
+
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+    
+	degree.prescription.PrescriptionConfig playsRole prescriptionConfigs {
+		multiplicity *;
+	}
+	
+}
+
+relation PrescriptionConfigDegreeCurricularPlan {
+
+	degree.prescription.PrescriptionConfig playsRole prescriptionConfigs {
+		multiplicity *;
+	}
+	
+	.org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlans {
+        multiplicity *;
+    }			
+	
+}
+
+class degree.prescription.PrescriptionBonificationStatute {
+	BigDecimal bonus;
+}
+
+relation BennuPrescriptionBonificationStatute {
+	
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+    
+	degree.prescription.PrescriptionBonificationStatute playsRole prescriptionBonificationStatutes {
+		multiplicity *;
+	}
+	
+}
+
+relation PrescriptionConfigPrescriptionBonificationStatute {
+
+	degree.prescription.PrescriptionConfig playsRole configuration {
+		multiplicity 1..1;
+	}
+	
+	degree.prescription.PrescriptionBonificationStatute playsRole bonificationStatutes {
+		multiplicity *;
+	}
+}
+
+relation PrescriptionBonificationStatuteStatuteType {
+
+	degree.prescription.PrescriptionBonificationStatute playsRole prescriptionBonificationStatutes {
+		multiplicity *;
+	}
+	
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
+		multiplicity 1..1;
+	}
+}

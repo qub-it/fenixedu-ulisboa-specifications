@@ -28,8 +28,10 @@ import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
+import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionConfig;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.joda.time.LocalDate;
 
 import com.google.common.collect.Lists;
@@ -365,8 +367,31 @@ public class RegistrationHistoryReport {
     }
 
     public Integer getEnrolmentYears() {
-        return RegistrationServices.getEnrolmentYears(registration, true).stream()
-                .filter(ey -> ey.isBeforeOrEquals(executionYear)).collect(Collectors.toSet()).size();
+        return getEnrolmentExecutionYears().size();
+    }
+
+    public BigDecimal getEnrolmentYearsForPrescription() {
+        BigDecimal result = new BigDecimal(getEnrolmentYears());
+
+        final PrescriptionConfig config = PrescriptionConfig.findBy(getDegreeCurricularPlan());
+        if (config == null) {
+            return null;
+        }
+
+        BigDecimal bonification = BigDecimal.ZERO;
+        for (final ExecutionYear executionYear : getEnrolmentExecutionYears()) {
+            bonification =
+                    bonification.add(config.getBonification(StatuteServices.findStatuteTypes(getRegistration(), executionYear),
+                            getRegistration().isPartialRegime(executionYear)));
+        }
+
+        return BigDecimal.ZERO.max(result.subtract(bonification));
+
+    }
+
+    private Set<ExecutionYear> getEnrolmentExecutionYears() {
+        return RegistrationServices.getEnrolmentYears(registration).stream().filter(ey -> ey.isBeforeOrEquals(executionYear))
+                .collect(Collectors.toSet());
     }
 
     public String getOtherConcludedRegistrationYears() {
@@ -381,7 +406,7 @@ public class RegistrationHistoryReport {
 
                     final SortedSet<ExecutionYear> executionYears =
                             Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed());
-                    executionYears.addAll(RegistrationServices.getEnrolmentYears(r, true));
+                    executionYears.addAll(RegistrationServices.getEnrolmentYearsWithDismissals(r));
 
                     if (!executionYears.isEmpty()) {
                         result.append(executionYears.first().getQualifiedName()).append("|");
