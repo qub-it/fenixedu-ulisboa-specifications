@@ -33,10 +33,16 @@ public class PrescriptionConfig extends PrescriptionConfig_Base {
         checkRules();
     }
 
-    @Atomic
-    public void edit(Collection<DegreeCurricularPlan> degreeCurricularPlans) {
-        getDegreeCurricularPlansSet().clear();
-        getDegreeCurricularPlansSet().addAll(degreeCurricularPlans);
+    @Override
+    public void removeDegreeCurricularPlans(DegreeCurricularPlan degreeCurricularPlans) {
+        super.removeDegreeCurricularPlans(degreeCurricularPlans);
+
+        checkRules();
+    }
+
+    @Override
+    public void addDegreeCurricularPlans(DegreeCurricularPlan degreeCurricularPlans) {
+        super.addDegreeCurricularPlans(degreeCurricularPlans);
 
         checkRules();
     }
