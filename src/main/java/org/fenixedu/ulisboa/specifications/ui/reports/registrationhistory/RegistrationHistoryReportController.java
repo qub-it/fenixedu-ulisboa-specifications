@@ -273,8 +273,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
                         addData("RegistrationHistoryReport.secondaryBranch", report.getSecondaryBranchName());
-                        addData("RegistrationHistoryReport.statutes", report.getStatuteTypes().stream()
-                                .map(s -> s.getName().getContent()).collect(Collectors.joining(", ")));
+                        addData("RegistrationHistoryReport.statutes", report.getStudentStatutesNames());
                         addData("RegistrationHistoryReport.regimeType", report.getRegimeType().getLocalizedName());
                         addData("RegistrationHistoryReport.enrolmentsWithoutShifts",
                                 booleanString(report.hasEnrolmentsWithoutShifts()));
@@ -806,9 +805,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final Collection<StudentStatute> studentStatutes = Sets.newHashSet();
         for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
             studentStatutes.addAll(executionSemester.getBeginningStudentStatutesSet().stream()
-                    .filter(x -> bean.getStatuteTypes().contains(x.getType())).collect(Collectors.toSet()));
+                    .filter(x -> bean.getStatuteTypes().isEmpty() || bean.getStatuteTypes().contains(x.getType()))
+                    .collect(Collectors.toSet()));
             studentStatutes.addAll(executionSemester.getEndingStudentStatutesSet().stream()
-                    .filter(x -> bean.getStatuteTypes().contains(x.getType())).collect(Collectors.toSet()));
+                    .filter(x -> bean.getStatuteTypes().isEmpty() || bean.getStatuteTypes().contains(x.getType()))
+                    .collect(Collectors.toSet()));
         }
 
         final Set<RegistrationHistoryReport> registrations = Sets.newHashSet();
@@ -840,8 +841,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
                         addData("Degree.presentationName", registration.getDegree().getPresentationName());
-                        addData("RegistrationHistoryReport.statutes", entry.getStatuteTypes().stream()
-                                .map(s -> s.getName().getContent()).collect(Collectors.joining(", ")));
+                        addData("RegistrationHistoryReport.statutes", entry.getStudentStatutesNamesAndDates());
                     }
 
                     private void addData(String key, Object data) {
@@ -858,7 +858,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         }
 
         return result.toByteArray();
-
     }
 
     @RequestMapping(value = "/exportbluerecord", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")

@@ -12,6 +12,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -19,8 +20,8 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
-import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.StudentDataShareAuthorization;
+import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
@@ -33,6 +34,7 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -161,14 +163,51 @@ public class RegistrationHistoryReport {
                 .collect(Collectors.joining(","));
     }
 
-    public Collection<StatuteType> getStatuteTypes() {
-        final Set<StatuteType> result = Sets.newHashSet();
+    public Collection<StudentStatute> getStudentStatutes() {
+        final Set<StudentStatute> result = Sets.newHashSet();
+
         result.addAll(registration.getStudentStatutesSet().stream().filter(s -> s.isValidOnAnyExecutionPeriodFor(executionYear))
-                .map(s -> s.getType()).collect(Collectors.toSet()));
+                .collect(Collectors.toSet()));
         result.addAll(registration.getStudent().getStudentStatutesSet().stream()
-                .filter(s -> s.isValidOnAnyExecutionPeriodFor(executionYear)).map(s -> s.getType()).collect(Collectors.toSet()));
+                .filter(s -> s.isValidOnAnyExecutionPeriodFor(executionYear)).collect(Collectors.toSet()));
 
         return result;
+    }
+
+    public String getStudentStatutesNames() {
+        return getStudentStatutes().stream().map(s -> s.getType().getName().getContent()).collect(Collectors.joining(", "));
+    }
+
+    public String getStudentStatutesNamesAndDates() {
+        return getStudentStatutes().stream().map(s -> {
+
+            final String name = s.getType().getName().getContent();
+
+            String dates = "";
+            final ExecutionSemester beginSem = s.getBeginExecutionPeriod();
+            if (beginSem != null) {
+
+                final ExecutionSemester endSem = s.getEndExecutionPeriod();
+                if (endSem == beginSem) {
+                    dates = "S" + beginSem.getSemester();
+                }
+
+            } else {
+
+                final LocalDate begin = s.getBeginDate();
+                if (begin != null) {
+                    dates = begin.toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    final LocalDate end = s.getEndDate();
+                    if (end != null) {
+                        dates = dates + "<>" + end.toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    }
+                }
+            }
+
+            return name + (dates.isEmpty() ? "" : " [" + dates + "]");
+
+        }).collect(Collectors.joining(", "));
     }
 
     public boolean hasEnrolmentsWithoutShifts() {
