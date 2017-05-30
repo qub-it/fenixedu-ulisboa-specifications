@@ -378,8 +378,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ServletContext servletContext = event.getServletContext();
         PortalExceptionHandler exceptionHandler =
                 CoreConfiguration.getConfiguration().developmentMode() == Boolean.TRUE ? new PortalDevModeExceptionHandler(
-                        servletContext) : new PortalExceptionHandler(servletContext);
-        ExceptionHandlerFilter.setExceptionHandler(new FenixEduUlisboaExceptionHandler(exceptionHandler));
+                        servletContext) : new FenixEduUlisboaExceptionHandler(servletContext);
+        ExceptionHandlerFilter.setExceptionHandler(exceptionHandler);
     }
 
 }

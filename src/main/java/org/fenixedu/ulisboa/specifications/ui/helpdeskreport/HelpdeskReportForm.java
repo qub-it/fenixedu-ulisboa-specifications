@@ -31,6 +31,52 @@ public class HelpdeskReportForm implements Serializable {
     private String email;
     private String priority;
 
+    private String exceptionFullQualifiedName;
+    private String offendingClass;
+    private String offendingMethod;
+    private Integer offendingLine;
+    private String exceptionMessage;
+
+    public String getExceptionFullQualifiedName() {
+        return exceptionFullQualifiedName;
+    }
+
+    public void setExceptionFullQualifiedName(String exceptionFullQualifiedName) {
+        this.exceptionFullQualifiedName = exceptionFullQualifiedName;
+    }
+
+    public String getOffendingClass() {
+        return offendingClass;
+    }
+
+    public void setOffendingClass(String offendingClass) {
+        this.offendingClass = offendingClass;
+    }
+
+    public String getOffendingMethod() {
+        return offendingMethod;
+    }
+
+    public void setOffendingMethod(String offendingMethod) {
+        this.offendingMethod = offendingMethod;
+    }
+
+    public Integer getOffendingLine() {
+        return offendingLine;
+    }
+
+    public void setOffendingLine(Integer offendingLine) {
+        this.offendingLine = offendingLine;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
+
     public String getSubject() {
         return subject;
     }
