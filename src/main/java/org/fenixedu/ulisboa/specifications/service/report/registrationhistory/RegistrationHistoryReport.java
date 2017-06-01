@@ -410,15 +410,18 @@ public class RegistrationHistoryReport {
     }
 
     public BigDecimal getEnrolmentYearsForPrescription() {
-        BigDecimal result = new BigDecimal(getEnrolmentYears());
 
         final PrescriptionConfig config = PrescriptionConfig.findBy(getDegreeCurricularPlan());
         if (config == null) {
             return null;
         }
 
+        //TODO: move logic to PrescriptionConfig?
+
+        final Collection<ExecutionYear> executionYears = config.filterExecutionYears(registration, getEnrolmentExecutionYears());
+        BigDecimal result = new BigDecimal(executionYears.size());
         BigDecimal bonification = BigDecimal.ZERO;
-        for (final ExecutionYear executionYear : getEnrolmentExecutionYears()) {
+        for (final ExecutionYear executionYear : executionYears) {
             bonification =
                     bonification.add(config.getBonification(StatuteServices.findStatuteTypes(getRegistration(), executionYear),
                             getRegistration().isPartialRegime(executionYear)));
@@ -445,7 +448,7 @@ public class RegistrationHistoryReport {
 
                     final SortedSet<ExecutionYear> executionYears =
                             Sets.newTreeSet(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed());
-                    executionYears.addAll(RegistrationServices.getEnrolmentYearsWithDismissals(r));
+                    executionYears.addAll(RegistrationServices.getEnrolmentYears(r));
 
                     if (!executionYears.isEmpty()) {
                         result.append(executionYears.first().getQualifiedName()).append("|");

@@ -2696,6 +2696,7 @@ class evaluation.CustomEvaluationConfiguration extends .org.fenixedu.academic.do
 class degree.prescription.PrescriptionConfig {
 	String name;
 	BigDecimal partialRegimeBonus;
+	boolean reingressionRestartsYearCount;
 }
 
 relation BennuPrescriptionConfig {
@@ -2720,6 +2721,13 @@ relation PrescriptionConfigDegreeCurricularPlan {
         multiplicity *;
     }			
 	
+}
+
+relation PrescriptionConfigBeginExecutionYear {
+	.org.fenixedu.academic.domain.ExecutionYear playsRole beginExecutionYear;
+	degree.prescription.PrescriptionConfig playsRole prescriptionConfigsAsBeginExecutionYear {
+		multiplicity *;
+	}
 }
 
 class degree.prescription.PrescriptionBonificationStatute {
@@ -2759,3 +2767,5 @@ relation PrescriptionBonificationStatuteStatuteType {
 		multiplicity 1..1;
 	}
 }
+
+

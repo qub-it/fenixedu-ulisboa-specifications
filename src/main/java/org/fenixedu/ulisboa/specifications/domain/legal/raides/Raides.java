@@ -58,6 +58,7 @@ import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReport;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportRequest;
 import org.fenixedu.ulisboa.specifications.domain.legal.report.LegalReportResultFile;
 import org.fenixedu.ulisboa.specifications.domain.legal.services.reportLog.transform.xls.XlsExporterLog;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -1185,9 +1186,7 @@ public class Raides {
 
         final Set<ExecutionYear> result = Sets.newHashSet();
         for (final Registration it : registrations) {
-            result.addAll(it.getEnrolmentsExecutionYears());
-            result.addAll(it.getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getEnrolmentDate() != null)
-                    .map(rd -> rd.getExecutionYear()).collect(Collectors.toSet()));
+            result.addAll(RegistrationServices.getEnrolmentYears(it));
         }
 
         if (untilExecutionYear == null) {

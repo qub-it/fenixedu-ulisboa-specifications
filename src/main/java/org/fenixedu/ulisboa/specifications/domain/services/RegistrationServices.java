@@ -520,33 +520,14 @@ public class RegistrationServices {
     }
 
     public static Collection<ExecutionYear> getEnrolmentYears(Registration registration) {
-        return getEnrolmentYears(registration, false);
+        return registration.getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getEnrolmentDate() != null)
+                .map(rd -> rd.getExecutionYear()).collect(Collectors.toSet());
+
     }
 
-    public static Collection<ExecutionYear> getEnrolmentYearsWithDismissals(Registration registration) {
-        return getEnrolmentYears(registration, true);
-    }
-
-    private static Collection<ExecutionYear> getEnrolmentYears(Registration registration, boolean includeDismissals) {
-
-        final Set<ExecutionYear> result = Sets.newHashSet();
-
-        for (final ExecutionYear executionYear : registration.getSortedEnrolmentsExecutionYears()) {
-            if (registration.getEnrolments(executionYear).stream().anyMatch(x -> !x.isAnnulled())) {
-                result.add(executionYear);
-            }
-        }
-
-        if (includeDismissals) {
-
-            for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
-                for (final Credits credits : studentCurricularPlan.getCreditsSet()) {
-                    result.add(credits.getExecutionPeriod().getExecutionYear());
-                }
-            }
-        }
-
-        return result;
+    public static ExecutionYear getLastReingressionYear(final Registration registration) {
+        return registration.getReingressions().stream().map(ri -> ri.getExecutionYear())
+                .sorted(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed()).findFirst().orElse(null);
     }
 
 }

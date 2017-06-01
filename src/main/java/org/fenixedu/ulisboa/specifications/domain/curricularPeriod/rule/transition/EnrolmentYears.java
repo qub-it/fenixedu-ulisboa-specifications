@@ -44,8 +44,8 @@ public class EnrolmentYears extends EnrolmentYears_Base {
                 curriculum.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : curriculum.getExecutionYear();
 
         final Collection<ExecutionYear> enrolmentYears =
-                RegistrationServices.getEnrolmentYearsWithDismissals(curriculum.getStudentCurricularPlan().getRegistration())
-                        .stream().filter(x -> x.isBefore(executionYear)).collect(Collectors.toSet());
+                RegistrationServices.getEnrolmentYears(curriculum.getStudentCurricularPlan().getRegistration()).stream()
+                        .filter(x -> x.isBefore(executionYear)).collect(Collectors.toSet());
 
         return enrolmentYears.size() >= getValue().intValue() ? createTrue() : createFalseLabelled(getValue());
 
