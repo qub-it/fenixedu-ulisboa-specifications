@@ -229,7 +229,7 @@ ${portal.angularToolkit()}
                };
                $scope.transformDataToSubmit = function () {
                    // ULisboaServiceRequestBean is expecting a DateTime 
-                   if($scope.object.requestDate.match("[0-9]{4}-[0-9]{2}-[0-9]{2}") !== null) {
+                   if($scope.object.requestDate.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}$") !== null) {
                        $scope.object.requestDate = $scope.object.requestDate + "T00:00:00.000Z";
                    }
                    if($scope.object.requestDate.length === 0) {
@@ -240,7 +240,7 @@ ${portal.angularToolkit()}
                        element.dataSource= undefined;
                        // ServiceRequestPropertyBean is expecting a DateTime
                        if (element.uiComponentType == '<%= UIComponentType.DATE %>') {
-                           if(element.dateTimeValue.match("[0-9]{4}-[0-9]{2}-[0-9]{2}") !== null) {
+                           if(element.dateTimeValue.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}$") !== null) {
                                element.dateTimeValue = element.dateTimeValue + "T00:00:00.000Z";
                            }
                            if(element.dateTimeValue.length === 0) {

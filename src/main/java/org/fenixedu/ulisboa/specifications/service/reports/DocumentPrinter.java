@@ -59,6 +59,7 @@ import org.fenixedu.qubdocs.domain.DocumentPrinterConfiguration;
 import org.fenixedu.qubdocs.domain.InstitutionReportConfiguration;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.qubdocs.preprocessors.QubListPreProcessor;
+import org.fenixedu.qubdocs.util.reports.helpers.DateHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.LanguageHelper;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
@@ -110,6 +111,7 @@ public class DocumentPrinter {
 
         //Override the lang helper in order to give the correct locale
         generator.registerHelper("lang", new LanguageHelper(serviceRequest.getLanguage()));
+        generator.registerHelper("dates", new DateHelper(serviceRequest.getLanguage()));
 
         generator.registerPreProcessors(new QubListPreProcessor());
         generator.registerDataProvider(qubListDataProvider);
@@ -121,7 +123,7 @@ public class DocumentPrinter {
                     serviceRequest.hasProperty("showLogo") ? serviceRequest.findProperty("showLogo").getValue() : false;
             generator.registerDataProvider(new InstitutionConfigurationReportDataProvider(reportConfiguration.getName(),
                     reportConfiguration.getShortName(), reportConfiguration.getAddress(), reportConfiguration.getSite(),
-                    reportConfiguration.getInstitutionLogo().getContent(), showLogo));
+                    reportConfiguration.getInstitutionLogo().getContent(), showLogo, serviceRequest.getLanguage()));
         }
 
         generator.registerDataProvider(new RegistrationDataProvider(registration, serviceRequest.getLanguage()));

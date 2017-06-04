@@ -8,28 +8,63 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ConclusionInformationDataProvider;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
-import org.fenixedu.ulisboa.specifications.domain.ects.GradingTable.GeneratorWorker;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 
 import pt.ist.fenixframework.CallableWithoutException;
 
 public class DegreeGradingTable extends DegreeGradingTable_Base {
+
+    //TODO: Remove this workaround.
+    // When generating tables with more than one curricular plan of the same
+    // degree, it will generate more than one table for the same degree.
+    public static class DataTuple {
+        private Degree degree;
+        private ExecutionYear executionYear;
+        private ProgramConclusion programConclusion;
+
+        public DataTuple(final Degree degree, final ExecutionYear executionYear, final ProgramConclusion programConclusion) {
+            this.setDegree(degree);
+            this.setExecutionYear(executionYear);
+            this.setProgramConclusion(programConclusion);
+        }
+
+        public Degree getDegree() {
+            return degree;
+        }
+
+        public void setDegree(final Degree degree) {
+            this.degree = degree;
+        }
+
+        public ExecutionYear getExecutionYear() {
+            return executionYear;
+        }
+
+        public void setExecutionYear(final ExecutionYear executionYear) {
+            this.executionYear = executionYear;
+        }
+
+        public ProgramConclusion getProgramConclusion() {
+            return programConclusion;
+        }
+
+        public void setProgramConclusion(final ProgramConclusion programConclusion) {
+            this.programConclusion = programConclusion;
+        }
+
+    }
 
     public DegreeGradingTable() {
         super();
@@ -52,7 +87,7 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
         return find(ey, false);
     }
 
-    public static Set<DegreeGradingTable> find(final ExecutionYear ey, boolean includeLegacy) {
+    public static Set<DegreeGradingTable> find(final ExecutionYear ey, final boolean includeLegacy) {
         return ey.getGradingTablesSet().stream().filter(DegreeGradingTable.class::isInstance).map(DegreeGradingTable.class::cast)
                 .filter(dgt -> (includeLegacy || dgt.getRegistration() == null)).collect(Collectors.toSet());
     }
@@ -68,12 +103,11 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
                 .filter(dgt -> dgt.getProgramConclusion() == pc).findFirst().orElse(find(ey, pc, reg.getDegree()));
     }
 
-    public static String getEctsGrade(RegistrationConclusionBean registrationConclusionBean) {
+    public static String getEctsGrade(final RegistrationConclusionBean registrationConclusionBean) {
         if (registrationConclusionBean != null && registrationConclusionBean.getFinalGrade() != null
                 && registrationConclusionBean.getFinalGrade().getValue() != null) {
-            DegreeGradingTable table =
-                    DegreeGradingTable.find(registrationConclusionBean.getConclusionYear(),
-                            registrationConclusionBean.getProgramConclusion(), registrationConclusionBean.getRegistration());
+            DegreeGradingTable table = DegreeGradingTable.find(registrationConclusionBean.getConclusionYear(),
+                    registrationConclusionBean.getProgramConclusion(), registrationConclusionBean.getRegistration());
             if (table != null) {
                 return table.getEctsGrade(registrationConclusionBean.getFinalGrade().getValue());
             }
@@ -82,20 +116,32 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     public static void registerProvider() {
-        ConclusionInformationDataProvider.setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable
-                .getEctsGrade(conclusion));
+        ConclusionInformationDataProvider
+                .setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
     }
 
     public static Set<DegreeGradingTable> generate(final ExecutionYear executionYear) {
-        Set<DegreeGradingTable> allTables = new HashSet<DegreeGradingTable>();
+        Set<DegreeGradingTable> allTables = new HashSet<>();
+        Set<DataTuple> allTablesMetaData = new HashSet<>();
         for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
             Degree degree = dcp.getDegree();
             if (!GradingTableSettings.getApplicableDegreeTypes().contains(degree.getDegreeType())) {
                 continue;
             }
-            for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp).collect(Collectors.toSet())) {
+            programConclusionLoop: for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp)
+                    .collect(Collectors.toSet())) {
                 DegreeGradingTable table = find(executionYear, programConclusion, degree);
                 if (table == null) {
+                    for (DataTuple dataTuple : allTablesMetaData) {
+                        if (dataTuple.getExecutionYear() == executionYear && dataTuple.getProgramConclusion() == programConclusion
+                                && dataTuple.getDegree() == degree) {
+                            //This table will be created by a new thread at the end of this atomic transaction
+                            continue programConclusionLoop;
+                        }
+                    }
+                }
+                if (table == null) {
+                    allTablesMetaData.add(new DataTuple(degree, executionYear, programConclusion));
                     CallableWithoutException<DegreeGradingTable> workerLogic =
                             new CallableWithoutException<DegreeGradingTable>() {
                                 @Override
@@ -108,7 +154,7 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
                                     return table;
                                 }
                             };
-                    GeneratorWorker<DegreeGradingTable> worker = new GeneratorWorker<DegreeGradingTable>(workerLogic);
+                    GeneratorWorker<DegreeGradingTable> worker = new GeneratorWorker<>(workerLogic);
                     worker.start();
                     try {
                         worker.join();
@@ -138,7 +184,7 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     private List<BigDecimal> harvestSample() {
-        List<BigDecimal> sample = new ArrayList<BigDecimal>();
+        List<BigDecimal> sample = new ArrayList<>();
         int coveredYears = 0;
         boolean sampleOK = false;
         final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap = collectConclusions();
@@ -147,9 +193,8 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
 
             if (conclusionsMap.get(year) != null) {
                 for (RegistrationConclusionBean bean : conclusionsMap.get(year)) {
-                    Integer finalAverage =
-                            bean.getFinalGrade().getNumericValue() != null ? bean.getFinalGrade().getNumericValue()
-                                    .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
+                    Integer finalAverage = bean.getFinalGrade().getNumericValue() != null ? bean.getFinalGrade().getNumericValue()
+                            .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
                     if (finalAverage == 0) {
                         continue;
                     }
@@ -171,8 +216,7 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     }
 
     private Map<ExecutionYear, Set<RegistrationConclusionBean>> collectConclusions() {
-        final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap =
-                new LinkedHashMap<ExecutionYear, Set<RegistrationConclusionBean>>();
+        final Map<ExecutionYear, Set<RegistrationConclusionBean>> conclusionsMap = new LinkedHashMap<>();
 
         for (final Registration registration : getDegree().getRegistrationsSet()) {
             if (registration.getStudentCurricularPlansSet().isEmpty()) {

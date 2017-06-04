@@ -82,8 +82,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         return (ULisboaServiceRequestBean) model.asMap().get("ulisboaServiceRequestBean");
     }
 
-    private void setULisboaServiceRequestBean(final ULisboaServiceRequestBean bean, final Model model) {
-        bean.updateModelLists();
+    private void setULisboaServiceRequestBean(final ULisboaServiceRequestBean bean, final Model model,
+            final boolean forceUpdate) {
+        bean.updateModelLists(forceUpdate);
         model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
         model.addAttribute("ulisboaServiceRequestBean", bean);
     }
@@ -167,7 +168,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     @RequestMapping(value = _CREATE_URI + "{oid}", method = RequestMethod.GET)
     public String createAcademicRequest(@PathVariable(value = "oid") final Registration registration, final Model model) {
         if (getULisboaServiceRequestBean(model) == null) {
-            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration, false), model);
+            setULisboaServiceRequestBean(new ULisboaServiceRequestBean(registration, false), model, false);
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
@@ -176,7 +177,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public String createAcademicRequest(@PathVariable(value = "oid") final Registration registration,
             @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model,
             final RedirectAttributes redirectAttributes) {
-        setULisboaServiceRequestBean(bean, model);
+        setULisboaServiceRequestBean(bean, model, false);
 
         try {
             ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
@@ -197,7 +198,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     @RequestMapping(value = _CREATE_POSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public @ResponseBody String createpostback(
             @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model) {
-        setULisboaServiceRequestBean(bean, model);
+        setULisboaServiceRequestBean(bean, model, false);
         return getBeanJson(bean);
     }
 
@@ -317,7 +318,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public String updateAcademicRequest(@PathVariable(value = "oid") final ULisboaServiceRequest serviceRequest,
             @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model,
             final RedirectAttributes redirectAttributes) {
-        setULisboaServiceRequestBean(bean, model);
+        setULisboaServiceRequestBean(bean, model, true);
         model.addAttribute("serviceRequest", serviceRequest);
 
         try {

@@ -46,7 +46,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     }
 
     private void setULisboaServiceRequestBean(final ULisboaServiceRequestBean bean, final Model model) {
-        bean.updateModelLists();
+        bean.updateModelLists(false);
         model.addAttribute("ulisboaServiceRequestBeanJson", getBeanJson(bean));
         model.addAttribute("ulisboaServiceRequestBean", bean);
     }

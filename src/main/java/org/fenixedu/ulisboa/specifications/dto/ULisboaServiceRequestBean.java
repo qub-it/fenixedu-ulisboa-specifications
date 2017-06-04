@@ -187,11 +187,11 @@ public class ULisboaServiceRequestBean implements IBean {
         return oldSlotNames.size() == newSlotNames.size() && Sets.difference(oldSlotNames, newSlotNames).isEmpty();
     }
 
-    public void updateModelLists() {
+    public void updateModelLists(final boolean forceUpdate) {
         // update service request type
         if (serviceRequestType == null) {
             serviceRequestPropertyBeans = new ArrayList<>();
-        } else if (!isSameServiceRequestType()) {
+        } else if (!forceUpdate && !isSameServiceRequestType()) {
             serviceRequestPropertyBeans = new ArrayList<>();
             serviceRequestType.getServiceRequestSlotEntriesSet().stream().filter(ServiceRequestSlotEntry.PRINT_PROPERTY.negate())
                     .sorted(ServiceRequestSlotEntry.COMPARE_BY_ORDER_NUMBER)
