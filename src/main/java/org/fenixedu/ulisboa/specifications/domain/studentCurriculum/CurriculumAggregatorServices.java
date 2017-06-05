@@ -25,6 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -183,12 +185,11 @@ abstract public class CurriculumAggregatorServices {
                     Context result = null;
 
                     if (input != null) {
-                        final List<Context> parentContexts =
-                                input.getParentContextsSet().stream().filter(i -> semester == null || i.isValid(semester))
-                                        .sorted((x,
-                                                y) -> -x.getBeginExecutionPeriod()
-                                                        .compareExecutionInterval(y.getBeginExecutionPeriod()))
-                                        .collect(Collectors.toList());
+                        final List<Context> parentContexts = input.getParentContextsSet().stream()
+                                .filter(i -> semester == null || i.isValid(semester))
+                                .sorted((x,
+                                        y) -> -x.getBeginExecutionPeriod().compareExecutionInterval(y.getBeginExecutionPeriod()))
+                                .collect(Collectors.toList());
                         result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
                         if (parentContexts.size() != 1 && result != null) {
                             logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
@@ -207,6 +208,26 @@ abstract public class CurriculumAggregatorServices {
             logger.debug(String.format("Unable to get Context [%s %s %s]", new DateTime(), key, t.getLocalizedMessage()));
             return null;
         }
+    }
+
+    static public boolean hasAnyCurriculumAggregatorEntryAtAnyTimeInAnyPlan(final CurriculumLine input) {
+        if (input != null) {
+            final CurricularCourse curricularCourse = (CurricularCourse) input.getDegreeModule();
+            final CompetenceCourse competenceCourse = curricularCourse.getCompetenceCourse();
+            for (CurricularCourse iter : competenceCourse.getAssociatedCurricularCoursesSet()) {
+                Context context = getContext(iter, (ExecutionSemester) null);
+                if (context.getCurriculumAggregatorEntry() != null) {
+                    return true;
+                }
+            }
+
+            // HACK that will remain here, unless we find out that we are filtering something we shouldn't 
+            if (input.getEctsCreditsForCurriculum().compareTo(BigDecimal.ZERO) == 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static private Set<Context> collectEnrolmentMasterContexts(final Context context) {

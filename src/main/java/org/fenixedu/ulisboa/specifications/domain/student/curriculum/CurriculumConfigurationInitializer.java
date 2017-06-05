@@ -33,7 +33,6 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -319,8 +318,7 @@ abstract public class CurriculumConfigurationInitializer {
                     return false;
                 }
 
-                final Context context = CurriculumAggregatorServices.getContext(line);
-                if (context != null && context.getCurriculumAggregatorEntry() != null) {
+                if (CurriculumAggregatorServices.hasAnyCurriculumAggregatorEntryAtAnyTimeInAnyPlan(line)) {
                     return false;
                 }
             }
