@@ -692,6 +692,39 @@ class curricularRules.AnyCurricularCourseExceptionsConfiguration {
 
 // ==================== END: CurricularRule Executor Logics ====================
 
+// ==================== BEGIN: Credits Reason Type ====================
+
+class studentCurriculum.CreditsReasonType {
+	MultiLanguageString reason (REQUIRED);
+	boolean active;
+	boolean averageEntry;
+	boolean infoHidden;
+	boolean infoExplained;
+	boolean infoExplainedWithCountry;
+	boolean infoExplainedWithInstitution;
+	boolean infoExplainedWithEcts;
+}
+
+relation CreditsReasonTypeDomainObject {
+	studentCurriculum.CreditsReasonType playsRole creditsReasonTypes {
+		multiplicity *;
+	}
+	
+	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject {
+		multiplicity 1..1;
+	}
+}
+
+relation CreditsReasonTypeCredits {
+	studentCurriculum.CreditsReasonType playsRole reason;
+	
+	.org.fenixedu.academic.domain.studentCurriculum.Credits playsRole credits {
+		multiplicity *;
+	}
+}
+
+// ==================== END: Credits Reason Type ====================
+
 // ==================== BEGIN: Evaluations ====================
 
 class evaluation.season.EvaluationSeasonPeriod {
