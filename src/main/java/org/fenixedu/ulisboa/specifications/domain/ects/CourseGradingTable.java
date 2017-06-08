@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -62,8 +63,15 @@ public class CourseGradingTable extends CourseGradingTable_Base {
             return line.getCourseGradingTable();
         }
 
-        ExecutionYear year = line instanceof Enrolment ? ((Enrolment) line).getFinalEnrolmentEvaluation().getExecutionPeriod()
-                .getExecutionYear() : line.getExecutionYear();
+        ExecutionYear year = line.getExecutionYear();
+        if (line instanceof Enrolment) {
+            final EnrolmentEvaluation evaluation = ((Enrolment) line).getFinalEnrolmentEvaluation();
+
+            if (evaluation != null) {
+                year = evaluation.getExecutionPeriod().getExecutionYear();
+            }
+        }
+
         return find(year, line.getCurricularCourse().getCompetenceCourse());
     }
 
