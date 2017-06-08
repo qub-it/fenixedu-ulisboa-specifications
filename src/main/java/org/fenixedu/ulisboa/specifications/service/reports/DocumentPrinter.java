@@ -151,7 +151,7 @@ public class DocumentPrinter {
                 || serviceRequest.hasExtracurricularEnrolmentsByYear()) {
             generator.registerDataProvider(new EnrolmentsDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
                     serviceRequest.getStandaloneEnrolmentsByYear(), serviceRequest.getExtracurricularEnrolmentsByYear(),
-                    executionYear, serviceRequest.getLanguage()));
+                    executionYear, serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
         }
 
         generator.registerDataProvider(new DocumentSignerDataProvider(serviceRequest));
@@ -159,16 +159,17 @@ public class DocumentPrinter {
         generator.registerDataProvider(new ConclusionInformationDataProvider(registration, programConclusion));
 
         generator.registerDataProvider(new ApprovedCurriculumEntriesDataProvider(registration,
-                serviceRequest.getApprovedEnrolments(), serviceRequest.getLanguage()));
+                serviceRequest.getApprovedEnrolments(), serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
 
-        generator.registerDataProvider(new StandaloneCurriculumEntriesDataProvider(registration,
-                serviceRequest.getApprovedStandaloneCurriculum(), serviceRequest.getLanguage()));
+        generator.registerDataProvider(
+                new StandaloneCurriculumEntriesDataProvider(registration, serviceRequest.getApprovedStandaloneCurriculum(),
+                        serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
 
         generator.registerDataProvider(new ExtraCurriculumEntriesDataProvider(registration,
-                serviceRequest.getApprovedExtraCurriculum(), serviceRequest.getLanguage()));
+                serviceRequest.getApprovedExtraCurriculum(), serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
 
         generator.registerDataProvider(new ConcludedCurriculumEntriesDataProvider(registration, serviceRequest.getCurriculum(),
-                serviceRequest.getLanguage()));
+                serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
 
 //        generator.registerDataProvider(new CurriculumEntriesDataProvider(registration, programConclusion,
 //                new CurriculumEntryRemarksDataProvider(registration), serviceRequest.getLanguage()));
