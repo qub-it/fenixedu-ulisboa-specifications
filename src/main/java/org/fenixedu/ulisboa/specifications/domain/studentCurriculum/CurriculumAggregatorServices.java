@@ -211,10 +211,10 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public boolean hasAnyCurriculumAggregatorEntryAtAnyTimeInAnyPlan(final CurriculumLine input) {
-        if (input != null) {
+        if (input != null && input.getDegreeModule() != null) {
             final CurricularCourse curricularCourse = (CurricularCourse) input.getDegreeModule();
             final CompetenceCourse competenceCourse = curricularCourse.getCompetenceCourse();
-            for (CurricularCourse iter : competenceCourse.getAssociatedCurricularCoursesSet()) {
+            for (final CurricularCourse iter : competenceCourse.getAssociatedCurricularCoursesSet()) {
                 Context context = getContext(iter, (ExecutionSemester) null);
                 if (context.getCurriculumAggregatorEntry() != null) {
                     return true;
