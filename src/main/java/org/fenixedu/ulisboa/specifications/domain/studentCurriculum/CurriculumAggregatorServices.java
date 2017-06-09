@@ -211,17 +211,25 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public boolean hasAnyCurriculumAggregatorEntryAtAnyTimeInAnyPlan(final CurriculumLine input) {
-        if (input != null && input.getDegreeModule() != null) {
-            final CurricularCourse curricularCourse = (CurricularCourse) input.getDegreeModule();
-            final CompetenceCourse competenceCourse = curricularCourse.getCompetenceCourse();
-            for (final CurricularCourse iter : competenceCourse.getAssociatedCurricularCoursesSet()) {
-                Context context = getContext(iter, (ExecutionSemester) null);
-                if (context.getCurriculumAggregatorEntry() != null) {
-                    return true;
+        if (input != null && isAggregationsActive(null)) {
+
+            // first try to inspect existing configurations
+            if (input.getDegreeModule() != null && input.getDegreeModule().isLeaf()) {
+                final CurricularCourse curricular = (CurricularCourse) input.getDegreeModule();
+                
+                final CompetenceCourse competence = curricular.getCompetenceCourse();
+                if (competence != null) {
+
+                    for (final CurricularCourse iter : competence.getAssociatedCurricularCoursesSet()) {
+                        final Context context = getContext(iter, (ExecutionSemester) null);
+                        if (context != null && context.getCurriculumAggregatorEntry() != null) {
+                            return true;
+                        }
+                    }
                 }
             }
 
-            // HACK that will remain here, unless we find out that we are filtering something we shouldn't 
+            // fallback HACK that will remain here forever, unless we find that we are taking out something we shouldn't 
             if (input.getEctsCreditsForCurriculum().compareTo(BigDecimal.ZERO) == 0) {
                 return true;
             }
