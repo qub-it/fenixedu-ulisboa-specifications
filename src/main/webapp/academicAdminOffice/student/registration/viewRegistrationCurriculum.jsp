@@ -135,7 +135,18 @@
 			<th><bean:message key="label.numberAprovedCurricularCourses" bundle="ACADEMIC_OFFICE_RESOURCES"/></th>
 			<th><bean:message key="label.total.ects.credits" bundle="ACADEMIC_OFFICE_RESOURCES"/></th>
 			<th><bean:message key="average" bundle="STUDENT_RESOURCES"/></th>
-			<th><bean:message key="label.curricular.year" bundle="STUDENT_RESOURCES"/></th>
+			<logic:notEmpty name="executionYear">
+				<th><bean:message key="label.curricular.year" bundle="STUDENT_RESOURCES"/></th>
+			</logic:notEmpty>
+			<logic:empty name="executionYear">
+	            <logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="false">
+		            <th><bean:message key="label.curricular.year" bundle="STUDENT_RESOURCES"/></th>
+	            </logic:equal>
+	            <logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="true">
+		            <th><bean:message key="label.conclusionDate" bundle="ACADEMIC_OFFICE_RESOURCES"/></th>
+		            <th><bean:message key="label.conclusionYear" bundle="ACADEMIC_OFFICE_RESOURCES"/></th>
+	            </logic:equal>
+			</logic:empty>
 		</tr>
 		<tr>
 			<bean:size id="curricularEntriesCount" name="curriculum" property="curriculumEntries"/>
@@ -152,7 +163,8 @@
 				</logic:equal>
 				<logic:equal name="registrationCurriculumBean" property="conclusionProcessed" value="true">
 					<td><bean:write name="registrationCurriculumBean" property="finalGrade.value"/></td>
-					<td>-</td>
+	                <td><bean:write name="registrationCurriculumBean" property="conclusionDate"/></td>
+	                <td><bean:write name="registrationCurriculumBean" property="conclusionYear.qualifiedName"/></td>
 				</logic:equal>			
 			</logic:empty>
 		</tr>
