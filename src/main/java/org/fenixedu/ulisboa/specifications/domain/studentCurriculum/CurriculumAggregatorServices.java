@@ -78,7 +78,7 @@ abstract public class CurriculumAggregatorServices {
 
     static public boolean isAggregationsActive(final ExecutionYear year) {
         return !ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().isEmpty()
-                && getCurriculumAggregatorFirstExecutionYear().isBeforeOrEquals(year);
+                && (year == null || getCurriculumAggregatorFirstExecutionYear().isBeforeOrEquals(year));
     }
 
     /**
@@ -216,7 +216,7 @@ abstract public class CurriculumAggregatorServices {
             // first try to inspect existing configurations
             if (input.getDegreeModule() != null && input.getDegreeModule().isLeaf()) {
                 final CurricularCourse curricular = (CurricularCourse) input.getDegreeModule();
-                
+
                 final CompetenceCourse competence = curricular.getCompetenceCourse();
                 if (competence != null) {
 
