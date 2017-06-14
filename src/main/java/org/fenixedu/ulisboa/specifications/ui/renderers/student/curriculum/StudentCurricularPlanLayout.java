@@ -46,6 +46,7 @@ import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.Evaluation;
+import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -901,7 +902,12 @@ public class StudentCurricularPlanLayout extends Layout {
 
     // qubExtension
     static private HtmlTableCell generateExternalId(final HtmlTableRow row, final DomainObject domainObject) {
-        HtmlTableCell result = generateCellWithText(row, domainObject == null ? "" : domainObject.getExternalId(), "");
+        return generateExternalId(row, domainObject == null ? "" : domainObject.getExternalId());
+    }
+
+    // qubExtension
+    static private HtmlTableCell generateExternalId(final HtmlTableRow row, final String text) {
+        HtmlTableCell result = generateCellWithText(row, text, "");
         result.setStyle("display: none");
         return result;
     }
@@ -1008,10 +1014,15 @@ public class StudentCurricularPlanLayout extends Layout {
 
         final HtmlTableRow row = mainTable.createRow();
         addTabsToRow(row, level);
-        generateExternalId(row, evaluation);
+        final EvaluationSeason season = evaluation.getEvaluationSeason();
+        final String others = evaluation.getEnrolment().getEvaluationsSet().stream()
+                .filter(i -> i != evaluation && i.getEvaluationSeason() == season
+                        && EvaluationConfiguration.getInstance().getDefaultEvaluationSeason() != season)
+                .map(i -> i.getExternalId()).collect(Collectors.joining(" ; "));
+        final String externalIdText = evaluation.getExternalId() + (others.isEmpty() ? "" : String.format(" [!! %s !!]", others));
+        generateExternalId(row, externalIdText);
         row.setClasses(renderer.getEnrolmentRowClass());
 
-        final EvaluationSeason season = evaluation.getEvaluationSeason();
         final ExecutionSemester semester = evaluation.getExecutionPeriod();
         generateCellWithText(row, season.getName().getContent(), renderer.getLabelCellClass(),
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
