@@ -2,7 +2,6 @@ package org.fenixedu.ulisboa.specifications.domain.evaluation;
 
 import java.util.Comparator;
 
-import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
@@ -79,6 +78,7 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
 
     static private int compareByGradeAndEvaluationDate(final EnrolmentEvaluation left, final EnrolmentEvaluation right,
             final boolean bothApproved) {
+
         int result = left.getGrade().compareTo(right.getGrade());
         if (result != 0) {
             return result;
@@ -86,7 +86,7 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
 
         if (bothApproved) {
             // TODO legidio, use EnrolmentEvaluationServices.getExamDateTime ?
-            result = left.getExamDateYearMonthDay().compareTo(right.getExamDateYearMonthDay());
+            result = Comparator.comparing(EnrolmentEvaluation::getExamDateYearMonthDay).reversed().compare(left, right);
             if (result != 0) {
                 return result;
             }
@@ -98,7 +98,7 @@ public class EvaluationComparator implements Comparator<EnrolmentEvaluation> {
             return result;
         }
 
-        result = DomainObjectUtil.COMPARATOR_BY_ID.compare(left, right);
+        result = Comparator.comparing(EnrolmentEvaluation::getExternalId).reversed().compare(left, right);
         if (result != 0) {
             return result;
         }
