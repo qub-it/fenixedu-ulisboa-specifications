@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
+import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentInSpecialSeasonEvaluation;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
@@ -38,6 +40,7 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.joda.time.LocalDate;
 
@@ -51,7 +54,8 @@ public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager
     @Override
     protected void checkDebts() {
 
-        if (ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
+        if (!AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
+                && ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked()
                 && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), getExecutionYear()
                         .getEndLocalDate().isBefore(new LocalDate()) ? getExecutionYear().getEndLocalDate() : new LocalDate())) {
             throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
