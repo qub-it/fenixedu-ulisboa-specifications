@@ -60,7 +60,7 @@ public class MobilityInfomationDataProvider implements IReportDataProvider {
     }
 
     private LocalizedString getProgram() {
-        if (information != null) {
+        if (information != null && information.getMobilityProgramType() != null) {
             return information.getMobilityProgramType().getName();
         }
         return null;
