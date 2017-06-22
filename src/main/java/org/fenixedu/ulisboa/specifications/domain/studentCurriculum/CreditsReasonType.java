@@ -162,7 +162,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
             });
         }
         if (!explanationJustification.build().isEmpty()) {
-            result.append(explanationJustification.build(), ": ");
+            // TODO legidio result.append(explanationJustification.build(), ": ");
         }
 
         // TODO Auto-generated method stub
