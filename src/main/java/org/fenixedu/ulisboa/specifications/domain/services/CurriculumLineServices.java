@@ -118,6 +118,7 @@ public class CurriculumLineServices {
 
         } else {
 
+            // TODO legidio, will probably be asked to group Dismissals by CreditsReasonType, to avoid lines to long
             lines.stream().sorted(COMPARATOR).forEach(line -> {
 
                 if (line.isDismissal()) {
