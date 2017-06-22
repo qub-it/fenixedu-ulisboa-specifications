@@ -1,17 +1,27 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+
+import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -107,8 +117,9 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         return Bennu.getInstance().getCreditsReasonTypesSet();
     }
 
-    public LocalizedString getInfo(final Credits credits) {
+    public LocalizedString getInfo(final Dismissal dismissal, final boolean overrideInfoExplained) {
         final Builder result = new LocalizedString.Builder();
+        final Credits credits = dismissal.getCredits();
 
         if (isActive()) {
 
@@ -119,54 +130,88 @@ public class CreditsReasonType extends CreditsReasonType_Base {
 
             result.append(getReason().toLocalizedString());
 
-            if (getInfoExplained()) {
+            if (getInfoExplained() && !overrideInfoExplained) {
 
-                final LocalizedString explanation = getExplanation(credits);
+                final LocalizedString explanation = getExplanation(dismissal);
                 if (!explanation.isEmpty()) {
+                    // TODO legidio, prefix for CreditsDismissal
                     final LocalizedString prefix = ULisboaSpecificationsUtil.bundleI18N(credits
                             .isSubstitution() ? "info.CreditsReasonType.explained.Substitution" : "info.CreditsReasonType.explained.Equivalence");
-                    result.append(prefix, ", ");
+                    result.append(prefix, " - ");
                     result.append(explanation, ": ");
                 }
             }
-
-            /* TODO legidio
-            boolean infoExplainedWithCountry;
-            boolean infoExplainedWithInstitution;
-            boolean infoExplainedWithEcts;
-            */
         }
 
         return result.build();
     }
 
-    private LocalizedString getExplanation(final Credits credits) {
-        final Builder explanationJustification = new LocalizedString.Builder();
+    private LocalizedString getExplanation(final Dismissal dismissal) {
+        final Builder result = new LocalizedString.Builder();
+        final Credits credits = dismissal.getCredits();
+
         if (credits.isSubstitution()) {
-            credits.getDismissalsSet().stream()
-                    .forEach(i -> explanationJustification.append(i.getName().toLocalizedString(), ", "));
-        } else {
-            credits.getIEnrolments().stream().forEach(i -> {
+            credits.getDismissalsSet().stream().sorted(CurriculumLineServices.COMPARATOR).forEach(i -> {
 
-                if (i instanceof ExternalEnrolment) {
-                    final ExternalEnrolment externalEnrolment = (ExternalEnrolment) i;
-                    if (externalEnrolment.getAcademicUnit() != null) {
-
-                        if (getInfoExplainedWithCountry()) {
-                            explanationJustification.append(i.getName().toLocalizedString(), " ");
-                        }
-                    }
-                }
-                explanationJustification.append(i.getName().toLocalizedString(), ", ");
-
+                result.append(i.getName().toLocalizedString(), ", ");
+                addECTS(result, i);
             });
-        }
-        if (!explanationJustification.build().isEmpty()) {
-            // TODO legidio result.append(explanationJustification.build(), ": ");
+
+        } else {
+            credits.getIEnrolments().stream().sorted(ICurriculumEntry.COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME_AND_ID)
+                    .forEach(i -> {
+
+                        if (!(i instanceof ExternalEnrolment)) {
+                            result.append(i.getName().toLocalizedString(), ", ");
+
+                        } else {
+
+                            final ExternalEnrolment external = (ExternalEnrolment) i;
+                            final List<Unit> unitFullPath =
+                                    UnitUtils.getUnitFullPath(external.getExternalCurricularCourse().getUnit(),
+                                            Lists.newArrayList(AccountabilityTypeEnum.GEOGRAPHIC,
+                                                    AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE,
+                                                    AccountabilityTypeEnum.ACADEMIC_STRUCTURE));
+
+                            Unit countryUnit = null;
+                            if (getInfoExplainedWithCountry()) {
+                                for (final Unit iter : unitFullPath) {
+                                    if (iter.isCountryUnit()) {
+                                        countryUnit = iter;
+                                        break;
+                                    }
+                                }
+
+                                if (countryUnit != null) {
+                                    result.append(countryUnit.getNameI18n().toLocalizedString(), ", ");
+                                }
+                            }
+
+                            Unit institutionUnit = null;
+                            if (getInfoExplainedWithInstitution()) {
+                                institutionUnit = external.getAcademicUnit();
+                                if (institutionUnit != null) {
+                                    result.append(institutionUnit.getNameI18n().toLocalizedString(),
+                                            countryUnit != null ? " > " : ", ");
+                                }
+                            }
+
+                            result.append(i.getName().toLocalizedString(),
+                                    countryUnit != null || institutionUnit != null ? " > " : ", ");
+                        }
+
+                        addECTS(result, i);
+                    });
         }
 
-        // TODO Auto-generated method stub
-        return null;
+        return result.build();
+    }
+
+    private void addECTS(final Builder result, final ICurriculumEntry entry) {
+        final BigDecimal ects = entry.getEctsCreditsForCurriculum();
+        if (getInfoExplainedWithEcts() && ects != null && ects.compareTo(BigDecimal.ZERO) > 0) {
+            result.append(String.format(" [%s ECTS]", ects));
+        }
     }
 
 }

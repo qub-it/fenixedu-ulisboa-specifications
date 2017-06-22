@@ -30,12 +30,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -126,19 +128,26 @@ public class AverageEntry implements Comparable<AverageEntry> {
 
     static public List<AverageEntry> getAverageEntries(final Curriculum curriculum) {
         final List<AverageEntry> result = Lists.newLinkedList();
+        final Predicate<AverageEntry> predicate = i -> i.isAccountable();
 
-        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(i))
+        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(i)).filter(predicate)
                 .collect(Collectors.toCollection(() -> result));
 
-        curriculum.getDismissalRelatedEntries().stream().map(i -> new AverageEntry(i))
+        curriculum.getDismissalRelatedEntries().stream().map(i -> new AverageEntry(i)).filter(predicate)
                 .collect(Collectors.toCollection(() -> result));
 
         Collections.sort(result);
         return result;
     }
 
+    private boolean isAccountable() {
+        return getEntry().getCurriculumLinesForCurriculum().stream().filter(i -> i.isDismissal()).map(Dismissal.class::cast)
+                .map(i -> i.getCredits()).filter(i -> i != null).map(i -> i.getReason())
+                .noneMatch(i -> i != null && !i.getAverageEntry());
+    }
+
     static private String getApprovalTypeDescription(final ICurriculumEntry entry) {
-        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(entry, false);
+        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(entry, true, true);
 
         // here we want some info, even if we were given null
         if (result == null || result.isEmpty()) {

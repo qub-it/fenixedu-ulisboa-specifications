@@ -34,7 +34,7 @@ public class CurriculumEntryServicesImpl implements CurriculumEntryServices {
 
     @Override
     public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry input) {
-        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(input, false);
+        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(input, false, false);
 
         // null forces hidden; empty forces fallback
         if (result != null) {

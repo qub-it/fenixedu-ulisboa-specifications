@@ -105,7 +105,9 @@ public class CurriculumLineServices {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getWeight();
     }
 
-    static public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry entry, final boolean overrideHidden) {
+    static public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry entry, final boolean overrideHidden,
+            final boolean overrideInfoExplained) {
+
         final Builder result = new LocalizedString().builder();
         final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
 
@@ -116,13 +118,13 @@ public class CurriculumLineServices {
 
         } else {
 
-            for (final CurriculumLine line : lines) {
+            lines.stream().sorted(COMPARATOR).forEach(line -> {
 
                 if (line.isDismissal()) {
                     final Dismissal dismissal = (Dismissal) line;
                     final Credits credits = dismissal.getCredits();
                     final CreditsReasonType reason = credits == null ? null : credits.getReason();
-                    final LocalizedString info = reason == null ? null : reason.getInfo(credits);
+                    final LocalizedString info = reason == null ? null : reason.getInfo(dismissal, overrideInfoExplained);
 
                     if (info != null && !info.isEmpty()) {
                         add(result, info);
@@ -137,7 +139,7 @@ public class CurriculumLineServices {
                         }
                     }
                 }
-            }
+            });
         }
 
         final LocalizedString built = result.build();
