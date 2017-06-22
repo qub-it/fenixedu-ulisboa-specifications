@@ -28,65 +28,44 @@ package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
-import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
-import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
-import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 public class AverageEntry implements Comparable<AverageEntry> {
 
-    private Class approvalType;
+    static final public String ENTRY_INFO_EMPTY = "-";
+    // TODO translate
+    static final public String ENTRY_INFO_EQUALS = "Idem";
+
     private ICurriculumEntry entry;
+    private String approvalTypeDescription;
     private Integer curricularYear;
     private Integer curricularSemester;
     private String entryInfo;
     private String entryCurriculumLinesInfo;
 
-    public AverageEntry(final Class approvalType, final ICurriculumEntry entry) {
-        this.approvalType = approvalType;
+    public AverageEntry(final ICurriculumEntry entry) {
         this.entry = entry;
+        this.approvalTypeDescription = getApprovalTypeDescription(entry);
         this.curricularYear = getCurricularYear(entry);
         this.curricularSemester = getCurricularSemester(entry);
         this.entryInfo = getEntryInfo(entry);
         this.entryCurriculumLinesInfo = getEntryCurriculumLinesInfo(entry);
-    }
-
-    public Class getApprovalType() {
-        return approvalType;
-    }
-
-    public String getApprovalTypeDescription() {
-        String label = null;
-
-        if (getApprovalType() == Enrolment.class) {
-            label = "label.approvalType.Enrolment";
-        }
-
-        if (getApprovalType() == Substitution.class) {
-            label = "label.approvalType.Substitution";
-        }
-
-        if (getApprovalType() == Equivalence.class) {
-            label = "label.approvalType.Equivalence";
-        }
-
-        return Strings.isNullOrEmpty(label) ? "-" : ULisboaSpecificationsUtil.bundle(label);
     }
 
     public ICurriculumEntry getEntry() {
@@ -103,6 +82,10 @@ public class AverageEntry implements Comparable<AverageEntry> {
 
     public BigDecimal getGradeValue() {
         return getEntry().getGrade().getNumericValue();
+    }
+
+    public String getApprovalTypeDescription() {
+        return approvalTypeDescription;
     }
 
     public Integer getCurricularYear() {
@@ -144,15 +127,29 @@ public class AverageEntry implements Comparable<AverageEntry> {
     static public List<AverageEntry> getAverageEntries(final Curriculum curriculum) {
         final List<AverageEntry> result = Lists.newLinkedList();
 
-        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(Enrolment.class, i))
+        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(i))
                 .collect(Collectors.toCollection(() -> result));
 
-        curriculum.getDismissalRelatedEntries().stream()
-                .map(i -> new AverageEntry(i instanceof Dismissal ? Equivalence.class : Substitution.class, i))
+        curriculum.getDismissalRelatedEntries().stream().map(i -> new AverageEntry(i))
                 .collect(Collectors.toCollection(() -> result));
 
         Collections.sort(result);
         return result;
+    }
+
+    static private String getApprovalTypeDescription(final ICurriculumEntry entry) {
+        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(entry, false);
+
+        // here we want some info, even if we were given null
+        if (result == null || result.isEmpty()) {
+            result = new LocalizedString();
+
+            for (final Locale locale : CoreConfiguration.supportedLocales()) {
+                result = result.with(locale, ENTRY_INFO_EMPTY);
+            }
+        }
+
+        return result.getContent();
     }
 
     static private Integer getCurricularYear(final ICurriculumEntry entry) {
@@ -192,15 +189,15 @@ public class AverageEntry implements Comparable<AverageEntry> {
         final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
 
         if (lines.isEmpty()) {
-            return "-";
+            return ENTRY_INFO_EMPTY;
         }
 
         if (lines.size() == 1 && lines.contains(entry)) {
-            return Dismissal.class.isAssignableFrom(entry.getClass()) ? "Idem" : "-";
+            return ENTRY_INFO_EQUALS;
         }
 
-        return CurriculumLineServices.getSubstitutionForCurriculum(entry).stream()
-                .map(line -> getEntryInfo((ICurriculumEntry) line)).collect(Collectors.joining(" "));
+        return lines.stream().map(line -> getEntryInfo((ICurriculumEntry) line)).distinct().sorted()
+                .collect(Collectors.joining(" "));
     }
 
 }

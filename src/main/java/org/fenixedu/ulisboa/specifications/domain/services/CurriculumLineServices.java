@@ -16,19 +16,24 @@ import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
+import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class CurriculumLineServices {
 
@@ -100,9 +105,54 @@ public class CurriculumLineServices {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getWeight();
     }
 
-    static public Set<CurriculumLine> getSubstitutionForCurriculum(final ICurriculumEntry input) {
-        return input == null ? Sets.newHashSet() : input.getCurriculumLinesForCurriculum().stream()
-                .filter(i -> Substitution.class.isAssignableFrom(i.getClass())).collect(Collectors.toSet());
+    static public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry entry, final boolean overrideHidden) {
+        final Builder result = new LocalizedString().builder();
+        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
+
+        if (lines.isEmpty()) {
+            if (Enrolment.class.isAssignableFrom(entry.getClass())) {
+                add(result, "label.approvalType.Enrolment");
+            }
+
+        } else {
+
+            for (final CurriculumLine line : lines) {
+
+                if (line.isDismissal()) {
+                    final Dismissal dismissal = (Dismissal) line;
+                    final Credits credits = dismissal.getCredits();
+                    final CreditsReasonType reason = credits == null ? null : credits.getReason();
+                    final LocalizedString info = reason == null ? null : reason.getInfo(credits);
+
+                    if (info != null && !info.isEmpty()) {
+                        add(result, info);
+
+                    } else if (reason == null || overrideHidden) {
+
+                        if (Substitution.class.isAssignableFrom(credits.getClass())) {
+                            add(result, "label.approvalType.Substitution");
+
+                        } else if (Equivalence.class.isAssignableFrom(credits.getClass())) {
+                            add(result, "label.approvalType.Equivalence");
+                        }
+                    }
+                }
+            }
+        }
+
+        final LocalizedString built = result.build();
+        // null forces hidden; empty forces fallback
+        return built.isEmpty() ? null : built;
+    }
+
+    static private void add(final Builder builder, final String key) {
+        add(builder, ULisboaSpecificationsUtil.bundleI18N(key));
+    }
+
+    static private void add(final Builder builder, final LocalizedString localizedString) {
+        if (!builder.build().anyMatch(i -> i.contains(localizedString.getContent()))) {
+            builder.append(localizedString, CreditsReasonType.SEPARATOR);
+        }
     }
 
     static private Comparator<CurriculumLine> COMPARATOR_CONTEXT = (o1, o2) -> {

@@ -6,9 +6,14 @@ import java.util.Map;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
+import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.util.CurriculumEntryServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.AverageEntry;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class CurriculumEntryServicesImpl implements CurriculumEntryServices {
 
@@ -25,6 +30,27 @@ public class CurriculumEntryServicesImpl implements CurriculumEntryServices {
     @Override
     public int getCurricularYear(final CurriculumLine input) {
         return CurricularPeriodServices.getCurricularYear(input);
+    }
+
+    @Override
+    public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry input) {
+        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(input, false);
+
+        // null forces hidden; empty forces fallback
+        if (result != null) {
+
+            // for reports, we don't want a translation of a class (Enrolment/Substitution/Equivalence) but something else
+            final String content = result.getContent();
+            if (content.equals(AverageEntry.ENTRY_INFO_EMPTY) || content.equals(AverageEntry.ENTRY_INFO_EQUALS)
+                    || content.equals(ULisboaSpecificationsUtil.bundleI18N("label.approvalType.Enrolment").getContent())
+                    || content.equals(ULisboaSpecificationsUtil.bundleI18N("label.approvalType.Substitution").getContent())
+                    || content.equals(ULisboaSpecificationsUtil.bundleI18N("label.approvalType.Equivalence").getContent())) {
+
+                result = new LocalizedString();
+            }
+        }
+
+        return result;
     }
 
     @Override
