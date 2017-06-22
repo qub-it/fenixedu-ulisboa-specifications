@@ -172,6 +172,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
     private static Function<Enrolment, String> ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER = (x) -> "";
 
+    static final private String EVALUATION_DATE_LABEL = BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao");
+
     protected StudentCurricularPlan studentCurricularPlan;
 
     protected ExecutionYear executionYearContext;
@@ -654,7 +656,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     static protected HtmlTableCell generateApprovementDate(final ICurriculumEntry input, final HtmlTableRow row,
             final String classes) {
-        return generateDate(input.getApprovementDate(), row, classes, "label.data.avaliacao");
+        return generateDate(input.getApprovementDate(), row, classes, EVALUATION_DATE_LABEL);
     }
 
     static protected HtmlTableCell generateEvaluationDate(final ExternalEnrolment input, final HtmlTableRow row,
@@ -1100,13 +1102,11 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         final String examDatePresentation = EnrolmentEvaluationServices.getExamDatePresentation(evaluation);
-        if (!Strings.isNullOrEmpty(examDatePresentation)) {
-            generateCellWithSpan(row, examDatePresentation, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
-                    getEvaluationDateCellClass());
+        if (isToShow && !Strings.isNullOrEmpty(examDatePresentation)) {
+            generateCellWithSpan(row, examDatePresentation, EVALUATION_DATE_LABEL, getEvaluationDateCellClass());
         } else {
             // qubExtension, show tooltip
-            generateCellWithSpan(row, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
-                    getEvaluationDateCellClass());
+            generateCellWithSpan(row, EMPTY_INFO, EVALUATION_DATE_LABEL, getEvaluationDateCellClass());
         }
 
         if (isToShow && evaluation.getPersonResponsibleForGrade() != null
@@ -1163,8 +1163,7 @@ public class StudentCurricularPlanLayout extends Layout {
         if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             // enrolment evaluation date
             // qubExtension, show tooltip
-            generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
-                    getEvaluationDateCellClass());
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO, EVALUATION_DATE_LABEL, getEvaluationDateCellClass());
 
             // grade responsible
             // qubExtension, show tooltip
@@ -1209,8 +1208,7 @@ public class StudentCurricularPlanLayout extends Layout {
             }
 
             // qubExtension, show tooltip
-            generateCellWithSpan(enrolmentRow, text, BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao"),
-                    getEvaluationDateCellClass());
+            generateCellWithSpan(enrolmentRow, text, EVALUATION_DATE_LABEL, getEvaluationDateCellClass());
         }
     }
 
