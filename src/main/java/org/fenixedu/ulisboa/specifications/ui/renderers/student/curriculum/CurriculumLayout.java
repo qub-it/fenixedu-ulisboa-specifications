@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -137,8 +138,10 @@ public class CurriculumLayout extends Layout {
         generateCellWithText(row, averageEntry.getEntryInfo(), null).setStyle("font-size: xx-small");
         generateCellWithText(row, averageEntry.getEntryCurriculumLinesInfo(), null).setStyle("font-size: xx-small");
 
+        // TODO legidio, where should this logic be?.... in Enrolment?
+        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
         StudentCurricularPlanLayout.generateDate(
-                entry.getCurriculumLinesForCurriculum().stream().filter(i -> i.getApprovementDate() != null)
+                lines.isEmpty() ? entry.getApprovementDate() : lines.stream().filter(i -> i.getApprovementDate() != null)
                         .map(i -> i.getApprovementDate()).max(YearMonthDay::compareTo).orElse(null),
                 row, (String) null, (String) null);
     }
