@@ -42,6 +42,7 @@ import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.SchoolClass;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -151,6 +152,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         setupCustomExceptionHandler(event);
         setupListenerForDegreeDelete();
+        setupListenerForCurricularPeriodDelete();
         setupListenerForEnrolmentDelete();
         setupListenerForSchoolClassDelete();
         setupListenersForStudentSchedule();
@@ -284,6 +286,14 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 schoolClass.getRegistrationsSet().clear();
                 schoolClass.setNextSchoolClass(null);
                 schoolClass.getPreviousSchoolClassesSet().clear();
+            }
+        });
+    }
+
+    private void setupListenerForCurricularPeriodDelete() {
+        FenixFramework.getDomainModel().registerDeletionListener(CurricularPeriod.class, (CurricularPeriod curricularPeriod) -> {
+            if (curricularPeriod.getConfiguration() != null) {
+                curricularPeriod.getConfiguration().delete();
             }
         });
     }
