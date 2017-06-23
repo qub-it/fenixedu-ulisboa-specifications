@@ -17,6 +17,7 @@ import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixframework.Atomic;
@@ -84,11 +85,16 @@ public class StudentDismissalsDA extends org.fenixedu.academic.ui.struts.action.
         final Credits credits = bean.getCredits();
 
         credits.setOfficialDate(bean.getOfficialDate());
+        final LocalDate officialDate = credits.getOfficialDate();
+
         for (final IEnrolment sourceEnrolment : credits.getIEnrolments()) {
             final YearMonthDay approvementDate = sourceEnrolment.getApprovementDate();
-            if (approvementDate.isAfter(credits.getOfficialDate())) {
-                throw new DomainException("error.Credits.officialDate.must.be.after.source.enrolments.approval.date",
-                        approvementDate.toString(DATE_FORMAT));
+
+            if (officialDate != null) {
+                if (approvementDate.isAfter(officialDate)) {
+                    throw new DomainException("error.Credits.officialDate.must.be.after.source.enrolments.approval.date",
+                            approvementDate.toString(DATE_FORMAT));
+                }
             }
         }
 
