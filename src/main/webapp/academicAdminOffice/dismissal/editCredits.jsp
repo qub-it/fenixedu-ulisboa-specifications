@@ -18,6 +18,15 @@
 		</html:messages>
 	</ul>
 </logic:messagesPresent>
+<logic:messagesPresent message="true" property="error">
+	<p>
+		<span class="error0">
+			<html:messages id="messages" message="true" bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" property="error">
+				<bean:write name="messages" />
+			</html:messages>
+		</span>
+	</p>
+</logic:messagesPresent>
 <logic:messagesPresent>
 	<ul class="nobullet list6">
 		<html:messages id="messages" bundle="ACADEMIC_OFFICE_RESOURCES">
