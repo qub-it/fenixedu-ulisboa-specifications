@@ -21,27 +21,19 @@ public class ApprovedCredits extends ApprovedCredits_Base {
 
     @Atomic
     static public ApprovedCredits create(final CurricularPeriodConfiguration configuration, final BigDecimal credits) {
-        return create(configuration, credits, false);
-    }
-
-    @Atomic
-    static public ApprovedCredits createForSemester(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
-            final boolean allowToCollectAllCurricularPlans, final Integer semester) {
-
         final ApprovedCredits result = new ApprovedCredits();
         result.init(configuration, credits, null /*yearMin*/, null /*yearMax*/);
-        result.setAllowToCollectAllCurricularPlans(allowToCollectAllCurricularPlans);
-        result.setSemester(semester);
 
         return result;
     }
 
     @Atomic
-    static public ApprovedCredits create(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
-            final boolean allowToCollectAllCurricularPlans) {
+    static public ApprovedCredits createForSemester(final CurricularPeriodConfiguration configuration, final BigDecimal credits,
+            final Integer semester) {
+
         final ApprovedCredits result = new ApprovedCredits();
         result.init(configuration, credits, null /*yearMin*/, null /*yearMax*/);
-        result.setAllowToCollectAllCurricularPlans(allowToCollectAllCurricularPlans);
+        result.setSemester(semester);
 
         return result;
     }

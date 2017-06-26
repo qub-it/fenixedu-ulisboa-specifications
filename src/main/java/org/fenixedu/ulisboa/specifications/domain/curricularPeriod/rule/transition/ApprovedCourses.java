@@ -25,7 +25,10 @@ public class ApprovedCourses extends ApprovedCourses_Base {
 
     @Atomic
     static public ApprovedCourses create(final CurricularPeriodConfiguration configuration, final BigDecimal approvals) {
-        return create(configuration, approvals, false);
+        final ApprovedCourses result = new ApprovedCourses();
+        result.init(configuration, approvals, null /*yearMin*/, null /*yearMax*/);
+
+        return result;
     }
 
     @Atomic
@@ -35,16 +38,6 @@ public class ApprovedCourses extends ApprovedCourses_Base {
         final ApprovedCourses result = new ApprovedCourses();
         result.init(configuration, approvals, null /*yearMin*/, null /*yearMax*/);
         result.setSemester(semester);
-
-        return result;
-    }
-
-    @Atomic
-    static public ApprovedCourses create(final CurricularPeriodConfiguration configuration, final BigDecimal approvals,
-            final boolean allowToCollectAllCurricularPlans) {
-        final ApprovedCourses result = new ApprovedCourses();
-        result.init(configuration, approvals, null /*yearMin*/, null /*yearMax*/);
-        result.setAllowToCollectAllCurricularPlans(allowToCollectAllCurricularPlans);
 
         return result;
     }
