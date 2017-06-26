@@ -1017,11 +1017,12 @@ public class StudentCurricularPlanLayout extends Layout {
         final HtmlTableRow row = mainTable.createRow();
         addTabsToRow(row, level);
         final EvaluationSeason season = evaluation.getEvaluationSeason();
-        final String others = evaluation.getEnrolment().getEvaluationsSet().stream()
+        final String otherEvaluations = evaluation.getEnrolment().getEvaluationsSet().stream()
                 .filter(i -> i != evaluation && i.getEvaluationSeason() == season
                         && EvaluationConfiguration.getInstance().getDefaultEvaluationSeason() != season)
                 .map(i -> i.getExternalId()).collect(Collectors.joining(" ; "));
-        final String externalIdText = evaluation.getExternalId() + (others.isEmpty() ? "" : String.format(" [!! %s !!]", others));
+        final String externalIdText =
+                evaluation.getExternalId() + (otherEvaluations.isEmpty() ? "" : String.format(" [!! %s !!]", otherEvaluations));
         generateExternalId(row, externalIdText);
         row.setClasses(renderer.getEnrolmentRowClass());
 
@@ -1102,7 +1103,7 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         final String examDatePresentation = EnrolmentEvaluationServices.getExamDatePresentation(evaluation);
-        if (isToShow && !Strings.isNullOrEmpty(examDatePresentation)) {
+        if ((isToShow || !courseEvaluations.isEmpty()) && !Strings.isNullOrEmpty(examDatePresentation)) {
             generateCellWithSpan(row, examDatePresentation, EVALUATION_DATE_LABEL, getEvaluationDateCellClass());
         } else {
             // qubExtension, show tooltip
