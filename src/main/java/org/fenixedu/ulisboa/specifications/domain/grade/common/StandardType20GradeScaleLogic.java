@@ -12,7 +12,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 public class StandardType20GradeScaleLogic implements GradeScaleLogic {
 
     protected static final List<String> APPROVED_TEXTUAL_GRADES = Arrays.asList("AP");
-    protected static final List<String> NOT_APPROVED_TEXTUAL_GRADES = Arrays.asList("ANUL", "D", "F", "NADM", "RE");
+    protected static final List<String> NOT_APPROVED_TEXTUAL_GRADES = Arrays.asList("ANUL", "D", "F", "NADM", "RE", "SUSPEN");
     private static final List<String> NOT_EVALUATED_TEXTUAL_GRADES = Arrays.asList("NA");
 
     private static final List<String> TEXTUAL_GRADES = new ArrayList<String>();
