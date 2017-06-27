@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -71,6 +72,8 @@ import org.joda.time.DateTime;
 
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
 import com.qubit.terra.docs.core.IDocumentTemplateService;
+import com.qubit.terra.docs.util.processors.post.OdtFootEndNotePostProcessor;
+import com.qubit.terra.docs.util.processors.post.OdtTablePostProcessor;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -109,6 +112,10 @@ public class DocumentPrinter {
             resetDocumentSigner(serviceRequest);
         }
 
+        generator.registerPostProcessors(new OdtTablePostProcessor());
+        generator.registerPostProcessors(new OdtFootEndNotePostProcessor(serviceRequest
+                .hasProperty("alignToRight") ? serviceRequest.findProperty("alignToRight").getValue() : Boolean.FALSE));
+
         //Override the lang helper in order to give the correct locale
         generator.registerHelper("lang", new LanguageHelper(serviceRequest.getLanguage()));
         generator.registerHelper("dates", new DateHelper(serviceRequest.getLanguage()));
@@ -121,9 +128,13 @@ public class DocumentPrinter {
         if (!reportConfiguration.getName().isEmpty() && reportConfiguration.getInstitutionLogo() != null) {
             boolean showLogo =
                     serviceRequest.hasProperty("showLogo") ? serviceRequest.findProperty("showLogo").getValue() : false;
+            byte[] logoContent = reportConfiguration.getInstitutionLogo().getContent();
+            if (serviceRequest.getServiceRequestType().getServiceRequestCategory().equals(ServiceRequestCategory.CERTIFICATES)) {
+                logoContent = reportConfiguration.getLetterheadInstitutionLogo().getContent();
+            }
             generator.registerDataProvider(new InstitutionConfigurationReportDataProvider(reportConfiguration.getName(),
                     reportConfiguration.getShortName(), reportConfiguration.getAddress(), reportConfiguration.getSite(),
-                    reportConfiguration.getInstitutionLogo().getContent(), showLogo, serviceRequest.getLanguage()));
+                    logoContent, showLogo, serviceRequest.getLanguage()));
         }
 
         generator.registerDataProvider(new RegistrationDataProvider(registration, serviceRequest.getLanguage()));
