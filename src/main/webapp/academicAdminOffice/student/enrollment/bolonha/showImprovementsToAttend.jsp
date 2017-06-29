@@ -34,6 +34,8 @@
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment.bolonha.AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA.ImprovementAttendsBean"%>
 <%@page import="org.fenixedu.academic.domain.ExecutionSemester"%>
+<%@page import="org.fenixedu.academic.domain.ExecutionCourse"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices"%>
 <h2>
 	<bean:write name="bolonhaStudentEnrollmentBean"  property="funcionalityTitle" />
 </h2>
@@ -110,10 +112,9 @@
 	</h3>
 
 	<c:forEach items="${improvementAttendsBeans}" var="bean">
-		<p class="mbottom2">
 
 		<bean:define id="enrolmentId" name="bean" property="enrolment.externalId" />
-		<p class="mvert0"><strong><c:out value="${bean.enrolment.name}" /></strong></p>
+		<p class="mtop3"><strong><c:out value="${bean.enrolment.code}" /> - <c:out value="${bean.enrolment.name}" /></strong></p>
 		
 		<p>
 		 	<c:if test="${empty bean.attends}">
@@ -128,7 +129,8 @@
 		 	</c:if>
 			
 		 	<c:if test="${not empty bean.attends}">
-		 		<p><em><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.chosenExecutionCourse"/>:</em> <c:out value="${bean.attends.executionCourse.degreePresentationString}" /></p>
+		 		<bean:define id="chosenExecutionCourse" name="bean" property="attends.executionCourse" />
+		 		<p><em><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.chosenExecutionCourse"/>:</em> <b><%=ExecutionCourseServices.getDegreeCurricularPlanPresentation(((ExecutionCourse)pageContext.getAttribute("chosenExecutionCourse")), false)%></b>
 		 		<p><em><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.shiftEnroled"/>:</em> 
 		 			<c:choose>
 		 				<c:when test="${bean.shiftEnroled}"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.yes"/></c:when>
@@ -149,25 +151,19 @@
 
 		<c:forEach items="${bean.executionCourses}" var="executionCourse">	
 		
-			 <p>
-			 
-			 	<c:if test="${empty bean.attends || bean.attends.executionCourse != executionCourse}">
-			 		<c:if test="${not bean.shiftEnroled}">
-						<bean:define id="executionCourseId" name="executionCourse" property="externalId" />
-						<html:submit 
-							onclick="<%= "this.form.method.value='enrolInAttend';this.form.enrolmentId.value='" + enrolmentId + "';this.form.executionCourseId.value='" + executionCourseId +"';"%>"
-							> 
-							<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.attend"/>
-						</html:submit>
-						<c:out value="${executionCourse.degreePresentationString}" />
-					</c:if>
-			 	</c:if>
-
-			 </p>
+		 	<c:if test="${empty bean.attends || bean.attends.executionCourse != executionCourse}">
+		 		<c:if test="${not bean.shiftEnroled}">
+					<bean:define id="executionCourseId" name="executionCourse" property="externalId" />
+					<html:submit 
+						onclick="<%= "this.form.method.value='enrolInAttend';this.form.enrolmentId.value='" + enrolmentId + "';this.form.executionCourseId.value='" + executionCourseId +"';"%>"
+						> 
+						<%=ExecutionCourseServices.getDegreeCurricularPlanPresentation(((ExecutionCourse)pageContext.getAttribute("executionCourse")), true)%>
+					</html:submit>
+				</c:if>
+		 	</c:if>
 
 		</c:forEach>
 	
-		</p>
 	</c:forEach>
 
 </html:form>

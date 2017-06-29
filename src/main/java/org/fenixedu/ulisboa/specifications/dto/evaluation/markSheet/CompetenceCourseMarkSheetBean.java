@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -60,6 +59,7 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSe
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
@@ -461,12 +461,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     static public String getExecutionCoursePresentation(final ExecutionCourse input) {
-
-        return input.getAssociatedCurricularCoursesSet().stream().map(i -> {
-            final String dcp = i.getDegreeCurricularPlan().getName();
-            final int index = dcp.contains(" ") ? dcp.indexOf(" ") : 6;
-            return i.getDegree().getCode() + " - " + StringUtils.substring(dcp, 0, index);
-        }).collect(Collectors.joining("; "));
+        return ExecutionCourseServices.getDegreeCurricularPlanPresentation(input, true);
     }
 
     public Evaluation getCourseEvaluation() {
