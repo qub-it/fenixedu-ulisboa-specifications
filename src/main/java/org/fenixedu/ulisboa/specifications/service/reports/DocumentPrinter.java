@@ -73,6 +73,7 @@ import org.joda.time.DateTime;
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
 import com.qubit.terra.docs.core.IDocumentTemplateService;
 import com.qubit.terra.docs.util.processors.post.OdtFootEndNotePostProcessor;
+import com.qubit.terra.docs.util.processors.post.OdtTablePostProcessor;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -110,8 +111,8 @@ public class DocumentPrinter {
         if (serviceRequest.getDocumentSigner() == null) {
             resetDocumentSigner(serviceRequest);
         }
-        //TODO: Resolve bug in OdtTablePostProcessor
-//        generator.registerPostProcessors(new OdtTablePostProcessor());
+
+        generator.registerPostProcessors(new OdtTablePostProcessor());
         generator.registerPostProcessors(new OdtFootEndNotePostProcessor(serviceRequest
                 .hasProperty("alignToRight") ? serviceRequest.findProperty("alignToRight").getValue() : Boolean.FALSE));
 
