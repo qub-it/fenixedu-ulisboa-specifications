@@ -1104,15 +1104,17 @@ public class StudentCurricularPlanLayout extends Layout {
     // qubExtension
     private boolean generateGradeForEnrolmentEvaluation(final EnrolmentEvaluation evaluation, final HtmlTableRow row) {
         final Grade grade = evaluation.getGrade();
-
         // qubExtension, evaluation info may not yet be available to the public
         final YearMonthDay availableDate = evaluation.getGradeAvailableDateYearMonthDay();
         final boolean isToShow =
                 !grade.isEmpty() && !evaluation.isTemporary() && availableDate != null && !availableDate.isAfter(new LocalDate());
+        final boolean markSheetAccess =
+                AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser());
 
         // qubExtension, show grade available date as a tooltip
-        final String text = isToShow ? grade.getValue() : evaluation.getCompetenceCourseMarkSheet() != null ? String
-                .format("(%s)", BundleUtil.getString(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
+        final String text =
+                isToShow ? grade.getValue() : markSheetAccess && evaluation.getCompetenceCourseMarkSheet() != null ? String
+                        .format("(%s)", BundleUtil.getString(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
         String title = null;
         if (isToShow) {
             title = getGradeDescription(grade);
@@ -1125,8 +1127,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // qubExtension, link to marksheet
         final HtmlComponent component;
-        if (evaluation.getCompetenceCourseMarkSheet() == null
-                || !AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser())) {
+        if (evaluation.getCompetenceCourseMarkSheet() == null || !markSheetAccess) {
             component = new HtmlText(text);
         } else {
             component = new HtmlLink();
