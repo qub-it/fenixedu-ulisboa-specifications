@@ -66,6 +66,8 @@ public class ApprovedCredits extends ApprovedCredits_Base {
                         getCredits().toString(), String.valueOf(yearMin), String.valueOf(yearMax));
             }
         }
+        
+        // TODO legidio, label with semester? or remove semester configuration?
     }
 
     private boolean isYearless() {
