@@ -975,26 +975,32 @@ public class StudentCurricularPlanLayout extends Layout {
             final EvaluationSeason season = iterator.next();
 
             // either the person has access or this season should always show it's enrolment evaluations
-            if (StudentCurricularPlanRenderer.isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)
-                    || EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
+            if (EvaluationConfiguration.getInstance().getDefaultEvaluationSeason() == season
+                    || EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)
+                    || StudentCurricularPlanRenderer.isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
 
                 final Optional<EnrolmentEvaluation> finalEvaluation = enrolment.getFinalEnrolmentEvaluationBySeason(season);
                 if (finalEvaluation.isPresent()) {
 
                     result.add(finalEvaluation.get());
 
-                } else if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)) {
+                } else {
 
-                    // we want to show the temporary enrolment evaluation
                     final EnrolmentEvaluation latestEvaluation = enrolment.getLatestEnrolmentEvaluationBySeason(season);
                     if (latestEvaluation != null) {
-                        result.add(latestEvaluation);
+
+                        // we want to show the temporary enrolment evaluation
+                        if (EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)
+                                || latestEvaluation.getCompetenceCourseMarkSheet() != null) {
+                            result.add(latestEvaluation);
+                        }
                     }
                 }
             }
         }
 
         return result;
+
     }
 
     /**
@@ -1058,38 +1064,7 @@ public class StudentCurricularPlanLayout extends Layout {
             generateCellWithText(row, stateText, renderer.getEnrolmentStateCellClass()).setStyle(EMPTY_WIDTH);
         }
 
-        final Grade grade = evaluation.getGrade();
-
-        // qubExtension, evaluation info may not yet be available to the public
-        final YearMonthDay availableDate = evaluation.getGradeAvailableDateYearMonthDay();
-        final boolean isToShow =
-                !grade.isEmpty() && !evaluation.isTemporary() && availableDate != null && !availableDate.isAfter(new LocalDate());
-
-        // qubExtension, show grade available as a tooltip
-        final String text = isToShow ? grade.getValue() : EMPTY_INFO;
-        String title = null;
-        if (isToShow) {
-            title = getGradeDescription(grade);
-
-            if (availableDate != null) {
-                title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
-                        + availableDate.toString(DATE_FORMAT);
-            }
-        }
-        final HtmlComponent component;
-        if (evaluation.getCompetenceCourseMarkSheet() == null
-                || !AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser())) {
-            component = new HtmlText(text);
-        } else {
-            component = new HtmlLink();
-
-            ((HtmlLink) component).setText(text);
-            ((HtmlLink) component).setModuleRelative(false);
-            ((HtmlLink) component).setTarget("_blank");
-            ((HtmlLink) component).setUrl(
-                    CompetenceCourseMarkSheetController.READ_URL + evaluation.getCompetenceCourseMarkSheet().getExternalId());
-        }
-        generateCellWithSpan(row, component, title, renderer.getGradeCellClass(), true);
+        final boolean isToShow = generateGradeForEnrolmentEvaluation(evaluation, row);
 
         generateCellWithText(row, "", renderer.getEctsCreditsCellClass(), GRADE_NEXT_COLUMN_SPAN);
 
@@ -1124,6 +1099,46 @@ public class StudentCurricularPlanLayout extends Layout {
 
         generateRemarksCell(row, evaluation);
         generateSpacerCellsIfRequired(row);
+    }
+
+    // qubExtension
+    private boolean generateGradeForEnrolmentEvaluation(final EnrolmentEvaluation evaluation, final HtmlTableRow row) {
+        final Grade grade = evaluation.getGrade();
+
+        // qubExtension, evaluation info may not yet be available to the public
+        final YearMonthDay availableDate = evaluation.getGradeAvailableDateYearMonthDay();
+        final boolean isToShow =
+                !grade.isEmpty() && !evaluation.isTemporary() && availableDate != null && !availableDate.isAfter(new LocalDate());
+
+        // qubExtension, show grade available date as a tooltip
+        final String text = isToShow ? grade.getValue() : evaluation.getCompetenceCourseMarkSheet() != null ? String
+                .format("(%s)", BundleUtil.getString(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
+        String title = null;
+        if (isToShow) {
+            title = getGradeDescription(grade);
+
+            if (availableDate != null) {
+                title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
+                        + availableDate.toString(DATE_FORMAT);
+            }
+        }
+
+        // qubExtension, link to marksheet
+        final HtmlComponent component;
+        if (evaluation.getCompetenceCourseMarkSheet() == null
+                || !AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser())) {
+            component = new HtmlText(text);
+        } else {
+            component = new HtmlLink();
+
+            ((HtmlLink) component).setText(text);
+            ((HtmlLink) component).setModuleRelative(false);
+            ((HtmlLink) component).setTarget("_blank");
+            ((HtmlLink) component).setUrl(
+                    CompetenceCourseMarkSheetController.READ_URL + evaluation.getCompetenceCourseMarkSheet().getExternalId());
+        }
+        generateCellWithSpan(row, component, title, renderer.getGradeCellClass(), true);
+        return isToShow;
     }
 
     // qubExtension
