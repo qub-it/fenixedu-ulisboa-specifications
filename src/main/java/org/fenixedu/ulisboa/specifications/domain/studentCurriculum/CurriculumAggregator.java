@@ -44,6 +44,7 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -297,7 +298,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
     }
 
-    private Enrolment getLastEnrolment(final StudentCurricularPlan plan) {
+    public Enrolment getLastEnrolment(final StudentCurricularPlan plan) {
         Enrolment result = null;
 
         if (plan != null) {
@@ -326,7 +327,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                 return c == 0 ? ICurriculumEntry.COMPARATOR_BY_ID.compare(x, y) : c;
             });
             for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-                lines.addAll(entry.getApprovedCurriculumEntries(plan));
+                lines.addAll(entry.getCurriculumEntries(plan, false));
             }
 
             if (!lines.isEmpty()) {
@@ -337,7 +338,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return result;
     }
 
-    private boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
+    public boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
         if (isAggregationConcluded(plan)) {
             return true;
         }
@@ -443,7 +444,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         if (result == null && isAggregationConcluded(plan)) {
-            result = plan.getApprovedCurriculumLine(getCurricularCourse()).calculateConclusionDate();
+            final CurriculumLine line = plan.getApprovedCurriculumLine(getCurricularCourse());
+            result = line == null ? null : line.calculateConclusionDate();
         }
 
         if (result == null) {

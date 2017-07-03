@@ -27,6 +27,7 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -45,6 +46,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.CurricularRuleServices;
@@ -202,13 +204,21 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         return result;
     }
 
-    protected Set<ICurriculumEntry> getApprovedCurriculumEntries(final StudentCurricularPlan plan) {
+    private Set<ICurriculumEntry> getApprovedCurriculumEntries(final StudentCurricularPlan plan) {
+        return getCurriculumEntries(plan, true);
+    }
+
+    protected Set<ICurriculumEntry> getCurriculumEntries(final StudentCurricularPlan plan, final boolean approved) {
         final Set<ICurriculumEntry> result = Sets.newHashSet();
 
-        final CurriculumModule approval = getCurriculumModule(plan, true);
-        if (approval != null) {
-            result.addAll(approval.getApprovedCurriculumLines().stream().filter(i -> i instanceof ICurriculumEntry)
-                    .map(i -> ((ICurriculumEntry) i)).collect(Collectors.toSet()));
+        final CurriculumModule module = getCurriculumModule(plan, approved);
+        if (module != null) {
+
+            final Collection<CurriculumLine> lines =
+                    approved ? module.getApprovedCurriculumLines() : module.getAllCurriculumLines();
+
+            result.addAll(lines.stream().filter(i -> i instanceof ICurriculumEntry).map(i -> ((ICurriculumEntry) i))
+                    .collect(Collectors.toSet()));
         }
 
         return result;
