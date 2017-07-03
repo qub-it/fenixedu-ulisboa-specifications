@@ -13,6 +13,7 @@ import com.qubit.terra.docs.util.IReportDataProvider;
 public class DiplomaRequestDataProvider implements IReportDataProvider {
 
     protected static final String DIPLOMA_CODE = "REGISTRY_DIPLOMA_REQUEST";
+    protected static final String OLD_DIPLOMA_CODE = "PRE_FENIX_REGISTRY_DIPLOMA_REQUEST";
     protected static final AcademicServiceRequestSituationType[] acceptedSituations =
             { AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
                     AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED };
@@ -34,7 +35,11 @@ public class DiplomaRequestDataProvider implements IReportDataProvider {
         }
 
         List<ULisboaServiceRequest> requests = registration.getULisboaServiceRequestsSet().stream()
-                .filter(r -> r.getServiceRequestType().getCode().equals(DIPLOMA_CODE)).collect(Collectors.toList());
+
+                .filter(r -> r.getServiceRequestType().getCode().equals(DIPLOMA_CODE)
+                        || r.getServiceRequestType().getCode().equals(OLD_DIPLOMA_CODE))
+
+                .collect(Collectors.toList());
         requestLoop: for (ULisboaServiceRequest request : requests) {
             for (AcademicServiceRequestSituationType situationType : acceptedSituations) {
                 if (request.getActiveSituation().getAcademicServiceRequestSituationType() == situationType) {
