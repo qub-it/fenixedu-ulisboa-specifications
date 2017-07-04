@@ -92,7 +92,8 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
     static private Grade createGrade(final BigDecimal value, final GradeScale gradeScale, final int gradeValueScale) {
         final String grade = value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString();
         if (!gradeScale.belongsTo(grade)) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade");
+            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade",
+                    grade, gradeScale.getDescription());
         }
 
         return Grade.createGrade(grade, gradeScale);
