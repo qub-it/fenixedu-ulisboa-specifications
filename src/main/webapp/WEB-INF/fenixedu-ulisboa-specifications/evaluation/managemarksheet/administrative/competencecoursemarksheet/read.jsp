@@ -307,7 +307,7 @@ ${portal.angularToolkit()}
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.evaluationDate" /></th>
-						<td><c:out value="${competenceCourseMarkSheet.evaluationDatePresentation}"/></td>
+						<td><c:out value="${competenceCourseMarkSheet.evaluationDatePresentation}"/><c:if test="${competenceCourseMarkSheet.courseEvaluation != null}"> [<c:out value="${competenceCourseMarkSheet.courseEvaluation.name}"/>]</c:if></td>
 					</tr>
 					<tr>
 						<th scope="row" class="col-xs-3"><spring:message code="label.CompetenceCourseMarkSheet.state" /></th>
