@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
@@ -315,6 +316,10 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
 
     @Atomic
     void updateGrade() {
+
+        if (!getMarkSheet().isEdition()) {
+            throw new ULisboaSpecificationsDomainException("error.MarkBean.markSheet.not.edition");
+        }
 
         final EnrolmentEvaluation evaluation = findEnrolmentEvaluation();
         if (evaluation == null) {
