@@ -192,6 +192,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getEnrolmentType().getAggregatorDefaultDescription();
     }
 
+    public boolean isLegacy() {
+        return getDescription().getContent().equals("Legacy");
+    }
+
     public DegreeCurricularPlan getDegreeCurricularPlan() {
         return getContext().getParentCourseGroup().getParentDegreeCurricularPlan();
     }
@@ -339,10 +343,6 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     }
 
     public boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
-        if (isAggregationConcluded(plan)) {
-            return true;
-        }
-
         int optionalEvaluatedEntries = 0;
 
         for (final CurriculumAggregatorEntry iter : getEntriesSet()) {

@@ -565,7 +565,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         return false;
     }
-    
+
     protected boolean isToDisableEnrolmentOptionBasedOnCurriculumAggregator() {
         return true;
     }
@@ -763,6 +763,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             final CurriculumAggregatorEntry aggregatorEntry = context.getCurriculumAggregatorEntry();
             if (aggregatorEntry != null) {
                 final CurriculumAggregator aggregator = aggregatorEntry.getAggregator();
+                if (aggregator.isLegacy()) {
+                    return result;
+                }
+
                 final HtmlInlineContainer span = new HtmlInlineContainer();
 
                 String text = aggregator.getContext().getChildDegreeModule().getCode();
@@ -798,6 +802,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
             final CurriculumAggregator aggregator = context.getCurriculumAggregator();
             if (aggregator != null) {
+                if (aggregator.isLegacy()) {
+                    return result;
+                }
+
                 final HtmlInlineContainer span = new HtmlInlineContainer();
 
                 String text = aggregator.getDescription().getContent();
