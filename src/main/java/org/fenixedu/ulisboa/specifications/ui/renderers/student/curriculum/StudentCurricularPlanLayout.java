@@ -63,6 +63,7 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -420,8 +421,10 @@ public class StudentCurricularPlanLayout extends Layout {
         // qubExtension, Aggregation Info
         final HtmlInlineContainer container = new HtmlInlineContainer();
         container.addChild(body);
-        container.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(curriculumGroup),
-                getPlan(), (ExecutionSemester) null));
+        final Context context = CurriculumAggregatorServices.getContext(curriculumGroup);
+        if (context != null) {
+            container.addChild(EnrolmentLayout.generateAggregationInfo(context, getPlan(), context.getBeginExecutionPeriod()));
+        }
         cell.setBody(container);
 
         if (!addHeaders) {
