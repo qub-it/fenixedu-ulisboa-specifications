@@ -25,7 +25,6 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -227,11 +226,6 @@ abstract public class CurriculumAggregatorServices {
                         }
                     }
                 }
-            }
-
-            // fallback HACK that will remain here forever, unless we find that we are taking out something we shouldn't 
-            if (input.getEctsCreditsForCurriculum().compareTo(BigDecimal.ZERO) == 0) {
-                return true;
             }
         }
 
