@@ -14,7 +14,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.util.FenixDigestUtils;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.MarkBean;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -118,6 +117,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
         content.append(getExecutionSemester());
         content.append(getEvaluationSeason().toString());
         content.append(getCertifier());
+        // WARNING legidio, must not change this now, otherwise existing checksums will be modified!! 
         content.append(getStateChange().getCompetenceCourseMarkSheet().hasCourseEvaluationDate() ? getEvaluationDateTime()
                 .toString("yyyy/MM/dd HH:mm") : getEvaluationDate().toString("yyyy/MM/dd"));
         content.append(getStateChange().getDate().toString("yyyy/MM/dd"));
@@ -185,12 +185,8 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
     }
 
     public String getEvaluationDatePresentation() {
-        if (getEvaluationDateTime() != null && !getEvaluationDateTime().toString().contains("T00:00")) {
-            return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
-
-        } else {
-            return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
-        }
+        final DateTime dateTime = CompetenceCourseMarkSheet.getEvaluationDateTime(getEvaluationDateTime(), getEvaluationDate());
+        return CompetenceCourseMarkSheet.getEvaluationDatePresentation(dateTime);
     }
 
     public List<MarkBean> getDifferencesToNextGradeValues() {

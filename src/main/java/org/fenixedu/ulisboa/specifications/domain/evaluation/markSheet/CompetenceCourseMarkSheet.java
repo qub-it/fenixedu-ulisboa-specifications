@@ -469,19 +469,28 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     public String getEvaluationDatePresentation() {
-        if (hasCourseEvaluationDate()) {
-            return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
-
-        } else {
-            return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
-        }
+        return getEvaluationDatePresentation(getEvaluationDateTime());
     }
 
     public DateTime getEvaluationDateTime() {
-        if (hasCourseEvaluationDate()) {
-            return new DateTime(getCourseEvaluation().getEvaluationDate());
+        return getEvaluationDateTime(getCourseEvaluation(), getEvaluationDate());
+    }
+
+    static public String getEvaluationDatePresentation(final DateTime input) {
+        return input.toString(!input.toString().contains(
+                "T00:00") ? EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT : EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
+    }
+
+    static public DateTime getEvaluationDateTime(final Evaluation courseEvaluation, final LocalDate evaluationDate) {
+        return getEvaluationDateTime(courseEvaluation == null ? null : new DateTime(courseEvaluation.getEvaluationDate()),
+                evaluationDate);
+    }
+
+    static public DateTime getEvaluationDateTime(final DateTime evaluationDateTime, final LocalDate evaluationDate) {
+        if (evaluationDateTime != null) {
+            return evaluationDateTime;
         } else {
-            return getEvaluationDate().toDateTimeAtStartOfDay();
+            return evaluationDate.toDateTimeAtStartOfDay();
         }
     }
 

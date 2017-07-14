@@ -209,25 +209,11 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public String getEvaluationDatePresentation() {
-        if (hasCourseEvaluationDate()) {
-            return getEvaluationDateTime().toString(EnrolmentEvaluationServices.EVALUATION_DATE_TIME_FORMAT);
-
-        } else {
-            return getEvaluationDate().toString(EnrolmentEvaluationServices.EVALUATION_DATE_FORMAT);
-        }
+        return CompetenceCourseMarkSheet.getEvaluationDatePresentation(getEvaluationDateTime());
     }
 
     public DateTime getEvaluationDateTime() {
-        if (hasCourseEvaluationDate()) {
-            return new DateTime(getCourseEvaluation().getEvaluationDate());
-        } else {
-            return getEvaluationDate().toDateTimeAtStartOfDay();
-        }
-    }
-
-    public boolean hasCourseEvaluationDate() {
-        final Evaluation courseEvaluation = getCourseEvaluation();
-        return courseEvaluation != null && courseEvaluation.getEvaluationDate() != null;
+        return CompetenceCourseMarkSheet.getEvaluationDateTime(getCourseEvaluation(), getEvaluationDate());
     }
 
     public LocalDate getEvaluationDate() {
