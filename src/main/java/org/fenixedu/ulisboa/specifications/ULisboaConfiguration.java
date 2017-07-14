@@ -72,9 +72,15 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "support.active", defaultValue = "true")
         public Boolean getSupportActive();
+
+        @ConfigurationProperty(key = "documentation.active", defaultValue = "true")
+        public Boolean getDocumentationActive();
         
         @ConfigurationProperty(key = "ldap.integration.useCustomGivenNames", defaultValue = "false")
         public Boolean getUseCustomGivenNames();
+
+        @ConfigurationProperty(key = "ldap.integration.sendHashedPassword", defaultValue = "true")
+        public Boolean getSendHashedPassword();
     }
 
     public static ConfigurationProperties getConfiguration() {
