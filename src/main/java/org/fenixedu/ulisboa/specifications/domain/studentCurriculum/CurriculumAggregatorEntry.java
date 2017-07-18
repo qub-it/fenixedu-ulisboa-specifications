@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Grade;
@@ -155,7 +156,8 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                 return true;
             }
             if (module instanceof Enrolment) {
-                return !((Enrolment) module).getGrade().isEmpty();
+                final Enrolment enrolment = (Enrolment) module;
+                return !enrolment.isAnnulled() && !enrolment.getGrade().isEmpty();
             }
         }
 
@@ -180,25 +182,16 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                 result = plan.getApprovedCurriculumLine((CurricularCourse) degreeModule);
 
             } else {
-                result = getLastEnrolment(plan);
+
+                result = plan.getAllCurriculumLines().stream()
+                        .filter(i -> i.getDegreeModule() == getContext().getChildDegreeModule()).max((x, y) -> {
+                            final int c = x.getExecutionYear().compareTo(y.getExecutionYear());
+                            return c == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(x, y) : c;
+                        }).orElse(null);
             }
 
         } else {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.unexpected.entry.type");
-        }
-
-        return result;
-    }
-
-    private Enrolment getLastEnrolment(final StudentCurricularPlan plan) {
-        Enrolment result = null;
-
-        if (plan != null && getContext().getChildDegreeModule().isCurricularCourse()) {
-
-            result = plan.getEnrolments((CurricularCourse) getContext().getChildDegreeModule()).stream().max((x, y) -> {
-                final int c = x.getExecutionYear().compareTo(y.getExecutionYear());
-                return c == 0 ? ICurriculumEntry.COMPARATOR_BY_ID.compare(x, y) : c;
-            }).orElse(null);
         }
 
         return result;
