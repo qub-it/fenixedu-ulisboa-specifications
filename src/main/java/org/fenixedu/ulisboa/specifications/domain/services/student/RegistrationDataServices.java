@@ -4,13 +4,12 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationDataByExecutionYearExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment.ManageRegistrationDataByExecutionYearDA.RegistrationDataEditBean;
-import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class RegistrationDataServices {
 
@@ -29,23 +28,30 @@ public class RegistrationDataServices {
         input.delete();
     }
 
-    static public void setCurricularYear(final RegistrationDataByExecutionYear data, final Integer curricularYear) {
+    static public void setCurricularYear(final RegistrationDataByExecutionYear data, final Integer update) {
         final RegistrationDataByExecutionYearExtendedInformation info =
                 RegistrationDataByExecutionYearExtendedInformation.findOrCreate(data);
 
-        final Integer currentOverriden = info.getCurricularYear();
-        if ((currentOverriden == null && curricularYear != null)
-                || (currentOverriden != null && !currentOverriden.equals(curricularYear))) {
+        final Integer overriden = info.getCurricularYear();
+        if ((overriden == null && update != null) || (overriden != null && !overriden.equals(update))) {
 
             final Registration registration = data.getRegistration();
             final CurricularYearResult current = RegistrationServices.getCurricularYear(registration, data.getExecutionYear());
 
             final RegistrationObservations observation = new RegistrationObservations(registration);
-            observation.setValue(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.curricularYear.overriden.observation",
-                    curricularYear == null ? "-" : curricularYear.toString(), String.valueOf(current.getResult()),
-                    current.getJustificationPresentation()));
 
-            info.setCurricularYear(curricularYear);
+            String value;
+            if (update == null) {
+                value = ULisboaSpecificationsUtil.bundle("label.curricularYear.overriden.observation.removed");
+            } else {
+                value = ULisboaSpecificationsUtil.bundle("label.curricularYear.overriden.observation.updated", update.toString(),
+                        String.valueOf(current.getResult()), current.getJustificationPresentation());
+            }
+            value = value + " " + ULisboaSpecificationsUtil.bundle("label.curricularYear.overriden.observation.suffix",
+                    String.valueOf(current.getResult()), current.getJustificationPresentation());
+            observation.setValue(value);
+
+            info.setCurricularYear(update);
             RegistrationServices.invalidateCacheCurricularYear(registration, data.getExecutionYear());
         }
     }
