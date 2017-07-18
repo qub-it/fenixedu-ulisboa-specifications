@@ -280,7 +280,7 @@ abstract public class CurriculumConfigurationInitializer {
             return CurricularPeriodRule.getMessages(this.justification)
                     .replace("-", ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.empty"))
                     .replace(ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.prefix.remove"),
-                            "label.CurricularYearResult.prefix.add");
+                            ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.prefix.add"));
         }
 
         public ExecutionYear getExecutionYear() {
