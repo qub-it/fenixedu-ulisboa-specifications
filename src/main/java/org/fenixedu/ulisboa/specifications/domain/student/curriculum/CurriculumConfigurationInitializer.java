@@ -60,6 +60,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationD
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,7 +277,10 @@ abstract public class CurriculumConfigurationInitializer {
         }
 
         public String getJustificationPresentation() {
-            return CurricularPeriodRule.getMessages(this.justification).replace("Aluno do", "Falhou");
+            return CurricularPeriodRule.getMessages(this.justification)
+                    .replace("-", ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.empty"))
+                    .replace(ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.prefix.remove"),
+                            "label.CurricularYearResult.prefix.add");
         }
 
         public ExecutionYear getExecutionYear() {

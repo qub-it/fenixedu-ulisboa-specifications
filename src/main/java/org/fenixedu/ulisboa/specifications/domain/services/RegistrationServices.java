@@ -110,12 +110,15 @@ public class RegistrationServices {
         Dismissal.getRelationDegreeModuleCurriculumModule().addListener(CREDITS_CREATION_DISABLE_ACCUMULATED);
     }
 
+    static private String getCacheKey(final Registration registration, final ExecutionYear year) {
+        return String.format("%s#%s", registration.getExternalId(), year == null ? "null" : year.getExternalId());
+    }
+
     static final private Cache<String, ICurriculum> CACHE_CURRICULUMS =
             CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(1, TimeUnit.MINUTES).build();
 
     static public ICurriculum getCurriculum(final Registration registration, final ExecutionYear executionYear) {
-        final String key = String.format("%s#%s", registration.getExternalId(),
-                executionYear == null ? "null" : executionYear.getExternalId());
+        final String key = getCacheKey(registration, executionYear);
 
         try {
             return CACHE_CURRICULUMS.get(key, new Callable<ICurriculum>() {
@@ -139,8 +142,7 @@ public class RegistrationServices {
             .maximumSize(1500).expireAfterWrite(CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES, TimeUnit.MINUTES).build();
 
     static public CurricularYearResult getCurricularYear(final Registration registration, final ExecutionYear executionYear) {
-        final String key = String.format("%s#%s", registration.getExternalId(),
-                executionYear == null ? "null" : executionYear.getExternalId());
+        final String key = getCacheKey(registration, executionYear);
 
         try {
 
@@ -158,6 +160,10 @@ public class RegistrationServices {
                     t.getLocalizedMessage()));
             return null;
         }
+    }
+
+    static public void invalidateCacheCurricularYear(final Registration registration, final ExecutionYear executionYear) {
+        CACHE_CURRICULAR_YEAR.invalidate(getCacheKey(registration, executionYear));
     }
 
     /**

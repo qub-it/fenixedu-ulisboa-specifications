@@ -46,6 +46,7 @@ public class RegistrationDataServices {
                     current.getJustificationPresentation()));
 
             info.setCurricularYear(curricularYear);
+            RegistrationServices.invalidateCacheCurricularYear(registration, data.getExecutionYear());
         }
     }
 
