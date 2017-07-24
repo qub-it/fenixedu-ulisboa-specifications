@@ -18,14 +18,6 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
-<%@page import="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
-<%@page import="org.fenixedu.academic.domain.StudentCurricularPlan"%>
-<%@page import="org.apache.commons.collections.comparators.ReverseComparator"%>
-<%@page import="java.util.Comparator"%>
-<%@page import="java.util.Collections"%>
-<%@page import="java.util.List"%>
-<%@page import="org.apache.struts.util.LabelValueBean"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
@@ -34,10 +26,14 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/enum" prefix="e" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
 <%@ page language="java" %>
-<%@page import="org.fenixedu.academic.domain.degree.DegreeType"%>
-<%@page import="org.fenixedu.academic.domain.EvaluationSeason"%>
-<%@page import="org.fenixedu.academic.domain.EvaluationConfiguration"%>
-<%@ page import="org.fenixedu.commons.i18n.I18N"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
+<%@page import="org.fenixedu.academic.domain.StudentCurricularPlan"%>
+<%@page import="org.apache.commons.collections.comparators.ReverseComparator"%>
+<%@page import="java.util.Comparator"%>
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.List"%>
+<%@page import="org.apache.struts.util.LabelValueBean"%>
 <html:xhtml/>
 
 <link href="<%= request.getContextPath() %>/CSS/print.css" rel="stylesheet" media="print" type="text/css" />
@@ -268,7 +264,7 @@ function load()
     } 
     else 
     {
-        var scrollToElement = $("#select_studentCPID").first();
+        var scrollToElement = $("#scpForm").first();
         $(window).scrollTop( scrollToElement.offset().top);
     }
 }
