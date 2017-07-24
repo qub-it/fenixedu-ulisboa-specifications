@@ -77,6 +77,7 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
@@ -139,8 +140,10 @@ public class StudentCurricularPlanLayout extends Layout {
 
     static final private String EMPTY_SPACE = " ";
 
+    // qubExtension
     static final private String EMPTY_WIDTH = "width: 16px;";
 
+    // qubExtension
     static final private String TOOLTIP_DOT = " border-bottom: 1px dotted #777";
 
     protected static final String SPACER_IMAGE_PATH = "/images/scp_spacer.gif";
@@ -785,8 +788,9 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateExternalEnrolmentLabelCell(final HtmlTableRow externalEnrolmentRow,
             final ExternalEnrolment externalEnrolment, final int level) {
-        generateCellWithText(externalEnrolmentRow, externalEnrolment.getDescription(), renderer.getLabelCellClass(),
-                MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
+        // qubExtension, show code
+        generateCellWithText(externalEnrolmentRow, externalEnrolment.getDescription() + " (" + externalEnrolment.getCode() + ")",
+                renderer.getLabelCellClass(), MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
     }
 
     private void generateEnrolmentRow(final HtmlTable mainTable, final Enrolment enrolment, final int level) {
@@ -1115,9 +1119,9 @@ public class StudentCurricularPlanLayout extends Layout {
                 AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser());
 
         // qubExtension, show grade available date as a tooltip
-        final String text =
-                isToShow ? grade.getValue() : markSheetAccess && evaluation.getCompetenceCourseMarkSheet() != null ? String
-                        .format("(%s)", BundleUtil.getString(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
+        final CompetenceCourseMarkSheet markSheet = evaluation.getCompetenceCourseMarkSheet();
+        final String text = isToShow ? grade.getValue() : markSheetAccess && markSheet != null ? String.format("(%s)",
+                BundleUtil.getString(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
         String title = null;
         if (isToShow) {
             title = getGradeDescription(grade);
@@ -1130,7 +1134,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // qubExtension, link to marksheet
         final HtmlComponent component;
-        if (evaluation.getCompetenceCourseMarkSheet() == null || !markSheetAccess) {
+        if (markSheet == null || !markSheetAccess) {
             component = new HtmlText(text);
         } else {
             component = new HtmlLink();
@@ -1138,8 +1142,7 @@ public class StudentCurricularPlanLayout extends Layout {
             ((HtmlLink) component).setText(text);
             ((HtmlLink) component).setModuleRelative(false);
             ((HtmlLink) component).setTarget("_blank");
-            ((HtmlLink) component).setUrl(
-                    CompetenceCourseMarkSheetController.READ_URL + evaluation.getCompetenceCourseMarkSheet().getExternalId());
+            ((HtmlLink) component).setUrl(CompetenceCourseMarkSheetController.READ_URL + markSheet.getExternalId());
         }
         generateCellWithSpan(row, component, title, renderer.getGradeCellClass(), true);
         return isToShow;
@@ -1477,8 +1480,10 @@ public class StudentCurricularPlanLayout extends Layout {
 
         if (enrolment instanceof OptionalEnrolment) {
             final OptionalEnrolment optionalEnrolment = (OptionalEnrolment) enrolment;
-            return optionalEnrolment.getOptionalCurricularCourse().getName() + " (" + code
-                    + optionalEnrolment.getCurricularCourse().getName(optionalEnrolment.getExecutionPeriod()) + ")";
+            return optionalEnrolment.getOptionalCurricularCourse().getNameI18N(enrolment.getExecutionPeriod()).getContent() + " ("
+                    + code
+                    + optionalEnrolment.getCurricularCourse().getNameI18N(optionalEnrolment.getExecutionPeriod()).getContent()
+                    + ")";
         } else {
             return code + enrolment.getName().getContent();
         }
