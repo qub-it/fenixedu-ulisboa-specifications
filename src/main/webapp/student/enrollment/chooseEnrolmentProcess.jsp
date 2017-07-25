@@ -77,7 +77,7 @@
 	<table class="tstyle1 thlight mtop15 table">
 		<thead>
 			<tr>
-				<th scope="col" width="80px;"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.executionYear" /></th>
+				<th scope="col" width="82px;"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.executionYear" /></th>
 				<th scope="col" class="aleft"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.curricularPlan" /></th>
 				<th scope="col" width="350px;"><bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.EnrolmentProcess.steps" /></th>
 				<th scope="col" width="150px;"></th>
