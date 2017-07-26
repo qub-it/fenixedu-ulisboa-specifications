@@ -54,7 +54,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
             final BigDecimal value = sumEntriesInput.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumEntriesInput
                     .divide(sumEntriesFactor, RoundingMode.HALF_UP);
 
-            return createGrade(value, getGradeScale(), aggregator.getGradeValueScale());
+            return createGrade(aggregator, plan, value, getGradeScale(), aggregator.getGradeValueScale());
         }
     },
 
@@ -68,7 +68,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
 
             final BigDecimal value = sumEntriesInput;
 
-            return createGrade(value, getGradeScale(), aggregator.getGradeValueScale());
+            return createGrade(aggregator, plan, value, getGradeScale(), aggregator.getGradeValueScale());
         }
 
     };
@@ -89,10 +89,13 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
         return i -> i.calculateGradeValue(plan).multiply(i.getGradeFactor());
     }
 
-    static private Grade createGrade(final BigDecimal value, final GradeScale gradeScale, final int gradeValueScale) {
+    static private Grade createGrade(final CurriculumAggregator aggregator, final StudentCurricularPlan plan,
+            final BigDecimal value, final GradeScale gradeScale, final int gradeValueScale) {
+
         final String grade = value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString();
         if (!gradeScale.belongsTo(grade)) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade",
+                    plan.getRegistration().getNumber().toString(), aggregator.getContext().getChildDegreeModule().getCode(),
                     grade, gradeScale.getDescription());
         }
 
