@@ -759,6 +759,23 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 emailAddress);
     }
 
+    public void addPrintVariables() {
+        ServiceRequestType type = getServiceRequestType();
+
+        for (ServiceRequestSlotEntry slotEntry : type.getServiceRequestSlotEntriesSet()) {
+            if (slotEntry.getIsPrintConfiguration()) {
+
+                ServiceRequestProperty property = findProperty(slotEntry.getServiceRequestSlot().getCode());
+                if (property == null) {
+                    property = ServiceRequestProperty.create(this, slotEntry.getServiceRequestSlot(),
+                            slotEntry.getDefaultServiceRequestProperty().getValue());
+                } else {
+                    property.setValue(slotEntry.getDefaultServiceRequestProperty().getValue());
+                }
+            }
+        }
+    }
+
     /**
      * Static services
      */

@@ -24,6 +24,7 @@ public class AutomaticOnlineRequestProcessor extends AutomaticOnlineRequestProce
     @Override
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (request.isNewRequest() && request.getRequestedOnline()) {
+            request.addPrintVariables();
             request.transitToProcessState();
             request.generateDocument();
             request.transitToConcludedState();
