@@ -45,12 +45,19 @@ public class FenixEduUlisboaExceptionHandler extends PortalExceptionHandler impl
         Throwable unwrappedException = unwrapException(exception, 0);
 
         super.setExtraParameters(ctx, req, unwrappedException);
-        Class<? extends Throwable> class1 = unwrappedException.getClass();
-        ctx.put("exceptionFullQualifiedName", class1.getName());
-        StackTraceElement stackTraceElement = unwrappedException.getStackTrace()[0];
-        ctx.put("offendingClass", stackTraceElement.getClassName());
-        ctx.put("offendingMethod", stackTraceElement.getMethodName());
-        ctx.put("offendingLine", stackTraceElement.getLineNumber());
+        ctx.put("exceptionFullQualifiedName", unwrappedException.getClass().getName());
+
+        StackTraceElement[] stackTraceElements = unwrappedException.getStackTrace();
+        if (stackTraceElements.length > 0) {
+            StackTraceElement stackTraceElement = stackTraceElements[0];
+            ctx.put("offendingClass", stackTraceElement.getClassName());
+            ctx.put("offendingMethod", stackTraceElement.getMethodName());
+            ctx.put("offendingLine", stackTraceElement.getLineNumber());
+        } else {
+            ctx.put("offendingClass", "noStackTracePresent");
+            ctx.put("offendingMethod", "noStackTracePresent");
+            ctx.put("offendingLine", "0");
+        }
         ctx.put("exceptionMessage", unwrappedException.getMessage());
     }
 
