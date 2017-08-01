@@ -37,13 +37,36 @@ public class FenixEduUlisboaExceptionHandler extends PortalExceptionHandler impl
 
     @Override
     protected void setExtraParameters(Map<String, Object> ctx, HttpServletRequest req, Throwable exception) {
-        super.setExtraParameters(ctx, req, exception);
-        ctx.put("exceptionFullQualifiedName", exception.getClass().getName());
-        StackTraceElement stackTraceElement = exception.getStackTrace()[0];
+        // It will be much more interesting to actually know the true cause of the exception instead of 
+        // exception most of the times we received (Such as ServletNestedException). So we'll perform 
+        // exception unwrapping to find the true cause.
+        //
+        // 1 August 2017 - Paulo Abrantes
+        Throwable unwrappedException = unwrapException(exception, 0);
+
+        super.setExtraParameters(ctx, req, unwrappedException);
+        Class<? extends Throwable> class1 = unwrappedException.getClass();
+        ctx.put("exceptionFullQualifiedName", class1.getName());
+        StackTraceElement stackTraceElement = unwrappedException.getStackTrace()[0];
         ctx.put("offendingClass", stackTraceElement.getClassName());
         ctx.put("offendingMethod", stackTraceElement.getMethodName());
         ctx.put("offendingLine", stackTraceElement.getLineNumber());
-        ctx.put("exceptionMessage", exception.getMessage());
+        ctx.put("exceptionMessage", unwrappedException.getMessage());
+    }
+
+    //
+    // Just in case we end up in some sort of loop or huge exception chain
+    // let's have a kill switch to make sure we don't spend an eternity 
+    // unwrapping exceptions.
+    //
+    // 1 August 2017 - Paulo Abrantes
+
+    public static final int EXCEPTION_CAUSE_LIMIT = 42;
+
+    protected Throwable unwrapException(Throwable throwable, int counter) {
+        Throwable cause = throwable.getCause();
+        return (cause == null || cause == throwable || counter > EXCEPTION_CAUSE_LIMIT) ? throwable : unwrapException(cause,
+                ++counter);
     }
 
 }
