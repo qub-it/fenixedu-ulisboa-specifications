@@ -59,7 +59,7 @@ public class CreditsLimitWithPreviousApprovals extends CreditsLimitWithPreviousA
 
     @Override
     protected void removeOwnParameters() {
-//        super.setStatuteType(null);
+        getPreviousGroupsSet().clear();
     }
 
     @Override
