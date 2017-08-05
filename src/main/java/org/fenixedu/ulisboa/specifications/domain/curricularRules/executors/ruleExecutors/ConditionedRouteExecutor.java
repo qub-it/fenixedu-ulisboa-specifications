@@ -4,11 +4,9 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor;
-import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.person.RoleType;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class ConditionedRouteExecutor extends CurricularRuleExecutor {
@@ -46,18 +44,8 @@ public class ConditionedRouteExecutor extends CurricularRuleExecutor {
         }
 
         final IDegreeModuleToEvaluate degreeModuleToEvaluate = searchDegreeModuleToEvaluate(enrolmentContext, curricularRule);
-
-        if (degreeModuleToEvaluate.isEnroled() && degreeModuleToEvaluate instanceof EnroledCurriculumModuleWrapper) {
-            // TODO legidio, expand AuditingServices
-            final CurriculumModule auditable = ((EnroledCurriculumModuleWrapper) degreeModuleToEvaluate).getCurriculumModule();
-            final String creatorUsername = auditable.getVersioningCreator();
-            final Person creator = Person.readPersonByUsername(creatorUsername);
-
-            if (creator != null && !isPersonAuthorized(creator)) {
-                return createFalseResult(sourceDegreeModuleToEvaluate, degreeModuleToEvaluate);
-            }
-
-            return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+        if (degreeModuleToEvaluate.isEnroled()) {
+            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
         return createFalseResult(sourceDegreeModuleToEvaluate, degreeModuleToEvaluate);
