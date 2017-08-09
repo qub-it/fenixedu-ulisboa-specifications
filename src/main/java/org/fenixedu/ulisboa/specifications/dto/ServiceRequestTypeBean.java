@@ -38,6 +38,8 @@ public class ServiceRequestTypeBean implements IBean {
     public static class SlotRequestBean {
         private ServiceRequestSlot slot;
         private boolean required;
+        private boolean printConfiguration;
+        private Object slotDefaultValue;
         
         public ServiceRequestSlot getSlot() {
             return slot;
@@ -54,6 +56,23 @@ public class ServiceRequestTypeBean implements IBean {
         public void setRequired(boolean required) {
             this.required = required;
         }
+        
+        public boolean isPrintConfiguration() {
+			return printConfiguration;
+		}
+        
+        public void setPrintConfiguration(boolean printConfiguration) {
+			this.printConfiguration = printConfiguration;
+		}
+        
+        public Object getSlotDefaultValue() {
+			return slotDefaultValue;
+		}
+        
+        public void setSlotDefaultValue(Object slotDefaultValue) {
+			this.slotDefaultValue = slotDefaultValue;
+		}
+        
     }
     
     private List<SlotRequestBean> requestSlotsBeans;
