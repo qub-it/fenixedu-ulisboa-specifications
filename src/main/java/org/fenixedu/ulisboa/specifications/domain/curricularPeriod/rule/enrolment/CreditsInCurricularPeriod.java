@@ -25,18 +25,6 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
         super();
     }
 
-    static public CreditsInCurricularPeriod createForSemester(final CurricularPeriodConfiguration configuration,
-            final BigDecimal credits, final Integer semester, final Integer year) {
-
-        return create(configuration, credits, semester, year, year);
-    }
-
-    static public CreditsInCurricularPeriod createForYear(final CurricularPeriodConfiguration configuration,
-            final BigDecimal credits, final Integer year) {
-
-        return createForYearInterval(configuration, credits, year, year);
-    }
-
     static public CreditsInCurricularPeriod createForYearInterval(final CurricularPeriodConfiguration configuration,
             final BigDecimal credits, final Integer yearMin, final Integer yearMax) {
 
@@ -73,15 +61,17 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
     @Override
     public String getLabel() {
+
         final BigDecimal credits = getCredits();
 
         if (getSemester() != null) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester",
-                    credits.toString(), getSemester().toString(), getYearMin().toString());
+            return getStatuteTypesLabelPrefix()
+                    + BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".semester",
+                            credits.toString(), getSemester().toString(), getYearMin().toString());
 
         } else if (isForYear()) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year", credits.toString(),
-                    getYearMin().toString());
+            return getStatuteTypesLabelPrefix() + BundleUtil.getString(MODULE_BUNDLE,
+                    "label." + this.getClass().getSimpleName() + ".year", credits.toString(), getYearMin().toString());
 
         } else {
             final int configurationYear = getConfiguration().getCurricularPeriod().getChildOrder();
@@ -89,13 +79,19 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
             final boolean simple =
                     credits.equals(BigDecimal.ZERO) && getYearMin() == configurationYear + 1 && getYearMax() == degreeDuration;
 
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + (simple ? ".simple" : ""),
-                    credits.toString(), getYearMin().toString(), getYearMax().toString());
+            return getStatuteTypesLabelPrefix()
+                    + BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + (simple ? ".simple" : ""),
+                            credits.toString(), getYearMin().toString(), getYearMax().toString());
         }
     }
 
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
+
+        if (!hasValidStatute(enrolmentContext)) {
+            return createNA();
+        }
+
         final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(getYearMin(), getYearMax(), true);
         if (configured == null) {
             return createFalseConfiguration();

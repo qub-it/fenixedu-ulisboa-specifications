@@ -572,6 +572,11 @@ relation CurricularPeriodConfigurationRuleEnrolment {
 	}
 }
 
+relation RuleEnrolmentStatuteType {
+	curricularPeriod.rule.RuleEnrolment playsRole ruleEnrolments { multiplicity *; }
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes { multiplicity *; }
+}
+
 relation CurricularPeriodConfigurationRuleTransition {
 	curricularPeriod.CurricularPeriodConfiguration playsRole configurationTransition {
 		multiplicity 0..1;
@@ -598,6 +603,8 @@ relation StatuteTypeRuleTransition {
 		multiplicity *;
 	}
 }
+
+
 
 // ==================== END: CurricularPeriodConfiguration ====================
 

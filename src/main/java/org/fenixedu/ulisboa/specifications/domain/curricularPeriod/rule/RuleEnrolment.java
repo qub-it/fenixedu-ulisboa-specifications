@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
+import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -88,6 +89,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
     @Atomic
     public void delete() {
         super.setConfigurationEnrolment(null);
+        getStatuteTypesSet().clear();
         super.delete();
     }
 
@@ -106,6 +108,17 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
         super.copyConfigurationTo(target);
         final RuleEnrolment ruleEnrolment = (RuleEnrolment) target;
         ruleEnrolment.setIncludeEnrolments(getIncludeEnrolments());
+    }
+
+    protected boolean hasValidStatute(final EnrolmentContext enrolmentContext) {
+        return getStatuteTypesSet().isEmpty()
+                || StatuteServices.findStatuteTypes(enrolmentContext.getRegistration(), enrolmentContext.getExecutionYear())
+                        .stream().anyMatch(s -> getStatuteTypesSet().contains(s));
+    }
+    
+    protected String getStatuteTypesLabelPrefix() {
+        return !getStatuteTypesSet().isEmpty() ? "["
+                + getStatuteTypesSet().stream().map(s -> s.getName().getContent()).collect(Collectors.joining(", ")) + "] " : "";
     }
 
     abstract public RuleResult execute(final EnrolmentContext enrolmentContext);
