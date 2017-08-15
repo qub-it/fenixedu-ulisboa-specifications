@@ -1746,8 +1746,8 @@ relation CourseGroupDegreeInfoExtendedDegreeInfo {
 }
 
 relation CourseGroupDegreeInfoCourseGroup {
-    CourseGroupDegreeInfo playsRole courseGroupDegreeInfo {
-        multiplicity 0..1;
+    CourseGroupDegreeInfo playsRole courseGroupDegreeInfos {
+        multiplicity *;
     }
     .org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole courseGroup {
         multiplicity 0..1;

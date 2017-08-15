@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.service.reports.providers;
+package org.fenixedu.ulisboa.specifications.service.reports.providers.request;
 
 import java.util.List;
 import java.util.stream.Collectors;

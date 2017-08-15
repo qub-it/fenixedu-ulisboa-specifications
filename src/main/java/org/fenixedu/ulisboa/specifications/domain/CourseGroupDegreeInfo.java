@@ -14,10 +14,8 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
 
     public static void setupDeleteListener() {
         FenixFramework.getDomainModel().registerDeletionListener(CourseGroup.class, courseGroup -> {
-            CourseGroupDegreeInfo cgdi = courseGroup.getCourseGroupDegreeInfo();
-            courseGroup.setCourseGroupDegreeInfo(null);
-            if (cgdi != null) {
-                cgdi.delete();
+            for (CourseGroupDegreeInfo courseGroupDegreeInfo : courseGroup.getCourseGroupDegreeInfosSet()) {
+                courseGroupDegreeInfo.delete();
             }
         });
     }

@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
@@ -25,7 +26,7 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
     }
 
     public static void setupCreationListener() {
-        Signal.register(DegreeInfo.DEGREE_INFO_CREATION_EVENT, (DomainObjectEvent<DegreeInfo> event) -> {
+        Signal.register(DegreeInfo.DEGREE_INFO_CREATION_EVENT, (final DomainObjectEvent<DegreeInfo> event) -> {
             DegreeInfo degreeInfo = event.getInstance();
             if (degreeInfo.getExtendedDegreeInfo() != null) {
                 return; // @diogo-simoes 22MAR2016 // Only apply for new DegreeInfos created outside the ExtendedDegreeInfo scope
@@ -44,12 +45,12 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
         setBennu(Bennu.getInstance());
     }
 
-    public ExtendedDegreeInfo(DegreeInfo degreeInfo) {
+    public ExtendedDegreeInfo(final DegreeInfo degreeInfo) {
         this();
         setDegreeInfo(degreeInfo);
     }
 
-    public ExtendedDegreeInfo(DegreeInfo degreeInfo, ExtendedDegreeInfo olderEdi) {
+    public ExtendedDegreeInfo(final DegreeInfo degreeInfo, final ExtendedDegreeInfo olderEdi) {
         this(degreeInfo);
 
         setScientificAreas(olderEdi.getScientificAreas());
@@ -60,6 +61,18 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
         setProfessionalStatus(olderEdi.getProfessionalStatus());
         setSupplementExtraInformation(olderEdi.getSupplementExtraInformation());
         setSupplementOtherSources(olderEdi.getSupplementOtherSources());
+
+        for (CourseGroupDegreeInfo courseGroupDegreeInfo : olderEdi.getCourseGroupDegreeInfosSet()) {
+            String courseGroupName = courseGroupDegreeInfo.getCourseGroup().getName();
+            //TODO: This shouldn't be copied
+            CourseGroup courseGroup = this.getDegreeInfo().getDegree()
+                    .getDegreeCurricularPlansForYear(this.getDegreeInfo().getExecutionYear()).stream()
+                    .flatMap(p -> p.getAllCoursesGroups().stream()).filter(cg -> cg.getProgramConclusion() != null)
+                    .filter(cg -> cg.getName().equals(courseGroupName)).findAny().orElse(null);
+            if (courseGroup != null) {
+                CourseGroupDegreeInfo.create(courseGroupDegreeInfo.getDegreeName(), this, courseGroup);
+            }
+        }
     }
 
     public void delete() {
@@ -75,7 +88,7 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
      * @return The ExtendedDegreeInfo instance associated with the MOST recent DegreeInfo.
      */
     @Atomic
-    public static ExtendedDegreeInfo getMostRecent(ExecutionYear executionYear, Degree degree) {
+    public static ExtendedDegreeInfo getMostRecent(final ExecutionYear executionYear, final Degree degree) {
         DegreeInfo di = degree.getMostRecentDegreeInfo(executionYear);
         if (di.getExtendedDegreeInfo() == null) {
             final ExtendedDegreeInfo mostRecent = findMostRecent(executionYear, degree);
@@ -90,7 +103,7 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
      *         to the ExtendedDegreeInfo.
      */
     @Atomic
-    public static ExtendedDegreeInfo getOrCreate(ExecutionYear executionYear, Degree degree) {
+    public static ExtendedDegreeInfo getOrCreate(final ExecutionYear executionYear, final Degree degree) {
         DegreeInfo di = executionYear.getDegreeInfo(degree);
         if (di == null) {
             DegreeInfo mrdi = degree.getMostRecentDegreeInfo(executionYear);
@@ -103,7 +116,7 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
         return di.getExtendedDegreeInfo();
     }
 
-    public static ExtendedDegreeInfo findMostRecent(ExecutionYear executionYear, Degree degree) {
+    public static ExtendedDegreeInfo findMostRecent(final ExecutionYear executionYear, final Degree degree) {
         return degree.getDegreeInfosSet().stream().filter(di -> di.getExecutionYear().isBeforeOrEquals(executionYear))
                 .sorted((di1, di2) -> ExecutionYear.REVERSE_COMPARATOR_BY_YEAR.compare(di1.getExecutionYear(),
                         di2.getExecutionYear()))

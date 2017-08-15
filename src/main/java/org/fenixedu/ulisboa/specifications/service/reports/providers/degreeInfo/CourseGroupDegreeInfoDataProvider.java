@@ -1,7 +1,6 @@
-package org.fenixedu.ulisboa.specifications.service.reports.providers;
+package org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo;
 
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
@@ -17,14 +16,10 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
 
     protected CourseGroupDegreeInfo courseGroupDegreeInfo;
 
-    public CourseGroupDegreeInfoDataProvider(Registration registration, ExecutionYear executionYear,
-            ProgramConclusion programConclusion) {
-        Degree degree = registration.getDegree();
-        DegreeInfo degreeInfo = degree.getMostRecentDegreeInfo(executionYear.getAcademicInterval());
-        ExtendedDegreeInfo extendedDegreeInfo = null;
-        if (degreeInfo != null) {
-            extendedDegreeInfo = degreeInfo.getExtendedDegreeInfo();
-        }
+    public CourseGroupDegreeInfoDataProvider(final Registration registration, final ExecutionYear executionYear,
+            final ProgramConclusion programConclusion) {
+        final Degree degree = registration.getDegree();
+        final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
 
         if (extendedDegreeInfo != null) {
 
@@ -41,17 +36,17 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
     }
 
     @Override
-    public void registerFieldsAndImages(IDocumentFieldsData documentFieldsData) {
+    public void registerFieldsAndImages(final IDocumentFieldsData documentFieldsData) {
 
     }
 
     @Override
-    public boolean handleKey(String key) {
+    public boolean handleKey(final String key) {
         return KEY.equals(key);
     }
 
     @Override
-    public Object valueForKey(String key) {
+    public Object valueForKey(final String key) {
         return handleKey(key) ? courseGroupDegreeInfo : null;
     }
 
