@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -9,7 +9,7 @@
  * Contributors: diogo.simoes@qub-it.com
  *               jnpa@reitoria.ulisboa.pt
  *
- * 
+ *
  * This file is part of FenixEdu QubDocs.
  *
  * FenixEdu QubDocs is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@ package org.fenixedu.ulisboa.specifications.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
@@ -48,7 +49,6 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 
@@ -84,10 +84,10 @@ public class ULisboaConstants {
     /*Slots used as default */
     public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
     /*Subset of AcademicServiceRequestSituationType. This are the valid states for the ULisboa Service Request */
-    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES = Arrays.asList(
-            AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
-            AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
-            AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
+    public static final List<AcademicServiceRequestSituationType> USED_SITUATION_TYPES =
+            Arrays.asList(AcademicServiceRequestSituationType.NEW, AcademicServiceRequestSituationType.PROCESSING,
+                    AcademicServiceRequestSituationType.CONCLUDED, AcademicServiceRequestSituationType.DELIVERED,
+                    AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED);
     /*Label for each ULisboa Service Request Processor */
     public static final String STATE_LOGGER_PROCESSOR = "label.StateLoggerProcessor.name";
     public static final String FILL_ENROLMENTS_BY_YEAR_PROPERTY_PROCESSOR =
@@ -131,34 +131,36 @@ public class ULisboaConstants {
 
     };
 
-    public static final List<ICurriculumEntry> getLastPlanApprovements(Registration registration) {
+    public static final List<ICurriculumEntry> getLastPlanApprovements(final Registration registration) {
         return registration.getLastStudentCurricularPlan().getCurriculum(new DateTime(), null).getCurriculumEntries().stream()
                 .collect(Collectors.toList());
     }
 
-    public static final List<ICurriculumEntry> getAllPlansApprovements(Registration registration) {
-        Curriculum mergedCurricula =
-                registration.getStudentCurricularPlansSet().stream().map(scp -> scp.getCurriculum(new DateTime(), null))
-                        .reduce((c1, c2) -> {
-                            c1.add(c2);
-                            return c1;
-                        }).orElse(null);
-        return mergedCurricula == null ? new ArrayList<ICurriculumEntry>() : mergedCurricula.getCurriculumEntries().stream()
+    public static final List<ICurriculumEntry> getAllPlansApprovements(final Registration registration) {
+        Curriculum mergedCurricula = registration.getStudentCurricularPlansSet().stream()
+                .map(scp -> scp.getCurriculum(new DateTime(), null)).reduce((c1, c2) -> {
+                    c1.add(c2);
+                    return c1;
+                }).orElse(null);
+        return mergedCurricula == null ? new ArrayList<>() : mergedCurricula.getCurriculumEntries().stream()
                 .collect(Collectors.toList());
     }
 
-    public static final List<ICurriculumEntry> getLastPlanStandaloneApprovements(Registration registration) {
+    public static final List<ICurriculumEntry> getLastPlanStandaloneApprovements(final Registration registration) {
         return registration.getLastStudentCurricularPlan().getStandaloneCurriculumGroup().getEnrolmentsSet().stream()
                 .filter(e -> e.isApproved()).map(ICurriculumEntry.class::cast).collect(Collectors.toList());
     }
 
-    public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(Registration registration) {
+    public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(final Registration registration) {
         return registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getEnrolmentsSet().stream()
                 .filter(e -> e.isApproved()).map(ICurriculumEntry.class::cast).collect(Collectors.toList());
     }
 
-    public static final List<ICurriculumEntry> getConclusionCurriculum(Registration registration,
-            ProgramConclusion programConclusion) {
+    public static final List<ICurriculumEntry> getConclusionCurriculum(final Registration registration,
+            final ProgramConclusion programConclusion) {
+        if (programConclusion == null) {
+            return Collections.emptyList();
+        }
         final RegistrationConclusionBean conclusionBean = new RegistrationConclusionBean(registration, programConclusion);
         return conclusionBean.getCurriculumForConclusion().getCurriculumEntries().stream().collect(Collectors.toList());
         // programConclusion -> programConclusionInformation -> curriculumGroup/cycleGroup -> studentCurricularPlan
@@ -166,7 +168,7 @@ public class ULisboaConstants {
 
     public static final Locale DEFAULT_LOCALE = new Locale("PT");
 
-    public static final TupleDataSourceBean SELECT_OPTION = new TupleDataSourceBean("", BundleUtil.getString(Constants.BUNDLE,
-            "label.TupleDataSourceBean.select.description"));
+    public static final TupleDataSourceBean SELECT_OPTION =
+            new TupleDataSourceBean("", BundleUtil.getString(Constants.BUNDLE, "label.TupleDataSourceBean.select.description"));
 
 }
