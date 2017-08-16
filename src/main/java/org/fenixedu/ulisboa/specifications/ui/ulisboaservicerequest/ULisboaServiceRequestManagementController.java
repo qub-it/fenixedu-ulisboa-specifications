@@ -9,8 +9,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -146,6 +148,17 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             final String requestNumber, final Boolean isPayed) {
         AcademicServiceRequestYear requestsYear = AcademicServiceRequestYear.readByYear(civilYear, false);
 
+        Predicate<ULisboaServiceRequest> filterIsPayed = req -> {
+            //TODO: check this filter
+            Optional<? extends AcademicTreasuryEvent> event = AcademicTreasuryEvent.findUnique(req);
+
+            return isPayed == null || !event.isPresent() && isPayed
+
+                    || event.isPresent() && !event.get().isCharged() && isPayed
+
+                    || event.isPresent() && isPayed.equals(!event.get().isInDebt());
+        };
+
         return requestsYear.getAcademicServiceRequestsSet().stream().filter(req -> req instanceof ULisboaServiceRequest)
                 .map(ULisboaServiceRequest.class::cast)
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
@@ -155,11 +168,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
                 .filter(req -> req.isUrgent() == isUrgent).filter(req -> req.isSelfIssued() == isSelfIssued)
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
-                .filter(req -> isPayed == null || !AcademicTreasuryEvent.findUnique(req).isPresent() && isPayed
-                        || !AcademicTreasuryEvent.findUnique(req).get().isCharged() && isPayed
-                        || AcademicTreasuryEvent.findUnique(req).isPresent()
-                                && isPayed.equals(!AcademicTreasuryEvent.findUnique(req).get().isInDebt()))
-                .limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
+                .filter(filterIsPayed).limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
