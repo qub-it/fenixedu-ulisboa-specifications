@@ -50,8 +50,10 @@ import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.enrolment.schoolClass.SchoolClassEnrolmentPreference;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionInterval;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
@@ -414,6 +416,13 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         public int getCurricularYear() {
             final ExecutionSemester executionSemester = getExecutionSemester();
             return RegistrationServices.getCurricularYear(getRegistration(), executionSemester.getExecutionYear()).getResult();
+        }
+        
+        public List<SchoolClassEnrolmentPreference> getEnrolmentPreferencesSorted() {
+            final RegistrationDataByExecutionInterval registrationDataByInterval = RegistrationDataByExecutionInterval
+                    .getOrCreateRegistrationDataByInterval(getRegistration(), getExecutionSemester());
+            return registrationDataByInterval.getSchoolClassEnrolmentPreferencesSet().stream().sorted()
+                    .collect(Collectors.toList());
         }
 
         @Override

@@ -1,0 +1,35 @@
+package org.fenixedu.academic.domain;
+
+class student.RegistrationDataByExecutionInterval  {
+	Integer schoolClassEnrolmentPriority;
+}
+	relation RegistrationDataByExecutionIntervalExecutionInterval {
+	    student.RegistrationDataByExecutionInterval playsRole registrationDataByExecutionIntervals { multiplicity *; }
+	    .org.fenixedu.academic.domain.ExecutionInterval playsRole executionInterval;
+	}
+	relation RegistrationDataByExecutionIntervalRegistration {
+	    student.RegistrationDataByExecutionInterval playsRole registrationDataByExecutionIntervals { multiplicity *; }
+	    .org.fenixedu.academic.domain.student.Registration playsRole registration;
+	}
+	relation RegistrationDataByExecutionIntervalRootDomainObject {
+	    student.RegistrationDataByExecutionInterval playsRole registrationDataByExecutionIntervals { multiplicity *; }
+	    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+	}
+
+
+class enrolment.schoolClass.SchoolClassEnrolmentPreference {
+	Integer preferenceOrder;
+}
+	relation SchoolClassEnrolmentPreferenceRegistrationDataByExecutionInterval {
+	    enrolment.schoolClass.SchoolClassEnrolmentPreference playsRole schoolClassEnrolmentPreferences { multiplicity *; }
+	    student.RegistrationDataByExecutionInterval playsRole registrationDataByExecutionInterval;
+	}
+	relation SchoolClassEnrolmentPreferenceSchoolClass {
+	    enrolment.schoolClass.SchoolClassEnrolmentPreference playsRole schoolClassEnrolmentPreferences { multiplicity *; }
+	    .org.fenixedu.academic.domain.SchoolClass playsRole schoolClass;
+	}	
+	relation SchoolClassEnrolmentPreferenceRootDomainObject {
+		enrolment.schoolClass.SchoolClassEnrolmentPreference playsRole schoolClassEnrolmentPreferences { multiplicity *; }
+	    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+	}
+	

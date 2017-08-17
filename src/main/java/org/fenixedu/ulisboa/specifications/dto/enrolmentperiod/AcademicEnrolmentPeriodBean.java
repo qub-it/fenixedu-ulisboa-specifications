@@ -24,6 +24,7 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.InitialSchoolClassStudentEnrollmentDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassPreferenceStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
@@ -271,6 +272,10 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.INITIAL_SCHOOL_CLASS;
     }
 
+    public boolean isForClassesPreference() {
+        return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.SCHOOL_CLASS_PREFERENCE;
+    }
+
     public boolean isForShift() {
         return getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.SHIFT;
     }
@@ -410,6 +415,10 @@ public class AcademicEnrolmentPeriodBean implements IBean {
 
         case CURRICULAR_COURSE:
             result = EnrolmentStep.prepareURL(null, CourseEnrolmentDA.getEntryPointURL(), argsStruts);
+            break;
+            
+        case SCHOOL_CLASS_PREFERENCE:
+            result = EnrolmentStep.prepareURL(null, SchoolClassPreferenceStudentEnrollmentDA.getEntryPointURL(), argsStruts);
             break;
 
         case SCHOOL_CLASS:
