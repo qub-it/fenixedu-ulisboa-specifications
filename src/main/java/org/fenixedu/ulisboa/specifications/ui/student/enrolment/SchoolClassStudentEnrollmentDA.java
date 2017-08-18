@@ -176,9 +176,8 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
     private Optional<SchoolClass> readFirstUnfilledClass(Registration registration, final ExecutionSemester executionSemester) {
         ExecutionDegree executionDegree = registration.getDegree()
                 .getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator().next();
-        return executionDegree
-                .getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
-                        && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
+        return executionDegree.getSchoolClassesSet().stream().filter(
+                sc -> sc.getAnoCurricular().equals(1) && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
                 .max(new MostFilledFreeClass());
     }
 
@@ -417,12 +416,32 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             final ExecutionSemester executionSemester = getExecutionSemester();
             return RegistrationServices.getCurricularYear(getRegistration(), executionSemester.getExecutionYear()).getResult();
         }
-        
+
         public List<SchoolClassEnrolmentPreference> getEnrolmentPreferencesSorted() {
-            final RegistrationDataByExecutionInterval registrationDataByInterval = RegistrationDataByExecutionInterval
-                    .getOrCreateRegistrationDataByInterval(getRegistration(), getExecutionSemester());
+            final RegistrationDataByExecutionInterval registrationDataByInterval = getOrCreateRegistrationDataByInterval();
             return registrationDataByInterval.getSchoolClassEnrolmentPreferencesSet().stream().sorted()
                     .collect(Collectors.toList());
+        }
+
+        public boolean isCanSkipEnrolmentPreferences() {
+
+            final ExecutionSemester executionSemester = getExecutionSemester();
+            final ExecutionSemester previousSemester = executionSemester.getPreviousExecutionPeriod();
+
+            // not the first execution semester, so we give the possibility of mantain last year schoolClass and skip preference choice
+            return previousSemester != null && previousSemester.getExecutionYear() == executionSemester.getExecutionYear()
+                    && getRegistration().getSchoolClassesSet().stream()
+                            .anyMatch(sc -> sc.getExecutionPeriod() == previousSemester);
+        }
+
+        public boolean isHasEnrolmentPreferencesProcessStarted() {
+            return !getOrCreateRegistrationDataByInterval().getSchoolClassEnrolmentPreferencesSet().isEmpty();
+        }
+
+        @Atomic
+        public RegistrationDataByExecutionInterval getOrCreateRegistrationDataByInterval() {
+            return RegistrationDataByExecutionInterval.getOrCreateRegistrationDataByInterval(getRegistration(),
+                    getExecutionSemester());
         }
 
         @Override

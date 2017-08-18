@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,8 +37,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.enrolment.schoolClass.SchoolClassEnrolmentPreference;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionInterval;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
@@ -49,6 +53,7 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA.SchoolClassStudentEnrollmentDTO;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
@@ -90,13 +95,20 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
                         new SchoolClassStudentEnrollmentDTO(iter, null);
                 enrolmentBeans.add(schoolClassStudentEnrollmentBean);
 
-                // create registration data for interval and pre-initialize preferences selection
-                atomic(() -> {
-                    final RegistrationDataByExecutionInterval registrationDataByInterval = RegistrationDataByExecutionInterval
-                            .getOrCreateRegistrationDataByInterval(iter.getRegistration(), iter.getExecutionSemester());
-                    SchoolClassEnrolmentPreference.initializePreferencesForRegistration(registrationDataByInterval,
-                            schoolClassStudentEnrollmentBean.getInitialSchoolClassesToEnrol());
-                });
+                final ExecutionSemester executionSemester = iter.getExecutionSemester();
+                final Registration registration = iter.getRegistration();
+
+                if (!schoolClassStudentEnrollmentBean.isCanSkipEnrolmentPreferences()
+                        && !schoolClassStudentEnrollmentBean.isHasEnrolmentPreferencesProcessStarted()) {
+
+                    // pre-initialize preferences selection
+                    atomic(() -> {
+                        final RegistrationDataByExecutionInterval registrationData = RegistrationDataByExecutionInterval
+                                .getOrCreateRegistrationDataByInterval(registration, executionSemester);
+                        SchoolClassEnrolmentPreference.initializePreferencesForRegistration(registrationData,
+                                getSchoolClassesOptions(registration, executionSemester));
+                    });
+                }
 
                 final EnrolmentProcess enrolmentProcess =
                         EnrolmentProcess.find(iter.getExecutionSemester(), iter.getStudentCurricularPlan());
@@ -132,6 +144,50 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
         }
 
         return prepare(mapping, form, request, response);
+    }
+
+    public ActionForward dontSkipEnrolmentPreferences(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        final RegistrationDataByExecutionInterval registrationData =
+                getDomainObject(request, "registrationDataByExecutionIntervalID");
+
+        try {
+            // pre-initialize preferences selection
+            atomic(() -> SchoolClassEnrolmentPreference.initializePreferencesForRegistration(registrationData,
+                    getSchoolClassesOptions(registrationData.getRegistration(),
+                            registrationData.getExecutionInterval().convert(ExecutionSemester.class))));
+
+//            final String successMessage = "message.schoolClassPreferenceStudentEnrollment.changePreferenceOrder.success";
+//            addActionMessage("success", request, successMessage);
+        } catch (DomainException e) {
+            addActionMessage("error", request, e.getKey(), e.getArgs());
+        }
+
+        return prepare(mapping, form, request, response);
+    }
+
+    public ActionForward clearEnrolmentPreferences(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        final RegistrationDataByExecutionInterval registrationData =
+                getDomainObject(request, "registrationDataByExecutionIntervalID");
+
+        try {
+            atomic(() -> registrationData.getSchoolClassEnrolmentPreferencesSet().forEach(p -> p.delete()));
+            final String successMessage = "message.schoolClassPreferenceStudentEnrollment.clearEnrolmentPreferences.success";
+            addActionMessage("success", request, successMessage);
+        } catch (DomainException e) {
+            addActionMessage("error", request, e.getKey(), e.getArgs());
+        }
+
+        return prepare(mapping, form, request, response);
+    }
+
+    private List<SchoolClass> getSchoolClassesOptions(final Registration registration,
+            final ExecutionSemester executionSemester) {
+        return RegistrationServices.getInitialSchoolClassesToEnrolBy(registration, executionSemester).stream()
+                .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
     }
 
     static private boolean isValidPeriodForUser(final AcademicEnrolmentPeriodBean ep) {

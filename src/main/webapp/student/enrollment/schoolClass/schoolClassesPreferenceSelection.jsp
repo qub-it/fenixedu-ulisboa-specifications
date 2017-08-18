@@ -95,7 +95,23 @@
 		</h3>
 	  </div>
 	  <div class="panel-body">
-	  	<c:if test="${empty enrolmentBean.enrolmentPreferencesSorted}">
+  		<c:if test="${enrolmentBean.canSkipEnrolmentPreferences}">
+	  		<c:if test="${!enrolmentBean.hasEnrolmentPreferencesProcessStarted}">
+	  			<div class="alert alert-info" role="alert">
+		  			<bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassPreferenceStudentEnrollment.dontSkipEnrolmentPreferences.instructions" />:&nbsp;&nbsp;
+					<bean:define id="link"><%=action.toString()%>?method=dontSkipEnrolmentPreferences&registrationDataByExecutionIntervalID=<c:out value="${enrolmentBean.orCreateRegistrationDataByInterval.externalId}" /></bean:define>
+					<html:link onclick="disabledOnClick(this);" page="<%= link %>" styleClass="btn btn-info"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.schoolClassPreferenceStudentEnrollment.dontSkipEnrolmentPreferences" /></html:link>
+				</div>	  			
+	  		</c:if>
+  			<c:if test="${enrolmentBean.hasEnrolmentPreferencesProcessStarted}">
+  				<div class="alert alert-warning" role="alert">
+	  				<bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassPreferenceStudentEnrollment.clearEnrolmentPreferences.instructions" />::&nbsp;&nbsp;
+	  				<bean:define id="link"><%=action.toString()%>?method=clearEnrolmentPreferences&registrationDataByExecutionIntervalID=<c:out value="${enrolmentBean.orCreateRegistrationDataByInterval.externalId}" /></bean:define>
+					<html:link onclick="disabledOnClick(this);" page="<%= link %>" styleClass="btn btn-warning"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.schoolClassPreferenceStudentEnrollment.clearEnrolmentPreferences" /></html:link>
+				</div>
+  			</c:if>
+  		</c:if>
+	  	<c:if test="${empty enrolmentBean.enrolmentPreferencesSorted and !enrolmentBean.canSkipEnrolmentPreferences}">
 	  		<div class="alert alert-warning" role="alert"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassStudentEnrollment.noAvailableSchoolClassesForPeriod" /></div>
 	  	</c:if>
 	  	<c:if test="${not empty enrolmentBean.enrolmentPreferencesSorted}">
