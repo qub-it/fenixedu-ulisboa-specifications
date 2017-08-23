@@ -1,13 +1,13 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -25,10 +25,12 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,7 +54,10 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
+import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
+import org.fenixedu.ulisboa.specifications.service.enrolment.EnrolmentProcessService;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStep;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentStepTemplate;
@@ -84,8 +89,8 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
     }
 
     @EntryPoint
-    public ActionForward prepare(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-            HttpServletResponse response) {
+    public ActionForward prepare(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
+            final HttpServletResponse response) {
 
         final Student student = checkUser();
         final List<AcademicEnrolmentPeriodBean> periods = AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student);
@@ -148,13 +153,39 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
             thread.start();
         }
 
+        if (EnrolmentProcessService.isLastStep(process, request) && EnrolmentProcessService.isToAddEnrolmentProof()) {
+            ULisboaServiceRequest serviceRequest =
+                    EnrolmentProcessService.createEnrolmentProof(scp.getRegistration(), executionSemester.getExecutionYear());
+            ULisboaServiceRequestGeneratedDocument downloadDocument = serviceRequest.downloadDocument();
+
+            request.setAttribute("enrolmentProofDocument", downloadDocument);
+        }
+
         return mapping.findForward("endEnrolmentProcess");
+    }
+
+    public ActionForward downloadEnrolmentDocument(final ActionMapping mapping, final ActionForm form,
+            final HttpServletRequest request, final HttpServletResponse response) {
+        final ULisboaServiceRequestGeneratedDocument downloadDocument = getDomainObject(request, "documentOid");
+
+        response.setContentType(downloadDocument.getContentType());
+        response.setHeader("Content-disposition", "attachment; filename=" + downloadDocument.getDisplayName());
+
+        try {
+            final ServletOutputStream writer = response.getOutputStream();
+            writer.write(downloadDocument.getContent());
+            writer.close();
+        } catch (final IOException e) {
+            throw new Error(e);
+        }
+
+        return null;
     }
 
     private static class CreateTuitions extends Thread {
 
-        private String registrationId;
-        private String executionYearId;
+        private final String registrationId;
+        private final String executionYearId;
 
         public CreateTuitions(final Registration registration, final ExecutionYear executionYear) {
             this.registrationId = registration.getExternalId();

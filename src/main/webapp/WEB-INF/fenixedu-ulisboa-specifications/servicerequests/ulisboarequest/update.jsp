@@ -163,7 +163,7 @@ ${portal.angularToolkit()}
            .controller(
            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
-               $scope.object = angular.fromJson('${ulisboaServiceRequestBeanJson}');
+               $scope.object = ${ulisboaServiceRequestBeanJson};
                $scope.initObject = function () {
         	       angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {
                        if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE%>') {

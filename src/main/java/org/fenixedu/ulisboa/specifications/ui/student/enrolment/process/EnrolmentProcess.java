@@ -36,7 +36,7 @@ public class EnrolmentProcess implements IBean {
     private String beforeProcessURL;
     private String afterProcessURL;
 
-    private List<EnrolmentStep> steps = Lists.newArrayList();
+    private final List<EnrolmentStep> steps = Lists.newArrayList();
     private EnrolmentStep currentStep;
     private EnrolmentStepTemplate lastStep = null;
 
@@ -191,7 +191,7 @@ public class EnrolmentProcess implements IBean {
     /**
      * Where process exits
      */
-    private String getAfterProcessURL(final HttpServletRequest request) {
+    public String getAfterProcessURL(final HttpServletRequest request) {
         return EnrolmentStep.prepareURL(request, this.afterProcessURL);
     }
 

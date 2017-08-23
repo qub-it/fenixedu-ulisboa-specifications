@@ -112,5 +112,20 @@
 				</tr>
 		</tbody>
 	</table>
+    
 </logic:notEmpty>
+
+<logic:notEmpty name="enrolmentProofDocument">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.title.EnrolmentDocuments" />
+            </h3>
+        </div>
+        <div class="panel-body">
+            <span class="label label-info">${ enrolmentProofDocument.serviceRequest.serviceRequestType.name.content }</span>
+            <a href="${pageContext.request.contextPath}/ulisboa-specifications/student/enrolmentManagement.do?method=downloadEnrolmentDocument&documentOid=${ enrolmentProofDocument.externalId }">${ enrolmentProofDocument.displayName }</a>            
+        </div>
+    </div>    
+</logic:notEmpty>    
 
