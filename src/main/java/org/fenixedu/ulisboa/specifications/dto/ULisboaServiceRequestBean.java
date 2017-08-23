@@ -283,8 +283,8 @@ public class ULisboaServiceRequestBean implements IBean {
                     || bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup() == null) {
                 return Collections.emptyList();
             }
-            Stream<ICurriculumEntry> collection = bean.getRegistration().getLastStudentCurricularPlan().getExtraCurriculumGroup()
-                    .getEnrolmentsSet().stream().map(ICurriculumEntry.class::cast);
+            Stream<ICurriculumEntry> collection =
+                    ULisboaConstants.getLastPlanExtracurricularApprovements(bean.getRegistration()).stream();
             return provideForCurriculumEntry(collection);
         });
 
