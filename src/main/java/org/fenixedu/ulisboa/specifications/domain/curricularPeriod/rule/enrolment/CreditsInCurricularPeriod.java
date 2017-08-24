@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import com.google.common.collect.Maps;
 
@@ -88,7 +89,7 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
     @Override
     public RuleResult execute(final EnrolmentContext enrolmentContext) {
 
-        if (!hasValidStatute(enrolmentContext)) {
+        if (!isToEvaluate(enrolmentContext)) {
             return createNA();
         }
 
@@ -100,6 +101,22 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
         final BigDecimal total = getCreditsEnroledAndEnroling(enrolmentContext, configured);
 
         return total.compareTo(getCredits()) <= 0 ? createTrue() : createFalseLabelled(total);
+    }
+
+    //TODO: generalize and move to parent
+    private boolean isToEvaluate(EnrolmentContext enrolmentContext) {
+
+        if (!hasValidStatute(enrolmentContext)) {
+            return false;
+        }
+
+        if (getApplyToFlunkedStudents() != null && getApplyToFlunkedStudents().booleanValue() != RegistrationServices
+                .isFlunkedUsingCurricularYear(enrolmentContext.getRegistration(), enrolmentContext.getExecutionYear())) {
+            return false;
+        }
+
+        return true;
+
     }
 
     private BigDecimal getCreditsEnroledAndEnroling(final EnrolmentContext enrolmentContext,

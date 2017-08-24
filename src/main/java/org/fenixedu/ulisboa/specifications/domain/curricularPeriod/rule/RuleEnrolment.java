@@ -108,6 +108,8 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
         super.copyConfigurationTo(target);
         final RuleEnrolment ruleEnrolment = (RuleEnrolment) target;
         ruleEnrolment.setIncludeEnrolments(getIncludeEnrolments());
+        ruleEnrolment.setApplyToFlunkedStudents(getApplyToFlunkedStudents());
+        ruleEnrolment.getStatuteTypesSet().addAll(getStatuteTypesSet());
     }
 
     protected boolean hasValidStatute(final EnrolmentContext enrolmentContext) {
@@ -115,6 +117,8 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
                 || StatuteServices.findStatuteTypes(enrolmentContext.getRegistration(), enrolmentContext.getExecutionYear())
                         .stream().anyMatch(s -> getStatuteTypesSet().contains(s));
     }
+    
+    
     
     protected String getStatuteTypesLabelPrefix() {
         return !getStatuteTypesSet().isEmpty() ? "["

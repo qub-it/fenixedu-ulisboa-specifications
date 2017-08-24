@@ -508,6 +508,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 
 	class curricularPeriod.rule.RuleEnrolment extends curricularPeriod.rule.CurricularPeriodRule {
 		boolean includeEnrolments;
+		Boolean applyToFlunkedStudents;
 	}
 	
 		class curricularPeriod.rule.enrolment.CreditsInEnrolmentPeriod extends curricularPeriod.rule.RuleEnrolment {
