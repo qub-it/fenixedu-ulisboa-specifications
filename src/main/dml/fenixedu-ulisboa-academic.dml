@@ -19,6 +19,7 @@ class student.RegistrationDataByExecutionInterval  {
 
 class enrolment.schoolClass.SchoolClassEnrolmentPreference {
 	Integer preferenceOrder;
+	DateTime lastModificationDate;
 }
 	relation SchoolClassEnrolmentPreferenceRegistrationDataByExecutionInterval {
 	    enrolment.schoolClass.SchoolClassEnrolmentPreference playsRole schoolClassEnrolmentPreferences { multiplicity *; }

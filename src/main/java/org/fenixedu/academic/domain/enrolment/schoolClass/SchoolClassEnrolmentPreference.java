@@ -11,6 +11,7 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionInterval;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.joda.time.DateTime;
 
 /**
  * 
@@ -23,6 +24,7 @@ public class SchoolClassEnrolmentPreference extends SchoolClassEnrolmentPreferen
     protected SchoolClassEnrolmentPreference() {
         super();
         setRootDomainObject(Bennu.getInstance());
+        setLastModificationDate(new DateTime());
     }
 
     protected SchoolClassEnrolmentPreference(final SchoolClass schoolClass, final Integer preferenceOrder,
@@ -66,6 +68,12 @@ public class SchoolClassEnrolmentPreference extends SchoolClassEnrolmentPreferen
             preference.setPreferenceOrder(currentOrder);
             setPreferenceOrder(newOrder);
         });
+    }
+
+    @Override
+    public void setPreferenceOrder(Integer preferenceOrder) {
+        super.setPreferenceOrder(preferenceOrder);
+        setLastModificationDate(new DateTime());
     }
 
     public static Optional<SchoolClassEnrolmentPreference> findPreferenceByOrder(final Integer preferenceOrder,
