@@ -25,9 +25,11 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,7 @@ import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -369,7 +372,7 @@ public class StudentCurricularPlanLayout extends Layout {
                 curriculumGroup.hasCurriculumLines(), level, curriculumGroup);
 
         // init
-        setEmptyGroup(curriculumGroup, !curriculumGroup.isRoot() && !curriculumGroup.isBranchCurriculumGroup());
+        setEmptyGroup(curriculumGroup, emptyGroupsCollapsible);
 
         generateCurriculumLineRows(mainTable, curriculumGroup, level + 1);
         generateChildGroupRows(mainTable, curriculumGroup, level + 1);
@@ -398,6 +401,10 @@ public class StudentCurricularPlanLayout extends Layout {
 
     // qubExtension, don't SHOW empty groups
     private Boolean isEmptyGroup(final CurriculumGroup group) {
+        if (group.isRoot() || group.getCurriculumGroup().isRoot() || group.isBranchCurriculumGroup()) {
+            return false;
+        }
+
         final Boolean value = emptyGroups.get(group);
         return value != null && value;
     }
@@ -1527,7 +1534,24 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateChildGroupRows(HtmlTable mainTable, CurriculumGroup parentGroup, int level) {
-        final Set<CurriculumGroup> groups = new TreeSet<CurriculumGroup>(CurriculumGroup.COMPARATOR_BY_CHILD_ORDER_AND_ID);
+        final Set<CurriculumGroup> groups = new TreeSet<CurriculumGroup>(new Comparator<CurriculumGroup>() {
+            @Override
+            public int compare(CurriculumGroup o1, CurriculumGroup o2) {
+                int result = o1.getChildOrder().compareTo(o2.getChildOrder());
+                if (result != 0) {
+                    return result;
+                }
+
+                // qubExtension, respect order of DCP
+                if (o1.getDegreeModule() != null && o2.getDegreeModule() != null) {
+                    final DegreeModule d1 = o1.getDegreeModule();
+                    final DegreeModule d2 = o2.getDegreeModule();
+                    return Collator.getInstance().compare(d1.getName(), d2.getName());
+                }
+
+                return o1.getExternalId().compareTo(o2.getExternalId());
+            }
+        });
 
         groups.addAll(parentGroup.getCurriculumGroups().stream()
                 .filter(i -> StudentCurricularPlanRenderer.canGenerate(i, studentCurricularPlan)).collect(Collectors.toSet()));
