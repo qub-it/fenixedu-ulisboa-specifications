@@ -169,7 +169,7 @@
         <tr>
             <th style="vertical-align: middle;"></th>
             <td colspan="2">
-                <a href="#select_studentCPID" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>         
+                <a href="#scpForm" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>         
             </td>
         </tr>
 	</table>
