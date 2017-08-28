@@ -1037,7 +1037,7 @@ relation CompetenceCourseMarkSheetExecutionSemester {
 }
 
 relation CompetenceCourseMarkSheetCertifier {
-    protected evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
+    evaluation.markSheet.CompetenceCourseMarkSheet playsRole competenceCourseMarkSheet {
         multiplicity *;
     }
 
