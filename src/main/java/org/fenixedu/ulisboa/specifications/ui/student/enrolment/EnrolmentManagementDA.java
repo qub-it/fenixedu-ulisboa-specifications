@@ -54,6 +54,7 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
@@ -154,11 +155,15 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         }
 
         if (EnrolmentProcessService.isLastStep(process, request) && EnrolmentProcessService.isToAddEnrolmentProof()) {
-            ULisboaServiceRequest serviceRequest =
-                    EnrolmentProcessService.createEnrolmentProof(scp.getRegistration(), executionSemester.getExecutionYear());
-            ULisboaServiceRequestGeneratedDocument downloadDocument = serviceRequest.downloadDocument();
+            try {
+                ULisboaServiceRequest serviceRequest =
+                        EnrolmentProcessService.createEnrolmentProof(scp.getRegistration(), executionSemester.getExecutionYear());
+                ULisboaServiceRequestGeneratedDocument downloadDocument = serviceRequest.downloadDocument();
 
-            request.setAttribute("enrolmentProofDocument", downloadDocument);
+                request.setAttribute("enrolmentProofDocument", downloadDocument);
+            } catch (ULisboaSpecificationsDomainException ex) {
+                addErrorMessage(request, "error", ex.getLocalizedMessage());
+            }
         }
 
         return mapping.findForward("endEnrolmentProcess");
