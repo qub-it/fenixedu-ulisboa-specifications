@@ -210,22 +210,24 @@ public class RegistrationServices {
     }
 
     static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
-        final ExecutionYear previousExecutionYear = executionYear.getPreviousExecutionYear();
-        final RegistrationDataByExecutionYear previousData =
-                RegistrationDataServices.getRegistrationData(registration, previousExecutionYear);
 
         if (registration.getStartExecutionYear().isAfterOrEquals(executionYear)
+                || registration.getStudentCurricularPlan(executionYear) == null) {
+            return false;
+        }
 
-                || registration.getStudentCurricularPlan(previousExecutionYear) == null
-                || registration.getStudentCurricularPlan(executionYear) == null
-
-                || previousData == null || new RegistrationDataBean(previousData).getEnrolmentsCount() == 0) {
-
+        final RegistrationDataByExecutionYear previousData = registration.getRegistrationDataByExecutionYearSet().stream()
+                .filter(i -> i.getExecutionYear().isBefore(executionYear) && new RegistrationDataBean(i).getEnrolmentsCount() > 0)
+                .max((i, j) -> i.getExecutionYear().compareTo(j.getExecutionYear())).orElse(null);
+        if (previousData == null) {
             return false;
         }
 
         final int currentYear = getCurricularYear(registration, executionYear).getResult();
-        final int previousYear = getCurricularYear(registration, executionYear.getPreviousExecutionYear()).getResult();
+
+        final ExecutionYear previousExecutionYear = previousData.getExecutionYear();
+        final int previousYear = getCurricularYear(registration, previousExecutionYear).getResult();
+
         return previousYear == currentYear;
     }
 
@@ -535,7 +537,6 @@ public class RegistrationServices {
         //TODO: implement option to check if registration data is valid instead of checking if enrolment date is filled
         return registration.getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getEnrolmentDate() != null)
                 .map(rd -> rd.getExecutionYear()).collect(Collectors.toSet());
-
     }
 
     public static ExecutionYear getLastReingressionYear(final Registration registration) {
