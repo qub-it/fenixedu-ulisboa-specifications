@@ -23,6 +23,7 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
+import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -77,6 +78,11 @@ public class CurricularPeriodServices {
         }
 
         return result;
+    }
+
+    static public CurricularPeriodConfiguration getCurricularPeriodConfiguration(final DegreeCurricularPlan dcp, final int year) {
+        final CurricularPeriod curricularPeriod = getCurricularPeriod(dcp, year);
+        return curricularPeriod == null ? null : curricularPeriod.getConfiguration();
     }
 
     static public int getCurricularYear(final CurriculumLine input) {

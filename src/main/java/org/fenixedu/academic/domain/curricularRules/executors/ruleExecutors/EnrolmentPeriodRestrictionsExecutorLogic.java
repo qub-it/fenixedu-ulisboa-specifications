@@ -72,13 +72,9 @@ public class EnrolmentPeriodRestrictionsExecutorLogic extends AbstractCurricular
                 .getResult();
         logger.debug("Verifying restrictions for Registration Nr. [{}] in [{}] curricular year", registration.getNumber(), year);
 
-        final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);
-        if (curricularPeriod != null) {
-
-            final CurricularPeriodConfiguration configuration = curricularPeriod.getConfiguration();
-            if (configuration != null) {
-                result = configuration.verifyRulesForEnrolment(enrolmentContext);
-            }
+        final CurricularPeriodConfiguration configuration = CurricularPeriodServices.getCurricularPeriodConfiguration(dcp, year);
+        if (configuration != null) {
+            result = configuration.verifyRulesForEnrolment(enrolmentContext);
         }
 
         return result;
