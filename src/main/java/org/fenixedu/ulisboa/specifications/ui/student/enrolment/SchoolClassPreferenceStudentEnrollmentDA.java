@@ -98,6 +98,19 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
                 final ExecutionSemester executionSemester = iter.getExecutionSemester();
                 final Registration registration = iter.getRegistration();
 
+                // test if registration curricular year is still the same as school classes preferences year and clear them if not!
+                if (schoolClassStudentEnrollmentBean.isHasEnrolmentPreferencesProcessStarted()) {
+                    final RegistrationDataByExecutionInterval registrationData =
+                            schoolClassStudentEnrollmentBean.getOrCreateRegistrationDataByInterval();
+                    final Integer schoolClassPreferencesYear = registrationData.getSchoolClassEnrolmentPreferencesSet().iterator()
+                            .next().getSchoolClass().getCurricularYear();
+
+                    if (schoolClassPreferencesYear != null
+                            && !schoolClassPreferencesYear.equals(schoolClassStudentEnrollmentBean.getCurricularYear())) {
+                        atomic(() -> registrationData.getSchoolClassEnrolmentPreferencesSet().forEach(p -> p.delete()));
+                    }
+                }
+
                 if (!schoolClassStudentEnrollmentBean.isCanSkipEnrolmentPreferences()
                         && !schoolClassStudentEnrollmentBean.isHasEnrolmentPreferencesProcessStarted()) {
 
