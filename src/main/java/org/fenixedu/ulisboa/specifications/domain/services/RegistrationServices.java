@@ -50,6 +50,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationD
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
+import org.fenixedu.ulisboa.specifications.dto.student.RegistrationDataBean;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -210,10 +211,15 @@ public class RegistrationServices {
 
     static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
         final ExecutionYear previousExecutionYear = executionYear.getPreviousExecutionYear();
+        final RegistrationDataByExecutionYear previousData =
+                RegistrationDataServices.getRegistrationData(registration, previousExecutionYear);
 
         if (registration.getStartExecutionYear().isAfterOrEquals(executionYear)
+
                 || registration.getStudentCurricularPlan(previousExecutionYear) == null
-                || registration.getStudentCurricularPlan(executionYear) == null) {
+                || registration.getStudentCurricularPlan(executionYear) == null
+
+                || previousData == null || new RegistrationDataBean(previousData).getEnrolmentsCount() == 0) {
 
             return false;
         }
