@@ -48,6 +48,7 @@ public class EnrolmentProcessService {
         ServiceRequestProperty.create(request, serviceRequestSlot, locale);
 
         //Process request
+        request.addPrintVariables();
         request.transitToProcessState();
         request.generateDocument();
         request.transitToConcludedState();
