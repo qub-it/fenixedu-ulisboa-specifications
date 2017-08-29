@@ -205,7 +205,6 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         return property;
     }
 
-    // This method should receive the service request
     public static ServiceRequestProperty create(final ULisboaServiceRequest request, final ServiceRequestSlot slot,
             final Object value) {
         if (value == null) {

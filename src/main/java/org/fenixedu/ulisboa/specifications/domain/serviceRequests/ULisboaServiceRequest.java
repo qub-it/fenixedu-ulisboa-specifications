@@ -89,6 +89,7 @@ import com.google.common.collect.Maps;
 import com.qubit.terra.docs.util.ReportGenerationException;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
 
@@ -250,17 +251,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         super.checkRulesToDelete();
     }
 
-    /*
-     * Implementation of interfaces
-     * QubDocReports Service Request Interface
-     * Treasury Service Request Interface
-     */
-
     public PrintedDocument generateDocument() {
         try {
             PrintedDocument document = DocumentPrinter.print(this);
-            ULisboaServiceRequestGeneratedDocument.store(this, document.getContentType(), document.getFileName(),
-                    document.getData());
+            saveDocument(document);
             return document;
         } catch (ReportGenerationException rge) {
             String composedMessage = String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
@@ -272,6 +266,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             logger.error(t.getMessage(), t.getCause());
             throw new ULisboaSpecificationsDomainException(t, "error.documentRequest.errorGeneratingDocument", t.getMessage());
         }
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    public ULisboaServiceRequestGeneratedDocument saveDocument(final PrintedDocument printedDoc) {
+        return ULisboaServiceRequestGeneratedDocument.store(this, printedDoc.getContentType(), printedDoc.getFileName(),
+                printedDoc.getData());
     }
 
     public ULisboaServiceRequestGeneratedDocument downloadDocument() {
