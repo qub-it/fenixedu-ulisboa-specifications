@@ -227,7 +227,7 @@ public class DocumentPrinter {
 //                    new CurriculumEntryRemarksDataProvider(registration), serviceRequest.getLanguage()));
 //        }
 
-        final byte[] report = generator.generateReport();
+        final byte[] report = generator.generateReportCached(academicServiceRequestTemplate.getExternalId());
 
         return new PrintedDocument(serviceRequest, report, outputType.getCode(), outputType.getExtension());
     }

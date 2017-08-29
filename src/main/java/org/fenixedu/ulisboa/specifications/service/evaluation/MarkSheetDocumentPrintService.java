@@ -11,6 +11,7 @@ import org.fenixedu.qubdocs.util.reports.helpers.LanguageHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.MoneyHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.NumbersHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.StringsHelper;
+import org.fenixedu.ulisboa.specifications.domain.evaluation.config.CompetenceCourseMarkSheetTemplateFile;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
@@ -142,13 +143,14 @@ public class MarkSheetDocumentPrintService {
     }
 
     public static byte[] print(CompetenceCourseMarkSheetSnapshot snapshot) {
-        final DocumentGenerator generator = DocumentGenerator.create(
-                new ByteArrayInputStream(MarkSheetSettings.getInstance().getTemplateFile().getContent()), DocumentGenerator.PDF);
+        final CompetenceCourseMarkSheetTemplateFile templateFile = MarkSheetSettings.getInstance().getTemplateFile();
+        final DocumentGenerator generator =
+                DocumentGenerator.create(new ByteArrayInputStream(templateFile.getContent()), DocumentGenerator.PDF);
 
         registerHelpers(generator);
         generator.registerDataProvider(new CompetenceCourseMarkSheetDataProvider(snapshot));
 
-        return generator.generateReport();
+        return generator.generateReportCached(templateFile.getExternalId());
     }
 
 }
