@@ -117,9 +117,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
                 || StatuteServices.findStatuteTypes(enrolmentContext.getRegistration(), enrolmentContext.getExecutionYear())
                         .stream().anyMatch(s -> getStatuteTypesSet().contains(s));
     }
-    
-    
-    
+
     protected String getStatuteTypesLabelPrefix() {
         return !getStatuteTypesSet().isEmpty() ? "["
                 + getStatuteTypesSet().stream().map(s -> s.getName().getContent()).collect(Collectors.joining(", ")) + "] " : "";
@@ -127,7 +125,7 @@ abstract public class RuleEnrolment extends RuleEnrolment_Base {
 
     abstract public RuleResult execute(final EnrolmentContext enrolmentContext);
 
-    static protected Set<IDegreeModuleToEvaluate> getEnroledAndEnroling(final EnrolmentContext enrolmentContext) {
+    static public Set<IDegreeModuleToEvaluate> getEnroledAndEnroling(final EnrolmentContext enrolmentContext) {
         return enrolmentContext.getDegreeModulesToEvaluate().stream().filter(i -> i.isLeaf() && (i.isEnroled() || i.isEnroling()))
                 .collect(Collectors.toSet());
     }
