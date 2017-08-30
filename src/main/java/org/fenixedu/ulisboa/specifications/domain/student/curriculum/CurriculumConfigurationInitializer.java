@@ -31,10 +31,9 @@ import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurricularYearCalculator;
@@ -186,30 +185,36 @@ abstract public class CurriculumConfigurationInitializer {
     static public CurricularYearResult calculateCurricularYear(final Curriculum curriculum) {
         final ExecutionYear executionYear = curriculum.getExecutionYear();
         final CurricularYearResult calculated = new CurricularYearResult(executionYear);
-        final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
+        final Registration registration = curriculum.getCurriculumModule().getRegistration();
 
-        final DegreeCurricularPlan dcp = curriculum.getStudentCurricularPlan().getDegreeCurricularPlan();
+        // should always try to check the SCP at the given execution year...
+        StudentCurricularPlan scp = registration.getStudentCurricularPlan(executionYear);
+        if (scp == null || CurricularPeriodServices.getCurricularPeriodConfiguration(scp.getDegreeCurricularPlan(), 1) == null) {
+            // ...but let's have a failsafe, use the same SCP we were until this bug fix
+            scp = curriculum.getStudentCurricularPlan();
+        }
+
+        final DegreeCurricularPlan dcp = scp.getDegreeCurricularPlan();
         RuleResult justification = null;
         for (int i = calculateTotalCurricularYears(curriculum); i > 1; i--) {
 
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, i);
-            final CurricularPeriodConfiguration configuration =
-                    curricularPeriod == null ? null : curricularPeriod.getConfiguration();
-
+            final CurricularPeriodConfiguration configuration = CurricularPeriodServices.getCurricularPeriodConfiguration(dcp, i);
             if (configuration == null) {
-                throw new DomainException("curricularRules.ruleExecutors.logic.unavailable",
-                        BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions"));
-            }
+                calculated.setJustification(RuleResult.createFalseWithLiteralMessage(dcp.getRoot(),
+                        BundleUtil.getString(Bundle.BOLONHA, "label.enrolmentPeriodRestrictions")));
 
-            final RuleResult ruleResult = configuration.verifyRulesForTransition(curriculum);
-            if (ruleResult.isTrue()) {
-                calculated.setResult(i);
-                if (justification == null) {
+            } else {
+
+                final RuleResult ruleResult = configuration.verifyRulesForTransition(curriculum);
+                if (ruleResult.isTrue()) {
+                    calculated.setResult(i);
+                    if (justification == null) {
+                        justification = ruleResult;
+                    }
+                    break;
+                } else {
                     justification = ruleResult;
                 }
-                break;
-            } else {
-                justification = ruleResult;
             }
         }
         calculated.setJustification(justification);
