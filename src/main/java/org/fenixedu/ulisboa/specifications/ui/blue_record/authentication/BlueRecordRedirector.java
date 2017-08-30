@@ -29,6 +29,7 @@ import org.fenixedu.ulisboa.specifications.ui.blue_record.PersonalInformationFor
 import org.fenixedu.ulisboa.specifications.ui.blue_record.PreviousDegreeOriginInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
+import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassPreferenceStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
 
@@ -111,9 +112,13 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
     static private boolean isEnrolmentStep(final HttpServletRequest request) {
 
-        final List<String> stepsURLs = Lists.newArrayList(EnrolmentManagementDA.getEndURL(),
-                CourseEnrolmentDA.getInstructionsEntryPointURL(), CourseEnrolmentDA.getEntryPointURL(),
-                SchoolClassStudentEnrollmentDA.getEntryPointURL(), ShiftEnrolmentController.getEntryPointURL());
+        final List<String> stepsURLs = Lists.newArrayList(
+        		EnrolmentManagementDA.getEndURL(),
+                CourseEnrolmentDA.getInstructionsEntryPointURL(), 
+                CourseEnrolmentDA.getEntryPointURL(),
+                SchoolClassStudentEnrollmentDA.getEntryPointURL(), 
+                ShiftEnrolmentController.getEntryPointURL(),
+                SchoolClassPreferenceStudentEnrollmentDA.getEntryPointURL());
 
         for (final String iter : stepsURLs) {
 
