@@ -46,6 +46,7 @@ import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
 import org.fenixedu.academictreasury.domain.debtGeneration.AcademicDebtGenerationRule;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
+import org.fenixedu.academictreasury.domain.settings.AcademicTreasurySettings;
 import org.fenixedu.academictreasury.services.TuitionServices;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.struts.annotations.Forward;
@@ -148,10 +149,14 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         request.setAttribute("enrolmentProcess", process);
         final AcademicTreasuryEvent treasuryEvent = TuitionServices
                 .findAcademicTreasuryEventTuitionForRegistration(scp.getRegistration(), executionSemester.getExecutionYear());
+        
+        if(AcademicTreasurySettings.getInstance().isRunAcademicDebtGenerationRuleOnNormalEnrolment()) {
 
-        if (treasuryEvent == null || !treasuryEvent.isCharged()) {
-            CreateTuitions thread = new CreateTuitions(scp.getRegistration(), executionSemester.getExecutionYear());
-            thread.start();
+            if (treasuryEvent == null || !treasuryEvent.isCharged()) {
+        		CreateTuitions thread = new CreateTuitions(scp.getRegistration(), executionSemester.getExecutionYear());
+        		thread.start();
+        	}
+        	
         }
 
         if (EnrolmentProcessService.isLastStep(process, request) && EnrolmentProcessService.isToAddEnrolmentProof()) {
