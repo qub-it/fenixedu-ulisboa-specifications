@@ -28,6 +28,8 @@ package org.fenixedu.ulisboa.specifications.ui.student.enrolment;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
@@ -139,6 +141,8 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         return ACTION + "?method=endEnrolmentProcess";
     }
 
+    private static ExecutorService TUITION_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
     public ActionForward endEnrolmentProcess(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
             final HttpServletResponse response) {
 
@@ -149,14 +153,13 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         request.setAttribute("enrolmentProcess", process);
         final AcademicTreasuryEvent treasuryEvent = TuitionServices
                 .findAcademicTreasuryEventTuitionForRegistration(scp.getRegistration(), executionSemester.getExecutionYear());
-        
-        if(AcademicTreasurySettings.getInstance().isRunAcademicDebtGenerationRuleOnNormalEnrolment()) {
+
+        if (AcademicTreasurySettings.getInstance().isRunAcademicDebtGenerationRuleOnNormalEnrolment()) {
 
             if (treasuryEvent == null || !treasuryEvent.isCharged()) {
-        		CreateTuitions thread = new CreateTuitions(scp.getRegistration(), executionSemester.getExecutionYear());
-        		thread.start();
-        	}
-        	
+                TUITION_EXECUTOR.execute(new CreateTuitions(scp.getRegistration(), executionSemester.getExecutionYear()));
+            }
+
         }
 
         if (EnrolmentProcessService.isLastStep(process, request) && EnrolmentProcessService.isToAddEnrolmentProof()) {
@@ -192,7 +195,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         return null;
     }
 
-    private static class CreateTuitions extends Thread {
+    private static class CreateTuitions implements Runnable {
 
         private final String registrationId;
         private final String executionYearId;
