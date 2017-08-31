@@ -174,8 +174,8 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
 
         if (EnrolmentProcessService.isLastStep(process, request) && EnrolmentProcessService.isToAddEnrolmentProof()) {
             try {
-                ULisboaServiceRequest serviceRequest = EnrolmentProcessService.createEnrolmentProof(scp.gektRegistration(),
-                        executionSemester.getExecutionYear());
+                ULisboaServiceRequest serviceRequest =
+                        EnrolmentProcessService.createEnrolmentProof(scp.getRegistration(), executionSemester.getExecutionYear());
                 ULisboaServiceRequestGeneratedDocument downloadDocument = serviceRequest.downloadDocument();
 
                 request.setAttribute("enrolmentProofDocument", downloadDocument);
