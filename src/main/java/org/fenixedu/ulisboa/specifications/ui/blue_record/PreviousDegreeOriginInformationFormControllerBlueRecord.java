@@ -1,15 +1,15 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
- * Contributors: joao.roxo@qub-it.com 
+ * Contributors: joao.roxo@qub-it.com
  *               nuno.pinheiro@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu Specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -30,10 +30,10 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record;
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PreviousDegreeOriginInformationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.PreviousDegreeOriginInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,9 +47,9 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
             "/fenixedu-ulisboa-specifications/blueRecord/{executionYearId}/previousdegreeorigininformationform";
 
     @Override
-    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
-        String url =
-                DisabilitiesFormControllerBlueRecord.CONTROLLER_URL + DisabilitiesFormControllerBlueRecord._FILLDISABILITIES_URI;
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        String url = DisabilitiesFormControllerBlueRecord.CONTROLLER_URL + DisabilitiesFormControllerBlueRecord._FILL_URI;
         return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
@@ -60,7 +60,8 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
     }
 
     @Override
-    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+    public String backScreen(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         return redirect(urlWithExecutionYear(OriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model,
                 redirectAttributes);
@@ -93,7 +94,8 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
     }
 
     @Override
-    protected Student getStudent(final Model model) {
-        return AccessControl.getPerson().getStudent();
+    protected Registration getRegistration(final ExecutionYear executionYear, final Model model) {
+        return findPreviousDegreePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration();
     }
+
 }

@@ -1,15 +1,15 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
- * Contributors: joao.roxo@qub-it.com 
+ * Contributors: joao.roxo@qub-it.com
  *               nuno.pinheiro@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu Specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -77,7 +77,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/home";
 
     @RequestMapping
-    public String home(Model model) {
+    public String home(final Model model) {
         List<String> errorMessages = isValidForFirstTimeCandidacy();
 
         for (String errorMessage : errorMessages) {
@@ -88,7 +88,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     }
 
     @RequestMapping(value = "/continue")
-    public String instructionsToContinue(Model model, RedirectAttributes redirectAttributes) {
+    public String instructionsToContinue(final Model model, final RedirectAttributes redirectAttributes) {
         Person person = AccessControl.getPerson();
         StudentAccessServices.requestSyncPersonFromExternal(person);
 
@@ -101,7 +101,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         return getCandidacy(AccessControl.getPerson());
     }
 
-    public static FirstTimeCandidacy getCandidacy(Person person) {
+    public static FirstTimeCandidacy getCandidacy(final Person person) {
         Set<FirstTimeCandidacy> candidacies = new HashSet<>();
         for (Candidacy candidacy : person.getCandidaciesSet()) {
             if (candidacy instanceof FirstTimeCandidacy) {
@@ -116,7 +116,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
 
     @Atomic
     public static PersonalIngressionData getOrCreatePersonalIngressionData(final ExecutionYear executionYear,
-            PrecedentDegreeInformation precedentInformation) {
+            final PrecedentDegreeInformation precedentInformation) {
         PersonalIngressionData personalData = null;
         personalData = precedentInformation.getPersonalIngressionData();
         Student student = AccessControl.getPerson().getStudent();
@@ -185,10 +185,15 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     public static boolean isPeriodOpen() {
         Predicate<AcademicEnrolmentPeriodBean> isOnlyOpen = p -> p.isOpen();
         Predicate<AcademicEnrolmentPeriodBean> isFirstTime = p -> p.isFirstTimeRegistration();
-        List<AcademicEnrolmentPeriodBean> enrolmentPeriodsOpen = AcademicEnrolmentPeriod
-                .getEnrolmentPeriodsOpenOrUpcoming(AccessControl.getPerson().getStudent(), true,
-                        getCandidacy().getDegreeCurricularPlan())
-                .stream().filter(isOnlyOpen.and(isFirstTime)).collect(Collectors.toList());
+
+        Student student = AccessControl.getPerson().getStudent();
+        FirstTimeCandidacy candidacy = getCandidacy();
+        if (candidacy == null) {
+            return false;
+        }
+        List<AcademicEnrolmentPeriodBean> enrolmentPeriodsOpen =
+                AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student, true, candidacy.getDegreeCurricularPlan())
+                        .stream().filter(isOnlyOpen.and(isFirstTime)).collect(Collectors.toList());
         return !enrolmentPeriodsOpen.isEmpty();
     }
 

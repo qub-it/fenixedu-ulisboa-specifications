@@ -57,7 +57,8 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     }
 
     @Override
-    protected String fillGetScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String fillGetScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         Registration registration = getRegistration(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("Invalid Request. Person mismatch");
@@ -75,7 +76,8 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/previousdegreeorigininformationform/fillpreviousdegreeinformation";
     }
 
-    public PreviousDegreeInformationForm fillFormIfRequired(ExecutionYear executionYear, Registration registration, Model model) {
+    public PreviousDegreeInformationForm fillFormIfRequired(final ExecutionYear executionYear, final Registration registration,
+            final Model model) {
         PreviousDegreeInformationForm form = (PreviousDegreeInformationForm) getForm(model);
         if (form == null) {
             form = createPreviousDegreeInformationForm(executionYear, registration);
@@ -145,8 +147,8 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     }
 
     @Override
-    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
-            RedirectAttributes redirectAttributes) {
+    protected void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model,
+            final RedirectAttributes redirectAttributes) {
         Registration registration = getRegistration(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("Invalid Request. Person mismatch");
@@ -154,7 +156,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     }
 
     @Override
-    protected boolean validate(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         if (!(candidancyForm instanceof PreviousDegreeInformationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.PreviousDegreeInformationFormController.wrong.form.type"), model);
         }
@@ -163,8 +165,8 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                 model);
     }
 
-    private boolean validate(final ExecutionYear executionYear, final Registration registration,
-            PreviousDegreeInformationForm form, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final Registration registration,
+            final PreviousDegreeInformationForm form, final Model model) {
 
         final Set<String> result = validateForm(executionYear, registration, form, model);
 
@@ -180,7 +182,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
      *      WorkflowScreen)}
      */
     protected Set<String> validateForm(final ExecutionYear executionYear, final Registration registration,
-            PreviousDegreeInformationForm form, Model model) {
+            final PreviousDegreeInformationForm form, final Model model) {
 
         final Set<String> result = Sets.newLinkedHashSet();
 
@@ -253,7 +255,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     }
 
     @Override
-    protected void writeData(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         writeData(getRegistration(executionYear, model), (PreviousDegreeInformationForm) candidancyForm);
     }
 
@@ -290,13 +292,15 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(OriginInformationFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         if (findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).isEmpty()) {
             return redirect(urlWithExecutionYear(DisabilitiesFormController.CONTROLLER_URL, executionYear), model,
                     redirectAttributes);
@@ -306,16 +310,16 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         return false;
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 
-    protected Registration getRegistration(ExecutionYear executionYear, Model model) {
+    protected Registration getRegistration(final ExecutionYear executionYear, final Model model) {
         return FirstTimeCandidacyController.getCandidacy().getRegistration();
         //TODOJN - ver com o anil
         //        return findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration();

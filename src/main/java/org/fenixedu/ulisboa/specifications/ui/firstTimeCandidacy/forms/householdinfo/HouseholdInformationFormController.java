@@ -50,7 +50,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String fillGetScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String fillGetScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
         HouseholdInformationForm form = fillFormIfRequired(executionYear, model);
 
@@ -62,7 +63,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/householdinformationform/fillhouseholdinformation";
     }
 
-    public HouseholdInformationForm fillFormIfRequired(ExecutionYear executionYear, Model model) {
+    public HouseholdInformationForm fillFormIfRequired(final ExecutionYear executionYear, final Model model) {
         HouseholdInformationForm form = (HouseholdInformationForm) getForm(model);
         if (form == null) {
             form = createHouseholdInformationForm(getStudent(model), executionYear, false);
@@ -130,13 +131,13 @@ public class HouseholdInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
-            RedirectAttributes redirectAttributes) {
+    protected void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model,
+            final RedirectAttributes redirectAttributes) {
         //nothing
     }
 
     @Override
-    protected boolean validate(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         if (!(candidancyForm instanceof HouseholdInformationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.HouseholdInformationFormController.wrong.form.type"), model);
         }
@@ -144,7 +145,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
         return validate((HouseholdInformationForm) candidancyForm, model);
     }
 
-    private boolean validate(HouseholdInformationForm form, Model model) {
+    protected boolean validate(final HouseholdInformationForm form, final Model model) {
         final Set<String> messages = validateForm(form);
 
         for (final String message : messages) {
@@ -154,7 +155,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
         return messages.isEmpty();
     }
 
-    private Set<String> validateForm(HouseholdInformationForm form) {
+    protected Set<String> validateForm(final HouseholdInformationForm form) {
         final Set<String> messages = Sets.newLinkedHashSet();
 
         if (form.getFatherProfessionalCondition() == null || form.getFatherProfessionType() == null
@@ -226,7 +227,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void writeData(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         writeData(getStudent(model), executionYear, (HouseholdInformationForm) candidancyForm, model);
     }
 
@@ -271,23 +272,25 @@ public class HouseholdInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(FiliationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(ResidenceInformationFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         return false;
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 

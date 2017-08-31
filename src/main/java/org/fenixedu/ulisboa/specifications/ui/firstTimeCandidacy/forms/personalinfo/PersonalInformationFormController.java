@@ -27,7 +27,6 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.treasury.util.FiscalCodeValidation;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
@@ -88,7 +87,7 @@ public class PersonalInformationFormController extends FormAbstractController {
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/personalinformationform/fillpersonalinformation";
     }
 
-    public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, Model model) {
+    public PersonalInformationForm fillFormIfRequired(final ExecutionYear executionYear, final Model model) {
         Person person = getStudent(model).getPerson();
 
         PersonalInformationForm form = (PersonalInformationForm) getForm(model);
@@ -189,7 +188,7 @@ public class PersonalInformationFormController extends FormAbstractController {
         form.setUsername(student.getPerson().getUser().getUsername());
     }
 
-    private Set<String> validateForm(PersonalInformationForm form, final Person person) {
+    protected Set<String> validateForm(final PersonalInformationForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
 
         if (person.getIdDocumentType() != null && person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD
@@ -268,13 +267,13 @@ public class PersonalInformationFormController extends FormAbstractController {
     }
 
     @Override
-    public void fillPostScreen(final ExecutionYear executionYear, CandidancyForm form, Model model,
-            RedirectAttributes redirectAttributes) {
+    public void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm form, final Model model,
+            final RedirectAttributes redirectAttributes) {
         //nothing
     }
 
     @Override
-    protected boolean validate(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         if (!(candidancyForm instanceof PersonalInformationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.FormPersonalInformationController.wrong.form.type"), model);
             return false;
@@ -282,7 +281,7 @@ public class PersonalInformationFormController extends FormAbstractController {
         return validate((PersonalInformationForm) candidancyForm, model);
     }
 
-    private boolean validate(PersonalInformationForm form, Model model) {
+    private boolean validate(final PersonalInformationForm form, final Model model) {
         final Set<String> result = validateForm(form, getStudent(model).getPerson());
 
         for (final String message : result) {
@@ -293,7 +292,7 @@ public class PersonalInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void writeData(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         writeData(executionYear, (PersonalInformationForm) candidancyForm, model);
     }
 
@@ -356,13 +355,15 @@ public class PersonalInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String backScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(FiliationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
@@ -376,12 +377,12 @@ public class PersonalInformationFormController extends FormAbstractController {
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         return false;
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 
