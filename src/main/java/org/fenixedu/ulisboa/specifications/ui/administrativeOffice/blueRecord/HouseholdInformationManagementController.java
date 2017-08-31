@@ -22,7 +22,8 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.HouseholdInformationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationForm;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +46,7 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
     private static final String _SEARCH_URI = "/search";
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
-    
+
     @RequestMapping(_SEARCH_URI + "/{studentId}")
     public String search(@PathVariable("studentId") final Student student, final Model model) {
         model.addAttribute("student", student);
@@ -89,18 +90,16 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
         model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
 
-        
         List<MaritalStatus> maritalStatusValues = new ArrayList<>();
         maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
         maritalStatusValues.remove(MaritalStatus.UNKNOWN);
         model.addAttribute("maritalStatusValues", maritalStatusValues);
 
-        
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-        
+
         model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
-        
+
         return jspPage(_CREATE_URI);
     }
 
@@ -137,8 +136,8 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
 
     @RequestMapping(value = _UPDATE_URI + "/{studentId}/{executionYearId}", method = RequestMethod.GET)
-    public String update(@PathVariable("studentId") final Student student, @PathVariable("executionYearId") final ExecutionYear executionYear, 
-            final Model model) {
+    public String update(@PathVariable("studentId") final Student student,
+            @PathVariable("executionYearId") final ExecutionYear executionYear, final Model model) {
         return _update(student, executionYear, createHouseholdInformationForm(student, executionYear, false), model);
     }
 
@@ -164,17 +163,18 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
         maritalStatusValues.remove(MaritalStatus.UNKNOWN);
         model.addAttribute("maritalStatusValues", maritalStatusValues);
-        
+
         model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
         model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-        
+
         model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
-        
+
         return jspPage(_UPDATE_URI);
     }
 
     @RequestMapping(value = _UPDATE_URI + "/{studentId}/{executionYearId}", method = RequestMethod.POST)
-    public String update(@PathVariable("studentId") final Student student, @PathVariable("executionYearId") final ExecutionYear executionYear, final HouseholdInformationForm form,
+    public String update(@PathVariable("studentId") final Student student,
+            @PathVariable("executionYearId") final ExecutionYear executionYear, final HouseholdInformationForm form,
             final Model model) {
         try {
 
@@ -200,17 +200,18 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         Set<ExecutionYear> executionYearsSet = Sets.newHashSet();
 
         for (final Registration registration : student.getRegistrationsSet()) {
-            for (final RegistrationDataByExecutionYear registrationDataByExecutionYear : registration.getRegistrationDataByExecutionYearSet()) {
+            for (final RegistrationDataByExecutionYear registrationDataByExecutionYear : registration
+                    .getRegistrationDataByExecutionYearSet()) {
                 executionYearsSet.add(registrationDataByExecutionYear.getExecutionYear());
             }
         }
-        
+
         final List<ExecutionYear> result = Lists.newArrayList(executionYearsSet);
         Collections.sort(result, Collections.reverseOrder(ExecutionYear.COMPARATOR_BY_YEAR));
-        
+
         return result;
     }
-    
+
     @Override
     protected boolean isProfessionRequired() {
         return false;
@@ -226,27 +227,28 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     }
 
     /* ********************
-     * MAPPINGS NOT APPLIED 
+     * MAPPINGS NOT APPLIED
      * ********************
      */
-    
+
     @Override
-    public boolean isFormIsFilled(final ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         throw new RuntimeException("not applied in this controller");
     }
 
     @Override
-    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
-    
+
     @Override
     protected Student getStudent(final Model model) {
         throw new RuntimeException("not applied in this controller");
     }
 
     @Override
-    public String back(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
+    public String backScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 

@@ -45,7 +45,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
-            RedirectAttributes redirectAttributes) {
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -149,7 +149,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     }
 
     @Atomic
-    protected void authorizeSharingDataWithCGD(boolean authorize) {
+    protected void authorizeSharingDataWithCGD(final boolean authorize) {
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setAuthorizeSharingDataWithCGD(authorize);
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setSharingDataWithCGDAnswered(true);
     }
@@ -159,14 +159,15 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @RequestMapping(value = _SHOW_MODEL_43_URI + "/{dueToError}", method = RequestMethod.GET)
     public String showmodelo43download(@PathVariable("executionYearId") final ExecutionYear executionYear,
-            @PathVariable("dueToError") boolean dueToError, final Model model, final RedirectAttributes redirectAttributes) {
+            @PathVariable("dueToError") final boolean dueToError, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
 
-        final String url = urlWithExecutionYear(PRINT_43_URL, executionYear);
+        final String url = getPrintURL(executionYear);
 
         model.addAttribute("dueToError", dueToError);
         model.addAttribute("printURL", url);
@@ -174,9 +175,14 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/cgd/showmodelo43download";
     }
 
+    protected String getPrintURL(final ExecutionYear executionYear) {
+        return urlWithExecutionYear(PRINT_43_URL, executionYear);
+    }
+
     @RequestMapping(value = "/showmodelo43download/{dueToError}", method = RequestMethod.POST)
     public String showmodelo43downloadPost(@PathVariable("executionYearId") final ExecutionYear executionYear,
-            @PathVariable("dueToError") boolean dueToError, final Model model, final RedirectAttributes redirectAttributes) {
+            @PathVariable("dueToError") final boolean dueToError, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -258,7 +264,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 

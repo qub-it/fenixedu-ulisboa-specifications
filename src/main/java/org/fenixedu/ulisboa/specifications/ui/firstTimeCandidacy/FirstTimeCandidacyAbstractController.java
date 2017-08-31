@@ -25,7 +25,7 @@ import pt.ist.fenixframework.Atomic;
 public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisboaSpecificationsBaseController {
 
     public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model,
-            RedirectAttributes redirectAttributes) {
+            final RedirectAttributes redirectAttributes) {
         List<String> errorMessages = FirstTimeCandidacyController.isValidForFirstTimeCandidacy();
 
         if (!errorMessages.isEmpty()) {
@@ -44,6 +44,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         return getPersonalIngressionData(student, executionYear, true);
     }
 
+    @Atomic
     public static PersonalIngressionData getPersonalIngressionData(final Student student, final ExecutionYear executionYear,
             final boolean create) {
         PersonalIngressionData personalData = student.getPersonalIngressionDataByExecutionYear(executionYear);
@@ -128,7 +129,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     }
 
     @Override
-    protected void addModelProperties(Model model) {
+    protected void addModelProperties(final Model model) {
         super.addModelProperties(model);
     }
 

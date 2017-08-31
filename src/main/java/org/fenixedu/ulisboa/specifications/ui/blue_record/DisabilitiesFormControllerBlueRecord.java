@@ -1,15 +1,15 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
- * Contributors: joao.roxo@qub-it.com 
+ * Contributors: joao.roxo@qub-it.com
  *               nuno.pinheiro@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu Specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -31,9 +31,9 @@ import java.util.Optional;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.DisabilitiesFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.DisabilitiesForm;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.DisabilitiesFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,19 +47,25 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
     public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/blueRecord/{executionYearId}/disabilitiesform";
 
     @Override
-    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
+    public Optional<String> accessControlRedirect(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return Optional.empty();
     }
 
     @Override
-    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    public String backScreen(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
-        return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model, redirectAttributes);
+        return redirect(
+                urlWithExecutionYear(PreviousDegreeOriginInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear),
+                model, redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(final ExecutionYear executionYear, final Model model, RedirectAttributes redirectAttributes) {
-        final String url = MotivationsExpectationsFormControllerBlueRecord.CONTROLLER_URL + MotivationsExpectationsFormControllerBlueRecord._FILLMOTIVATIONSEXPECTATIONS_URI;
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        final String url = MotivationsExpectationsFormControllerBlueRecord.CONTROLLER_URL
+                + MotivationsExpectationsFormControllerBlueRecord._FILL_URI;
         return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
@@ -69,31 +75,27 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
     @RequestMapping(value = _INVOKE_BACK_URI, method = RequestMethod.GET)
     public String invokeBack(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
-        if(isFormIsFilled(executionYear, model)) {
+        if (isFormIsFilled(executionYear, model)) {
             return back(executionYear, model, redirectAttributes);
         }
-        
+
         return redirect(urlWithExecutionYear(CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
-    
+
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
     }
-    
+
     @Override
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         final DisabilitiesForm form = createDisabilitiesForm(executionYear, student);
-        
-        if(!form.isFirstYearRegistration()) {
+
+        if (!form.isFirstYearRegistration()) {
             return true;
         }
-        
+
         return form.isAnswered();
     }
-    
-    @Override
-    protected Student getStudent(final Model model) {
-        return AccessControl.getPerson().getStudent();
-    }
+
 }

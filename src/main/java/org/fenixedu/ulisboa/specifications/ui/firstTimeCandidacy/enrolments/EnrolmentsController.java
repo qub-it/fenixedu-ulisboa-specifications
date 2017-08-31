@@ -29,7 +29,6 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ScheduleClassesController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
@@ -48,7 +47,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/enrolments";
 
-    Logger logger = LoggerFactory.getLogger(ScheduleClassesController.class);
+    Logger logger = LoggerFactory.getLogger(EnrolmentsController.class);
 
     @Override
     protected String getControllerURL() {
@@ -58,8 +57,8 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     public static final String ENROL_URL = CONTROLLER_URL + _ENROL_URI;
 
     @Override
-    protected String enrolScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes,
-            HttpServletRequest request) {
+    protected String enrolScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpServletRequest request) {
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(candidacy.getDegreeCurricularPlan());
@@ -91,8 +90,9 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         return nextScreen(executionYear, model, redirectAttributes);
     }
 
-    protected String redirectToEnrolmentProcess(List<AcademicEnrolmentPeriodBean> periods, AcademicEnrolmentPeriodType type,
-            Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    protected String redirectToEnrolmentProcess(final List<AcademicEnrolmentPeriodBean> periods,
+            final AcademicEnrolmentPeriodType type, final Model model, final RedirectAttributes redirectAttributes,
+            final HttpServletRequest request) {
         List<AcademicEnrolmentPeriodBean> filteredPeriods =
                 periods.stream().filter(p -> p.getEnrolmentPeriodType() == type).collect(Collectors.toList());
         List<EnrolmentProcess> enrolmentProcesses = EnrolmentProcess.buildProcesses(filteredPeriods);
@@ -105,29 +105,31 @@ public class EnrolmentsController extends EnrolmentAbstractController {
 
     }
 
-    private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(Model model, FirstTimeCandidacy candidacy) {
+    private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(final Model model,
+            final FirstTimeCandidacy candidacy) {
         return AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(getStudent(model), candidacy.getDegreeCurricularPlan())
                 .stream().filter(p -> p.isOpen() && p.isFirstTimeRegistration()).collect(Collectors.toList());
     }
 
-    private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriodsEditable(List<AcademicEnrolmentPeriodBean> periods) {
+    private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriodsEditable(
+            final List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isEditable()).collect(Collectors.toList());
     }
 
-    private boolean enrolAutomaticallyInUCs(List<AcademicEnrolmentPeriodBean> periods) {
+    private boolean enrolAutomaticallyInUCs(final List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isForCurricularCourses() && p.isAutomatic()).findFirst().isPresent();
     }
 
-    private boolean isToEnrolInSchoolClasses(List<AcademicEnrolmentPeriodBean> periods) {
+    private boolean isToEnrolInSchoolClasses(final List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isForClasses()).findFirst().isPresent();
     }
 
-    private boolean isToEnrolInShifts(List<AcademicEnrolmentPeriodBean> periods) {
+    private boolean isToEnrolInShifts(final List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isForShift()).findFirst().isPresent();
     }
 
     @Atomic
-    private void activateRegistration(Registration registration) {
+    private void activateRegistration(final Registration registration) {
         RegistrationState state = registration.getActiveState();
         if (state.getStateType().equals(RegistrationStateType.INACTIVE)) {
             RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
@@ -141,8 +143,8 @@ public class EnrolmentsController extends EnrolmentAbstractController {
      * ------------------------------------------------------
      */
     @Atomic
-    public void createAutomaticEnrolments(Registration registration, ExecutionSemester executionSemester,
-            StudentCurricularPlan studentCurricularPlan) {
+    public void createAutomaticEnrolments(final Registration registration, final ExecutionSemester executionSemester,
+            final StudentCurricularPlan studentCurricularPlan) {
         if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {
             createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
                     studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 1), executionSemester,
@@ -156,8 +158,9 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         }
     }
 
-    void createFirstTimeStudentEnrolmentsFor(StudentCurricularPlan studentCurricularPlan, CurriculumGroup curriculumGroup,
-            CurricularPeriod curricularPeriod, ExecutionSemester executionSemester, String createdBy) {
+    void createFirstTimeStudentEnrolmentsFor(final StudentCurricularPlan studentCurricularPlan,
+            final CurriculumGroup curriculumGroup, final CurricularPeriod curricularPeriod,
+            final ExecutionSemester executionSemester, final String createdBy) {
 
         if (curriculumGroup.getDegreeModule() != null) {
             for (final Context context : curriculumGroup.getDegreeModule()
@@ -177,18 +180,19 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         }
     }
 
-    boolean hasAnnualEnrollments(StudentCurricularPlan studentCurricularPlan) {
+    boolean hasAnnualEnrollments(final StudentCurricularPlan studentCurricularPlan) {
         return studentCurricularPlan.getDegreeCurricularPlan()
                 .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
     }
 
-    boolean hasAnnualEnrollments(Registration registration) {
+    boolean hasAnnualEnrollments(final Registration registration) {
         return hasAnnualEnrollments(
                 registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod()));
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(getBackUrl(executionYear), model, redirectAttributes);
     }
 
@@ -196,7 +200,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         return getBackUrl(ExecutionYear.readCurrentExecutionYear());
     }
 
-    public static String getBackUrl(ExecutionYear executionYear) {
+    public static String getBackUrl(final ExecutionYear executionYear) {
         if (!VaccionationFormController.shouldBeSkipped(executionYear)) {
             return urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear);
         } else {
@@ -204,13 +208,14 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         }
     }
 
-    public static boolean shouldBeSkipped(ExecutionYear executionYear) {
+    public static boolean shouldBeSkipped(final ExecutionYear executionYear) {
         //TODOJN
         return false;
     }
 
     @Override
-    protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(getNextUrl(executionYear), model, redirectAttributes);
     }
 
@@ -218,17 +223,17 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         return getNextUrl(ExecutionYear.readCurrentExecutionYear());
     }
 
-    public static String getNextUrl(ExecutionYear executionYear) {
+    public static String getNextUrl(final ExecutionYear executionYear) {
         return urlWithExecutionYear(CurricularCoursesController.CONTROLLER_URL, executionYear);
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         throw new RuntimeException("Error you should not call this method.");
     }
 

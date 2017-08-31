@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.ContactsFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.contacts.ContactsFormController;
 import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 
@@ -30,7 +30,7 @@ public class CGDPdfFiller {
      * */
     private AcroFields form;
 
-    private String getMail(Person person) {
+    private String getMail(final Person person) {
         if (person.hasInstitutionalEmailAddress()) {
             return person.getInstitutionalEmailAddressValue();
         }
@@ -43,7 +43,7 @@ public class CGDPdfFiller {
         return email != null ? email.getValue() : "";
     }
 
-    private void setField(String fieldName, String fieldContent) throws IOException, DocumentException {
+    private void setField(final String fieldName, final String fieldContent) throws IOException, DocumentException {
         if (fieldContent != null) {
             form.setField(fieldName, fieldContent);
         }
@@ -53,11 +53,12 @@ public class CGDPdfFiller {
      * End PdfFiller variables and methods
      * */
 
-    public ByteArrayOutputStream getFilledPdf(Person person, InputStream pdfTemplateStream) throws IOException, DocumentException {
+    public ByteArrayOutputStream getFilledPdf(final Person person, final InputStream pdfTemplateStream)
+            throws IOException, DocumentException {
         return getFilledPdfCGDPersonalInformation(person, pdfTemplateStream);
     }
 
-    private ByteArrayOutputStream getFilledPdfCGDPersonalInformation(Person person, InputStream pdfTemplateStream)
+    private ByteArrayOutputStream getFilledPdfCGDPersonalInformation(final Person person, final InputStream pdfTemplateStream)
             throws IOException, DocumentException {
         PdfReader reader = new PdfReader(pdfTemplateStream);
         reader.getAcroForm().remove(PdfName.SIGFLAGS);

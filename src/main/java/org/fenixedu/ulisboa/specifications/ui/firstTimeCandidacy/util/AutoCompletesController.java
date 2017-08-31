@@ -13,13 +13,11 @@ import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitName;
-import org.fenixedu.academic.domain.organizationalStructure.UnitName.ExternalAcademicUnitNameLimitedOrderedSet;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.ulisboa.specifications.domain.Parish;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.PersonalInformationFormController.DegreeDesignationBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,17 +35,16 @@ import pt.ist.fenixframework.FenixFramework;
 public class AutoCompletesController {
 
     @RequestMapping(value = "/externalUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") String namePart, Model model) {
+    public @ResponseBody List<UnitBean> readExternalUnits(@RequestParam("namePart") final String namePart, final Model model) {
         assureLoggedInUser();
         Function<Unit, UnitBean> createUnitBean = un -> new UnitBean(un.getExternalId(), un.getName());
-        return findExternalUnit(namePart, 50).stream()
-                .filter(i -> i.getUnit().isNoOfficialExternal())
-                .map(i -> i.getUnit()).map(createUnitBean)
-                .collect(Collectors.toList());
+        return findExternalUnit(namePart, 50).stream().filter(i -> i.getUnit().isNoOfficialExternal()).map(i -> i.getUnit())
+                .map(createUnitBean).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/externalUnitFreeOption", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readExternalUnitsWithFreeOption(@RequestParam("namePart") String namePart, Model model) {
+    public @ResponseBody List<UnitBean> readExternalUnitsWithFreeOption(@RequestParam("namePart") final String namePart,
+            final Model model) {
         assureLoggedInUser();
         List<UnitBean> readExternalUnits = readExternalUnits(namePart, model);
         readExternalUnits.add(0, new UnitBean(namePart, namePart));
@@ -55,16 +52,16 @@ public class AutoCompletesController {
     }
 
     @RequestMapping(value = "/academicUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readAcademicUnits(@RequestParam("namePart") String namePart, Model model) {
+    public @ResponseBody List<UnitBean> readAcademicUnits(@RequestParam("namePart") final String namePart, final Model model) {
         assureLoggedInUser();
         Function<UnitName, UnitBean> createUnitBean = un -> new UnitBean(un.getUnit().getExternalId(), un.getUnit().getName());
         return findExternalAcademicUnit(namePart, 50).stream().map(createUnitBean).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/degreeDesignation/{unit}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") String unitOid,
-            @RequestParam("namePart") String namePart,
-            @RequestParam(value = "schoolLevelType", required = false) final SchoolLevelType schoolLevelType, Model model) {
+    public @ResponseBody Collection<DegreeDesignationBean> readExternalUnits(@PathVariable("unit") final String unitOid,
+            @RequestParam("namePart") final String namePart,
+            @RequestParam(value = "schoolLevelType", required = false) final SchoolLevelType schoolLevelType, final Model model) {
         assureLoggedInUser();
         Unit unit = null;
         try {
@@ -98,8 +95,8 @@ public class AutoCompletesController {
     }
 
     @RequestMapping(value = "/district/{oid}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<DistrictSubdivisionBean> readDistrictSubdivisions(@PathVariable("oid") District district,
-            Model model) {
+    public @ResponseBody List<DistrictSubdivisionBean> readDistrictSubdivisions(@PathVariable("oid") final District district,
+            final Model model) {
         assureLoggedInUser();
         Function<DistrictSubdivision, DistrictSubdivisionBean> createSubdivisionBean =
                 ds -> new DistrictSubdivisionBean(ds.getExternalId(), ds.getName());
@@ -111,7 +108,8 @@ public class AutoCompletesController {
 
     @RequestMapping(value = "/districtSubdivision/{oid}", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
-    public @ResponseBody List<ParishBean> readParish(@PathVariable("oid") DistrictSubdivision districtSubdivision, Model model) {
+    public @ResponseBody List<ParishBean> readParish(@PathVariable("oid") final DistrictSubdivision districtSubdivision,
+            final Model model) {
         assureLoggedInUser();
         Function<Parish, ParishBean> createParishBean = p -> new ParishBean(p.getExternalId(), p.getName());
         List<ParishBean> parishes =
@@ -121,13 +119,13 @@ public class AutoCompletesController {
     }
 
     @RequestMapping(value = "/raidesUnit", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-    public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") String namePart, Model model) {
+    public @ResponseBody List<UnitBean> readRaidesUnits(@RequestParam("namePart") final String namePart, final Model model) {
         assureLoggedInUser();
 
         final Function<Unit, UnitBean> createUnitBean = new Function<Unit, UnitBean>() {
 
             @Override
-            public UnitBean apply(Unit t) {
+            public UnitBean apply(final Unit t) {
                 final String code = !Strings.isNullOrEmpty(t.getCode()) ? "[" + t.getCode() + "]" : "";
                 return new UnitBean(t.getExternalId(), code + " " + t.getName());
             }
@@ -136,34 +134,30 @@ public class AutoCompletesController {
         return findExternalAcademicUnit(namePart, 50).stream().map(i -> i.getUnit())
                 .filter(i -> !i.getDegreeDesignationSet().isEmpty()).map(createUnitBean).collect(Collectors.toList());
     }
-    
+
     private static Collection<UnitName> findExternalUnit(final String name, final int size) {
-        return Bennu.getInstance().getUnitNameSet().stream()
-            .filter(u -> u.getIsExternalUnit())
-            .filter(u -> normalize(u.getName()).contains(normalize(name)))
-            .sorted(Comparator.comparing(UnitName::getName))
-                    .collect(Collectors.toList());
+        return Bennu.getInstance().getUnitNameSet().stream().filter(u -> u.getIsExternalUnit())
+                .filter(u -> normalize(u.getName()).contains(normalize(name))).sorted(Comparator.comparing(UnitName::getName))
+                .collect(Collectors.toList());
     }
 
     private static Collection<UnitName> findExternalAcademicUnit(final String name, final int size) {
-        return Bennu.getInstance().getUnitNameSet().stream()
-            .filter(u -> u.getIsExternalUnit())
-            .filter(u -> !Strings.isNullOrEmpty(u.getUnit().getCode()))
-            .filter(u -> StringUtils.isNumeric(u.getUnit().getCode()))
-            .filter(u -> normalize(u.getName()).contains(normalize(name)))
-            .sorted(Comparator.comparing(UnitName::getName))
-            .collect(Collectors.toList());
+        return Bennu.getInstance().getUnitNameSet().stream().filter(u -> u.getIsExternalUnit())
+                .filter(u -> !Strings.isNullOrEmpty(u.getUnit().getCode()))
+                .filter(u -> StringUtils.isNumeric(u.getUnit().getCode()))
+                .filter(u -> normalize(u.getName()).contains(normalize(name))).sorted(Comparator.comparing(UnitName::getName))
+                .collect(Collectors.toList());
     }
 
     private static String normalize(final String value) {
-        if(Strings.isNullOrEmpty(value)) {
+        if (Strings.isNullOrEmpty(value)) {
             return "";
         }
-        
+
         return StringNormalizer.normalize(value.trim()).toLowerCase();
     }
 
-    private static String getFullDescription(DegreeDesignation designation) {
+    private static String getFullDescription(final DegreeDesignation designation) {
         return "[" + designation.getCode() + "] " + designation.getDegreeClassification().getDescription1() + " - "
                 + designation.getDescription();
     }
@@ -179,7 +173,7 @@ public class AutoCompletesController {
 
         String text;
 
-        public DistrictSubdivisionBean(String id, String text) {
+        public DistrictSubdivisionBean(final String id, final String text) {
             this.id = id;
             this.text = text;
         }
@@ -188,7 +182,7 @@ public class AutoCompletesController {
             return id;
         }
 
-        public void setId(String id) {
+        public void setId(final String id) {
             this.id = id;
         }
 
@@ -196,7 +190,7 @@ public class AutoCompletesController {
             return text;
         }
 
-        public void setText(String text) {
+        public void setText(final String text) {
             this.text = text;
         }
     }
@@ -206,7 +200,7 @@ public class AutoCompletesController {
 
         String text;
 
-        public ParishBean(String id, String text) {
+        public ParishBean(final String id, final String text) {
             this.id = id;
             this.text = text;
         }
@@ -215,7 +209,7 @@ public class AutoCompletesController {
             return id;
         }
 
-        public void setId(String id) {
+        public void setId(final String id) {
             this.id = id;
         }
 
@@ -223,7 +217,7 @@ public class AutoCompletesController {
             return text;
         }
 
-        public void setText(String text) {
+        public void setText(final String text) {
             this.text = text;
         }
     }

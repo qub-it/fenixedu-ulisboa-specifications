@@ -66,7 +66,8 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String fillGetScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String fillGetScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         Registration registration = getRegistration(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("Invalid Request. Person mismatch");
@@ -84,7 +85,7 @@ public class OriginInformationFormController extends FormAbstractController {
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/origininformationform/fillorigininformation";
     }
 
-    public OriginInformationForm fillFormIfRequired(Registration registration, Model model) {
+    public OriginInformationForm fillFormIfRequired(final Registration registration, final Model model) {
         OriginInformationForm form = (OriginInformationForm) getForm(model);
         if (form == null) {
             form = createOriginInformationForm(registration);
@@ -158,8 +159,8 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
-            RedirectAttributes redirectAttributes) {
+    protected void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model,
+            final RedirectAttributes redirectAttributes) {
         Registration registration = getRegistration(executionYear, model);
         if (registration.getPerson() != getStudent(model).getPerson()) {
             throw new RuntimeException("Invalid Request. Person mismatch");
@@ -168,7 +169,7 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected boolean validate(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         if (!(candidancyForm instanceof OriginInformationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.OriginInformationFormController.wrong.form.type"), model);
         }
@@ -176,7 +177,7 @@ public class OriginInformationFormController extends FormAbstractController {
         return validate(getRegistration(executionYear, model), (OriginInformationForm) candidancyForm, model);
     }
 
-    private boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
+    protected boolean validate(final Registration registration, final OriginInformationForm form, final Model model) {
         final Set<String> result = validateForm(registration, form, model);
 
         for (final String message : result) {
@@ -317,7 +318,7 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void writeData(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         writeData(getRegistration(executionYear, model), (OriginInformationForm) candidancyForm);
     }
 
@@ -369,10 +370,10 @@ public class OriginInformationFormController extends FormAbstractController {
         personalData.setHighSchoolType(form.getHighSchoolType());
     }
 
-    public static String resolveAcronym(String acronym, String name) {
+    public static String resolveAcronym(final String acronym, final String name) {
         final Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
         final Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
-        final List<String> takenAcronyms = new ArrayList<String>();
+        final List<String> takenAcronyms = new ArrayList<>();
         String resolvedAcronym = acronym;
         for (Unit school : highschools.getChildUnitByAcronym("official-highschools").getSubUnits()) {
             takenAcronyms.add(school.getAcronym());
@@ -398,12 +399,14 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(ContactsFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         if (findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).isEmpty()) {
             if (isPreviousDegreeOriginInformationRequired()) {
                 return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormController.CONTROLLER_URL, executionYear),
@@ -422,16 +425,16 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         return false;
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 
-    protected Registration getRegistration(ExecutionYear executionYear, Model model) {
+    protected Registration getRegistration(final ExecutionYear executionYear, final Model model) {
         return FirstTimeCandidacyController.getCandidacy().getRegistration();
     }
 
