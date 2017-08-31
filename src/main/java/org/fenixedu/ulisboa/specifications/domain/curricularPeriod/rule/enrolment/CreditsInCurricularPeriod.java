@@ -4,19 +4,16 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
-import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-
-import com.google.common.collect.Maps;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -124,7 +121,11 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
 
         BigDecimal result = BigDecimal.ZERO;
 
-        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = mapYearCredits(enrolmentContext);
+        final ExecutionYear executionYear = enrolmentContext.getExecutionPeriod().getExecutionYear();
+        final ExecutionSemester semester = getSemester() == null ? null : executionYear.getExecutionSemesterFor(getSemester());
+
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits =
+                CurricularPeriodServices.mapYearCredits(enrolmentContext, getApplyToOptionals(), semester);
         final Set<CurricularPeriod> toInspect = configured;
 
         for (final CurricularPeriod iter : toInspect) {
@@ -134,31 +135,6 @@ public class CreditsInCurricularPeriod extends CreditsInCurricularPeriod_Base {
             }
         }
 
-        return result;
-    }
-
-    private Map<CurricularPeriod, BigDecimal> mapYearCredits(final EnrolmentContext enrolmentContext) {
-        final Map<CurricularPeriod, BigDecimal> result = Maps.newHashMap();
-
-        final DegreeCurricularPlan dcp = enrolmentContext.getStudentCurricularPlan().getDegreeCurricularPlan();
-        final ExecutionYear executionYear = enrolmentContext.getExecutionPeriod().getExecutionYear();
-
-        for (final IDegreeModuleToEvaluate iter : getEnroledAndEnroling(enrolmentContext)) {
-
-            final int year = iter.getContext().getCurricularYear();
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year, getSemester());
-
-            if (curricularPeriod != null) {
-
-                final BigDecimal credits = BigDecimal.valueOf(getSemester() != null ? iter
-                        .getAccumulatedEctsCredits(executionYear.getExecutionSemesterFor(getSemester())) : iter.getEctsCredits());
-
-                final String code = iter.getDegreeModule() == null ? "Opt" : iter.getDegreeModule().getCode();
-                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits, code);
-            }
-        }
-
-        CurricularPeriodServices.mapYearCreditsLogger(result);
         return result;
     }
 

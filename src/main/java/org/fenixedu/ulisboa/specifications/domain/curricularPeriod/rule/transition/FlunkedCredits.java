@@ -89,6 +89,7 @@ public class FlunkedCredits extends FlunkedCredits_Base {
             yearMax = Math.max(1, getConfiguration().getCurricularPeriod().getChildOrder().intValue() - 1);
         }
 
+        // WARNING: don't change this, the following semesterAware=false is correct
         final Set<CurricularPeriod> configured = getCurricularPeriodsConfigured(yearMin, yearMax, false);
         if (configured == null) {
             return createFalseConfiguration();
@@ -103,7 +104,8 @@ public class FlunkedCredits extends FlunkedCredits_Base {
     private BigDecimal calculateTotalFlunked(Curriculum curriculum, Set<CurricularPeriod> configured) {
 
         BigDecimal result = BigDecimal.ZERO;
-        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = CurricularPeriodServices.mapYearCredits(curriculum);
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits =
+                CurricularPeriodServices.mapYearCredits(curriculum, getApplyToOptionals());
         final Set<CurricularPeriod> toInspect = configured.isEmpty() ? curricularPeriodCredits.keySet() : configured;
 
         for (final CurricularPeriod curricularPeriod : toInspect) {

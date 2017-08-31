@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,6 +11,8 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+
+import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -49,8 +52,11 @@ public class ApprovedCredits extends ApprovedCredits_Base {
 
     @Override
     public String getLabel() {
+        String label = "label." + this.getClass().getSimpleName();
+        final List<String> args = Lists.newArrayList();
+
         if (isYearless()) {
-            return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString());
+            args.add(getCredits().toString());
 
         } else {
 
@@ -58,16 +64,26 @@ public class ApprovedCredits extends ApprovedCredits_Base {
             final int yearMax = getYearMaxFinal();
 
             if (yearMin == yearMax) {
-                return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".year",
-                        getCredits().toString(), String.valueOf(yearMin));
+                label += ".year";
+                args.add(getCredits().toString());
+                args.add(String.valueOf(yearMin));
 
             } else {
-                return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName() + ".years",
-                        getCredits().toString(), String.valueOf(yearMin), String.valueOf(yearMax));
+                label += ".years";
+                args.add(getCredits().toString());
+                args.add(String.valueOf(yearMin));
+                args.add(String.valueOf(yearMax));
             }
         }
-        
-        // TODO legidio, label with semester? or remove semester configuration?
+
+        if (getApplyToOptionals() != null) {
+            label += getApplyToOptionals() ? ".applyToOptionals" : ".applyToOptionals.not";
+        }
+
+        // TODO legidio, label with semester? or remove semester constructor?
+        // in FP/IE, FlunkedCredits is being used by semester. Any other institution is using this ApprovedCredits with semester config?
+
+        return BundleUtil.getString(MODULE_BUNDLE, label, args.toArray(new String[] {}));
     }
 
     private boolean isYearless() {
@@ -111,7 +127,8 @@ public class ApprovedCredits extends ApprovedCredits_Base {
     private BigDecimal calculateTotalApproved(final Curriculum curriculum, final Set<CurricularPeriod> configured) {
 
         BigDecimal result = BigDecimal.ZERO;
-        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = CurricularPeriodServices.mapYearCredits(curriculum);
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits =
+                CurricularPeriodServices.mapYearCredits(curriculum, getApplyToOptionals());
         final Set<CurricularPeriod> toInspect = configured.isEmpty() ? curricularPeriodCredits.keySet() : configured;
 
         for (final CurricularPeriod curricularPeriod : toInspect) {

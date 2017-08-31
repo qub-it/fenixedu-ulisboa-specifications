@@ -504,6 +504,7 @@ class curricularPeriod.rule.CurricularPeriodRule {
 	Integer semester;
 	Integer yearMin;
 	Integer yearMax;
+	Boolean applyToOptionals;
 }
 
 	class curricularPeriod.rule.RuleEnrolment extends curricularPeriod.rule.CurricularPeriodRule {

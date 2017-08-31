@@ -30,19 +30,17 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
-import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-
-import com.google.common.collect.Maps;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -97,13 +95,14 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         BigDecimal enroledAndEnroling = getCreditsEnroledAndEnroling(enrolmentContext, configured);
         BigDecimal total = approved.add(enroledAndEnroling);
 
-        return total.compareTo(getCredits()) >= 0 ? createTrue() : createWarningLabelled(approved, enroledAndEnroling);
+        return total.compareTo(getCredits()) >= 0 ? createTrue() : createWarningLabelled(enroledAndEnroling, approved, total);
     }
 
     private BigDecimal getCreditsApproved(final ICurriculum curriculum, final CurricularPeriod curricularPeriod) {
         BigDecimal result = BigDecimal.ZERO;
 
-        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = CurricularPeriodServices.mapYearCredits(curriculum);
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits =
+                CurricularPeriodServices.mapYearCredits(curriculum, getApplyToOptionals());
         final BigDecimal credits = curricularPeriodCredits.get(curricularPeriod);
         if (credits != null) {
             result = result.add(credits);
@@ -112,12 +111,13 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         return result;
     }
 
-    static private BigDecimal getCreditsEnroledAndEnroling(final EnrolmentContext enrolmentContext,
+    private BigDecimal getCreditsEnroledAndEnroling(final EnrolmentContext enrolmentContext,
             final CurricularPeriod curricularPeriod) {
 
         BigDecimal result = BigDecimal.ZERO;
 
-        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits = mapYearCredits(enrolmentContext);
+        final Map<CurricularPeriod, BigDecimal> curricularPeriodCredits =
+                CurricularPeriodServices.mapYearCredits(enrolmentContext, getApplyToOptionals(), (ExecutionSemester) null);
         final BigDecimal credits = curricularPeriodCredits.get(curricularPeriod);
         if (credits != null) {
             result = result.add(credits);
@@ -126,41 +126,25 @@ public class CreditsNotEnroled extends CreditsNotEnroled_Base {
         return result;
     }
 
-    static private Map<CurricularPeriod, BigDecimal> mapYearCredits(final EnrolmentContext enrolmentContext) {
-        final Map<CurricularPeriod, BigDecimal> result = Maps.newHashMap();
-
-        final DegreeCurricularPlan dcp = enrolmentContext.getStudentCurricularPlan().getDegreeCurricularPlan();
-
-        for (final IDegreeModuleToEvaluate iter : getEnroledAndEnroling(enrolmentContext)) {
-
-            final int year = iter.getContext().getCurricularYear();
-            final CurricularPeriod curricularPeriod = CurricularPeriodServices.getCurricularPeriod(dcp, year);
-
-            if (curricularPeriod != null) {
-
-                final BigDecimal credits = BigDecimal.valueOf(iter.getEctsCredits());
-                
-                final String code = iter.getDegreeModule() == null ? "Opt" : iter.getDegreeModule().getCode();
-                CurricularPeriodServices.addYearCredits(result, curricularPeriod, credits, code);
-            }
-        }
-
-        CurricularPeriodServices.mapYearCreditsLogger(result);
-        return result;
-    }
-
-    public RuleResult createWarningLabelled(final BigDecimal approved, final BigDecimal enroledAndEnroling) {
+    public RuleResult createWarningLabelled(final BigDecimal enroledAndEnroling, final BigDecimal approved,
+            final BigDecimal total) {
         final String prefix = BundleUtil.getString(MODULE_BUNDLE, "label.CurricularPeriodRule.prefix",
                 getConfiguration().getCurricularPeriod().getFullLabel());
-        final String literalMessage = prefix + " " + getLabel() + " " + BundleUtil.getString(MODULE_BUNDLE,
-                "label.CreditsNotEnroled.suffix", approved.toPlainString(), enroledAndEnroling.toPlainString());
+
+        final String literalMessage =
+                prefix + " " + getLabel() + " " + BundleUtil.getString(MODULE_BUNDLE, "label.CreditsNotEnroled.suffix",
+                        enroledAndEnroling.toPlainString(), approved.toPlainString(), total.toPlainString());
         return RuleResult.createWarning(getDegreeModule(), Collections.singleton(new RuleResultMessage(literalMessage, false)));
     }
 
     @Override
     public String getLabel() {
-        return BundleUtil.getString(MODULE_BUNDLE, "label." + this.getClass().getSimpleName(), getCredits().toString(),
-                getYearMin().toString());
+        String label = "label." + this.getClass().getSimpleName();
+        if (getApplyToOptionals() != null) {
+            label += getApplyToOptionals() ? ".applyToOptionals" : ".applyToOptionals.not";
+        }
+
+        return BundleUtil.getString(MODULE_BUNDLE, label, getCredits().toString(), getYearMin().toString());
     }
 
 }
