@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
@@ -141,7 +142,16 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         return ACTION + "?method=endEnrolmentProcess";
     }
 
-    private static ExecutorService TUITION_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static ExecutorService TUITION_EXECUTOR =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory() {
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread thread = new Thread(r);
+                    thread.setDaemon(true);
+                    return thread;
+                }
+            });
 
     public ActionForward endEnrolmentProcess(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
             final HttpServletResponse response) {
@@ -164,8 +174,8 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
 
         if (EnrolmentProcessService.isLastStep(process, request) && EnrolmentProcessService.isToAddEnrolmentProof()) {
             try {
-                ULisboaServiceRequest serviceRequest =
-                        EnrolmentProcessService.createEnrolmentProof(scp.getRegistration(), executionSemester.getExecutionYear());
+                ULisboaServiceRequest serviceRequest = EnrolmentProcessService.createEnrolmentProof(scp.gektRegistration(),
+                        executionSemester.getExecutionYear());
                 ULisboaServiceRequestGeneratedDocument downloadDocument = serviceRequest.downloadDocument();
 
                 request.setAttribute("enrolmentProofDocument", downloadDocument);
