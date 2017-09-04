@@ -525,7 +525,7 @@ public class StudentCurricularPlanLayout extends Layout {
             return concluded;
         }
 
-        if (creditsRule != null && creditsRule.getMinimumCredits().doubleValue() == 0d
+        if (creditsRule != null
                 && creditsRule.getMaximumCredits().doubleValue() != group.getCreditsConcluded(executionYear).doubleValue()) {
             return ConclusionValue.NOT_CONCLUDED;
         }
