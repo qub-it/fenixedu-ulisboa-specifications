@@ -121,7 +121,7 @@
 
 	
 	<p class="mtop10 mbottom1">
-		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
+		<button type="submit" class="btn btn-primary" onclick="this.form.method.value='enrolInDegreeModules'; openPleaseWaitDialog();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
 		<a href="#" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>			
 	</p>
@@ -151,7 +151,7 @@
 	</fr:edit>
 	
 	<p class="mtop10 mbottom1">
-		<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
+		<button type="submit" class="btn btn-primary" onclick="this.form.method.value='enrolInDegreeModules'; openPleaseWaitDialog();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.back" onclick="this.form.method.value='backToStudentEnrollments';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.back"/></html:submit>
 		<a href="#" class="btn btn-primary" onclick="javascript: $('.emptyGroup').toggle();"><bean:message bundle="ACADEMIC_OFFICE_RESOURCES"  key="label.toggle.emptyGroups"/></a>
 	</p>
@@ -169,14 +169,11 @@
 </tr>
 </table>
 
+<%-- qubExtension --%>
+<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
+
 <%-- qubExtension, academic bug fix --%>
 <script type="text/javascript">
-function submitForm(btn) {
-	btn.form.method.value = 'enrolInDegreeModules';
-	$(btn).addClass('disabled');
-	$(btn).html('A Guardar...'); // TODO legidio, $(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}');
-}
-
 (function () {
     $('.showinfo3.mvert0').removeClass('table');
 	$('.smalltxt.noborder.table').removeClass('table');

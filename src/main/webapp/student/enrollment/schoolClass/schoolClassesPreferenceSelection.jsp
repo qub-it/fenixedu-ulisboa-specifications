@@ -29,6 +29,7 @@
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
+<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
 
 <style>
 .nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
@@ -52,11 +53,11 @@
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
 		</a>
 	    &nbsp;|&nbsp;
-    	<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+    	<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
 		</a>
 		&nbsp;

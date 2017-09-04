@@ -71,6 +71,7 @@ ${portal.angularToolkit()}
 <script src='${staticUrl}/js/jquery-ui.fullCalendar.custom.min.js'></script>
 <script src='${staticUrl}/js/fullcalendar.js'></script>
 
+<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
 
 <style>
 	.nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
@@ -115,12 +116,12 @@ ${portal.angularToolkit()}
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-	    <a class="" href="${enrolmentProcess.getReturnURL(pageContext.request)}">
+	    <a class="" href="${enrolmentProcess.getReturnURL(pageContext.request)}" onclick="openPleaseWaitDialog();">
 			<spring:message code="label.event.back" />
 		</a>
 	    &nbsp;|&nbsp;
 			<c:if test="${canContinueProcess}">
-				<a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}">
+				<a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}" onclick="openPleaseWaitDialog();">
 					<spring:message code="label.continue" />
 				</a>
 			</c:if>
@@ -470,12 +471,12 @@ ${portal.angularToolkit()}
 		<div class="well well-sm mtop15" style="display: inline-block">
 		    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 		    &nbsp;
-		    <a class="" href="${enrolmentProcess.getReturnURL(pageContext.request)}">
+		    <a class="" href="${enrolmentProcess.getReturnURL(pageContext.request)}" onclick="openPleaseWaitDialog();">
 				<spring:message code="label.event.back" />
 			</a>
 		    &nbsp;|&nbsp;
 				<c:if test="${canContinueProcess}">
-					<a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}">
+					<a class="" href="${enrolmentProcess.getContinueURL(pageContext.request)}" onclick="openPleaseWaitDialog();">
 						<spring:message code="label.continue" />
 					</a>
 				</c:if>

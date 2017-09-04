@@ -42,11 +42,11 @@
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-		<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+		<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
 		</a>
 	    &nbsp;|&nbsp;
-	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
 		</a>
 		&nbsp;
@@ -139,7 +139,7 @@
 		--%>
 		
 		<div style="display: inline-block;" class="mtop05 mbottom15">
-			<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
+			<button type="submit" class="btn btn-primary" onclick="this.form.method.value='enrolInDegreeModules'; openPleaseWaitDialog();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 			<span class="infoop2">
 				<bean:message bundle="APPLICATION_RESOURCES" key="label.warning.coursesAndGroupsSimultaneousEnrolment"/>
 			</span>
@@ -194,7 +194,7 @@
 		<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
 		--%>
 		<p class="mtop05 mbottom1">
-			<button type="submit" class="btn btn-primary" onclick="submitForm(this);"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
+			<button type="submit" class="btn btn-primary" onclick="this.form.method.value='enrolInDegreeModules'; openPleaseWaitDialog();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
 		</p>
 	
 		<p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES"  key="label.legend"/>:</em></p>
@@ -219,6 +219,9 @@
 		</tr>
 		 --%>
 		</table>
+		
+		<%-- qubExtension --%>
+		<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
 
 
 	<%-- NAVIGATION --%>
@@ -228,11 +231,11 @@
 		<div class="well well-sm mtop15" style="display: inline-block">
 		    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 		    &nbsp;
-		    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+		    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>" onclick="openPleaseWaitDialog();">
 				<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
 			</a>
 		    &nbsp;|&nbsp;
-		    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+		    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>" onclick="openPleaseWaitDialog();">
 				<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
 			</a>
 			&nbsp;
@@ -244,13 +247,8 @@
 	</logic:notPresent>
 </fr:form>
 
+<%-- qubExtension, academic bug fix --%>
 <script type="text/javascript">
-function submitForm(btn) {
-	btn.form.method.value = 'enrolInDegreeModules';
-	$(btn).addClass('disabled');
-	$(btn).html('A Guardar...'); // TODO legidio, $(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}'); 
-}
-
 (function () {
     $('.showinfo3.mvert0').removeClass('table');
 	$('.smalltxt.noborder.table').removeClass('table');
