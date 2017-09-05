@@ -121,7 +121,8 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
         checkUser();
 
-        final Set<Shift> shifts = executionCourse.getShiftsByTypeOrderedByShiftName(shiftType);
+        final List<Shift> shifts = executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
+                .sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
 
         final JsonArray result = new JsonArray();
         for (final Shift shift : shifts) {
