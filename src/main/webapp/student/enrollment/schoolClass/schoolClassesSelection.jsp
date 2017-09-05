@@ -37,6 +37,8 @@
 <script src='${pageContext.request.contextPath}/themes/fenixedu-learning-theme/static/js/jquery-ui.fullCalendar.custom.min.js'></script>
 <script src='${pageContext.request.contextPath}/themes/fenixedu-learning-theme/static/js/fullcalendar.js'></script>
 
+<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
+
 <style>
 .nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
     text-decoration: none;
@@ -72,12 +74,12 @@
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="APPLICATION_RESOURCES" key="label.back" />
 		</a>
 	    &nbsp;|&nbsp;
 	    <c:if test="${canContinueProcess}">
-			<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+			<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>" onclick="openPleaseWaitDialog();">
 				<bean:message bundle="APPLICATION_RESOURCES" key="button.continue" />
 			</a>
 		</c:if>

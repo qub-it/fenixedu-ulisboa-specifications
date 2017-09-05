@@ -24,6 +24,9 @@
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 
+<%-- qubExtension --%>
+<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
+
 <logic:present role="role(STUDENT)">
 
 <%-- TITLE --%>
@@ -65,11 +68,11 @@
 	<div class="well well-sm" style="display: inline-block">
 	    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
 	    &nbsp;
-	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getReturnURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.event.back" />
 		</a>
 	    &nbsp;|&nbsp;
-	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>">
+	    <%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><a class="" href="<%= enrolmentProcess.getContinueURL(request) %>" onclick="openPleaseWaitDialog();">
 			<bean:message bundle="ULISBOA_SPECIFICATIONS_RESOURCES" key="label.continue" />
 		</a>
 		&nbsp;
