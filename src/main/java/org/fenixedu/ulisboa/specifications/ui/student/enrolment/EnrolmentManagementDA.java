@@ -144,11 +144,12 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
     }
 
     private static ExecutorService TUITION_EXECUTOR =
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory() {
+            Executors.newSingleThreadExecutor( new ThreadFactory() {
 
                 @Override
                 public Thread newThread(Runnable r) {
                     Thread thread = new Thread(r);
+                    thread.setName("tuitionExecutorThread");
                     thread.setDaemon(true);
                     return thread;
                 }
