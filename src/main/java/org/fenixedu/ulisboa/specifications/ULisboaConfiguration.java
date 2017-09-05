@@ -73,7 +73,7 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "support.active", defaultValue = "true")
         public Boolean getSupportActive();
 
-        @ConfigurationProperty(key = "documentation.active", defaultValue = "true")
+        @ConfigurationProperty(key = "documentation.active", defaultValue = "false")
         public Boolean getDocumentationActive();
         
         @ConfigurationProperty(key = "ldap.integration.useCustomGivenNames", defaultValue = "false")
