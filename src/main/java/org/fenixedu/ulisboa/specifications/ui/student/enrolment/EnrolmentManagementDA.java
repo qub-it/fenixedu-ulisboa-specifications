@@ -69,6 +69,7 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.Enrolmen
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 
 @StrutsFunctionality(app = StudentEnrollApp.class, path = "student-enrolment-management",
@@ -216,7 +217,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         }
 
         @Override
-        @Atomic
+        @Atomic(mode=TxMode.READ)
         public void run() {
             final Registration registration = FenixFramework.getDomainObject(registrationId);
             final ExecutionYear executionYear = FenixFramework.getDomainObject(executionYearId);
