@@ -511,6 +511,12 @@ ${portal.angularToolkit()}
 
 				<div class="col-sm-2">
 					<div class="col-sm-10" style="padding-left: 0;">
+						<input type="checkbox" name="exportConclusionData" ng-model="object.exportConclusionData">
+						<spring:message code="label.RegistrationHistoryReportParametersBean.exportConclusionData" />
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="col-sm-10" style="padding-left: 0;">
 						<input type="checkbox" name="exportQualificationAndOriginInfo" ng-model="object.exportQualificationAndOriginInfo">
 						<spring:message code="label.RegistrationHistoryReportParametersBean.exportQualificationAndOriginInfo" />
 					</div>

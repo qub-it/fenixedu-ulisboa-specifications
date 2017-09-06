@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -14,7 +13,6 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -29,12 +27,9 @@ import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.joda.time.LocalDate;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReportService {
@@ -53,8 +48,6 @@ public class RegistrationHistoryReportService {
     private Boolean improvementEnrolmentsOnly;
     private Integer studentNumber;
     private Collection<ProgramConclusion> programConclusionsToFilter = Sets.newHashSet();
-
-    private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
     private boolean detailed = true;
 
@@ -173,11 +166,7 @@ public class RegistrationHistoryReportService {
 
     public Collection<RegistrationHistoryReport> generateReport() {
 
-        this.programConclusions = calculateProgramConclusions().stream()
-                .filter(pc -> this.programConclusionsToFilter.isEmpty() || this.programConclusionsToFilter.contains(pc))
-                .collect(Collectors.toSet());
-
-        final Set<RegistrationHistoryReport> enrolmentResult = new HashSet<RegistrationHistoryReport>();
+        final Set<RegistrationHistoryReport> enrolmentResult = Sets.newHashSet();
         for (final ExecutionYear executionYear : this.enrolmentExecutionYears) {
             enrolmentResult.addAll(processEnrolled(executionYear));
         }
@@ -186,9 +175,7 @@ public class RegistrationHistoryReportService {
             return enrolmentResult;
         }
 
-        final Set<RegistrationHistoryReport> finalResult =
-                new HashSet<RegistrationHistoryReport>(processGraduated(enrolmentResult));
-
+        final Set<RegistrationHistoryReport> finalResult = processGraduated(enrolmentResult);
         return finalResult;
     }
 
@@ -197,6 +184,7 @@ public class RegistrationHistoryReportService {
 
         final Set<DegreeType> degreeTypesToProcess =
                 this.degreeTypes.isEmpty() ? DegreeType.all().collect(Collectors.toSet()) : this.degreeTypes;
+
         for (final DegreeType degreeType : degreeTypesToProcess) {
             for (final Degree degree : degreeType.getDegreeSet()) {
                 for (final DegreeCurricularPlan degreeCurricularPlan : degree.getDegreeCurricularPlansSet()) {
@@ -206,17 +194,15 @@ public class RegistrationHistoryReportService {
         }
 
         return result;
-
     }
 
-    private Collection<RegistrationHistoryReport> processGraduated(final Set<RegistrationHistoryReport> enrolmentResult) {
+    private Set<RegistrationHistoryReport> processGraduated(final Set<RegistrationHistoryReport> enrolmentResult) {
+        final Set<RegistrationHistoryReport> result = Sets.newHashSet();
 
-        final Set<RegistrationHistoryReport> graduatedResultSet = Sets.newHashSet();
+        for (RegistrationHistoryReport report : enrolmentResult) {
+            for (final ProgramConclusion programConclusion : report.getProgramConclusionsToReport()) {
 
-        for (RegistrationHistoryReport reportEntry : enrolmentResult) {
-            for (final ProgramConclusion programConclusion : this.programConclusions) {
-
-                final RegistrationConclusionBean conclusionBean = reportEntry.getConclusionReportFor(programConclusion);
+                final RegistrationConclusionBean conclusionBean = report.getConclusionReportFor(programConclusion);
 
                 if (conclusionBean == null) {
                     continue;
@@ -241,11 +227,11 @@ public class RegistrationHistoryReportService {
                     continue;
                 }
 
-                graduatedResultSet.add(reportEntry);
+                result.add(report);
             }
         }
 
-        return graduatedResultSet;
+        return result;
     }
 
     private Collection<RegistrationHistoryReport> processEnrolled(final ExecutionYear executionYear) {
@@ -279,6 +265,10 @@ public class RegistrationHistoryReportService {
                 r -> this.firstTimeOnly == null || this.firstTimeOnly.booleanValue() && r.getRegistrationYear() == executionYear
                         || !this.firstTimeOnly.booleanValue() && r.getRegistrationYear() != executionYear;
 
+        final Set<ProgramConclusion> programConclusionsToReport = calculateProgramConclusions().stream()
+                .filter(pc -> this.programConclusionsToFilter.isEmpty() || this.programConclusionsToFilter.contains(pc))
+                .collect(Collectors.toSet());
+
         return buildSearchUniverse(executionYear).stream()
 
                 .filter(firstTimeFilter).filter(degreeTypeFilter)
@@ -289,7 +279,7 @@ public class RegistrationHistoryReportService {
 
                 .filter(registrationStateFilter).filter(statuteTypeFilter)
 
-                .map(r -> buildReport(r, executionYear)).collect(Collectors.toSet());
+                .map(r -> buildReport(r, executionYear, programConclusionsToReport)).collect(Collectors.toSet());
 
     }
 
@@ -326,12 +316,14 @@ public class RegistrationHistoryReportService {
         return result;
     }
 
-    private RegistrationHistoryReport buildReport(Registration registration, ExecutionYear executionYear) {
+    private RegistrationHistoryReport buildReport(final Registration registration, final ExecutionYear executionYear,
+            final Set<ProgramConclusion> programConclusionsToReport) {
+
         final RegistrationHistoryReport result = new RegistrationHistoryReport(registration, executionYear);
+        result.setProgramConclusionsToReport(programConclusionsToReport);
 
         if (detailed) {
 
-            addConclusion(result);
             addCurriculum(result);
 
             final Collection<Enrolment> enrolmentsByYear = result.getEnrolments();
@@ -423,34 +415,6 @@ public class RegistrationHistoryReportService {
 
     private void addCurriculum(RegistrationHistoryReport result) {
         result.setCurriculum(RegistrationServices.getCurriculum(result.getRegistration(), result.getExecutionYear()));
-    }
-
-    //TODO: refactor to use RegistrationConclusionServices.inferConclusion => refactor method to allow return non conclued 
-    private void addConclusion(final RegistrationHistoryReport result) {
-
-        final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
-        for (final StudentCurricularPlan studentCurricularPlan : result.getRegistration().getStudentCurricularPlansSet()) {
-            for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
-                    .collect(Collectors.toSet())) {
-                conclusions.put(programConclusion, new RegistrationConclusionBean(studentCurricularPlan, programConclusion));
-            }
-        }
-
-        for (final ProgramConclusion programConclusion : this.programConclusions) {
-
-            if (!conclusions.containsKey(programConclusion)) {
-                result.addEmptyConclusion(programConclusion);
-            } else {
-                final Collection<RegistrationConclusionBean> conclusionsByProgramConclusion = conclusions.get(programConclusion);
-                if (conclusionsByProgramConclusion.size() == 1) {
-                    result.addConclusion(programConclusion, conclusionsByProgramConclusion.iterator().next());
-                } else {
-                    result.addConclusion(programConclusion, conclusionsByProgramConclusion.stream()
-                            .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
-                }
-            }
-
-        }
     }
 
 }

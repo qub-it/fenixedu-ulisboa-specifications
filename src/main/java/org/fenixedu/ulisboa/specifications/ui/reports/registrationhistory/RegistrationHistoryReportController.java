@@ -211,12 +211,13 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     @Override
                     protected void makeLine(final RegistrationHistoryReport report) {
                         addPrimaryData(report);
+                        addConclusionData(bean, report);
                         addQualificationAndOriginInfo(bean, report);
                         addPersonalData(bean, report);
                         addContactsData(bean, report);
                     }
 
-                    protected void addPrimaryData(final RegistrationHistoryReport report) {
+                    private void addPrimaryData(final RegistrationHistoryReport report) {
                         final Registration registration = report.getRegistration();
                         final Person person = registration.getPerson();
                         final Degree degree = registration.getDegree();
@@ -295,68 +296,65 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.executionYearWeightedAverage",
                                 report.getExecutionYearWeightedAverage());
 
+                        addData("RegistrationHistoryReport.tuitionCharged", booleanString(report.isTuitionCharged()));
+                        addData("RegistrationHistoryReport.tuitionAmount", report.getTuitionAmount().toPlainString());
                         addData("Registration.registrationObservations",
                                 registration.getRegistrationObservationsSet().stream()
                                         .map(o -> o.getVersioningUpdatedBy().getUsername() + ":" + o.getValue())
                                         .collect(Collectors.joining(" \n --------------\n ")));
-
-                        addConclusionData(report);
-
-                        addData("RegistrationHistoryReport.otherConcludedRegistrationYears",
-                                report.getOtherConcludedRegistrationYears());
-
-                        addTuitionAndAcademicTaxData(report);
                     }
 
-                    private void addTuitionAndAcademicTaxData(final RegistrationHistoryReport report) {
-                        addData("RegistrationHistoryReport.tuitionCharged", booleanString(report.isTuitionCharged()));
-                        addData("RegistrationHistoryReport.tuitionAmount", report.getTuitionAmount().toPlainString());
-                    }
+                    private void addConclusionData(final RegistrationHistoryReportParametersBean parametersBean,
+                            final RegistrationHistoryReport report) {
 
-                    private void addConclusionData(RegistrationHistoryReport report) {
+                        if (parametersBean.getExportConclusionData()) {
 
-                        //TODO: program conclusions should already be sorted
-                        final List<ProgramConclusion> sortedProgramConclusions = report.getProgramConclusions().stream()
-                                .sorted(Comparator.comparing(ProgramConclusion::getName)
-                                        .thenComparing(ProgramConclusion::getDescription)
-                                        .thenComparing(ProgramConclusion::getExternalId))
-                                .collect(Collectors.toList());
+                            //TODO: program conclusions should already be sorted
+                            final List<ProgramConclusion> sortedProgramConclusions = report.getProgramConclusions().stream()
+                                    .sorted(Comparator.comparing(ProgramConclusion::getName)
+                                            .thenComparing(ProgramConclusion::getDescription)
+                                            .thenComparing(ProgramConclusion::getExternalId))
+                                    .collect(Collectors.toList());
 
-                        for (final ProgramConclusion programConclusion : sortedProgramConclusions) {
+                            for (final ProgramConclusion programConclusion : sortedProgramConclusions) {
 
-                            final RegistrationConclusionBean bean = report.getConclusionReportFor(programConclusion);
+                                final RegistrationConclusionBean bean = report.getConclusionReportFor(programConclusion);
 
-                            final String concluded = bean == null ? null : booleanString(bean.isConcluded());
-                            addCell(labelFor(programConclusion, "concluded"), concluded);
+                                final String concluded = bean == null ? null : booleanString(bean.isConcluded());
+                                addCell(labelFor(programConclusion, "concluded"), concluded);
 
-                            final String conclusionProcessed = bean == null ? null : booleanString(bean.isConclusionProcessed());
-                            addCell(labelFor(programConclusion, "conclusionProcessed"), conclusionProcessed);
+                                final String conclusionProcessed =
+                                        bean == null ? null : booleanString(bean.isConclusionProcessed());
+                                addCell(labelFor(programConclusion, "conclusionProcessed"), conclusionProcessed);
 
-                            final String rawGrade =
-                                    bean == null || bean.getRawGrade() == null ? null : bean.getRawGrade().getValue();
-                            addCell(labelFor(programConclusion, "rawGrade"), rawGrade);
+                                final String rawGrade =
+                                        bean == null || bean.getRawGrade() == null ? null : bean.getRawGrade().getValue();
+                                addCell(labelFor(programConclusion, "rawGrade"), rawGrade);
 
-                            final String finalGrade =
-                                    bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
-                            addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
+                                final String finalGrade =
+                                        bean == null || bean.getFinalGrade() == null ? null : bean.getFinalGrade().getValue();
+                                addCell(labelFor(programConclusion, "finalGrade"), finalGrade);
 
-                            final String descriptiveGrade = bean == null || bean.getDescriptiveGrade() == null ? null : bean
-                                    .getDescriptiveGradeExtendedValue() + " (" + bean.getDescriptiveGrade().getValue() + ")";
-                            addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
+                                final String descriptiveGrade = bean == null || bean.getDescriptiveGrade() == null ? null : bean
+                                        .getDescriptiveGradeExtendedValue() + " (" + bean.getDescriptiveGrade().getValue() + ")";
+                                addCell(labelFor(programConclusion, "descriptiveGrade"), descriptiveGrade);
 
-                            final YearMonthDay conclusionDate =
-                                    bean == null || bean.getConclusionDate() == null ? null : bean.getConclusionDate();
-                            addCell(labelFor(programConclusion, "conclusionDate"), conclusionDate);
+                                final YearMonthDay conclusionDate =
+                                        bean == null || bean.getConclusionDate() == null ? null : bean.getConclusionDate();
+                                addCell(labelFor(programConclusion, "conclusionDate"), conclusionDate);
 
-                            final String conclusionYear = bean == null || bean.getConclusionYear() == null ? null : bean
-                                    .getConclusionYear().getQualifiedName();
-                            addCell(labelFor(programConclusion, "conclusionYear"), conclusionYear);
+                                final String conclusionYear = bean == null || bean.getConclusionYear() == null ? null : bean
+                                        .getConclusionYear().getQualifiedName();
+                                addCell(labelFor(programConclusion, "conclusionYear"), conclusionYear);
 
-                            final String ectsCredits = bean == null ? null : String.valueOf(bean.getEctsCredits());
-                            addCell(labelFor(programConclusion, "ectsCredits"), ectsCredits);
+                                final String ectsCredits = bean == null ? null : String.valueOf(bean.getEctsCredits());
+                                addCell(labelFor(programConclusion, "ectsCredits"), ectsCredits);
 
+                            }
+
+                            addData("RegistrationHistoryReport.otherConcludedRegistrationYears",
+                                    report.getOtherConcludedRegistrationYears());
                         }
-
                     }
 
                     private String labelFor(ProgramConclusion programConclusion, String field) {
@@ -364,13 +362,13 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 + programConclusion.getDescription().getContent() + ": ";
 
                         return programConclusionPrefix + bundle("label.RegistrationConclusionBean." + field);
-
                     }
 
                     private void addQualificationAndOriginInfo(final RegistrationHistoryReportParametersBean bean,
                             final RegistrationHistoryReport report) {
 
                         if (bean.getExportQualificationAndOriginInfo()) {
+
                             addData("PrecedentDegreeInformation.institutionUnit", report.getQualificationInstitutionName());
                             addData("PrecedentDegreeInformation.schoolLevel", report.getQualificationSchoolLevel());
                             addData("PrecedentDegreeInformation.degreeDesignation", report.getQualificationDegreeDesignation());

@@ -44,12 +44,15 @@ import org.fenixedu.ulisboa.specifications.domain.degree.prescription.Prescripti
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReport {
@@ -59,6 +62,8 @@ public class RegistrationHistoryReport {
     private ExecutionYear executionYear;
 
     private Registration registration;
+
+    private Set<ProgramConclusion> programConclusionsToReport = Sets.newHashSet();
 
     private Map<ProgramConclusion, RegistrationConclusionBean> conclusionReports = Maps.newHashMap();
 
@@ -258,20 +263,67 @@ public class RegistrationHistoryReport {
                 .stream().anyMatch(s -> !s.isActive());
     }
 
-    public void addConclusion(ProgramConclusion programConclusion, RegistrationConclusionBean bean) {
-        conclusionReports.put(programConclusion, bean);
+    private void addConclusion(ProgramConclusion programConclusion, RegistrationConclusionBean bean) {
+        this.conclusionReports.put(programConclusion, bean);
     }
 
-    public void addEmptyConclusion(ProgramConclusion programConclusion) {
-        conclusionReports.put(programConclusion, null);
+    private void addEmptyConclusion(ProgramConclusion programConclusion) {
+        this.conclusionReports.put(programConclusion, null);
     }
 
     public Set<ProgramConclusion> getProgramConclusions() {
-        return conclusionReports.keySet();
+        return getConclusionReports().keySet();
     }
 
     public RegistrationConclusionBean getConclusionReportFor(ProgramConclusion programConclusion) {
-        return conclusionReports.get(programConclusion);
+        return getConclusionReports().get(programConclusion);
+    }
+
+    private Map<ProgramConclusion, RegistrationConclusionBean> getConclusionReports() {
+        if (conclusionReports.isEmpty()) {
+            addConclusion();
+        }
+
+        return conclusionReports;
+    }
+
+    //TODO: refactor to use RegistrationConclusionServices.inferConclusion => refactor method to allow return non conclued 
+    private void addConclusion() {
+
+        final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
+        for (final StudentCurricularPlan studentCurricularPlan : getRegistration().getStudentCurricularPlansSet()) {
+            for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
+                    .collect(Collectors.toSet())) {
+                conclusions.put(programConclusion, new RegistrationConclusionBean(studentCurricularPlan, programConclusion));
+            }
+        }
+
+        for (final ProgramConclusion iter : getProgramConclusionsToReport()) {
+
+            if (!conclusions.containsKey(iter)) {
+                addEmptyConclusion(iter);
+
+            } else {
+
+                final Collection<RegistrationConclusionBean> conclusionsByProgramConclusion = conclusions.get(iter);
+                if (conclusionsByProgramConclusion.size() == 1) {
+                    addConclusion(iter, conclusionsByProgramConclusion.iterator().next());
+
+                } else {
+                    addConclusion(iter, conclusionsByProgramConclusion.stream()
+                            .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
+                }
+            }
+
+        }
+    }
+
+    protected Set<ProgramConclusion> getProgramConclusionsToReport() {
+        return this.programConclusionsToReport;
+    }
+
+    protected void setProgramConclusionsToReport(final Set<ProgramConclusion> input) {
+        this.programConclusionsToReport = input;
     }
 
     public ICurriculum getCurriculum() {
