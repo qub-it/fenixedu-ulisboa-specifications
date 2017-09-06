@@ -27,9 +27,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
-import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
@@ -39,7 +37,6 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
-import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
@@ -72,7 +69,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -90,10 +86,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             "/fenixedu-ulisboa-specifications/reports/registrationhistory/registrationhistoryreport";
 
     private static final String JSP_PATH = CONTROLLER_URL.substring(1);
-
-    private RegistrationHistoryReportParametersBean getParametersBean(Model model) {
-        return (RegistrationHistoryReportParametersBean) model.asMap().get("bean");
-    }
 
     private void setParametersBean(RegistrationHistoryReportParametersBean bean, Model model) {
         model.addAttribute("beanJson", getBeanJson(bean));
@@ -170,8 +162,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", temporaryFile.get().getContent());
     }
 
-    protected Collection<RegistrationHistoryReport> generateReport(RegistrationHistoryReportParametersBean bean,
-            boolean detailed) {
+    static private Collection<RegistrationHistoryReport> generateReport(final RegistrationHistoryReportParametersBean bean,
+            final boolean detailed) {
+
         final RegistrationHistoryReportService service = new RegistrationHistoryReportService();
         service.filterEnrolmentExecutionYears(bean.getExecutionYears());
         service.filterDegrees(bean.getDegrees());
@@ -207,7 +200,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 .collect(Collectors.toList());
     }
 
-    private byte[] exportRegistrationsToXLS(RegistrationHistoryReportParametersBean bean) {
+    private byte[] exportRegistrationsToXLS(final RegistrationHistoryReportParametersBean bean) {
 
         final Collection<RegistrationHistoryReport> toExport = generateReport(bean, true);
 
@@ -216,9 +209,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 new SheetData<RegistrationHistoryReport>(toExport) {
 
                     @Override
-                    protected void makeLine(RegistrationHistoryReport report) {
+                    protected void makeLine(final RegistrationHistoryReport report) {
                         addPrimaryData(report);
-                        addSecondaryData(report);
+                        addQualificationAndOriginInfo(bean, report);
+                        addPersonalData(bean, report);
+                        addContactsData(bean, report);
                     }
 
                     protected void addPrimaryData(final RegistrationHistoryReport report) {
@@ -231,12 +226,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.number", registration.getNumber().toString());
                         addData("Person.username", person.getUsername());
                         addData("Person.name", person.getName());
-                        addData("Person.gender", person.getGender().getLocalizedName());
                         addData("Degree.code", degree.getCode());
                         addData("Degree.ministryCode", degree.getMinistryCode());
                         addData("Degree.degreeType", degree.getDegreeType().getName());
-                        addData("Degree.name", degree.getNameI18N().getContent());
-                        addData("Degree.presentationName", degree.getPresentationName());
+                        addData("Degree.presentationName", degree.getPresentationNameI18N().getContent());
                         addData("Registration.ingressionType", registration.getIngressionType().getDescription().getContent());
                         addData("Registration.registrationProtocol",
                                 registration.getRegistrationProtocol().getDescription().getContent());
@@ -374,111 +367,70 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                     }
 
-                    private void addSecondaryData(RegistrationHistoryReport registrationHistoryReport) {
+                    private void addQualificationAndOriginInfo(final RegistrationHistoryReportParametersBean bean,
+                            final RegistrationHistoryReport report) {
 
-                        addPrecedentDegreeInformation(registrationHistoryReport.getRegistration());
-                        addPersonalData(registrationHistoryReport);
-
-                    }
-
-                    private void addPrecedentDegreeInformation(Registration registration) {
-                        final StudentCandidacy candidacy = registration.getStudentCandidacy();
-                        final PrecedentDegreeInformation information =
-                                candidacy == null ? null : candidacy.getPrecedentDegreeInformation();
-
-                        if (information != null) {
-                            addData("PrecedentDegreeInformation.institutionUnit", information.getInstitutionName());
-                            addData("PrecedentDegreeInformation.schoolLevel",
-                                    information.getSchoolLevel() != null ? information.getSchoolLevel().getLocalizedName() : "");
-                            addData("PrecedentDegreeInformation.degreeDesignation", information.getDegreeDesignation());
-                            addData("PrecedentDegreeInformation.precedentInstitution",
-                                    information.getPrecedentInstitution() != null ? information.getPrecedentInstitution()
-                                            .getName() : "");
-                            addData("PrecedentDegreeInformation.precedentSchoolLevel",
-                                    information.getPrecedentSchoolLevel() != null ? information.getPrecedentSchoolLevel()
-                                            .getLocalizedName() : "");
-                            addData("PrecedentDegreeInformation.precedentDegreeDesignation",
-                                    information.getPrecedentDegreeDesignation());
-                        } else {
-                            addData("PrecedentDegreeInformation.institutionUnit", "");
-                            addData("PrecedentDegreeInformation.schoolLevel", "");
-                            addData("PrecedentDegreeInformation.degreeDesignation", "");
-                            addData("PrecedentDegreeInformation.precedentInstitution", "");
-                            addData("PrecedentDegreeInformation.precedentSchoolLevel", "");
-                            addData("PrecedentDegreeInformation.precedentDegreeDesignation", "");
+                        if (bean.getExportQualificationAndOriginInfo()) {
+                            addData("PrecedentDegreeInformation.institutionUnit", report.getQualificationInstitutionName());
+                            addData("PrecedentDegreeInformation.schoolLevel", report.getQualificationSchoolLevel());
+                            addData("PrecedentDegreeInformation.degreeDesignation", report.getQualificationDegreeDesignation());
+                            addData("PrecedentDegreeInformation.precedentInstitution", report.getOriginInstitutionName());
+                            addData("PrecedentDegreeInformation.precedentSchoolLevel", report.getOriginSchoolLevel());
+                            addData("PrecedentDegreeInformation.precedentDegreeDesignation", report.getOriginDegreeDesignation());
                         }
-
                     }
 
-                    protected void addPersonalData(RegistrationHistoryReport registrationHistoryReport) {
+                    private void addPersonalData(final RegistrationHistoryReportParametersBean bean,
+                            final RegistrationHistoryReport report) {
 
-                        final Person person = registrationHistoryReport.getRegistration().getPerson();
+                        if (bean.getExportPersonalInfo()) {
 
-                        addData("Person.idDocumentType", person.getIdDocumentType().getLocalizedName());
-                        addData("Person.idDocumentNumber", person.getDocumentIdNumber());
-                        addData("Person.dateOfBirth", person.getDateOfBirthYearMonthDay());
-                        addData("Person.nameOfFather", person.getNameOfFather());
-                        addData("Person.nameOfMother", person.getNameOfMother());
-                        addData("Person.nationality", person.getCountry() != null ? person.getCountry().getName() : "");
-                        addData("Person.countryOfBirth",
-                                person.getCountryOfBirth() != null ? person.getCountryOfBirth().getName() : "");
-                        addData("Person.socialSecurityNumber", PersonCustomer.uiPersonFiscalNumber(person));
-                        addData("Person.districtOfBirth", person.getDistrictOfBirth());
-                        addData("Person.districtSubdivisionOfBirth", person.getDistrictSubdivisionOfBirth());
-                        addData("Person.parishOfBirth", person.getParishOfBirth());
-
-                        addData("Student.studentPersonalDataAuthorizationChoice",
-                                registrationHistoryReport
-                                        .getStudentPersonalDataAuthorizationChoice() != null ? registrationHistoryReport
-                                                .getStudentPersonalDataAuthorizationChoice().getDescription() : "");
-
-                        addContactsData(person);
-                    }
-
-                    private String uiSocialSecurityNumber(final Person person) {
-                        final String fiscalCountry = person.getFiscalCountry() != null ? person.getFiscalCountry().getCode() : "";
-                        final String fiscalNumber =
-                                !Strings.isNullOrEmpty(person.getSocialSecurityNumber()) ? person.getSocialSecurityNumber() : "";
-
-                        return (fiscalCountry + " " + fiscalNumber).trim();
-                    }
-
-                    protected void addContactsData(Person person) {
-                        addData("Person.defaultEmailAddress", person.getDefaultEmailAddressValue());
-                        addData("Person.institutionalEmailAddress", person.getInstitutionalEmailAddressValue());
-                        addData("Person.otherEmailAddresses",
-                                person.getEmailAddresses().stream().map(e -> e.getValue()).collect(Collectors.joining(",")));
-                        addData("Person.defaultPhone", person.getDefaultPhoneNumber());
-                        addData("Person.defaultMobilePhone", person.getDefaultMobilePhoneNumber());
-
-                        if (person.hasDefaultPhysicalAddress()) {
-                            final PhysicalAddress address = person.getDefaultPhysicalAddress();
-                            addData("PhysicalAddress.address", address.getAddress());
-                            addData("PhysicalAddress.districtOfResidence", address.getDistrictOfResidence());
-                            addData("PhysicalAddress.districtSubdivisionOfResidence",
-                                    address.getDistrictSubdivisionOfResidence());
-                            addData("PhysicalAddress.parishOfResidence", address.getParishOfResidence());
-                            addData("PhysicalAddress.area", address.getArea());
-                            addData("PhysicalAddress.areaCode", address.getAreaCode());
-                            addData("PhysicalAddress.areaOfAreaCode", address.getAreaOfAreaCode());
-                            addData("PhysicalAddress.countryOfResidence", address.getCountryOfResidenceName());
-
-                        } else {
-                            addData("PhysicalAddress.address", "");
-                            addData("PhysicalAddress.districtOfResidence", "");
-                            addData("PhysicalAddress.districtSubdivisionOfResidence", "");
-                            addData("PhysicalAddress.parishOfResidence", "");
-                            addData("PhysicalAddress.area", "");
-                            addData("PhysicalAddress.areaCode", "");
-                            addData("PhysicalAddress.areaOfAreaCode", "");
-                            addData("PhysicalAddress.countryOfResidence", "");
-
+                            addData("Person.idDocumentType", report.getIdDocumentType());
+                            addData("Person.idDocumentNumber", report.getDocumentIdNumber());
+                            addData("Person.gender", report.getGender());
+                            addData("Person.dateOfBirth", report.getDateOfBirthYearMonthDay());
+                            addData("Person.nameOfFather", report.getNameOfFather());
+                            addData("Person.nameOfMother", report.getNameOfMother());
+                            addData("Person.nationality", report.getNationality());
+                            addData("Person.countryOfBirth", report.getCountryOfBirth());
+                            addData("Person.socialSecurityNumber", report.getFiscalNumber());
+                            addData("Person.districtOfBirth", report.getDistrictOfBirth());
+                            addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
+                            addData("Person.parishOfBirth", report.getParishOfBirth());
+                            addData("Student.studentPersonalDataAuthorizationChoice",
+                                    report.getStudentPersonalDataAuthorizationChoice());
                         }
+                    }
 
+                    private void addContactsData(final RegistrationHistoryReportParametersBean bean,
+                            final RegistrationHistoryReport report) {
+
+                        if (bean.getExportContacts()) {
+
+                            addData("Person.defaultEmailAddress", report.getDefaultEmailAddressValue());
+                            addData("Person.institutionalEmailAddress", report.getInstitutionalEmailAddressValue());
+                            addData("Person.otherEmailAddresses", report.getOtherEmailAddresses());
+                            addData("Person.defaultPhone", report.getDefaultPhoneNumber());
+                            addData("Person.defaultMobilePhone", report.getDefaultMobilePhoneNumber());
+
+                            if (report.hasDefaultPhysicalAddress()) {
+                                addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
+                                addData("PhysicalAddress.districtOfResidence",
+                                        report.getDefaultPhysicalAddressDistrictOfResidence());
+                                addData("PhysicalAddress.districtSubdivisionOfResidence",
+                                        report.getDefaultPhysicalAddressDistrictSubdivisionOfResidence());
+                                addData("PhysicalAddress.parishOfResidence", report.getDefaultPhysicalAddressParishOfResidence());
+                                addData("PhysicalAddress.area", report.getDefaultPhysicalAddressArea());
+                                addData("PhysicalAddress.areaCode", report.getDefaultPhysicalAddressAreaCode());
+                                addData("PhysicalAddress.areaOfAreaCode", report.getDefaultPhysicalAddressAreaOfAreaCode());
+                                addData("PhysicalAddress.countryOfResidence",
+                                        report.getDefaultPhysicalAddressCountryOfResidenceName());
+                            }
+                        }
                     }
 
                     private void addData(String bundleKey, Object value) {
-                        addCell(bundle("label." + bundleKey), value);
+                        addCell(bundle("label." + bundleKey), value == null ? "" : value);
                     }
 
                     private String booleanString(boolean value) {
@@ -581,7 +533,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.number", registration.getNumber().toString());
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
                         addData("RegistrationHistoryReport.curricularYear",
                                 RegistrationServices.getCurricularYear(registration, executionYearForCurricularYear).getResult());
                         addData("ICurriculumEntry.code", curriculumEntry.getCode());
@@ -694,7 +646,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.number", registration.getNumber().toString());
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
                         addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
@@ -740,7 +692,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.number", registration.getNumber().toString());
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.executionPeriod", item.getExecutionPeriod().getQualifiedName());
@@ -840,7 +792,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.number", registration.getNumber().toString());
                         addData("Person.name", registration.getStudent().getPerson().getName());
                         addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationName());
+                        addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
                         addData("RegistrationHistoryReport.statutes", entry.getStudentStatutesNamesAndDates());
                     }
 

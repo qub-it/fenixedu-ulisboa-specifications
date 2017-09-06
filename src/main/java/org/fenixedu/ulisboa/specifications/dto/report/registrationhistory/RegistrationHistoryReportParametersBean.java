@@ -33,9 +33,12 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Set<RegistrationStateType> registrationStateTypes = Sets.newHashSet();
     private Set<StatuteType> statuteTypes = Sets.newHashSet();
     private Boolean firstTimeOnly;
-    private Boolean withEnrolments;
+    private Boolean withEnrolments = Boolean.FALSE;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
+    private Boolean exportQualificationAndOriginInfo = Boolean.FALSE;
+    private Boolean exportPersonalInfo = Boolean.FALSE;
+    private Boolean exportContacts = Boolean.FALSE;
     private Integer studentNumber;
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
@@ -200,16 +203,16 @@ public class RegistrationHistoryReportParametersBean implements IBean {
         return improvementEnrolmentsOnly;
     }
 
-    public void setFirstTimeOnly(Boolean firstTimeOnly) {
-        this.firstTimeOnly = firstTimeOnly;
+    public Boolean getExportQualificationAndOriginInfo() {
+        return exportQualificationAndOriginInfo;
     }
 
-    public void setDismissalsOnly(Boolean dismissalsOnly) {
-        this.dismissalsOnly = dismissalsOnly;
+    public Boolean getExportPersonalInfo() {
+        return exportPersonalInfo;
     }
 
-    public void setImprovementEnrolmentsOnly(Boolean improvementEnrolmentsOnly) {
-        this.improvementEnrolmentsOnly = improvementEnrolmentsOnly;
+    public Boolean getExportContacts() {
+        return exportContacts;
     }
 
     public RegistrationHistoryReportParametersBean() {

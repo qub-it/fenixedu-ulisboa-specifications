@@ -289,7 +289,7 @@ public class RegistrationHistoryReportService {
 
                 .filter(registrationStateFilter).filter(statuteTypeFilter)
 
-                .map(r -> buildRegistrationHistoryReport(r, executionYear)).collect(Collectors.toSet());
+                .map(r -> buildReport(r, executionYear)).collect(Collectors.toSet());
 
     }
 
@@ -326,7 +326,7 @@ public class RegistrationHistoryReportService {
         return result;
     }
 
-    private RegistrationHistoryReport buildRegistrationHistoryReport(Registration registration, ExecutionYear executionYear) {
+    private RegistrationHistoryReport buildReport(Registration registration, ExecutionYear executionYear) {
         final RegistrationHistoryReport result = new RegistrationHistoryReport(registration, executionYear);
 
         if (detailed) {

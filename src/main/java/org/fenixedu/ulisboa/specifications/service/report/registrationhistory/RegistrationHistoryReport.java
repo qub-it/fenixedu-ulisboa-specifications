@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
@@ -15,11 +16,20 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.person.Gender;
+import org.fenixedu.academic.domain.person.IDDocumentType;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.StudentDataShareAuthorization;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
@@ -29,11 +39,13 @@ import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
+import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionConfig;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.joda.time.LocalDate;
+import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 
 import com.google.common.collect.Lists;
@@ -78,18 +90,27 @@ public class RegistrationHistoryReport {
 
             throw new ULisboaSpecificationsDomainException(
                     "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
-                    registration.getStudent().getNumber().toString(), registration.getDegree().getCode(),
-                    getExecutionYear().getQualifiedName());
+                    getStudent().getNumber().toString(), registration.getDegree().getCode(), executionYear.getQualifiedName());
         }
 
     }
 
     public ExecutionYear getExecutionYear() {
-        return executionYear;
+        return this.executionYear;
     }
 
     public Registration getRegistration() {
         return registration;
+    }
+
+    private Student getStudent() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getStudent();
+    }
+
+    private Person getPerson() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getPerson();
     }
 
     public Collection<Enrolment> getEnrolments() {
@@ -98,7 +119,7 @@ public class RegistrationHistoryReport {
 
             final StudentCurricularPlan scp = getStudentCurricularPlan();
             if (scp != null) {
-                scp.getEnrolmentsByExecutionYear(this.executionYear).stream().filter(e -> !e.isAnnulled())
+                scp.getEnrolmentsByExecutionYear(getExecutionYear()).stream().filter(e -> !e.isAnnulled())
                         .collect(Collectors.toCollection(() -> this.enrolments));
             }
         }
@@ -111,7 +132,7 @@ public class RegistrationHistoryReport {
             return registration.getLastStudentCurricularPlan();
         }
 
-        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(executionYear);
+        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(getExecutionYear());
 
         if (studentCurricularPlan != null) {
             return studentCurricularPlan;
@@ -119,7 +140,7 @@ public class RegistrationHistoryReport {
 
         studentCurricularPlan = registration.getFirstStudentCurricularPlan();
 
-        if (studentCurricularPlan.getStartExecutionYear().isAfterOrEquals(executionYear)) {
+        if (studentCurricularPlan.getStartExecutionYear().isAfterOrEquals(getExecutionYear())) {
             return studentCurricularPlan;
         }
 
@@ -131,24 +152,28 @@ public class RegistrationHistoryReport {
     }
 
     public boolean isReingression() {
-        return registration.hasReingression(executionYear);
+        return registration.hasReingression(getExecutionYear());
     }
 
     public boolean hasPreviousReingression() {
-        return registration.getReingressions().stream().filter(ri -> ri.getExecutionYear().isBefore(executionYear)).count() > 0;
+        return registration.getReingressions().stream().filter(ri -> ri.getExecutionYear().isBefore(getExecutionYear()))
+                .count() > 0;
     }
 
-    public StudentPersonalDataAuthorizationChoice getStudentPersonalDataAuthorizationChoice() {
-        final StudentDataShareAuthorization dataAuthorization = registration.getStudent()
+    public String getStudentPersonalDataAuthorizationChoice() {
+        final ExecutionYear executionYear = getExecutionYear();
+        final Student student = getStudent();
+        final StudentDataShareAuthorization auth = student == null || executionYear == null ? null : student
                 .getPersonalDataAuthorizationAt(executionYear.getEndLocalDate().toDateTimeAtCurrentTime());
+        final StudentPersonalDataAuthorizationChoice choice = auth == null ? null : auth.getAuthorizationChoice();
 
-        return dataAuthorization != null ? dataAuthorization.getAuthorizationChoice() : null;
+        return choice == null ? null : choice.getDescription();
     }
 
     public LocalDate getEnrolmentDate() {
 
         final Optional<RegistrationDataByExecutionYear> dataByYear = registration.getRegistrationDataByExecutionYearSet().stream()
-                .filter(r -> r.getExecutionYear() == executionYear).findFirst();
+                .filter(r -> r.getExecutionYear() == getExecutionYear()).findFirst();
 
         return dataByYear.isPresent() ? dataByYear.get().getEnrolmentDate() : null;
     }
@@ -166,10 +191,10 @@ public class RegistrationHistoryReport {
     public Collection<StudentStatute> getStudentStatutes() {
         final Set<StudentStatute> result = Sets.newHashSet();
 
-        result.addAll(registration.getStudentStatutesSet().stream().filter(s -> s.isValidOnAnyExecutionPeriodFor(executionYear))
-                .collect(Collectors.toSet()));
-        result.addAll(registration.getStudent().getStudentStatutesSet().stream()
-                .filter(s -> s.isValidOnAnyExecutionPeriodFor(executionYear)).collect(Collectors.toSet()));
+        result.addAll(registration.getStudentStatutesSet().stream()
+                .filter(s -> s.isValidOnAnyExecutionPeriodFor(getExecutionYear())).collect(Collectors.toSet()));
+        result.addAll(getStudent().getStudentStatutesSet().stream()
+                .filter(s -> s.isValidOnAnyExecutionPeriodFor(getExecutionYear())).collect(Collectors.toSet()));
 
         return result;
     }
@@ -212,7 +237,7 @@ public class RegistrationHistoryReport {
 
     public boolean hasEnrolmentsWithoutShifts() {
 
-        for (final ExecutionCourse executionCourse : getRegistration().getAttendingExecutionCoursesFor(executionYear)) {
+        for (final ExecutionCourse executionCourse : getRegistration().getAttendingExecutionCoursesFor(getExecutionYear())) {
             if (!executionCourse.getAssociatedShifts().isEmpty() && registration.getShiftsFor(executionCourse).isEmpty()) {
                 return true;
             }
@@ -223,13 +248,13 @@ public class RegistrationHistoryReport {
     }
 
     public RegistrationState getLastRegistrationState() {
-        return getRegistration().getLastRegistrationState(executionYear);
+        return getRegistration().getLastRegistrationState(getExecutionYear());
     }
 
     public boolean hasAnyInactiveRegistrationStateForYear() {
         return getRegistration()
-                .getRegistrationStates(executionYear.getBeginLocalDate().toDateTimeAtStartOfDay(),
-                        executionYear.getEndLocalDate().plusDays(1).toDateTimeAtStartOfDay().minusSeconds(1))
+                .getRegistrationStates(getExecutionYear().getBeginLocalDate().toDateTimeAtStartOfDay(),
+                        getExecutionYear().getEndLocalDate().plusDays(1).toDateTimeAtStartOfDay().minusSeconds(1))
                 .stream().anyMatch(s -> !s.isActive());
     }
 
@@ -258,19 +283,19 @@ public class RegistrationHistoryReport {
     }
 
     public Integer getCurricularYear() {
-        return RegistrationServices.getCurricularYear(registration, executionYear).getResult();
+        return RegistrationServices.getCurricularYear(registration, getExecutionYear()).getResult();
     }
 
     public Integer getPreviousYearCurricularYear() {
 
-        if (registration.getStartExecutionYear().isAfterOrEquals(executionYear)
-                || registration.getStudentCurricularPlan(executionYear.getPreviousExecutionYear()) == null
-                || registration.getStudentCurricularPlan(executionYear) == null) {
+        if (registration.getStartExecutionYear().isAfterOrEquals(getExecutionYear())
+                || registration.getStudentCurricularPlan(getExecutionYear().getPreviousExecutionYear()) == null
+                || registration.getStudentCurricularPlan(getExecutionYear()) == null) {
 
             return null;
         }
 
-        return RegistrationServices.getCurricularYear(registration, executionYear.getPreviousExecutionYear()).getResult();
+        return RegistrationServices.getCurricularYear(registration, getExecutionYear().getPreviousExecutionYear()).getResult();
     }
 
     public BigDecimal getEctsCredits() {
@@ -283,7 +308,7 @@ public class RegistrationHistoryReport {
 
     public boolean hasDismissals() {
         return getStudentCurricularPlan().getCreditsSet().stream()
-                .anyMatch(c -> c.getExecutionPeriod().getExecutionYear() == executionYear);
+                .anyMatch(c -> c.getExecutionPeriod().getExecutionYear() == getExecutionYear());
     }
 
     public Collection<EnrolmentEvaluation> getImprovementEvaluations() {
@@ -295,7 +320,7 @@ public class RegistrationHistoryReport {
     }
 
     public boolean hasAnnulledEnrolments() {
-        return getStudentCurricularPlan().getEnrolmentsSet().stream().filter(e -> e.getExecutionYear() == executionYear)
+        return getStudentCurricularPlan().getEnrolmentsSet().stream().filter(e -> e.getExecutionYear() == getExecutionYear())
                 .anyMatch(e -> e.isAnnulled());
     }
 
@@ -372,11 +397,189 @@ public class RegistrationHistoryReport {
     }
 
     public RegistrationRegimeType getRegimeType() {
-        return getRegistration().getRegimeType(executionYear);
+        return getRegistration().getRegimeType(getExecutionYear());
     }
 
     public boolean isFirstTime() {
-        return getRegistration().getRegistrationYear() == executionYear;
+        return getRegistration().getRegistrationYear() == getExecutionYear();
+    }
+
+    private PrecedentDegreeInformation getPrecedentInformation() {
+        final Registration registration = getRegistration();
+        final StudentCandidacy candidacy = registration == null ? null : registration.getStudentCandidacy();
+        return candidacy == null ? null : candidacy.getPrecedentDegreeInformation();
+    }
+
+    public String getQualificationInstitutionName() {
+        final PrecedentDegreeInformation info = getPrecedentInformation();
+        return info == null ? null : info.getInstitutionName();
+    }
+
+    public String getQualificationSchoolLevel() {
+        final PrecedentDegreeInformation info = getPrecedentInformation();
+        final SchoolLevelType schoolLevel = info.getSchoolLevel();
+        return schoolLevel == null ? null : schoolLevel.getLocalizedName();
+    }
+
+    public String getQualificationDegreeDesignation() {
+        final PrecedentDegreeInformation info = getPrecedentInformation();
+        return info == null ? null : info.getDegreeDesignation();
+    }
+
+    public String getOriginInstitutionName() {
+        final PrecedentDegreeInformation info = getPrecedentInformation();
+        final Unit precedentInstitution = info.getPrecedentInstitution();
+        return precedentInstitution == null ? null : precedentInstitution.getName();
+    }
+
+    public String getOriginSchoolLevel() {
+        final PrecedentDegreeInformation info = getPrecedentInformation();
+        final SchoolLevelType schoolLevel = info.getPrecedentSchoolLevel();
+        return schoolLevel == null ? null : schoolLevel.getLocalizedName();
+    }
+
+    public String getOriginDegreeDesignation() {
+        final PrecedentDegreeInformation info = getPrecedentInformation();
+        return info == null ? null : info.getPrecedentDegreeDesignation();
+    }
+
+    public String getIdDocumentType() {
+        final Person person = getPerson();
+        final IDDocumentType type = person.getIdDocumentType();
+        return type == null ? null : type.getLocalizedName();
+    }
+
+    public String getDocumentIdNumber() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDocumentIdNumber();
+    }
+
+    public String getGender() {
+        final Person person = getPerson();
+        final Gender gender = person.getGender();
+        return gender == null ? null : gender.getLocalizedName();
+    }
+
+    public YearMonthDay getDateOfBirthYearMonthDay() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDateOfBirthYearMonthDay();
+    }
+
+    public String getNameOfFather() {
+        final Person person = getPerson();
+        return person == null ? null : person.getNameOfFather();
+    }
+
+    public String getNameOfMother() {
+        final Person person = getPerson();
+        return person == null ? null : person.getNameOfMother();
+    }
+
+    public String getNationality() {
+        final Person person = getPerson();
+        final Country country = person.getCountry();
+        return country == null ? null : country.getName();
+    }
+
+    public String getCountryOfBirth() {
+        final Person person = getPerson();
+        final Country country = person.getCountryOfBirth();
+        return country == null ? null : country.getName();
+    }
+
+    public String getFiscalNumber() {
+        return PersonCustomer.uiPersonFiscalNumber(getPerson());
+    }
+
+    public String getDistrictOfBirth() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDistrictOfBirth();
+    }
+
+    public String getDistrictSubdivisionOfBirth() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDistrictSubdivisionOfBirth();
+    }
+
+    public String getParishOfBirth() {
+        final Person person = getPerson();
+        return person == null ? null : person.getParishOfBirth();
+    }
+
+    public String getDefaultEmailAddressValue() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDefaultEmailAddressValue();
+    }
+
+    public String getInstitutionalEmailAddressValue() {
+        final Person person = getPerson();
+        return person == null ? null : person.getInstitutionalEmailAddressValue();
+    }
+
+    public String getOtherEmailAddresses() {
+        final Person person = getPerson();
+        return person == null ? null : person.getEmailAddresses().stream().map(e -> e.getValue())
+                .collect(Collectors.joining(","));
+    }
+
+    public String getDefaultPhoneNumber() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDefaultPhoneNumber();
+    }
+
+    public String getDefaultMobilePhoneNumber() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDefaultMobilePhoneNumber();
+    }
+
+    public boolean hasDefaultPhysicalAddress() {
+        final Person person = getPerson();
+        return person == null ? false : person.hasDefaultPhysicalAddress();
+    }
+
+    private PhysicalAddress getDefaultPhysicalAddressObject() {
+        final Person person = getPerson();
+        return person == null ? null : person.getDefaultPhysicalAddress();
+    }
+
+    public String getDefaultPhysicalAddress() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getAddress();
+    }
+
+    public String getDefaultPhysicalAddressDistrictOfResidence() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getDistrictOfResidence();
+    }
+
+    public String getDefaultPhysicalAddressDistrictSubdivisionOfResidence() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getDistrictSubdivisionOfResidence();
+    }
+
+    public String getDefaultPhysicalAddressParishOfResidence() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getParishOfResidence();
+    }
+
+    public String getDefaultPhysicalAddressArea() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getArea();
+    }
+
+    public String getDefaultPhysicalAddressAreaCode() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getAreaCode();
+    }
+
+    public String getDefaultPhysicalAddressAreaOfAreaCode() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getAreaOfAreaCode();
+    }
+
+    public String getDefaultPhysicalAddressCountryOfResidenceName() {
+        final PhysicalAddress address = getDefaultPhysicalAddressObject();
+        return address == null ? null : address.getCountryOfResidenceName();
     }
 
     public boolean isTuitionCharged() {
@@ -385,7 +588,8 @@ public class RegistrationHistoryReport {
             return false;
         }
 
-        final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
+        final ITuitionTreasuryEvent event =
+                treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, getExecutionYear());
 
         return event != null && event.isCharged();
     }
@@ -396,7 +600,8 @@ public class RegistrationHistoryReport {
             return BigDecimal.ZERO;
         }
 
-        final ITuitionTreasuryEvent event = treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, executionYear);
+        final ITuitionTreasuryEvent event =
+                treasuryBridgeAPI.getTuitionForRegistrationTreasuryEvent(registration, getExecutionYear());
 
         if (event == null) {
             return BigDecimal.ZERO;
@@ -421,10 +626,9 @@ public class RegistrationHistoryReport {
         final Collection<ExecutionYear> executionYears = config.filterExecutionYears(registration, getEnrolmentExecutionYears());
         BigDecimal result = new BigDecimal(executionYears.size());
         BigDecimal bonification = BigDecimal.ZERO;
-        for (final ExecutionYear executionYear : executionYears) {
-            bonification =
-                    bonification.add(config.getBonification(StatuteServices.findStatuteTypes(getRegistration(), executionYear),
-                            getRegistration().isPartialRegime(executionYear)));
+        for (final ExecutionYear iter : executionYears) {
+            bonification = bonification.add(config.getBonification(StatuteServices.findStatuteTypes(getRegistration(), iter),
+                    getRegistration().isPartialRegime(iter)));
         }
 
         return BigDecimal.ZERO.max(result.subtract(bonification));
@@ -432,7 +636,7 @@ public class RegistrationHistoryReport {
     }
 
     private Set<ExecutionYear> getEnrolmentExecutionYears() {
-        return RegistrationServices.getEnrolmentYears(registration).stream().filter(ey -> ey.isBeforeOrEquals(executionYear))
+        return RegistrationServices.getEnrolmentYears(registration).stream().filter(ey -> ey.isBeforeOrEquals(getExecutionYear()))
                 .collect(Collectors.toSet());
     }
 
@@ -440,7 +644,7 @@ public class RegistrationHistoryReport {
 
         final StringBuilder result = new StringBuilder();
 
-        registration.getStudent().getRegistrationsSet().stream()
+        getStudent().getRegistrationsSet().stream()
 
                 .filter(r -> r != registration && r.isConcluded() && r.getLastStudentCurricularPlan() != null)
 

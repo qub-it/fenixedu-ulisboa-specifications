@@ -282,10 +282,8 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.executionYears" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.executionYears" />
 				</div>
-
 				<div class="col-sm-6">
 					<ui-select id="executionYearsSelect" name="executionYears"
 						ng-model="$parent.object.executionYears" theme="bootstrap"
@@ -299,8 +297,7 @@ ${portal.angularToolkit()}
 			
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.degreeTypes" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="degreeTypesSelect" name="degreeTypes"
@@ -316,8 +313,7 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.degrees" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.degrees" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="degreesSelect" name="degrees"
@@ -332,10 +328,8 @@ ${portal.angularToolkit()}
 			
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.withEnrolments" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.withEnrolments" />
 				</div>
-
 				<div class="col-sm-2">
 					<div class="col-sm-10" style="padding-left: 0;">
 						<input type="checkbox" name="withEnrolments" ng-model="object.withEnrolments">
@@ -343,10 +337,8 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
 				</div>
-
 				<div class="col-sm-2">
 					<select id="firstTimeOnlySelect" name="firstTimeOnly"
 						class="form-control" ng-model="object.firstTimeOnly"
@@ -358,10 +350,8 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.improvementEnrolmentsOnly" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.improvementEnrolmentsOnly" />
 				</div>
-
 				<div class="col-sm-2">
 					<select id="improvementEnrolmentsOnlySelect"
 						name="improvementEnrolmentsOnly" class="form-control"
@@ -372,10 +362,8 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.dismissalsOnly" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.dismissalsOnly" />
 				</div>
-
 				<div class="col-sm-2">
 					<select id="dismissalsOnlySelect" name="dismissalsOnly"
 						class="form-control" ng-model="object.dismissalsOnly"
@@ -387,8 +375,7 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.registrationStateTypes" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.registrationStateTypes" />
 				</div>
 				<div class="col-sm-2">
 					<ui-select id="registrationStateTypesSelect"
@@ -403,8 +390,7 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-1 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.regimeTypes" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.regimeTypes" />
 				</div>
 				<div class="col-sm-3">
 					<ui-select id="regimeTypesSelect" name="regimeTypes"
@@ -419,8 +405,7 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.statuteTypes" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.statuteTypes" />
 				</div>
 				<div class="col-sm-2">
 					<ui-select id="statuteTypesSelect" name="statuteTypes"
@@ -434,8 +419,7 @@ ${portal.angularToolkit()}
 				</div>
 				
 				<div class="col-sm-1 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.ingressionTypes" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.ingressionTypes" />
 				</div>
 				<div class="col-sm-3">
 					<ui-select id="ingressionTypesSelect" name="ingressionTypes"
@@ -451,8 +435,7 @@ ${portal.angularToolkit()}
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.registrationProtocols" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.registrationProtocols" />
 				</div>
 				<div class="col-sm-6">
 					<ui-select id="registrationProtocolsSelect"
@@ -516,12 +499,35 @@ ${portal.angularToolkit()}
                     <spring:message
                         code="label.RegistrationHistoryReportParametersBean.studentNumber" />
                 </div>
-
                 <div class="col-sm-2">
                     <input id="studentNumber" class="form-control" type="number" ng-model="object.studentNumber" name="studentNumber" />
                 </div>
             </div>
 
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.exportWith" />
+				</div>
+
+				<div class="col-sm-2">
+					<div class="col-sm-10" style="padding-left: 0;">
+						<input type="checkbox" name="exportQualificationAndOriginInfo" ng-model="object.exportQualificationAndOriginInfo">
+						<spring:message code="label.RegistrationHistoryReportParametersBean.exportQualificationAndOriginInfo" />
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="col-sm-10" style="padding-left: 0;">
+						<input type="checkbox" name="exportPersonalInfo" ng-model="object.exportPersonalInfo">
+						<spring:message code="label.RegistrationHistoryReportParametersBean.exportPersonalInfo" />
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="col-sm-10" style="padding-left: 0;">
+						<input type="checkbox" name="exportContacts" ng-model="object.exportContacts">
+						<spring:message code="label.RegistrationHistoryReportParametersBean.exportContacts" />
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="panel-footer">
