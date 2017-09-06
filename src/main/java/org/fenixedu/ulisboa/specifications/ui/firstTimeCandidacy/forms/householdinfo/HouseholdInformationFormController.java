@@ -202,7 +202,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
                     messages.add(BundleUtil.getString(BUNDLE,
                             "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"));
                 }
-            } else if (!grantOwnerType.equals(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP)) {
+            } else if (!grantOwnerType.equals(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP)
+                    && !grantOwnerType.equals(GrantOwnerType.HIGHER_EDUCATION_SAS_GRANT_OWNER_CANDIDATE)) {
                 if (FenixFramework.getDomainObject(grantOwnerProvider) == null) {
                     messages.add(BundleUtil.getString(BUNDLE,
                             "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"));

@@ -80,7 +80,7 @@ ${portal.angularToolkit()}
 
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${academicEnrolmentPeriodBeanJson}');;
+    $scope.object= ${academicEnrolmentPeriodBeanJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [

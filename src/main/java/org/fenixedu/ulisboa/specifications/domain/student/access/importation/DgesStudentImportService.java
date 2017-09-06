@@ -54,7 +54,7 @@ public class DgesStudentImportService {
     /**
      * <pre>
      * tipo_linha       char(1)     valor '*'
-     * 
+     *
      * curso_sup        char(4)     codigo curso colocacao  (ver codigos no Guia)
      * num_bi           char(9)     numero de b.i. do aluno
      * loc_bi           char(2)     local emissao do b.i.  (ver codigos)
@@ -63,17 +63,17 @@ public class DgesStudentImportService {
      * conting          char(1)     contingente candidatura (ver codigos)
      * prefcol          char(1)     nr de opcao VALIDA a q corresp. colocacao (1-6)
      * etapcol          num(2)      etapa de colocacao (1-17)
-     * 
+     *
      * estado           char(2)     não utilizado
      * exclusao         char(1)     não utilizado
      * militar          char(1)     não utilizado
      * deficiente       char(1)     não utilizado
      * GAES             char(3)     não utilizado
      * numCand          num(5)      não utilizado
-     * 
+     *
      * pontos           num(5,1)    nota crit. seriacao para este curso (0.0-100.0)
      * nome             char(70)    nome (sem espacos a direita)
-     * 
+     *
      * ResideDistrito   char(2)     não utilizado
      * ResideConcelho   char(2)     não utilizado
      * ResidePais       char(2)     não utilizado
@@ -87,7 +87,7 @@ public class DgesStudentImportService {
     /**
      * <pre>
      * tipo_linha   char(1)     valor '#'
-     * 
+     *
      * morada1      char(40)    morada do aluno - parte 1
      * morada2      char(40)    morada do aluno - parte 2
      * codpos       char(4)     codigo postal
@@ -101,15 +101,15 @@ public class DgesStudentImportService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
 
-    private ExecutionYear executionYear;
+    private final ExecutionYear executionYear;
 
-    private Space space;
+    private final Space space;
 
-    private EntryPhase entryPhase;
+    private final EntryPhase entryPhase;
 
-    private List<String> reportMessages = new ArrayList<String>();
+    private final List<String> reportMessages = new ArrayList<>();
 
-    private List<String> errorMessages = new ArrayList<String>();
+    private final List<String> errorMessages = new ArrayList<>();
 
     private int processed = 0;
 
@@ -117,14 +117,14 @@ public class DgesStudentImportService {
 
     private int candidaciesCreated = 0;
 
-    public DgesStudentImportService(ExecutionYear executionYear, Space space, EntryPhase entryPhase) {
+    public DgesStudentImportService(final ExecutionYear executionYear, final Space space, final EntryPhase entryPhase) {
         super();
         this.executionYear = executionYear;
         this.space = space;
         this.entryPhase = entryPhase;
     }
 
-    private void addToReport(String message) {
+    private void addToReport(final String message) {
         reportMessages.add(message);
     }
 
@@ -136,7 +136,7 @@ public class DgesStudentImportService {
         return sb.toString();
     }
 
-    public String importStudents(byte[] file) {
+    public String importStudents(final byte[] file) {
 
         try {
             createRegistrations(parseFile(file));
@@ -155,7 +155,7 @@ public class DgesStudentImportService {
 
     }
 
-    protected List<DegreeCandidateDTO> parseFile(byte[] content) throws IOException {
+    protected List<DegreeCandidateDTO> parseFile(final byte[] content) throws IOException {
 
         final List<DegreeCandidateDTO> result = new ArrayList<>();
 
@@ -188,7 +188,7 @@ public class DgesStudentImportService {
 
     }
 
-    protected void loadMainInformation(DegreeCandidateDTO entry, String line) {
+    protected void loadMainInformation(final DegreeCandidateDTO entry, final String line) {
 
         final String[] fields = splitLine(line, MAIN_INFORMATION_LINE_FIELD_SPEC);
         entry.setEntryPhase(entryPhase);
@@ -214,7 +214,7 @@ public class DgesStudentImportService {
         entry.setNationality(nationality);
     }
 
-    protected void loadAddressAndContactsInformation(DegreeCandidateDTO entry, String line) {
+    protected void loadAddressAndContactsInformation(final DegreeCandidateDTO entry, final String line) {
 
         if (StringUtils.isBlank(line)) {
             throw new RuntimeException(formatMessageWithLineNumber(entry, "Invalid format: missing address information"));
@@ -226,7 +226,7 @@ public class DgesStudentImportService {
         entry.setPhoneNumber(fields[5].trim());
     }
 
-    private void createRegistrations(List<DegreeCandidateDTO> toProcess) {
+    private void createRegistrations(final List<DegreeCandidateDTO> toProcess) {
 
         for (final DegreeCandidateDTO entry : toProcess) {
             if (++processed % 150 == 0) {
@@ -298,7 +298,7 @@ public class DgesStudentImportService {
         StudentAccessServices.triggerSyncPersonToExternal(person);
     }
 
-    private Person findOrCreatePersonAndUser(DegreeCandidateDTO entry) {
+    private Person findOrCreatePersonAndUser(final DegreeCandidateDTO entry) {
         final Person person = findPerson(entry);
         if (person != null) {
 
@@ -314,7 +314,7 @@ public class DgesStudentImportService {
         return entry.createPerson();
     }
 
-    private Person findPerson(DegreeCandidateDTO entry) {
+    private Person findPerson(final DegreeCandidateDTO entry) {
         final Collection<Person> persons = Person.readByDocumentIdNumber(entry.getDocumentIdNumber());
 
         if (persons.isEmpty()) {
@@ -342,10 +342,9 @@ public class DgesStudentImportService {
     }
 
     protected FirstYearRegistrationConfiguration getDegreeConfiguration(final DegreeCandidateDTO entry) {
-        final Optional<FirstYearRegistrationConfiguration> degreeConfig = FirstYearRegistrationGlobalConfiguration.getInstance()
-                .getFirstYearRegistrationConfigurationsSet().stream().filter(x -> x.getExecutionYear() == executionYear
-                        && StringUtils.equals(x.getDegree().getMinistryCode(), entry.getDegreeCode()))
-                .findFirst();
+        final Optional<FirstYearRegistrationConfiguration> degreeConfig =
+                FirstYearRegistrationGlobalConfiguration.getInstance().getFirstYearRegistrationConfigurationsSet().stream()
+                        .filter(x -> StringUtils.equals(x.getDegree().getMinistryCode(), entry.getDegreeCode())).findFirst();
 
         if (!degreeConfig.isPresent()) {
             throw new RuntimeException(formatMessageWithLineNumber(entry, "Curso não encontrado na configuração"));
@@ -374,7 +373,7 @@ public class DgesStudentImportService {
         return registration;
     }
 
-    private StudentCandidacy createCandidacy(DegreeCandidateDTO entry, Person person) {
+    private StudentCandidacy createCandidacy(final DegreeCandidateDTO entry, final Person person) {
 
         final DegreeCurricularPlan degreeCurricularPlan = getDegreeConfiguration(entry).getDegreeCurricularPlan();
         if (degreeCurricularPlan == null) {
@@ -399,7 +398,7 @@ public class DgesStudentImportService {
                 RegistrationStateType.INACTIVE);
     }
 
-    private PersonalIngressionData findOrCreatePersonalIngressionData(Registration registration) {
+    private PersonalIngressionData findOrCreatePersonalIngressionData(final Registration registration) {
 
         PersonalIngressionData result = registration.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
 
@@ -415,7 +414,7 @@ public class DgesStudentImportService {
 
     }
 
-    private String[] splitLine(String line, int[] fieldSizeSpec) {
+    private String[] splitLine(final String line, final int[] fieldSizeSpec) {
         String[] result = new String[fieldSizeSpec.length];
         int currentIndex = 0;
 
@@ -434,7 +433,7 @@ public class DgesStudentImportService {
         return result;
     }
 
-    private String formatMessageWithLineNumber(DegreeCandidateDTO entry, String message) {
+    private String formatMessageWithLineNumber(final DegreeCandidateDTO entry, final String message) {
         return "[" + entry.getLineNumber() + "][" + entry.getDocumentIdNumber() + "] " + message;
     }
 
@@ -442,7 +441,7 @@ public class DgesStudentImportService {
         return errorMessages;
     }
 
-    public void addErrorMessages(String... lines) {
+    public void addErrorMessages(final String... lines) {
         for (String line : lines) {
             this.errorMessages.add(line);
         }

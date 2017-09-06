@@ -236,7 +236,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <label class="col-sm-2 control-label" ng-class="{'required-field' : object.grantOwnerType !== 'STUDENT_WITHOUT_SCHOLARSHIP'}">
+                <label class="col-sm-2 control-label" ng-class="{'required-field' : object.grantOwnerType !== 'STUDENT_WITHOUT_SCHOLARSHIP' && object.grantOwnerType !== 'HIGHER_EDUCATION_SAS_GRANT_OWNER_CANDIDATE'}">
                     <spring:message
                         code="label.HouseholdInformationForm.grantOwnerProvider" />
                 </label>

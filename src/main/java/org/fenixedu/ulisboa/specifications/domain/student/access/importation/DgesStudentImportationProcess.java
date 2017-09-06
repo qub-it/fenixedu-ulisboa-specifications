@@ -1,18 +1,18 @@
 /**
  *  Copyright © 2015 Universidade de Lisboa
- *  
+ *
  *  This file is part of FenixEdu fenixedu-ulisboa-specifications.
- *  
- *  FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute 
+ *
+ *  FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute
  *  it and/or modify it under the terms of the GNU Lesser General Public License as
  *  published by the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  FenixEdu fenixedu-ulisboa-specifications is distributed in the hope that it will
  *  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with FenixEdu fenixedu-ulisboa-specifications.
  *  If not, see <http://www.gnu.org/licenses/>.
@@ -22,11 +22,9 @@ package org.fenixedu.ulisboa.specifications.domain.student.access.importation;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.QueueJob;
@@ -43,8 +41,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         super();
     }
 
-    public DgesStudentImportationProcess(ExecutionYear executionYear, Space space, EntryPhase entryPhase,
-            DgesStudentImportationFile dgesStudentImportationFile) {
+    public DgesStudentImportationProcess(final ExecutionYear executionYear, final Space space, final EntryPhase entryPhase,
+            final DgesStudentImportationFile dgesStudentImportationFile) {
         this();
 
         init(executionYear, space, entryPhase, dgesStudentImportationFile);
@@ -64,8 +62,8 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         setEntryPhase(entryPhase);
     }
 
-    private void init(ExecutionYear executionYear, Space space, EntryPhase entryPhase,
-            DgesStudentImportationFile dgesStudentImportationFile) {
+    private void init(final ExecutionYear executionYear, final Space space, final EntryPhase entryPhase,
+            final DgesStudentImportationFile dgesStudentImportationFile) {
         init(executionYear, entryPhase);
 
         String[] args = new String[0];
@@ -124,30 +122,20 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         }
     }
 
-    public static List<DgesStudentImportationProcess> readDoneJobs(ExecutionYear executionYear) {
-        List<DgesStudentImportationProcess> jobList = new ArrayList<DgesStudentImportationProcess>();
-        CollectionUtils.select(executionYear.getDgesStudentImportationProcessSet(), new Predicate() {
-            @Override
-            public boolean evaluate(Object process) {
-                return process instanceof DgesStudentImportationProcess && ((QueueJob) process).getDone();
-            }
-        }, jobList);
-        return jobList;
+    public static List<DgesStudentImportationProcess> readDoneJobs(final ExecutionYear executionYear) {
+        return readAllJobs(executionYear).stream()
+                .filter(process -> process instanceof DgesStudentImportationProcess && process.getDone())
+                .collect(Collectors.toList());
     }
 
-    public static List<DgesStudentImportationProcess> readUndoneJobs(ExecutionYear executionYear) {
-        return new ArrayList(CollectionUtils.subtract(readAllJobs(executionYear), readDoneJobs(executionYear)));
+    public static List<DgesStudentImportationProcess> readUndoneJobs(final ExecutionYear executionYear) {
+        return readAllJobs(executionYear).stream().filter(process -> !process.getDone()).collect(Collectors.toList());
     }
 
-    public static List<DgesStudentImportationProcess> readAllJobs(ExecutionYear executionYear) {
-        List<DgesStudentImportationProcess> jobList = new ArrayList<DgesStudentImportationProcess>();
-        CollectionUtils.select(executionYear.getDgesStudentImportationProcessSet(), new Predicate() {
-            @Override
-            public boolean evaluate(Object arg0) {
-                return arg0 instanceof DgesStudentImportationProcess;
-            }
-        }, jobList);
-        return jobList;
+    public static List<DgesStudentImportationProcess> readAllJobs(final ExecutionYear executionYear) {
+        //TODO why the instanceof verification
+        return executionYear.getDgesStudentImportationProcessSet().stream()
+                .filter(process -> process instanceof DgesStudentImportationProcess).collect(Collectors.toList());
     }
 
     public static boolean canRequestJob() {

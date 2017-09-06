@@ -45,7 +45,8 @@ public class VaccionationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String fillGetScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String fillGetScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         if (shouldBeSkipped(executionYear)) {
             return nextScreen(executionYear, model, redirectAttributes);
         }
@@ -60,13 +61,13 @@ public class VaccionationFormController extends FormAbstractController {
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/vaccinationform/fillvaccinationform";
     }
 
-    public static boolean shouldBeSkipped(ExecutionYear executionYear) {
+    public static boolean shouldBeSkipped(final ExecutionYear executionYear) {
         Degree degree = FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree();
-        return FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear) == null
-                || !FirstYearRegistrationConfiguration.getDegreeConfiguration(degree, executionYear).getRequiresVaccination();
+        return FirstYearRegistrationConfiguration.getDegreeConfiguration(degree) == null
+                || !FirstYearRegistrationConfiguration.getDegreeConfiguration(degree).getRequiresVaccination();
     }
 
-    public VaccinationForm fillFormIfRequired(Model model) {
+    public VaccinationForm fillFormIfRequired(final Model model) {
         Person person = AccessControl.getPerson();
         VaccinationForm form = new VaccinationForm();
 
@@ -78,20 +79,20 @@ public class VaccionationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
-            RedirectAttributes redirectAttributes) {
+    protected void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
     }
 
     @Override
-    protected boolean validate(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         if (!(candidancyForm instanceof VaccinationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.VaccinationFormController.wrong.form.type"), model);
         }
         return validate((VaccinationForm) candidancyForm, model);
     }
 
-    private boolean validate(VaccinationForm form, Model model) {
+    private boolean validate(final VaccinationForm form, final Model model) {
         final Set<String> result = validateForm(form, getStudent(model).getPerson());
 
         for (final String message : result) {
@@ -101,7 +102,7 @@ public class VaccionationFormController extends FormAbstractController {
         return result.isEmpty();
     }
 
-    private Set<String> validateForm(VaccinationForm form, final Person person) {
+    private Set<String> validateForm(final VaccinationForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
 
         if (form.getVaccinationValidity() == null) {
@@ -116,34 +117,36 @@ public class VaccionationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void writeData(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         writeData((VaccinationForm) candidancyForm);
     }
 
     @Atomic
-    protected void writeData(VaccinationForm vaccinationForm) {
+    protected void writeData(final VaccinationForm vaccinationForm) {
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson())
                 .setVaccinationValidity(vaccinationForm.getVaccinationValidity());
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(EnrolmentsController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         return false;
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 }

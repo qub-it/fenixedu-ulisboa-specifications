@@ -405,15 +405,6 @@ relation DegreeCurricularPlanFirstYearRegistrationConfiguration{
     }
 }
 
-relation ExecutionYearFirstYearRegistrationConfiguration {
-    .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
-        multiplicity 0..1;
-    }
-    FirstYearRegistrationConfiguration playsRole firstYearRegistrationConfigurations {
-        multiplicity *;
-    }
-}
-
 class FirstYearRegistrationGlobalConfiguration {
 	LocalizedString introductionText;
 }
