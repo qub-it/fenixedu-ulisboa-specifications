@@ -544,6 +544,16 @@ ${portal.angularToolkit()}
                  <spring:message
                      code="label.event.reports.registrationHistory.exportApprovals" />
              </button>
+             <button type="button" class="btn btn-primary" 
+             	 ng-click="exportBlueRecordData()">
+                 <spring:message code="label.event.reports.registrationHistory.exportBlueRecordData" />
+             </button>
+             <button type="button" class="btn btn-primary" 
+             	 ng-click="exportRegistrationsByStatute()">
+                 <spring:message code="label.event.reports.registrationHistory.exportRegistrationsByStatute" />
+             </button>
+
+<%-- reconsider if more options are added
              <div class="btn-group">
                 <button type="button" class=" btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-export" aria-hidden="true"></span>&nbsp;
@@ -565,6 +575,7 @@ ${portal.angularToolkit()}
                     </li>
                 </ul>
             </div>   
+ --%>
 		</div>
 	</div>
 
