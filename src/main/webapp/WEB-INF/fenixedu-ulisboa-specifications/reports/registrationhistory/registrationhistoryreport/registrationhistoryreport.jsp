@@ -329,68 +329,122 @@ ${portal.angularToolkit()}
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
-
+			
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.graduatedExecutionYears" />
+						code="label.RegistrationHistoryReportParametersBean.withEnrolments" />
 				</div>
 
-				<div class="col-sm-6">
-					<ui-select id="executionYearsSelect" name="graduatedExecutionYears"
-						ng-model="$parent.object.graduatedExecutionYears" theme="bootstrap"
-						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
-					<ui-select-choices
-						repeat="executionYear.id as executionYear in object.executionYearsDataSource | filter: $select.search">
-					<span ng-bind-html="executionYear.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
+				<div class="col-sm-2">
+					<div class="col-sm-10" style="padding-left: 0;">
+						<input type="checkbox" name="withEnrolments" ng-model="object.withEnrolments">
+					</div>
+				</div>
+
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
+				</div>
+
+				<div class="col-sm-2">
+					<select id="firstTimeOnlySelect" name="firstTimeOnly"
+						class="form-control" ng-model="object.firstTimeOnly"
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+						<option></option>
+					</select>
 				</div>
 			</div>
 
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.RegistrationHistoryReportParametersBean.graduationPeriodStartDate" />
-                </div>
-                <div class="col-sm-4">
-                    <input class="form-control" type="text" bennu-date="object.graduationPeriodStartDate" />
-                </div>
-            </div>
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.improvementEnrolmentsOnly" />
+				</div>
 
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.RegistrationHistoryReportParametersBean.graduationPeriodEndDate" />
-                </div>
-                <div class="col-sm-4">
-                    <input class="form-control" type="text" bennu-date="object.graduationPeriodEndDate" />
-                </div>
-            </div>
-            
-	  	   	<div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.RegistrationHistoryReportParametersBean.programConclusions" />
-                </div>
-                <div class="col-sm-4">
-                	<ui-select	id="programConclusionsSelect" name="programConclusions" ng-model="$parent.object.programConclusions" theme="bootstrap"  multiple="true">
-						<ui-select-match>{{$item.text}}</ui-select-match> 
-						<ui-select-choices	repeat="programConclusion.id as programConclusion in object.programConclusionsDataSource | filter: $select.search">
-							<span ng-bind-html="programConclusion.text | highlight: $select.search"></span>
-						</ui-select-choices> 
-					</ui-select>
-                </div>
-            </div>
+				<div class="col-sm-2">
+					<select id="improvementEnrolmentsOnlySelect"
+						name="improvementEnrolmentsOnly" class="form-control"
+						ng-model="object.improvementEnrolmentsOnly"
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+						<option></option>
+					</select>
+				</div>
+
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.dismissalsOnly" />
+				</div>
+
+				<div class="col-sm-2">
+					<select id="dismissalsOnlySelect" name="dismissalsOnly"
+						class="form-control" ng-model="object.dismissalsOnly"
+						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+						<option></option>
+					</select>
+				</div>
+			</div>
 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label">
 					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.registrationStateTypes" />
+				</div>
+				<div class="col-sm-2">
+					<ui-select id="registrationStateTypesSelect"
+						name="registrationStateTypes"
+						ng-model="$parent.object.registrationStateTypes" theme="bootstrap"
+						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
+					<ui-select-choices
+						repeat="registrationStateType.id as registrationStateType in object.registrationStateTypesDataSource | filter: $select.search">
+					<span
+						ng-bind-html="registrationStateType.text | highlight: $select.search"></span>
+					</ui-select-choices> </ui-select>
+				</div>
+
+				<div class="col-sm-1 control-label">
+					<spring:message
 						code="label.RegistrationHistoryReportParametersBean.regimeTypes" />
 				</div>
-				<div class="col-sm-6">
+				<div class="col-sm-3">
 					<ui-select id="regimeTypesSelect" name="regimeTypes"
 						ng-model="$parent.object.regimeTypes" theme="bootstrap"
 						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
 					<ui-select-choices
 						repeat="regimeType.id as regimeType in object.regimeTypesDataSource | filter: $select.search">
 					<span ng-bind-html="regimeType.text | highlight: $select.search"></span>
+					</ui-select-choices> </ui-select>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.statuteTypes" />
+				</div>
+				<div class="col-sm-2">
+					<ui-select id="statuteTypesSelect" name="statuteTypes"
+						ng-model="$parent.object.statuteTypes" theme="bootstrap"
+						on-select="classback($model)" on-remove="callback($model)"
+						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
+					<ui-select-choices
+						repeat="statuteType.id as statuteType in object.statuteTypesDataSource | filter: $select.search">
+					<span ng-bind-html="statuteType.text | highlight: $select.search"></span>
+					</ui-select-choices> </ui-select>
+				</div>
+				
+				<div class="col-sm-1 control-label">
+					<spring:message
+						code="label.RegistrationHistoryReportParametersBean.ingressionTypes" />
+				</div>
+				<div class="col-sm-3">
+					<ui-select id="ingressionTypesSelect" name="ingressionTypes"
+						ng-model="$parent.object.ingressionTypes" theme="bootstrap"
+						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
+					<ui-select-choices
+						repeat="ingressionType.id as ingressionType in object.ingressionTypesDataSource | filter: $select.search">
+					<span
+						ng-bind-html="ingressionType.text | highlight: $select.search"></span>
 					</ui-select-choices> </ui-select>
 				</div>
 			</div>
@@ -413,116 +467,49 @@ ${portal.angularToolkit()}
 				</div>
 			</div>
 
-			<div class="form-group row">
+	  	   	<div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.RegistrationHistoryReportParametersBean.programConclusions" />
+                </div>
+                <div class="col-sm-2">
+                	<ui-select	id="programConclusionsSelect" name="programConclusions" ng-model="$parent.object.programConclusions" theme="bootstrap"  multiple="true">
+						<ui-select-match>{{$item.text}}</ui-select-match> 
+						<ui-select-choices	repeat="programConclusion.id as programConclusion in object.programConclusionsDataSource | filter: $select.search">
+							<span ng-bind-html="programConclusion.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
+                </div>
+
 				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.ingressionTypes" />
+					<spring:message code="label.RegistrationHistoryReportParametersBean.graduatedExecutionYears" />
 				</div>
-				<div class="col-sm-6">
-					<ui-select id="ingressionTypesSelect" name="ingressionTypes"
-						ng-model="$parent.object.ingressionTypes" theme="bootstrap"
+				<div class="col-sm-2">
+					<ui-select id="executionYearsSelect" name="graduatedExecutionYears"
+						ng-model="$parent.object.graduatedExecutionYears" theme="bootstrap"
 						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
-					<ui-select-choices
-						repeat="ingressionType.id as ingressionType in object.ingressionTypesDataSource | filter: $select.search">
-					<span
-						ng-bind-html="ingressionType.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
+						<ui-select-choices
+							repeat="executionYear.id as executionYear in object.executionYearsDataSource | filter: $select.search">
+							<span ng-bind-html="executionYear.text | highlight: $select.search"></span>
+						</ui-select-choices> 
+					</ui-select>
 				</div>
-			</div>
+            </div>
 
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.registrationStateTypes" />
-				</div>
-				<div class="col-sm-6">
-					<ui-select id="registrationStateTypesSelect"
-						name="registrationStateTypes"
-						ng-model="$parent.object.registrationStateTypes" theme="bootstrap"
-						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
-					<ui-select-choices
-						repeat="registrationStateType.id as registrationStateType in object.registrationStateTypesDataSource | filter: $select.search">
-					<span
-						ng-bind-html="registrationStateType.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
-				</div>
-			</div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.RegistrationHistoryReportParametersBean.graduationPeriodStartDate" />
+                </div>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" bennu-date="object.graduationPeriodStartDate" />
+                </div>
 
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.statuteTypes" />
-				</div>
-				<div class="col-sm-6">
-					<ui-select id="statuteTypesSelect" name="statuteTypes"
-						ng-model="$parent.object.statuteTypes" theme="bootstrap"
-						on-select="classback($model)" on-remove="callback($model)"
-						multiple="true"> <ui-select-match>{{$item.text}}</ui-select-match>
-					<ui-select-choices
-						repeat="statuteType.id as statuteType in object.statuteTypesDataSource | filter: $select.search">
-					<span ng-bind-html="statuteType.text | highlight: $select.search"></span>
-					</ui-select-choices> </ui-select>
-				</div>
-			</div>
-
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
-				</div>
-
-				<div class="col-sm-6">
-					<select id="firstTimeOnlySelect" name="firstTimeOnly"
-						class="form-control" ng-model="object.firstTimeOnly"
-						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
-						<option></option>
-					</select>
-				</div>
-			</div>
-
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.withEnrolments" />
-				</div>
-
-				<div class="col-sm-6">
-					<div class="col-sm-10" style="padding-left: 0;">
-						<input type="checkbox" name="withEnrolments" ng-model="object.withEnrolments">
-					</div>
-				</div>
-			</div>
-
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.dismissalsOnly" />
-				</div>
-
-				<div class="col-sm-6">
-					<select id="dismissalsOnlySelect" name="dismissalsOnly"
-						class="form-control" ng-model="object.dismissalsOnly"
-						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
-						<option></option>
-					</select>
-				</div>
-			</div>
-
-			<div class="form-group row">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.RegistrationHistoryReportParametersBean.improvementEnrolmentsOnly" />
-				</div>
-
-				<div class="col-sm-6">
-					<select id="improvementEnrolmentsOnlySelect"
-						name="improvementEnrolmentsOnly" class="form-control"
-						ng-model="object.improvementEnrolmentsOnly"
-						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
-						<option></option>
-					</select>
-				</div>
-			</div>
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.RegistrationHistoryReportParametersBean.graduationPeriodEndDate" />
+                </div>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" bennu-date="object.graduationPeriodEndDate" />
+                </div>
+            </div>
 
             <div class="form-group row">
                 <div class="col-sm-2 control-label">
@@ -530,10 +517,11 @@ ${portal.angularToolkit()}
                         code="label.RegistrationHistoryReportParametersBean.studentNumber" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-2">
                     <input id="studentNumber" class="form-control" type="number" ng-model="object.studentNumber" name="studentNumber" />
                 </div>
             </div>
+
 		</div>
 
 		<div class="panel-footer">
