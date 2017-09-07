@@ -237,7 +237,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.hasPreviousReingression", report.hasPreviousReingression());
                         addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear());
                         addData("RegistrationHistoryReport.previousYearCurricularYear", report.getPreviousYearCurricularYear());
-                        // TODO legidio add next
+                        addData("RegistrationHistoryReport.nextYearCurricularYear", report.getNextYearCurricularYear());
                         addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
                         addData("RegistrationHistoryReport.average", report.getAverage());
                         addData("RegistrationHistoryReport.currentAverage", report.getCurrentAverage());
