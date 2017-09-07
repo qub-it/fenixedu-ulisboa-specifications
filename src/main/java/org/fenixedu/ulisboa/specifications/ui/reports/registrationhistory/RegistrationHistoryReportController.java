@@ -114,12 +114,25 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         model.addAttribute("results", results);
     }
 
+    static private String getReportId(final String exportName) {
+        return bundle("label.event.reports.registrationHistory." + exportName).replaceAll("/", "_").replaceAll("\\s", "_")
+                + "_UUID_" + UUID.randomUUID().toString();
+    }
+
+    static private String getFilename(final String reportId) {
+        return reportId.substring(0, reportId.indexOf("_UUID_"));
+    }
+
+    static private String bundle(final String key) {
+        return ULisboaSpecificationsUtil.bundle(key);
+    }
+
     @RequestMapping(value = "/exportregistrations", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
     public @ResponseBody ResponseEntity<String> exportRegistrations(
             @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
             final Model model) {
 
-        final String reportId = UUID.randomUUID().toString();
+        final String reportId = getReportId("exportRegistrations");
         new Thread(() -> processReport(this::exportRegistrationsToXLS, bean, reportId)).start();
 
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
@@ -155,7 +168,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
         final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
                 ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
-        writeFile(response, "Report_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xlsx",
+        writeFile(response, getFilename(reportId) + "_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xlsx",
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", temporaryFile.get().getContent());
     }
 
@@ -410,10 +423,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         return value ? bundle("label.yes") : bundle("label.no");
                     }
 
-                    private String bundle(String key) {
-                        return ULisboaSpecificationsUtil.bundle(key);
-                    }
-
                 });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
@@ -424,7 +433,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         }
 
         return result.toByteArray();
-
     }
 
     private byte[] createXLSWithError(String error) {
@@ -471,7 +479,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
             final Model model) {
 
-        final String reportId = UUID.randomUUID().toString();
+        final String reportId = getReportId("exportApprovals");
         new Thread(() -> processReport(this::exportApprovalsToXLS, bean, reportId)).start();
 
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
@@ -574,7 +582,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
             final Model model) {
 
-        final String reportId = UUID.randomUUID().toString();
+        final String reportId = getReportId("exportEnrolments");
         new Thread(() -> processReport(this::exportEnrolmentsToXLS, bean, reportId)).start();
 
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
@@ -712,7 +720,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
             final Model model) {
 
-        final String reportId = UUID.randomUUID().toString();
+        final String reportId = getReportId("exportRegistrationsByStatute");
         new Thread(() -> processReport(this::exportRegistrationsByStatuteToXLS, bean, reportId)).start();
 
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
@@ -790,7 +798,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
             final Model model) {
 
-        final String reportId = UUID.randomUUID().toString();
+        final String reportId = getReportId("exportBlueRecordData");
         new Thread(() -> processReport(this::exportRegistrationsBlueRecordInformationToXLS, bean, reportId)).start();
 
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
