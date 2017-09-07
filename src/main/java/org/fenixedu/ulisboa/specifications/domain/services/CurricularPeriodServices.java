@@ -201,7 +201,7 @@ public class CurricularPeriodServices {
 
             final CurriculumLine curriculumLine = (CurriculumLine) iter;
             if (applyToOptionals != null) {
-                final boolean isOptionalByGroup = curriculumLine.getCurriculumGroup().getDegreeModule().isOptionalCourseGroup();
+                final boolean isOptionalByGroup = CurriculumLineServices.isOptionalByGroup(curriculumLine);
                 if ((applyToOptionals && !isOptionalByGroup) || (!applyToOptionals && isOptionalByGroup)) {
                     continue;
                 }

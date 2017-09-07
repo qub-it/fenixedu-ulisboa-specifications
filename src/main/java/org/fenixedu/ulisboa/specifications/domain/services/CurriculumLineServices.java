@@ -15,6 +15,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -35,7 +36,13 @@ import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
 
-public class CurriculumLineServices {
+abstract public class CurriculumLineServices {
+
+    static public boolean isOptionalByGroup(final CurriculumLine line) {
+        final CurriculumGroup group = line == null ? null : line.getCurriculumGroup();
+        final CourseGroup groupModule = group == null ? null : group.getDegreeModule();
+        return groupModule == null ? false : groupModule.isOptionalCourseGroup();
+    }
 
     static public void setRemarks(final CurriculumLine curriculumLine, final String remarks) {
         CurriculumLineExtendedInformation.findOrCreate(curriculumLine).setRemarks(remarks);
