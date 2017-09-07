@@ -116,7 +116,7 @@ public class RegistrationServices {
     }
 
     static final private Cache<String, ICurriculum> CACHE_CURRICULUMS =
-            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(300).expireAfterWrite(1, TimeUnit.MINUTES).build();
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(10 * 1000).expireAfterWrite(2, TimeUnit.MINUTES).build();
 
     static public ICurriculum getCurriculum(final Registration registration, final ExecutionYear executionYear) {
         final String key = getCacheKey(registration, executionYear);
