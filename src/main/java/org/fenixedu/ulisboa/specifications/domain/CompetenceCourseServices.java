@@ -55,8 +55,11 @@ abstract public class CompetenceCourseServices {
 
     static final private Logger logger = LoggerFactory.getLogger(CompetenceCourseServices.class);
 
-    static final private Cache<String, Boolean> CACHE_APPROVALS =
-            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(1, TimeUnit.MINUTES).build();
+    static final private int CACHE_APPROVALS_MAX_SIZE = 2000 /* average students */ * 25 /* average enrolments */;
+    static final private int CACHE_APPROVALS_EXPIRE_MIN = 1 /* cannot increase, since we don't invalidate upon approval CRUD */;
+
+    static final private Cache<String, Boolean> CACHE_APPROVALS = CacheBuilder.newBuilder().concurrencyLevel(4)
+            .maximumSize(CACHE_APPROVALS_MAX_SIZE).expireAfterWrite(CACHE_APPROVALS_EXPIRE_MIN, TimeUnit.MINUTES).build();
 
     static public boolean isCompetenceCourseApproved(final StudentCurricularPlan plan, final CurricularCourse course,
             final ExecutionSemester semester) {
