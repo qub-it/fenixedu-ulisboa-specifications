@@ -302,7 +302,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                         <td><joda:format value='${process.jobEndTime}' style='SM' /></td>
                                         <td>
                                             <a href="${pageContext.request.contextPath}<%= DgesImportationProcessController.DOWNLOAD_URL %>/${process.externalId}">
-                                                <c:out value='${process.dgesStudentImportationFile.displayName} - ${process.dgesStudentImportationFile.size}kB }'/>
+                                                <c:out value='${process.dgesStudentImportationFile.displayName}'/>
                                             </a>
                                         </td>
                                         <td>
