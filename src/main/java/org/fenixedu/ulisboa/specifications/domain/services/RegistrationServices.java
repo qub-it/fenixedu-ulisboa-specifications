@@ -137,10 +137,10 @@ public class RegistrationServices {
     }
 
     static final private int CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES =
-            ULisboaConfiguration.getConfiguration().getCurricularYearCalculatorCached() ? 2 : 0;
+            ULisboaConfiguration.getConfiguration().getCurricularYearCalculatorCached() ? 5 : 0;
 
     static final private Cache<String, CurricularYearResult> CACHE_CURRICULAR_YEAR = CacheBuilder.newBuilder().concurrencyLevel(4)
-            .maximumSize(1500).expireAfterWrite(CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES, TimeUnit.MINUTES).build();
+            .maximumSize(10 * 1000).expireAfterWrite(CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES, TimeUnit.MINUTES).build();
 
     static public CurricularYearResult getCurricularYear(final Registration registration, final ExecutionYear executionYear) {
         final String key = getCacheKey(registration, executionYear);
