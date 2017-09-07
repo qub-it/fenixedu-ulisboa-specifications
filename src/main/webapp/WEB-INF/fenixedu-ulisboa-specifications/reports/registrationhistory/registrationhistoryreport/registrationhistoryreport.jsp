@@ -534,23 +534,19 @@ ${portal.angularToolkit()}
 
 		<div class="panel-footer">
 			<button type="button" class="btn btn-primary" ng-click="search()">
-				<spring:message
-					code="label.event.reports.registrationHistory.search" />
+				<spring:message code="label.event.reports.registrationHistory.search" />
 			</button>
             <button type="button" class="btn btn-primary"
                 ng-click="exportRegistrations()">
-                <spring:message
-                    code="label.event.reports.registrationHistory.exportRegistrations" />
+                <spring:message code="label.event.reports.registrationHistory.exportRegistrations" />
             </button>
             <button type="button" class="btn btn-primary"
                 ng-click="exportEnrolments()">
-                <spring:message
-                    code="label.event.reports.registrationHistory.exportEnrolments" />
+                <spring:message code="label.event.reports.registrationHistory.exportEnrolments" />
             </button>
             <button type="button" class="btn btn-primary"
                  ng-click="exportApprovals()">
-                 <spring:message
-                     code="label.event.reports.registrationHistory.exportApprovals" />
+                 <spring:message code="label.event.reports.registrationHistory.exportApprovals" />
              </button>
              <button type="button" class="btn btn-primary" 
              	 ng-click="exportBlueRecordData()">
