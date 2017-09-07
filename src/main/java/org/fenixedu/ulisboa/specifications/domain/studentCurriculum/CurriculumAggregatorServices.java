@@ -160,7 +160,7 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static final private Cache<String, Context> CACHE_CONTEXTS =
-            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(1500).expireAfterWrite(5, TimeUnit.MINUTES).build();
+            CacheBuilder.newBuilder().concurrencyLevel(4).maximumSize(4 * 1000).expireAfterWrite(5, TimeUnit.MINUTES).build();
 
     /**
      * WARNING: CurriculumAggregator specific implementation,
