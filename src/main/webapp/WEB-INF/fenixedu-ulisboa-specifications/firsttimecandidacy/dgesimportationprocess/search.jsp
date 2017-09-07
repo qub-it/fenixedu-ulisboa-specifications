@@ -245,7 +245,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                         </td>
                                         <td>
                                             <a class="btn btn-danger" onClick="openCancelModal('${process.externalId}')">
-                                                    <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                                     &nbsp;
                                                     <spring:message code='label.cancel' />
                                             </a>                                            
@@ -305,7 +305,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                                 <c:out value='${process.dgesStudentImportationFile.displayName} - ${process.dgesStudentImportationFile.size}kB }'/>
                                             </a>
                                         </td>
-                                        <td></td>
+                                        <td>
+                                            <a class="btn btn-default" href="${pageContext.request.contextPath}<%= DgesImportationProcessController.DOWNLOAD_LOG_URL %>/${process.externalId}">
+                                                    <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                                                    &nbsp;
+                                                    <spring:message code="label.download" />
+                                            </a>                                            
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>

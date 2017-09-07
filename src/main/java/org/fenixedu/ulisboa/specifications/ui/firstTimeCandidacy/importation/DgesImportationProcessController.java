@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.domain.Degree;
@@ -51,6 +52,7 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
     public static final String CONTROLLER_URL = "/ulisboaspecifications/firsttimecandidacy/dgesimportationprocess";
 
     public static final String VIEW_URL = "fenixedu-ulisboa-specifications/firsttimecandidacy/dgesimportationprocess";
+    private static final String ERROR_MESSAGE_ATTRIBUTE = "sessionErrorMessages";
 
     private DgesImportProcessBean getDgesBaseProcessBean(final Model model) {
         return (DgesImportProcessBean) model.asMap().get("dgesBaseProcessBean");
@@ -87,7 +89,15 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
     @RequestMapping(value = _SEARCH_URI)
     public String search(@RequestParam(value = "executionYear", required = false) ExecutionYear executionYear,
             @ModelAttribute("selectedExecutionYearId") final String flashExecutionYearId, final Model model,
-            final RedirectAttributes redirectAttributes) {
+            final RedirectAttributes redirectAttributes, final HttpServletRequest request) {
+        if (request.getSession().getAttribute(ERROR_MESSAGE_ATTRIBUTE) != null) {
+            List<String> errorMessages = (List<String>) request.getSession().getAttribute(ERROR_MESSAGE_ATTRIBUTE);
+            for (String errorMessage : errorMessages) {
+                addErrorMessage(errorMessage, model);
+            }
+            request.getSession().removeAttribute(ERROR_MESSAGE_ATTRIBUTE);
+        }
+
         if (flashExecutionYearId != null && !flashExecutionYearId.isEmpty()) {
             executionYear = (ExecutionYear) FenixFramework.getDomainObject(flashExecutionYearId);
         }
@@ -105,11 +115,6 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
 
         model.addAttribute("importationJobsDone", importationJobsDone);
         model.addAttribute("importationJobsPending", importationJobsPending);
-
-        if (!DgesStudentImportationProcess.canRequestJob()) {
-            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE,
-                    "info.DgesStudentImportationProcess.create.new.job.restriction"), model);
-        }
 
         return VIEW_URL + "/search";
     }
@@ -138,6 +143,9 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
             if (bean.getExecutionYear() != null) {
                 redirectAttributes.addFlashAttribute("selectedExecutionYearId", bean.getExecutionYear().getExternalId());
             }
+            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "info.DgesStudentImportationProcess.create.new.job.restriction"), model);
+
             return redirect(SEARCH_URL, model, redirectAttributes);
         } catch (DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
@@ -257,6 +265,30 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
         }
 
         process.resend();
+    }
+
+    private static final String _DOWNLOAD_LOG_URI = "/download/log";
+    public static final String DOWNLOAD_LOG_URL = CONTROLLER_URL + _DOWNLOAD_LOG_URI;
+
+    @RequestMapping(value = _DOWNLOAD_LOG_URI + "/{oid}", method = RequestMethod.GET)
+    public void processSearchToDownloadLogAction(@PathVariable("oid") final DgesStudentImportationProcess process,
+            final Model model, final HttpServletRequest request, final HttpServletResponse response) {
+        try {
+            if (process.getDone() != null && process.getDone()) {
+                response.setContentType(process.getContentType());
+                String filename = URLEncoder.encode(StringNormalizer
+                        .normalizePreservingCapitalizedLetters(process.getFile().getDisplayName()).replaceAll("\\s", "_"),
+                        "UTF-8");
+                response.setHeader("Content-disposition", "attachment; filename=" + filename);
+                response.getOutputStream().write(process.getFile().getContent());
+            } else {
+                addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.job.not.done"), model);
+                request.getSession().setAttribute(ERROR_MESSAGE_ATTRIBUTE, model.asMap().get(ERROR_MESSAGES));
+                response.sendRedirect(request.getContextPath() + SEARCH_URL);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static final String _DOWNLOAD_URI = "/download";
