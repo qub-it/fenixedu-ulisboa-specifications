@@ -22,6 +22,7 @@ package org.fenixedu.ulisboa.specifications.domain.student.access.importation;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,15 @@ import org.fenixedu.spaces.domain.Space;
 import pt.ist.fenixframework.core.WriteOnReadError;
 
 public class DgesStudentImportationProcess extends DgesStudentImportationProcess_Base {
+
+    public static final Comparator<DgesStudentImportationProcess> COMPARATOR_BY_BEGIN_DATE =
+            new Comparator<DgesStudentImportationProcess>() {
+
+                @Override
+                public int compare(final DgesStudentImportationProcess o1, final DgesStudentImportationProcess o2) {
+                    return o1.getRequestDate().compareTo(o2.getRequestDate());
+                }
+            };
 
     protected DgesStudentImportationProcess() {
         super();

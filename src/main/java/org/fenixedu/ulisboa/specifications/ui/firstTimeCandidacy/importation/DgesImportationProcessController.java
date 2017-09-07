@@ -110,8 +110,10 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
             setDgesBaseProcessBean(new DgesImportProcessBean(executionYear), model);
         }
 
-        List<DgesStudentImportationProcess> importationJobsDone = DgesStudentImportationProcess.readDoneJobs(executionYear);
-        List<DgesStudentImportationProcess> importationJobsPending = DgesStudentImportationProcess.readUndoneJobs(executionYear);
+        List<DgesStudentImportationProcess> importationJobsDone = DgesStudentImportationProcess.readDoneJobs(executionYear)
+                .stream().sorted(DgesStudentImportationProcess.COMPARATOR_BY_BEGIN_DATE).collect(Collectors.toList());
+        List<DgesStudentImportationProcess> importationJobsPending = DgesStudentImportationProcess.readUndoneJobs(executionYear)
+                .stream().sorted(DgesStudentImportationProcess.COMPARATOR_BY_BEGIN_DATE).collect(Collectors.toList());
 
         model.addAttribute("importationJobsDone", importationJobsDone);
         model.addAttribute("importationJobsPending", importationJobsPending);
