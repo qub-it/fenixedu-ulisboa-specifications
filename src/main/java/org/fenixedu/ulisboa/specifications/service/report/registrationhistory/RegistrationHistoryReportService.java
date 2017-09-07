@@ -24,6 +24,8 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator;
@@ -383,6 +385,51 @@ public class RegistrationHistoryReportService {
         final Curriculum curriculum = (Curriculum) RegistrationServices.getCurriculum(registration, null);
         return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(3,
                 RoundingMode.DOWN);
+    }
+
+    static protected void addExecutionYearMandatoryCoursesData(final RegistrationHistoryReport report) {
+        final Collection<Enrolment> enrolments = report.getEnrolments();
+        if (!enrolments.isEmpty()) {
+
+            boolean enroledMandatoryFlunked = false;
+            boolean enroledMandatoryInAdvance = false;
+            BigDecimal creditsMandatoryEnroled = BigDecimal.ZERO;
+            BigDecimal creditsMandatoryApproved = BigDecimal.ZERO;
+
+            final int registrationYear = report.getCurricularYear();
+
+            for (final Enrolment iter : enrolments) {
+
+                final boolean isOptionalByGroup = CurriculumLineServices.isOptionalByGroup(iter);
+                if (isOptionalByGroup) {
+                    continue;
+                }
+
+                final int enrolmentYear = CurricularPeriodServices.getCurricularYear(iter);
+                if (enrolmentYear < registrationYear) {
+                    enroledMandatoryFlunked = true;
+
+                } else if (enrolmentYear > registrationYear) {
+                    enroledMandatoryInAdvance = true;
+
+                } else {
+
+                    final BigDecimal ects = iter.getEctsCreditsForCurriculum();
+                    if (iter.isApproved()) {
+                        creditsMandatoryApproved = creditsMandatoryApproved.add(ects);
+
+                    } else {
+                        creditsMandatoryEnroled = creditsMandatoryEnroled.add(ects);
+                    }
+                }
+
+            }
+
+            report.setExecutionYearEnroledMandatoryFlunked(enroledMandatoryFlunked);
+            report.setExecutionYearEnroledMandatoryInAdvance(enroledMandatoryInAdvance);
+            report.setExecutionYearCreditsMandatoryEnroled(creditsMandatoryEnroled);
+            report.setExecutionYearCreditsMandatoryApproved(creditsMandatoryApproved);
+        }
     }
 
 }

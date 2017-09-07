@@ -281,17 +281,16 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                     report.getExecutionYearSimpleAverage());
                             addData("RegistrationHistoryReport.executionYearWeightedAverage",
                                     report.getExecutionYearWeightedAverage());
-// TODO legidio
-//                            addData("RegistrationHistoryReport.executionYearEnroledMandatoryFlunked",
-//                                    report.getExecutionYearEnroledMandatoryFlunked());
-//                            addData("RegistrationHistoryReport.executionYearEnroledMandatoryInAdvance",
-//                                    report.getExecutionYearEnroledMandatoryInAdvance());
-//                            addData("RegistrationHistoryReport.executionYearCreditsEnroledMandatory",
-//                                    report.getExecutionYearCreditsEnroledMandatory());
-//                            addData("RegistrationHistoryReport.executionYearCreditsApprovedMandatory",
-//                                    report.getExecutionYearCreditsApprovedMandatory());
-//                            addData("RegistrationHistoryReport.executionYearConclusionDate",
-//                                    report.getExecutionYearConclusionDate());
+                            addData("RegistrationHistoryReport.executionYearEnroledMandatoryFlunked",
+                                    report.getExecutionYearEnroledMandatoryFlunked());
+                            addData("RegistrationHistoryReport.executionYearEnroledMandatoryInAdvance",
+                                    report.getExecutionYearEnroledMandatoryInAdvance());
+                            addData("RegistrationHistoryReport.executionYearCreditsMandatoryEnroled",
+                                    report.getExecutionYearCreditsMandatoryEnroled());
+                            addData("RegistrationHistoryReport.executionYearCreditsMandatoryApproved",
+                                    report.getExecutionYearCreditsMandatoryApproved());
+                            addData("RegistrationHistoryReport.executionYearConclusionDate",
+                                    report.getExecutionYearConclusionDate());
                         }
                     }
 
@@ -413,6 +412,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                     private void addData(String bundleKey, Object value) {
                         addCell(bundle("label." + bundleKey), value == null ? "" : value);
+                    }
+
+                    private void addData(String bundleKey, Boolean value) {
+                        addCell(bundle("label." + bundleKey), value == null ? "" : booleanString(value));
                     }
 
                     private void addData(String bundleKey, boolean value) {

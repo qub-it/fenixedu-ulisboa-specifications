@@ -72,6 +72,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     private Map<ProgramConclusion, RegistrationConclusionBean> conclusionReports = Maps.newHashMap();
 
+    private Integer curricularYear;
+
+    private Integer previousYearCurricularYear;
+
+    private Integer nextYearCurricularYear;
+
     private Integer enrolmentsCount;
 
     private BigDecimal enrolmentsCredits;
@@ -88,13 +94,13 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     private BigDecimal executionYearWeightedAverage;
 
-    private boolean executionYearEnroledMandatoryFlunked;
+    private Boolean executionYearEnroledMandatoryFlunked;
 
-    private boolean executionYearEnroledMandatoryInAdvance;
+    private Boolean executionYearEnroledMandatoryInAdvance;
 
-    private BigDecimal executionYearCreditsEnroledMandatory;
+    private BigDecimal executionYearCreditsMandatoryEnroled;
 
-    private BigDecimal executionYearCreditsApprovedMandatory;
+    private BigDecimal executionYearCreditsMandatoryApproved;
 
     private LocalDate executionYearConclusionDate;
 
@@ -387,8 +393,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public Integer getCurricularYear() {
-        final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), getExecutionYear());
-        return result == null ? null : result.getResult();
+        if (this.curricularYear == null) {
+            final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), getExecutionYear());
+            this.curricularYear = result == null ? null : result.getResult();
+        }
+
+        return this.curricularYear;
     }
 
     public Integer getPreviousYearCurricularYear() {
@@ -401,14 +411,22 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
             return null;
         }
 
-        final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), previous);
-        return result == null ? null : result.getResult();
+        if (this.previousYearCurricularYear == null) {
+            final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), previous);
+            this.previousYearCurricularYear = result == null ? null : result.getResult();
+        }
+
+        return this.previousYearCurricularYear;
     }
 
     public Integer getNextYearCurricularYear() {
-        final ExecutionYear next = getExecutionYear().getNextExecutionYear();
-        final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), next);
-        return result == null ? null : result.getResult();
+        if (this.nextYearCurricularYear == null) {
+            final ExecutionYear next = getExecutionYear().getNextExecutionYear();
+            final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), next);
+            this.nextYearCurricularYear = result == null ? null : result.getResult();
+        }
+
+        return this.nextYearCurricularYear;
     }
 
     public BigDecimal getEctsCredits() {
@@ -527,24 +545,64 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return this.executionYearWeightedAverage;
     }
 
-    public boolean getExecutionYearEnroledMandatoryFlunked() {
-        return executionYearEnroledMandatoryFlunked;
+    public Boolean getExecutionYearEnroledMandatoryFlunked() {
+        if (this.executionYearEnroledMandatoryFlunked == null) {
+            RegistrationHistoryReportService.addExecutionYearMandatoryCoursesData(this);
+        }
+
+        return this.executionYearEnroledMandatoryFlunked;
     }
 
-    public boolean getExecutionYearEnroledMandatoryInAdvance() {
-        return executionYearEnroledMandatoryInAdvance;
+    protected void setExecutionYearEnroledMandatoryFlunked(final boolean input) {
+        this.executionYearEnroledMandatoryFlunked = input;
     }
 
-    public BigDecimal getExecutionYearCreditsEnroledMandatory() {
-        return executionYearCreditsEnroledMandatory;
+    public Boolean getExecutionYearEnroledMandatoryInAdvance() {
+        if (this.executionYearEnroledMandatoryInAdvance == null) {
+            RegistrationHistoryReportService.addExecutionYearMandatoryCoursesData(this);
+        }
+
+        return this.executionYearEnroledMandatoryInAdvance;
     }
 
-    public BigDecimal getExecutionYearCreditsApprovedMandatory() {
-        return executionYearCreditsApprovedMandatory;
+    protected void setExecutionYearEnroledMandatoryInAdvance(final boolean input) {
+        this.executionYearEnroledMandatoryInAdvance = input;
+    }
+
+    public BigDecimal getExecutionYearCreditsMandatoryEnroled() {
+        if (this.executionYearCreditsMandatoryEnroled == null) {
+            RegistrationHistoryReportService.addExecutionYearMandatoryCoursesData(this);
+        }
+
+        return this.executionYearCreditsMandatoryEnroled;
+    }
+
+    protected void setExecutionYearCreditsMandatoryEnroled(final BigDecimal input) {
+        this.executionYearCreditsMandatoryEnroled = input;
+    }
+
+    public BigDecimal getExecutionYearCreditsMandatoryApproved() {
+        if (this.executionYearCreditsMandatoryApproved == null) {
+            RegistrationHistoryReportService.addExecutionYearMandatoryCoursesData(this);
+        }
+
+        return this.executionYearCreditsMandatoryApproved;
+    }
+
+    protected void setExecutionYearCreditsMandatoryApproved(final BigDecimal input) {
+        this.executionYearCreditsMandatoryApproved = input;
     }
 
     public LocalDate getExecutionYearConclusionDate() {
-        return executionYearConclusionDate;
+        if (this.executionYearConclusionDate == null) {
+            final Enrolment enrolment = getEnrolments().stream().filter(i -> i.isApproved())
+                    .max((x, y) -> x.calculateConclusionDate().compareTo(y.calculateConclusionDate())).orElse(null);
+
+            final YearMonthDay date = enrolment == null ? null : enrolment.calculateConclusionDate();
+            this.executionYearConclusionDate = date == null ? null : new LocalDate(date);
+        }
+
+        return this.executionYearConclusionDate;
     }
 
     public String getCurrentAverage() {
