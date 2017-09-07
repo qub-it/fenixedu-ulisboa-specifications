@@ -35,7 +35,8 @@ public class ReadShiftsToEnroll {
         return result;
     }
 
-    private static void checkStudentRestrictionsForShiftsEnrolments(Registration registration, ExecutionSemester executionSemester) throws FenixServiceException {
+    private static void checkStudentRestrictionsForShiftsEnrolments(Registration registration,
+            ExecutionSemester executionSemester) throws FenixServiceException {
         if (registration == null) {
             throw new FenixServiceException("errors.impossible.operation");
         }
@@ -105,6 +106,9 @@ public class ReadShiftsToEnroll {
 
         } else if (shift.containsType(ShiftType.TUTORIAL_ORIENTATION)) {
             result.setTutorialOrientationType(ShiftType.TUTORIAL_ORIENTATION);
+
+        } else if (shift.containsType(ShiftType.OTHER)) {
+            result.setOtherType(ShiftType.OTHER);
         }
     }
 
@@ -137,6 +141,9 @@ public class ReadShiftsToEnroll {
         } else if (shift.getExecutionCourse() == attend.getExecutionCourse()
                 && shift.containsType(ShiftType.TUTORIAL_ORIENTATION)) {
             result.setTutorialOrientationShift(shift);
+
+        } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.OTHER)) {
+            result.setOtherShift(shift);
         }
     }
 }

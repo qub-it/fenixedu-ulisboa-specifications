@@ -184,6 +184,7 @@ ${portal.angularToolkit()}
 					<th class="text-center"><spring:message code="label.shiftType.description.seminary"/></th>
 					<th class="text-center"><spring:message code="label.shiftType.description.trainingPeriod"/></th>
 					<th class="text-center"><spring:message code="label.shiftType.description.tutorialOrientation"/></th>
+					<th class="text-center"><spring:message code="label.shiftType.description.other"/></th>
 				</tr>
 				<c:forEach items="${shiftsToEnrol}" var="shiftToEnrol">
 					<tr>
@@ -327,7 +328,21 @@ ${portal.angularToolkit()}
 								</c:if>
 							</c:if>
 						</td>
-						
+						<td class="col-md-1 text-center">
+							<c:if test="${not empty shiftToEnrol.otherType}">
+								<c:if test="${not empty shiftToEnrol.otherShift}">
+									<button class="btn btn-success btn-sm" data-toggle="modal" data-target=".bs-remove-shift-modal-sm" ng-click="prepareRemoveShift(${shiftToEnrol.otherShift.externalId})"
+										rel="tooltip" data-placement="bottom" title="${shiftToEnrol.otherShift.lessonPresentationString}">
+										<spring:message code="label.shiftEnrolment.enroled"/>&nbsp;&nbsp;<span class="glyphicon glyphicon-remove" style="color: #FFF"></span>
+									</button>
+								</c:if>
+								<c:if test="${empty shiftToEnrol.otherShift}">
+									<button class="btn btn-danger" data-toggle="modal" data-target=".bs-add-shift-modal-sm" ng-click="fetchPossibleShiftsToEnrol(${selectedEnrolmentBean.registration.externalId}, ${shiftToEnrol.executionCourse.externalId}, '${shiftToEnrol.otherType.name}')">
+										<spring:message code="label.shiftEnrolment.enrol"/>
+									</button>    
+								</c:if>
+							</c:if>
+						</td>						
 					</tr>
 				</c:forEach>
 			</table>		
