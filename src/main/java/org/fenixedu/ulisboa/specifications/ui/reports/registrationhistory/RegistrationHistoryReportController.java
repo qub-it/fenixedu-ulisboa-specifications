@@ -104,7 +104,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
 
-        setResults(generateReport(bean, !bean.getGraduatedExecutionYears().isEmpty()), model);
+        setResults(generateReport(bean), model);
 
         return jspPage("registrationhistoryreport");
     }
@@ -171,8 +171,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", temporaryFile.get().getContent());
     }
 
-    static private Collection<RegistrationHistoryReport> generateReport(final RegistrationHistoryReportParametersBean bean,
-            final boolean detailed) {
+    static private Collection<RegistrationHistoryReport> generateReport(final RegistrationHistoryReportParametersBean bean) {
 
         final RegistrationHistoryReportService service = new RegistrationHistoryReportService();
         service.filterEnrolmentExecutionYears(bean.getExecutionYears());
@@ -188,7 +187,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterDismissalsOnly(bean.getDismissalsOnly());
         service.filterImprovementEnrolmentsOnly(bean.getImprovementEnrolmentsOnly());
         service.filterStudentNumber(bean.getStudentNumber());
-        service.setDetailed(detailed);
 
         service.filterGraduatedExecutionYears(bean.getGraduatedExecutionYears());
         service.filterGraduationPeriodStartDate(bean.getGraduationPeriodStartDate());
@@ -199,8 +197,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     }
 
     private byte[] exportRegistrationsToXLS(final RegistrationHistoryReportParametersBean bean) {
-
-        final Collection<RegistrationHistoryReport> toExport = generateReport(bean, true);
+        final Collection<RegistrationHistoryReport> toExport = generateReport(bean);
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.students"),
@@ -284,6 +281,17 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                     report.getExecutionYearSimpleAverage());
                             addData("RegistrationHistoryReport.executionYearWeightedAverage",
                                     report.getExecutionYearWeightedAverage());
+// TODO legidio
+//                            addData("RegistrationHistoryReport.executionYearEnroledMandatoryFlunked",
+//                                    report.getExecutionYearEnroledMandatoryFlunked());
+//                            addData("RegistrationHistoryReport.executionYearEnroledMandatoryInAdvance",
+//                                    report.getExecutionYearEnroledMandatoryInAdvance());
+//                            addData("RegistrationHistoryReport.executionYearCreditsEnroledMandatory",
+//                                    report.getExecutionYearCreditsEnroledMandatory());
+//                            addData("RegistrationHistoryReport.executionYearCreditsApprovedMandatory",
+//                                    report.getExecutionYearCreditsApprovedMandatory());
+//                            addData("RegistrationHistoryReport.executionYearConclusionDate",
+//                                    report.getExecutionYearConclusionDate());
                         }
                     }
 
@@ -478,8 +486,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     }
 
     private byte[] exportApprovalsToXLS(RegistrationHistoryReportParametersBean bean) {
-
-        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean);
 
         final Collection<ICurriculum> curriculums =
                 reports.stream().map(r -> RegistrationServices.getCurriculum(r.getRegistration(), (ExecutionYear) null))
@@ -487,15 +494,15 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 .compareTo(x.getStudentCurricularPlan().getRegistration().getNumber()))
                         .distinct().collect(Collectors.toList());
 
-        final Multimap<ICurriculum, ICurriculumEntry> approvalsByCurriculum = HashMultimap.create();
-        curriculums.stream().forEach(c -> approvalsByCurriculum.putAll(c, c.getCurriculumEntries()));
+        final Multimap<ICurriculum, ICurriculumEntry> toExport = HashMultimap.create();
+        curriculums.stream().forEach(c -> toExport.putAll(c, c.getCurriculumEntries()));
 
         final ExecutionYear executionYearForCurricularYear =
                 bean.getExecutionYears().stream().max(ExecutionYear.COMPARATOR_BY_BEGIN_DATE).get();
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
-                new SheetData<Map.Entry<ICurriculum, ICurriculumEntry>>(approvalsByCurriculum.entries()) {
+                new SheetData<Map.Entry<ICurriculum, ICurriculumEntry>>(toExport.entries()) {
 
                     @Override
                     protected void makeLine(Entry<ICurriculum, ICurriculumEntry> entry) {
@@ -581,16 +588,15 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     }
 
     private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean);
 
-        final Collection<RegistrationHistoryReport> reports = generateReport(bean, false);
-
-        final Multimap<RegistrationHistoryReport, Enrolment> enrolments = HashMultimap.create();
-        reports.stream().forEach(r -> enrolments.putAll(r, r.getEnrolments()));
+        final Multimap<RegistrationHistoryReport, Enrolment> toExportEnrolments = HashMultimap.create();
+        reports.stream().forEach(r -> toExportEnrolments.putAll(r, r.getEnrolments()));
 
         final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
         reports.stream().forEach(r -> {
             r.getImprovementEvaluations().forEach(ev -> {
-                enrolments.put(r, ev.getEnrolment());
+                toExportEnrolments.put(r, ev.getEnrolment());
 
                 if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
                     improvementsOnly.put(ev.getEnrolment(), ev.getExecutionPeriod());
@@ -600,7 +606,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.enrolments"),
-                new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(enrolments.entries()) {
+                new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(toExportEnrolments.entries()) {
 
                     @Override
                     protected void makeLine(Entry<RegistrationHistoryReport, Enrolment> entry) {
@@ -646,14 +652,15 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                 });
 
-        final List<EnrolmentEvaluation> evaluations =
-                enrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
+        final List<EnrolmentEvaluation> toExportEvaluations =
+                toExportEnrolments.entries().stream().flatMap(e -> e.getValue().getEvaluationsSet().stream())
                         .filter(e -> EvaluationSeasonServices.isRequiredEnrolmentEvaluation(e.getEvaluationSeason())
                                 && bean.getExecutionYears().contains(e.getExecutionPeriod().getExecutionYear()))
                         .sorted(EnrolmentEvaluation.SORT_BY_STUDENT_NUMBER.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
                         .collect(Collectors.toList());
+
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.evaluations"),
-                new SheetData<EnrolmentEvaluation>(evaluations) {
+                new SheetData<EnrolmentEvaluation>(toExportEvaluations) {
 
                     @Override
                     protected void makeLine(EnrolmentEvaluation item) {
@@ -797,19 +804,20 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     }
 
     private byte[] exportRegistrationsBlueRecordInformationToXLS(RegistrationHistoryReportParametersBean bean) {
-        final Collection<RegistrationHistoryReport> registrationsToExport = generateReport(bean, false);
+        final Collection<RegistrationHistoryReport> reports = generateReport(bean);
 
-        Collection<RegistrationDGESStateBean> candidacies = new ArrayList<>();
-        for (RegistrationHistoryReport registrationHistory : registrationsToExport) {
-            StudentCandidacy studentCandidacy = registrationHistory.getRegistration().getStudentCandidacy();
+        final Collection<RegistrationDGESStateBean> toExport = new ArrayList<>();
+
+        for (final RegistrationHistoryReport report : reports) {
+            final StudentCandidacy studentCandidacy = report.getRegistration().getStudentCandidacy();
             if (studentCandidacy != null) {
-                candidacies.add(RegistrationDGESStateBeanController.populateBean(studentCandidacy));
+                toExport.add(RegistrationDGESStateBeanController.populateBean(studentCandidacy));
             }
         }
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.blueRecord"),
-                new SheetData<RegistrationDGESStateBean>(candidacies) {
+                new SheetData<RegistrationDGESStateBean>(toExport) {
 
                     @Override
                     protected void makeLine(RegistrationDGESStateBean item) {

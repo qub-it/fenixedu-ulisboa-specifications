@@ -62,7 +62,7 @@ import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReport implements Comparable<RegistrationHistoryReport> {
 
-    private Collection<Enrolment> enrolments = null;
+    private Collection<Enrolment> enrolments;
 
     private ExecutionYear executionYear;
 
@@ -72,21 +72,31 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     private Map<ProgramConclusion, RegistrationConclusionBean> conclusionReports = Maps.newHashMap();
 
-    private int enrolmentsCount;
+    private Integer enrolmentsCount;
 
     private BigDecimal enrolmentsCredits;
 
-    private int extraCurricularEnrolmentsCount;
+    private Integer extraCurricularEnrolmentsCount;
 
     private BigDecimal extraCurricularEnrolmentsCredits;
 
-    private int standaloneEnrolmentsCount;
+    private Integer standaloneEnrolmentsCount;
 
     private BigDecimal standaloneEnrolmentsCredits;
 
     private BigDecimal executionYearSimpleAverage;
 
     private BigDecimal executionYearWeightedAverage;
+
+    private boolean executionYearEnroledMandatoryFlunked;
+
+    private boolean executionYearEnroledMandatoryInAdvance;
+
+    private BigDecimal executionYearCreditsEnroledMandatory;
+
+    private BigDecimal executionYearCreditsApprovedMandatory;
+
+    private LocalDate executionYearConclusionDate;
 
     private BigDecimal currentAverage;
 
@@ -430,67 +440,111 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public int getEnrolmentsCount() {
-        return enrolmentsCount;
+        if (this.enrolmentsCount == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.enrolmentsCount;
     }
 
-    public void setEnrolmentsCount(int enrolmentsCount) {
-        this.enrolmentsCount = enrolmentsCount;
+    protected void setEnrolmentsCount(final int input) {
+        this.enrolmentsCount = input;
     }
 
     public BigDecimal getEnrolmentsCredits() {
-        return enrolmentsCredits;
+        if (this.enrolmentsCredits == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.enrolmentsCredits;
     }
 
-    public void setEnrolmentsCredits(BigDecimal enrolmentsCredits) {
-        this.enrolmentsCredits = enrolmentsCredits;
+    protected void setEnrolmentsCredits(final BigDecimal input) {
+        this.enrolmentsCredits = input;
     }
 
     public int getExtraCurricularEnrolmentsCount() {
-        return extraCurricularEnrolmentsCount;
+        if (this.extraCurricularEnrolmentsCount == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.extraCurricularEnrolmentsCount;
     }
 
-    public void setExtraCurricularEnrolmentsCount(int extraCurricularEnrolmentsCount) {
-        this.extraCurricularEnrolmentsCount = extraCurricularEnrolmentsCount;
+    protected void setExtraCurricularEnrolmentsCount(final int input) {
+        this.extraCurricularEnrolmentsCount = input;
     }
 
     public BigDecimal getExtraCurricularEnrolmentsCredits() {
-        return extraCurricularEnrolmentsCredits;
+        if (this.extraCurricularEnrolmentsCredits == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.extraCurricularEnrolmentsCredits;
     }
 
-    public void setExtraCurricularEnrolmentsCredits(BigDecimal extraCurricularEnrolmentsCredits) {
-        this.extraCurricularEnrolmentsCredits = extraCurricularEnrolmentsCredits;
+    protected void setExtraCurricularEnrolmentsCredits(final BigDecimal input) {
+        this.extraCurricularEnrolmentsCredits = input;
     }
 
     public int getStandaloneEnrolmentsCount() {
-        return standaloneEnrolmentsCount;
+        if (this.standaloneEnrolmentsCount == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.standaloneEnrolmentsCount;
     }
 
-    public void setStandaloneEnrolmentsCount(int standaloneEnrolmentsCount) {
-        this.standaloneEnrolmentsCount = standaloneEnrolmentsCount;
+    protected void setStandaloneEnrolmentsCount(final int input) {
+        this.standaloneEnrolmentsCount = input;
     }
 
     public BigDecimal getStandaloneEnrolmentsCredits() {
-        return standaloneEnrolmentsCredits;
+        if (this.standaloneEnrolmentsCredits == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.standaloneEnrolmentsCredits;
     }
 
-    public void setStandaloneEnrolmentsCredits(BigDecimal standaloneEnrolmentsCredits) {
-        this.standaloneEnrolmentsCredits = standaloneEnrolmentsCredits;
+    protected void setStandaloneEnrolmentsCredits(final BigDecimal input) {
+        this.standaloneEnrolmentsCredits = input;
     }
 
     public BigDecimal getExecutionYearSimpleAverage() {
-        return executionYearSimpleAverage;
-    }
+        if (this.executionYearSimpleAverage == null) {
+            this.executionYearSimpleAverage = RegistrationHistoryReportService.calculateExecutionYearSimpleAverage(this);
+        }
 
-    public void setExecutionYearSimpleAverage(BigDecimal executionYearSimpleAverage) {
-        this.executionYearSimpleAverage = executionYearSimpleAverage;
+        return this.executionYearSimpleAverage;
     }
 
     public BigDecimal getExecutionYearWeightedAverage() {
-        return executionYearWeightedAverage;
+        if (this.executionYearWeightedAverage == null) {
+            this.executionYearWeightedAverage = RegistrationHistoryReportService.calculateExecutionYearWeightedAverage(this);
+        }
+
+        return this.executionYearWeightedAverage;
     }
 
-    public void setExecutionYearWeightedAverage(BigDecimal executionYearWeightedAverage) {
-        this.executionYearWeightedAverage = executionYearWeightedAverage;
+    public boolean getExecutionYearEnroledMandatoryFlunked() {
+        return executionYearEnroledMandatoryFlunked;
+    }
+
+    public boolean getExecutionYearEnroledMandatoryInAdvance() {
+        return executionYearEnroledMandatoryInAdvance;
+    }
+
+    public BigDecimal getExecutionYearCreditsEnroledMandatory() {
+        return executionYearCreditsEnroledMandatory;
+    }
+
+    public BigDecimal getExecutionYearCreditsApprovedMandatory() {
+        return executionYearCreditsApprovedMandatory;
+    }
+
+    public LocalDate getExecutionYearConclusionDate() {
+        return executionYearConclusionDate;
     }
 
     public String getCurrentAverage() {
@@ -830,7 +884,6 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         }
 
         return BigDecimal.ZERO.max(result.subtract(bonification));
-
     }
 
     private Set<ExecutionYear> getEnrolmentExecutionYears() {
@@ -839,7 +892,6 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public String getOtherConcludedRegistrationYears() {
-
         final StringBuilder result = new StringBuilder();
 
         getStudent().getRegistrationsSet().stream()

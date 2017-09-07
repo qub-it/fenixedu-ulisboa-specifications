@@ -48,16 +48,9 @@ public class RegistrationHistoryReportService {
     private Boolean improvementEnrolmentsOnly;
     private Integer studentNumber;
     private Collection<ProgramConclusion> programConclusionsToFilter = Sets.newHashSet();
-
-    private boolean detailed = true;
-
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
     private LocalDate graduationPeriodEndDate;
-
-    public RegistrationHistoryReportService() {
-
-    }
 
     private List<Integer> getStudentNumbers() {
         final List<Integer> result = Lists.newArrayList();
@@ -154,14 +147,6 @@ public class RegistrationHistoryReportService {
 
     public void filterProgramConclusions(Set<ProgramConclusion> programConclusions) {
         this.programConclusionsToFilter.addAll(programConclusions);
-    }
-
-    public boolean isDetailed() {
-        return detailed;
-    }
-
-    public void setDetailed(boolean detailed) {
-        this.detailed = detailed;
     }
 
     public Collection<RegistrationHistoryReport> generateReport() {
@@ -283,7 +268,7 @@ public class RegistrationHistoryReportService {
 
     }
 
-    protected Set<Registration> buildSearchUniverse(final ExecutionYear executionYear) {
+    private Set<Registration> buildSearchUniverse(final ExecutionYear executionYear) {
 
         final Set<Registration> result = Sets.newHashSet();
 
@@ -321,63 +306,52 @@ public class RegistrationHistoryReportService {
 
         final RegistrationHistoryReport result = new RegistrationHistoryReport(registration, executionYear);
         result.setProgramConclusionsToReport(programConclusionsToReport);
-
-        if (detailed) {
-
-            final Collection<Enrolment> enrolmentsByYear = result.getEnrolments();
-            addEnrolmentsAndCreditsCount(result, enrolmentsByYear);
-            addExecutionYearAverages(result, enrolmentsByYear);
-        }
-
         return result;
     }
 
-    private void addEnrolmentsAndCreditsCount(RegistrationHistoryReport result, Collection<Enrolment> enrolmentsByYear) {
+    static protected void addEnrolmentsAndCreditsCount(final RegistrationHistoryReport report) {
+        final Collection<Enrolment> enrolmentsByYear = report.getEnrolments();
 
-        final Predicate<Enrolment> normalFilter = normalEnrolmentFilter(result);
+        final Predicate<Enrolment> normalFilter = normalEnrolmentFilter(report);
         final Predicate<Enrolment> extraCurricularFilter = extraCurricularEnrolmentFilter();
         final Predicate<Enrolment> standaloneFilter = standaloneEnrolmentFilter();
 
-        result.setEnrolmentsCount(countFiltered(enrolmentsByYear, normalFilter));
-        result.setEnrolmentsCredits(sumCredits(enrolmentsByYear, normalFilter));
+        report.setEnrolmentsCount(countFiltered(enrolmentsByYear, normalFilter));
+        report.setEnrolmentsCredits(sumCredits(enrolmentsByYear, normalFilter));
 
-        result.setExtraCurricularEnrolmentsCount(countFiltered(enrolmentsByYear, extraCurricularFilter));
-        result.setExtraCurricularEnrolmentsCredits(sumCredits(enrolmentsByYear, extraCurricularFilter));
+        report.setExtraCurricularEnrolmentsCount(countFiltered(enrolmentsByYear, extraCurricularFilter));
+        report.setExtraCurricularEnrolmentsCredits(sumCredits(enrolmentsByYear, extraCurricularFilter));
 
-        result.setStandaloneEnrolmentsCount(countFiltered(enrolmentsByYear, standaloneFilter));
-        result.setStandaloneEnrolmentsCredits(sumCredits(enrolmentsByYear, standaloneFilter));
+        report.setStandaloneEnrolmentsCount(countFiltered(enrolmentsByYear, standaloneFilter));
+        report.setStandaloneEnrolmentsCredits(sumCredits(enrolmentsByYear, standaloneFilter));
     }
 
-    protected Predicate<Enrolment> standaloneEnrolmentFilter() {
+    static private Predicate<Enrolment> standaloneEnrolmentFilter() {
         return e -> e.isStandalone();
     }
 
-    protected Predicate<Enrolment> extraCurricularEnrolmentFilter() {
+    static private Predicate<Enrolment> extraCurricularEnrolmentFilter() {
         return e -> e.isExtraCurricular();
     }
 
-    protected Predicate<Enrolment> normalEnrolmentFilter(RegistrationHistoryReport result) {
+    static private Predicate<Enrolment> normalEnrolmentFilter(RegistrationHistoryReport result) {
         return e -> (e.getCurriculumGroup().isInternalCreditsSourceGroup()
                 || !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
                 && (e.getParentCycleCurriculumGroup() == null || !e.getParentCycleCurriculumGroup().isExternal());
     }
 
-    private int countFiltered(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
+    static private int countFiltered(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
         return (int) enrolments.stream().filter(filter.and(e -> !e.isAnnulled())).count();
     }
 
-    private BigDecimal sumCredits(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
+    static private BigDecimal sumCredits(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
         return enrolments.stream().filter(filter.and(e -> !e.isAnnulled())).map(e -> e.getEctsCreditsForCurriculum())
                 .reduce((x, y) -> x.add(y)).orElse(BigDecimal.ZERO);
     }
 
-    private void addExecutionYearAverages(RegistrationHistoryReport report, Collection<Enrolment> enrolmentsByYear) {
-        report.setExecutionYearSimpleAverage(calculateSimpleAverage(report, enrolmentsByYear));
-        report.setExecutionYearWeightedAverage(calculateWeightedAverage(report, enrolmentsByYear));
+    static protected BigDecimal calculateExecutionYearWeightedAverage(final RegistrationHistoryReport report) {
+        final Collection<Enrolment> enrolmentsByYear = report.getEnrolments();
 
-    }
-
-    private BigDecimal calculateWeightedAverage(RegistrationHistoryReport report, Collection<Enrolment> enrolmentsByYear) {
         BigDecimal gradesSum = BigDecimal.ZERO;
         BigDecimal creditsSum = BigDecimal.ZERO;
         for (final Enrolment enrolment : enrolmentsByYear.stream().filter(normalEnrolmentFilter(report))
@@ -390,7 +364,9 @@ public class RegistrationHistoryReportService {
                 .setScale(3, RoundingMode.HALF_UP);
     }
 
-    protected BigDecimal calculateSimpleAverage(RegistrationHistoryReport report, Collection<Enrolment> enrolmentsByYear) {
+    static protected BigDecimal calculateExecutionYearSimpleAverage(final RegistrationHistoryReport report) {
+        final Collection<Enrolment> enrolmentsByYear = report.getEnrolments();
+
         BigDecimal gradesSum = BigDecimal.ZERO;
         int total = 0;
         for (final Enrolment enrolment : enrolmentsByYear.stream().filter(normalEnrolmentFilter(report))
