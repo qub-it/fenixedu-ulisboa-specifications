@@ -111,9 +111,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         final Comparator<RegistrationHistoryReport> byDegree =
                 (x, y) -> Degree.COMPARATOR_BY_NAME.compare(x.getRegistration().getDegree(), y.getRegistration().getDegree());
         final Comparator<RegistrationHistoryReport> byDegreeCurricularPlan =
-                (x, y) -> x.getDegreeCurricularPlan().getName().compareTo(y.getDegreeCurricularPlan().getName());
+                (x, y) -> x.getStudentCurricularPlanName().compareTo(y.getStudentCurricularPlanName());
+        final Comparator<RegistrationHistoryReport> byRegistrationNumber =
+                (x, y) -> x.getRegistrationNumber().compareTo(y.getRegistrationNumber());
 
-        return byYear.thenComparing(byDegreeType).thenComparing(byDegree).thenComparing(byDegreeCurricularPlan).compare(this, o);
+        return byYear.thenComparing(byDegreeType).thenComparing(byDegree).thenComparing(byDegreeCurricularPlan)
+                .thenComparing(byRegistrationNumber).compare(this, o);
     }
 
     public ExecutionYear getExecutionYear() {
@@ -370,21 +373,27 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public Integer getCurricularYear() {
-        final CurricularYearResult result = RegistrationServices.getCurricularYear(registration, getExecutionYear());
+        final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), getExecutionYear());
         return result == null ? null : result.getResult();
     }
 
     public Integer getPreviousYearCurricularYear() {
 
+        final ExecutionYear previous = getExecutionYear().getPreviousExecutionYear();
         if (registration.getStartExecutionYear().isAfterOrEquals(getExecutionYear())
-                || registration.getStudentCurricularPlan(getExecutionYear().getPreviousExecutionYear()) == null
+                || registration.getStudentCurricularPlan(previous) == null
                 || registration.getStudentCurricularPlan(getExecutionYear()) == null) {
 
             return null;
         }
 
-        final CurricularYearResult result =
-                RegistrationServices.getCurricularYear(registration, getExecutionYear().getPreviousExecutionYear());
+        final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), previous);
+        return result == null ? null : result.getResult();
+    }
+
+    public Integer getNextYearCurricularYear() {
+        final ExecutionYear next = getExecutionYear().getNextExecutionYear();
+        final CurricularYearResult result = RegistrationServices.getCurricularYear(getRegistration(), next);
         return result == null ? null : result.getResult();
     }
 
