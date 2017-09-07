@@ -509,29 +509,25 @@ ${portal.angularToolkit()}
 					<spring:message code="label.RegistrationHistoryReportParametersBean.exportWith" />
 				</div>
 
-				<div class="col-sm-2">
-					<div class="col-sm-10" style="padding-left: 0;">
-						<input type="checkbox" name="exportConclusionData" ng-model="object.exportConclusionData">
-						<spring:message code="label.RegistrationHistoryReportParametersBean.exportConclusionData" />
-					</div>
+				<div class="col-sm-1" style="padding-left: 0;">
+					<input type="checkbox" name="exportExecutionYearData" ng-model="object.exportExecutionYearData">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.exportExecutionYearData" />
 				</div>
-				<div class="col-sm-2">
-					<div class="col-sm-10" style="padding-left: 0;">
-						<input type="checkbox" name="exportQualificationAndOriginInfo" ng-model="object.exportQualificationAndOriginInfo">
-						<spring:message code="label.RegistrationHistoryReportParametersBean.exportQualificationAndOriginInfo" />
-					</div>
+				<div class="col-sm-1" style="padding-left: 0;">
+					<input type="checkbox" name="exportConclusionData" ng-model="object.exportConclusionData">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.exportConclusionData" />
 				</div>
-				<div class="col-sm-2">
-					<div class="col-sm-10" style="padding-left: 0;">
-						<input type="checkbox" name="exportPersonalInfo" ng-model="object.exportPersonalInfo">
-						<spring:message code="label.RegistrationHistoryReportParametersBean.exportPersonalInfo" />
-					</div>
+				<div class="col-sm-1" style="padding-left: 0;">
+					<input type="checkbox" name="exportQualificationAndOriginInfo" ng-model="object.exportQualificationAndOriginInfo">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.exportQualificationAndOriginInfo" />
 				</div>
-				<div class="col-sm-2">
-					<div class="col-sm-10" style="padding-left: 0;">
-						<input type="checkbox" name="exportContacts" ng-model="object.exportContacts">
-						<spring:message code="label.RegistrationHistoryReportParametersBean.exportContacts" />
-					</div>
+				<div class="col-sm-1" style="padding-left: 0;">
+					<input type="checkbox" name="exportPersonalInfo" ng-model="object.exportPersonalInfo">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.exportPersonalInfo" />
+				</div>
+				<div class="col-sm-1" style="padding-left: 0;">
+					<input type="checkbox" name="exportContacts" ng-model="object.exportContacts">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.exportContacts" />
 				</div>
 			</div>
 		</div>
@@ -643,18 +639,15 @@ ${portal.angularToolkit()}
 <table id="resultsTable" class="table table-bordered table-hover">
 	<thead>
 		<tr>
-			<th><spring:message
-					code="label.RegistrationHistoryReport.executionYear" /></th>
+			<th><spring:message code="label.RegistrationHistoryReport.executionYear" /></th>
 			<th><spring:message code="label.Student.number" /></th>
 			<th><spring:message code="label.Registration.number" /></th>
 			<th><spring:message code="label.Person.name" /></th>
 			<th><spring:message code="label.Degree.code" /></th>
 			<th><spring:message code="label.Degree.name" /></th>
 			<th><spring:message code="label.Registration.ingressionType" /></th>
-			<th><spring:message
-					code="label.Registration.registrationProtocol" /></th>
-			<th><spring:message
-					code="label.RegistrationHistoryReport.lastRegistrationState" /></th>
+			<th><spring:message code="label.Registration.registrationProtocol" /></th>
+			<th><spring:message code="label.RegistrationHistoryReport.lastRegistrationState" /></th>
 			<th> </th>
 	</tr>
 	</thead>

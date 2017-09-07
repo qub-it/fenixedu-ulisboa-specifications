@@ -199,7 +199,7 @@ public class RegistrationHistoryReportService {
     private Set<RegistrationHistoryReport> processGraduated(final Set<RegistrationHistoryReport> enrolmentResult) {
         final Set<RegistrationHistoryReport> result = Sets.newHashSet();
 
-        for (RegistrationHistoryReport report : enrolmentResult) {
+        for (final RegistrationHistoryReport report : enrolmentResult) {
             for (final ProgramConclusion programConclusion : report.getProgramConclusionsToReport()) {
 
                 final RegistrationConclusionBean conclusionBean = report.getConclusionReportFor(programConclusion);
@@ -324,13 +324,9 @@ public class RegistrationHistoryReportService {
 
         if (detailed) {
 
-            addCurriculum(result);
-
             final Collection<Enrolment> enrolmentsByYear = result.getEnrolments();
             addEnrolmentsAndCreditsCount(result, enrolmentsByYear);
             addExecutionYearAverages(result, enrolmentsByYear);
-
-            result.setCurrentAverage(calculateCurrentAverage(registration));
         }
 
         return result;
@@ -407,14 +403,10 @@ public class RegistrationHistoryReportService {
                 .divide(BigDecimal.valueOf(total), MathContext.DECIMAL128).setScale(3, RoundingMode.HALF_UP);
     }
 
-    protected BigDecimal calculateCurrentAverage(Registration registration) {
+    static protected BigDecimal calculateCurrentAverage(Registration registration) {
         final Curriculum curriculum = (Curriculum) RegistrationServices.getCurriculum(registration, null);
         return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(3,
                 RoundingMode.DOWN);
-    }
-
-    private void addCurriculum(RegistrationHistoryReport result) {
-        result.setCurriculum(RegistrationServices.getCurriculum(result.getRegistration(), result.getExecutionYear()));
     }
 
 }

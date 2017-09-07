@@ -40,6 +40,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Boolean exportPersonalInfo = Boolean.FALSE;
     private Boolean exportContacts = Boolean.FALSE;
     private Boolean exportConclusionData = Boolean.FALSE;
+    private Boolean exportExecutionYearData = Boolean.FALSE;
     private Integer studentNumber;
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
@@ -218,6 +219,10 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     public Boolean getExportConclusionData() {
         return exportConclusionData;
+    }
+
+    public Boolean getExportExecutionYearData() {
+        return exportExecutionYearData;
     }
 
     public RegistrationHistoryReportParametersBean() {

@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.service.report.registrationhistory;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
@@ -21,6 +23,7 @@ import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.Gender;
@@ -44,6 +47,7 @@ import org.fenixedu.ulisboa.specifications.domain.degree.prescription.Prescripti
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -55,7 +59,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
-public class RegistrationHistoryReport {
+public class RegistrationHistoryReport implements Comparable<RegistrationHistoryReport> {
 
     private Collection<Enrolment> enrolments = null;
 
@@ -66,8 +70,6 @@ public class RegistrationHistoryReport {
     private Set<ProgramConclusion> programConclusionsToReport = Sets.newHashSet();
 
     private Map<ProgramConclusion, RegistrationConclusionBean> conclusionReports = Maps.newHashMap();
-
-    private ICurriculum curriculum;
 
     private int enrolmentsCount;
 
@@ -95,9 +97,23 @@ public class RegistrationHistoryReport {
 
             throw new ULisboaSpecificationsDomainException(
                     "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
-                    getStudent().getNumber().toString(), registration.getDegree().getCode(), executionYear.getQualifiedName());
+                    getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
         }
+    }
 
+    @Override
+    public int compareTo(final RegistrationHistoryReport o) {
+
+        final Comparator<RegistrationHistoryReport> byYear =
+                (x, y) -> ExecutionYear.COMPARATOR_BY_BEGIN_DATE.compare(x.getExecutionYear(), y.getExecutionYear());
+        final Comparator<RegistrationHistoryReport> byDegreeType =
+                (x, y) -> x.getRegistration().getDegreeType().compareTo(y.getRegistration().getDegreeType());
+        final Comparator<RegistrationHistoryReport> byDegree =
+                (x, y) -> Degree.COMPARATOR_BY_NAME.compare(x.getRegistration().getDegree(), y.getRegistration().getDegree());
+        final Comparator<RegistrationHistoryReport> byDegreeCurricularPlan =
+                (x, y) -> x.getDegreeCurricularPlan().getName().compareTo(y.getDegreeCurricularPlan().getName());
+
+        return byYear.thenComparing(byDegreeType).thenComparing(byDegree).thenComparing(byDegreeCurricularPlan).compare(this, o);
     }
 
     public ExecutionYear getExecutionYear() {
@@ -106,6 +122,11 @@ public class RegistrationHistoryReport {
 
     public Registration getRegistration() {
         return registration;
+    }
+
+    private Degree getDegree() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getDegree();
     }
 
     private Student getStudent() {
@@ -152,8 +173,9 @@ public class RegistrationHistoryReport {
         return null;
     }
 
-    public DegreeCurricularPlan getDegreeCurricularPlan() {
-        return getStudentCurricularPlan().getDegreeCurricularPlan();
+    private DegreeCurricularPlan getDegreeCurricularPlan() {
+        final StudentCurricularPlan scp = getStudentCurricularPlan();
+        return scp == null ? null : scp.getDegreeCurricularPlan();
     }
 
     public boolean isReingression() {
@@ -252,8 +274,25 @@ public class RegistrationHistoryReport {
 
     }
 
+    public LocalDate getFirstRegistrationStateDate() {
+        final Registration registration = getRegistration();
+        final RegistrationState state = registration == null ? null : registration.getFirstRegistrationState();
+        return state == null ? null : state.getStateDate().toLocalDate();
+    }
+
     public RegistrationState getLastRegistrationState() {
-        return getRegistration().getLastRegistrationState(getExecutionYear());
+        final Registration registration = getRegistration();
+        return registration == null ? null : getRegistration().getLastRegistrationState(getExecutionYear());
+    }
+
+    public String getLastRegistrationStateType() {
+        final RegistrationState state = getLastRegistrationState();
+        return state == null ? null : state.getStateType().getDescription();
+    }
+
+    public LocalDate getLastRegistrationStateDate() {
+        final RegistrationState state = getLastRegistrationState();
+        return state == null ? null : state.getStateDate().toLocalDate();
     }
 
     public boolean hasAnyInactiveRegistrationStateForYear() {
@@ -326,16 +365,13 @@ public class RegistrationHistoryReport {
         this.programConclusionsToReport = input;
     }
 
-    public ICurriculum getCurriculum() {
-        return curriculum;
-    }
-
-    public void setCurriculum(ICurriculum curriculum) {
-        this.curriculum = curriculum;
+    private ICurriculum getCurriculum() {
+        return RegistrationServices.getCurriculum(getRegistration(), getExecutionYear());
     }
 
     public Integer getCurricularYear() {
-        return RegistrationServices.getCurricularYear(registration, getExecutionYear()).getResult();
+        final CurricularYearResult result = RegistrationServices.getCurricularYear(registration, getExecutionYear());
+        return result == null ? null : result.getResult();
     }
 
     public Integer getPreviousYearCurricularYear() {
@@ -347,15 +383,19 @@ public class RegistrationHistoryReport {
             return null;
         }
 
-        return RegistrationServices.getCurricularYear(registration, getExecutionYear().getPreviousExecutionYear()).getResult();
+        final CurricularYearResult result =
+                RegistrationServices.getCurricularYear(registration, getExecutionYear().getPreviousExecutionYear());
+        return result == null ? null : result.getResult();
     }
 
     public BigDecimal getEctsCredits() {
-        return curriculum.getSumEctsCredits();
+        return getCurriculum().getSumEctsCredits();
     }
 
-    public Grade getAverage() {
-        return curriculum.getRawGrade();
+    public String getAverage() {
+        final ICurriculum curriculum = getCurriculum();
+        final Grade rawGrade = curriculum == null ? null : curriculum.getRawGrade();
+        return rawGrade == null ? null : rawGrade.getValue();
     }
 
     public boolean hasDismissals() {
@@ -440,12 +480,12 @@ public class RegistrationHistoryReport {
         this.executionYearWeightedAverage = executionYearWeightedAverage;
     }
 
-    public BigDecimal getCurrentAverage() {
-        return currentAverage;
-    }
+    public String getCurrentAverage() {
+        if (currentAverage == null) {
+            currentAverage = RegistrationHistoryReportService.calculateCurrentAverage(getRegistration());
+        }
 
-    public void setCurrentAverage(BigDecimal currentAverage) {
-        this.currentAverage = currentAverage;
+        return currentAverage.toPlainString();
     }
 
     public RegistrationRegimeType getRegimeType() {
@@ -454,6 +494,89 @@ public class RegistrationHistoryReport {
 
     public boolean isFirstTime() {
         return getRegistration().getRegistrationYear() == getExecutionYear();
+    }
+
+    public String getStudentNumber() {
+        final Student student = getStudent();
+        return student == null ? null : student.getNumber().toString();
+    }
+
+    public String getRegistrationNumber() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getNumber().toString();
+    }
+
+    public String getDegreeCode() {
+        String result = null;
+
+        final Degree degree = getDegree();
+        final String ministryCode = degree == null ? null : degree.getMinistryCode();
+        final String code = degree == null ? null : degree.getCode();
+
+        if (ministryCode != null) {
+            result = ministryCode;
+        }
+
+        if (code != null && !code.equals(ministryCode)) {
+            result = result.isEmpty() ? code : (result + " [" + code + "]");
+        }
+
+        return result;
+    }
+
+    public String getDegreeTypeName() {
+        final Degree degree = getDegree();
+        final DegreeType degreeType = degree == null ? null : degree.getDegreeType();
+        return degreeType == null ? null : degreeType.getName().getContent();
+    }
+
+    public String getDegreePresentationName() {
+        final Degree degree = getDegree();
+        return degree == null ? null : degree.getPresentationNameI18N().getContent();
+    }
+
+    public String getIngressionType() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getIngressionType().getDescription().getContent();
+    }
+
+    public String getRegistrationProtocol() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getRegistrationProtocol().getDescription().getContent();
+    }
+
+    public LocalDate getStartDate() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getStartDate().toLocalDate();
+    }
+
+    public String getRegistrationYear() {
+        final Registration registration = getRegistration();
+        final ExecutionYear year = registration.getRegistrationYear();
+        return year == null ? null : year.getQualifiedName();
+    }
+
+    public String getStudentCurricularPlanName() {
+        final StudentCurricularPlan scp = getStudentCurricularPlan();
+        return scp == null ? null : scp.getName();
+    }
+
+    public Integer getStudentCurricularPlanCount() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getStudentCurricularPlansSet().size();
+    }
+
+    public String getLastEnrolmentExecutionYear() {
+        final Registration registration = getRegistration();
+        final ExecutionYear year = registration == null ? null : registration.getLastEnrolmentExecutionYear();
+        return year == null ? null : year.getQualifiedName();
+    }
+
+    public String getRegistrationObservations() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getRegistrationObservationsSet().stream()
+                .map(o -> o.getVersioningUpdatedBy().getUsername() + ":" + o.getValue())
+                .collect(Collectors.joining(" \n --------------\n "));
     }
 
     private PrecedentDegreeInformation getPrecedentInformation() {
@@ -493,6 +616,16 @@ public class RegistrationHistoryReport {
     public String getOriginDegreeDesignation() {
         final PrecedentDegreeInformation info = getPrecedentInformation();
         return info == null ? null : info.getPrecedentDegreeDesignation();
+    }
+
+    public String getUsername() {
+        final Person person = getPerson();
+        return person == null ? null : person.getUsername();
+    }
+
+    public String getName() {
+        final Person person = getPerson();
+        return person == null ? null : person.getName();
     }
 
     public String getIdDocumentType() {

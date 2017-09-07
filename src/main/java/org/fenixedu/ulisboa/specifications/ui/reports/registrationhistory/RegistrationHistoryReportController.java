@@ -19,13 +19,11 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
@@ -33,7 +31,6 @@ import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
@@ -186,18 +183,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterGraduationPeriodEndDate(bean.getGraduationPeriodEndDate());
         service.filterProgramConclusions(bean.getProgramConclusions());
 
-        final Comparator<RegistrationHistoryReport> byYear =
-                (x, y) -> ExecutionYear.COMPARATOR_BY_BEGIN_DATE.compare(x.getExecutionYear(), y.getExecutionYear());
-        final Comparator<RegistrationHistoryReport> byDegreeType =
-                (x, y) -> x.getRegistration().getDegreeType().compareTo(y.getRegistration().getDegreeType());
-        final Comparator<RegistrationHistoryReport> byDegree =
-                (x, y) -> Degree.COMPARATOR_BY_NAME.compare(x.getRegistration().getDegree(), y.getRegistration().getDegree());
-        final Comparator<RegistrationHistoryReport> byDegreeCurricularPlan =
-                (x, y) -> x.getDegreeCurricularPlan().getName().compareTo(y.getDegreeCurricularPlan().getName());
-
-        return service.generateReport().stream()
-                .sorted(byYear.thenComparing(byDegreeType).thenComparing(byDegree).thenComparing(byDegreeCurricularPlan))
-                .collect(Collectors.toList());
+        return service.generateReport().stream().sorted().collect(Collectors.toList());
     }
 
     private byte[] exportRegistrationsToXLS(final RegistrationHistoryReportParametersBean bean) {
@@ -211,6 +197,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     @Override
                     protected void makeLine(final RegistrationHistoryReport report) {
                         addPrimaryData(report);
+                        addExecutionYearData(bean, report);
                         addConclusionData(bean, report);
                         addQualificationAndOriginInfo(bean, report);
                         addPersonalData(bean, report);
@@ -218,72 +205,51 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     }
 
                     private void addPrimaryData(final RegistrationHistoryReport report) {
-                        final Registration registration = report.getRegistration();
-                        final Person person = registration.getPerson();
-                        final Degree degree = registration.getDegree();
-
                         addData("RegistrationHistoryReport.executionYear", report.getExecutionYear().getQualifiedName());
-                        addData("Student.number", registration.getStudent().getNumber().toString());
-                        addData("Registration.number", registration.getNumber().toString());
-                        addData("Person.username", person.getUsername());
-                        addData("Person.name", person.getName());
-                        addData("Degree.code", degree.getCode());
-                        addData("Degree.ministryCode", degree.getMinistryCode());
-                        addData("Degree.degreeType", degree.getDegreeType().getName());
-                        addData("Degree.presentationName", degree.getPresentationNameI18N().getContent());
-                        addData("Registration.ingressionType", registration.getIngressionType().getDescription().getContent());
-                        addData("Registration.registrationProtocol",
-                                registration.getRegistrationProtocol().getDescription().getContent());
-                        addData("Registration.startDate", registration.getStartDate());
-
-                        final RegistrationState firstState = registration.getFirstRegistrationState();
-                        addData("Registration.firstStateDate", firstState != null ? firstState.getStateDate().toLocalDate() : "");
-                        addData("Registration.registrationYear", registration.getRegistrationYear().getQualifiedName());
-                        addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlan().getName());
-                        addData("RegistrationHistoryReport.isReingression", booleanString(report.isReingression()));
-                        addData("RegistrationHistoryReport.hasPreviousReingression",
-                                booleanString(report.hasPreviousReingression()));
-                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
-
-                        final Integer previousYearCurricularYear = report.getPreviousYearCurricularYear();
-                        addData("RegistrationHistoryReport.previousYearCurricularYear",
-                                previousYearCurricularYear != null ? previousYearCurricularYear.toString() : "");
-
+                        addData("Student.number", report.getStudentNumber());
+                        addData("Registration.number", report.getRegistrationNumber());
+                        addData("Person.username", report.getUsername());
+                        addData("Person.name", report.getName());
+                        addData("Degree.ministryCode", report.getDegreeCode());
+                        addData("Degree.degreeType", report.getDegreeTypeName());
+                        addData("Degree.presentationName", report.getDegreePresentationName());
+                        addData("Registration.ingressionType", report.getIngressionType());
+                        addData("Registration.registrationProtocol", report.getRegistrationProtocol());
+                        addData("Registration.startDate", report.getStartDate());
+                        addData("Registration.firstStateDate", report.getFirstRegistrationStateDate());
+                        addData("Registration.registrationYear", report.getRegistrationYear());
+                        addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlanName());
+                        addData("RegistrationHistoryReport.studentCurricularPlan.count", report.getStudentCurricularPlanCount());
+                        addData("RegistrationHistoryReport.isReingression", report.isReingression());
+                        addData("RegistrationHistoryReport.hasPreviousReingression", report.hasPreviousReingression());
+                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear());
+                        addData("RegistrationHistoryReport.previousYearCurricularYear", report.getPreviousYearCurricularYear());
+                        // TODO legidio add next
                         addData("RegistrationHistoryReport.ectsCredits", report.getEctsCredits());
-                        addData("RegistrationHistoryReport.average",
-                                report.getAverage() != null ? report.getAverage().getValue() : null);
-                        addData("RegistrationHistoryReport.currentAverage",
-                                report.getCurrentAverage() != null ? report.getCurrentAverage().toPlainString() : null);
-                        addData("RegistrationHistoryReport.enrolmentYears", report.getEnrolmentYears().toString());
+                        addData("RegistrationHistoryReport.average", report.getAverage());
+                        addData("RegistrationHistoryReport.currentAverage", report.getCurrentAverage());
+                        addData("RegistrationHistoryReport.enrolmentYears", report.getEnrolmentYears());
+
                         final BigDecimal enrolmentYearsForPrescription = report.getEnrolmentYearsForPrescription();
                         addData("RegistrationHistoryReport.enrolmentYearsForPrescription",
                                 enrolmentYearsForPrescription == null ? "-" : enrolmentYearsForPrescription.toString());
 
                         addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
-
-                        final ExecutionYear lastEnrolmentExecutionYear = registration.getLastEnrolmentExecutionYear();
-                        addData("Registration.lastEnrolmentExecutionYear",
-                                lastEnrolmentExecutionYear != null ? lastEnrolmentExecutionYear.getQualifiedName() : "");
-
+                        addData("Registration.lastEnrolmentExecutionYear", report.getLastEnrolmentExecutionYear());
                         addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
                         addData("RegistrationHistoryReport.secondaryBranch", report.getSecondaryBranchName());
                         addData("RegistrationHistoryReport.statutes", report.getStudentStatutesNames());
                         addData("RegistrationHistoryReport.regimeType", report.getRegimeType().getLocalizedName());
-                        addData("RegistrationHistoryReport.enrolmentsWithoutShifts",
-                                booleanString(report.hasEnrolmentsWithoutShifts()));
+                        addData("RegistrationHistoryReport.enrolmentsWithoutShifts", report.hasEnrolmentsWithoutShifts());
                         addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
-                                booleanString(report.hasAnyInactiveRegistrationStateForYear()));
+                                report.hasAnyInactiveRegistrationStateForYear());
 
-                        final RegistrationState lastRegistrationState = report.getLastRegistrationState();
-                        addData("RegistrationHistoryReport.lastRegistrationState",
-                                lastRegistrationState != null ? lastRegistrationState.getStateType().getDescription() : null);
-                        addData("RegistrationHistoryReport.lastRegistrationStateDate",
-                                lastRegistrationState != null ? lastRegistrationState.getStateDate().toLocalDate() : null);
-                        addData("RegistrationHistoryReport.firstTime", booleanString(report.isFirstTime()));
-                        addData("RegistrationHistoryReport.dismissals", booleanString(report.hasDismissals()));
-                        addData("RegistrationHistoryReport.enroledInImprovement",
-                                booleanString(report.hasImprovementEvaluations()));
-                        addData("RegistrationHistoryReport.annulledEnrolments", booleanString(report.hasAnnulledEnrolments()));
+                        addData("RegistrationHistoryReport.lastRegistrationState", report.getLastRegistrationStateType());
+                        addData("RegistrationHistoryReport.lastRegistrationStateDate", report.getLastRegistrationStateDate());
+                        addData("RegistrationHistoryReport.firstTime", report.isFirstTime());
+                        addData("RegistrationHistoryReport.dismissals", report.hasDismissals());
+                        addData("RegistrationHistoryReport.enroledInImprovement", report.hasImprovementEvaluations());
+                        addData("RegistrationHistoryReport.annulledEnrolments", report.hasAnnulledEnrolments());
                         addData("RegistrationHistoryReport.enrolmentsCount", report.getEnrolmentsCount());
                         addData("RegistrationHistoryReport.enrolmentsCredits", report.getEnrolmentsCredits());
                         addData("RegistrationHistoryReport.extraCurricularEnrolmentsCount",
@@ -292,16 +258,21 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 report.getExtraCurricularEnrolmentsCredits());
                         addData("RegistrationHistoryReport.standaloneEnrolmentsCount", report.getStandaloneEnrolmentsCount());
                         addData("RegistrationHistoryReport.standaloneEnrolmentsCredits", report.getStandaloneEnrolmentsCredits());
-                        addData("RegistrationHistoryReport.executionYearSimpleAverage", report.getExecutionYearSimpleAverage());
-                        addData("RegistrationHistoryReport.executionYearWeightedAverage",
-                                report.getExecutionYearWeightedAverage());
-
-                        addData("RegistrationHistoryReport.tuitionCharged", booleanString(report.isTuitionCharged()));
+                        addData("RegistrationHistoryReport.tuitionCharged", report.isTuitionCharged());
                         addData("RegistrationHistoryReport.tuitionAmount", report.getTuitionAmount().toPlainString());
-                        addData("Registration.registrationObservations",
-                                registration.getRegistrationObservationsSet().stream()
-                                        .map(o -> o.getVersioningUpdatedBy().getUsername() + ":" + o.getValue())
-                                        .collect(Collectors.joining(" \n --------------\n ")));
+                        addData("Registration.registrationObservations", report.getRegistrationObservations());
+                    }
+
+                    private void addExecutionYearData(final RegistrationHistoryReportParametersBean bean,
+                            final RegistrationHistoryReport report) {
+
+                        if (bean.getExportExecutionYearData()) {
+
+                            addData("RegistrationHistoryReport.executionYearSimpleAverage",
+                                    report.getExecutionYearSimpleAverage());
+                            addData("RegistrationHistoryReport.executionYearWeightedAverage",
+                                    report.getExecutionYearWeightedAverage());
+                        }
                     }
 
                     private void addConclusionData(final RegistrationHistoryReportParametersBean parametersBean,
@@ -429,6 +400,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                     private void addData(String bundleKey, Object value) {
                         addCell(bundle("label." + bundleKey), value == null ? "" : value);
+                    }
+
+                    private void addData(String bundleKey, boolean value) {
+                        addCell(bundle("label." + bundleKey), booleanString(value));
                     }
 
                     private String booleanString(boolean value) {
