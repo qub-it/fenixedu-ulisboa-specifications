@@ -403,7 +403,7 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
 
     @RequestMapping(value = _MANAGE_DEGREE_CONFIGURATION_URI, method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
-    public @ResponseBody String addDegreeConfiguration(
+    public @ResponseBody String manageDegreeMapping(
             @RequestParam(value = "bean", required = true) final DgesImportProcessConfigurationBean bean,
             @RequestParam(value = "degree", required = true) final Degree degree,
             @RequestParam(value = "requiresVaccination", required = false) final boolean requiresVaccination,

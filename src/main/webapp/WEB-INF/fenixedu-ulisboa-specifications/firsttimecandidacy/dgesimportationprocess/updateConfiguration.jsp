@@ -160,7 +160,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         var degreeCurricularPlanName = "";
         
         angular.forEach(mappingObject.degreeCurricularPlanDataSource, function(element, index) {
-            if(element.id == degreeCurricularPlanId) {
+            if(element.id == mappingObject.degreeCurricularPlan) {
             	degreeCurricularPlanName = element.text;
             }
         });
@@ -172,12 +172,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             return;
         }
 
+        $scope.data.requiresVaccination = false;
+
         url = '${pageContext.request.contextPath}<%= DgesImportationProcessController.MANAGE_DEGREE_CONFIGURATION_URL %>';
         $('form[name="form"]').find('input[name="postback"]').attr('value', url);
         $scope.postBack(model);   
         
         $scope.data.degree = undefined;
-        $scope.data.requiresVaccination = undefined;
         $scope.data.degreeCurricularPlan = undefined;
     };
     $scope.submitDegreeMapping = function(slotEntry, model) {
@@ -190,7 +191,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         
         slotEntry.editing=false;
         $scope.data.degree = undefined;
-        $scope.data.requiresVaccination = undefined;
+        $scope.data.requiresVaccination = false;
         $scope.data.degreeCurricularPlan = undefined;
     };
     $scope.deleteDegreeMapping = function(mapping, model) {
@@ -431,7 +432,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                                         </ui-select-choices>
                                     </ui-select>
                                     <span ng-hide="slotEntry.editing">
-                                        {{ getDegreeCurricularPlanName(slotEntry.degreeCurricularPlan) }}
+                                        {{ getDegreeCurricularPlanName(slotEntry) }}
                                     </span>
                                 </td>
                                 <td>
@@ -443,7 +444,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> 
                                     </a>
                                     &nbsp;
-                                    <a class="btn btn-default" ng-show="slotEntry.editing" ng-click="submitDegreeMapping(slotEntry.configuration, $model)">
+                                    <a class="btn btn-default" ng-show="slotEntry.editing" ng-click="submitDegreeMapping(slotEntry, $model)">
                                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
                                     </a>
                                     &nbsp;
