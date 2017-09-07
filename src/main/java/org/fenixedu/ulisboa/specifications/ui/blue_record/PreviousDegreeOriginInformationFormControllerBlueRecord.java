@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.PreviousDegreeOriginInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -96,6 +97,12 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
     @Override
     protected Registration getRegistration(final ExecutionYear executionYear, final Model model) {
         return findPreviousDegreePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getRegistration();
+    }
+
+    @Override
+    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
+            RedirectAttributes redirectAttributes) {
+        //nothing to be done
     }
 
 }
