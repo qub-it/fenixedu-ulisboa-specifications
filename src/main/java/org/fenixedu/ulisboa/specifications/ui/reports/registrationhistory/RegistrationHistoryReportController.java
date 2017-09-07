@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -293,14 +292,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         if (parametersBean.getExportConclusionData()) {
 
-                            //TODO: program conclusions should already be sorted
-                            final List<ProgramConclusion> sortedProgramConclusions = report.getProgramConclusions().stream()
-                                    .sorted(Comparator.comparing(ProgramConclusion::getName)
-                                            .thenComparing(ProgramConclusion::getDescription)
-                                            .thenComparing(ProgramConclusion::getExternalId))
-                                    .collect(Collectors.toList());
-
-                            for (final ProgramConclusion programConclusion : sortedProgramConclusions) {
+                            for (final ProgramConclusion programConclusion : report.getProgramConclusions()) {
 
                                 final RegistrationConclusionBean bean = report.getConclusionReportFor(programConclusion);
 

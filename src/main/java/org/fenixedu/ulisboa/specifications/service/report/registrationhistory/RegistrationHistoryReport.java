@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.service.report.registrationhistory;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -313,8 +314,11 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         this.conclusionReports.put(programConclusion, null);
     }
 
-    public Set<ProgramConclusion> getProgramConclusions() {
-        return getConclusionReports().keySet();
+    public List<ProgramConclusion> getProgramConclusions() {
+        return getConclusionReports()
+                .keySet().stream().sorted(Comparator.comparing(ProgramConclusion::getName)
+                        .thenComparing(ProgramConclusion::getDescription).thenComparing(ProgramConclusion::getExternalId))
+                .collect(Collectors.toList());
     }
 
     public RegistrationConclusionBean getConclusionReportFor(ProgramConclusion programConclusion) {
