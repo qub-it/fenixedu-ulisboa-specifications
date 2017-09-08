@@ -247,7 +247,7 @@ public class RegistrationHistoryReportService {
                 || r.getStudentStatutes().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()));
 
         final Predicate<RegistrationHistoryReport> firstTimeFilter = r -> this.firstTimeOnly == null
-                || (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && r.isFirstTime());
+                || (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && !r.isFirstTime());
 
         final Set<ProgramConclusion> programConclusionsToReport = calculateProgramConclusions().stream()
                 .filter(pc -> this.programConclusionsToFilter.isEmpty() || this.programConclusionsToFilter.contains(pc))
@@ -397,44 +397,44 @@ public class RegistrationHistoryReportService {
         final Collection<Enrolment> enrolments = report.getEnrolments();
         if (!enrolments.isEmpty()) {
 
-            boolean enroledMandatoryFlunked = false;
-            boolean enroledMandatoryInAdvance = false;
-            BigDecimal creditsMandatoryEnroled = BigDecimal.ZERO;
-            BigDecimal creditsMandatoryApproved = BigDecimal.ZERO;
+            final Integer registrationYear = report.getCurricularYear();
+            if (registrationYear != null) {
 
-            final int registrationYear = report.getCurricularYear();
+                boolean enroledMandatoryFlunked = false;
+                boolean enroledMandatoryInAdvance = false;
+                BigDecimal creditsMandatoryEnroled = BigDecimal.ZERO;
+                BigDecimal creditsMandatoryApproved = BigDecimal.ZERO;
 
-            for (final Enrolment iter : enrolments) {
+                for (final Enrolment iter : enrolments) {
 
-                final boolean isOptionalByGroup = CurriculumLineServices.isOptionalByGroup(iter);
-                if (isOptionalByGroup) {
-                    continue;
-                }
+                    final boolean isOptionalByGroup = CurriculumLineServices.isOptionalByGroup(iter);
+                    if (isOptionalByGroup) {
+                        continue;
+                    }
 
-                final int enrolmentYear = CurricularPeriodServices.getCurricularYear(iter);
-                if (enrolmentYear < registrationYear) {
-                    enroledMandatoryFlunked = true;
+                    final int enrolmentYear = CurricularPeriodServices.getCurricularYear(iter);
+                    if (enrolmentYear < registrationYear) {
+                        enroledMandatoryFlunked = true;
 
-                } else if (enrolmentYear > registrationYear) {
-                    enroledMandatoryInAdvance = true;
-
-                } else {
-
-                    final BigDecimal ects = iter.getEctsCreditsForCurriculum();
-                    if (iter.isApproved()) {
-                        creditsMandatoryApproved = creditsMandatoryApproved.add(ects);
+                    } else if (enrolmentYear > registrationYear) {
+                        enroledMandatoryInAdvance = true;
 
                     } else {
+
+                        final BigDecimal ects = iter.getEctsCreditsForCurriculum();
                         creditsMandatoryEnroled = creditsMandatoryEnroled.add(ects);
+
+                        if (iter.isApproved()) {
+                            creditsMandatoryApproved = creditsMandatoryApproved.add(ects);
+                        }
                     }
                 }
 
+                report.setExecutionYearEnroledMandatoryFlunked(enroledMandatoryFlunked);
+                report.setExecutionYearEnroledMandatoryInAdvance(enroledMandatoryInAdvance);
+                report.setExecutionYearCreditsMandatoryEnroled(creditsMandatoryEnroled);
+                report.setExecutionYearCreditsMandatoryApproved(creditsMandatoryApproved);
             }
-
-            report.setExecutionYearEnroledMandatoryFlunked(enroledMandatoryFlunked);
-            report.setExecutionYearEnroledMandatoryInAdvance(enroledMandatoryInAdvance);
-            report.setExecutionYearCreditsMandatoryEnroled(creditsMandatoryEnroled);
-            report.setExecutionYearCreditsMandatoryApproved(creditsMandatoryApproved);
         }
     }
 
