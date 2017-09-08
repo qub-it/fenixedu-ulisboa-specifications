@@ -18,6 +18,7 @@ import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
+import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
 import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
@@ -36,6 +37,7 @@ import com.google.common.collect.Sets;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
+@BennuSpringController(value = BlueRecordManagementEntryPoint.class)
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.householdinformationmanagement",
         accessGroup = "logged")
 @RequestMapping(HouseholdInformationManagementController.CONTROLLER_URL)

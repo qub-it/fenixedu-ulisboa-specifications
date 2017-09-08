@@ -258,7 +258,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <div class="col-sm-2 control-label"><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></div> 
         
                         <div class="col-sm-4" ng-show="edit.details">
-                            <input type="file" name="cgdTemplateFile" id="cgdTemplateFile" accept="text/plain" />
+                            <input type="file" name="cgdTemplateFile" id="cgdTemplateFile" />
                         </div>
                         <div class="col-sm-4" ng-hide="edit.details">
                             <a href="${pageContext.request.contextPath}<%= DgesImportationProcessController.DOWNLOAD_CGD_URL %>/{{ object.cgdTemplateId }}">

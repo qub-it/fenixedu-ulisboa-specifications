@@ -8,6 +8,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
+import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.PreviousDegreeInformationForm;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
 
+@BennuSpringController(value = BlueRecordManagementEntryPoint.class)
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
         title = "label.title.previousdegreeinformationmanagement", accessGroup = "logged")
 @RequestMapping(PreviousDegreeManagementController.CONTROLLER_URL)

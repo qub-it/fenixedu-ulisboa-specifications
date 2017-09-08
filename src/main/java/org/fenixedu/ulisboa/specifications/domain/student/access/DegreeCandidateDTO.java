@@ -1,24 +1,25 @@
 /**
  *  Copyright © 2015 Universidade de Lisboa
- *  
+ *
  *  This file is part of FenixEdu fenixedu-ulisboa-specifications.
- *  
- *  FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute 
+ *
+ *  FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute
  *  it and/or modify it under the terms of the GNU Lesser General Public License as
  *  published by the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  FenixEdu fenixedu-ulisboa-specifications is distributed in the hope that it will
  *  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with FenixEdu fenixedu-ulisboa-specifications.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 package org.fenixedu.ulisboa.specifications.domain.student.access;
 
+import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
@@ -47,7 +48,7 @@ import org.joda.time.YearMonthDay;
 
 public class DegreeCandidateDTO {
 
-    private int lineNumber;
+    private final int lineNumber;
 
     private String degreeCode;
 
@@ -83,7 +84,7 @@ public class DegreeCandidateDTO {
 
     private String addressDataLine;
 
-    public DegreeCandidateDTO(int lineNumber) {
+    public DegreeCandidateDTO(final int lineNumber) {
         this.lineNumber = lineNumber;
     }
 
@@ -91,7 +92,7 @@ public class DegreeCandidateDTO {
         return degreeCode;
     }
 
-    public void setDegreeCode(String degreeCode) {
+    public void setDegreeCode(final String degreeCode) {
         this.degreeCode = degreeCode;
     }
 
@@ -99,7 +100,7 @@ public class DegreeCandidateDTO {
         return documentIdNumber;
     }
 
-    public void setDocumentIdNumber(String documentIdNumber) {
+    public void setDocumentIdNumber(final String documentIdNumber) {
         this.documentIdNumber = documentIdNumber;
     }
 
@@ -107,7 +108,7 @@ public class DegreeCandidateDTO {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -115,7 +116,7 @@ public class DegreeCandidateDTO {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(final String address) {
         this.address = address;
     }
 
@@ -123,7 +124,7 @@ public class DegreeCandidateDTO {
         return areaCode;
     }
 
-    public void setAreaCode(String areaCode) {
+    public void setAreaCode(final String areaCode) {
         this.areaCode = areaCode;
     }
 
@@ -131,7 +132,7 @@ public class DegreeCandidateDTO {
         return areaOfAreaCode;
     }
 
-    public void setAreaOfAreaCode(String areaOfAreaCode) {
+    public void setAreaOfAreaCode(final String areaOfAreaCode) {
         this.areaOfAreaCode = areaOfAreaCode;
     }
 
@@ -139,7 +140,7 @@ public class DegreeCandidateDTO {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(final String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -147,11 +148,11 @@ public class DegreeCandidateDTO {
         return gender;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(final Gender gender) {
         this.gender = gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(final String gender) {
         if (gender.equals("M")) {
             setGender(Gender.MALE);
         } else if (gender.equals("F")) {
@@ -166,7 +167,7 @@ public class DegreeCandidateDTO {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -174,7 +175,7 @@ public class DegreeCandidateDTO {
         return contigent;
     }
 
-    public void setContigent(String contigent) {
+    public void setContigent(final String contigent) {
         this.contigent = contigent;
     }
 
@@ -192,7 +193,7 @@ public class DegreeCandidateDTO {
         return placingOption;
     }
 
-    public void setPlacingOption(Integer placingOption) {
+    public void setPlacingOption(final Integer placingOption) {
         this.placingOption = placingOption;
     }
 
@@ -200,7 +201,7 @@ public class DegreeCandidateDTO {
         return highSchoolType;
     }
 
-    public void setHighSchoolType(AcademicalInstitutionType highSchoolType) {
+    public void setHighSchoolType(final AcademicalInstitutionType highSchoolType) {
         this.highSchoolType = highSchoolType;
     }
 
@@ -208,7 +209,7 @@ public class DegreeCandidateDTO {
         return entryGrade;
     }
 
-    public void setEntryGrade(Double entryGrade) {
+    public void setEntryGrade(final Double entryGrade) {
         this.entryGrade = entryGrade;
     }
 
@@ -216,7 +217,7 @@ public class DegreeCandidateDTO {
         return entryPhase;
     }
 
-    public void setEntryPhase(EntryPhase entryPhase) {
+    public void setEntryPhase(final EntryPhase entryPhase) {
         this.entryPhase = entryPhase;
     }
 
@@ -253,10 +254,13 @@ public class DegreeCandidateDTO {
             createPhone.setValid();
         }
 
+        person.editSocialSecurityNumber(Country.readDefault(),
+                FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber());
+
         return person;
     }
 
-    public ExecutionDegree getExecutionDegree(final ExecutionYear executionYear, Space space) {
+    public ExecutionDegree getExecutionDegree(final ExecutionYear executionYear, final Space space) {
         return ExecutionDegree.readByDegreeCodeAndExecutionYearAndCampus(getDegreeCode(), executionYear, space);
     }
 
@@ -264,7 +268,7 @@ public class DegreeCandidateDTO {
         return nationality;
     }
 
-    public void setNationality(Country nationality) {
+    public void setNationality(final Country nationality) {
         this.nationality = nationality;
     }
 
@@ -276,7 +280,7 @@ public class DegreeCandidateDTO {
         return personalDataLine;
     }
 
-    public void setPersonalDataLine(String personalDataLine) {
+    public void setPersonalDataLine(final String personalDataLine) {
         this.personalDataLine = personalDataLine;
     }
 
@@ -284,7 +288,7 @@ public class DegreeCandidateDTO {
         return addressDataLine;
     }
 
-    public void setAddressDataLine(String addressDataLine) {
+    public void setAddressDataLine(final String addressDataLine) {
         this.addressDataLine = addressDataLine;
     }
 
