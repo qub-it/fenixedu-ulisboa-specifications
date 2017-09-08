@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.ui.reports.registrationhistory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -114,12 +115,41 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     }
 
     static private String getReportId(final String exportName) {
-        return bundle("label.event.reports.registrationHistory." + exportName).replaceAll("/", "_").replaceAll("\\s", "_")
-                + "_UUID_" + UUID.randomUUID().toString();
+        return normalizeName(bundle("label.event.reports.registrationHistory." + exportName), "_") + "_UUID_"
+                + UUID.randomUUID().toString();
     }
 
     static private String getFilename(final String reportId) {
         return reportId.substring(0, reportId.indexOf("_UUID_"));
+    }
+
+    static public String normalizeName(final String input, final String replacement) {
+        // ex [ ] * ? : / \
+        String result = Normalizer.normalize(input, java.text.Normalizer.Form.NFD)
+
+                .replaceAll("[^\\p{ASCII}]", "")
+
+                .replace(" ", replacement)
+
+                .replace("[", replacement)
+
+                .replace("]", replacement)
+
+                .replace("*", replacement)
+
+                .replace("?", replacement)
+
+                .replace(":", replacement)
+
+                .replace("/", replacement)
+
+                .replace("\\", replacement);
+
+        while (result.contains(replacement + replacement)) {
+            result = result.replace(replacement + replacement, replacement);
+        }
+
+        return result.trim();
     }
 
     static private String bundle(final String key) {
@@ -218,7 +248,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Student.number", report.getStudentNumber());
                         addData("Registration.number", report.getRegistrationNumber());
                         addData("Person.username", report.getUsername());
-                        addData("Person.name", report.getName());
+                        addData("Person.name", report.getPersonName());
                         addData("Degree.ministryCode", report.getDegreeCode());
                         addData("Degree.degreeType", report.getDegreeTypeName());
                         addData("Degree.presentationName", report.getDegreePresentationName());
@@ -410,19 +440,19 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         }
                     }
 
-                    private void addData(String bundleKey, Object value) {
-                        addCell(bundle("label." + bundleKey), value == null ? "" : value);
+                    private void addData(final String key, final Object value) {
+                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
 
-                    private void addData(String bundleKey, Boolean value) {
-                        addCell(bundle("label." + bundleKey), value == null ? "" : booleanString(value));
+                    private void addData(final String key, final Boolean value) {
+                        addCell(bundle("label." + key), value == null ? "" : booleanString(value));
                     }
 
-                    private void addData(String bundleKey, boolean value) {
-                        addCell(bundle("label." + bundleKey), booleanString(value));
+                    private void addData(final String key, boolean value) {
+                        addCell(bundle("label." + key), booleanString(value));
                     }
 
-                    private String booleanString(boolean value) {
+                    private String booleanString(final boolean value) {
                         return value ? bundle("label.yes") : bundle("label.no");
                     }
 
@@ -445,7 +475,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
             builder.addSheet("Registrations", new SheetData<String>(Collections.singleton(error)) {
                 @Override
-                protected void makeLine(String item) {
+                protected void makeLine(final String item) {
                     addCell(ULisboaSpecificationsUtil.bundle("label.unexpected.error.occured"), item);
                 }
             });
@@ -488,8 +518,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
     }
 
-    private byte[] exportApprovalsToXLS(RegistrationHistoryReportParametersBean bean) {
+    private byte[] exportApprovalsToXLS(final RegistrationHistoryReportParametersBean bean) {
         final Collection<RegistrationHistoryReport> reports = generateReport(bean);
+
+        // TODO extract all this logic to a future RegistrationHistoryApprovalReport
 
         final Collection<ICurriculum> curriculums =
                 reports.stream().map(r -> RegistrationServices.getCurriculum(r.getRegistration(), (ExecutionYear) null))
@@ -508,7 +540,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 new SheetData<Map.Entry<ICurriculum, ICurriculumEntry>>(toExport.entries()) {
 
                     @Override
-                    protected void makeLine(Entry<ICurriculum, ICurriculumEntry> entry) {
+                    protected void makeLine(final Entry<ICurriculum, ICurriculumEntry> entry) {
                         final Registration registration = entry.getKey().getStudentCurricularPlan().getRegistration();
                         final ICurriculumEntry curriculumEntry = entry.getValue();
 
@@ -563,8 +595,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 && ((Enrolment) entry).getStudentCurricularPlan() == curriculum.getStudentCurricularPlan();
                     }
 
-                    private void addData(String key, Object data) {
-                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    private void addData(final String key, final Object value) {
+                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
 
                 });
@@ -590,8 +622,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
     }
 
-    private byte[] exportEnrolmentsToXLS(RegistrationHistoryReportParametersBean bean) {
+    private byte[] exportEnrolmentsToXLS(final RegistrationHistoryReportParametersBean bean) {
         final Collection<RegistrationHistoryReport> reports = generateReport(bean);
+
+        // TODO extract all this logic to a future RegistrationHistoryEnrolmentReport
 
         final Multimap<RegistrationHistoryReport, Enrolment> toExportEnrolments = HashMultimap.create();
         reports.stream().forEach(r -> toExportEnrolments.putAll(r, r.getEnrolments()));
@@ -612,10 +646,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(toExportEnrolments.entries()) {
 
                     @Override
-                    protected void makeLine(Entry<RegistrationHistoryReport, Enrolment> entry) {
-
+                    protected void makeLine(final Entry<RegistrationHistoryReport, Enrolment> entry) {
                         final RegistrationHistoryReport report = entry.getKey();
-                        final Registration registration = report.getRegistration();
                         final Enrolment enrolment = entry.getValue();
 
                         final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
@@ -624,12 +656,12 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
-                        addData("Student.number", registration.getStudent().getNumber());
-                        addData("Registration.number", registration.getNumber().toString());
-                        addData("Person.name", registration.getStudent().getPerson().getName());
-                        addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
-                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear().toString());
+                        addData("Student.number", report.getStudentNumber());
+                        addData("Registration.number", report.getRegistrationNumber());
+                        addData("Person.name", report.getPersonName());
+                        addData("Degree.code", report.getDegreeCode());
+                        addData("Degree.presentationName", report.getDegreePresentationName());
+                        addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
@@ -649,8 +681,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 enrolment.getStudent().getPerson().getInstitutionalEmailAddressValue());
                     }
 
-                    private void addData(String key, Object data) {
-                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    private void addData(final String key, final Object value) {
+                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
 
                 });
@@ -666,10 +698,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 new SheetData<EnrolmentEvaluation>(toExportEvaluations) {
 
                     @Override
-                    protected void makeLine(EnrolmentEvaluation item) {
+                    protected void makeLine(final EnrolmentEvaluation evaluation) {
 
-                        final Registration registration = item.getRegistration();
-                        final Enrolment enrolment = item.getEnrolment();
+                        final Registration registration = evaluation.getRegistration();
+                        final Enrolment enrolment = evaluation.getEnrolment();
 
                         addData("Student.number", registration.getStudent().getNumber());
                         addData("Registration.number", registration.getNumber().toString());
@@ -678,21 +710,21 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
-                        addData("Enrolment.executionPeriod", item.getExecutionPeriod().getQualifiedName());
-                        addData("EnrolmentEvaluation.grade", item.getGradeValue());
+                        addData("Enrolment.executionPeriod", evaluation.getExecutionPeriod().getQualifiedName());
+                        addData("EnrolmentEvaluation.grade", evaluation.getGradeValue());
 
-                        if (item.getEvaluationSeason().isImprovement() && item.isFinal()) {
-                            addData("Enrolment.gradeImproved", gradeWasImproved(item) ? ULisboaSpecificationsUtil
+                        if (evaluation.getEvaluationSeason().isImprovement() && evaluation.isFinal()) {
+                            addData("Enrolment.gradeImproved", gradeWasImproved(evaluation) ? ULisboaSpecificationsUtil
                                     .bundle("label.yes") : ULisboaSpecificationsUtil.bundle("label.no"));
                         } else {
                             addData("Enrolment.gradeImproved", "");
                         }
 
-                        addData("EnrolmentEvaluation.season", item.getEvaluationSeason().getName().getContent());
+                        addData("EnrolmentEvaluation.season", evaluation.getEvaluationSeason().getName().getContent());
                     }
 
-                    private void addData(String key, Object data) {
-                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    private void addData(final String key, final Object value) {
+                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
 
                 });
@@ -728,7 +760,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
     }
 
-    private byte[] exportRegistrationsByStatuteToXLS(RegistrationHistoryReportParametersBean bean) {
+    private byte[] exportRegistrationsByStatuteToXLS(final RegistrationHistoryReportParametersBean bean) {
+        final Set<RegistrationHistoryReport> toExport = Sets.newHashSet();
+
+        // TODO extract all this logic to RegistrationHistoryReport
 
         if (bean.getExecutionYears().size() != 1) {
             return createXLSWithError(ULisboaSpecificationsUtil.bundle(
@@ -747,17 +782,16 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     .collect(Collectors.toSet()));
         }
 
-        final Set<RegistrationHistoryReport> registrations = Sets.newHashSet();
         for (final StudentStatute studentStatute : studentStatutes) {
 
             if (studentStatute.getRegistration() != null) {
-                registrations.add(new RegistrationHistoryReport(studentStatute.getRegistration(), executionYear));
+                toExport.add(new RegistrationHistoryReport(studentStatute.getRegistration(), executionYear));
                 continue;
             }
 
             for (final Registration registration : studentStatute.getStudent().getRegistrationsSet()) {
                 if (registration.getRegistrationStatesTypes(executionYear).stream().anyMatch(x -> x.isActive())) {
-                    registrations.add(new RegistrationHistoryReport(registration, executionYear));
+                    toExport.add(new RegistrationHistoryReport(registration, executionYear));
                 }
             }
 
@@ -765,22 +799,21 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.statutes"),
-                new SheetData<RegistrationHistoryReport>(registrations) {
+                new SheetData<RegistrationHistoryReport>(toExport) {
 
                     @Override
-                    protected void makeLine(RegistrationHistoryReport entry) {
-                        final Registration registration = entry.getRegistration();
-                        addData("RegistrationHistoryReport.executionYear", entry.getExecutionYear().getQualifiedName());
-                        addData("Student.number", registration.getStudent().getNumber());
-                        addData("Registration.number", registration.getNumber().toString());
-                        addData("Person.name", registration.getStudent().getPerson().getName());
-                        addData("Degree.code", registration.getDegree().getCode());
-                        addData("Degree.presentationName", registration.getDegree().getPresentationNameI18N().getContent());
-                        addData("RegistrationHistoryReport.statutes", entry.getStudentStatutesNamesAndDates());
+                    protected void makeLine(final RegistrationHistoryReport report) {
+                        addData("RegistrationHistoryReport.executionYear", report.getExecutionYear().getQualifiedName());
+                        addData("Student.number", report.getStudentNumber());
+                        addData("Registration.number", report.getRegistrationNumber());
+                        addData("Person.name", report.getPersonName());
+                        addData("Degree.code", report.getDegreeCode());
+                        addData("Degree.presentationName", report.getDegreePresentationName());
+                        addData("RegistrationHistoryReport.statutes", report.getStudentStatutesNamesAndDates());
                     }
 
-                    private void addData(String key, Object data) {
-                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    private void addData(final String key, final Object value) {
+                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
 
                 });
@@ -806,7 +839,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         return new ResponseEntity<String>(reportId, HttpStatus.OK);
     }
 
-    private byte[] exportRegistrationsBlueRecordInformationToXLS(RegistrationHistoryReportParametersBean bean) {
+    private byte[] exportRegistrationsBlueRecordInformationToXLS(final RegistrationHistoryReportParametersBean bean) {
         final Collection<RegistrationHistoryReport> reports = generateReport(bean);
 
         final Collection<RegistrationDGESStateBean> toExport = new ArrayList<>();
@@ -823,96 +856,99 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 new SheetData<RegistrationDGESStateBean>(toExport) {
 
                     @Override
-                    protected void makeLine(RegistrationDGESStateBean item) {
-                        addData("HouseholdInformationForm.executionYear", item.getExecutionYear());
-                        addData("Degree.degreeType", item.getDegreeTypeName());
-                        addData("studentsListByCurricularCourse.degree", item.getDegreeCode());
-                        addData("Degree.name", item.getDegreeName());
-                        addData("ServiceRequestSlot.label.cycleType", item.getCycleName());
-                        addData("RegistrationHistoryReport.curricularYear", item.getCurricularYear());
-                        addData("OriginInformationForm.schoolLevel", item.getDegreeLevel());
-                        addData("RegistrationHistoryReport.primaryBranch", item.getDegreeBranch());
-                        addData("RegistrationHistoryReport.regimeType", item.getRegimeType());
-                        addData("OriginInformationForm.institution", item.getInstitutionName());
-                        addData("identification.number", item.getIdNumber());
-                        addData("PersonalInformationForm.documentIdExpirationDate", item.getExpirationDateOfIdDoc());
-                        addData("PersonalInformationForm.documentIdEmissionLocation", item.getEmissionLocationOfIdDoc());
-                        addData("student", item.getName());
-                        addData("PersonalInformationForm.maritalStatus", item.getMaritalStatus());
-                        addData("is.registered", item.getRegistrationState());
-                        addData("candidacy", item.getCandidacyState());
-                        addData("FiliationForm.nationality", item.getNationality());
-                        addData("FiliationForm.secondNationality", item.getSecondNationality());
-                        addData("Person.birthYear", item.getBirthYear());
-                        addData("FiliationForm.countryOfBirth", item.getCountryOfBirth());
-                        addData("FiliationForm.districtOfBirth", item.getDistrictOfBirth());
-                        addData("FiliationForm.districtSubdivisionOfBirth", item.getDistrictSubdivisionOfBirth());
-                        addData("FiliationForm.parishOfBirth", item.getParishOfBirth());
-                        addData("Person.gender", item.getGender());
-                        addData("Registration.ingressionType", item.getIngressionType());
-                        addData("PersonalInformationForm.ingressionOption", item.getPlacingOption());
-                        addData("PersonalInformationForm.firstOptionDegreeDesignation.short", item.getFirstOptionDegree());
-                        addData("PersonalInformationForm.firstOptionInstitution.short", item.getFirstOptionInstitution());
-                        addData("ResidenceInformationForm.countryOfResidence", item.getCountryOfResidence());
-                        addData("ResidenceInformationForm.districtOfResidence", item.getDistrictOfResidence());
+                    protected void makeLine(final RegistrationDGESStateBean stateBean) {
+                        addData("HouseholdInformationForm.executionYear", stateBean.getExecutionYear());
+                        addData("Degree.degreeType", stateBean.getDegreeTypeName());
+                        addData("studentsListByCurricularCourse.degree", stateBean.getDegreeCode());
+                        addData("Degree.name", stateBean.getDegreeName());
+                        addData("ServiceRequestSlot.label.cycleType", stateBean.getCycleName());
+                        addData("RegistrationHistoryReport.curricularYear", stateBean.getCurricularYear());
+                        addData("OriginInformationForm.schoolLevel", stateBean.getDegreeLevel());
+                        addData("RegistrationHistoryReport.primaryBranch", stateBean.getDegreeBranch());
+                        addData("RegistrationHistoryReport.regimeType", stateBean.getRegimeType());
+                        addData("OriginInformationForm.institution", stateBean.getInstitutionName());
+                        addData("identification.number", stateBean.getIdNumber());
+                        addData("PersonalInformationForm.documentIdExpirationDate", stateBean.getExpirationDateOfIdDoc());
+                        addData("PersonalInformationForm.documentIdEmissionLocation", stateBean.getEmissionLocationOfIdDoc());
+                        addData("student", stateBean.getName());
+                        addData("PersonalInformationForm.maritalStatus", stateBean.getMaritalStatus());
+                        addData("is.registered", stateBean.getRegistrationState());
+                        addData("candidacy", stateBean.getCandidacyState());
+                        addData("FiliationForm.nationality", stateBean.getNationality());
+                        addData("FiliationForm.secondNationality", stateBean.getSecondNationality());
+                        addData("Person.birthYear", stateBean.getBirthYear());
+                        addData("FiliationForm.countryOfBirth", stateBean.getCountryOfBirth());
+                        addData("FiliationForm.districtOfBirth", stateBean.getDistrictOfBirth());
+                        addData("FiliationForm.districtSubdivisionOfBirth", stateBean.getDistrictSubdivisionOfBirth());
+                        addData("FiliationForm.parishOfBirth", stateBean.getParishOfBirth());
+                        addData("Person.gender", stateBean.getGender());
+                        addData("Registration.ingressionType", stateBean.getIngressionType());
+                        addData("PersonalInformationForm.ingressionOption", stateBean.getPlacingOption());
+                        addData("PersonalInformationForm.firstOptionDegreeDesignation.short", stateBean.getFirstOptionDegree());
+                        addData("PersonalInformationForm.firstOptionInstitution.short", stateBean.getFirstOptionInstitution());
+                        addData("ResidenceInformationForm.countryOfResidence", stateBean.getCountryOfResidence());
+                        addData("ResidenceInformationForm.districtOfResidence", stateBean.getDistrictOfResidence());
                         addData("ResidenceInformationForm.districtSubdivisionOfResidence",
-                                item.getDistrictSubdivisionOfResidence());
-                        addData("ResidenceInformationForm.parishOfResidence", item.getParishOfResidence());
-                        addData("ResidenceInformationForm.address", item.getAddressOfResidence());
-                        addData("ResidenceInformationForm.areaCode", item.getAreaCodeOfResidence());
-                        addData("ResidenceInformationForm.schoolTimeCountry", item.getCountryOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeDistrictOfResidence", item.getDistrictOfDislocated());
+                                stateBean.getDistrictSubdivisionOfResidence());
+                        addData("ResidenceInformationForm.parishOfResidence", stateBean.getParishOfResidence());
+                        addData("ResidenceInformationForm.address", stateBean.getAddressOfResidence());
+                        addData("ResidenceInformationForm.areaCode", stateBean.getAreaCodeOfResidence());
+                        addData("ResidenceInformationForm.schoolTimeCountry", stateBean.getCountryOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeDistrictOfResidence", stateBean.getDistrictOfDislocated());
                         addData("ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence",
-                                item.getDistrictSubdivisionOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeParishOfResidence", item.getParishOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeAddress", item.getAddressOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeAreaCode", item.getAreaCodeOfDislocated());
-                        addData("ResidenceInformationForm.dislocatedFromPermanentResidence", item.getIsDislocated());
-                        addData("firstTimeCandidacy.fillResidenceInformation", item.getDislocatedResidenceType());
-                        addData("PersonalInformationForm.profession", item.getProfession());
-                        addData("PersonalInformationForm.professionTimeType.short", item.getProfessionTimeType());
-                        addData("PersonalInformationForm.professionalCondition", item.getProfessionalCondition());
-                        addData("PersonalInformationForm.professionType", item.getProfessionType());
-                        addData("FiliationForm.fatherName", item.getFatherName());
-                        addData("HouseholdInformationForm.fatherSchoolLevel.short", item.getFatherSchoolLevel());
+                                stateBean.getDistrictSubdivisionOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeParishOfResidence", stateBean.getParishOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeAddress", stateBean.getAddressOfDislocated());
+                        addData("ResidenceInformationForm.schoolTimeAreaCode", stateBean.getAreaCodeOfDislocated());
+                        addData("ResidenceInformationForm.dislocatedFromPermanentResidence", stateBean.getIsDislocated());
+                        addData("firstTimeCandidacy.fillResidenceInformation", stateBean.getDislocatedResidenceType());
+                        addData("PersonalInformationForm.profession", stateBean.getProfession());
+                        addData("PersonalInformationForm.professionTimeType.short", stateBean.getProfessionTimeType());
+                        addData("PersonalInformationForm.professionalCondition", stateBean.getProfessionalCondition());
+                        addData("PersonalInformationForm.professionType", stateBean.getProfessionType());
+                        addData("FiliationForm.fatherName", stateBean.getFatherName());
+                        addData("HouseholdInformationForm.fatherSchoolLevel.short", stateBean.getFatherSchoolLevel());
                         addData("HouseholdInformationForm.fatherProfessionalCondition.short",
-                                item.getFatherProfessionalCondition());
-                        addData("HouseholdInformationForm.fatherProfessionType.short", item.getFatherProfessionType());
-                        addData("FiliationForm.motherName", item.getMotherName());
-                        addData("HouseholdInformationForm.motherSchoolLevel.short", item.getMotherSchoolLevel());
+                                stateBean.getFatherProfessionalCondition());
+                        addData("HouseholdInformationForm.fatherProfessionType.short", stateBean.getFatherProfessionType());
+                        addData("FiliationForm.motherName", stateBean.getMotherName());
+                        addData("HouseholdInformationForm.motherSchoolLevel.short", stateBean.getMotherSchoolLevel());
                         addData("HouseholdInformationForm.motherProfessionalCondition.short",
-                                item.getMotherProfessionalCondition());
-                        addData("HouseholdInformationForm.motherProfessionType.short", item.getMotherProfessionType());
-                        addData("HouseholdInformationForm.householdSalarySpan.short", item.getSalarySpan());
-                        addData("firstTimeCandidacy.fillDisabilities", item.getDisabilityType());
-                        addData("DisabilitiesForm.needsDisabilitySupport.short", item.getNeedsDisabilitySupport());
+                                stateBean.getMotherProfessionalCondition());
+                        addData("HouseholdInformationForm.motherProfessionType.short", stateBean.getMotherProfessionType());
+                        addData("HouseholdInformationForm.householdSalarySpan.short", stateBean.getSalarySpan());
+                        addData("firstTimeCandidacy.fillDisabilities", stateBean.getDisabilityType());
+                        addData("DisabilitiesForm.needsDisabilitySupport.short", stateBean.getNeedsDisabilitySupport());
                         addData("MotivationsExpectationsForm.universityDiscoveryMeansAnswers.short",
-                                item.getUniversityDiscoveryString());
+                                stateBean.getUniversityDiscoveryString());
                         addData("MotivationsExpectationsForm.universityChoiceMotivationAnswers.short",
-                                item.getUniversityChoiceString());
-                        addData("OriginInformationForm.countryWhereFinishedPreviousCompleteDegree", item.getPrecedentCountry());
-                        addData("OriginInformationForm.districtWhereFinishedPreviousCompleteDegree", item.getPrecedentDistrict());
+                                stateBean.getUniversityChoiceString());
+                        addData("OriginInformationForm.countryWhereFinishedPreviousCompleteDegree",
+                                stateBean.getPrecedentCountry());
+                        addData("OriginInformationForm.districtWhereFinishedPreviousCompleteDegree",
+                                stateBean.getPrecedentDistrict());
                         addData("OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree",
-                                item.getPrecedentDistrictSubdivision());
-                        addData("OriginInformationForm.schoolLevel", item.getPrecedentSchoolLevel());
-                        addData("OriginInformationForm.institution", item.getPrecedentInstitution());
-                        addData("OriginInformationForm.degreeDesignation", item.getPrecedentDegreeDesignation());
-                        addData("OriginInformationForm.degree.cycle", item.getPrecendentDegreeCycle());
-                        addData("OriginInformationForm.conclusionGrade", item.getPrecedentConclusionGrade());
-                        addData("OriginInformationForm.conclusionYear", item.getPrecedentConclusionYear());
-                        addData("OriginInformationForm.highSchoolType", item.getPrecedentHighSchoolType());
-                        addData("ContactsForm.institutionalEmail", item.getInstitutionalEmail());
-                        addData("ContactsForm.personalEmail", item.getDefaultEmail());
-                        addData("ContactsForm.phoneNumber", item.getPhone());
-                        addData("ContactsForm.mobileNumber", item.getTelephone());
-                        addData("SchoolSpecificData.vaccinationValidity", item.getVaccinationValidity());
-                        addData("HouseholdInformationForm.grantOwnerType", item.getGrantOwnerType());
-                        addData("HouseholdInformationForm.grantOwnerProviderName", item.getGrantOwnerProvider());
+                                stateBean.getPrecedentDistrictSubdivision());
+                        addData("OriginInformationForm.schoolLevel", stateBean.getPrecedentSchoolLevel());
+                        addData("OriginInformationForm.institution", stateBean.getPrecedentInstitution());
+                        addData("OriginInformationForm.degreeDesignation", stateBean.getPrecedentDegreeDesignation());
+                        addData("OriginInformationForm.degree.cycle", stateBean.getPrecendentDegreeCycle());
+                        addData("OriginInformationForm.conclusionGrade", stateBean.getPrecedentConclusionGrade());
+                        addData("OriginInformationForm.conclusionYear", stateBean.getPrecedentConclusionYear());
+                        addData("OriginInformationForm.highSchoolType", stateBean.getPrecedentHighSchoolType());
+                        addData("ContactsForm.institutionalEmail", stateBean.getInstitutionalEmail());
+                        addData("ContactsForm.personalEmail", stateBean.getDefaultEmail());
+                        addData("ContactsForm.phoneNumber", stateBean.getPhone());
+                        addData("ContactsForm.mobileNumber", stateBean.getTelephone());
+                        addData("SchoolSpecificData.vaccinationValidity", stateBean.getVaccinationValidity());
+                        addData("HouseholdInformationForm.grantOwnerType", stateBean.getGrantOwnerType());
+                        addData("HouseholdInformationForm.grantOwnerProviderName", stateBean.getGrantOwnerProvider());
                     }
 
-                    private void addData(String key, Object data) {
-                        addCell(ULisboaSpecificationsUtil.bundle("label." + key), data);
+                    private void addData(final String key, final Object value) {
+                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
+
                 });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();

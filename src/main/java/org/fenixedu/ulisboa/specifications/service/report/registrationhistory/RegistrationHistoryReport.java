@@ -748,7 +748,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return person == null ? null : person.getUsername();
     }
 
-    public String getName() {
+    public String getPersonName() {
         final Person person = getPerson();
         return person == null ? null : person.getName();
     }
