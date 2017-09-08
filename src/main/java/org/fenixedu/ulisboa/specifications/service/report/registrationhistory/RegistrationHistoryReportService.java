@@ -152,18 +152,13 @@ public class RegistrationHistoryReportService {
     }
 
     public Collection<RegistrationHistoryReport> generateReport() {
+        final Set<RegistrationHistoryReport> result = Sets.newHashSet();
 
-        final Set<RegistrationHistoryReport> enrolmentResult = Sets.newHashSet();
         for (final ExecutionYear executionYear : this.enrolmentExecutionYears) {
-            enrolmentResult.addAll(processEnrolled(executionYear));
+            result.addAll(process(executionYear));
         }
 
-        if (this.graduatedExecutionYears.isEmpty()) {
-            return enrolmentResult;
-        }
-
-        final Set<RegistrationHistoryReport> finalResult = processGraduated(enrolmentResult);
-        return finalResult;
+        return result;
     }
 
     private Set<ProgramConclusion> calculateProgramConclusions() {
@@ -183,71 +178,102 @@ public class RegistrationHistoryReportService {
         return result;
     }
 
-    private Set<RegistrationHistoryReport> processGraduated(final Set<RegistrationHistoryReport> enrolmentResult) {
-        final Set<RegistrationHistoryReport> result = Sets.newHashSet();
+    private Predicate<RegistrationHistoryReport> filterGraduated() {
 
-        for (final RegistrationHistoryReport report : enrolmentResult) {
+        return report -> {
+
             for (final ProgramConclusion programConclusion : report.getProgramConclusionsToReport()) {
 
                 final RegistrationConclusionBean conclusionBean = report.getConclusionReportFor(programConclusion);
 
                 if (conclusionBean == null) {
-                    continue;
+                    return false;
                 }
 
                 if (!conclusionBean.isConcluded()) {
-                    continue;
+                    return false;
                 }
 
                 final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
                 final LocalDate conclusionDate = conclusionBean.getConclusionDate().toLocalDate();
 
                 if (!this.graduatedExecutionYears.contains(conclusionYear)) {
-                    continue;
+                    return false;
                 }
 
                 if (graduationPeriodStartDate != null && conclusionDate.isBefore(graduationPeriodStartDate)) {
-                    continue;
+                    return false;
                 }
 
                 if (graduationPeriodEndDate != null && conclusionDate.isAfter(graduationPeriodEndDate)) {
-                    continue;
+                    return false;
                 }
-
-                result.add(report);
             }
+
+            return true;
+        };
+    }
+
+    private Predicate<RegistrationHistoryReport> filterPredicate() {
+        Predicate<RegistrationHistoryReport> result = r -> true;
+
+        // TODO: common filters should be cached
+        final Predicate<RegistrationHistoryReport> degreeTypeFilter = r -> this.degreeTypes.contains(r.getDegreeType());
+        if (!this.degreeTypes.isEmpty()) {
+            result = result.and(degreeTypeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> degreeFilter = r -> this.degrees.contains(r.getDegree());
+        if (!this.degrees.isEmpty()) {
+            result = result.and(degreeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> regimeTypeFilter = r -> this.regimeTypes.contains(r.getRegimeType());
+        if (!this.regimeTypes.isEmpty()) {
+            result = result.and(regimeTypeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> protocolFilter =
+                r -> this.registrationProtocols.contains(r.getRegistrationProtocol());
+        if (!this.registrationProtocols.isEmpty()) {
+            result = result.and(protocolFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> ingressionTypeFilter =
+                r -> this.ingressionTypes.contains(r.getIngressionType());
+        if (!this.ingressionTypes.isEmpty()) {
+            result = result.and(ingressionTypeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> lastStateFilter = r -> r.getLastRegistrationState() != null
+                && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
+        if (!this.registrationStateTypes.isEmpty()) {
+            result = result.and(lastStateFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> statuteTypeFilter =
+                r -> r.getStudentStatutes().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()));
+        if (!this.statuteTypes.isEmpty()) {
+            result = result.and(statuteTypeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> firstTimeFilter =
+                r -> (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && !r.isFirstTime());
+        if (this.firstTimeOnly != null) {
+            result = result.and(firstTimeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> graduatedFilter = filterGraduated();
+        if (!this.graduatedExecutionYears.isEmpty()) {
+            result = result.and(graduatedFilter);
         }
 
         return result;
     }
 
-    private Collection<RegistrationHistoryReport> processEnrolled(final ExecutionYear executionYear) {
+    private Collection<RegistrationHistoryReport> process(final ExecutionYear executionYear) {
 
-        // TODO: common filters should be cached
-        final Predicate<RegistrationHistoryReport> degreeTypeFilter =
-                r -> this.degreeTypes.isEmpty() || this.degreeTypes.contains(r.getDegreeType());
-
-        final Predicate<RegistrationHistoryReport> degreeFilter =
-                r -> this.degrees.isEmpty() || this.degrees.contains(r.getDegree());
-
-        final Predicate<RegistrationHistoryReport> regimeTypeFilter =
-                r -> this.regimeTypes.isEmpty() || this.regimeTypes.contains(r.getRegimeType());
-
-        final Predicate<RegistrationHistoryReport> protocolFilter =
-                r -> this.registrationProtocols.isEmpty() || this.registrationProtocols.contains(r.getRegistrationProtocol());
-
-        final Predicate<RegistrationHistoryReport> ingressionTypeFilter =
-                r -> this.ingressionTypes.isEmpty() || this.ingressionTypes.contains(r.getIngressionType());
-
-        final Predicate<RegistrationHistoryReport> registrationStateFilter =
-                r -> this.registrationStateTypes.isEmpty() || r.getLastRegistrationState() != null
-                        && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
-
-        final Predicate<RegistrationHistoryReport> statuteTypeFilter = r -> this.statuteTypes.isEmpty()
-                || r.getStudentStatutes().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()));
-
-        final Predicate<RegistrationHistoryReport> firstTimeFilter = r -> this.firstTimeOnly == null
-                || (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && !r.isFirstTime());
+        final Predicate<RegistrationHistoryReport> filterPredicate = filterPredicate();
 
         final Set<ProgramConclusion> programConclusionsToReport = calculateProgramConclusions().stream()
                 .filter(pc -> this.programConclusionsToFilter.isEmpty() || this.programConclusionsToFilter.contains(pc))
@@ -257,21 +283,7 @@ public class RegistrationHistoryReportService {
 
                 .map(r -> buildReport(r, executionYear, programConclusionsToReport))
 
-                .filter(firstTimeFilter)
-
-                .filter(degreeTypeFilter)
-
-                .filter(degreeFilter)
-
-                .filter(regimeTypeFilter)
-
-                .filter(protocolFilter)
-
-                .filter(ingressionTypeFilter)
-
-                .filter(statuteTypeFilter)
-
-                .filter(registrationStateFilter)
+                .filter(filterPredicate)
 
                 .collect(Collectors.toSet());
     }
