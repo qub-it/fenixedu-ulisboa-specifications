@@ -217,22 +217,6 @@ public class RegistrationHistoryReportService {
     private Predicate<RegistrationHistoryReport> filterPredicate() {
         Predicate<RegistrationHistoryReport> result = r -> true;
 
-        // TODO: common filters should be cached
-        final Predicate<RegistrationHistoryReport> degreeTypeFilter = r -> this.degreeTypes.contains(r.getDegreeType());
-        if (!this.degreeTypes.isEmpty()) {
-            result = result.and(degreeTypeFilter);
-        }
-
-        final Predicate<RegistrationHistoryReport> degreeFilter = r -> this.degrees.contains(r.getDegree());
-        if (!this.degrees.isEmpty()) {
-            result = result.and(degreeFilter);
-        }
-
-        final Predicate<RegistrationHistoryReport> regimeTypeFilter = r -> this.regimeTypes.contains(r.getRegimeType());
-        if (!this.regimeTypes.isEmpty()) {
-            result = result.and(regimeTypeFilter);
-        }
-
         final Predicate<RegistrationHistoryReport> protocolFilter =
                 r -> this.registrationProtocols.contains(r.getRegistrationProtocol());
         if (!this.registrationProtocols.isEmpty()) {
@@ -245,10 +229,25 @@ public class RegistrationHistoryReportService {
             result = result.and(ingressionTypeFilter);
         }
 
-        final Predicate<RegistrationHistoryReport> lastStateFilter = r -> r.getLastRegistrationState() != null
-                && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
-        if (!this.registrationStateTypes.isEmpty()) {
-            result = result.and(lastStateFilter);
+        final Predicate<RegistrationHistoryReport> regimeTypeFilter = r -> this.regimeTypes.contains(r.getRegimeType());
+        if (!this.regimeTypes.isEmpty()) {
+            result = result.and(regimeTypeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> firstTimeFilter =
+                r -> (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && !r.isFirstTime());
+        if (this.firstTimeOnly != null) {
+            result = result.and(firstTimeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> degreeTypeFilter = r -> this.degreeTypes.contains(r.getDegreeType());
+        if (!this.degreeTypes.isEmpty()) {
+            result = result.and(degreeTypeFilter);
+        }
+
+        final Predicate<RegistrationHistoryReport> degreeFilter = r -> this.degrees.contains(r.getDegree());
+        if (!this.degrees.isEmpty()) {
+            result = result.and(degreeFilter);
         }
 
         final Predicate<RegistrationHistoryReport> statuteTypeFilter =
@@ -257,10 +256,10 @@ public class RegistrationHistoryReportService {
             result = result.and(statuteTypeFilter);
         }
 
-        final Predicate<RegistrationHistoryReport> firstTimeFilter =
-                r -> (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && !r.isFirstTime());
-        if (this.firstTimeOnly != null) {
-            result = result.and(firstTimeFilter);
+        final Predicate<RegistrationHistoryReport> lastStateFilter = r -> r.getLastRegistrationState() != null
+                && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
+        if (!this.registrationStateTypes.isEmpty()) {
+            result = result.and(lastStateFilter);
         }
 
         final Predicate<RegistrationHistoryReport> graduatedFilter = filterGraduated();
