@@ -252,8 +252,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Degree.ministryCode", report.getDegreeCode());
                         addData("Degree.degreeType", report.getDegreeTypeName());
                         addData("Degree.presentationName", report.getDegreePresentationName());
-                        addData("Registration.ingressionType", report.getIngressionType());
-                        addData("Registration.registrationProtocol", report.getRegistrationProtocol());
+                        addData("Registration.ingressionType", report.getIngressionTypeDescription());
+                        addData("Registration.registrationProtocol", report.getRegistrationProtocolDescription());
                         addData("Registration.startDate", report.getStartDate());
                         addData("Registration.firstStateDate", report.getFirstRegistrationStateDate());
                         addData("Registration.registrationYear", report.getRegistrationYear());
@@ -278,7 +278,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
                         addData("RegistrationHistoryReport.secondaryBranch", report.getSecondaryBranchName());
                         addData("RegistrationHistoryReport.statutes", report.getStudentStatutesNames());
-                        addData("RegistrationHistoryReport.regimeType", report.getRegimeType().getLocalizedName());
+                        addData("RegistrationHistoryReport.regimeType", report.getRegimeTypeName());
                         addData("RegistrationHistoryReport.enrolmentsWithoutShifts", report.hasEnrolmentsWithoutShifts());
                         addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
                                 report.hasAnyInactiveRegistrationStateForYear());

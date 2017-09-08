@@ -223,34 +223,31 @@ public class RegistrationHistoryReportService {
 
     private Collection<RegistrationHistoryReport> processEnrolled(final ExecutionYear executionYear) {
 
-        //TODO: common filters should be cached
-        final Predicate<Registration> degreeTypeFilter =
+        // TODO: common filters should be cached
+        final Predicate<RegistrationHistoryReport> degreeTypeFilter =
                 r -> this.degreeTypes.isEmpty() || this.degreeTypes.contains(r.getDegreeType());
 
-        final Predicate<Registration> degreeFilter = r -> this.degrees.isEmpty() || this.degrees.contains(r.getDegree());
+        final Predicate<RegistrationHistoryReport> degreeFilter =
+                r -> this.degrees.isEmpty() || this.degrees.contains(r.getDegree());
 
-        final Predicate<Registration> regimeTypeFilter =
-                r -> this.regimeTypes.isEmpty() || this.regimeTypes.contains(r.getRegimeType(executionYear));
+        final Predicate<RegistrationHistoryReport> regimeTypeFilter =
+                r -> this.regimeTypes.isEmpty() || this.regimeTypes.contains(r.getRegimeType());
 
-        final Predicate<Registration> protocolFilter =
+        final Predicate<RegistrationHistoryReport> protocolFilter =
                 r -> this.registrationProtocols.isEmpty() || this.registrationProtocols.contains(r.getRegistrationProtocol());
 
-        final Predicate<Registration> ingressionTypeFilter =
+        final Predicate<RegistrationHistoryReport> ingressionTypeFilter =
                 r -> this.ingressionTypes.isEmpty() || this.ingressionTypes.contains(r.getIngressionType());
 
-        final Predicate<Registration> registrationStateFilter =
-                r -> this.registrationStateTypes.isEmpty() || r.getLastRegistrationState(executionYear) != null
-                        && this.registrationStateTypes.contains(r.getLastRegistrationState(executionYear).getStateType());
+        final Predicate<RegistrationHistoryReport> registrationStateFilter =
+                r -> this.registrationStateTypes.isEmpty() || r.getLastRegistrationState() != null
+                        && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
 
-        final Predicate<Registration> statuteTypeFilter = r -> this.statuteTypes.isEmpty()
-                || r.getStudent().getStudentStatutesSet().stream().filter(s -> s.isValidOn(executionYear))
-                        .anyMatch(s -> this.statuteTypes.contains(s.getType()))
-                || r.getStudentStatutesSet().stream().filter(s -> s.isValidOn(executionYear))
-                        .anyMatch(s -> this.statuteTypes.contains(s.getType()));
+        final Predicate<RegistrationHistoryReport> statuteTypeFilter = r -> this.statuteTypes.isEmpty()
+                || r.getStudentStatutes().stream().anyMatch(s -> this.statuteTypes.contains(s.getType()));
 
-        final Predicate<Registration> firstTimeFilter =
-                r -> this.firstTimeOnly == null || this.firstTimeOnly.booleanValue() && r.getRegistrationYear() == executionYear
-                        || !this.firstTimeOnly.booleanValue() && r.getRegistrationYear() != executionYear;
+        final Predicate<RegistrationHistoryReport> firstTimeFilter = r -> this.firstTimeOnly == null
+                || (this.firstTimeOnly && r.isFirstTime()) || (!this.firstTimeOnly && r.isFirstTime());
 
         final Set<ProgramConclusion> programConclusionsToReport = calculateProgramConclusions().stream()
                 .filter(pc -> this.programConclusionsToFilter.isEmpty() || this.programConclusionsToFilter.contains(pc))
@@ -258,16 +255,25 @@ public class RegistrationHistoryReportService {
 
         return buildSearchUniverse(executionYear).stream()
 
-                .filter(firstTimeFilter).filter(degreeTypeFilter)
+                .map(r -> buildReport(r, executionYear, programConclusionsToReport))
 
-                .filter(degreeFilter).filter(regimeTypeFilter)
+                .filter(firstTimeFilter)
 
-                .filter(protocolFilter).filter(ingressionTypeFilter)
+                .filter(degreeTypeFilter)
 
-                .filter(registrationStateFilter).filter(statuteTypeFilter)
+                .filter(degreeFilter)
 
-                .map(r -> buildReport(r, executionYear, programConclusionsToReport)).collect(Collectors.toSet());
+                .filter(regimeTypeFilter)
 
+                .filter(protocolFilter)
+
+                .filter(ingressionTypeFilter)
+
+                .filter(statuteTypeFilter)
+
+                .filter(registrationStateFilter)
+
+                .collect(Collectors.toSet());
     }
 
     private Set<Registration> buildSearchUniverse(final ExecutionYear executionYear) {

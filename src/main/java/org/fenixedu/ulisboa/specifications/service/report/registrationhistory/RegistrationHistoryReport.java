@@ -22,6 +22,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -32,6 +33,7 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
+import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.StudentDataShareAuthorization;
@@ -42,6 +44,7 @@ import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
 import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionConfig;
@@ -79,6 +82,8 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     private Integer nextYearCurricularYear;
 
     private Integer enrolmentsCount;
+
+    private RegistrationStateBean lastRegistrationState;
 
     private BigDecimal enrolmentsCredits;
 
@@ -123,8 +128,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
         final Comparator<RegistrationHistoryReport> byYear =
                 (x, y) -> ExecutionYear.COMPARATOR_BY_BEGIN_DATE.compare(x.getExecutionYear(), y.getExecutionYear());
-        final Comparator<RegistrationHistoryReport> byDegreeType =
-                (x, y) -> x.getRegistration().getDegreeType().compareTo(y.getRegistration().getDegreeType());
+        final Comparator<RegistrationHistoryReport> byDegreeType = (x, y) -> x.getDegreeType().compareTo(y.getDegreeType());
         final Comparator<RegistrationHistoryReport> byDegree =
                 (x, y) -> Degree.COMPARATOR_BY_NAME.compare(x.getRegistration().getDegree(), y.getRegistration().getDegree());
         final Comparator<RegistrationHistoryReport> byDegreeCurricularPlan =
@@ -144,7 +148,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return registration;
     }
 
-    private Degree getDegree() {
+    protected Degree getDegree() {
         final Registration registration = getRegistration();
         return registration == null ? null : registration.getDegree();
     }
@@ -300,18 +304,21 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return state == null ? null : state.getStateDate().toLocalDate();
     }
 
-    public RegistrationState getLastRegistrationState() {
-        final Registration registration = getRegistration();
-        return registration == null ? null : getRegistration().getLastRegistrationState(getExecutionYear());
+    public RegistrationStateBean getLastRegistrationState() {
+        if (lastRegistrationState == null) {
+            lastRegistrationState = RegistrationServices.getLastRegistrationState(getRegistration(), getExecutionYear());
+        }
+
+        return lastRegistrationState;
     }
 
     public String getLastRegistrationStateType() {
-        final RegistrationState state = getLastRegistrationState();
+        final RegistrationStateBean state = getLastRegistrationState();
         return state == null ? null : state.getStateType().getDescription();
     }
 
     public LocalDate getLastRegistrationStateDate() {
-        final RegistrationState state = getLastRegistrationState();
+        final RegistrationStateBean state = getLastRegistrationState();
         return state == null ? null : state.getStateDate().toLocalDate();
     }
 
@@ -613,12 +620,19 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return currentAverage.toPlainString();
     }
 
-    public RegistrationRegimeType getRegimeType() {
-        return getRegistration().getRegimeType(getExecutionYear());
+    protected RegistrationRegimeType getRegimeType() {
+        final Registration registration = getRegistration();
+        return registration == null ? null : registration.getRegimeType(getExecutionYear());
+    }
+
+    public String getRegimeTypeName() {
+        final RegistrationRegimeType regimeType = getRegimeType();
+        return regimeType == null ? null : regimeType.getLocalizedName();
     }
 
     public boolean isFirstTime() {
-        return getRegistration().getRegistrationYear() == getExecutionYear();
+        final Registration registration = getRegistration();
+        return registration == null ? false : registration.getRegistrationYear() == getExecutionYear();
     }
 
     public String getStudentNumber() {
@@ -649,9 +663,13 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return result;
     }
 
-    public String getDegreeTypeName() {
+    protected DegreeType getDegreeType() {
         final Degree degree = getDegree();
-        final DegreeType degreeType = degree == null ? null : degree.getDegreeType();
+        return degree == null ? null : degree.getDegreeType();
+    }
+
+    public String getDegreeTypeName() {
+        final DegreeType degreeType = getDegreeType();
         return degreeType == null ? null : degreeType.getName().getContent();
     }
 
@@ -660,14 +678,24 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return degree == null ? null : degree.getPresentationNameI18N().getContent();
     }
 
-    public String getIngressionType() {
+    protected IngressionType getIngressionType() {
         final Registration registration = getRegistration();
-        return registration == null ? null : registration.getIngressionType().getDescription().getContent();
+        return registration == null ? null : registration.getIngressionType();
     }
 
-    public String getRegistrationProtocol() {
+    public String getIngressionTypeDescription() {
+        final IngressionType type = getIngressionType();
+        return type == null ? null : type.getDescription().getContent();
+    }
+
+    protected RegistrationProtocol getRegistrationProtocol() {
         final Registration registration = getRegistration();
-        return registration == null ? null : registration.getRegistrationProtocol().getDescription().getContent();
+        return registration == null ? null : registration.getRegistrationProtocol();
+    }
+
+    public String getRegistrationProtocolDescription() {
+        final RegistrationProtocol protocol = getRegistrationProtocol();
+        return protocol == null ? null : protocol.getDescription().getContent();
     }
 
     public LocalDate getStartDate() {
