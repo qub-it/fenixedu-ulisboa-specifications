@@ -111,9 +111,9 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
         }
 
         List<DgesStudentImportationProcess> importationJobsDone = DgesStudentImportationProcess.readDoneJobs(executionYear)
-                .stream().sorted(DgesStudentImportationProcess.COMPARATOR_BY_BEGIN_DATE).collect(Collectors.toList());
+                .stream().sorted(DgesStudentImportationProcess.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
         List<DgesStudentImportationProcess> importationJobsPending = DgesStudentImportationProcess.readUndoneJobs(executionYear)
-                .stream().sorted(DgesStudentImportationProcess.COMPARATOR_BY_BEGIN_DATE).collect(Collectors.toList());
+                .stream().sorted(DgesStudentImportationProcess.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
 
         model.addAttribute("importationJobsDone", importationJobsDone);
         model.addAttribute("importationJobsPending", importationJobsPending);
@@ -367,10 +367,10 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
             @RequestParam(value = "bean", required = true) final DgesImportProcessConfigurationBean bean,
             @RequestParam(value = "cgdTemplateFile", required = true) final MultipartFile cgdTemplateFile, final Model model,
             final RedirectAttributes redirectAttributes) {
-        setDgesImportProcessConfigurationBean(bean, model);
 
         try {
             updateConfiguration(bean, cgdTemplateFile);
+            setDgesImportProcessConfigurationBean(bean, model);
 
             return redirect(CONFIGURATION_UPDATE_URL, model, redirectAttributes);
         } catch (DomainException e) {

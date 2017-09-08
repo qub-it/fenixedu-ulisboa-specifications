@@ -225,10 +225,17 @@ public class PersonalInformationFormController extends FormAbstractController {
                 }
             }
 
-            if (StringUtils.isBlank(form.getSocialSecurityNumber())
-                    || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                result.add(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
+            if (form.getFiscalCountry() != null && form.getFiscalCountry() == Country.readDefault()) {
+                if (StringUtils.isBlank(form.getSocialSecurityNumber())
+                        || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
+                }
+            } else {
+                if (StringUtils.isBlank(form.getSocialSecurityNumber())) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.PersonalInformationForm.incorrect.foreign.socialSecurityNumber"));
+                }
             }
 
             if (form.getDocumentIdExpirationDate() == null) {

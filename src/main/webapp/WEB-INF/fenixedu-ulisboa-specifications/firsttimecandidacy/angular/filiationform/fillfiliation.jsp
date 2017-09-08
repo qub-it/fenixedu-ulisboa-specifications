@@ -102,6 +102,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.object.parishOfBirth = undefined;
         
         $scope.postBack(model);
+        
     };
     $scope.onDistrictChange = function(district, model) {
         $scope.object.nationalitiesValues = undefined;
@@ -114,6 +115,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.object.parishOfBirth = undefined;
         
         $scope.postBack(model);
+
     };
     $scope.onDistrictSubdivisionChange = function(districtSubdivision, model) {
         $scope.object.nationalitiesValues = undefined;
@@ -125,6 +127,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.object.parishOfBirth = undefined;
         
         $scope.postBack(model);
+        
     };
     $scope.onNationalityChange = function(nationality, model) {
 	    if(nationality == undefined) {
@@ -229,7 +232,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
 
                 <div class="col-sm-10" ng-init="onNationalityChange(undefined, undefined)">
-                    <ui-select  id="filiationForm_firstNationality" name="firstNationality" on-select="onNationalityChange($item, $model)" ng-model="$parent.object.firstNationality" theme="bootstrap">
+                    <ui-select  id="filiationForm_firstNationality" name="firstNationality" on-select="onNationalityChange($item, $model)" ng-mouseover="onNationalityChange($model)" ng-model="$parent.object.firstNationality" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="nationality.text"></span>

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.Gender;
@@ -64,7 +65,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private List<TupleDataSourceBean> genderValues;
 
     private List<TupleDataSourceBean> fiscalCountryValues;
-    
+
     /* Read only */
     private String name;
     private String username;
@@ -74,7 +75,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
         setForeignStudent(getIsForeignStudent());
 
-        List<IDDocumentType> idDocumentTypeValues = new ArrayList<IDDocumentType>();
+        List<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
         idDocumentTypeValues.addAll(Arrays.asList(IDDocumentType.values()));
         idDocumentTypeValues.remove(IDDocumentType.CITIZEN_CARD);
         setIdDocumentTypeValues(idDocumentTypeValues);
@@ -93,8 +94,8 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
 
     @Override
     public void updateLists() {
-        Set<Unit> units = new HashSet<Unit>();
-        Collection<DegreeDesignation> possibleDesignations = new HashSet<DegreeDesignation>();
+        Set<Unit> units = new HashSet<>();
+        Collection<DegreeDesignation> possibleDesignations = new HashSet<>();
 
         if (firstOptionInstitution != null) {
             units.add(firstOptionInstitution);
@@ -121,7 +122,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -129,7 +130,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -137,7 +138,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -145,7 +146,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return gender;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(final Gender gender) {
         this.gender = gender;
     }
 
@@ -153,7 +154,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return documentIdNumber;
     }
 
-    public void setDocumentIdNumber(String documentIdNumber) {
+    public void setDocumentIdNumber(final String documentIdNumber) {
         this.documentIdNumber = documentIdNumber;
     }
 
@@ -161,7 +162,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return idDocumentType;
     }
 
-    public void setIdDocumentType(IDDocumentType idDocumentType) {
+    public void setIdDocumentType(final IDDocumentType idDocumentType) {
         this.idDocumentType = idDocumentType;
     }
 
@@ -169,7 +170,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return documentIdEmissionLocation;
     }
 
-    public void setDocumentIdEmissionLocation(String documentIdEmissionLocation) {
+    public void setDocumentIdEmissionLocation(final String documentIdEmissionLocation) {
         this.documentIdEmissionLocation = documentIdEmissionLocation;
     }
 
@@ -177,7 +178,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return documentIdEmissionDate;
     }
 
-    public void setDocumentIdEmissionDate(LocalDate documentIdEmissionDate) {
+    public void setDocumentIdEmissionDate(final LocalDate documentIdEmissionDate) {
         this.documentIdEmissionDate = documentIdEmissionDate;
     }
 
@@ -185,15 +186,15 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return documentIdExpirationDate;
     }
 
-    public void setDocumentIdExpirationDate(LocalDate documentIdExpirationDate) {
+    public void setDocumentIdExpirationDate(final LocalDate documentIdExpirationDate) {
         this.documentIdExpirationDate = documentIdExpirationDate;
     }
-    
+
     public Country getFiscalCountry() {
         return fiscalCountry;
     }
-    
-    public void setFiscalCountry(Country fiscalCountry) {
+
+    public void setFiscalCountry(final Country fiscalCountry) {
         this.fiscalCountry = fiscalCountry;
     }
 
@@ -201,8 +202,10 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return socialSecurityNumber;
     }
 
-    public void setSocialSecurityNumber(String socialSecurityNumber) {
-        this.socialSecurityNumber = socialSecurityNumber;
+    public void setSocialSecurityNumber(final String notDefaultSocialSecurityNumber) {
+        if (!notDefaultSocialSecurityNumber.equals(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber())) {
+            this.socialSecurityNumber = notDefaultSocialSecurityNumber;
+        }
     }
 
     public static long getSerialversionuid() {
@@ -213,7 +216,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return countryHighSchool;
     }
 
-    public void setCountryHighSchool(Country countryHighSchool) {
+    public void setCountryHighSchool(final Country countryHighSchool) {
         this.countryHighSchool = countryHighSchool;
     }
 
@@ -221,7 +224,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return firstOptionInstitution;
     }
 
-    public void setFirstOptionInstitution(Unit firstOptionInstitution) {
+    public void setFirstOptionInstitution(final Unit firstOptionInstitution) {
         this.firstOptionInstitution = firstOptionInstitution;
     }
 
@@ -229,7 +232,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return firstOptionDegreeDesignation;
     }
 
-    public void setFirstOptionDegreeDesignation(DegreeDesignation firstOptionDegreeDesignation) {
+    public void setFirstOptionDegreeDesignation(final DegreeDesignation firstOptionDegreeDesignation) {
         this.firstOptionDegreeDesignation = firstOptionDegreeDesignation;
     }
 
@@ -242,7 +245,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return firstYearRegistration;
     }
 
-    public void setFirstYearRegistration(boolean firstYearRegistration) {
+    public void setFirstYearRegistration(final boolean firstYearRegistration) {
         this.firstYearRegistration = firstYearRegistration;
     }
 
@@ -250,7 +253,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return identificationDocumentSeriesNumber;
     }
 
-    public void setIdentificationDocumentSeriesNumber(String identificationDocumentSeriesNumber) {
+    public void setIdentificationDocumentSeriesNumber(final String identificationDocumentSeriesNumber) {
         this.identificationDocumentSeriesNumber = identificationDocumentSeriesNumber;
     }
 
@@ -258,7 +261,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return countryHighSchoolValues;
     }
 
-    public void setCountryHighSchoolValues(List<Country> countryHighSchoolValues) {
+    public void setCountryHighSchoolValues(final List<Country> countryHighSchoolValues) {
         this.countryHighSchoolValues = countryHighSchoolValues.stream().map((c) -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(c.getExternalId());
@@ -271,7 +274,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return fiscalCountryValues;
     }
 
-    public void setFiscalCountryValues(List<Country> countryHighSchoolValues) {
+    public void setFiscalCountryValues(final List<Country> countryHighSchoolValues) {
         this.fiscalCountryValues = countryHighSchoolValues.stream().map((c) -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(c.getExternalId());
@@ -284,7 +287,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return idDocumentTypeValues;
     }
 
-    public void setIdDocumentTypeValues(List<IDDocumentType> idDocumentTypeValues) {
+    public void setIdDocumentTypeValues(final List<IDDocumentType> idDocumentTypeValues) {
         this.idDocumentTypeValues = idDocumentTypeValues.stream().map((idDocType) -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(idDocType.toString());
@@ -297,7 +300,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return firstOptionInstitutionValues;
     }
 
-    public void setFirstOptionInstitutionValues(Collection<Unit> firstOptionInstitutionValues) {
+    public void setFirstOptionInstitutionValues(final Collection<Unit> firstOptionInstitutionValues) {
         this.firstOptionInstitutionValues = firstOptionInstitutionValues.stream().map(u -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(u.getExternalId());
@@ -311,7 +314,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return institutionNamePart;
     }
 
-    public void setInstitutionNamePart(String institutionNamePart) {
+    public void setInstitutionNamePart(final String institutionNamePart) {
         this.institutionNamePart = institutionNamePart;
     }
 
@@ -319,7 +322,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return firstOptionDegreeDesignationValues;
     }
 
-    public void setFirstOptionDegreeDesignationValues(List<DegreeDesignation> firstOptionDegreeDesignationValues) {
+    public void setFirstOptionDegreeDesignationValues(final List<DegreeDesignation> firstOptionDegreeDesignationValues) {
         this.firstOptionDegreeDesignationValues = firstOptionDegreeDesignationValues.stream().map(dd -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(dd.getExternalId());
@@ -328,7 +331,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    private String getFullDescription(DegreeDesignation designation) {
+    private String getFullDescription(final DegreeDesignation designation) {
         return "[" + designation.getCode() + "] " + designation.getDegreeClassification().getDescription1() + " - "
                 + designation.getDescription();
     }
@@ -337,7 +340,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return degreeNamePart;
     }
 
-    public void setDegreeNamePart(String degreeNamePart) {
+    public void setDegreeNamePart(final String degreeNamePart) {
         this.degreeNamePart = degreeNamePart;
     }
 
@@ -345,7 +348,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return foreignStudent;
     }
 
-    public void setForeignStudent(boolean foreignStudent) {
+    public void setForeignStudent(final boolean foreignStudent) {
         this.foreignStudent = foreignStudent;
     }
 
@@ -353,7 +356,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return maritalStatus;
     }
 
-    public void setMaritalStatus(MaritalStatus maritalStatus) {
+    public void setMaritalStatus(final MaritalStatus maritalStatus) {
         this.maritalStatus = maritalStatus;
     }
 
@@ -361,7 +364,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return maritalStatusValues;
     }
 
-    public void setMaritalStatusValues(List<MaritalStatus> maritalStatusValues) {
+    public void setMaritalStatusValues(final List<MaritalStatus> maritalStatusValues) {
         this.maritalStatusValues =
                 maritalStatusValues.stream().map(ms -> new TupleDataSourceBean(ms.toString(), ms.getLocalizedName()))
                         .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
@@ -371,7 +374,7 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
         return genderValues;
     }
 
-    public void setGenderValues(List<Gender> genderValues) {
+    public void setGenderValues(final List<Gender> genderValues) {
         this.genderValues = genderValues.stream().map(g -> new TupleDataSourceBean(g.toString(), g.getLocalizedName()))
                 .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }

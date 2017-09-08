@@ -98,6 +98,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     $scope.edit.contingentMappings = true;
     $scope.edit.degreeMappings = false;
     $scope.data = {};
+    
+
+    $scope.updateTextAreaAttr = function() {
+    	var readOnly = !$scope.edit.details;
+        $('#introductionText textarea').attr("readonly", readOnly);    	
+    };
+    
     //Details
     $scope.getRegistrationProtocolName = function(registrationProtocolId) {
     	var result = "";
@@ -250,15 +257,15 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                             <spring:message code="label.FirstYearRegistrationConfiguration.introductionText" />
                         </div>
         
-                        <div class="col-sm-10">
-                            <textarea type="text" ng-readonly="edit.details" id="introductionText" name="introductionText" ng-localized-string="object.introductionText" ></textarea>
+                        <div class="col-sm-10" id="introductionText" ng-mouseover="updateTextAreaAttr()">
+                            <textarea type="text" ng-readonly="edit.details" name="introductionText" ng-localized-string="object.introductionText" ></textarea>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2 control-label"><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></div> 
         
                         <div class="col-sm-4" ng-show="edit.details">
-                            <input type="file" name="cgdTemplateFile" id="cgdTemplateFile" />
+                            <input type="file" name="cgdTemplateFile" id="cgdTemplateFile" accept="application/pdf" />
                         </div>
                         <div class="col-sm-4" ng-hide="edit.details">
                             <a href="${pageContext.request.contextPath}<%= DgesImportationProcessController.DOWNLOAD_CGD_URL %>/{{ object.cgdTemplateId }}">
