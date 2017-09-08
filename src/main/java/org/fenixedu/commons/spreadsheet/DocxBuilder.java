@@ -8,7 +8,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -123,17 +123,18 @@ class DocxBuilder extends AbstractSheetBuilder {
         cell.setCellStyle(style);
     }
 
-    public void build(Map<String, SheetData<?>> sheets, OutputStream output) throws IOException {
+    public void build(Map<String, SheetData<?>> sheets, final Set<String> sheetNames, OutputStream output) throws IOException {
         try {
             XSSFWorkbook book = new XSSFWorkbook();
             final XSSFCellStyle xssfHeaderStyle = headerStyle.getStyle(book);
 
-            for (Entry<String, SheetData<?>> entry : sheets.entrySet()) {
-                final XSSFSheet sheet = book.createSheet(entry.getKey());
+            for (final String sheetName : sheetNames) {
+                final XSSFSheet sheet = book.createSheet(sheetName);
                 int rownum = 0;
                 int colnum = 0;
 
-                SheetData<?> data = entry.getValue();
+                // qubExtension, fix sheet insertion order
+                SheetData<?> data = sheets.get(sheetName);
                 if (!data.headers.get(0).isEmpty()) {
 
                     for (List<Cell> headerRow : data.headers) {
