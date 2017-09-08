@@ -13,6 +13,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -29,9 +30,12 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReportService {
@@ -402,6 +406,36 @@ public class RegistrationHistoryReportService {
         final Curriculum curriculum = (Curriculum) RegistrationServices.getCurriculum(registration, null);
         return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(3,
                 RoundingMode.DOWN);
+    }
+
+    //TODO: refactor to use RegistrationConclusionServices.inferConclusion => refactor method to allow return non conclued 
+    static protected void addConclusion(final RegistrationHistoryReport report) {
+
+        final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
+        for (final StudentCurricularPlan studentCurricularPlan : report.getRegistration().getStudentCurricularPlansSet()) {
+            for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
+                    .collect(Collectors.toSet())) {
+                conclusions.put(programConclusion, new RegistrationConclusionBean(studentCurricularPlan, programConclusion));
+            }
+        }
+
+        for (final ProgramConclusion iter : report.getProgramConclusionsToReport()) {
+
+            if (!conclusions.containsKey(iter)) {
+                report.addEmptyConclusion(iter);
+
+            } else {
+
+                final Collection<RegistrationConclusionBean> conclusionsByProgramConclusion = conclusions.get(iter);
+                if (conclusionsByProgramConclusion.size() == 1) {
+                    report.addConclusion(iter, conclusionsByProgramConclusion.iterator().next());
+
+                } else {
+                    report.addConclusion(iter, conclusionsByProgramConclusion.stream()
+                            .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
+                }
+            }
+        }
     }
 
     static protected void addExecutionYearMandatoryCoursesData(final RegistrationHistoryReport report) {

@@ -52,15 +52,12 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class RegistrationHistoryReport implements Comparable<RegistrationHistoryReport> {
@@ -329,11 +326,11 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
                 .stream().anyMatch(s -> !s.isActive());
     }
 
-    private void addConclusion(ProgramConclusion programConclusion, RegistrationConclusionBean bean) {
+    protected void addConclusion(ProgramConclusion programConclusion, RegistrationConclusionBean bean) {
         this.conclusionReports.put(programConclusion, bean);
     }
 
-    private void addEmptyConclusion(ProgramConclusion programConclusion) {
+    protected void addEmptyConclusion(ProgramConclusion programConclusion) {
         this.conclusionReports.put(programConclusion, null);
     }
 
@@ -350,41 +347,10 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     private Map<ProgramConclusion, RegistrationConclusionBean> getConclusionReports() {
         if (conclusionReports.isEmpty()) {
-            addConclusion();
+            RegistrationHistoryReportService.addConclusion(this);
         }
 
         return conclusionReports;
-    }
-
-    //TODO: refactor to use RegistrationConclusionServices.inferConclusion => refactor method to allow return non conclued 
-    private void addConclusion() {
-
-        final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
-        for (final StudentCurricularPlan studentCurricularPlan : getRegistration().getStudentCurricularPlansSet()) {
-            for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
-                    .collect(Collectors.toSet())) {
-                conclusions.put(programConclusion, new RegistrationConclusionBean(studentCurricularPlan, programConclusion));
-            }
-        }
-
-        for (final ProgramConclusion iter : getProgramConclusionsToReport()) {
-
-            if (!conclusions.containsKey(iter)) {
-                addEmptyConclusion(iter);
-
-            } else {
-
-                final Collection<RegistrationConclusionBean> conclusionsByProgramConclusion = conclusions.get(iter);
-                if (conclusionsByProgramConclusion.size() == 1) {
-                    addConclusion(iter, conclusionsByProgramConclusion.iterator().next());
-
-                } else {
-                    addConclusion(iter, conclusionsByProgramConclusion.stream()
-                            .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
-                }
-            }
-
-        }
     }
 
     protected Set<ProgramConclusion> getProgramConclusionsToReport() {
