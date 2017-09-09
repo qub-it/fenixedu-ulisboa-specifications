@@ -28,6 +28,7 @@ public class FillApprovedEnrolmentsPropertyProcessor extends FillApprovedEnrolme
     }
 
     @Override
+    @Atomic
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (forceUpdate && request.hasApprovedEnrolments()) {
             request.findProperty(ULisboaConstants.APPROVED_ENROLMENTS).delete();
@@ -35,9 +36,8 @@ public class FillApprovedEnrolmentsPropertyProcessor extends FillApprovedEnrolme
 
         if (!request.hasApprovedEnrolments()) {
             List<ICurriculumEntry> approvements = ULisboaConstants.getLastPlanApprovements(request.getRegistration());
-            ServiceRequestProperty property = ServiceRequestProperty
-                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_ENROLMENTS), approvements);
-            request.addServiceRequestProperties(property);
+            ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_ENROLMENTS),
+                    approvements);
         }
     }
 

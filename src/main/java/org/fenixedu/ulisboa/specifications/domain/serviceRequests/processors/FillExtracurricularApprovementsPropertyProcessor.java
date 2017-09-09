@@ -28,6 +28,7 @@ public class FillExtracurricularApprovementsPropertyProcessor extends FillExtrac
     }
 
     @Override
+    @Atomic
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (forceUpdate && request.hasApprovedExtraCurriculum()) {
             request.findProperty(ULisboaConstants.APPROVED_EXTRA_CURRICULUM).delete();
@@ -45,9 +46,8 @@ public class FillExtracurricularApprovementsPropertyProcessor extends FillExtrac
             }
             List<ICurriculumEntry> approvedExtraCurriculum =
                     ULisboaConstants.getLastPlanExtracurricularApprovements(request.getRegistration());
-            ServiceRequestProperty property = ServiceRequestProperty
-                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM), approvedExtraCurriculum);
-            request.addServiceRequestProperties(property);
+            ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM),
+                    approvedExtraCurriculum);
         }
     }
 

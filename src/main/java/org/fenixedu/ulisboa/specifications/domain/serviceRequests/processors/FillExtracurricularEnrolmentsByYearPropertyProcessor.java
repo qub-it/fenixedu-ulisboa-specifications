@@ -31,6 +31,7 @@ public class FillExtracurricularEnrolmentsByYearPropertyProcessor
     }
 
     @Override
+    @Atomic
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (forceUpdate && request.hasExtracurricularEnrolmentsByYear()) {
             request.findProperty(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR).delete();
@@ -43,9 +44,8 @@ public class FillExtracurricularEnrolmentsByYearPropertyProcessor
                     .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isExtraCurricular)
                     .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (validate(enrolments)) {
-                ServiceRequestProperty property = ServiceRequestProperty
-                        .create(ServiceRequestSlot.getByCode(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR), enrolments);
-                request.addServiceRequestProperties(property);
+                ServiceRequestProperty.create(request,
+                        ServiceRequestSlot.getByCode(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR), enrolments);
             }
         }
     }

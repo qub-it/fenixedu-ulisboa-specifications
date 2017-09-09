@@ -30,6 +30,7 @@ public class FillStandaloneEnrolmentsByYearPropertyProcessor extends FillStandal
     }
 
     @Override
+    @Atomic
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (forceUpdate && request.hasStandaloneEnrolmentsByYear()) {
             request.findProperty(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR).delete();
@@ -42,9 +43,8 @@ public class FillStandaloneEnrolmentsByYearPropertyProcessor extends FillStandal
                     .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
                     .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (validate(enrolments)) {
-                ServiceRequestProperty property = ServiceRequestProperty
-                        .create(ServiceRequestSlot.getByCode(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR), enrolments);
-                request.addServiceRequestProperties(property);
+                ServiceRequestProperty.create(request,
+                        ServiceRequestSlot.getByCode(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR), enrolments);
             }
         }
 

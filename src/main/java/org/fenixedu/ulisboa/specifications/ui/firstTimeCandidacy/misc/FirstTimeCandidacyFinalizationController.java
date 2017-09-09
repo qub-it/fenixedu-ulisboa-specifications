@@ -68,8 +68,8 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/finalization";
 
     @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -84,8 +84,8 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
     public static final String WITHOUT_MODEL_URL = CONTROLLER_URL + _WITHOUT_MODEL_URI;
 
     @RequestMapping(value = _WITHOUT_MODEL_URI)
-    public String documentsprint(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String documentsprint(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -103,8 +103,8 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
     public static final String WITH_MODEL_URL = CONTROLLER_URL + _WITH_MODEL_URI;
 
     @RequestMapping(value = _WITH_MODEL_URI)
-    public String documentsprintWithModel43(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String documentsprintWithModel43(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -125,14 +125,14 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         return finished(student, model);
     }
 
-    public String finished(Student student, Model model) {
+    public String finished(final Student student, final Model model) {
         StudentAccessServices.triggerSyncStudentToExternal(student);
 
         addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.documentsPrint.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/finished";
     }
 
-    private void printToCandidacySummaryFile(Model model, boolean includeModel43) {
+    private void printToCandidacySummaryFile(final Model model, final boolean includeModel43) {
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
         resetCandidacySummaryFile(candidacy);
@@ -162,7 +162,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
     }
 
     @Atomic
-    private static void resetCandidacySummaryFile(StudentCandidacy studentCandidacy) {
+    private static void resetCandidacySummaryFile(final StudentCandidacy studentCandidacy) {
         CandidacySummaryFile summaryFile = studentCandidacy.getSummaryFile();
         if (summaryFile != null) {
             summaryFile.setStudentCandidacy(null);
@@ -174,8 +174,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
 
     private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
 
-    @Atomic(mode = TxMode.WRITE)
-    private void printRegistrationDeclaration(StudentCandidacy candidacy, Registration registration) {
+    private void printRegistrationDeclaration(final StudentCandidacy candidacy, final Registration registration) {
         final ServiceRequestType serviceRequestType =
                 ServiceRequestType.findByCode(ENROLMENT_PROOF_SERVICE_TYPE).findFirst().orElse(null);
         final ServiceRequestSlot languageSlot = ServiceRequestSlot.getByCode(LANGUAGE_SLOT);
@@ -199,7 +198,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         appendSummaryFile(printedDocument.getContent(), candidacy);
     }
 
-    private void printModel43(StudentCandidacy candidacy) {
+    private void printModel43(final StudentCandidacy candidacy) {
         Person person = Authenticate.getUser().getPerson();
 
         InputStream pdfTemplateStream;
@@ -223,13 +222,13 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         appendSummaryFile(stream.toByteArray(), candidacy);
     }
 
-    private void printTuitionPaymentPlan(StudentCandidacy candidacy, Registration registration) {
+    private void printTuitionPaymentPlan(final StudentCandidacy candidacy, final Registration registration) {
         byte[] tuitionPlanbytes = DocumentPrinter.printRegistrationTuititionPaymentPlan(registration, DocumentPrinter.PDF);
         appendSummaryFile(tuitionPlanbytes, candidacy);
     }
 
     @Atomic(mode = TxMode.WRITE)
-    private static void appendSummaryFile(byte[] pdfByteArray, StudentCandidacy studentCandidacy) {
+    private static void appendSummaryFile(byte[] pdfByteArray, final StudentCandidacy studentCandidacy) {
         CandidacySummaryFile existingSummary = studentCandidacy.getSummaryFile();
         if (existingSummary != null) {
             byte[] existingContent = existingSummary.getContent();
@@ -242,7 +241,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
                 pdfByteArray, studentCandidacy));
     }
 
-    private static ByteArrayOutputStream concatenateDocs(byte[] existingDoc, byte[] newDoc) {
+    private static ByteArrayOutputStream concatenateDocs(final byte[] existingDoc, final byte[] newDoc) {
         ByteArrayOutputStream concatenatedPdf = new ByteArrayOutputStream();
         try {
             PdfCopyFields copy = new PdfCopyFields(concatenatedPdf);
@@ -256,7 +255,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
     }
 
     @RequestMapping(value = "/printalldocuments", produces = "application/pdf")
-    public ResponseEntity<byte[]> finishedToPrintAllDocuments(Model model, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<byte[]> finishedToPrintAllDocuments(final Model model, final RedirectAttributes redirectAttributes) {
         Person person = AccessControl.getPerson();
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         if (candidacy.getActiveCandidacySituationType() == CandidacySituationType.STAND_BY) {
@@ -273,13 +272,13 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         headers.add("Content-Disposition", "inline;filename=" + filename);
         headers.setContentType(MediaType.parseMediaType("application/pdf"));
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-        ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(pdfBytes, headers, HttpStatus.OK);
+        ResponseEntity<byte[]> response = new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
 
         return response;
     }
 
     @Atomic
-    private void concludeStudentCandidacy(Person person, StudentCandidacy candidacy) {
+    private void concludeStudentCandidacy(final Person person, final StudentCandidacy candidacy) {
         AdmittedCandidacySituation situation = new AdmittedCandidacySituation(candidacy, person);
         situation.setSituationDate(situation.getSituationDate().minusMinutes(1));
 
@@ -287,12 +286,12 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         throw new RuntimeException("Error you should not call this method.");
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 

@@ -158,9 +158,11 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      */
 
     @Atomic
-    public static ULisboaServiceRequest create(final ServiceRequestType serviceRequestType, final Registration registration,
-            final boolean requestedOnline, final DateTime requestDate) {
+    private static ULisboaServiceRequest createTransation(final ServiceRequestType serviceRequestType,
+            final Registration registration, final boolean requestedOnline, final DateTime requestDate) {
+
         ULisboaServiceRequest request = new ULisboaServiceRequest(serviceRequestType, registration, requestedOnline, requestDate);
+
         if (!request.hasExecutionYear()) {
             ServiceRequestProperty property;
             if (request.findProperty(ULisboaConstants.EXECUTION_YEAR) != null) {
@@ -172,52 +174,71 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 request.addServiceRequestProperties(property);
             }
         }
-        request.processRequest(false);
-        request.checkRules();
+
         return request;
     }
 
     @Atomic
-    public static ULisboaServiceRequest create(final ULisboaServiceRequestBean bean) {
-        ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(),
-                bean.isRequestedOnline(), bean.getRequestDate());
+    private static void addRequestSlots(final ULisboaServiceRequest request, final ULisboaServiceRequestBean bean) {
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
             if (propertyBean.isRequired() && propertyBean.isNullOrEmpty()) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
                         propertyBean.getLabel().getContent());
             }
-            ServiceRequestProperty property = ServiceRequestProperty.create(propertyBean);
-            request.addServiceRequestProperties(property);
+            ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(propertyBean.getCode()), propertyBean.getValue());
         }
-        if (!request.hasExecutionYear()) {
-            ServiceRequestProperty property;
-            if (request.findProperty(ULisboaConstants.EXECUTION_YEAR) != null) {
-                property = request.findProperty(ULisboaConstants.EXECUTION_YEAR);
-                property.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
-            } else {
-                property = ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
-                        ExecutionYear.readCurrentExecutionYear());
-                request.addServiceRequestProperties(property);
-            }
-        }
+    }
+
+    public static ULisboaServiceRequest create(final ServiceRequestType serviceRequestType, final Registration registration,
+            final boolean requestedOnline, final DateTime requestDate) {
+
+        ensureReadOnlyTx();
+
+        ULisboaServiceRequest request = createTransation(serviceRequestType, registration, requestedOnline, requestDate);
+
         request.processRequest(false);
         request.checkRules();
+
+        return request;
+    }
+
+    public static ULisboaServiceRequest create(final ULisboaServiceRequestBean bean) {
+
+        ensureReadOnlyTx();
+
+        ULisboaServiceRequest request = createTransation(bean.getServiceRequestType(), bean.getRegistration(),
+                bean.isRequestedOnline(), bean.getRequestDate());
+
+        addRequestSlots(request, bean);
+
+        request.processRequest(false);
+        request.checkRules();
+
         return request;
     }
 
     @Atomic
-    public void update(final ULisboaServiceRequestBean bean) {
-        setRequestDate(bean.getRequestDate());
+    private static void updateTransation(final ULisboaServiceRequest request, final ULisboaServiceRequestBean bean) {
+        request.setRequestDate(bean.getRequestDate());
         for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
-            ServiceRequestProperty property = findProperty(propertyBean.getCode());
+            ServiceRequestProperty property = request.findProperty(propertyBean.getCode());
             if (property == null) {
-                property = ServiceRequestProperty.create(propertyBean);
-                addServiceRequestProperties(property);
+                property = ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(propertyBean.getCode()),
+                        propertyBean.getValue());
             } else {
                 property.setValue(propertyBean.getValue());
             }
         }
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(request));
+    }
+
+    public void update(final ULisboaServiceRequestBean bean) {
+
+        ensureReadOnlyTx();
+
+        updateTransation(this, bean);
 
         processRequest(true);
 
@@ -228,7 +249,17 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     "error.documentRequest.annul.not.possible.remove.exemption.on.debit.entry");
         }
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
+    }
+
+    private static void ensureReadOnlyTx() {
+        if (isInWriteTx()) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.serviceRequests.ULisboaServiceRequest.service.request.creation.cannot.be.called.inside.write.transactions");
+        }
+    }
+
+    private static boolean isInWriteTx() {
+        return FenixFramework.getTransaction().getTxIntrospector().isWriteTransaction();
     }
 
     /*
@@ -597,7 +628,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      * Change State Methods
      */
 
-    @Atomic
     public void transitToProcessState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.NEW) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
@@ -610,7 +640,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         transitState(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
 
-    @Atomic
     public void transitToConcludedState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.PROCESSING) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
@@ -629,7 +658,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         }
     }
 
-    @Atomic
     public void transitToDeliverState() {
         if (getAcademicServiceRequestSituationType() != AcademicServiceRequestSituationType.CONCLUDED) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
@@ -642,7 +670,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         transitState(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
 
-    @Atomic
     public void transitToCancelState(final String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
@@ -652,7 +679,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         transitState(AcademicServiceRequestSituationType.CANCELLED, justification);
     }
 
-    @Atomic
     public void transitToRejectState(final String justification) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.DELIVERED) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.changeState",
@@ -662,7 +688,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         transitState(AcademicServiceRequestSituationType.REJECTED, justification);
     }
 
-    @Atomic
     public void revertState(final boolean notifyRevertAction) {
         if (getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.revert");
@@ -680,14 +705,21 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     }
 
     private void transitState(final AcademicServiceRequestSituationType type, final String justification) {
+        transitStateTransation(type, justification);
+
+        processRequest(false);
+    }
+
+    @Atomic
+    private void transitStateTransation(final AcademicServiceRequestSituationType type, final String justification) {
         if (type == AcademicServiceRequestSituationType.CANCELLED || type == AcademicServiceRequestSituationType.REJECTED) {
             Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<>(this));
         } else {
             Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
         }
+
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
         createAcademicServiceRequestSituations(bean);
-        processRequest(false);
     }
 
     @Override
@@ -754,11 +786,13 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         sendEmail(emailAddress, subject, body);
     }
 
+    @Atomic
     private void sendEmail(final String emailAddress, final String subject, final String body) {
         new Message(Bennu.getInstance().getSystemSender(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, subject, body,
                 emailAddress);
     }
 
+    @Atomic
     public void addPrintVariables() {
         ServiceRequestType type = getServiceRequestType();
 

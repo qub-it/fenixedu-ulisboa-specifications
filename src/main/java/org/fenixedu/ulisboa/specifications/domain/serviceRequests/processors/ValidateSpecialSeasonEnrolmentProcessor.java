@@ -72,6 +72,7 @@ public class ValidateSpecialSeasonEnrolmentProcessor extends ValidateSpecialSeas
         }
     }
 
+    @Atomic
     private void enrolCurricularCourse(final ULisboaServiceRequest request) {
         Enrolment enrolment = request.findProperty(getCurricularEntriesPropertyName()).getValue();
         IDegreeModuleToEvaluate enrolmentWrapper = null;

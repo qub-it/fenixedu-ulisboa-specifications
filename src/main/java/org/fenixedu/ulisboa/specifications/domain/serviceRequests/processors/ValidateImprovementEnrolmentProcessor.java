@@ -72,6 +72,7 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
         }
     }
 
+    @Atomic
     private void enrolCurricularCourse(final ULisboaServiceRequest request) {
         Enrolment enrolment = request.findProperty(getCurricularEntriesPropertyName()).getValue();
         IDegreeModuleToEvaluate enrolmentWrapper = null;

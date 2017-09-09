@@ -28,6 +28,7 @@ public class FillCurriculumPropertyProcessor extends FillCurriculumPropertyProce
     }
 
     @Override
+    @Atomic
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (forceUpdate && request.hasCurriculum()) {
             request.findProperty(ULisboaConstants.CURRICULUM).delete();
@@ -36,9 +37,7 @@ public class FillCurriculumPropertyProcessor extends FillCurriculumPropertyProce
         if (!request.hasCurriculum()) {
             List<ICurriculumEntry> curriculum =
                     ULisboaConstants.getConclusionCurriculum(request.getRegistration(), request.getProgramConclusion());
-            ServiceRequestProperty property =
-                    ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.CURRICULUM), curriculum);
-            request.addServiceRequestProperties(property);
+            ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(ULisboaConstants.CURRICULUM), curriculum);
         }
     }
 

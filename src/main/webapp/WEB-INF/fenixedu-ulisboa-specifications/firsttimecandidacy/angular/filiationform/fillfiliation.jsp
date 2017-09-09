@@ -133,14 +133,20 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 	    if(nationality == undefined) {
 		    model = $scope.object.firstNationality;
 	    }
-	    $scope.object.secondNationalitiesValues = angular.copy($scope.object.nationalitiesValues);	
+	    
+	    if($scope.object.secondNationalitiesValues == null || $scope.object.secondNationalitiesValues.length == 0){
+	        $scope.object.secondNationalitiesValues = angular.copy($scope.object.nationalitiesValues);	
+	    }
+	    
 	    var index = $scope.getNationalityIndexOf(model);
 	    if(index != -1) {
 		    $scope.object.secondNationalitiesValues.splice(index, 1);
 	    }
+	    
 	    if(model == $scope.object.secondNationality) {
   		    $scope.object.secondNationality = undefined;
 	    }
+	    
 	    $scope.$apply();
     };
     $scope.getNationalityIndexOf = function(nationalityId) {

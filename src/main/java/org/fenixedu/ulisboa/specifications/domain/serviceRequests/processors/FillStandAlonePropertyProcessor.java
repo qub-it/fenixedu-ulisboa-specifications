@@ -28,6 +28,7 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
     }
 
     @Override
+    @Atomic
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
         if (forceUpdate && request.hasApprovedStandaloneCurriculum()) {
             request.findProperty(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM).delete();
@@ -44,9 +45,8 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
                 return;
             }
             List<ICurriculumEntry> enrolments = ULisboaConstants.getLastPlanStandaloneApprovements(request.getRegistration());
-            ServiceRequestProperty property = ServiceRequestProperty
-                    .create(ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM), enrolments);
-            request.addServiceRequestProperties(property);
+            ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_STANDALONE_CURRICULUM),
+                    enrolments);
         }
     }
 

@@ -19,6 +19,7 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 public class EnrolmentProcessService {
 
@@ -33,49 +34,36 @@ public class EnrolmentProcessService {
         enrolmentProofPredicate = predicate;
     }
 
+    //TODO: if it is standalone enrolments
     public static ULisboaServiceRequest createEnrolmentProof(final Registration registration, final ExecutionYear executionYear) {
-        //Generate Document uses IO and takes time, so in order to avoid resets in transactions, we generate
-        // document outside the transactions
-        ULisboaServiceRequest request = createServiceRequest(registration, executionYear);
-
-        request.generateDocument();
-
-        concludeServiceRequest(request);
-
-        return request;
-    }
-
-    @Atomic
-    private static ULisboaServiceRequest createServiceRequest(final Registration registration,
-            final ExecutionYear executionYear) {
-        //TODO: if it is standalone enrolments
         ServiceRequestType srt = ServiceRequestType.findByCode("ENROLMENT_PROOF").findAny().orElse(null);
-
         ServiceRequestSlot languageSlot = ServiceRequestSlot.findByCode(ULisboaConstants.LANGUAGE).findAny().orElse(null);
         Locale locale = CoreConfiguration.supportedLocales().stream().filter(l -> l.getLanguage().toLowerCase().contains("pt"))
                 .findAny().orElse(null);
-
         ServiceRequestSlot executionYearSlot =
                 ServiceRequestSlot.findByCode(ULisboaConstants.EXECUTION_YEAR).findAny().orElse(null);
-
-        //Verify variables
         checkConstants(srt, languageSlot, locale, executionYearSlot, executionYear);
+
         //Create request
         ULisboaServiceRequest request = ULisboaServiceRequest.create(srt, registration, false, new DateTime());
-        ServiceRequestProperty.create(request, languageSlot, locale);
-        ServiceRequestProperty.create(request, executionYearSlot, executionYear);
+        //Generate Document uses IO and takes time, so in order to avoid resets in transactions, we generate
+        // document outside the transactions
+        updateServiceRequest(request, languageSlot, locale, executionYearSlot, executionYear);
 
-        //Process request
         request.addPrintVariables();
         request.transitToProcessState();
+        request.generateDocument();
+        request.transitToConcludedState();
+        request.transitToDeliverState();
 
         return request;
     }
 
-    @Atomic
-    private static void concludeServiceRequest(final ULisboaServiceRequest request) {
-        request.transitToConcludedState();
-        request.transitToDeliverState();
+    @Atomic(mode = TxMode.WRITE)
+    private static void updateServiceRequest(final ULisboaServiceRequest request, final ServiceRequestSlot languageSlot,
+            final Locale locale, final ServiceRequestSlot executionYearSlot, final ExecutionYear executionYear) {
+        ServiceRequestProperty.create(request, languageSlot, locale);
+        ServiceRequestProperty.create(request, executionYearSlot, executionYear);
     }
 
     //TODO: review this

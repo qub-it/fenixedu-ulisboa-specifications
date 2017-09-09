@@ -77,7 +77,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
     @Override
     @Atomic(mode = TxMode.READ)
-    public void process(AcademicDebtGenerationRule rule) {
+    public void process(final AcademicDebtGenerationRule rule) {
 
         if (!rule.isActive()) {
             throw new AcademicTreasuryDomainException("error.AcademicDebtGenerationRule.not.active.to.process");
@@ -155,7 +155,6 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
         processPenaltiesForRegistration(rule, registration);
     }
 
-    @Atomic(mode = TxMode.WRITE)
     private void processPenaltiesForRegistration(final AcademicDebtGenerationRule rule, final Registration registration) {
         Optional<? extends AcademicTreasuryEvent> tuitionEventOptional =
                 AcademicTreasuryEvent.findUniqueForRegistrationTuition(registration, rule.getExecutionYear());
@@ -193,7 +192,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                 continue;
             }
 
-            // Find academic service request for 
+            // Find academic service request for
             final ServiceRequestType type = TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType();
             final ServiceRequestSlot installmentOrderSlot =
                     TuitionPenaltyConfiguration.getInstance().getTuitionInstallmentOrderSlot();
@@ -209,10 +208,11 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
             for (final ULisboaServiceRequest request : tuitionPenaltyRequests) {
 
-                if(ServiceRequestProperty.find(request, installmentOrderSlot).count() == 0) {
-                    throw new ULisboaSpecificationsDomainException("error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.iterate");
+                if (ServiceRequestProperty.find(request, installmentOrderSlot).count() == 0) {
+                    throw new ULisboaSpecificationsDomainException(
+                            "error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.iterate");
                 }
-                
+
                 for (final ServiceRequestProperty property : ServiceRequestProperty.find(request, installmentOrderSlot)
                         .collect(Collectors.toSet())) {
                     if (property.getInteger() == null) {
@@ -243,6 +243,16 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
             final DebitEntry debitEntry, final ServiceRequestType type, final ServiceRequestSlot installmentOrderSlot,
             final ServiceRequestSlot executionYearSlot) {
         final ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(type, registration, false, new DateTime());
+
+        updateServiceRequestSlots(serviceRequest, rule, debitEntry, installmentOrderSlot, executionYearSlot);
+
+        return serviceRequest;
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void updateServiceRequestSlots(final ULisboaServiceRequest serviceRequest, final AcademicDebtGenerationRule rule,
+            final DebitEntry debitEntry, final ServiceRequestSlot installmentOrderSlot,
+            final ServiceRequestSlot executionYearSlot) {
         ServiceRequestProperty.create(serviceRequest, installmentOrderSlot, debitEntry.getProduct().getTuitionInstallmentOrder());
 
         if (ServiceRequestProperty.find(serviceRequest, executionYearSlot).count() > 0) {
@@ -251,12 +261,11 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
         } else {
             ServiceRequestProperty.create(serviceRequest, executionYearSlot, rule.getExecutionYear());
         }
-        
-        if(ServiceRequestProperty.find(serviceRequest, installmentOrderSlot).count() == 0) {
-            throw new ULisboaSpecificationsDomainException("error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.creation");
+
+        if (ServiceRequestProperty.find(serviceRequest, installmentOrderSlot).count() == 0) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.creation");
         }
-        
-        return serviceRequest;
     }
 
 }
