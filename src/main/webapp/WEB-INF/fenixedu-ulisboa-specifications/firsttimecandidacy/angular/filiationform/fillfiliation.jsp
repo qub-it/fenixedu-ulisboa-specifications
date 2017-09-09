@@ -232,7 +232,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
 
                 <div class="col-sm-10" ng-init="onNationalityChange(undefined, undefined)">
-                    <ui-select  id="filiationForm_firstNationality" name="firstNationality" on-select="onNationalityChange($item, $model)" ng-mouseover="onNationalityChange($model)" ng-model="$parent.object.firstNationality" theme="bootstrap">
+                    <ui-select  id="filiationForm_firstNationality" name="firstNationality" on-select="onNationalityChange($item, $model)" ng-model="$parent.object.firstNationality" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="nationality.id as nationality in object.nationalitiesValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="nationality.text"></span>
@@ -246,7 +246,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
 
                 <div class="col-sm-10">
-                    <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" ng-disabled="object.secondNationalitiesValues == undefined || !object.secondNationalitiesValues.length" theme="bootstrap">
+                    <ui-select  id="filiationForm_secondNationality" name="secondNationality" ng-model="$parent.object.secondNationality" ng-mouseover="onNationalityChange($model)" ng-disabled="object.secondNationalitiesValues == undefined || !object.secondNationalitiesValues.length" theme="bootstrap">
                         <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="nationality.id as nationality in object.secondNationalitiesValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="nationality.text"></span>
