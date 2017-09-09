@@ -82,6 +82,13 @@ public class EnrolmentsController extends EnrolmentAbstractController {
             return redirectToEnrolmentProcess(periods, AcademicEnrolmentPeriodType.SCHOOL_CLASS, model, redirectAttributes,
                     request);
         }
+
+        //Enrol in School Classes
+        if (isToSelectSchoolClassesPreferences(periods)) {
+            return redirectToEnrolmentProcess(periods, AcademicEnrolmentPeriodType.SCHOOL_CLASS_PREFERENCE, model,
+                    redirectAttributes, request);
+        }
+
         //Enrol in Shifts
         if (isToEnrolInShifts(periods)) {
             return redirectToEnrolmentProcess(periods, AcademicEnrolmentPeriodType.SHIFT, model, redirectAttributes, request);
@@ -122,6 +129,10 @@ public class EnrolmentsController extends EnrolmentAbstractController {
 
     private boolean isToEnrolInSchoolClasses(final List<AcademicEnrolmentPeriodBean> periods) {
         return periods.stream().filter(p -> p.isForClasses()).findFirst().isPresent();
+    }
+
+    private boolean isToSelectSchoolClassesPreferences(final List<AcademicEnrolmentPeriodBean> periods) {
+        return periods.stream().filter(p -> p.isForClassesPreference()).findFirst().isPresent();
     }
 
     private boolean isToEnrolInShifts(final List<AcademicEnrolmentPeriodBean> periods) {
