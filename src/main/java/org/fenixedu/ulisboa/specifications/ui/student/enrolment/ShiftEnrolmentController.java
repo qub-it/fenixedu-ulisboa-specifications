@@ -255,12 +255,17 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
         checkUser(registration);
 
-        try {
-            addShiftService(registration, shift);
-            addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
-                    "message.shiftEnrolment.addShift.success"), model);
-        } catch (DomainException e) {
-            addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
+        if (shift.getTypes().stream().anyMatch(st -> registration.getShiftFor(shift.getExecutionCourse(), st) != null)) {
+            addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
+                    "message.shiftEnrolment.addShift.error.shiftTypeAlreadyEnrolled"), model);
+        } else {
+            try {
+                addShiftService(registration, shift);
+                addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
+                        "message.shiftEnrolment.addShift.success"), model);
+            } catch (DomainException e) {
+                addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
+            }
         }
 
         model.addAttribute("registration", registration);
