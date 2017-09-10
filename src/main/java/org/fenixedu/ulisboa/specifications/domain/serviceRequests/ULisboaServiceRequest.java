@@ -164,6 +164,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
         ULisboaServiceRequest request = new ULisboaServiceRequest(serviceRequestType, registration, requestedOnline, requestDate);
 
+        addRequestSlots(request, propertiesBean);
+
+        request.processRequest(false, false);
+
         if (!request.hasExecutionYear()) {
             ServiceRequestProperty property;
             if (request.findProperty(ULisboaConstants.EXECUTION_YEAR) != null) {
@@ -175,10 +179,6 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                 request.addServiceRequestProperties(property);
             }
         }
-
-        addRequestSlots(request, propertiesBean);
-
-        request.processRequest(false, false);
 
         request.checkRules();
 

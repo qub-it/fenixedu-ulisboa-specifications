@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -144,8 +145,8 @@ public class DgesStudentImportService {
             throw new RuntimeException(e);
         }
 
-        addToReport("Pessoas criadas :" + this.personsCreated);
-        addToReport("Candidaturas criadas :" + this.candidaciesCreated);
+        addToReport("[INFO]Pessoas criadas :" + this.personsCreated);
+        addToReport("[INFO]Candidaturas criadas :" + this.candidaciesCreated);
         addToReport("--------------//---------------");
         for (String repeatLine : this.errorMessages) {
             addToReport(repeatLine);
@@ -208,8 +209,8 @@ public class DgesStudentImportService {
 
         final Country nationality = Country.readByTwoLetterCode(fields[15].trim());
         if (nationality == null) {
-            throw new RuntimeException(
-                    formatMessageWithLineNumber(entry, "Cannot import student with unknown nationality: " + fields[15].trim()));
+            throw new RuntimeException(formatMessageWithLineNumber(entry,
+                    "[ERROR]As letras do país da nacionalidade é desconhecido: " + fields[15].trim()));
         }
         entry.setNationality(nationality);
     }
@@ -217,7 +218,8 @@ public class DgesStudentImportService {
     protected void loadAddressAndContactsInformation(final DegreeCandidateDTO entry, final String line) {
 
         if (StringUtils.isBlank(line)) {
-            throw new RuntimeException(formatMessageWithLineNumber(entry, "Invalid format: missing address information"));
+            throw new RuntimeException(
+                    formatMessageWithLineNumber(entry, "[ERROR]A linha com a informação da morada está vazia."));
         }
 
         final String[] fields = splitLine(line, ADDRESS_AND_CONTACTS_LINE_FIELD_SPEC);
@@ -270,19 +272,20 @@ public class DgesStudentImportService {
 
             if (person.getStudent().getRegistrationsFor(degree).stream().anyMatch(
                     x -> x.getStudentCandidacy().getActiveCandidacySituationType() == CandidacySituationType.STAND_BY)) {
-                addToReport(formatMessageWithLineNumber(entry, "Já existe um candidatura a decorrer para o curso escolhido"));
+                addToReport(
+                        formatMessageWithLineNumber(entry, "[ERROR]Já existe um candidatura a decorrer para o curso escolhido"));
                 return;
             }
 
             if (person.getStudent().getRegistrationsFor(degree).stream().anyMatch(x -> x.isActive())) {
                 addToReport(formatMessageWithLineNumber(entry,
-                        "O aluno já tem uma matrícula activa no mesmo curso. Uma das matrículas deverá ser anulada / colocada como inactiva"));
+                        "[ERROR]O aluno já tem uma matrícula activa no mesmo curso. Uma das matrículas deverá ser anulada / colocada como inactiva"));
             }
 
         }
 
         if (person.getTeacher() != null) {
-            addToReport(formatMessageWithLineNumber(entry, "O aluno é docente da instituição"));
+            addToReport(formatMessageWithLineNumber(entry, "[ERROR]O aluno é docente da instituição"));
         }
 
         if (person.getStudent() == null) {
@@ -310,7 +313,7 @@ public class DgesStudentImportService {
         }
 
         this.personsCreated++;
-        addToReport(formatMessageWithLineNumber(entry, "Criada nova pessoa"));
+        addToReport(formatMessageWithLineNumber(entry, "[INFO]Criada nova pessoa"));
         return entry.createPerson();
     }
 
@@ -322,21 +325,30 @@ public class DgesStudentImportService {
         }
 
         if (persons.size() > 1) {
-            throw new RuntimeException(formatMessageWithLineNumber(entry, "Multiple persons with the same document id found"));
+            throw new RuntimeException(formatMessageWithLineNumber(entry,
+                    "[ERROR]Existe pessoas no sistema com o mesmo documento de identificação que este(a) candidato(a)."));
         }
 
         final Person person = persons.iterator().next();
 
         if (person.getDateOfBirthYearMonthDay() != null && person.getDateOfBirthYearMonthDay()
                 .compareTo(entry.getDateOfBirth().toDateTimeAtMidnight().toYearMonthDay()) != 0) {
-            addToReport(formatMessageWithLineNumber(entry, "Date of birth did not match existing"));
+            addToReport(formatMessageWithLineNumber(entry,
+                    "[ERROR]A data de nascimento da pessoa já existente no sistema não é igual à data dada pela DGES"));
         }
 
         if (!person.getName().equalsIgnoreCase(entry.getName())) {
-            addToReport(formatMessageWithLineNumber(entry, "Name did not match existing"));
+            addToReport(formatMessageWithLineNumber(entry,
+                    "[ERROR]O nome da pessoa já existente no sistema não é igual ao nome dado pela DGES"));
         }
 
-        addToReport(formatMessageWithLineNumber(entry, "Encontrada pessoa"));
+        if (StringUtils.isBlank(person.getSocialSecurityNumber())) {
+            person.editSocialSecurityNumber(Country.readDefault(),
+                    FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber());
+            addToReport(formatMessageWithLineNumber(entry, "[INFO]O contribuinte não está preenchido."));
+        }
+
+        addToReport(formatMessageWithLineNumber(entry, "[INFO]Pessoa já existe no sistema(Pessoa Encontrada)."));
 
         return person;
     }
@@ -347,7 +359,9 @@ public class DgesStudentImportService {
                         .filter(x -> StringUtils.equals(x.getDegree().getMinistryCode(), entry.getDegreeCode())).findFirst();
 
         if (!degreeConfig.isPresent()) {
-            throw new RuntimeException(formatMessageWithLineNumber(entry, "Curso não encontrado na configuração"));
+            throw new RuntimeException(formatMessageWithLineNumber(entry, "[ERROR]Não foi encontrado configuração para o curso ["
+                    + entry.getDegreeCode()
+                    + "]. Configurar o curso em Administração Sistema > Candidaturas > 1º ano 1ª vez > Configuração(Butão)"));
         }
 
         return degreeConfig.get();
@@ -368,7 +382,7 @@ public class DgesStudentImportService {
 
         markRegistrationAsInactive(registration);
 
-        addToReport(formatMessageWithLineNumber(entry, "Criada nova candidatura"));
+        addToReport(formatMessageWithLineNumber(entry, "[INFO]A candidatura foi criada com sucesso."));
 
         return registration;
     }
@@ -377,7 +391,9 @@ public class DgesStudentImportService {
 
         final DegreeCurricularPlan degreeCurricularPlan = getDegreeConfiguration(entry).getDegreeCurricularPlan();
         if (degreeCurricularPlan == null) {
-            throw new RuntimeException(formatMessageWithLineNumber(entry, "O curso não tem plano curricular associado"));
+            throw new RuntimeException(formatMessageWithLineNumber(entry,
+                    "[ERROR]Não foi encontrado o plano curricular para o curso [" + entry.getDegreeCode()
+                            + "]. Escolher o plano curricular em Administração Sistema > Candidaturas > 1º ano 1ª vez > Configuração(Butão)"));
         }
 
         final ExecutionDegree executionDegree = degreeCurricularPlan.getExecutionDegreeByYear(executionYear);

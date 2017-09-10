@@ -214,14 +214,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                     <th>
                                         <spring:message code="label.dges.importation.process.request.date" />
                                     </th>
-                                    <th>
+                                    <th style="width: 100px">
                                         <spring:message code="label.dges.importation.process.cancelled" />
                                     </th>
                                     <th>
                                         <spring:message code="label.dges.importation.process.importation.content" />
                                     </th>
                                     <!-- operation column -->
-                                    <th style="width: 170px"></th>
+                                    <th style="width: 100px"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -240,15 +240,17 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                                         <td>
                                             <a href="${pageContext.request.contextPath}<%= DgesImportationProcessController.DOWNLOAD_URL %>/${process.externalId}">
                                                 <fmt:formatNumber var="fileSize" value="${process.dgesStudentImportationFile.size / 1024}" maxFractionDigits="0" />
-                                                <c:out value='${process.dgesStudentImportationFile.displayName} - ${fileSize}kB'/>
+                                                <c:out value='${process.dgesStudentImportationFile.displayName}'/>
                                             </a>
                                         </td>
                                         <td>
-                                            <a class="btn btn-danger" onClick="openCancelModal('${process.externalId}')">
-                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                                    &nbsp;
-                                                    <spring:message code='label.cancel' />
-                                            </a>                                            
+                                            <c:if test="${ not process.getIsNotDoneAndCancelled() }">
+                                                <a class="btn btn-danger" onClick="openCancelModal('${process.externalId}')">
+                                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                        &nbsp;
+                                                        <spring:message code='label.cancel' />
+                                                </a>                                            
+                                            </c:if>
                                         </td>
                                     </tr>
                                 </c:forEach>
