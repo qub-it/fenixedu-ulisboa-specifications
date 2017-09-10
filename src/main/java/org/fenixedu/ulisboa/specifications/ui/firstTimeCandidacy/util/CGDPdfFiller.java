@@ -3,15 +3,26 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
+import org.fenixedu.academic.domain.contacts.MobilePhone;
+import org.fenixedu.academic.domain.contacts.PartyContact;
+import org.fenixedu.academic.domain.contacts.PartyContactType;
+import org.fenixedu.academic.domain.contacts.Phone;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.contacts.ContactsFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ResidenceInformationFormController;
 import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;
 
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.AcroFields;
+import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfName;
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfStamper;
@@ -49,6 +60,19 @@ public class CGDPdfFiller {
         }
     }
 
+    private <T extends PartyContact> T getDefaultPersonalContact(final Person person, final Class<T> partyContactClass) {
+        T defaultContact = (T) person.getDefaultPartyContact(partyContactClass);
+        if (defaultContact != null && defaultContact.getType().equals(PartyContactType.PERSONAL)) {
+            return defaultContact;
+        }
+
+        Predicate<PartyContact> contactIsPersonal = address -> address.getType().equals(PartyContactType.PERSONAL);
+        Predicate<PartyContact> contactIsToBeDefault =
+                address -> !address.isActiveAndValid() && address.getPartyContactValidation().getToBeDefault();
+        List<T> allContacts = (List<T>) person.getAllPartyContacts(partyContactClass);
+        return allContacts.stream().filter(contactIsPersonal).filter(contactIsToBeDefault)
+                .sorted(ResidenceInformationFormController.CONTACT_COMPARATOR_BY_MODIFIED_DATE).findFirst().orElse(null);
+    }
     /*
      * End PdfFiller variables and methods
      * */
@@ -60,6 +84,7 @@ public class CGDPdfFiller {
 
     private ByteArrayOutputStream getFilledPdfCGDPersonalInformation(final Person person, final InputStream pdfTemplateStream)
             throws IOException, DocumentException {
+
         PdfReader reader = new PdfReader(pdfTemplateStream);
         reader.getAcroForm().remove(PdfName.SIGFLAGS);
         reader.selectPages("1,3,4"); // The template we are using has a blank page after the front sheet.
@@ -67,82 +92,113 @@ public class CGDPdfFiller {
         PdfStamper stamper = new PdfStamper(reader, output);
         form = stamper.getAcroFields();
 
-        setField("T_NomeComp", person.getName());
-        setField("T_Email", getMail(person));
+        //Add unicode font for the special characters
+        BaseFont bf = BaseFont.createFont("fonts/arialuni.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        form.addSubstitutionFont(bf);
+
+        setField("Nome completo", "\u00E3" + " - " + person.getName());
+        setField("email", getMail(person));
 
         if (person.isFemale()) {
-            setField("CB_0_1", "Yes"); // female
+            setField("sexo_F", "Yes"); // female
         } else {
-            setField("CB_0_0", "Yes"); // male
+            setField("sexo_M", "Yes"); // male
         }
 
         if (person.getDateOfBirthYearMonthDay() != null) {
-            setField("Cod_data_1", person.getDateOfBirthYearMonthDay().toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
+            setField("Data nascimento", person.getDateOfBirthYearMonthDay().toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
         }
 
-        setField("NIF1", person.getSocialSecurityNumber());
-        setField("T_DocIdent", person.getDocumentIdNumber());
+        setField("fill_12", person.getFiscalCountry().getName());
+        setField("NIF", person.getSocialSecurityNumber());
+
+        setField("fill_20", person.getDocumentIdNumber());
 
         switch (person.getMaritalStatus()) {
         case CIVIL_UNION:
-            setField("CB_EstCivil01", MARITAL_STATUS_CIVIL_UNION);
+            setField("Estado civil", MARITAL_STATUS_CIVIL_UNION);
             break;
         case DIVORCED:
-            setField("CB_EstCivil01", MARITAL_STATUS_DIVORCED);
+            setField("Estado civil", MARITAL_STATUS_DIVORCED);
             break;
         case MARRIED:
-            setField("CB_EstCivil01", "");
+            setField("Estado civil", "");
             break;
         case SEPARATED:
-            setField("CB_EstCivil01", MARITAL_STATUS_SEPARATED);
+            setField("Estado civil", MARITAL_STATUS_SEPARATED);
             break;
         case SINGLE:
-            setField("CB_EstCivil01", MARITAL_STATUS_SINGLE);
+            setField("Estado civil", MARITAL_STATUS_SINGLE);
             break;
         case WIDOWER:
-            setField("CB_EstCivil01", MARITAL_STATUS_WIDOWER);
+            setField("Estado civil", MARITAL_STATUS_WIDOWER);
             break;
-        }
-        YearMonthDay emissionDate = person.getEmissionDateOfDocumentIdYearMonthDay();
-        if (emissionDate != null) {
-            setField("Cod_data_2", emissionDate.toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
         }
 
         YearMonthDay expirationDate = person.getExpirationDateOfDocumentIdYearMonthDay();
         if (expirationDate != null) {
-            setField("Cod_data_3", expirationDate.toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
+            setField("Válido até", expirationDate.toString(DateTimeFormat.forPattern("yyyy/MM/dd")));
         }
 
-        setField("T_NomePai", person.getNameOfFather());
-        setField("T_NomeMae", person.getNameOfMother());
+        setField("FiliaçãoPai", person.getNameOfFather());
+        setField("FiliaçãoMãe", person.getNameOfMother());
 
         if (person.getCountryOfBirth() != null) {
-            setField("T_NatPais", person.getCountryOfBirth().getName());
-            setField("T_Naturali", person.getDistrictOfBirth());
-            setField("T_NatConc", person.getDistrictSubdivisionOfBirth());
-            setField("T_NatFreg", person.getParishOfBirth());
-            setField("T_PaisRes", person.getCountryOfBirth().getCountryNationality().toString());
+            setField("NaturalidadePaís", person.getCountryOfBirth().getName());
+            setField("Distrito", person.getDistrictOfBirth());
+            setField("Concelho", person.getDistrictSubdivisionOfBirth());
+            setField("Freguesia", person.getParishOfBirth());
+            setField("Nacionalidade", person.getCountryOfBirth().getCountryNationality().getContent());
         }
 
-        setField("T_Morada01", person.getAddress());
-        setField("T_Localid01", person.getAreaOfAreaCode());
-        setField("T_Telef", person.getDefaultMobilePhoneNumber());
+        PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
+        if (personUl != null && personUl.getSecondNationality() != null) {
+            setField("Sim qualais", personUl.getSecondNationality().getCountryNationality().getContent());
+            setField("outra_nacionalidade2", "Yes");
+        } else {
+            setField("outra_nacionalidade1", "Yes");
+        }
+
+        setField("Morada para correspondência", person.getAddress());
+        setField("Localidade", person.getAreaOfAreaCode());
 
         String postalCode = person.getPostalCode();
         int dashIndex = postalCode.indexOf('-');
         if (postalCode != null && postalCode.length() >= dashIndex + 4) {
-            setField("T_CodPos01", postalCode.substring(0, 4));
+            setField("Código postal", postalCode.substring(0, 4));
             String last3Numbers = postalCode.substring(dashIndex + 1, dashIndex + 4);
-            setField("T_CodPos03_1", last3Numbers);
+            setField("undefined_1", last3Numbers);
             setField("T_Localid02_1", person.getAreaOfAreaCode());
         }
 
         if (person.getCountryOfResidence() != null) {
-            setField("T_Distrito", person.getDistrictOfResidence());
-            setField("T_Conc", person.getDistrictSubdivisionOfResidence());
-            setField("T_Freguesia", person.getParishOfResidence());
-            setField("T_PaisResid", person.getCountryOfResidence().getName());
+            setField("Distrito_2", person.getDistrictOfResidence());
+            setField("Concelho_2", person.getDistrictSubdivisionOfResidence());
+            setField("Freguesia_2", person.getParishOfResidence());
+            setField("País", person.getCountryOfResidence().getName());
         }
+
+        Phone phone = getDefaultPersonalContact(person, Phone.class);
+        if (phone != null) {
+            //TODO how to ensure is portuguese phone
+//            setField("Telefone", "+351");
+            setField("undefined_2", phone.getNumber());
+        }
+        MobilePhone mobilePhone = getDefaultPersonalContact(person, MobilePhone.class);
+        if (mobilePhone != null) {
+            //TODO how to ensure is portuguese phone
+//            setField("Telemóvel", "+351");
+            setField("Trabalhador", mobilePhone.getNumber());
+        }
+
+        Unit institutionUnit = Bennu.getInstance().getInstitutionUnit();
+        setField("Estabel ensino", institutionUnit.getAcronym());
+        setField("undefined_4", institutionUnit.getName());
+
+        setField("N aluno", "" + person.getStudent().getNumber());
+
+        setField("undefined_6", person.getDocumentIdNumber());
+        setField("fill_2", person.getName());
 
         stamper.setFormFlattening(true);
         stamper.close();
