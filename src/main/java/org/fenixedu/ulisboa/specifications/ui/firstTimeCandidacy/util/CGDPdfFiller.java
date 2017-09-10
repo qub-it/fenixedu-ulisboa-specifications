@@ -96,7 +96,7 @@ public class CGDPdfFiller {
         BaseFont bf = BaseFont.createFont("fonts/arialuni.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         form.addSubstitutionFont(bf);
 
-        setField("Nome completo", "\u00E3" + " - " + person.getName());
+        setField("Nome completo", person.getName());
         setField("email", getMail(person));
 
         if (person.isFemale()) {
