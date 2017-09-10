@@ -16,7 +16,7 @@ public class FixBugProcessorTypeTask extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        List<ServiceRequestType> types = new ArrayList<ServiceRequestType>();
+        List<ServiceRequestType> types = new ArrayList<>();
         ULisboaServiceRequestProcessor p = null;
         for (ULisboaServiceRequestProcessor processor : Bennu.getInstance().getULisboaServiceRequestProcessorsSet()) {
             if (processor instanceof FillEnrolmentsByYearPropertyProcessor
@@ -30,7 +30,7 @@ public class FixBugProcessorTypeTask extends CustomTask {
             p.getServiceRequestTypesSet().clear();
             p.delete();
             p = FillStandAlonePropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-                    ULisboaConstants.FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR));
+                    ULisboaConstants.FILL_STANDALONE_CURRICULUM_PROPERTY_PROCESSOR), Boolean.FALSE);
             for (ServiceRequestType type : types) {
                 p.addServiceRequestTypes(type);
             }

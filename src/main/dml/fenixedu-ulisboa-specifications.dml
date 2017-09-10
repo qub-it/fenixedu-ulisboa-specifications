@@ -1205,6 +1205,7 @@ relation ULisboaServiceRequestGeneratedDocuments {
 //======================= = ULisboaServiceRequestValidator = =========================
 class serviceRequests.processors.ULisboaServiceRequestProcessor {
     LocalizedString name;
+    Boolean exclusiveTransation;
 }
 
 class serviceRequests.processors.ValidateProgramConclusionProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {

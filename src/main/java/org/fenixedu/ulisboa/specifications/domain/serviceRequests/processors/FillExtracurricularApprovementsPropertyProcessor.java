@@ -17,14 +17,14 @@ public class FillExtracurricularApprovementsPropertyProcessor extends FillExtrac
         super();
     }
 
-    public FillExtracurricularApprovementsPropertyProcessor(final LocalizedString name) {
+    public FillExtracurricularApprovementsPropertyProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new FillExtracurricularApprovementsPropertyProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new FillExtracurricularApprovementsPropertyProcessor(name, exclusiveTransation);
     }
 
     @Override

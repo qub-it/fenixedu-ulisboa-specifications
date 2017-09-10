@@ -11,14 +11,14 @@ public class AutomaticOnlineRequestProcessor extends AutomaticOnlineRequestProce
         super();
     }
 
-    protected AutomaticOnlineRequestProcessor(final LocalizedString name) {
+    protected AutomaticOnlineRequestProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new AutomaticOnlineRequestProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new AutomaticOnlineRequestProcessor(name, exclusiveTransation);
     }
 
     @Override

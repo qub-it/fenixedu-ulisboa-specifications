@@ -17,14 +17,14 @@ public class FillCurriculumPropertyProcessor extends FillCurriculumPropertyProce
         super();
     }
 
-    protected FillCurriculumPropertyProcessor(final LocalizedString name) {
+    protected FillCurriculumPropertyProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new FillCurriculumPropertyProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new FillCurriculumPropertyProcessor(name, exclusiveTransation);
     }
 
     @Override

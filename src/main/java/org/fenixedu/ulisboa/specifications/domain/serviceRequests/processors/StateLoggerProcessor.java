@@ -15,9 +15,9 @@ public class StateLoggerProcessor extends StateLoggerProcessor_Base {
         super();
     }
 
-    protected StateLoggerProcessor(final LocalizedString name) {
+    protected StateLoggerProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class StateLoggerProcessor extends StateLoggerProcessor_Base {
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new StateLoggerProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new StateLoggerProcessor(name, exclusiveTransation);
     }
 }

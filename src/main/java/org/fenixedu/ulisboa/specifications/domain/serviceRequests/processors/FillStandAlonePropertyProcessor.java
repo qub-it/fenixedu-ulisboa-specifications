@@ -17,14 +17,14 @@ public class FillStandAlonePropertyProcessor extends FillStandAlonePropertyProce
         super();
     }
 
-    protected FillStandAlonePropertyProcessor(final LocalizedString name) {
+    protected FillStandAlonePropertyProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new FillStandAlonePropertyProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new FillStandAlonePropertyProcessor(name, exclusiveTransation);
     }
 
     @Override

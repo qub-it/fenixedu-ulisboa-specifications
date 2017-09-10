@@ -16,14 +16,14 @@ public class ValidateProgramConclusionProcessor extends ValidateProgramConclusio
         super();
     }
 
-    protected ValidateProgramConclusionProcessor(final LocalizedString name) {
+    protected ValidateProgramConclusionProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new ValidateProgramConclusionProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new ValidateProgramConclusionProcessor(name, exclusiveTransation);
     }
 
     @Override

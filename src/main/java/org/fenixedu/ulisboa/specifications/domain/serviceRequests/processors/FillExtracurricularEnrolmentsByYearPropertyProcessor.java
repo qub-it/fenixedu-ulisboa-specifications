@@ -20,14 +20,15 @@ public class FillExtracurricularEnrolmentsByYearPropertyProcessor
         super();
     }
 
-    protected FillExtracurricularEnrolmentsByYearPropertyProcessor(final LocalizedString name) {
+    protected FillExtracurricularEnrolmentsByYearPropertyProcessor(final LocalizedString name,
+            final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new FillExtracurricularEnrolmentsByYearPropertyProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new FillExtracurricularEnrolmentsByYearPropertyProcessor(name, exclusiveTransation);
     }
 
     @Override

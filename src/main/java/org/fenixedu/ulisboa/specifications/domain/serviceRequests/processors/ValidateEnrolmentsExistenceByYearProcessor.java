@@ -18,14 +18,14 @@ public class ValidateEnrolmentsExistenceByYearProcessor extends ValidateEnrolmen
         super();
     }
 
-    protected ValidateEnrolmentsExistenceByYearProcessor(final LocalizedString name) {
+    protected ValidateEnrolmentsExistenceByYearProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new ValidateEnrolmentsExistenceByYearProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new ValidateEnrolmentsExistenceByYearProcessor(name, exclusiveTransation);
     }
 
     @Override

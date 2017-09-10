@@ -17,14 +17,14 @@ public class FillAllPlansApprovementsPropertyProcessor extends FillAllPlansAppro
         super();
     }
 
-    protected FillAllPlansApprovementsPropertyProcessor(final LocalizedString name) {
+    protected FillAllPlansApprovementsPropertyProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new FillAllPlansApprovementsPropertyProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new FillAllPlansApprovementsPropertyProcessor(name, exclusiveTransation);
     }
 
     @Override

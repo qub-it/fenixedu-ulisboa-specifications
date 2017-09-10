@@ -19,14 +19,14 @@ public class FillStandaloneEnrolmentsByYearPropertyProcessor extends FillStandal
         super();
     }
 
-    protected FillStandaloneEnrolmentsByYearPropertyProcessor(final LocalizedString name) {
+    protected FillStandaloneEnrolmentsByYearPropertyProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name) {
-        return new FillStandaloneEnrolmentsByYearPropertyProcessor(name);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
+        return new FillStandaloneEnrolmentsByYearPropertyProcessor(name, exclusiveTransation);
     }
 
     @Override

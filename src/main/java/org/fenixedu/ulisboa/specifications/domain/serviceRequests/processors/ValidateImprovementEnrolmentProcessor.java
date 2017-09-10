@@ -25,18 +25,19 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
         super();
     }
 
-    protected ValidateImprovementEnrolmentProcessor(final LocalizedString name, final EvaluationSeason evaluationSeason,
-            final String curricularEntriesPropertyName) {
+    protected ValidateImprovementEnrolmentProcessor(final LocalizedString name, final Boolean exclusiveTransation,
+            final EvaluationSeason evaluationSeason, final String curricularEntriesPropertyName) {
         this();
-        super.init(name);
+        super.init(name, exclusiveTransation);
         setEvaluationSeason(evaluationSeason);
         setCurricularEntriesPropertyName(curricularEntriesPropertyName);
     }
 
     @Atomic
-    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final EvaluationSeason evaluationSeason,
-            final String curricularEntriesPropertyName) {
-        return new ValidateImprovementEnrolmentProcessor(name, evaluationSeason, curricularEntriesPropertyName);
+    public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation,
+            final EvaluationSeason evaluationSeason, final String curricularEntriesPropertyName) {
+        return new ValidateImprovementEnrolmentProcessor(name, exclusiveTransation, evaluationSeason,
+                curricularEntriesPropertyName);
     }
 
     @Override

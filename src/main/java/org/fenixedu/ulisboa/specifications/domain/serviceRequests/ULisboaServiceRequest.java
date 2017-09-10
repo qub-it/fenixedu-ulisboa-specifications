@@ -157,9 +157,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
      * Create service and update method
      */
 
-    @Atomic
+    @Atomic(mode = TxMode.WRITE)
     private static ULisboaServiceRequest createTransation(final ServiceRequestType serviceRequestType,
-            final Registration registration, final boolean requestedOnline, final DateTime requestDate) {
+            final Registration registration, final boolean requestedOnline, final DateTime requestDate,
+            final List<ServiceRequestPropertyBean> propertiesBean) {
 
         ULisboaServiceRequest request = new ULisboaServiceRequest(serviceRequestType, registration, requestedOnline, requestDate);
 
@@ -175,12 +176,19 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             }
         }
 
+        addRequestSlots(request, propertiesBean);
+
+        request.processRequest(false, false);
+
+        request.checkRules();
+
         return request;
     }
 
     @Atomic
-    private static void addRequestSlots(final ULisboaServiceRequest request, final ULisboaServiceRequestBean bean) {
-        for (ServiceRequestPropertyBean propertyBean : bean.getServiceRequestPropertyBeans()) {
+    private static void addRequestSlots(final ULisboaServiceRequest request,
+            final List<ServiceRequestPropertyBean> propertiesBean) {
+        for (ServiceRequestPropertyBean propertyBean : propertiesBean) {
             if (propertyBean.isRequired() && propertyBean.isNullOrEmpty()) {
                 throw new ULisboaSpecificationsDomainException(
                         "error.serviceRequests.ULisboaServiceRequest.required.property.is.empty",
@@ -195,10 +203,10 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
         ensureReadOnlyTx();
 
-        ULisboaServiceRequest request = createTransation(serviceRequestType, registration, requestedOnline, requestDate);
+        ULisboaServiceRequest request =
+                createTransation(serviceRequestType, registration, requestedOnline, requestDate, new ArrayList<>());
 
-        request.processRequest(false);
-        request.checkRules();
+        request.processRequest(false, true);
 
         return request;
     }
@@ -208,12 +216,9 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         ensureReadOnlyTx();
 
         ULisboaServiceRequest request = createTransation(bean.getServiceRequestType(), bean.getRegistration(),
-                bean.isRequestedOnline(), bean.getRequestDate());
+                bean.isRequestedOnline(), bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
 
-        addRequestSlots(request, bean);
-
-        request.processRequest(false);
-        request.checkRules();
+        request.processRequest(false, true);
 
         return request;
     }
@@ -240,7 +245,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
         updateTransation(this, bean);
 
-        processRequest(true);
+        processRequest(true, true);
 
         IAcademicServiceRequestAndAcademicTaxTreasuryEvent treasuryEvent =
                 TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
@@ -707,7 +712,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
     private void transitState(final AcademicServiceRequestSituationType type, final String justification) {
         transitStateTransation(type, justification);
 
-        processRequest(false);
+        processRequest(false, true);
     }
 
     @Atomic
@@ -751,10 +756,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return false;
     }
 
-    private void processRequest(final boolean forceUpdate) {
+    private void processRequest(final boolean forceUpdate, final boolean runExclusiveTransationProcessors) {
         for (ULisboaServiceRequestProcessor uLisboaServiceRequestValidator : getServiceRequestType()
                 .getULisboaServiceRequestProcessorsSet()) {
-            uLisboaServiceRequestValidator.process(this, forceUpdate);
+            if (uLisboaServiceRequestValidator.runExclusiveTransation() == runExclusiveTransationProcessors) {
+                uLisboaServiceRequestValidator.process(this, forceUpdate);
+            }
         }
     }
 
