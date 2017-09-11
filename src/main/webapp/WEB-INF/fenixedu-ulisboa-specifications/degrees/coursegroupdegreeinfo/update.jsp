@@ -34,7 +34,7 @@ ${portal.angularToolkit()}
 <%-- TITLE --%>
 <div class="page-header">
     <h1>
-        <spring:message code="label.manageDegreeDocumentInfo.update" />
+        <spring:message code="label.manageCourseGroupDegreeInfo.update" />
         <small></small>
     </h1>
 </div>
