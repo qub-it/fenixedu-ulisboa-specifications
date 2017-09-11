@@ -568,8 +568,10 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     public LocalDate getExecutionYearConclusionDate() {
         if (this.executionYearConclusionDate == null) {
-            final Enrolment enrolment = getEnrolments().stream().filter(i -> i.isApproved())
-                    .max((x, y) -> x.calculateConclusionDate().compareTo(y.calculateConclusionDate())).orElse(null);
+            // WARNING: is approved should be enough, but unfortunately there are some cases (like in FM) where an enrolment only has evaluations with improvements
+            final Enrolment enrolment =
+                    getEnrolments().stream().filter(i -> i.isApproved() && i.calculateConclusionDate() != null)
+                            .max((x, y) -> x.calculateConclusionDate().compareTo(y.calculateConclusionDate())).orElse(null);
 
             final YearMonthDay date = enrolment == null ? null : enrolment.calculateConclusionDate();
             this.executionYearConclusionDate = date == null ? null : new LocalDate(date);
