@@ -43,6 +43,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -174,11 +175,18 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
     }
 
     private Optional<SchoolClass> readFirstUnfilledClass(Registration registration, final ExecutionSemester executionSemester) {
-        ExecutionDegree executionDegree = registration.getDegree()
-                .getExecutionDegreesForExecutionYear(ExecutionYear.readCurrentExecutionYear()).iterator().next();
-        return executionDegree.getSchoolClassesSet().stream().filter(
-                sc -> sc.getAnoCurricular().equals(1) && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
-                .max(new MostFilledFreeClass());
+        final DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
+        if (degreeCurricularPlan != null) {
+            final ExecutionDegree executionDegree =
+                    degreeCurricularPlan.getExecutionDegreeByYear(executionSemester.getExecutionYear());
+            if (executionDegree != null) {
+                return executionDegree
+                        .getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
+                                && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
+                        .max(new MostFilledFreeClass());
+            }
+        }
+        return Optional.empty();
     }
 
     class MostFilledFreeClass implements Comparator<SchoolClass> {
