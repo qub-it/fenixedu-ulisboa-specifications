@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.DomainObjectUtil;
@@ -59,6 +60,7 @@ import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
@@ -716,10 +718,16 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             }
         }
 
-        String institutionName =
-                studentCandidacy.getDegreeCurricularPlan().getDegree().getUnit().getParentUnitsPath().get(0).getName();
-        String cycleName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeType().getFirstOrderedCycleType()
-                .getDescription();
+        Degree studentCandidacyDegree = studentCandidacy.getDegreeCurricularPlan().getDegree();
+        String institutionName = "";
+        String cycleName = "";
+        if (studentCandidacyDegree != null) {
+            List<Unit> units = studentCandidacyDegree.getUnit().getParentUnitsPath();
+            if (units.size() != 0) {
+                institutionName = units.get(0).getName();
+            }
+            cycleName = studentCandidacyDegree.getDegreeType().getFirstOrderedCycleType().getDescription();
+        }
 
         String institutionalEmail = studentCandidacy.getPerson().getInstitutionalEmailAddressValue();
         String defaultEmail = "";
