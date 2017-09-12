@@ -20,6 +20,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
@@ -685,6 +686,14 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     public Integer getStudentCurricularPlanCount() {
         final Registration registration = getRegistration();
         return registration == null ? null : registration.getStudentCurricularPlansSet().size();
+    }
+    
+    public String getSchoolClasses() {
+        return getRegistration().getSchoolClassesSet().stream()
+                .filter(sc -> sc.getExecutionPeriod().getExecutionYear() == getExecutionYear())
+                .sorted(Comparator.comparing(SchoolClass::getExecutionPeriod))
+                .map(sc -> String.format("%s (S%d)", sc.getName(), sc.getExecutionPeriod().getSemester()))
+                .collect(Collectors.joining("; "));
     }
 
     public String getLastEnrolmentExecutionYear() {
