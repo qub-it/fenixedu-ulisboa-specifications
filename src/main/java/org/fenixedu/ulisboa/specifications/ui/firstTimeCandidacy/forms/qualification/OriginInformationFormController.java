@@ -243,6 +243,12 @@ public class OriginInformationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
             }
+
+            if (form.getSchoolLevel().isHigherEducation() && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.candidacy.workflow.OriginInformationForm.institution.must.be.in.the.system"));
+            }
+
         } else {
             if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
                     && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()

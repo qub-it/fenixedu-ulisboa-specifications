@@ -114,6 +114,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         return $scope.isUISelectLoading;
     };
     
+    $scope.defaultCountry = '<%= Country.readDefault().getExternalId() %>';
+
     $scope.isUndefinedOrNull = function(val) {
 	    return angular.isUndefined(val) || val === null 
 	}
@@ -198,10 +200,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     $scope.submitForm = function() {
 	    $scope.transformData();
         $('form').submit();
-    };
-
+    };    
+    
     $scope.$watch('object.institutionValues', function() {
-        if($scope.object.institutionValues.length <= 1) {
+        if($scope.object.institutionValues != null && $scope.object.institutionValues.length <= 1) {
             $scope.object.institutionValues.push(
                 {
                   'id': $scope.object.institutionNamePart, 
@@ -239,7 +241,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : !object.districtsValues.length }" id="labelDistrictOfGraduation">
+                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtsValues != null && object.districtsValues.length && object.countryWhereFinishedPreviousCompleteDegree == defaultCountry }" id="labelDistrictOfGraduation">
                     <spring:message
                         code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" />
                 </div>
@@ -254,7 +256,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : !object.districtSubdivisionValues.length }" id="labelDistrictSubdivisionOfGraduation">
+                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtSubdivisionValues != null && object.districtSubdivisionValues.length && object.countryWhereFinishedPreviousCompleteDegree == defaultCountry }" id="labelDistrictSubdivisionOfGraduation">
                     <spring:message
                         code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" />
                 </div>
