@@ -1,27 +1,20 @@
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.Country;
+import javax.servlet.http.HttpSession;
+
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.GrantOwnerType;
-import org.fenixedu.academic.domain.ProfessionType;
-import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
-import org.fenixedu.academic.domain.SchoolLevelType;
-import org.fenixedu.academic.domain.person.MaritalStatus;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.domain.ProfessionTimeType;
-import org.fenixedu.ulisboa.specifications.domain.SalarySpan;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController;
@@ -32,12 +25,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import edu.emory.mathcs.backport.java.util.Collections;
+import pt.ist.fenixframework.Atomic;
 
 @BennuSpringController(value = BlueRecordManagementEntryPoint.class)
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.householdinformationmanagement",
@@ -64,6 +55,13 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     public String search(@PathVariable("studentId") final Student student, final Model model) {
         model.addAttribute("student", student);
 
+        List<ExecutionYear> executionYears = student.getRegistrationsSet().stream()
+                .flatMap(r -> r.getRegistrationDataByExecutionYearSet().stream()).map(data -> data.getExecutionYear()).distinct()
+                .filter(e -> getPersonalIngressionData(student, e, false) == null)
+                .sorted(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList());
+
+        model.addAttribute("allowedExecutionYears", executionYears);
+
         return jspPage(_SEARCH_URI);
     }
 
@@ -83,66 +81,81 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     public static final String CREATE_URL = CONTROLLER_URL + _CREATE_URI;
 
     @RequestMapping(value = _CREATE_URI + "/{studentId}", method = RequestMethod.GET)
-    public String create(@PathVariable("studentId") final Student student, final Model model) {
-        return _create(student, createEmptyHouseholdInformationForm(student, model), model);
-    }
+    public String create(@PathVariable("studentId") final Student student,
+            @RequestParam(value = "executionYear", required = true) final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpSession session) {
+        session.setAttribute(STUDENT_SESSION_ATTR, student);
 
-    public String _create(final Student student, final HouseholdInformationForm form, final Model model) {
         model.addAttribute("student", student);
-        model.addAttribute("householdInformationForm", form);
+        model.addAttribute("postAction", "create/" + student.getExternalId());
+        addControllerURLToModel(executionYear, model);
 
-        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
-        model.addAttribute("professionTypeValues", ProfessionType.values());
-        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
-        model.addAttribute("salarySpanValues", SalarySpan.readAll().collect(Collectors.toList()));
-        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
-        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
-        model.addAttribute("executionYearValues", loadActiveExecutionYearValues(student));
+        HouseholdInformationForm form = createEmptyHouseholdInformationForm(student, model);
+        form.setExecutionYear(executionYear);
+        setForm(form, model);
 
-        final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
-        Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
-        model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
-
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        model.addAttribute("maritalStatusValues", maritalStatusValues);
-
-        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-
-        model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
-
-        return jspPage(_CREATE_URI);
+        return fillGetScreen(executionYear, model, redirectAttributes);
     }
 
     @RequestMapping(value = _CREATE_URI + "/{studentId}", method = RequestMethod.POST)
-    public String create(@PathVariable("studentId") final Student student, final HouseholdInformationForm form,
-            final Model model) {
+    public String create(@PathVariable("studentId") final Student student,
+            @RequestParam(value = "bean", required = true) final HouseholdInformationForm form, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpSession session) {
+        session.setAttribute(STUDENT_SESSION_ATTR, student);
+        model.addAttribute("student", student);
+
+        if (!validate(form.getExecutionYear(), form, model)) {
+            setForm(form, model);
+            addControllerURLToModel(form.getExecutionYear(), model);
+            return create(student, form.getExecutionYear(), model, redirectAttributes, session);
+        }
+        addControllerURLToModel(form.getExecutionYear(), model);
+
         try {
+            writeData(form, model);
 
-            if (form.getExecutionYear() == null) {
-                addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.executionYear.required"), model);
-                return _create(student, form, model);
-            }
+            model.addAttribute("form", form);
 
-            if (getPersonalIngressionData(student, form.getExecutionYear(), false) != null) {
-                addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.exists.for.execution.year"),
-                        model);
-            }
-
-            if (!validate(form, model)) {
-                return _create(student, form, model);
-            }
-
-            writeData(student, form.getExecutionYear(), form, model);
-
-            return "redirect:" + SEARCH_URL + "/" + student.getExternalId();
-        } catch (final DomainException e) {
-            addErrorMessage(e.getLocalizedMessage(), model);
+            return redirect(READ_URL + "/" + student.getExternalId() + "/" + form.getExecutionYear().getExternalId(), model,
+                    redirectAttributes);
+        } catch (DomainException domainEx) {
+            logger.error("Exception for user " + AccessControl.getPerson().getUsername());
+            domainEx.printStackTrace();
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey()),
+                    model);
+        } catch (Exception de) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
+            logger.error("Exception for user " + AccessControl.getPerson().getUsername());
+            de.printStackTrace();
         }
 
-        return _create(student, form, model);
+        setForm(form, model);
+        return create(student, form.getExecutionYear(), model, redirectAttributes, session);
+    }
+
+    @Atomic
+    private void writeData(final HouseholdInformationForm form, final Model model) {
+        getPersonalIngressionData(getStudent(model), form.getExecutionYear(), true);
+
+        writeData(form.getExecutionYear(), form, model);
+    }
+
+    @Override
+    protected boolean validate(final HouseholdInformationForm form, final Model model) {
+        boolean hasErrors = super.validate(form, model);
+
+        if (form.getExecutionYear() == null) {
+            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.executionYear.required"), model);
+            form.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+            hasErrors = true;
+        }
+
+        if (getPersonalIngressionData(getStudent(model), form.getExecutionYear(), false) != null) {
+            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.exists.for.execution.year"), model);
+            hasErrors = true;
+        }
+
+        return hasErrors;
     }
 
     private static final String _UPDATE_URI = "/update";
@@ -150,79 +163,56 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
     @RequestMapping(value = _UPDATE_URI + "/{studentId}/{executionYearId}", method = RequestMethod.GET)
     public String update(@PathVariable("studentId") final Student student,
-            @PathVariable("executionYearId") final ExecutionYear executionYear, final Model model) {
-        return _update(student, executionYear, createHouseholdInformationForm(student, executionYear, false), model);
-    }
+            @PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpSession session) {
+        session.setAttribute(STUDENT_SESSION_ATTR, student);
 
-    private String _update(final Student student, final ExecutionYear executionYear, final HouseholdInformationForm form,
-            final Model model) {
         model.addAttribute("student", student);
-        model.addAttribute("executionYear", executionYear);
-        model.addAttribute("householdInformationForm", form);
+        model.addAttribute("postAction", "update/" + student.getExternalId() + "/" + executionYear.getExternalId());
+        addControllerURLToModel(executionYear, model);
 
-        model.addAttribute("schoolLevelValues", SchoolLevelType.values());
-        model.addAttribute("professionTypeValues", ProfessionType.values());
-        model.addAttribute("professionalConditionValues", ProfessionalSituationConditionType.values());
-        model.addAttribute("salarySpanValues", SalarySpan.readAll().collect(Collectors.toList()));
-        model.addAttribute("professionTimeTypeValues", ProfessionTimeType.readAll().collect(Collectors.toList()));
-        model.addAttribute("grantOwnerTypeValues", GrantOwnerType.values());
-        model.addAttribute("executionYearValues", loadActiveExecutionYearValues(student));
+        HouseholdInformationForm form = createHouseholdInformationForm(student, executionYear, false);
+        form.setExecutionYear(executionYear);
+        setForm(form, model);
 
-        final List<Country> countryHighSchoolValues = Lists.newArrayList(Country.readDistinctCountries());
-        Collections.sort(countryHighSchoolValues, Country.COMPARATOR_BY_NAME);
-        model.addAttribute("countryHighSchoolValues", countryHighSchoolValues);
-
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        model.addAttribute("maritalStatusValues", maritalStatusValues);
-
-        model.addAttribute("countries", Bennu.getInstance().getCountrysSet());
-        model.addAttribute("districts_options", Bennu.getInstance().getDistrictsSet());
-
-        model.addAttribute("residenceType_values", Bennu.getInstance().getResidenceTypesSet());
-
-        return jspPage(_UPDATE_URI);
+        return fillGetScreen(executionYear, model, redirectAttributes);
     }
 
     @RequestMapping(value = _UPDATE_URI + "/{studentId}/{executionYearId}", method = RequestMethod.POST)
     public String update(@PathVariable("studentId") final Student student,
-            @PathVariable("executionYearId") final ExecutionYear executionYear, final HouseholdInformationForm form,
-            final Model model) {
+            @PathVariable("executionYearId") final ExecutionYear executionYear,
+            @RequestParam(value = "bean", required = true) final HouseholdInformationForm form, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpSession session) {
+        session.setAttribute(STUDENT_SESSION_ATTR, student);
+        model.addAttribute("student", student);
+
+        if (!validate(form.getExecutionYear(), form, model)) {
+            setForm(form, model);
+            addControllerURLToModel(form.getExecutionYear(), model);
+            return update(student, form.getExecutionYear(), model, redirectAttributes, session);
+        }
+        addControllerURLToModel(form.getExecutionYear(), model);
+
         try {
+            writeData(form.getExecutionYear(), form, model);
 
-            if (getPersonalIngressionData(student, form.getExecutionYear(), false) == null) {
-                addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.executionYear.required"), model);
-            }
+            model.addAttribute("form", form);
 
-            if (!validate(form, model)) {
-                return _update(student, executionYear, form, model);
-            }
-
-            writeData(student, executionYear, form, model);
-
-            return "redirect:" + SEARCH_URL + "/" + student.getExternalId();
-        } catch (final DomainException e) {
-            addErrorMessage(e.getLocalizedMessage(), model);
+            return redirect(READ_URL + "/" + student.getExternalId() + "/" + form.getExecutionYear().getExternalId(), model,
+                    redirectAttributes);
+        } catch (DomainException domainEx) {
+            logger.error("Exception for user " + AccessControl.getPerson().getUsername());
+            domainEx.printStackTrace();
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey()),
+                    model);
+        } catch (Exception de) {
+            addErrorMessage(BundleUtil.getString(BUNDLE, "label.error.create") + de.getLocalizedMessage(), model);
+            logger.error("Exception for user " + AccessControl.getPerson().getUsername());
+            de.printStackTrace();
         }
 
-        return _update(student, executionYear, form, model);
-    }
-
-    private List<ExecutionYear> loadActiveExecutionYearValues(final Student student) {
-        Set<ExecutionYear> executionYearsSet = Sets.newHashSet();
-
-        for (final Registration registration : student.getRegistrationsSet()) {
-            for (final RegistrationDataByExecutionYear registrationDataByExecutionYear : registration
-                    .getRegistrationDataByExecutionYearSet()) {
-                executionYearsSet.add(registrationDataByExecutionYear.getExecutionYear());
-            }
-        }
-
-        final List<ExecutionYear> result = Lists.newArrayList(executionYearsSet);
-        Collections.sort(result, Collections.reverseOrder(ExecutionYear.COMPARATOR_BY_YEAR));
-
-        return result;
+        setForm(form, model);
+        return update(student, form.getExecutionYear(), model, redirectAttributes, session);
     }
 
     @Override
@@ -234,29 +224,35 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         return JSP_PATH + "/" + page.substring(1, page.length());
     }
 
+    @Override
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        return false;
+    }
+
+    @Override
+    protected Student getStudent(final Model model) {
+        return (Student) model.asMap().get("student");
+    }
+
+    @Override
+    public String back(@RequestParam(value = "executionYear", required = false) final ExecutionYear executionYear,
+            final Model model, final RedirectAttributes redirectAttributes, final HttpSession session) {
+        Student student = (Student) session.getAttribute(STUDENT_SESSION_ATTR);
+        if (student != null) {
+            return redirect(SEARCH_URL + "/" + student.getExternalId(), model, redirectAttributes);
+        }
+
+        throw new RuntimeException("Student object is not in http session as an attribute.");
+    }
+
     /* ********************
      * MAPPINGS NOT APPLIED
      * ********************
      */
 
     @Override
-    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
-        throw new RuntimeException("not applied in this controller");
-    }
-
-    @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        throw new RuntimeException("not applied in this controller");
-    }
-
-    @Override
-    protected Student getStudent(final Model model) {
-        throw new RuntimeException("not applied in this controller");
-    }
-
-    @Override
-    public String backScreen(final ExecutionYear executionYear, final Model model, final RedirectAttributes redirectAttributes) {
         throw new RuntimeException("not applied in this controller");
     }
 

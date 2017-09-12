@@ -55,6 +55,10 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
         HouseholdInformationForm form = fillFormIfRequired(executionYear, model);
 
+        if (!model.containsAttribute("postAction")) {
+            model.addAttribute("postAction", "fill");
+        }
+
         if (getForm(model) == null) {
             setForm(form, model);
         }

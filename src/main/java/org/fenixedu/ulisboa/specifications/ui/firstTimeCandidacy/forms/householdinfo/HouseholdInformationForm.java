@@ -205,6 +205,9 @@ public class HouseholdInformationForm implements CandidancyForm {
     }
 
     private boolean isWorkingCondition() {
+        if (getProfessionalCondition() == null) {
+            return false;
+        }
         switch (getProfessionalCondition()) {
         case WORKS_FOR_OTHERS:
             return true;
@@ -224,6 +227,9 @@ public class HouseholdInformationForm implements CandidancyForm {
     }
 
     private boolean isWorkingProfessionType() {
+        if (getProfessionType() == null) {
+            return false;
+        }
         switch (getProfessionType()) {
         case UNKNOWN:
             return false;
