@@ -77,7 +77,7 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
-            return back(executionYear, model, redirectAttributes);
+            return backScreen(executionYear, model, redirectAttributes);
         }
 
         return redirect(getControllerURLWithExecutionYear(executionYear), model, redirectAttributes);

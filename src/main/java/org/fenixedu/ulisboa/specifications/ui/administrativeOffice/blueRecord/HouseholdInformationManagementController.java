@@ -26,6 +26,8 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsContr
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +50,15 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
     private static final String _SEARCH_URI = "/search";
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
+
+    protected static final String STUDENT_SESSION_ATTR = "studentOID";
+
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Override
+    protected String getControllerURL() {
+        return CONTROLLER_URL;
+    }
 
     @RequestMapping(_SEARCH_URI + "/{studentId}")
     public String search(@PathVariable("studentId") final Student student, final Model model) {
@@ -217,11 +228,6 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     @Override
     protected boolean isProfessionRequired() {
         return false;
-    }
-
-    @Override
-    protected boolean isToFillCountryHighSchool() {
-        return true;
     }
 
     private String jspPage(final String page) {

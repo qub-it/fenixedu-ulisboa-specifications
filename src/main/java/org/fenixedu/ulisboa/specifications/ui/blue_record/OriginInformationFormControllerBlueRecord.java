@@ -77,7 +77,7 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
-            return back(executionYear, model, redirectAttributes);
+            return backScreen(executionYear, model, redirectAttributes);
         }
 
         return redirect(urlWithExecutionYear(OriginInformationFormControllerBlueRecord.CONTROLLER_URL, executionYear), model,
@@ -100,8 +100,8 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
     }
 
     @Override
-    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
-            RedirectAttributes redirectAttributes) {
+    protected void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model,
+            final RedirectAttributes redirectAttributes) {
         //nothing to be done
     }
 

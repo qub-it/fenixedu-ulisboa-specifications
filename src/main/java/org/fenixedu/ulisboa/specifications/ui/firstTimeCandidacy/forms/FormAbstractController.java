@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import javax.servlet.http.HttpSession;
+
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -26,19 +28,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public abstract class FormAbstractController extends FirstTimeCandidacyAbstractController {
 
-    protected CandidancyForm getForm(Model model) {
+    protected CandidancyForm getForm(final Model model) {
         return (CandidancyForm) model.asMap().get(getFormVariableName());
     }
 
-    protected void setForm(CandidancyForm form, Model model) {
+    protected void setForm(final CandidancyForm form, final Model model) {
         form.updateLists();
         model.addAttribute(getFormVariableName() + "Json", getBeanJson(form));
         model.addAttribute(getFormVariableName(), form);
     }
 
     @RequestMapping
-    public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String home(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -51,8 +53,8 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
     protected static final String _BACK_URI = "/back";
 
     @RequestMapping(value = _BACK_URI, method = RequestMethod.GET)
-    public String back(@PathVariable("executionYearId") ExecutionYear executionYear, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpSession session) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
         if (accessControlRedirect.isPresent()) {
@@ -83,14 +85,15 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
     protected static final String _FILL_POSTBACK_URI = "/fillPostback";
 
     @RequestMapping(value = _FILL_POSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public @ResponseBody String fillPostBack(@RequestParam(value = "bean", required = true) CandidancyForm bean, Model model) {
+    public @ResponseBody String fillPostBack(@RequestParam(value = "bean", required = true) final CandidancyForm bean,
+            final Model model) {
         setForm(bean, model);
         return getBeanJson(bean);
     }
 
     @RequestMapping(value = _FILL_URI, method = RequestMethod.POST)
     public String fillPost(@PathVariable("executionYearId") final ExecutionYear executionYear,
-            @RequestParam(value = "bean", required = true) CandidancyForm candidancyForm, final Model model,
+            @RequestParam(value = "bean", required = true) final CandidancyForm candidancyForm, final Model model,
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         Optional<String> accessControlRedirect = accessControlRedirect(executionYear, model, redirectAttributes);
@@ -128,7 +131,7 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
         return Bennu.getInstance().getDistrictsSet().stream().filter(hasSubdivisionsWithParishes);
     }
 
-    public static Stream<DistrictSubdivision> getSubdivisionsWithParishes(District district) {
+    public static Stream<DistrictSubdivision> getSubdivisionsWithParishes(final District district) {
         Predicate<DistrictSubdivision> hasParishes = subdivision -> !subdivision.getParishSet().isEmpty();
         return district.getDistrictSubdivisionsSet().stream().filter(hasParishes);
     }

@@ -124,7 +124,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
         if (personUl != null) {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
-            form.setCountryHighSchool(personUl.getPerson().getCountryHighSchool());
         }
 
         return form;
@@ -211,20 +210,11 @@ public class HouseholdInformationFormController extends FormAbstractController {
             }
         }
 
-        if (isToFillCountryHighSchool() && form.getCountryHighSchool() == null) {
-            messages.add(
-                    BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.countryHighSchool.required"));
-        }
-
         return messages;
     }
 
     protected boolean isProfessionRequired() {
         return true;
-    }
-
-    protected boolean isToFillCountryHighSchool() {
-        return false;
     }
 
     @Override
@@ -265,10 +255,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
         }
 
         personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
-
-        if (isToFillCountryHighSchool()) {
-            personalData.getStudent().getPerson().setCountryHighSchool(form.getCountryHighSchool());
-        }
 
     }
 

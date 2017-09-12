@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.ProfessionType;
@@ -41,7 +40,6 @@ public class HouseholdInformationForm implements CandidancyForm {
     private GrantOwnerType grantOwnerType;
     private String grantOwnerProvider;
     private String otherGrantOwnerProvider;
-    private Country countryHighSchool;
     private List<TupleDataSourceBean> professionalConditionValues;
     private List<TupleDataSourceBean> professionTypeValues;
     private List<TupleDataSourceBean> professionTimeTypeValues;
@@ -82,7 +80,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return motherSchoolLevel;
     }
 
-    public void setMotherSchoolLevel(SchoolLevelType motherSchoolLevel) {
+    public void setMotherSchoolLevel(final SchoolLevelType motherSchoolLevel) {
         this.motherSchoolLevel = motherSchoolLevel;
     }
 
@@ -90,7 +88,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return motherProfessionType;
     }
 
-    public void setMotherProfessionType(ProfessionType motherProfessionType) {
+    public void setMotherProfessionType(final ProfessionType motherProfessionType) {
         this.motherProfessionType = motherProfessionType;
     }
 
@@ -98,7 +96,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return motherProfessionalCondition;
     }
 
-    public void setMotherProfessionalCondition(ProfessionalSituationConditionType motherProfessionalCondition) {
+    public void setMotherProfessionalCondition(final ProfessionalSituationConditionType motherProfessionalCondition) {
         this.motherProfessionalCondition = motherProfessionalCondition;
     }
 
@@ -106,7 +104,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return fatherSchoolLevel;
     }
 
-    public void setFatherSchoolLevel(SchoolLevelType fatherSchoolLevel) {
+    public void setFatherSchoolLevel(final SchoolLevelType fatherSchoolLevel) {
         this.fatherSchoolLevel = fatherSchoolLevel;
     }
 
@@ -114,7 +112,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return fatherProfessionType;
     }
 
-    public void setFatherProfessionType(ProfessionType fatherProfessionType) {
+    public void setFatherProfessionType(final ProfessionType fatherProfessionType) {
         this.fatherProfessionType = fatherProfessionType;
     }
 
@@ -122,7 +120,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return fatherProfessionalCondition;
     }
 
-    public void setFatherProfessionalCondition(ProfessionalSituationConditionType fatherProfessionalCondition) {
+    public void setFatherProfessionalCondition(final ProfessionalSituationConditionType fatherProfessionalCondition) {
         this.fatherProfessionalCondition = fatherProfessionalCondition;
     }
 
@@ -130,7 +128,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return householdSalarySpan;
     }
 
-    public void setHouseholdSalarySpan(SalarySpan householdSalarySpan) {
+    public void setHouseholdSalarySpan(final SalarySpan householdSalarySpan) {
         this.householdSalarySpan = householdSalarySpan;
     }
 
@@ -138,7 +136,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return professionType;
     }
 
-    public void setProfessionType(ProfessionType professionType) {
+    public void setProfessionType(final ProfessionType professionType) {
         this.professionType = professionType;
     }
 
@@ -146,7 +144,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return professionalCondition;
     }
 
-    public void setProfessionalCondition(ProfessionalSituationConditionType professionalCondition) {
+    public void setProfessionalCondition(final ProfessionalSituationConditionType professionalCondition) {
         this.professionalCondition = professionalCondition;
     }
 
@@ -154,7 +152,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return profession;
     }
 
-    public void setProfession(String profession) {
+    public void setProfession(final String profession) {
         this.profession = profession;
     }
 
@@ -162,7 +160,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return grantOwnerType;
     }
 
-    public void setGrantOwnerType(GrantOwnerType grantOwnerType) {
+    public void setGrantOwnerType(final GrantOwnerType grantOwnerType) {
         this.grantOwnerType = grantOwnerType;
     }
 
@@ -170,7 +168,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return grantOwnerProvider;
     }
 
-    public void setGrantOwnerProvider(String grantOwnerProvider) {
+    public void setGrantOwnerProvider(final String grantOwnerProvider) {
         this.grantOwnerProvider = grantOwnerProvider;
     }
 
@@ -178,7 +176,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return otherGrantOwnerProvider;
     }
 
-    public void setOtherGrantOwnerProvider(String otherGrantOwnerProvider) {
+    public void setOtherGrantOwnerProvider(final String otherGrantOwnerProvider) {
         this.otherGrantOwnerProvider = otherGrantOwnerProvider;
     }
 
@@ -186,16 +184,8 @@ public class HouseholdInformationForm implements CandidancyForm {
         return professionTimeType;
     }
 
-    public void setProfessionTimeType(ProfessionTimeType professionTimeType) {
+    public void setProfessionTimeType(final ProfessionTimeType professionTimeType) {
         this.professionTimeType = professionTimeType;
-    }
-
-    public Country getCountryHighSchool() {
-        return countryHighSchool;
-    }
-
-    public void setCountryHighSchool(Country countryHighSchool) {
-        this.countryHighSchool = countryHighSchool;
     }
 
     public boolean isStudentWorking() {
@@ -257,7 +247,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return executionYear;
     }
 
-    public void setExecutionYear(ExecutionYear executionYear) {
+    public void setExecutionYear(final ExecutionYear executionYear) {
         this.executionYear = executionYear;
     }
 
@@ -265,7 +255,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return professionalConditionValues;
     }
 
-    public void setProfessionalConditionValues(List<ProfessionalSituationConditionType> professionalConditionValues) {
+    public void setProfessionalConditionValues(final List<ProfessionalSituationConditionType> professionalConditionValues) {
         this.professionalConditionValues = professionalConditionValues.stream()
                 .map(psct -> new TupleDataSourceBean(psct.toString(), psct.getLocalizedName())).collect(Collectors.toList());
     }
@@ -274,7 +264,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return professionTypeValues;
     }
 
-    public void setProfessionTypeValues(List<ProfessionType> professionTypeValues) {
+    public void setProfessionTypeValues(final List<ProfessionType> professionTypeValues) {
         this.professionTypeValues = professionTypeValues.stream()
                 .map(pt -> new TupleDataSourceBean(pt.toString(), pt.getLocalizedName())).collect(Collectors.toList());
     }
@@ -283,7 +273,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return professionTimeTypeValues;
     }
 
-    public void setProfessionTimeTypeValues(List<ProfessionTimeType> professionTimeTypeValues) {
+    public void setProfessionTimeTypeValues(final List<ProfessionTimeType> professionTimeTypeValues) {
         this.professionTimeTypeValues = professionTimeTypeValues.stream()
                 .map(ptt -> new TupleDataSourceBean(ptt.getExternalId(), ptt.getDescription().getContent()))
                 .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
@@ -293,7 +283,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return grantOwnerTypeValues;
     }
 
-    public void setGrantOwnerTypeValues(List<GrantOwnerType> grantOwnerTypeValues) {
+    public void setGrantOwnerTypeValues(final List<GrantOwnerType> grantOwnerTypeValues) {
         this.grantOwnerTypeValues = grantOwnerTypeValues.stream().map(got -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(got.toString());
@@ -307,7 +297,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return grantOwnerProviderValues;
     }
 
-    public void setGrantOwnerProviderValues(List<UnitName> grantOwnerProviderValues) {
+    public void setGrantOwnerProviderValues(final List<UnitName> grantOwnerProviderValues) {
         this.grantOwnerProviderValues = grantOwnerProviderValues.stream().map(un -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(un.getUnit().getExternalId());
@@ -320,7 +310,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return schoolLevelValues;
     }
 
-    public void setSchoolLevelValues(List<SchoolLevelType> schoolLevelValues) {
+    public void setSchoolLevelValues(final List<SchoolLevelType> schoolLevelValues) {
         this.schoolLevelValues = schoolLevelValues.stream()
                 .map(sl -> new TupleDataSourceBean(sl.toString(), sl.getLocalizedName())).collect(Collectors.toList());
     }
@@ -329,7 +319,7 @@ public class HouseholdInformationForm implements CandidancyForm {
         return salarySpanValues;
     }
 
-    public void setSalarySpanValues(List<SalarySpan> salarySpanValues) {
+    public void setSalarySpanValues(final List<SalarySpan> salarySpanValues) {
         this.salarySpanValues =
                 salarySpanValues.stream().map(ss -> new TupleDataSourceBean(ss.getExternalId(), ss.getDescription().getContent()))
                         .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());

@@ -70,7 +70,7 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
-            return back(executionYear, model, redirectAttributes);
+            return backScreen(executionYear, model, redirectAttributes);
         }
 
         return redirect(urlWithExecutionYear(CONTROLLER_URL, executionYear), model, redirectAttributes);

@@ -64,6 +64,10 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
             throw new RuntimeException("Invalid Request. Person mismatch");
         }
 
+        if (!model.containsAttribute("postAction")) {
+            model.addAttribute("postAction", "fill");
+        }
+
         PreviousDegreeInformationForm form = fillFormIfRequired(executionYear, registration, model);
 
         if (getForm(model) == null) {

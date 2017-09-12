@@ -75,7 +75,7 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
         if (isFormIsFilled(executionYear, model)) {
-            return back(executionYear, model, redirectAttributes);
+            return backScreen(executionYear, model, redirectAttributes);
         }
 
         String url = HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL

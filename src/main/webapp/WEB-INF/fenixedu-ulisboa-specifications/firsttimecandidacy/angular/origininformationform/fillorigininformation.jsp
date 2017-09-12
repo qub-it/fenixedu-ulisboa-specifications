@@ -216,7 +216,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 </script>
 
 <form name='form' method="post" class="form-horizontal" ng-app="angularApp" ng-controller="angularController"
-     action="${pageContext.request.contextPath}${controllerURL}/fill">
+     action="${pageContext.request.contextPath}${controllerURL}/${postAction}">
 
     <input type="hidden" name="postback"
         value='${pageContext.request.contextPath}${controllerURL}/fillPostback' />

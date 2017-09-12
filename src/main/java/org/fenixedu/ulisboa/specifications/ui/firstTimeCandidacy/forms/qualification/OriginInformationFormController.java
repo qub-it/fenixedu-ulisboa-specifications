@@ -73,6 +73,10 @@ public class OriginInformationFormController extends FormAbstractController {
             throw new RuntimeException("Invalid Request. Person mismatch");
         }
 
+        if (!model.containsAttribute("postAction")) {
+            model.addAttribute("postAction", "fill");
+        }
+
         OriginInformationForm form = fillFormIfRequired(registration, model);
 
         if (getForm(model) == null) {
