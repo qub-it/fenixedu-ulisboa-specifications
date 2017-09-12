@@ -209,6 +209,19 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $('#deleteModal').modal('toggle');
     }
     
+    $scope.transformDataToSubmit = function () {
+    	angular.forEach($scope.object.introductionText, function(element, key) {
+    	    $scope.object.introductionText.key = JSON.stringify(element);
+    	});
+    	
+    	$scope.object.introductionText = JSON.stringify($scope.object.introductionText);
+    }
+    $scope.submitForm = function (event) {
+    	
+        $scope.transformDataToSubmit();
+        
+        $('form[name="form"]').submit();
+    }
 }]);
 </script>
 
@@ -288,7 +301,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         <spring:message code="label.cancel" />
                     </a>
                     &nbsp;
-                    <button type="submit" class="btn btn-primary" role="button">
+                    <button type="button" class="btn btn-primary" role="button" ng-click="submitForm($event)">
                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
                         &nbsp;
                         <spring:message code="label.submit" /> 
