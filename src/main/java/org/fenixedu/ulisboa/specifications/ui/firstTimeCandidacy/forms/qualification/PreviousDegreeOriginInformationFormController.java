@@ -229,7 +229,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
          */
 
         if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry()
-                && form.getPrecedentSchoolLevel().isHigherEducation()) {
+                && form.getPrecedentSchoolLevel() != null && form.getPrecedentSchoolLevel().isHigherEducation()) {
             if (form.getRaidesPrecedentDegreeDesignation() == null) {
                 result.add(BundleUtil.getString(BUNDLE, "error.degreeDesignation.required"));
             }
