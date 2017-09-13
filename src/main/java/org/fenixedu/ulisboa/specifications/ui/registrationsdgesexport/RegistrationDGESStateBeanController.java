@@ -722,9 +722,12 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         String institutionName = "";
         String cycleName = "";
         if (studentCandidacyDegree != null) {
-            List<Unit> units = studentCandidacyDegree.getUnit().getParentUnitsPath();
-            if (units.size() != 0) {
-                institutionName = units.get(0).getName();
+            Unit unit = studentCandidacyDegree.getUnit();
+            if (unit != null) {
+                List<Unit> units = studentCandidacyDegree.getUnit().getParentUnitsPath();
+                if (units.size() != 0) {
+                    institutionName = units.get(0).getName();
+                }
             }
             cycleName = studentCandidacyDegree.getDegreeType().getFirstOrderedCycleType().getDescription();
         }
