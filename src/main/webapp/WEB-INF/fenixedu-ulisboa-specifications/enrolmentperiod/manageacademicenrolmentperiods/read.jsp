@@ -452,9 +452,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-mul
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.AcademicEnrolmentPeriod.firstTimeRegistration" /></th>
                         <td>
-                            <c:if test="${academicEnrolmentPeriod.firstTimeRegistration}">
+                            <c:if test="${academicEnrolmentPeriod.firstTimeRegistration != null && academicEnrolmentPeriod.firstTimeRegistration }">
                                 <spring:message code="label.true" />
-                            </c:if> <c:if test="${not academicEnrolmentPeriod.firstTimeRegistration}">
+                            </c:if> 
+                            <c:if test="${academicEnrolmentPeriod.firstTimeRegistration != null && not academicEnrolmentPeriod.firstTimeRegistration }">
                                 <spring:message code="label.false" />
                             </c:if>
                         </td>

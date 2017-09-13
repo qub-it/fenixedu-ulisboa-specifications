@@ -79,6 +79,7 @@ import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -142,6 +143,11 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         if (StringUtils.isNotBlank(endDate)) {
             ed = DateTimeFormat.forPattern("yyyy-MM-dd").parseLocalDate(endDate);
         }
+
+        if (executionYear == null) {
+            addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                    "info.RegistrationDGESStateBeanController.executionYear.necessary.to.filter"), model);
+        }
         List<RegistrationDGESStateBean> searchregistrationdgesstatebeanResultsDataSet =
                 filterSearchRegistrationDGESStateBean(executionYear, phase, candidacySituationType, ingressType, bd, ed);
 
@@ -179,7 +185,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                         || sc.getCandidacyDate().toLocalDate().isAfter(beginDate);
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentExecutionYear =
                 sc -> executionYear == null || sc.getExecutionYear() == executionYear;
-        return getAllStudentCandidacies().stream().filter(hasDgesImportationForCurrentExecutionYear)
+        return getAllStudentCandidacies(executionYear).stream().filter(hasDgesImportationForCurrentExecutionYear)
                 .filter(hasDgesImportationForCurrentPhase).filter(hasDgesImportationForCurrentState)
                 .filter(hasDgesImportationForCurrentIngress).filter(hasDgesImportationForAfterBegin)
                 .filter(hasDgesImportationForBeforeEnd).map(sc -> populateBean(sc)).collect(Collectors.toList());
@@ -194,7 +200,10 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         return phases;
     }
 
-    private List<StudentCandidacy> getAllStudentCandidacies() {
+    private List<StudentCandidacy> getAllStudentCandidacies(final ExecutionYear executionYear) {
+        if (executionYear == null) {
+            return Collections.emptyList();
+        }
         return Bennu.getInstance().getCandidaciesSet().stream().filter(c -> c instanceof FirstTimeCandidacy)
                 .map(StudentCandidacy.class::cast).filter(c -> c.getRegistration() != null).collect(Collectors.toList());
     }
