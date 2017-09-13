@@ -544,4 +544,12 @@ public class RegistrationServices {
                 .sorted(ExecutionYear.COMPARATOR_BY_BEGIN_DATE.reversed()).findFirst().orElse(null);
     }
 
+    public static void setManuallyAssignedNumber(final Registration input, boolean value) {
+        RegistrationExtendedInformation.findOrCreate(input).setManuallyAssignedNumber(value);
+    }
+
+    public static boolean isManuallyAssignedNumber(final Registration input) {
+        return input.getExtendedInformation() != null && input.getExtendedInformation().getManuallyAssignedNumber();
+    }
+
 }
