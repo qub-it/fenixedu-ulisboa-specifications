@@ -699,6 +699,7 @@ class studentCurriculum.CreditsReasonType {
 	boolean active;
 	boolean averageEntry;
 	boolean infoHidden;
+	MultiLanguageString infoText (REQUIRED);
 	boolean infoExplained;
 	boolean infoExplainedWithCountry;
 	boolean infoExplainedWithInstitution;

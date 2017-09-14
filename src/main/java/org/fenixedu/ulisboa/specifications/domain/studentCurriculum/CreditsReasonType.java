@@ -36,11 +36,12 @@ public class CreditsReasonType extends CreditsReasonType_Base {
 
     @Atomic
     static public CreditsReasonType create(final MultiLanguageString reason, final boolean active, final boolean averageEntry,
-            final boolean infoHidden, final boolean infoExplained, final boolean infoExplainedWithCountry,
-            final boolean infoExplainedWithInstitution, final boolean infoExplainedWithEcts) {
+            final boolean infoHidden, final MultiLanguageString infoText, final boolean infoExplained,
+            final boolean infoExplainedWithCountry, final boolean infoExplainedWithInstitution,
+            final boolean infoExplainedWithEcts) {
 
         final CreditsReasonType result = new CreditsReasonType();
-        result.init(reason, active, averageEntry, infoHidden, infoExplained, infoExplainedWithCountry,
+        result.init(reason, active, averageEntry, infoHidden, infoText, infoExplained, infoExplainedWithCountry,
                 infoExplainedWithInstitution, infoExplainedWithEcts);
 
         return result;
@@ -48,23 +49,26 @@ public class CreditsReasonType extends CreditsReasonType_Base {
 
     @Atomic
     public CreditsReasonType edit(final MultiLanguageString reason, final boolean active, final boolean averageEntry,
-            final boolean infoHidden, final boolean infoExplained, final boolean infoExplainedWithCountry,
-            final boolean infoExplainedWithInstitution, final boolean infoExplainedWithEcts) {
+            final boolean infoHidden, final MultiLanguageString infoText, final boolean infoExplained,
+            final boolean infoExplainedWithCountry, final boolean infoExplainedWithInstitution,
+            final boolean infoExplainedWithEcts) {
 
-        init(reason, active, averageEntry, infoHidden, infoExplained, infoExplainedWithCountry, infoExplainedWithInstitution,
-                infoExplainedWithEcts);
+        init(reason, active, averageEntry, infoHidden, infoText, infoExplained, infoExplainedWithCountry,
+                infoExplainedWithInstitution, infoExplainedWithEcts);
 
         return this;
     }
 
     private void init(final MultiLanguageString reason, final boolean active, final boolean averageEntry,
-            final boolean infoHidden, final boolean infoExplained, final boolean infoExplainedWithCountry,
-            final boolean infoExplainedWithInstitution, final boolean infoExplainedWithEcts) {
+            final boolean infoHidden, final MultiLanguageString infoText, final boolean infoExplained,
+            final boolean infoExplainedWithCountry, final boolean infoExplainedWithInstitution,
+            final boolean infoExplainedWithEcts) {
 
         super.setReason(reason);
         super.setActive(active);
         super.setAverageEntry(averageEntry);
         super.setInfoHidden(infoHidden);
+        super.setInfoText(infoText);
         super.setInfoExplained(infoExplained);
         super.setInfoExplainedWithCountry(infoExplainedWithCountry);
         super.setInfoExplainedWithInstitution(infoExplainedWithInstitution);
