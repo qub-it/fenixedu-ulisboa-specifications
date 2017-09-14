@@ -24,6 +24,7 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestYear;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
@@ -104,11 +105,14 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public String search(@RequestParam(value = "civilYear", required = false) Integer civilYear,
             @RequestParam(value = "degreeType", required = false) final DegreeType degreeType,
             @RequestParam(value = "degree", required = false) final Degree degree,
+            @RequestParam(value = "serviceRequestCategories",
+                    required = false) final Collection<ServiceRequestCategory> categories,
             @RequestParam(value = "serviceRequestType", required = false) final ServiceRequestType serviceRequestType,
             @RequestParam(value = "state", required = false) final AcademicServiceRequestSituationType situationType,
-            @RequestParam(value = "urgent", required = false) final boolean isUrgent,
-            @RequestParam(value = "selfIssued", required = false) final boolean isSelfIssued,
+            @RequestParam(value = "urgent", required = false) final Boolean isUrgent,
+            @RequestParam(value = "selfIssued", required = false) final Boolean isSelfIssued,
             @RequestParam(value = "requestNumber", required = false) final String requestNumber,
+            @RequestParam(value = "language", required = false) final Locale language,
             @RequestParam(value = "payed", required = false) final Boolean isPayed, final Model model) {
 
         Set<Integer> years = new HashSet<>();
@@ -137,15 +141,15 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             model.addAttribute("currentCivilYear", yearsList.get(0));
             civilYear = yearsList.get(0);
         }
-        model.addAttribute("searchServiceRequestsSet", filterSearchServiceRequest(civilYear, degreeType, degree,
-                serviceRequestType, situationType, isUrgent, isSelfIssued, requestNumber, isPayed));
+        model.addAttribute("searchServiceRequestsSet", filterSearchServiceRequest(civilYear, degreeType, degree, categories,
+                serviceRequestType, situationType, isUrgent, isSelfIssued, language, requestNumber, isPayed));
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/search";
     }
 
     private List<ULisboaServiceRequest> filterSearchServiceRequest(final int civilYear, final DegreeType degreeType,
-            final Degree degree, final ServiceRequestType serviceRequestType,
-            final AcademicServiceRequestSituationType situationType, final boolean isUrgent, final boolean isSelfIssued,
-            final String requestNumber, final Boolean isPayed) {
+            final Degree degree, final Collection<ServiceRequestCategory> categories, final ServiceRequestType serviceRequestType,
+            final AcademicServiceRequestSituationType situationType, final Boolean isUrgent, final Boolean isSelfIssued,
+            final Locale language, final String requestNumber, final Boolean isPayed) {
         AcademicServiceRequestYear requestsYear = AcademicServiceRequestYear.readByYear(civilYear, false);
 
         Predicate<ULisboaServiceRequest> filterIsPayed = req -> {
@@ -163,10 +167,14 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .map(ULisboaServiceRequest.class::cast)
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
                 .filter(req -> degree == null || req.getRegistration().getDegree().equals(degree))
+                .filter(req -> categories == null || categories.size() == 0
+                        || categories.contains(req.getServiceRequestType().getServiceRequestCategory()))
                 .filter(req -> serviceRequestType == null || req.getServiceRequestType().equals(serviceRequestType))
                 .filter(req -> situationType == null
                         || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
-                .filter(req -> req.isUrgent() == isUrgent).filter(req -> req.isSelfIssued() == isSelfIssued)
+                .filter(req -> isUrgent == null || req.isUrgent() == isUrgent)
+                .filter(req -> isSelfIssued == null || req.isSelfIssued() == isSelfIssued)
+                .filter(req -> language == null || req.getLanguage() == null || req.getLanguage().equals(language))
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
                 .filter(filterIsPayed).limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
     }

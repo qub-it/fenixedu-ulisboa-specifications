@@ -1,3 +1,11 @@
+<%@page import="org.apache.commons.lang.WordUtils"%>
+<%@page import="org.fenixedu.academic.util.StringFormatter"%>
+<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="java.util.Locale"%>
+<%@page import="org.fenixedu.bennu.core.util.CoreConfiguration"%>
+<%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaConstants"%>
+<%@page import="org.fenixedu.bennu.core.i18n.BundleUtil"%>
+<%@page import="org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory"%>
 <%@page import="org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent"%>
 <%@page import="org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
@@ -14,7 +22,8 @@
 <script type="text/javascript" src="${datatablesUrl}"></script>
 <script type="text/javascript" src="${datatablesBootstrapJsUrl}"></script>
 <spring:url var="datatablesCssUrl"
-    value="/CSS/zs/dataTables.bootstrap.min.css" />
+    value="/CSS/dataTables/dataTables.bootstrap.min.css" />
+
 <link rel="stylesheet" href="${datatablesCssUrl}" />
 <spring:url var="datatablesI18NUrl"
     value="/javaScript/dataTables/media/i18n/${portal.locale.language}.json" />
@@ -140,84 +149,61 @@ function submit(url) {
 
 <div class="panel panel-default">
     <form method="get" class="form-horizontal">
-        <div class="panel-body">
+        <div class="panel-body">    
             <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.civilYear" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-1">
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_civilYear"
                         class="js-example-basic-single"
-                        name="civilYear">
+                        name="civilYear" style="width:100%">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
                         <c:forEach var="civilYear" items="${civilYearsList}">
-                        		<option value="${civilYear}">${civilYear}</option>
+                                <option value="${civilYear}">${civilYear}</option>
                         </c:forEach>
                     </select>
                     <script type="text/javascript">
-		                $("#academicRequest_civilYear").select2();
+                        $("#academicRequest_civilYear").select2({
+                            width: 'element',
+                            minimumResultsForSearch: Infinity
+                          });
                         $("#academicRequest_civilYear").val("${currentCivilYear}").trigger("change");
-		                $("#academicRequest_civilYear").val("${param.civilYear}").trigger("change");
+                        $("#academicRequest_civilYear").val("${param.civilYear}").trigger("change");
                     </script>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.academicRequest.degreeType" />
+                
+                <div class="col-sm-1 control-label">
+                    <spring:message code="label.ServiceRequestType.serviceRequestCategory" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-2">
                     <%-- Relation to side 1 drop down rendered in input --%>
-                    <select id="academicRequest_degreeType"
-                        class="js-example-basic-single"
-                        name="degreeType">
+                    <select id="academicRequest_serviceRequestType_serviceRequestCategory"
+                        class="js-example-basic-multiple"
+                        name="serviceRequestCategories" multiple="multiple" style="width:100%">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
-                    	<c:forEach var="degreeType" items="${degreeTypesList}">
-                        	<c:if test="${degreeType.externalId != param.degreeType}">
-                        		<option value="${degreeType.externalId}">${degreeType.name.content}</option>
-                        	</c:if>
-                        	<c:if test="${degreeType.externalId == param.degreeType}">                    	
-	                        	<option value="${degreeType.externalId}" selected>${degreeType.name.content}</option>
-                        	</c:if>
-                        </c:forEach>
+                        <% for(ServiceRequestCategory category : ServiceRequestCategory.values()) { %>
+                        <%     String paramCategory = request.getParameter("serviceRequestCategory");
+                               if(category.getName().equals(paramCategory)) { %>
+                                   <option value="<%= category %>"><%= BundleUtil.getString(ULisboaConstants.BUNDLE, category.getQualifiedName()) %></option>
+                               <% } else { %>
+                                   <option value="<%= category %>"><%= BundleUtil.getString(ULisboaConstants.BUNDLE, category.getQualifiedName()) %></option>
+                               <% } %>
+                        <% } %>
                     </select>
-                    <script type="text/javascript">
-		                $("#academicRequest_degreeType").select2();
+                    <script type="text/javascript">                   
+                        $("#academicRequest_serviceRequestType_serviceRequestCategory").select2({
+                            width: 'element',
+                            minimumResultsForSearch: Infinity
+                          });
                     </script>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.academicRequest.degree" />
-                </div>
-
-                <div class="col-sm-6">
-                    <%-- Relation to side 1 drop down rendered in input --%>
-                    <select id="academicRequest_degree"
-                        class="js-example-basic-single"
-                        name="degree">
-                        <option value="">&nbsp;</option>
-                        <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
-                    	<c:forEach var="degree" items="${degreesList}">
-                        	<c:if test="${degree.externalId != param.degree}">
-                        		<option value="${degree.externalId}">${degree.nameI18N.content}</option>
-                        	</c:if>
-                        	<c:if test="${degree.externalId == param.degree}">                    	
-	                        	<option value="${degree.externalId}" selected>${degree.nameI18N.content}</option>
-                        	</c:if>
-                        </c:forEach>
-                    </select>
-                    <script type="text/javascript">
-		                $("#academicRequest_degree").select2();
-                    </script>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.serviceRequestType" />
                 </div>
 
@@ -225,7 +211,7 @@ function submit(url) {
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_serviceRequestType"
                         class="js-example-basic-single"
-                        name="serviceRequestType">
+                        name="serviceRequestType" style="width:100%">
                         <option value="">&nbsp;</option>
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
                     	<c:forEach var="serviceRequestType" items="${serviceRequestTypesList}">
@@ -237,17 +223,77 @@ function submit(url) {
                         	</c:if>
                         </c:forEach>
                     </select>
-                    <script type="text/javascript">
-		                $("#academicRequest_serviceRequestType").select2();
+                    <script type="text/javascript">		                
+		                $('#academicRequest_serviceRequestType').select2({
+		                    width: 'element',
+		                   minimumResultsForSearch: Infinity
+		                 });
                     </script>
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                <div class="col-sm-1 control-label">
+                    <spring:message code="label.academicRequest.degreeType" />
+                </div>
+
+                <div class="col-sm-2">
+                    <%-- Relation to side 1 drop down rendered in input --%>
+                    <select id="academicRequest_degreeType"
+                        class="js-example-basic-single"
+                        name="degreeType" style="width:100%">
+                        <option value="">&nbsp;</option>
+                        <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
+                        <c:forEach var="degreeType" items="${degreeTypesList}">
+                            <c:if test="${degreeType.externalId != param.degreeType}">
+                                <option value="${degreeType.externalId}">${degreeType.name.content}</option>
+                            </c:if>
+                            <c:if test="${degreeType.externalId == param.degreeType}">                      
+                                <option value="${degreeType.externalId}" selected>${degreeType.name.content}</option>
+                            </c:if>
+                        </c:forEach>
+                    </select>
+                    <script type="text/javascript">
+                        $("#academicRequest_degreeType").select2({
+                            width: 'element',
+                            minimumResultsForSearch: Infinity
+                          });
+                    </script>
+                </div>
+                
+                <div class="col-sm-1 control-label">
+                    <spring:message code="label.academicRequest.degree" />
+                </div>
+
+                <div class="col-sm-8">
+                    <%-- Relation to side 1 drop down rendered in input --%>
+                    <select id="academicRequest_degree"
+                        class="js-example-basic-single"
+                        name="degree" style="width:100%">
+                        <option value="">&nbsp;</option>
+                        <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
+                        <c:forEach var="degree" items="${degreesList}">
+                            <c:if test="${degree.externalId != param.degree}">
+                                <option value="${degree.externalId}">${degree.nameI18N.content}</option>
+                            </c:if>
+                            <c:if test="${degree.externalId == param.degree}">                      
+                                <option value="${degree.externalId}" selected>${degree.nameI18N.content}</option>
+                            </c:if>
+                        </c:forEach>
+                    </select>
+                    <script type="text/javascript">
+                        $("#academicRequest_degree").select2({
+                            width: 'element',
+                            minimumResultsForSearch: Infinity
+                          });
+                    </script>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.state" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-1">
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_state"
                         class="js-example-basic-single"
@@ -256,46 +302,62 @@ function submit(url) {
                         <%-- empty option remove it if you don't want to have it or give it a label CHANGE_ME --%>
                     </select>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
+
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.urgent" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-1">
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_urgent"
                         class="js-example-basic-single"
-                        name="urgent">
+                        name="urgent" style="width:100%">
+                        <option value="">&nbsp;</option>
                         <option value="false"><spring:message code="label.no" /></option>
                         <option value="true"><spring:message code="label.yes" /></option>
                     </select>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                
+                <script>
+                    $(document).ready(function() {
+                         $("#academicRequest_urgent").select2({
+                             width: 'element',
+                             minimumResultsForSearch: Infinity
+                           }).select2('val', '<c:out value='${param.urgent}'/>');
+                    });
+                </script>
+                
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.requestedOnline" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-1">
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_selfIssued"
                         class="js-example-basic-single"
-                        name="selfIssued">
+                        name="selfIssued" style="width:100%">
+                        <option value="">&nbsp;</option>
                         <option value="false"><spring:message code="label.no" /></option>
                         <option value="true"><spring:message code="label.yes" /></option>
                     </select>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                <script>
+                    $(document).ready(function() {
+                         $("#academicRequest_selfIssued").select2({
+                             width: 'element',
+                             minimumResultsForSearch: Infinity
+                           }).select2('val', '<c:out value='${param.selfIssued}'/>');
+                    });
+                </script>
+
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.payed" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-1">
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_payed"
-                        class="js-example-basic-single" name="payed">
+                        class="js-example-basic-single" name="payed" style="width:100%">
                         <option value="">&nbsp;</option>
                         <option value="false"><spring:message code="label.no" /></option>
                         <option value="true"><spring:message code="label.yes" /></option>
@@ -304,16 +366,42 @@ function submit(url) {
                 
                 <script>
                 	$(document).ready(function() {
-                	     $("#academicRequest_payed").select2().select2('val', '<c:out value='${param.payed}'/>');
+                	     $("#academicRequest_payed").select2({
+                             width: 'element',
+                             minimumResultsForSearch: Infinity
+                           }).select2('val', '<c:out value='${param.payed}'/>');
                 	});
                 </script>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
+                
+                <div class="col-sm-1 control-label">
+                    <spring:message code="label.ServiceRequestSlot.label.language" />
+                </div>
+
+                <div class="col-sm-1">
+                    <%-- Relation to side 1 drop down rendered in input --%>
+                    <select id="academicRequest_language"
+                        class="js-example-basic-single" name="language" style="width:100%">
+                        <option value="">&nbsp;</option>
+                        <% for(Locale locale : CoreConfiguration.supportedLocales()) { %>
+                            <option value="<%= locale %>"><%= WordUtils.capitalizeFully(locale.getDisplayLanguage()) %></option>
+                        <% } %>
+                    </select>
+                </div>
+                
+                <script>
+                    $(document).ready(function() {
+                         $("#academicRequest_language").select2({
+                             width: 'element',
+                             minimumResultsForSearch: Infinity
+                           }).select2('val', '<c:out value='${param.language}'/>');
+                    });
+                </script>
+                
+                <div class="col-sm-1 control-label">
                     <spring:message code="label.academicRequest.requestNumber" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-1">
                     <input id="serviceRequestSlot_requestNumber" class="form-control" type="text" name="requestNumber" value='<c:out value='${param.requestNumber}'/>' />                    
                 </div>
             </div>            
@@ -413,11 +501,24 @@ TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
     </c:otherwise>
 </c:choose>
 
+<style>
+
+.form-group .select2-container {
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: 100%;
+  margin-bottom: 0;
+  display: table;
+  table-layout: fixed;
+}
+
+</style>
+
 <script>
 	
 	$(document).ready(function() {
      
-     <%-- Begin of select academicRequest_executionYear --%>
      state_options = [
         <c:forEach items="${states}" var="element"> 
         {
@@ -431,9 +532,6 @@ TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
      });
      <%-- If it's not from parameter change param.productGroup to whatever you need (it's the externalId already) --%>
      $("#academicRequest_state").select2().select2('val', '<c:out value='${param.state}'/>');
-     <%-- END of select academicRequest_executionYear --%>        
-     $("#academicRequest_urgent").select2().select2('val', '<c:out value='${param.urgent}'/>');
-     
 
 
 
