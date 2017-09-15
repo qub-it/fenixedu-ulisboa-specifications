@@ -17,10 +17,7 @@
 	<div style="text-align: center;" class="color777 italic">
 		<bean:message bundle="APPLICATION_RESOURCES" key="message.pleaseWait.message" />
 		<br />
-		
-		<%-- 
-		<html:img align="middle" src="/static/lib/fancytree/skin-lion/loading.gif" module="/" />
-		--%>
+		<html:img align="middle" src='<%=request.getContextPath() + "/static/lib/fancytree/skin-lion/loading.gif"%>' />
 	</div>
 </div>
 
