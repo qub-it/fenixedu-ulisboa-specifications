@@ -164,7 +164,13 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
     // qubExtension, don't SHOW empty groups
     private Boolean isEmptyGroup(final StudentCurriculumGroupBean bean) {
-        final Boolean value = emptyGroups.get(bean.getCurriculumModule());
+        final CurriculumGroup group = bean.getCurriculumModule();
+
+        if (group.isRoot() || group.getCurriculumGroup().isRoot() || group.isBranchCurriculumGroup()) {
+            return false;
+        }
+
+        final Boolean value = emptyGroups.get(group);
         return value != null && value;
     }
 
