@@ -404,7 +404,7 @@ public class RegistrationHistoryReportService {
 
     static protected BigDecimal calculateCurrentAverage(Registration registration) {
         final Curriculum curriculum = (Curriculum) RegistrationServices.getCurriculum(registration, null);
-        return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(3,
+        return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(5,
                 RoundingMode.DOWN);
     }
 
