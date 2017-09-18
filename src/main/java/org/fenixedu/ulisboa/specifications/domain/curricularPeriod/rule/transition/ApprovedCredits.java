@@ -100,7 +100,8 @@ public class ApprovedCredits extends ApprovedCredits_Base {
 
     public RuleResult executeYearless(final Curriculum input) {
         final Curriculum curriculum = prepareCurriculum(input);
-        return curriculum.getSumEctsCredits().compareTo(getCredits()) >= 0 ? createTrue() : createFalseLabelled(getCredits());
+        final BigDecimal total = curriculum.getSumEctsCredits();
+        return total.compareTo(getCredits()) >= 0 ? createTrue() : createFalseLabelled(total);
     }
 
     @Override
@@ -120,7 +121,6 @@ public class ApprovedCredits extends ApprovedCredits_Base {
         }
 
         final BigDecimal total = calculateTotalApproved(curriculum, configured);
-
         return total.compareTo(getCredits()) >= 0 ? createTrue() : createFalseLabelled(total);
     }
 
