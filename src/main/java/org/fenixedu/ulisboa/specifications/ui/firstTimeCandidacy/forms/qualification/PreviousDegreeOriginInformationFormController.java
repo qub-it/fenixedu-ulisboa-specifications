@@ -34,6 +34,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
@@ -219,8 +220,16 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
          * -----------
          */
 
-        if (StringUtils.isEmpty(StringUtils.trim(form.getPrecedentInstitutionOid()))) {
+        if (Strings.isNullOrEmpty(StringUtils.trim(form.getPrecedentInstitutionOid()))
+                && Strings.isNullOrEmpty(StringUtils.trim(form.getPrecedentInstitutionName()))) {
             result.add(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.institution.must.be.filled"));
+        }
+
+        if (form.getPrecedentCountry() != null && form.getPrecedentCountry().isDefaultCountry()
+                && form.getPrecedentSchoolLevel().isHigherEducation()) {
+            if (Strings.isNullOrEmpty(StringUtils.trim(form.getPrecedentInstitutionOid()))) {
+                result.add(BundleUtil.getString(BUNDLE, "error.PreviousDegreeOriginInformationForm.institution.must.be.filled"));
+            }
         }
 
         /* ------------------

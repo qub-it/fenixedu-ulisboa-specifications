@@ -92,8 +92,8 @@ public class OriginInformationForm implements CandidancyForm {
                     dd -> schoolLevel.getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode())
                             && StringNormalizer.normalize(getFullDescription(dd))
                                     .contains(StringNormalizer.normalize(degreeNamePart == null ? "" : degreeNamePart));
-            Set<Unit> units = new HashSet<Unit>();
-            Collection<DegreeDesignation> possibleDesignations = new HashSet<DegreeDesignation>();
+            Set<Unit> units = new HashSet<>();
+            Collection<DegreeDesignation> possibleDesignations = new HashSet<>();
             if (institutionOid != null) {
                 Unit unit = FenixFramework.getDomainObject(institutionOid);
                 if (unit != null) {
@@ -107,7 +107,7 @@ public class OriginInformationForm implements CandidancyForm {
             if (raidesDegreeDesignation != null) {
                 setDegreeNamePart(getFullDescription(raidesDegreeDesignation));
             }
-            if (schoolLevel.isHigherEducation()) {
+            if (schoolLevel.isHigherEducation() && countryWhereFinishedPreviousCompleteDegree == Country.readDefault()) {
                 units.addAll(findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 50).stream()
                         .map(i -> i.getUnit()).filter(i -> !getDegreeDesignationsWithSameSchoolLevel(i).isEmpty())
                         .collect(Collectors.toSet()));
@@ -127,7 +127,7 @@ public class OriginInformationForm implements CandidancyForm {
 
     }
 
-    private List<DegreeDesignation> getDegreeDesignationsWithSameSchoolLevel(Unit i) {
+    private List<DegreeDesignation> getDegreeDesignationsWithSameSchoolLevel(final Unit i) {
         List<String> classifications = schoolLevel.getEquivalentDegreeClassifications();
         return i.getDegreeDesignationSet().stream().filter(d -> classifications.contains(d.getDegreeClassification().getCode()))
                 .collect(Collectors.toList());
@@ -141,7 +141,7 @@ public class OriginInformationForm implements CandidancyForm {
         return academicUnitNameLimitedOrderedSet;
     }
 
-    public static Collection<UnitName> findExternalUnit(String namePart, int size) {
+    public static Collection<UnitName> findExternalUnit(final String namePart, final int size) {
         final ExternalUnitNameLimitedOrderedSet unitNameLimitedOrderedSet = new ExternalUnitNameLimitedOrderedSet(size);
         findUnits(unitNameLimitedOrderedSet, namePart);
         return unitNameLimitedOrderedSet;
@@ -154,7 +154,7 @@ public class OriginInformationForm implements CandidancyForm {
         if (nameParts.length <= 0) {
             return;
         }
-        final Collection<UnitName> unitNames = new ArrayList<UnitName>();
+        final Collection<UnitName> unitNames = new ArrayList<>();
         final Collection<UnitNamePart> unitNameParts = findNameParts(nameParts[0]);
 
         if (unitNameParts.isEmpty()) {
@@ -182,7 +182,7 @@ public class OriginInformationForm implements CandidancyForm {
     }
 
     private static final Map<String, Collection<UnitNamePart>> unitNamePartIndexMap =
-            new HashMap<String, Collection<UnitNamePart>>();
+            new HashMap<>();
 
     public static Collection<UnitNamePart> findNameParts(final String namePart) {
         final String normalizedNamePart = StringNormalizer.normalize(namePart);
@@ -192,7 +192,7 @@ public class OriginInformationForm implements CandidancyForm {
             return indexedUnitNamePart;
         }
 
-        Collection<UnitNamePart> unitNameParts = new ArrayList<UnitNamePart>();
+        Collection<UnitNamePart> unitNameParts = new ArrayList<>();
         for (final UnitNamePart unitNamePart : Bennu.getInstance().getUnitNamePartSet()) {
             final String otherUnitNamePart = unitNamePart.getNamePart();
             if (otherUnitNamePart.contains(normalizedNamePart)) {
@@ -216,7 +216,7 @@ public class OriginInformationForm implements CandidancyForm {
         return true;
     }
 
-    private static boolean sequentialNameParts(String normalizedUnitName, String name) {
+    private static boolean sequentialNameParts(final String normalizedUnitName, final String name) {
         String[] normalizedUnitNames = normalizedUnitName.split(" ");
         String[] names = name.split(" ");
         if (names.length > normalizedUnitNames.length) {
@@ -238,7 +238,7 @@ public class OriginInformationForm implements CandidancyForm {
         return schoolLevel;
     }
 
-    public void setSchoolLevel(SchoolLevelType schoolLevel) {
+    public void setSchoolLevel(final SchoolLevelType schoolLevel) {
         this.schoolLevel = schoolLevel;
     }
 
@@ -246,7 +246,7 @@ public class OriginInformationForm implements CandidancyForm {
         return otherSchoolLevel;
     }
 
-    public void setOtherSchoolLevel(String otherSchoolLevel) {
+    public void setOtherSchoolLevel(final String otherSchoolLevel) {
         this.otherSchoolLevel = otherSchoolLevel;
     }
 
@@ -254,7 +254,7 @@ public class OriginInformationForm implements CandidancyForm {
         return conclusionGrade;
     }
 
-    public void setConclusionGrade(String conclusionGrade) {
+    public void setConclusionGrade(final String conclusionGrade) {
         this.conclusionGrade = conclusionGrade;
     }
 
@@ -265,7 +265,7 @@ public class OriginInformationForm implements CandidancyForm {
         return degreeDesignation;
     }
 
-    public void setDegreeDesignation(String degreeDesignation) {
+    public void setDegreeDesignation(final String degreeDesignation) {
         this.degreeDesignation = degreeDesignation;
     }
 
@@ -273,7 +273,7 @@ public class OriginInformationForm implements CandidancyForm {
         return conclusionYear;
     }
 
-    public void setConclusionYear(String conclusionYear) {
+    public void setConclusionYear(final String conclusionYear) {
         this.conclusionYear = conclusionYear;
     }
 
@@ -281,7 +281,7 @@ public class OriginInformationForm implements CandidancyForm {
         return institutionOid;
     }
 
-    public void setInstitutionOid(String institutionOid) {
+    public void setInstitutionOid(final String institutionOid) {
         this.institutionOid = institutionOid;
     }
 
@@ -289,7 +289,7 @@ public class OriginInformationForm implements CandidancyForm {
         return raidesDegreeDesignation;
     }
 
-    public void setRaidesDegreeDesignation(DegreeDesignation raidesDegreeDesignation) {
+    public void setRaidesDegreeDesignation(final DegreeDesignation raidesDegreeDesignation) {
         this.raidesDegreeDesignation = raidesDegreeDesignation;
     }
 
@@ -297,7 +297,7 @@ public class OriginInformationForm implements CandidancyForm {
         return countryWhereFinishedPreviousCompleteDegree;
     }
 
-    public void setCountryWhereFinishedPreviousCompleteDegree(Country countryWhereFinishedPreviousCompleteDegree) {
+    public void setCountryWhereFinishedPreviousCompleteDegree(final Country countryWhereFinishedPreviousCompleteDegree) {
         this.countryWhereFinishedPreviousCompleteDegree = countryWhereFinishedPreviousCompleteDegree;
     }
 
@@ -308,7 +308,7 @@ public class OriginInformationForm implements CandidancyForm {
         return null;
     }
 
-    public void setHighSchoolType(AcademicalInstitutionType highSchoolType) {
+    public void setHighSchoolType(final AcademicalInstitutionType highSchoolType) {
         this.highSchoolType = highSchoolType;
     }
 
@@ -320,7 +320,7 @@ public class OriginInformationForm implements CandidancyForm {
         return institutionName;
     }
 
-    public void setInstitutionName(String institutionName) {
+    public void setInstitutionName(final String institutionName) {
         this.institutionName = institutionName;
     }
 
@@ -328,7 +328,7 @@ public class OriginInformationForm implements CandidancyForm {
         return districtWhereFinishedPreviousCompleteDegree;
     }
 
-    public void setDistrictWhereFinishedPreviousCompleteDegree(District districtWhereFinishedPreviousCompleteDegree) {
+    public void setDistrictWhereFinishedPreviousCompleteDegree(final District districtWhereFinishedPreviousCompleteDegree) {
         this.districtWhereFinishedPreviousCompleteDegree = districtWhereFinishedPreviousCompleteDegree;
     }
 
@@ -337,7 +337,7 @@ public class OriginInformationForm implements CandidancyForm {
     }
 
     public void setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(
-            DistrictSubdivision districtSubdivisionWhereFinishedPreviousCompleteDegree) {
+            final DistrictSubdivision districtSubdivisionWhereFinishedPreviousCompleteDegree) {
         this.districtSubdivisionWhereFinishedPreviousCompleteDegree = districtSubdivisionWhereFinishedPreviousCompleteDegree;
     }
 
@@ -345,7 +345,7 @@ public class OriginInformationForm implements CandidancyForm {
         return districtAndSubdivisionRequired;
     }
 
-    public void setDistrictAndSubdivisionRequired(boolean districtAndSubdivisionRequired) {
+    public void setDistrictAndSubdivisionRequired(final boolean districtAndSubdivisionRequired) {
         this.districtAndSubdivisionRequired = districtAndSubdivisionRequired;
     }
 
@@ -353,7 +353,7 @@ public class OriginInformationForm implements CandidancyForm {
         return institutionValues;
     }
 
-    public void setRaidesInstitutionValues(Collection<Unit> institutionValues) {
+    public void setRaidesInstitutionValues(final Collection<Unit> institutionValues) {
         this.institutionValues = institutionValues.stream().map(u -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(u.getExternalId());
@@ -363,7 +363,7 @@ public class OriginInformationForm implements CandidancyForm {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    public void setInstitutionValues(Collection<Unit> institutionValues) {
+    public void setInstitutionValues(final Collection<Unit> institutionValues) {
         this.institutionValues = institutionValues.stream().map(u -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(u.getExternalId());
@@ -376,7 +376,7 @@ public class OriginInformationForm implements CandidancyForm {
         return schoolLevelValues;
     }
 
-    public void setSchoolLevelValues(List<SchoolLevelType> schoolLevelValues) {
+    public void setSchoolLevelValues(final List<SchoolLevelType> schoolLevelValues) {
         this.schoolLevelValues = schoolLevelValues.stream().map(slt -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(slt.toString());
@@ -410,7 +410,7 @@ public class OriginInformationForm implements CandidancyForm {
         return raidesDegreeDesignationValues;
     }
 
-    public void setRaidesDegreeDesignationValues(List<DegreeDesignation> raidesDegreeDesignationValues) {
+    public void setRaidesDegreeDesignationValues(final List<DegreeDesignation> raidesDegreeDesignationValues) {
         this.raidesDegreeDesignationValues = raidesDegreeDesignationValues.stream().map(dd -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(dd.getExternalId());
@@ -419,7 +419,7 @@ public class OriginInformationForm implements CandidancyForm {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    private String getFullDescription(DegreeDesignation designation) {
+    private String getFullDescription(final DegreeDesignation designation) {
         return "[" + designation.getCode() + "] " + designation.getDegreeClassification().getDescription1() + " - "
                 + designation.getDescription();
     }
@@ -428,7 +428,7 @@ public class OriginInformationForm implements CandidancyForm {
         return countriesValues;
     }
 
-    public void setCountriesValues(Collection<Country> countriesValues) {
+    public void setCountriesValues(final Collection<Country> countriesValues) {
         this.countriesValues = countriesValues.stream().map(c -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(c.getExternalId());
@@ -441,7 +441,7 @@ public class OriginInformationForm implements CandidancyForm {
         return districtsValues;
     }
 
-    public void setDistrictsValues(Collection<District> districtsValues) {
+    public void setDistrictsValues(final Collection<District> districtsValues) {
         this.districtsValues = districtsValues.stream().map(d -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(d.getExternalId());
@@ -454,7 +454,7 @@ public class OriginInformationForm implements CandidancyForm {
         return districtSubdivisionValues;
     }
 
-    public void setDistrictSubdivisionValues(Collection<DistrictSubdivision> districtSubdivisionValues) {
+    public void setDistrictSubdivisionValues(final Collection<DistrictSubdivision> districtSubdivisionValues) {
         this.districtSubdivisionValues = districtSubdivisionValues.stream().map(ds -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(ds.getExternalId());
@@ -467,7 +467,7 @@ public class OriginInformationForm implements CandidancyForm {
         return highSchoolTypeValues;
     }
 
-    public void setHighSchoolTypeValues(List<AcademicalInstitutionType> highSchoolTypeValues) {
+    public void setHighSchoolTypeValues(final List<AcademicalInstitutionType> highSchoolTypeValues) {
         this.highSchoolTypeValues = highSchoolTypeValues.stream().map(ait -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(ait.toString());
@@ -480,7 +480,7 @@ public class OriginInformationForm implements CandidancyForm {
         return institutionNamePart;
     }
 
-    public void setInstitutionNamePart(String institutionNamePart) {
+    public void setInstitutionNamePart(final String institutionNamePart) {
         this.institutionNamePart = institutionNamePart;
     }
 
@@ -488,7 +488,7 @@ public class OriginInformationForm implements CandidancyForm {
         return degreeNamePart;
     }
 
-    public void setDegreeNamePart(String degreeNamePart) {
+    public void setDegreeNamePart(final String degreeNamePart) {
         this.degreeNamePart = degreeNamePart;
     }
 

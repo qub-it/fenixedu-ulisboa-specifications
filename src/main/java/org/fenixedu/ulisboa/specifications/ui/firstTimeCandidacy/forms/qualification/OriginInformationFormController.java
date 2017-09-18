@@ -119,7 +119,9 @@ public class OriginInformationFormController extends FormAbstractController {
         }
 
         String degreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
-        if (form.getSchoolLevel() != null && form.getSchoolLevel().isHigherEducation()) {
+        if (form.getSchoolLevel() != null && form.getSchoolLevel().isHigherEducation()
+                && form.getCountryWhereFinishedPreviousCompleteDegree() != null
+                && form.getCountryWhereFinishedPreviousCompleteDegree() == Country.readDefault()) {
             DegreeDesignation degreeDesignation;
             if (institution != null) {
                 Predicate<DegreeDesignation> matchesName =
@@ -240,19 +242,37 @@ public class OriginInformationFormController extends FormAbstractController {
          * INSTITUTION
          * -----------
          */
-
+        //TODO redo this verification
         if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()) {
-            if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))
-                    && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionName()))) {
-                result.add(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
-            }
+            if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
+                    && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()) {
+                if (form.getSchoolLevel() != null && form.getSchoolLevel().isHigherEducation()) {
+                    if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))
+                            && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionName()))) {
+                        result.add(BundleUtil.getString(BUNDLE,
+                                "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
+                    }
 
-            if (form.getSchoolLevel().isHigherEducation() && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))) {
-                result.add(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.OriginInformationForm.institution.must.be.in.the.system"));
-            }
+                    if (form.getSchoolLevel().isHigherEducation()
+                            && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))) {
+                        result.add(BundleUtil.getString(BUNDLE,
+                                "error.candidacy.workflow.OriginInformationForm.institution.must.be.in.the.system"));
+                    }
+                } else {
+                    if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))
+                            && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionName()))) {
+                        result.add(BundleUtil.getString(BUNDLE,
+                                "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
+                    }
 
+                }
+            } else {
+                if (Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionOid()))
+                        && Strings.isNullOrEmpty(StringUtils.trim(form.getInstitutionName()))) {
+                    result.add(BundleUtil.getString(BUNDLE,
+                            "error.candidacy.workflow.OriginInformationForm.institution.must.be.filled"));
+                }
+            }
         } else {
             if (form.getCountryWhereFinishedPreviousCompleteDegree() != null
                     && form.getCountryWhereFinishedPreviousCompleteDegree().isDefaultCountry()
@@ -348,6 +368,7 @@ public class OriginInformationFormController extends FormAbstractController {
         if (isInstitutionAndDegreeRequiredWhenNotDefaultCountryOrNotHigherLevel()
                 || !Strings.isNullOrEmpty(form.getInstitutionOid()) || !Strings.isNullOrEmpty(form.getInstitutionName())) {
             Unit institution = FenixFramework.getDomainObject(form.getInstitutionOid());
+
             if (institution == null && !form.getSchoolLevel().isHigherEducation()) {
                 institution = UnitUtils.readExternalInstitutionUnitByName(form.getInstitutionName());
                 if (institution == null) {
@@ -360,6 +381,20 @@ public class OriginInformationFormController extends FormAbstractController {
                             null, null);
                 }
             }
+
+            Country concludedCountry = form.getCountryWhereFinishedPreviousCompleteDegree();
+            if (institution == null && form.getSchoolLevel().isHigherEducation() && concludedCountry != null
+                    && !concludedCountry.isDefaultCountry()) {
+                //TODO create new child to get all other higher schools
+                Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
+                Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
+                Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
+                institution = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), form.getInstitutionName()), null, null,
+                        resolveAcronym(null, form.getInstitutionName()), new YearMonthDay(), null, adhocHighschools,
+                        AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null, null,
+                        null);
+            }
+
             precedentDegreeInformation.setInstitution(institution);
         }
 

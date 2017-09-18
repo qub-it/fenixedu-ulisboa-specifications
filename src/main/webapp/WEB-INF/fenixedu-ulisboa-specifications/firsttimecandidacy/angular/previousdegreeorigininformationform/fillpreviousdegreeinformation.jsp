@@ -137,6 +137,16 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
        $('form').submit();
     };
 
+    $scope.$watch('object.institutionValues', function() {
+        if($scope.object.institutionValues != null && $scope.object.institutionValues.length <= 1) {
+            $scope.object.institutionValues.push(
+                {
+                  'id': $scope.object.institutionNamePart, 
+                  'text':$scope.object.institutionNamePart
+                });
+        }
+    });
+
 }]);
 </script>
 

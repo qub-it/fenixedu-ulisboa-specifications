@@ -53,8 +53,8 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
                     .contains(dd.getDegreeClassification().getCode())
                     && StringNormalizer.normalize(getFullDescription(dd))
                             .contains(StringNormalizer.normalize(degreeNamePart == null ? "" : degreeNamePart));
-            Set<Unit> units = new HashSet<Unit>();
-            Collection<DegreeDesignation> possibleDesignations = new HashSet<DegreeDesignation>();
+            Set<Unit> units = new HashSet<>();
+            Collection<DegreeDesignation> possibleDesignations = new HashSet<>();
             if (precedentInstitutionOid != null) {
                 Unit unit = FenixFramework.getDomainObject(precedentInstitutionOid);
                 units.add(unit);
@@ -65,7 +65,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
             if (raidesPrecedentDegreeDesignation != null) {
                 setDegreeNamePart(getFullDescription(raidesPrecedentDegreeDesignation));
             }
-            if (precedentSchoolLevel.isHigherEducation()) {
+            if (precedentSchoolLevel.isHigherEducation() && precedentCountry == Country.readDefault()) {
                 units.addAll(OriginInformationForm
                         .findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 50).stream()
                         .map(i -> i.getUnit()).filter(i -> !i.getDegreeDesignationSet().isEmpty()).collect(Collectors.toSet()));
@@ -91,7 +91,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return precedentSchoolLevel;
     }
 
-    public void setPrecedentSchoolLevel(SchoolLevelType precedentSchoolLevel) {
+    public void setPrecedentSchoolLevel(final SchoolLevelType precedentSchoolLevel) {
         this.precedentSchoolLevel = precedentSchoolLevel;
     }
 
@@ -99,7 +99,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return otherPrecedentSchoolLevel;
     }
 
-    public void setOtherPrecedentSchoolLevel(String otherPrecedentSchoolLevel) {
+    public void setOtherPrecedentSchoolLevel(final String otherPrecedentSchoolLevel) {
         this.otherPrecedentSchoolLevel = otherPrecedentSchoolLevel;
     }
 
@@ -107,7 +107,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return precedentInstitutionOid;
     }
 
-    public void setPrecedentInstitutionOid(String precedentInstitutionOid) {
+    public void setPrecedentInstitutionOid(final String precedentInstitutionOid) {
         this.precedentInstitutionOid = precedentInstitutionOid;
     }
 
@@ -115,7 +115,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return precedentInstitutionName;
     }
 
-    public void setPrecedentInstitutionName(String precedentInstitutionName) {
+    public void setPrecedentInstitutionName(final String precedentInstitutionName) {
         this.precedentInstitutionName = precedentInstitutionName;
     }
 
@@ -123,7 +123,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return raidesPrecedentDegreeDesignation;
     }
 
-    public void setRaidesPrecedentDegreeDesignation(DegreeDesignation raidesPrecedentDegreeDesignation) {
+    public void setRaidesPrecedentDegreeDesignation(final DegreeDesignation raidesPrecedentDegreeDesignation) {
         this.raidesPrecedentDegreeDesignation = raidesPrecedentDegreeDesignation;
     }
 
@@ -131,11 +131,11 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return precedentCountry;
     }
 
-    public void setPrecedentCountry(Country precedentCountry) {
+    public void setPrecedentCountry(final Country precedentCountry) {
         this.precedentCountry = precedentCountry;
     }
 
-    public void setPrecedentDegreeDesignation(String precedentDegreeDesignation) {
+    public void setPrecedentDegreeDesignation(final String precedentDegreeDesignation) {
         this.precedentDegreeDesignation = precedentDegreeDesignation;
     }
 
@@ -152,7 +152,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return numberOfEnrolmentsInPreviousDegrees;
     }
 
-    public void setNumberOfEnrolmentsInPreviousDegrees(int numberOfEnrolmentsInPreviousDegrees) {
+    public void setNumberOfEnrolmentsInPreviousDegrees(final int numberOfEnrolmentsInPreviousDegrees) {
         this.numberOfEnrolmentsInPreviousDegrees = numberOfEnrolmentsInPreviousDegrees;
     }
 
@@ -160,7 +160,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return institutionValues;
     }
 
-    public void setRaidesInstitutionValues(Collection<Unit> institutionValues) {
+    public void setRaidesInstitutionValues(final Collection<Unit> institutionValues) {
         this.institutionValues = institutionValues.stream().map(u -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(u.getExternalId());
@@ -170,7 +170,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    public void setInstitutionValues(Collection<Unit> institutionValues) {
+    public void setInstitutionValues(final Collection<Unit> institutionValues) {
         this.institutionValues = institutionValues.stream().map(u -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(u.getExternalId());
@@ -183,7 +183,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return countriesValues;
     }
 
-    public void setCountriesValues(Collection<Country> countriesValues) {
+    public void setCountriesValues(final Collection<Country> countriesValues) {
         this.countriesValues = countriesValues.stream().map(c -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(c.getExternalId());
@@ -196,7 +196,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return schoolLevelValues;
     }
 
-    public void setSchoolLevelValues(List<SchoolLevelType> schoolLevelValues) {
+    public void setSchoolLevelValues(final List<SchoolLevelType> schoolLevelValues) {
         this.schoolLevelValues = schoolLevelValues.stream().map(slt -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(slt.toString());
@@ -226,7 +226,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return institutionNamePart;
     }
 
-    public void setInstitutionNamePart(String institutionNamePart) {
+    public void setInstitutionNamePart(final String institutionNamePart) {
         this.institutionNamePart = institutionNamePart;
     }
 
@@ -234,7 +234,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return raidesDegreeDesignationValues;
     }
 
-    public void setRaidesDegreeDesignationValues(List<DegreeDesignation> raidesDegreeDesignationValues) {
+    public void setRaidesDegreeDesignationValues(final List<DegreeDesignation> raidesDegreeDesignationValues) {
         this.raidesDegreeDesignationValues = raidesDegreeDesignationValues.stream().map(dd -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(dd.getExternalId());
@@ -243,7 +243,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
-    private String getFullDescription(DegreeDesignation designation) {
+    private String getFullDescription(final DegreeDesignation designation) {
         return "[" + designation.getCode() + "] " + designation.getDegreeClassification().getDescription1() + " - "
                 + designation.getDescription();
     }
@@ -252,7 +252,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         return degreeNamePart;
     }
 
-    public void setDegreeNamePart(String degreeNamePart) {
+    public void setDegreeNamePart(final String degreeNamePart) {
         this.degreeNamePart = degreeNamePart;
     }
 
