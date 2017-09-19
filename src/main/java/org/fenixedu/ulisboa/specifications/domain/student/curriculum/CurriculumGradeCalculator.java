@@ -67,9 +67,12 @@ public class CurriculumGradeCalculator
         this.sumPi = BigDecimal.ZERO;
         countAverage(curriculum.getEnrolmentRelatedEntries());
         countAverage(curriculum.getDismissalRelatedEntries());
-        BigDecimal avg = calculateAverage();
-        this.rawGrade = Grade.createGrade(avg.setScale(RAW_SCALE, getRawGradeRoundingMode()).toString(), GradeScale.TYPE20);
-        this.finalGrade = Grade.createGrade(avg.setScale(0, ROUNDING_DEFAULT).toString(), GradeScale.TYPE20);
+        final BigDecimal avg = calculateAverage();
+
+        // qubExtension, bug fix on finalGrade calculation, must use rawAvg
+        final BigDecimal rawAvg = avg.setScale(RAW_SCALE, getRawGradeRoundingMode());
+        this.rawGrade = Grade.createGrade(rawAvg.toString(), GradeScale.TYPE20);
+        this.finalGrade = Grade.createGrade(rawAvg.setScale(0, ROUNDING_DEFAULT).toString(), GradeScale.TYPE20);
     }
 
     static private RoundingMode getRawGradeRoundingMode() {
@@ -100,6 +103,14 @@ public class CurriculumGradeCalculator
         return sumPi.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumPiCi.divide(sumPi, FULL_SCALE, ROUNDING_DEFAULT);
     }
 
+    public BigDecimal calculateAverage(Curriculum curriculum) {
+        if (sumPiCi == null) {
+            doCalculus(curriculum);
+        }
+
+        return calculateAverage();
+    }
+
     @Override
     public Grade rawGrade(Curriculum curriculum) {
         if (rawGrade == null) {
@@ -122,14 +133,6 @@ public class CurriculumGradeCalculator
             doCalculus(curriculum);
         }
         return sumPiCi;
-    }
-
-    public BigDecimal rawAverage(Curriculum curriculum) {
-        if (sumPiCi == null) {
-            doCalculus(curriculum);
-        }
-
-        return calculateAverage();
     }
 
     public Curriculum getCurriculum() {

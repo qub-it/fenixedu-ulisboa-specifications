@@ -583,7 +583,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     public String getCurrentAverage() {
         if (currentAverage == null) {
-            currentAverage = RegistrationHistoryReportService.calculateCurrentAverage(getRegistration());
+            currentAverage = RegistrationHistoryReportService.calculateAverage(getRegistration());
         }
 
         return currentAverage.toPlainString();
@@ -687,7 +687,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         final Registration registration = getRegistration();
         return registration == null ? null : registration.getStudentCurricularPlansSet().size();
     }
-    
+
     public String getSchoolClasses() {
         return getRegistration().getSchoolClassesSet().stream()
                 .filter(sc -> sc.getExecutionPeriod().getExecutionYear() == getExecutionYear())

@@ -402,9 +402,9 @@ public class RegistrationHistoryReportService {
                 .divide(BigDecimal.valueOf(total), MathContext.DECIMAL128).setScale(3, RoundingMode.HALF_UP);
     }
 
-    static protected BigDecimal calculateCurrentAverage(Registration registration) {
+    static protected BigDecimal calculateAverage(Registration registration) {
         final Curriculum curriculum = (Curriculum) RegistrationServices.getCurriculum(registration, null);
-        return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).rawAverage(curriculum).setScale(5,
+        return ((CurriculumGradeCalculator) curriculum.getGradeCalculator()).calculateAverage(curriculum).setScale(5,
                 RoundingMode.DOWN);
     }
 
