@@ -169,7 +169,6 @@ function submit(url) {
                     <script type="text/javascript">
                         $("#academicRequest_civilYear").select2({
                             width: 'element',
-                            minimumResultsForSearch: Infinity
                           });
                         $("#academicRequest_civilYear").val("${currentCivilYear}").trigger("change");
                         $("#academicRequest_civilYear").val("${param.civilYear}").trigger("change");
@@ -199,7 +198,6 @@ function submit(url) {
                     <script type="text/javascript">                   
                         $("#academicRequest_serviceRequestType_serviceRequestCategory").select2({
                             width: 'element',
-                            minimumResultsForSearch: Infinity
                           });
                     </script>
                 </div>
@@ -226,7 +224,6 @@ function submit(url) {
                     <script type="text/javascript">		                
 		                $('#academicRequest_serviceRequestType').select2({
 		                    width: 'element',
-		                   minimumResultsForSearch: Infinity
 		                 });
                     </script>
                 </div>
@@ -255,7 +252,6 @@ function submit(url) {
                     <script type="text/javascript">
                         $("#academicRequest_degreeType").select2({
                             width: 'element',
-                            minimumResultsForSearch: Infinity
                           });
                     </script>
                 </div>
@@ -283,7 +279,6 @@ function submit(url) {
                     <script type="text/javascript">
                         $("#academicRequest_degree").select2({
                             width: 'element',
-                            minimumResultsForSearch: Infinity
                           });
                     </script>
                 </div>

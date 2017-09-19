@@ -205,6 +205,17 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(e.getLocalizedMessage(), model);
         } catch (RuntimeException e) {
             addErrorMessage(e.getMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message = BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.create");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/create";
     }
@@ -345,6 +356,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(e.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message = BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.update");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
+
         }
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/update";
     }
@@ -366,6 +389,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message =
+                            BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.process");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         if (redirectToReferrer) {
             return redirectToReferrer(model, redirectAttributes);
@@ -390,6 +425,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message =
+                            BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.conclude");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         if (redirectToReferrer) {
             return redirectToReferrer(model, redirectAttributes);
@@ -414,6 +461,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message =
+                            BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.deliver");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         if (redirectToReferrer) {
             return redirectToReferrer(model, redirectAttributes);
@@ -438,7 +497,20 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message =
+                            BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.canceled");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
+
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
     }
 
@@ -459,6 +531,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message =
+                            BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.rejected");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
     }
@@ -499,6 +583,17 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message = BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.print");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         request.getSession().setAttribute(ERROR_MESSAGE_ATTRIBUTE, model.asMap().get(ERROR_MESSAGES));
         response.sendRedirect(request.getContextPath() + READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId());
@@ -566,6 +661,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message =
+                            BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.download");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         request.getSession().setAttribute(ERROR_MESSAGE_ATTRIBUTE, model.asMap().get(ERROR_MESSAGES));
         response.sendRedirect(request.getContextPath() + READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId());
@@ -599,6 +706,17 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message = BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.revert");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
         }
         return redirect(READ_ACADEMIC_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
     }

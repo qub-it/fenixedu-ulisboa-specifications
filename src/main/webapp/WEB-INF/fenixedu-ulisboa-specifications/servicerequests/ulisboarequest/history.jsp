@@ -230,16 +230,16 @@ ${portal.toolkit()}
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
                 <c:choose>
                     <c:when test="${request.serviceRequestType.printable && (request.academicServiceRequestSituationType == 'CONCLUDED' || request.academicServiceRequestSituationType == 'DELIVERED')}">
-                        " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.reprint'/></a>" +
+                        " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.download'/></a>" +
                     </c:when>
                     <c:otherwise>
-                        " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.reprint'/></a>" +
+                        " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.print'/></a>" +
                     </c:otherwise>
                 </c:choose>
                 ""
                 <%  } else {%>
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_SERVICE_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
-                " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.reprint'/></a>" +
+                " <a  class=\"btn btn-default btn-xs\" disabled href=\"${pageContext.request.contextPath}\"><spring:message code='label.download'/></a>" +
                 ""
                 <% }%>
         },
