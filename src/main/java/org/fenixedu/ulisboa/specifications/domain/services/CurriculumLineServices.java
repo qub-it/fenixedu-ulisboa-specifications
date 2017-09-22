@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.OptionalEnrolment;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -290,6 +291,10 @@ abstract public class CurriculumLineServices {
     static private EnrolmentEvaluation getLatestEnrolmentEvaluation(final Collection<EnrolmentEvaluation> evaluations) {
         return evaluations == null ? null : evaluations.stream().filter(i -> !i.isAnnuled()).max(new EvaluationComparator())
                 .orElse(null);
+    }
+
+    static public boolean isSourceOfAnyCredits(final ICurriculumEntry entry, final StudentCurricularPlan studentCurricularPlan) {
+        return studentCurricularPlan.getCreditsSet().stream().anyMatch(c -> c.getIEnrolments().contains(entry));
     }
 
 }
