@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -57,12 +58,10 @@ public class StudentActive {
             ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
             ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
             Predicate<? super Registration> registrationHasEnrolmentsInLast2Years =
-                    registration -> !registration.getEnrolments(currentExecutionYear).isEmpty()
-                            || !registration.getEnrolments(previousExecutionYear).isEmpty();
+                    registration -> hasAnyEnrolment(registration, previousExecutionYear, currentExecutionYear);
             List<Registration> activeRegistrations = student.getActiveRegistrations();
-            hasActiveRegistrationsWithEnrolments =
-                    !activeRegistrations.stream().filter(registrationHasEnrolmentsInLast2Years).collect(Collectors.toList())
-                            .isEmpty();
+            hasActiveRegistrationsWithEnrolments = !activeRegistrations.stream().filter(registrationHasEnrolmentsInLast2Years)
+                    .collect(Collectors.toList()).isEmpty();
 
             if (!hasActiveRegistrationsWithEnrolments) {
                 // There are special kinds of students, for example in protocols, where they are created in Fenix,
@@ -89,13 +88,12 @@ public class StudentActive {
                     activeRegistrationCreatedInTheLastMonth = activeRegistration.getRegistrationYear() == currentExecutionYear;
 
                     if (!activeRegistrationCreatedInTheLastMonth) {
-                        RegistrationState lastRegistrationState =
-                                activeRegistration.getLastRegistrationState(currentExecutionYear);
-                        activeRegistrationCreatedInTheLastMonth =
-                                lastRegistrationState != null && lastRegistrationState.isActive()
-                                        && lastRegistrationState.getStateDate() != null
-                                        && lastRegistrationState.getStateDate().isAfter(lastMonth);
+                        final RegistrationState lastState = activeRegistration.getLastRegistrationState(currentExecutionYear);
+
+                        activeRegistrationCreatedInTheLastMonth = lastState != null && lastState.getStateDate() != null
+                                && lastState.getStateDate().isAfter(lastMonth) && lastState.isActive();
                     }
+
                     if (activeRegistrationCreatedInTheLastMonth) {
                         break;
                     }
@@ -105,16 +103,10 @@ public class StudentActive {
             // Detect if it's 1st year, 1st time
             //
             if (!hasActiveRegistrationsWithEnrolments && !activeRegistrationCreatedInTheLastMonth) {
-                isFirstYearFirstTime =
-                        student.getPerson()
-                                .getCandidaciesSet()
-                                .stream()
-                                .filter(candidacy -> candidacy instanceof StudentCandidacy)
-                                .map(StudentCandidacy.class::cast)
-                                .anyMatch(
-                                        studentCandidacy -> studentCandidacy.isActive()
-                                                && studentCandidacy.getEntryPhase() != null
-                                                && studentCandidacy.getExecutionYear() == currentExecutionYear);
+                isFirstYearFirstTime = student.getPerson().getCandidaciesSet().stream()
+                        .filter(candidacy -> candidacy instanceof StudentCandidacy).map(StudentCandidacy.class::cast)
+                        .anyMatch(studentCandidacy -> studentCandidacy.getEntryPhase() != null
+                                && studentCandidacy.getExecutionYear() == currentExecutionYear && studentCandidacy.isActive());
             }
 
             // Removing detecion of other kind of candidate (still leaving the code just in case) 
@@ -136,4 +128,20 @@ public class StudentActive {
 
         return hasActiveRegistrationsWithEnrolments || isFirstYearFirstTime || activeRegistrationCreatedInTheLastMonth;
     }
+
+    static private boolean hasAnyEnrolment(final Registration registration, final ExecutionYear... years) {
+        if (registration == null || years == null) {
+            return false;
+        }
+
+        for (final ExecutionYear year : years) {
+            final StudentCurricularPlan plan = registration.getStudentCurricularPlan(year);
+            if (plan != null && plan.getRoot().hasEnrolment(year)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
