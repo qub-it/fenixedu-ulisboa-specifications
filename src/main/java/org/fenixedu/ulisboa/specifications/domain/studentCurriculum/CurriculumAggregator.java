@@ -165,6 +165,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         super.setContext(null);
         super.setEvaluationSeason(null);
 
+        super.setRoot(null);
         super.deleteDomainObject();
     }
 
