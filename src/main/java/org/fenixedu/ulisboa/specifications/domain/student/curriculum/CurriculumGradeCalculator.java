@@ -27,8 +27,11 @@ package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -37,6 +40,8 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 public class CurriculumGradeCalculator
         implements org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumGradeCalculator {
@@ -61,7 +66,7 @@ public class CurriculumGradeCalculator
 
     private Grade finalGrade;
 
-    private void doCalculus(Curriculum curriculum) {
+    private void doCalculus(final Curriculum curriculum) {
         this.curriculum = curriculum;
         this.sumPiCi = BigDecimal.ZERO;
         this.sumPi = BigDecimal.ZERO;
@@ -70,19 +75,26 @@ public class CurriculumGradeCalculator
         final BigDecimal avg = calculateAverage();
 
         // qubExtension, bug fix on finalGrade calculation, must use rawAvg
-        final BigDecimal rawAvg = avg.setScale(RAW_SCALE, getRawGradeRoundingMode());
+        final BigDecimal rawAvg =
+                avg.setScale(RAW_SCALE, getRawGradeRoundingMode(curriculum.getStudentCurricularPlan().getDegree()));
         this.rawGrade = Grade.createGrade(rawAvg.toString(), GradeScale.TYPE20);
         this.finalGrade = Grade.createGrade(rawAvg.setScale(0, ROUNDING_DEFAULT).toString(), GradeScale.TYPE20);
     }
 
-    static private RoundingMode getRawGradeRoundingMode() {
+    static private RoundingMode getRawGradeRoundingMode(final Degree degree) {
         RoundingMode result = ROUNDING_DEFAULT;
 
-        try {
-            result = RoundingMode
-                    .valueOf(ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculatorRawGradeRoundingMode());
-        } catch (final Throwable t) {
-            logger.warn("Failed to read Curriculum Grade Calculator Raw Grade Rounding Mode");
+        final String read = ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculatorRawGradeRoundingModeForDegrees();
+        final List<String> degreeCodes = read == null || read.isEmpty() ? Lists.newArrayList() : Arrays.asList(read.split(","));
+
+        if (degreeCodes.isEmpty() || degreeCodes.contains(degree.getCode())) {
+
+            try {
+                result = RoundingMode
+                        .valueOf(ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculatorRawGradeRoundingMode());
+            } catch (final Throwable t) {
+                logger.warn("Failed to read Curriculum Grade Calculator Raw Grade Rounding Mode");
+            }
         }
 
         return result;

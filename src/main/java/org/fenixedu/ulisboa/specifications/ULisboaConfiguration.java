@@ -35,6 +35,10 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.rawGradeRoundingMode", defaultValue = "HALF_UP")
         public String getCurriculumGradeCalculatorRawGradeRoundingMode();
 
+        @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.rawGradeRoundingMode.forDegrees",
+                defaultValue = "")
+        public String getCurriculumGradeCalculatorRawGradeRoundingModeForDegrees();
+
         @ConfigurationProperty(key = "domain.academic.curricularYearConfiguration.initialize", defaultValue = "false")
         public Boolean getCurricularPeriodConfigurationInitialize();
 
@@ -75,7 +79,7 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "documentation.active", defaultValue = "false")
         public Boolean getDocumentationActive();
-        
+
         @ConfigurationProperty(key = "ldap.integration.useCustomGivenNames", defaultValue = "false")
         public Boolean getUseCustomGivenNames();
 
