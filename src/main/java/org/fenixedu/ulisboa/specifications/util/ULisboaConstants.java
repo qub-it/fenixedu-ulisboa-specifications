@@ -33,12 +33,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
@@ -51,6 +51,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 
@@ -155,24 +156,19 @@ public class ULisboaConstants {
 
     public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(final Registration registration) {
 
-        return registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getCurriculumLines().stream()
-                .filter(e -> e.isApproved()).flatMap(i -> {
+        final StudentCurricularPlan plan = registration.getLastStudentCurricularPlan();
+        return plan.getExtraCurriculumGroup().getCurriculumLines().stream().filter(e -> e.isApproved()).flatMap(i -> {
 
-                    final Curriculum curriculum;
-                    final ExecutionYear year = (ExecutionYear) null;
-                    if (i.isLeaf() && i.isExtraCurricular()) {
-                        // HACK bypass Enrolment.getCurriculum's isExtraCurricular test
-                        // (could return "self" set, but oh well
-                        final Set<ICurriculumEntry> self = Collections.singleton((ICurriculumEntry) i);
-                        curriculum = new Curriculum(i, year, self, Collections.emptySet(), self);
+            if (i.isEnrolment() && i.isExtraCurricular()) {
+                // HACK bypass Enrolment.getCurriculum's isExtraCurricular test
+                return Collections.singleton((ICurriculumEntry) i).stream();
 
-                    } else {
-                        curriculum = i.getCurriculum(new DateTime(), year);
-                    }
+            } else {
+                final Curriculum curriculum = i.getCurriculum(new DateTime(), (ExecutionYear) null);
+                return curriculum.getCurriculumEntries().stream();
+            }
 
-                    return curriculum.getCurriculumEntries().stream();
-
-                }).collect(Collectors.toList());
+        }).filter(i -> !CurriculumLineServices.isSourceOfAnyCredits(i, plan)).collect(Collectors.toList());
     }
 
     public static final List<ICurriculumEntry> getConclusionCurriculum(final Registration registration,
