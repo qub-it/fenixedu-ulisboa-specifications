@@ -200,14 +200,6 @@ public class DocumentPrinter {
          *       se não tiverem dados/condições para injectarem chaves.
          */
 
-//        if (documentRequest instanceof ExtraCurricularCertificateRequest) {
-//            final ExtraCurricularCertificateRequest extraCurricularCertificateRequest =
-//                    (ExtraCurricularCertificateRequest) documentRequest;
-//
-//            generator.registerDataProvider(new ExtraCurricularCoursesDataProvider(extraCurricularCertificateRequest
-//                    .getEnrolmentsSet(), documentRequest.getLanguage(), new CurriculumEntryRemarksDataProvider(registration)));
-//        }
-
 //        if (documentRequest instanceof ApprovementMobilityCertificateRequest) {
 //            final ApprovementMobilityCertificateRequest approvementRequest =
 //                    (ApprovementMobilityCertificateRequest) documentRequest;
