@@ -119,6 +119,14 @@ import pt.ist.fenixframework.DomainObject;
  */
 public class StudentCurricularPlanLayout extends Layout {
 
+    static private String i18n(final String key) {
+        return ULisboaSpecificationsUtil.bundle(key);
+    }
+
+    static private String i18n(final String bundle, final String key, final String... args) {
+        return BundleUtil.getString(bundle, key, args);
+    }
+
     // qubExtension, don't SHOW empty groups
     private Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
     private boolean emptyGroupsCollapsible = true;
@@ -179,7 +187,9 @@ public class StudentCurricularPlanLayout extends Layout {
 
     private static Function<Enrolment, String> ENROLMENT_SEASON_EXTRA_INFORMATION_PROVIDER = (x) -> "";
 
-    static final private String EVALUATION_DATE_LABEL = BundleUtil.getString(Bundle.APPLICATION, "label.data.avaliacao");
+    static final private String EVALUATION_DATE_LABEL = i18n(Bundle.APPLICATION, "label.data.avaliacao");
+
+    static final private String AVAILABLE_DATE_LABEL = i18n("label.LooseEvaluationBean.availableDate") + " ";
 
     protected StudentCurricularPlan studentCurricularPlan;
 
@@ -229,7 +239,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         final HtmlContainer container = new HtmlBlockContainer();
         if (getPlan() == null) {
-            container.addChild(createHtmlTextItalic(BundleUtil.getString(Bundle.STUDENT, "message.no.curricularplan")));
+            container.addChild(createHtmlTextItalic(i18n(Bundle.STUDENT, "message.no.curricularplan")));
 
             return container;
         }
@@ -466,21 +476,21 @@ public class StudentCurricularPlanLayout extends Layout {
 
             if (creditsLimit != null) {
                 groupName.append(" <span title=\"");
-                groupName.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.minCredits"));
+                groupName.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.minCredits"));
                 groupName.append(" \">m(");
                 groupName.append(creditsLimit.getMinimumCredits());
                 groupName.append(")</span>,");
             }
 
             groupName.append(" <span title=\"");
-            groupName.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded"));
+            groupName.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded"));
             groupName.append(" \"> c(");
             groupName.append(curriculumGroup.getCreditsConcluded(executionYearContext));
             groupName.append(")</span>");
 
             if (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
                 groupName.append(" <span title=\"");
-                groupName.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.approvedCredits"));
+                groupName.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.approvedCredits"));
                 groupName.append(" \">, ca(");
                 groupName.append(curriculumGroup.getAprovedEctsCredits());
                 groupName.append(")</span>");
@@ -488,7 +498,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
             if (creditsLimit != null) {
                 groupName.append("<span title=\"");
-                groupName.append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculum.credits.legend.maxCredits"));
+                groupName.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.maxCredits"));
                 groupName.append("\">, M(");
                 groupName.append(creditsLimit.getMaximumCredits());
                 groupName.append(")</span>");
@@ -498,12 +508,11 @@ public class StudentCurricularPlanLayout extends Layout {
 
             if (isConcluded(curriculumGroup, getExecutionSemester().getExecutionYear(), creditsLimit).value()) {
                 groupName.append(" - <span style=\"" + CURRICULUM_GROUP_CONCLUDED + "\">")
-                        .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.concluded")).append("</span>");
+                        .append(i18n(Bundle.APPLICATION, "label.curriculumGroup.concluded")).append("</span>");
             } else if (!EnrolmentLayout.isStudentLogged(curriculumGroup.getStudentCurricularPlan())
                     && EnrolmentLayout.hasMinimumCredits(curriculumGroup, getExecutionSemester())) {
                 groupName.append(" - <span style=\"" + MINIMUM_CREDITS_CONCLUDED_IN_CURRICULUM_GROUP + "\">")
-                        .append(BundleUtil.getString(Bundle.APPLICATION, "label.curriculumGroup.minimumCreditsConcluded"))
-                        .append("</span>");
+                        .append(i18n(Bundle.APPLICATION, "label.curriculumGroup.minimumCreditsConcluded")).append("</span>");
             }
 
             if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
@@ -643,8 +652,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         final YearMonthDay available = dismissal.getApprovementDate();
         if (available != null) {
-            title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
-                    + available.toString(DATE_FORMAT);
+            title = title + AVAILABLE_DATE_LABEL + available.toString(DATE_FORMAT);
         }
 
         // qubExtension
@@ -687,11 +695,12 @@ public class StudentCurricularPlanLayout extends Layout {
             if (!StringUtils.isEmpty(createdBy)) {
                 final Person person = Person.findByUsername(createdBy);
                 final String displayName = PersonServices.getDisplayName(person);
-                generateCellWithSpan(enrolmentRow, createdBy, BundleUtil.getString(Bundle.APPLICATION, "creator")
-                        + (Strings.isNullOrEmpty(displayName) ? "" : ": " + displayName), renderer.getCreatorCellClass());
+                generateCellWithSpan(enrolmentRow, createdBy,
+                        i18n(Bundle.APPLICATION, "creator") + (Strings.isNullOrEmpty(displayName) ? "" : ": " + displayName),
+                        renderer.getCreatorCellClass());
             } else {
                 // qubExtension, show tooltip
-                generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creator"),
+                generateCellWithSpan(enrolmentRow, EMPTY_INFO, i18n(Bundle.APPLICATION, "creator"),
                         renderer.getCreatorCellClass());
             }
         }
@@ -713,8 +722,8 @@ public class StudentCurricularPlanLayout extends Layout {
             container.addChild(checkBox);
         }
 
-        final HtmlText text = new HtmlText(
-                BundleUtil.getString(Bundle.STUDENT, "label.dismissal." + dismissal.getCredits().getClass().getSimpleName()));
+        final HtmlText text =
+                new HtmlText(i18n(Bundle.STUDENT, "label.dismissal." + dismissal.getCredits().getClass().getSimpleName()));
         container.addChild(text);
 
         final CurricularCourse curricularCourse = dismissal.getCurricularCourse();
@@ -740,7 +749,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // } else {
         // generateCellWithText(dismissalRow,
-        // BundleUtil.getString(Bundle.STUDENT, "label.dismissal." +
+        // i18n(Bundle.STUDENT, "label.dismissal." +
         // dismissal.getCredits().getClass().getSimpleName()),
         // getLabelCellClass(),
         // MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
@@ -970,8 +979,8 @@ public class StudentCurricularPlanLayout extends Layout {
             text = EMPTY_INFO;
         }
 
-        final HtmlTableCell cell = generateCellWithSpan(enrolmentRow, new HtmlText(text),
-                ULisboaSpecificationsUtil.bundle("label.Enrolment.shifts"), null, true);
+        final HtmlTableCell cell =
+                generateCellWithSpan(enrolmentRow, new HtmlText(text), i18n("label.Enrolment.shifts"), null, true);
         if (!shifts.isEmpty()) {
             cell.setStyle("font-size: xx-small");
         }
@@ -1058,12 +1067,10 @@ public class StudentCurricularPlanLayout extends Layout {
                     courseEvaluations.stream().sorted(DomainObjectUtil.COMPARATOR_BY_ID.reversed())
                             .map(x -> x.getPresentationName()).collect(Collectors.joining(", "));
 
-            generateCellWithSpan(row, courseEvaluationsPresentation,
-                    ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
+            generateCellWithSpan(row, courseEvaluationsPresentation, i18n("label.CompetenceCourseMarkSheet.courseEvaluation"),
                     renderer.getCreatorCellClass());
         } else {
-            generateCellWithSpan(row, EMPTY_INFO,
-                    ULisboaSpecificationsUtil.bundle("label.CompetenceCourseMarkSheet.courseEvaluation"),
+            generateCellWithSpan(row, EMPTY_INFO, i18n("label.CompetenceCourseMarkSheet.courseEvaluation"),
                     renderer.getCreatorCellClass());
         }
 
@@ -1084,8 +1091,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         if (semester != null && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)) {
             generateCellWithText(row, semester.getExecutionYear().getYear(), renderer.getEnrolmentExecutionYearCellClass());
-            generateCellWithText(row,
-                    semester.getSemester().toString() + " " + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short"),
+            generateCellWithText(row, semester.getSemester().toString() + " " + i18n(Bundle.APPLICATION, "label.semester.short"),
                     renderer.getEnrolmentSemesterCellClass());
         } else {
             generateCellWithText(row, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
@@ -1103,11 +1109,12 @@ public class StudentCurricularPlanLayout extends Layout {
                 && isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
             final Person person = evaluation.getPersonResponsibleForGrade();
             final String username = person.getUsername();
-            generateCellWithSpan(row, username, BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson") + ": "
-                    + PersonServices.getDisplayName(person), renderer.getCreatorCellClass());
+            generateCellWithSpan(row, username,
+                    i18n(Bundle.APPLICATION, "label.grade.responsiblePerson") + ": " + PersonServices.getDisplayName(person),
+                    renderer.getCreatorCellClass());
         } else {
             // qubExtension, show tooltip
-            generateCellWithSpan(row, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"),
+            generateCellWithSpan(row, EMPTY_INFO, i18n(Bundle.APPLICATION, "label.grade.responsiblePerson"),
                     renderer.getCreatorCellClass());
         }
 
@@ -1128,14 +1135,13 @@ public class StudentCurricularPlanLayout extends Layout {
         // qubExtension, show grade available date as a tooltip
         final CompetenceCourseMarkSheet markSheet = evaluation.getCompetenceCourseMarkSheet();
         final String text = isToShow ? grade.getValue() : markSheetAccess && markSheet != null ? String.format("(%s)",
-                BundleUtil.getString(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
+                i18n(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
         String title = null;
         if (isToShow) {
             title = getGradeDescription(grade);
 
             if (availableDate != null) {
-                title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
-                        + availableDate.toString(DATE_FORMAT);
+                title = title + AVAILABLE_DATE_LABEL + availableDate.toString(DATE_FORMAT);
             }
         }
 
@@ -1197,8 +1203,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
             // grade responsible
             // qubExtension, show tooltip
-            generateCellWithSpan(enrolmentRow, EMPTY_INFO, BundleUtil.getString(Bundle.APPLICATION, "creator"),
-                    renderer.getCreatorCellClass());
+            generateCellWithSpan(enrolmentRow, EMPTY_INFO, i18n(Bundle.APPLICATION, "creator"), renderer.getCreatorCellClass());
             generateRemarksCell(enrolmentRow, enrolment);
         }
         generateSpacerCellsIfRequired(enrolmentRow);
@@ -1212,14 +1217,12 @@ public class StudentCurricularPlanLayout extends Layout {
                 final Person person = lastEnrolmentEvaluation.getPersonResponsibleForGrade();
                 final String username = person.getUsername();
                 generateCellWithSpan(enrolmentRow, username,
-                        BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson") + ": "
-                                + PersonServices.getDisplayName(person),
+                        i18n(Bundle.APPLICATION, "label.grade.responsiblePerson") + ": " + PersonServices.getDisplayName(person),
                         renderer.getCreatorCellClass());
 
             } else {
                 // qubExtension, show span
-                generateCellWithSpan(enrolmentRow, EMPTY_INFO,
-                        BundleUtil.getString(Bundle.APPLICATION, "label.grade.responsiblePerson"),
+                generateCellWithSpan(enrolmentRow, EMPTY_INFO, i18n(Bundle.APPLICATION, "label.grade.responsiblePerson"),
                         renderer.getCreatorCellClass());
             }
         }
@@ -1272,12 +1275,12 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // qubExtension, show curricularYear
         final Integer curricularYear = getCurricularYearFor(entry);
-        final String year = curricularYear == null ? "" : curricularYear + " "
-                + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year");
+        final String year =
+                curricularYear == null ? "" : curricularYear + " " + i18n(Bundle.APPLICATION, "label.curricular.year");
 
         final Integer curricularSemester = getCurricularSemesterFor(entry);
         final String semester = curricularSemester == null ? "" : curricularSemester.toString() + " "
-                + BundleUtil.getString(Bundle.APPLICATION, "label.semester.short");
+                + i18n(Bundle.APPLICATION, "label.semester.short");
 
         return Strings.isNullOrEmpty(year) ? semester : Strings.isNullOrEmpty(semester) ? year : year + ", " + semester;
     }
@@ -1319,7 +1322,7 @@ public class StudentCurricularPlanLayout extends Layout {
 //            if (executionCourse != null) {
 //                final HtmlInlineContainer inlineContainer = new HtmlInlineContainer();
 //                inlineContainer.addChild(createExecutionCourseStatisticsLink(
-//                        BundleUtil.getString(Bundle.APPLICATION, "label.statistics"), executionCourse));
+//                        i18n(Bundle.APPLICATION, "label.statistics"), executionCourse));
 //                final HtmlTableCell cell = row.createCell();
 //                cell.setClasses(renderer.getStatisticsLinkCellClass());
 //                cell.setBody(inlineContainer);
@@ -1388,8 +1391,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
             final YearMonthDay available = evaluation != null ? evaluation.getGradeAvailableDateYearMonthDay() : null;
             if (available != null) {
-                title = title + ULisboaSpecificationsUtil.bundle("label.LooseEvaluationBean.availableDate")
-                        + available.toString(DATE_FORMAT);
+                title = title + AVAILABLE_DATE_LABEL + available.toString(DATE_FORMAT);
             }
         }
 
@@ -1407,9 +1409,9 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateEnrolmentTypeCell(HtmlTableRow enrolmentRow, Enrolment enrolment) {
         // qubExtension, empty space
-        generateCellWithText(enrolmentRow, enrolment.isEnrolmentTypeNormal() ? EMPTY_SPACE : BundleUtil
-                .getString(Bundle.ENUMERATION, enrolment.getEnrolmentTypeName()), renderer.getEnrolmentTypeCellClass())
-                        .setStyle(EMPTY_WIDTH);
+        generateCellWithText(enrolmentRow,
+                enrolment.isEnrolmentTypeNormal() ? EMPTY_SPACE : i18n(Bundle.ENUMERATION, enrolment.getEnrolmentTypeName()),
+                renderer.getEnrolmentTypeCellClass()).setStyle(EMPTY_WIDTH);
     }
 
     protected void generateDegreeCurricularPlanCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment) {
@@ -1584,12 +1586,11 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateHeadersForGradeWeightAndEctsCredits(final HtmlTableRow groupRow) {
-        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
+        generateCellWithText(groupRow, i18n(Bundle.APPLICATION, "label.grade"), renderer.getGradeCellClass());
 
-        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.weight"), renderer.getWeightCellClass());
+        generateCellWithText(groupRow, i18n(Bundle.APPLICATION, "label.weight"), renderer.getWeightCellClass());
 
-        generateCellWithText(groupRow, BundleUtil.getString(Bundle.APPLICATION, "label.ects"),
-                renderer.getEctsCreditsCellClass());
+        generateCellWithText(groupRow, i18n(Bundle.APPLICATION, "label.ects"), renderer.getEctsCreditsCellClass());
 
     }
 
