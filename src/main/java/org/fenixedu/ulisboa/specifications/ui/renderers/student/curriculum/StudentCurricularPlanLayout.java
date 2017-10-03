@@ -140,12 +140,12 @@ public class StudentCurricularPlanLayout extends Layout {
             "margin: 1em 0; padding: 0.2em 0.5em 0.2em 0.5em; background-color: #76f576; color: #146e14;";
 
     // qubExtension
-    static final private String GRADE_APPROVED_STYLE = "background-color: #76f576; color: #146e14;";
+    static final private String GRADE_APPROVED_STYLE = "width: 45px; background-color: #76f576; color: #146e14;";
 
     // qubExtension
-    static final private String GRADE_NOT_APPROVED_STYLE = "background-color: #f58787; color: #6e1414;";
+    static final private String GRADE_NOT_APPROVED_STYLE = "width: 45px; background-color: #f58787; color: #6e1414;";
 
-    static final private String GRADE_EMPTY_STYLE = "background-color: #d9d7d7;";
+    static final private String GRADE_EMPTY_STYLE = "width: 45px; background-color: #d9d7d7;";
 
     static final private String EMPTY_INFO = "-";
 
@@ -483,7 +483,8 @@ public class StudentCurricularPlanLayout extends Layout {
             }
 
             groupName.append(" <span title=\"");
-            groupName.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded"));
+            groupName.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded",
+                    executionYearContext.getQualifiedName()));
             groupName.append(" \"> c(");
             groupName.append(curriculumGroup.getCreditsConcluded(executionYearContext));
             groupName.append(")</span>");
