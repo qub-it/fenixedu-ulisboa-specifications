@@ -37,7 +37,26 @@ import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
 
+import pt.ist.fenixframework.dml.runtime.RelationAdapter;
+
 abstract public class CurriculumLineServices {
+
+    static private RelationAdapter<Dismissal, Credits> ON_DELETION = new RelationAdapter<Dismissal, Credits>() {
+
+        @Override
+        public void beforeRemove(final Dismissal dismissal, final Credits credits) {
+            // avoid internal invocation with null 
+            if (dismissal == null || credits == null) {
+                return;
+            }
+
+            credits.setReason(null);
+        }
+    };
+
+    static {
+        Dismissal.getRelationCreditsDismissalEquivalence().addListener(ON_DELETION);
+    }
 
     static public boolean isOptionalByGroup(final CurriculumLine line) {
         final CurriculumGroup group = line == null ? null : line.getCurriculumGroup();
