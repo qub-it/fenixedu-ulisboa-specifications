@@ -19,6 +19,8 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.tuitionpenalty.TuitionPenaltyConfiguration;
+import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
+import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,30 +244,37 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
     private ULisboaServiceRequest createPenaltyRule(final AcademicDebtGenerationRule rule, final Registration registration,
             final DebitEntry debitEntry, final ServiceRequestType type, final ServiceRequestSlot installmentOrderSlot,
             final ServiceRequestSlot executionYearSlot) {
-        final ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(type, registration, false, new DateTime());
+        ULisboaServiceRequestBean bean = new ULisboaServiceRequestBean();
 
-        updateServiceRequestSlots(serviceRequest, rule, debitEntry, installmentOrderSlot, executionYearSlot);
+        bean.setRegistration(registration);
+        bean.setServiceRequestType(type);
+        bean.setRequestedOnline(false);
+        bean.setRequestDate(new DateTime());
 
-        return serviceRequest;
-    }
+        ServiceRequestPropertyBean executionYearPropertyBean = new ServiceRequestPropertyBean();
+        executionYearPropertyBean.setCode(executionYearSlot.getCode());
+        executionYearPropertyBean.setUiComponentType(executionYearSlot.getUiComponentType());
+        executionYearPropertyBean.setLabel(executionYearSlot.getLabel());
+        executionYearPropertyBean.setRequired(false);
+        executionYearPropertyBean.setDomainObjectValue(rule.getExecutionYear());
+        bean.getServiceRequestPropertyBeans().add(executionYearPropertyBean);
 
-    @Atomic(mode = TxMode.WRITE)
-    private void updateServiceRequestSlots(final ULisboaServiceRequest serviceRequest, final AcademicDebtGenerationRule rule,
-            final DebitEntry debitEntry, final ServiceRequestSlot installmentOrderSlot,
-            final ServiceRequestSlot executionYearSlot) {
-        ServiceRequestProperty.create(serviceRequest, installmentOrderSlot, debitEntry.getProduct().getTuitionInstallmentOrder());
+        ServiceRequestPropertyBean installmentOrderPropertyBean = new ServiceRequestPropertyBean();
+        installmentOrderPropertyBean.setCode(installmentOrderSlot.getCode());
+        installmentOrderPropertyBean.setUiComponentType(installmentOrderSlot.getUiComponentType());
+        installmentOrderPropertyBean.setLabel(installmentOrderSlot.getLabel());
+        installmentOrderPropertyBean.setRequired(false);
+        installmentOrderPropertyBean.setIntegerValue(debitEntry.getProduct().getTuitionInstallmentOrder());
+        bean.getServiceRequestPropertyBeans().add(installmentOrderPropertyBean);
 
-        if (ServiceRequestProperty.find(serviceRequest, executionYearSlot).count() > 0) {
-            ServiceRequestProperty.find(serviceRequest, executionYearSlot).iterator().next()
-                    .setExecutionYear(rule.getExecutionYear());
-        } else {
-            ServiceRequestProperty.create(serviceRequest, executionYearSlot, rule.getExecutionYear());
-        }
+        ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
 
         if (ServiceRequestProperty.find(serviceRequest, installmentOrderSlot).count() == 0) {
             throw new ULisboaSpecificationsDomainException(
                     "error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.creation");
         }
+
+        return serviceRequest;
     }
 
 }
