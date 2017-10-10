@@ -310,13 +310,15 @@ public class RegistrationHistoryReportService {
                     .filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
-        if (this.withEnrolments == null || !this.withEnrolments.booleanValue()) {
+        final boolean withoutEnrolments = this.withEnrolments == null || !this.withEnrolments.booleanValue();
+        final boolean withEnrolments = !withoutEnrolments;
+        if (withoutEnrolments) {
             // registration/start execution year relation
             result.addAll(executionYear.getStudentsSet().stream().filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
         result.addAll(executionYear.getExecutionPeriodsSet().stream().flatMap(semester -> semester.getEnrolmentsSet().stream()
-                .filter(enrolment -> !enrolment.isAnnulled()).map(enrolment -> enrolment.getRegistration())
+                .filter(enrolment -> withEnrolments && !enrolment.isAnnulled()).map(enrolment -> enrolment.getRegistration())
                 .filter(studentNumberFilter)
                 .filter(registration -> RegistrationDataServices.getRegistrationData(registration, executionYear) != null))
                 .collect(Collectors.toSet()));
