@@ -351,7 +351,7 @@ ${portal.toolkit()}
 		</div>
 		<div class="panel-footer">
 			<input type="submit" class="btn btn-default" role="button"
-				value="<spring:message code="label.submit" />" />
+				value="<spring:message code="label.create" />" />
 		</div>
 	</div>
 
@@ -420,7 +420,7 @@ $(document).ready(function() {
 	                           				{
 	                           				"DT_RowId" : '<c:out value='${searchResult.externalId}'/>',
 	                           "code" : "<c:out value='${searchResult.enrolment.code}'/>",
-	                           "enrolment" : "<%=evaluation.getEnrolment().getPresentationName().getContent().replace("'", " ").replace("\"", " ")%>",
+	                           "enrolment" : "<%=evaluation.getEnrolment().getPresentationName().getContent().replace("'", " ").replace("\"", " ")%></br><span class='smalltxt'><spring:message  code='label.group'/>: <i><c:out value='${searchResult.enrolment.curriculumGroup.name}'/></i></span>",
 	                           <%--"executionSemester" : "<c:out value='${searchResult.enrolment.executionPeriod.qualifiedName}'/>",--%>
 	                           "grade" : "<c:out value='${searchResult.grade.value}'/><%if (!evaluation.getGrade().isEmpty()) {%> <span class='color888 smalltxt'>(<span class='smalltxt'><c:out value='${searchResult.grade.extendedValue.content}' />, </span><c:out value='${searchResult.grade.gradeScale.description}' />)</span><%}%>",
 	                           "evaluationSeason" : "<c:out value='${searchResult.evaluationSeason.name.content}'/>",
