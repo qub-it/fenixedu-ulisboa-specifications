@@ -191,7 +191,22 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         initTreasuryNextReferenceCode();
+        
+        registerDeletionListenerOnEnrolmentForCourseGradingTable();
+        
 
+    }
+
+    private void registerDeletionListenerOnEnrolmentForCourseGradingTable() {
+        FenixFramework.getDomainModel().registerDeletionListener(Enrolment.class, new DeletionListener<Enrolment>() {
+
+            @Override
+            public void deleting(Enrolment enrolment) {
+                if(enrolment.getCourseGradingTable() != null) {
+                    enrolment.getCourseGradingTable().delete();
+                }
+            }
+        });
     }
 
     static private void initTreasuryNextReferenceCode() {
