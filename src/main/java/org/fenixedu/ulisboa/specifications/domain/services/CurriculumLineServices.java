@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -18,14 +17,10 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
-import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.curriculum.ConclusionProcessVersion;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
@@ -43,7 +38,6 @@ import org.joda.time.YearMonthDay;
 import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
-import pt.ist.fenixframework.dml.runtime.RelationListener;
 
 abstract public class CurriculumLineServices {
 
@@ -60,44 +54,8 @@ abstract public class CurriculumLineServices {
         }
     };
 
-    static private RelationListener<DegreeModule, CurriculumModule> ON_ENROLMENT_DELETION =
-            new RelationAdapter<DegreeModule, CurriculumModule>() {
-
-                @Override
-                public void beforeRemove(final DegreeModule degreeModule, final CurriculumModule module) {
-                    // avoid internal invocation with null 
-                    if (module == null || degreeModule == null) {
-                        return;
-                    }
-
-                    if (!(module instanceof Enrolment)) {
-                        return;
-                    }
-
-                    final Enrolment enrolment = (Enrolment) module;
-
-                    for (final Iterator<ConclusionProcessVersion> iter =
-                            enrolment.getConclusionProcessVersionsSet().iterator(); iter.hasNext();) {
-                        final ConclusionProcessVersion version = iter.next();
-
-                        if (version.getConclusionProcess().getLastVersion() != version) {
-                            iter.remove();
-                        }
-                    }
-
-                    if (!enrolment.getConclusionProcessVersionsSet().isEmpty()) {
-                        throw new DomainException("error.conclusionProcess.revertion.required",
-                                "\"" + enrolment.getPresentationName().getContent() + "\"",
-                                enrolment.getConclusionProcessVersionsSet().stream()
-                                        .map(i -> "\"" + i.getConclusionProcess().getName().getContent() + "\"")
-                                        .collect(Collectors.joining("; ")));
-                    }
-                }
-            };
-
     static {
         Dismissal.getRelationCreditsDismissalEquivalence().addListener(ON_DISMISSAL_DELETION);
-        CurriculumModule.getRelationDegreeModuleCurriculumModule().addListener(ON_ENROLMENT_DELETION);
     }
 
     static public boolean isOptionalByGroup(final CurriculumLine line) {

@@ -47,6 +47,7 @@ import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 
 import com.google.common.collect.Lists;
 
@@ -172,6 +173,7 @@ public class StudentEnrolmentsDA
                 enrolment.annul();
 
                 // qubExtension
+                EnrolmentServices.checkForConclusionProcessVersions(enrolment);
                 CurriculumLineServices.updateAggregatorEvaluation(enrolment);
             });
         } catch (DomainException e) {

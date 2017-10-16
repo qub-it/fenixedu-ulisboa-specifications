@@ -55,7 +55,6 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.IEnrolment;
-import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -1484,19 +1483,7 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected String getPresentationNameFor(final Enrolment enrolment) {
-        final String code =
-                !StringUtils.isEmpty(enrolment.getCurricularCourse().getCode()) ? enrolment.getCurricularCourse().getCode()
-                        + " - " : "";
-
-        if (enrolment instanceof OptionalEnrolment) {
-            final OptionalEnrolment optionalEnrolment = (OptionalEnrolment) enrolment;
-            return optionalEnrolment.getOptionalCurricularCourse().getNameI18N(enrolment.getExecutionPeriod()).getContent() + " ("
-                    + code
-                    + optionalEnrolment.getCurricularCourse().getNameI18N(optionalEnrolment.getExecutionPeriod()).getContent()
-                    + ")";
-        } else {
-            return code + enrolment.getName().getContent();
-        }
+        return EnrolmentServices.getPresentationName(enrolment);
     }
 
     // qubExtension
