@@ -1003,7 +1003,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             return;
         }
 
-        // this was once performed in revertToEdition
+        // before refactor, this was once performed in revertToEdition
         evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
         evaluation.setGradeAvailableDateYearMonthDay((YearMonthDay) null);
 
@@ -1016,7 +1016,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         evaluation.setPerson((Person) null);
         evaluation.setContext((EnrolmentEvaluationContext) null);
 
-        // this was once performed in revertToEdition; depends on EnrolmentEvaluationState
+        // before refactor, this was once performed in revertToEdition; depends on EnrolmentEvaluationState
         EnrolmentEvaluationServices.onStateChange(evaluation);
         // FIXME hack for bypass evaluation method type issues
         if (FenixFramework.isDomainObjectValid(evaluation)) {
