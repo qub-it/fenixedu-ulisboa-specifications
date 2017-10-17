@@ -440,6 +440,12 @@ abstract public class CurriculumAggregatorServices {
             return false;
         }
 
+        // decision: if enrolment UI is by semester (even if we are in a year-enrolment-configured institution), then we'll just automatically enrol in units of the same semester 
+        final Integer candidateSemester = context.getCurricularPeriod().getChildOrder();
+        if (candidateSemester.intValue() != semester.getSemester().intValue()) {
+            return false;
+        }
+
         // if is a slave entry, must check for aggregator's approval
         // (typically this is not a problem because the aggregator is on the "first level" and is discarted by UI) 
         final CurriculumAggregatorEntry entry = context == null ? null : context.getCurriculumAggregatorEntry();
