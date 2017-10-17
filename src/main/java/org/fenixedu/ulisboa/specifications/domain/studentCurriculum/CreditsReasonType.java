@@ -132,7 +132,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
                 return null;
             }
 
-            result.append(getReason().toLocalizedString());
+            result.append(getInfoText().toLocalizedString());
 
             if (getInfoExplained() && !overrideInfoExplained) {
 
