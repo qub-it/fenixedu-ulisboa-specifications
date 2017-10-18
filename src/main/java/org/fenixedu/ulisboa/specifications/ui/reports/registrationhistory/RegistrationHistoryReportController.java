@@ -105,7 +105,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
 
-        setResults(generateReport(bean), model);
+        try {
+        	setResults(generateReport(bean), model);
+        } catch(final ULisboaSpecificationsDomainException e) {
+        	addErrorMessage(e.getLocalizedMessage(), model);
+        }
 
         return jspPage("registrationhistoryreport");
     }
@@ -204,7 +208,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     static private Collection<RegistrationHistoryReport> generateReport(final RegistrationHistoryReportParametersBean bean) {
 
         final RegistrationHistoryReportService service = new RegistrationHistoryReportService();
-        service.filterEnrolmentExecutionYears(bean.getExecutionYears());
+        service.filterExecutionYears(bean.getExecutionYears());
         service.filterDegrees(bean.getDegrees());
         service.filterDegreeTypes(bean.getDegreeTypes());
         service.filterIngressionTypes(bean.getIngressionTypes());
@@ -214,6 +218,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterStatuteTypes(bean.getStatuteTypes());
         service.filterFirstTimeOnly(bean.getFirstTimeOnly());
         service.filterWithEnrolments(bean.getFilterWithEnrolments());
+        service.filterWithAnnuledEnrolments(bean.getFilterWithAnnuledEnrolments());
         service.filterDismissalsOnly(bean.getDismissalsOnly());
         service.filterImprovementEnrolmentsOnly(bean.getImprovementEnrolmentsOnly());
         service.filterStudentNumber(bean.getStudentNumber());
@@ -257,6 +262,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.startDate", report.getStartDate());
                         addData("Registration.firstStateDate", report.getFirstRegistrationStateDate());
                         addData("Registration.registrationYear", report.getRegistrationYear());
+                        addData("Registration.researchArea", report.getResearchArea());
                         addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlanName());
                         addData("RegistrationHistoryReport.studentCurricularPlan.count", report.getStudentCurricularPlanCount());
                         addData("RegistrationHistoryReport.schoolClasses", report.getSchoolClasses());
@@ -657,6 +663,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
+                        String regimeTypeName = "";
+                        if(enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()) != null) {
+                        	regimeTypeName = enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()).getLocalizedName();
+                        }
+                        
                         addData("Student.number", report.getStudentNumber());
                         addData("Registration.number", report.getRegistrationNumber());
                         addData("Person.name", report.getPersonName());
@@ -665,6 +676,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                        addData("Enrolment.regimeType", regimeTypeName);
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
                         addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
                         addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());

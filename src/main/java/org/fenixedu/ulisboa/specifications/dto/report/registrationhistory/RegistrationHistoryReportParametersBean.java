@@ -33,7 +33,8 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Set<RegistrationStateType> registrationStateTypes = Sets.newHashSet();
     private Set<StatuteType> statuteTypes = Sets.newHashSet();
     private Boolean firstTimeOnly;
-    private Boolean withEnrolments = Boolean.FALSE;
+    private Boolean withEnrolments = Boolean.TRUE;
+    private Boolean withAnnuledEnrolments = Boolean.FALSE;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
     private Boolean exportQualificationAndOriginInfo = Boolean.FALSE;
@@ -195,6 +196,10 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     public Boolean getFilterWithEnrolments() {
         return withEnrolments;
+    }
+    
+    public Boolean getFilterWithAnnuledEnrolments() {
+    	return withAnnuledEnrolments;
     }
 
     public Boolean getDismissalsOnly() {

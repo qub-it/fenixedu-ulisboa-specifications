@@ -113,12 +113,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         this.executionYear = executionYear;
         this.registration = registration;
 
-        if (getStudentCurricularPlan() == null) {
-
-            throw new ULisboaSpecificationsDomainException(
-                    "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
-                    getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
+        if(getRegistration().getRegistrationYear().isAfter(executionYear)) {
+        	throw new ULisboaSpecificationsDomainException(
+        			"error.RegistrationHistoryReport.registration.starts.after.executionYear", 
+        			getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
         }
+        
     }
 
     @Override
@@ -976,5 +976,13 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return result.toString().endsWith("|") ? result.delete(result.length() - 1, result.length()).toString() : result
                 .toString();
     }
+
+	public String getResearchArea() {
+		if(registration.getResearchArea() == null) {
+			return "";
+		}
+		
+		return registration.getResearchArea().getName().getContent();
+	}
 
 }
