@@ -118,12 +118,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         this.executionYear = executionYear;
         this.registration = registration;
 
-        if (getStudentCurricularPlan() == null) {
-
-            throw new ULisboaSpecificationsDomainException(
-                    "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
-                    getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
+        if(getRegistration().getRegistrationYear().isAfter(executionYear)) {
+        	throw new ULisboaSpecificationsDomainException(
+        			"error.RegistrationHistoryReport.registration.starts.after.executionYear", 
+        			getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
         }
+        
     }
 
     @Override

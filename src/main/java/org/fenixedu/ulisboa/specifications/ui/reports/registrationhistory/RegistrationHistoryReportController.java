@@ -105,7 +105,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             final RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
 
-        setResults(generateReport(bean), model);
+        try {
+        	setResults(generateReport(bean), model);
+        } catch(final ULisboaSpecificationsDomainException e) {
+        	addErrorMessage(e.getLocalizedMessage(), model);
+        }
 
         return jspPage("registrationhistoryreport");
     }
@@ -214,6 +218,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterStatuteTypes(bean.getStatuteTypes());
         service.filterFirstTimeOnly(bean.getFirstTimeOnly());
         service.filterWithEnrolments(bean.getFilterWithEnrolments());
+        service.filterWithAnnuledEnrolments(bean.getFilterWithAnnuledEnrolments());
         service.filterDismissalsOnly(bean.getDismissalsOnly());
         service.filterImprovementEnrolmentsOnly(bean.getImprovementEnrolmentsOnly());
         service.filterStudentNumber(bean.getStudentNumber());
@@ -258,6 +263,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.startDate", report.getStartDate());
                         addData("Registration.firstStateDate", report.getFirstRegistrationStateDate());
                         addData("Registration.registrationYear", report.getRegistrationYear());
+                        addData("Registration.researchArea", report.getResearchArea());
                         addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlanName());
                         addData("RegistrationHistoryReport.studentCurricularPlan.count", report.getStudentCurricularPlanCount());
                         addData("RegistrationHistoryReport.schoolClasses", report.getSchoolClasses());
@@ -666,6 +672,54 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.enrolments"),
                 new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(toExportEnrolments.entries()) {
 
+                    private void addPersonalData(final RegistrationHistoryReportParametersBean bean,
+                            final RegistrationHistoryReport report) {
+        
+                        if (bean.getExportPersonalInfo()) {
+        
+                            addData("Person.idDocumentType", report.getIdDocumentType());
+                            addData("Person.idDocumentNumber", report.getDocumentIdNumber());
+                            addData("Person.gender", report.getGender());
+                            addData("Person.dateOfBirth", report.getDateOfBirthYearMonthDay());
+                            addData("Person.nameOfFather", report.getNameOfFather());
+                            addData("Person.nameOfMother", report.getNameOfMother());
+                            addData("Person.nationality", report.getNationality());
+                            addData("Person.countryOfBirth", report.getCountryOfBirth());
+                            addData("Person.socialSecurityNumber", report.getFiscalNumber());
+                            addData("Person.districtOfBirth", report.getDistrictOfBirth());
+                            addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
+                            addData("Person.parishOfBirth", report.getParishOfBirth());
+                            // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
+                        }
+                    }
+        
+                    private void addContactsData(final RegistrationHistoryReportParametersBean bean,
+                            final RegistrationHistoryReport report) {
+        
+                        if (bean.getExportContacts()) {
+        
+                            addData("Person.defaultEmailAddress", report.getDefaultEmailAddressValue());
+                            addData("Person.institutionalEmailAddress", report.getInstitutionalEmailAddressValue());
+                            addData("Person.otherEmailAddresses", report.getOtherEmailAddresses());
+                            addData("Person.defaultPhone", report.getDefaultPhoneNumber());
+                            addData("Person.defaultMobilePhone", report.getDefaultMobilePhoneNumber());
+        
+                            if (report.hasDefaultPhysicalAddress()) {
+                                addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
+                                addData("PhysicalAddress.districtOfResidence",
+                                        report.getDefaultPhysicalAddressDistrictOfResidence());
+                                addData("PhysicalAddress.districtSubdivisionOfResidence",
+                                        report.getDefaultPhysicalAddressDistrictSubdivisionOfResidence());
+                                addData("PhysicalAddress.parishOfResidence", report.getDefaultPhysicalAddressParishOfResidence());
+                                addData("PhysicalAddress.area", report.getDefaultPhysicalAddressArea());
+                                addData("PhysicalAddress.areaCode", report.getDefaultPhysicalAddressAreaCode());
+                                addData("PhysicalAddress.areaOfAreaCode", report.getDefaultPhysicalAddressAreaOfAreaCode());
+                                addData("PhysicalAddress.countryOfResidence",
+                                        report.getDefaultPhysicalAddressCountryOfResidenceName());
+                            }
+                        }
+                    }
+            
                     @Override
                     protected void makeLine(final Entry<RegistrationHistoryReport, Enrolment> entry) {
                         final RegistrationHistoryReport report = entry.getKey();
@@ -681,6 +735,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 .filter(sc -> sc.getExecutionPeriod() == enrolmentPeriod).map(sc -> sc.getName())
                                 .collect(Collectors.joining("; "));
 
+                        String regimeTypeName = "";
+                        if(enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()) != null) {
+                        	regimeTypeName = enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()).getLocalizedName();
+                        }
+                        
                         addData("Student.number", report.getStudentNumber());
                         addData("Registration.number", report.getRegistrationNumber());
                         addData("Person.name", report.getPersonName());
@@ -689,6 +748,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear());
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
+                        addData("Enrolment.regimeType", regimeTypeName);
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
                         addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
                         addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
@@ -709,6 +769,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.defaultEmailAddress", enrolment.getStudent().getPerson().getDefaultEmailAddressValue());
                         addData("Person.institutionalEmailAddress",
                                 enrolment.getStudent().getPerson().getInstitutionalEmailAddressValue());
+                        
+                        addPersonalData(bean, report);
+                        addContactsData(bean, report);
                     }
 
                     private void addData(final String key, final Object value) {

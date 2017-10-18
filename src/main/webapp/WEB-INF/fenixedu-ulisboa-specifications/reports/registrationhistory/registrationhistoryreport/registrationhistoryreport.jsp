@@ -330,12 +330,12 @@ ${portal.angularToolkit()}
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.RegistrationHistoryReportParametersBean.withEnrolments" />
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-1">
 					<div class="col-sm-10" style="padding-left: 0;">
 						<input type="checkbox" name="withEnrolments" ng-model="object.withEnrolments">
 					</div>
 				</div>
-
+				
 				<div class="col-sm-2 control-label">
 					<spring:message code="label.RegistrationHistoryReportParametersBean.firstTimeOnly" />
 				</div>
@@ -345,6 +345,20 @@ ${portal.angularToolkit()}
 						ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
 						<option></option>
 					</select>
+				</div>
+			</div>
+			
+			<div class="form-group row">
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.withAnnuledEnrolments" />
+				</div>
+				<div class="col-sm-2">
+					<div class="col-sm-10" style="padding-left: 0;">
+						<select id="withAnnuledEnrolmentsSelect" name="withAnnuledEnrolments"
+							class="form-control" ng-model="object.withAnnuledEnrolments"
+							ng-options="bvalue.value as bvalue.name for bvalue in booleanvalues">
+						</select>
+					</div>
 				</div>
 			</div>
 
