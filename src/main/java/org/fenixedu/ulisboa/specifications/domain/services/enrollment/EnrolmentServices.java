@@ -99,7 +99,7 @@ public class EnrolmentServices {
     }
 
     static public void checkForConclusionProcessVersions(final Enrolment enrolment) {
-        if (!enrolment.getConclusionProcessVersionsSet().isEmpty()) {
+        if (enrolment.isApproved() && !enrolment.getConclusionProcessVersionsSet().isEmpty()) {
             final Registration registration = enrolment.getRegistration();
 
             throw new DomainException("error.conclusionProcess.revertion.required",
