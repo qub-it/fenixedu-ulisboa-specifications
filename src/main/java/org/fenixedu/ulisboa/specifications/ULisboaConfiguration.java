@@ -28,6 +28,10 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curricularYearCalculator.cached", defaultValue = "true")
         public Boolean getCurricularYearCalculatorCached();
 
+        @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.visualizer",
+                defaultValue = "/academicAdminOffice/student/registration/curriculumGradeCalculator.jsp")
+        public String getCurriculumGradeCalculatorVisualizer();
+        
         @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.override",
                 defaultValue = "org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator")
         public String getCurriculumGradeCalculator();

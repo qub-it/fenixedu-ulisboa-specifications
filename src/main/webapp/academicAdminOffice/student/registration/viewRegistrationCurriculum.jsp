@@ -176,7 +176,7 @@
 
         <%-- Extension --%>
         <p>
-            <jsp:include page="/academicAdminOffice/student/registration/curriculumGradeCalculator.jsp" /> 
+            <jsp:include page="<%=org.fenixedu.ulisboa.specifications.ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculatorVisualizer()%>" /> 
         </p>                
 
 </logic:equal>
