@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.enrolment.EnroledEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
@@ -87,6 +88,11 @@ public class CurricularPeriodServices {
     static public CurricularPeriodConfiguration getCurricularPeriodConfiguration(final DegreeCurricularPlan dcp, final int year) {
         final CurricularPeriod curricularPeriod = getCurricularPeriod(dcp, year);
         return curricularPeriod == null ? null : curricularPeriod.getConfiguration();
+    }
+
+    private static int getCurricularYear(final IDegreeModuleToEvaluate input) {
+        return input instanceof EnroledEnrolmentWrapper ? getCurricularYear(
+                ((EnroledEnrolmentWrapper) input).getCurriculumModule()) : input.getContext().getCurricularYear();
     }
 
     static public int getCurricularYear(final CurriculumLine input) {
@@ -239,7 +245,7 @@ public class CurricularPeriodServices {
                 }
             }
 
-            final int year = iter.getContext().getCurricularYear();
+            final int year = getCurricularYear(iter);
             final CurricularPeriod curricularPeriod =
                     getCurricularPeriod(dcp, year, semester == null ? null : semester.getSemester());
 
