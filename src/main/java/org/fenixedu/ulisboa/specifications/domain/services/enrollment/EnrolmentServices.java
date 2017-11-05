@@ -91,7 +91,9 @@ public class EnrolmentServices {
     }
 
     static public void updateState(final Enrolment enrolment) {
-        checkForConclusionProcessVersions(enrolment);
+        // TODO legidio 
+        // before enabling this, must delete dissertation enrolment wrongly associated with non terminal program conclusions
+        // checkForConclusionProcessVersions(enrolment);
 
         if (!enrolment.isAnnulled()) {
             enrolment.setEnrollmentState(calculateState(enrolment));
