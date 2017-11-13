@@ -1147,11 +1147,15 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     public CompetenceCourseMarkSheetChangeRequest getLastPendingChangeRequest() {
-        final Optional<CompetenceCourseMarkSheetChangeRequest> result = getChangeRequestsSet().stream().filter(r -> r.isPending())
-                .max(CompetenceCourseMarkSheetChangeRequest.COMPARATOR_BY_REQUEST_DATE);
+        final Optional<CompetenceCourseMarkSheetChangeRequest> result =
+                getPendingChangeRequests().stream().max(CompetenceCourseMarkSheetChangeRequest.COMPARATOR_BY_REQUEST_DATE);
 
         return result.isPresent() ? result.get() : null;
 
+    }
+
+    public Set<CompetenceCourseMarkSheetChangeRequest> getPendingChangeRequests() {
+        return getChangeRequestsSet().stream().filter(i -> i.isPending()).collect(Collectors.toSet());
     }
 
     public SortedSet<CompetenceCourseMarkSheetChangeRequest> getSortedChangeRequests() {
@@ -1162,7 +1166,6 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         result.addAll(getChangeRequestsSet());
 
         return result;
-
     }
 
 }
