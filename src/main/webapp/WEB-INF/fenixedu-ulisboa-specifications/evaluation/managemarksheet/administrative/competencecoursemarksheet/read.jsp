@@ -10,6 +10,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="datatables" uri="http://github.com/dandelion/datatables"%>
 <%@taglib prefix="joda" uri="http://www.joda.org/joda/time/tags"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
@@ -234,7 +235,7 @@ ${portal.angularToolkit()}
 
 	&nbsp;|&nbsp; <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;<a class=""
 		href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_CHANGE_REQUESTS_URL%>${competenceCourseMarkSheet.externalId}"><spring:message
-			code="label.event.evaluation.manageMarkSheet.changeRequests" /> <c:if test="${not empty competenceCourseMarkSheet.lastPendingChangeRequest}"><span class="badge"><strong>1</strong></span></c:if></a>
+			code="label.event.evaluation.manageMarkSheet.changeRequests" /> <c:if test="${not empty competenceCourseMarkSheet.lastPendingChangeRequest}"><span class="badge"><strong><c:out value="${fn:length(competenceCourseMarkSheet.pendingChangeRequests)}"/></strong></span></c:if></a>
 		
 </div>
 <c:if test="${not empty infoMessages}">
