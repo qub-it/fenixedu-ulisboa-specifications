@@ -42,11 +42,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -77,8 +77,7 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
     }
 
     @RequestMapping(value = "/submitReport", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void submitReport(@RequestBody final HelpdeskReportForm jsonReportForm) {
+    public ResponseEntity<Void> submitReport(@RequestBody final HelpdeskReportForm jsonReportForm) {
         List<String> recipients = getReportRecipients();
         List<String> carbonCopies = getCCs();
         List<String> blindCarnonCopies = getBCCs();
@@ -97,14 +96,17 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
                             .getSupportEmailAddress(),
                     recipients, carbonCopies, blindCarnonCopies, mailSubject, mailBody, jsonReportForm);
         }
+        boolean sucessful = true;
         for (HelpdeskHandler handler : helpdeskHandlers) {
             try {
                 handler.process(jsonReportForm);
             } catch (Throwable e) {
                 //Avoid exceptions to affect other handlers or the request result
                 logger.error("Handler " + handler.getClass().getName() + " threw an error: " + e.getClass().getName());
+                sucessful = false;
             }
         }
+        return new ResponseEntity(sucessful ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private List<String> getReportRecipients() {
