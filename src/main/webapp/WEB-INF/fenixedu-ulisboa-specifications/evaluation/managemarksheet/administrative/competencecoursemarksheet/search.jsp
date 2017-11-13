@@ -384,7 +384,13 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 						<td><c:out value='${searchResult.state}'/></td>
                         <td><c:out value="<%=CompetenceCourseMarkSheetBean.getPersonDescription(((CompetenceCourseMarkSheet)pageContext.getAttribute("searchResult")).getCertifier())%>"></c:out></td>
 						<td><c:out value='${searchResult.shiftsDescription}'/></td>
-						<td><c:out value='${fn:length(searchResult.enrolmentEvaluationSet)}'/></td>
+						<td><c:out value='${fn:length(searchResult.enrolmentEvaluationSet)}'/>
+							<c:if test="${not empty searchResult.lastPendingChangeRequest}">
+								<a title="<spring:message code="label.event.evaluation.manageMarkSheet.changeRequests" />" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_CHANGE_REQUESTS_URL%>${searchResult.externalId}">
+									<span class="badge"><strong><c:out value="${fn:length(searchResult.pendingChangeRequests)}"/></strong></span>
+								</a>
+							</c:if>
+						</td>
 						<td>
 							<a  class="btn btn-default btn-xs" href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_TO_VIEW_ACTION_URL%>${searchResult.externalId}"><spring:message code='label.view'/></a>
 						</td>
