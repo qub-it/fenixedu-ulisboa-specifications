@@ -291,7 +291,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     private void updateMarkSheet(final CompetenceCourseMarkSheet markSheet, final Enrolment enrolment,
             final Grade conclusionGrade) {
 
-        if (markSheet != null && !markSheet.isEdition()) {
+        if (markSheet != null && !markSheet.isEdition() && markSheet.getLastPendingChangeRequest() == null) {
             final Registration registration = enrolment.getRegistration();
 
             final String reason =
