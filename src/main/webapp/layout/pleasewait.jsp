@@ -4,10 +4,10 @@
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 
 <script
-  src="https://code.jquery.com/ui/1.9.1/jquery-ui.min.js"
-  integrity="sha256-UezNdLBLZaG/YoRcr48I68gr8pb5gyTBM+di5P8p6t8="
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
   crossorigin="anonymous"></script>
-<link rel="stylesheet" type="text/css" media="screen" href="https://code.jquery.com/ui/1.9.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" type="text/css" media="screen" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 
 <script type="text/css">//<![CDATA[
 .no-close .ui-dialog-titlebar-close {display: none }
@@ -54,7 +54,7 @@
 		closeOnEscape: false,
 		open: function(event, ui) { $(".ui-dialog-titlebar-close").hide(); },
 		resizable: false,
-		height: 120,
+		height: 125,
 		width: 400
 	});
 	
