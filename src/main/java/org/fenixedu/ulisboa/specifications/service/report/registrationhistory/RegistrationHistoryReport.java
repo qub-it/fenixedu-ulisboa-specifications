@@ -52,6 +52,7 @@ import org.fenixedu.ulisboa.specifications.domain.degree.prescription.Prescripti
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
+import org.fenixedu.ulisboa.specifications.domain.student.ResearchArea;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -975,6 +976,10 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
         return result.toString().endsWith("|") ? result.delete(result.length() - 1, result.length()).toString() : result
                 .toString();
+    }
+    
+    public ResearchArea getResearchArea() {
+        return getRegistration().getResearchArea();
     }
 
 }

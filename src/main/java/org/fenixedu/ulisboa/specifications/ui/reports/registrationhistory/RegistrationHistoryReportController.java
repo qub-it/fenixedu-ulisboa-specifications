@@ -300,6 +300,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.standaloneEnrolmentsCredits", report.getStandaloneEnrolmentsCredits());
                         addData("RegistrationHistoryReport.tuitionCharged", report.isTuitionCharged());
                         addData("RegistrationHistoryReport.tuitionAmount", report.getTuitionAmount().toPlainString());
+                        addData("Registration.researchArea",
+                                report.getResearchArea() != null ? report.getResearchArea().getName().getContent() : null);
                         addData("Registration.registrationObservations", report.getRegistrationObservations());
                     }
 
