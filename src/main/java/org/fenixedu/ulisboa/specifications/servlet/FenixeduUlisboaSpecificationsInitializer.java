@@ -44,6 +44,8 @@ import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
@@ -191,9 +193,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         initTreasuryNextReferenceCode();
-        
+
         registerDeletionListenerOnEnrolmentForCourseGradingTable();
-        
+        registerDeletionListenerOnDegreeModuleForCurriculumLineLogs();
 
     }
 
@@ -202,11 +204,24 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
             @Override
             public void deleting(Enrolment enrolment) {
-                if(enrolment.getCourseGradingTable() != null) {
+                if (enrolment.getCourseGradingTable() != null) {
                     enrolment.getCourseGradingTable().delete();
                 }
             }
         });
+    }
+
+    private void registerDeletionListenerOnDegreeModuleForCurriculumLineLogs() {
+        FenixFramework.getDomainModel().registerDeletionListener(DegreeModule.class, dm -> {
+
+            dm.getCurriculumLineLogsSet().forEach(log -> log.delete());
+
+            if (dm instanceof OptionalCurricularCourse) {
+                final OptionalCurricularCourse optionalCurricularCourse = (OptionalCurricularCourse) dm;
+                optionalCurricularCourse.getOptionalEnrolmentLogsSet().forEach(log -> log.delete());
+            }
+        });
+
     }
 
     static private void initTreasuryNextReferenceCode() {
