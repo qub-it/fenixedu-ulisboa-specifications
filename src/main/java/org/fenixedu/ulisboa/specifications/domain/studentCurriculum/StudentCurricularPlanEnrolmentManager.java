@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 
@@ -145,10 +146,13 @@ public class StudentCurricularPlanEnrolmentManager
         final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
 
         for (final CurriculumModule chosen : enrolmentContext.getToRemove()) {
-            for (final CurriculumModule iter : CurriculumAggregatorServices
-                    .getAggregationParticipantsToRemove(CurriculumAggregatorServices.getContext(chosen), plan, semester)) {
+            if (chosen instanceof CurriculumLine) {
 
-                toChange.add(iter);
+                for (final CurriculumModule iter : CurriculumAggregatorServices.getAggregationParticipantsToRemove(
+                        CurriculumAggregatorServices.getContext((CurriculumLine) chosen), plan, semester)) {
+
+                    toChange.add(iter);
+                }
             }
         }
 

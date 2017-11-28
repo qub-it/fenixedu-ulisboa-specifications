@@ -48,6 +48,7 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 
 import com.google.common.collect.Lists;
 
@@ -174,7 +175,7 @@ public class StudentEnrolmentsDA
 
                 // qubExtension
                 EnrolmentServices.checkForConclusionProcessVersions(enrolment);
-                CurriculumLineServices.updateAggregatorEvaluation(enrolment);
+                CurriculumAggregatorServices.updateAggregatorEvaluation(enrolment);
             });
         } catch (DomainException e) {
             addActionMessage(request, e.getKey(), e.getArgs());
@@ -196,7 +197,7 @@ public class StudentEnrolmentsDA
                 enrolment.activate();
 
                 // qubExtension
-                CurriculumLineServices.updateAggregatorEvaluation(enrolment);
+                CurriculumAggregatorServices.updateAggregatorEvaluation(enrolment);
             });
         } catch (DomainException e) {
             addActionMessage(request, e.getKey(), e.getArgs());

@@ -233,7 +233,7 @@ ${portal.angularToolkit()}
 				code="label.event.evaluation.manageMarkSheet.revertToEdition" /></a>
 	</c:if>
 
-	&nbsp;|&nbsp; <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;<a class=""
+	&nbsp;|&nbsp; <span class="glyphicon glyphicon-list" aria-hidden="true"></span>&nbsp;<a style="display: inline-block;" class=""
 		href="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.SEARCH_CHANGE_REQUESTS_URL%>${competenceCourseMarkSheet.externalId}"><spring:message
 			code="label.event.evaluation.manageMarkSheet.changeRequests" /> <c:if test="${not empty competenceCourseMarkSheet.lastPendingChangeRequest}"><span class="badge"><strong><c:out value="${fn:length(competenceCourseMarkSheet.pendingChangeRequests)}"/></strong></span></c:if></a>
 		

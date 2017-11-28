@@ -64,7 +64,6 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -86,7 +85,6 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineService
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative.CompetenceCourseMarkSheetController;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -437,14 +435,7 @@ public class StudentCurricularPlanLayout extends Layout {
             body = new HtmlText(createGroupName(text, curriculumGroup).toString(), false);
         }
 
-        // qubExtension, Aggregation Info
-        final HtmlInlineContainer container = new HtmlInlineContainer();
-        container.addChild(body);
-        final Context context = CurriculumAggregatorServices.getContext(curriculumGroup);
-        if (context != null) {
-            container.addChild(EnrolmentLayout.generateAggregationInfo(context, getPlan(), context.getBeginExecutionPeriod()));
-        }
-        cell.setBody(container);
+        cell.setBody(body);
 
         if (!addHeaders) {
             cell.setColspan(MAX_LINE_SIZE - level);// - 2);
@@ -743,8 +734,7 @@ public class StudentCurricularPlanLayout extends Layout {
             container.addChild(new HtmlText(": "));
             container.addChild(executionCourseLink);
             // qubExtension, Aggregation Info
-            container.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(dismissal),
-                    getPlan(), dismissal.getExecutionPeriod()));
+            container.addChild(EnrolmentLayout.generateAggregationInfo(dismissal));
         }
 
         // } else {
@@ -758,7 +748,6 @@ public class StudentCurricularPlanLayout extends Layout {
         if (isDetailed(dismissal)) {
             generateDismissalDetails(mainTable, dismissal, level);
         }
-
     }
 
     protected void generateDismissalDetails(final HtmlTable mainTable, Dismissal dismissal, int level) {
@@ -1473,8 +1462,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         inlineContainer.addChild(executionCourseLink);
         // qubExtension, Aggregation Info
-        inlineContainer.addChild(EnrolmentLayout.generateAggregationInfo(CurriculumAggregatorServices.getContext(enrolment),
-                getPlan(), enrolment.getExecutionPeriod()));
+        inlineContainer.addChild(EnrolmentLayout.generateAggregationInfo(enrolment));
 
         final HtmlTableCell cell = enrolmentRow.createCell();
         cell.setClasses(renderer.getLabelCellClass());

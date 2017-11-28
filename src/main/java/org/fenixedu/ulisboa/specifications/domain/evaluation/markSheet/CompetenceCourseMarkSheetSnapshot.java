@@ -197,7 +197,7 @@ public class CompetenceCourseMarkSheetSnapshot extends CompetenceCourseMarkSheet
     private CompetenceCourseMarkSheetSnapshot getNextSnapshot() {
         final List<CompetenceCourseMarkSheetSnapshot> snapshots = getMarkSheet().getSnapshots();
         final int thisIndex = snapshots.indexOf(this);
-        return thisIndex < 0 || thisIndex >= snapshots.size() ? null : snapshots.get(thisIndex + 1);
+        return thisIndex < 0 || thisIndex == snapshots.size() - 1 ? null : snapshots.get(thisIndex + 1);
     }
 
     private CompetenceCourseMarkSheet getMarkSheet() {

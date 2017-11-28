@@ -1760,9 +1760,19 @@ relation CourseGroupDegreeInfoCourseGroup {
     	int optionalConcluded;
     }
     
+	    relation CurriculumAggregatorYear {
+		    studentCurriculum.CurriculumAggregator playsRole curriculumAggregator {
+		        multiplicity 0..*;
+		    }
+		
+		    .org.fenixedu.academic.domain.ExecutionYear playsRole since {
+		        multiplicity 1;
+		    }
+		}
+
 	    relation CurriculumAggregatorContext {
 		    studentCurriculum.CurriculumAggregator playsRole curriculumAggregator {
-		        multiplicity 0..1;
+		        multiplicity 0..*;
 		    }
 		
 		    .org.fenixedu.academic.domain.degreeStructure.Context playsRole context {
@@ -1794,11 +1804,12 @@ relation CourseGroupDegreeInfoCourseGroup {
     	BigDecimal gradeFactor;
     	int gradeValueScale;
     	boolean optional;
+    	boolean supportsTeacherConfirmation;
     }
     
 	    relation CurriculumAggregatorEntryContext {
 		    studentCurriculum.CurriculumAggregatorEntry playsRole curriculumAggregatorEntry {
-		        multiplicity 0..1;
+		        multiplicity 0..*;
 		    }
 		
 		    .org.fenixedu.academic.domain.degreeStructure.Context playsRole context {

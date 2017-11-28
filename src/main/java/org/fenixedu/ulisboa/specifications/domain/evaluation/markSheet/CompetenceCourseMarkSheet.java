@@ -78,7 +78,6 @@ import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSe
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
@@ -118,6 +117,9 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     };
 
     static final private Logger logger = LoggerFactory.getLogger(CompetenceCourseMarkSheet.class);
+
+    private Set<CurriculumAggregator> curriculumAggregators = Sets.newHashSet();
+    private Set<CurriculumAggregatorEntry> curriculumAggregatorEntries = Sets.newHashSet();
 
     protected CompetenceCourseMarkSheet() {
         super();
@@ -835,20 +837,13 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 continue;
             }
 
-            // ugly, but that life sometimes.
-            final Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> data = getCurriculumAggregationData();
-            final Entry<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> entry =
-                    data.isEmpty() ? null : data.entrySet().iterator().next();
-
-            final Set<CurriculumAggregator> aggregators = entry == null ? Sets.newHashSet() : entry.getKey();
-            final Set<CurriculumAggregatorEntry> entries = entry == null ? Sets.newHashSet() : entry.getValue();
-            if (!aggregators.isEmpty() || !entries.isEmpty()) {
+            if (hasCurriculumAggregationData()) {
 
                 if (!validator.getAppliesToCurriculumAggregatorEntry()) {
                     continue;
                 }
 
-                if (!isCurriculumAggregatorEntryScaleConsistent(aggregators, entries)) {
+                if (!isAggregationConsistentForGradeValueScale()) {
                     continue;
                 }
 
@@ -869,12 +864,99 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         return result.isEmpty() ? null : result.first();
     }
 
-    private Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> getCurriculumAggregationData() {
-        final Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> result = Maps.newHashMap();
+    private boolean isAggregationConsistentForGradeValueScale() {
+        return getAggregationGradeValueScale() != null;
+    }
+
+    /**
+     * Strange method, just to make sure we have consistency across the execution course's curricular courses.
+     */
+    private Integer getAggregationGradeValueScale() {
+        Integer result = null;
+
+        final Set<CurriculumAggregator> aggregators = getCurriculumAggregators();
+        final Set<CurriculumAggregatorEntry> entries = getCurriculumAggregatorEntries();
+
+        // let's find a candidate 
+        final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next()
+                .getGradeValueScale() : !entries.isEmpty() ? entries.iterator().next().getGradeValueScale() : null;
+
+        // let's check consistency
+        if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)
+                && entries.stream().allMatch(i -> i.getGradeValueScale() == temp.intValue())) {
+            result = temp;
+        }
+
+        if (result == null) {
+            logger.warn("Unable to find GradeValueScale for {}", this);
+        }
+
+        return result;
+    }
+
+    /**
+     * Strange method, just to make sure we have consistency across the execution course's curricular courses.
+     */
+    private Boolean getAggregationSupportsTeacherConfirmation() {
+        Boolean result = null;
+
+        final Set<CurriculumAggregatorEntry> entries = getCurriculumAggregatorEntries();
+
+        // let's find a candidate 
+        final Boolean temp = !entries.isEmpty() ? entries.iterator().next().getSupportsTeacherConfirmation() : null;
+
+        // let's check consistency
+        if (temp != null && entries.stream().allMatch(i -> i.getSupportsTeacherConfirmation() == temp.booleanValue())) {
+            result = temp;
+        }
+
+        if (result == null) {
+            logger.warn("Unable to find SupportsTeacherConfirmation for {}", this);
+        }
+
+        return result;
+    }
+
+    private boolean hasCurriculumAggregationData() {
+        return !getCurriculumAggregators().isEmpty() || !getCurriculumAggregatorEntries().isEmpty();
+    }
+
+    private boolean hasCurriculumAggregationDataInspected() {
+        return this.curriculumAggregators != null && this.curriculumAggregatorEntries != null;
+    }
+
+    private Set<CurriculumAggregator> getCurriculumAggregators() {
+        if (!hasCurriculumAggregationDataInspected()) {
+            setCurriculumAggregationData();
+        }
+
+        return this.curriculumAggregators;
+    }
+
+    private Set<CurriculumAggregatorEntry> getCurriculumAggregatorEntries() {
+        if (!hasCurriculumAggregationDataInspected()) {
+            setCurriculumAggregationData();
+        }
+
+        return this.curriculumAggregatorEntries;
+    }
+
+    private void setCurriculumAggregationData() {
+        final Entry<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> data = getCurriculumAggregationData();
+
+        this.curriculumAggregators = data == null ? Sets.newHashSet() : data.getKey();
+        this.curriculumAggregatorEntries = data == null ? Sets.newHashSet() : data.getValue();
+    }
+
+    /**
+     * Uugly, but that's life sometimes.
+     */
+    private Entry<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> getCurriculumAggregationData() {
+        final Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> collected = Maps.newHashMap();
 
         if (CurriculumAggregatorServices.isAggregationsActive(getExecutionYear())) {
 
-            // try to find context for each CC
+            // try to find aggregation context for each associated curricular course
             final Set<Context> contexts = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
                     .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionSemester())).filter(i -> i != null)
                     .collect(Collectors.toSet());
@@ -883,49 +965,19 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 // we don't know if we are dealing with aggregators or entries...
                 // the CurricularCourses may even be configured with both status...
                 // so...let's search everything.
-                final Set<CurriculumAggregator> aggregators = contexts.stream().map(i -> i.getCurriculumAggregator())
-                        .filter(i -> i != null && i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
-                final Set<CurriculumAggregatorEntry> entries = contexts.stream().map(i -> i.getCurriculumAggregatorEntry())
-                        .filter(i -> i != null && i.isCandidateForEvaluation()).collect(Collectors.toSet());
+                final Set<CurriculumAggregator> aggregators =
+                        contexts.stream().flatMap(i -> i.getCurriculumAggregatorSet().stream())
+                                .filter(i -> i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
+                final Set<CurriculumAggregatorEntry> entries =
+                        contexts.stream().flatMap(i -> i.getCurriculumAggregatorEntrySet().stream())
+                                .filter(i -> i.isCandidateForEvaluation()).collect(Collectors.toSet());
 
-                result.put(aggregators, entries);
+                collected.put(aggregators, entries);
             }
         }
 
-        return result;
-    }
-
-    private boolean isCurriculumAggregatorEntryScaleConsistent(final Set<CurriculumAggregator> aggregators,
-            final Set<CurriculumAggregatorEntry> entries) {
-
-        return getCurriculumAggregatorEntryScale(aggregators, entries) != null;
-    }
-
-    /**
-     * Strange method, just to make sure we have consistency across the execution course's curricular courses.
-     */
-    private Integer getCurriculumAggregatorEntryScale(final Set<CurriculumAggregator> aggregators,
-            final Set<CurriculumAggregatorEntry> entries) {
-
-        Integer result = null;
-
-        if (!aggregators.isEmpty() || !entries.isEmpty()) {
-
-            // let's find a candidate for grade value scale 
-            final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next()
-                    .getGradeValueScale() : !entries.isEmpty() ? entries.iterator().next().getGradeValueScale() : null;
-
-            if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)
-                    && entries.stream().allMatch(i -> i.getGradeValueScale() == temp.intValue())) {
-                result = temp;
-            }
-
-            if (result == null) {
-                logger.warn("Unable to find grade value scale for {}", this);
-            }
-        }
-
-        return result;
+        // using a map entry just for the pairing...
+        return collected.isEmpty() ? null : collected.entrySet().iterator().next();
     }
 
     @Atomic
@@ -940,7 +992,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                     "error.CompetenceCourseMarkSheet.enrolmentEvaluations.required.to.confirm.markSheet");
         }
 
-        if (byTeacher && !EvaluationSeasonServices.isSupportsTeacherConfirmation(getEvaluationSeason())) {
+        if (byTeacher && !getSupportsTeacherConfirmation()) {
             throw new ULisboaSpecificationsDomainException("error.CompetenceCourseMarkSheet.unauthorized.teacher.confirmation",
                     getEvaluationSeason().getName().getContent());
         }
@@ -962,8 +1014,21 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
             // depends on EnrolmentEvaluationState
             EnrolmentEvaluationServices.onStateChange(evaluation);
             EnrolmentServices.updateState(evaluation.getEnrolment());
-            CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+            CurriculumAggregatorServices.updateAggregatorEvaluation(evaluation);
         }
+    }
+
+    public boolean getSupportsTeacherConfirmation() {
+        if (EvaluationSeasonServices.isSupportsTeacherConfirmation(getEvaluationSeason())) {
+            return true;
+        }
+
+        final Boolean aggregationSupportsTeacherConfirmation = getAggregationSupportsTeacherConfirmation();
+        if (aggregationSupportsTeacherConfirmation != null && aggregationSupportsTeacherConfirmation) {
+            return true;
+        }
+
+        return false;
     }
 
     static public void setEnrolmentEvaluationData(final CompetenceCourseMarkSheet markSheet, final EnrolmentEvaluation evaluation,
@@ -994,7 +1059,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         // this was once performed in revertToEdition; depends on EnrolmentEvaluationState
         EnrolmentEvaluationServices.onStateChange(evaluation);
         EnrolmentServices.updateState(evaluation.getEnrolment());
-        CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+        CurriculumAggregatorServices.updateAggregatorEvaluation(evaluation);
     }
 
     static public void removeEnrolmentEvaluationData(final EnrolmentEvaluation evaluation) {
@@ -1021,7 +1086,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         // FIXME hack for bypass evaluation method type issues
         if (FenixFramework.isDomainObjectValid(evaluation)) {
             EnrolmentServices.updateState(evaluation.getEnrolment());
-            CurriculumLineServices.updateAggregatorEvaluation(evaluation.getEnrolment());
+            CurriculumAggregatorServices.updateAggregatorEvaluation(evaluation);
         }
     }
 
