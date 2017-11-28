@@ -965,12 +965,12 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                 // we don't know if we are dealing with aggregators or entries...
                 // the CurricularCourses may even be configured with both status...
                 // so...let's search everything.
-                final Set<CurriculumAggregator> aggregators =
-                        contexts.stream().flatMap(i -> i.getCurriculumAggregatorSet().stream())
-                                .filter(i -> i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
+                final Set<CurriculumAggregator> aggregators = contexts.stream()
+                        .map(i -> CurriculumAggregatorServices.getAggregator(i, getExecutionYear()))
+                        .filter(i -> i != null && i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
                 final Set<CurriculumAggregatorEntry> entries =
-                        contexts.stream().flatMap(i -> i.getCurriculumAggregatorEntrySet().stream())
-                                .filter(i -> i.isCandidateForEvaluation()).collect(Collectors.toSet());
+                        contexts.stream().map(i -> CurriculumAggregatorServices.getAggregatorEntry(i, getExecutionYear()))
+                                .filter(i -> i != null && i.isCandidateForEvaluation()).collect(Collectors.toSet());
 
                 collected.put(aggregators, entries);
             }
