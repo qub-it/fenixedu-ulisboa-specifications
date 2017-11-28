@@ -28,9 +28,6 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
@@ -79,23 +76,6 @@ abstract public class CurriculumLineServices {
     static public Integer getCurricularYear(final CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation()
                 .getCurricularYear();
-    }
-
-    static public void updateAggregatorEvaluation(final CurriculumLine curriculumLine) {
-        if (CurriculumAggregatorServices.isAggregationsActive(curriculumLine.getExecutionYear())) {
-
-            final Context context = CurriculumAggregatorServices.getContext(curriculumLine);
-            if (context != null) {
-
-                // CAN NOT update evaluations on it self, so must explicitly check for an entry and it's aggregator
-                final CurriculumAggregatorEntry entry = context.getCurriculumAggregatorEntry();
-                final CurriculumAggregator aggregator = entry == null ? null : entry.getAggregator();
-
-                if (aggregator != null) {
-                    aggregator.updateEvaluation(curriculumLine.getStudentCurricularPlan());
-                }
-            }
-        }
     }
 
     static public void setExcludedFromAverage(CurriculumLine curriculumLine, Boolean excludedFromAverage) {

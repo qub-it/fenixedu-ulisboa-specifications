@@ -322,7 +322,7 @@ ${portal.angularToolkit()}
 		</c:if>
 	</c:if>
     
-    <c:if test="${competenceCourseMarkSheet.submitted && competenceCourseMarkSheet.evaluationSeason.information.supportsTeacherConfirmation}">
+    <c:if test="${competenceCourseMarkSheet.submitted && competenceCourseMarkSheet.supportsTeacherConfirmation}">
         &nbsp;|&nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" ng-click="confirmMarkSheet()"
             href="#"><spring:message code="label.event.evaluation.manageMarkSheet.confirm" /></a>
     </c:if>

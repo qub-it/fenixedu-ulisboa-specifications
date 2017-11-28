@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleExecutor;
@@ -136,20 +137,21 @@ abstract public class CurricularRuleConfigurationInitializer {
             final EnrolmentContext enrolmentContext) {
 
         final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
-        if (!CurriculumAggregatorServices.isAggregationsActive(semester.getExecutionYear())) {
+        final ExecutionYear year = semester.getExecutionYear();
+
+        if (!CurriculumAggregatorServices.isAggregationsActive(year)) {
             return false;
         }
 
         for (final Context iter : courseGroup.getChildContexts(CurricularCourse.class)) {
 
-            if (enrolmentContext
-                    .isToEvaluateRulesByYear() ? !iter.isValid(semester.getExecutionYear()) : !iter.isValid(semester)) {
+            if (enrolmentContext.isToEvaluateRulesByYear() ? !iter.isValid(year) : !iter.isValid(semester)) {
                 continue;
             }
 
-            final CurriculumAggregator aggregator = iter.getCurriculumAggregator();
-            StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
-            if (aggregator != null && aggregator.isAggregationConcluded(studentCurricularPlan)) {
+            final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(iter, year);
+            final StudentCurricularPlan plan = enrolmentContext.getStudentCurricularPlan();
+            if (aggregator != null && aggregator.isAggregationConcluded(plan)) {
                 return true;
             }
         }

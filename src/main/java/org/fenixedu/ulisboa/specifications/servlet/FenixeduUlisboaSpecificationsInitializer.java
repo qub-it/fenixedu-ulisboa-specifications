@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.SchoolClass;
@@ -130,6 +131,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentPeriodRestrictionsInitializer.init();
         EnrolmentProcess.init();
         CurriculumConfigurationInitializer.init();
+        ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().stream().filter(i -> i.getSince() == null)
+                .forEach(i -> i.setSince(ExecutionYear.readExecutionYearByName("2016/2017")));
         AnyCurricularCourseExceptionsInitializer.init();
         CurricularRuleConfigurationInitializer.init();
         RegistrationRegimeVerifierInitializer.init();

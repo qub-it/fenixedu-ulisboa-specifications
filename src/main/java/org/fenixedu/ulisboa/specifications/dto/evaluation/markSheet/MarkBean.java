@@ -40,7 +40,6 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -54,8 +53,6 @@ import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
-import com.google.common.base.Strings;
-
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter;
 import pt.ist.fenixframework.Atomic;
 
@@ -68,6 +65,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     private String studentName;
     private String viewStudentCurriculum;
     private String gradeValue;
+    private Grade gradeSuggestedByAggregation;
     private String degreeName;
     private String degreeCode;
     private String shifts;
@@ -167,28 +165,31 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         }
     }
 
-    public void setGradeValueSuggested() {
-        // info message caches suggestion
+    private void setGradeValueSuggested() {
+        setInfoMessage(null);
+        final Grade current = evaluation == null ? Grade.createEmptyGrade() : evaluation.getGrade();
+
         String suggestionValue = null;
-        if (Strings.isNullOrEmpty(getInfoMessage())) {
-            final Grade suggestion = getGradeSuggestedByAggregation();
-            suggestionValue = suggestion == null || suggestion.isEmpty() ? null : suggestion.getValue();
-            if (suggestionValue != null) {
-                setInfoMessage(ULisboaSpecificationsUtil.bundle("info.MarkBean.gradeValue.suggestion", suggestionValue));
-            }
+        final Grade suggestion = getGradeSuggestedByAggregation();
+        if (!suggestion.isEmpty() && suggestion.compareTo(current) != 0) {
+            suggestionValue = suggestion.getValue();
+            setInfoMessage(ULisboaSpecificationsUtil.bundle("info.MarkBean.gradeValue.suggestion", suggestionValue));
         }
 
-        setGradeValue(evaluation != null ? evaluation.getGrade().getValue() : suggestionValue != null ? suggestionValue : null);
+        setGradeValue(!current.isEmpty() ? current.getValue() : suggestionValue);
     }
 
     private Grade getGradeSuggestedByAggregation() {
-        final Context context = CurriculumAggregatorServices.getContext(getEnrolment());
-        final CurriculumAggregator aggregator = context == null ? null : context.getCurriculumAggregator();
-        if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
-            return aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
+        if (this.gradeSuggestedByAggregation == null) {
+            this.gradeSuggestedByAggregation = Grade.createEmptyGrade();
+
+            final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(getEnrolment());
+            if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
+                this.gradeSuggestedByAggregation = aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
+            }
         }
 
-        return null;
+        return this.gradeSuggestedByAggregation;
     }
 
     public String getGradeValue() {

@@ -26,9 +26,11 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -43,10 +45,11 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -69,7 +72,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
     /**
      * Attention: Enrolments are dealt with explicitly upon their grade change, since (un)enrol doesn't change aggregator grade.
-     * See other usages of CurriculumLineServices.updateAggregatorEvaluation(CurriculumLine)
+     * See other usages of CurriculumAggregatorServices.updateAggregatorEvaluation(CurriculumLine)
      */
     static {
         Dismissal.getRelationDegreeModuleCurriculumModule().addListener(CurriculumAggregatorListeners.ON_CREATION);
@@ -84,13 +87,14 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     }
 
     @Atomic
-    static public CurriculumAggregator create(final Context context, final LocalizedString description,
+    static public CurriculumAggregator create(final Context context, final ExecutionYear since, final LocalizedString description,
             final AggregationEnrolmentType enrolmentType, final AggregationMemberEvaluationType evaluationType,
             final EvaluationSeason evaluationSeason, final AggregationGradeCalculator gradeCalculator, final int gradeValueScale,
             final int optionalConcluded) {
 
         final CurriculumAggregator result = new CurriculumAggregator();
         result.setContext(context);
+        result.setSince(since);
         result.init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, gradeValueScale,
                 optionalConcluded);
 
@@ -105,6 +109,23 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         init(description, enrolmentType, evaluationType, evaluationSeason, gradeCalculator, gradeValueScale, optionalConcluded);
 
         return this;
+    }
+
+    @Atomic
+    public CurriculumAggregator duplicate(final ExecutionYear targetYear) {
+
+        final CurriculumAggregator result = create(getContext(), targetYear, getDescription(), getEnrolmentType(),
+                getEvaluationType(), getEvaluationSeason(), getGradeCalculator(), getGradeValueScale(), getOptionalConcluded());
+
+        for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
+            if (entry.getContext().isValid(getSince())) {
+                CurriculumAggregatorEntry.create(result, entry.getContext(), entry.getEvaluationType(),
+                        entry.getSupportsTeacherConfirmation(), entry.getGradeFactor(), entry.getGradeValueScale(),
+                        entry.getOptional());
+            }
+        }
+
+        return result;
     }
 
     private void init(final LocalizedString description, final AggregationEnrolmentType enrolmentType,
@@ -125,6 +146,19 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     private void checkRules() {
         if (getContext() == null) {
             throw new DomainException("error.CurriculumAggregator.required.Context");
+        }
+
+        if (getSince() == null) {
+            throw new DomainException("error.CurriculumAggregator.required.Since");
+        }
+
+        final CurriculumAggregator found = CurriculumAggregatorServices.findAggregator(getContext(), getSince());
+        if (found != null && found != this) {
+            throw new DomainException("error.CurriculumAggregator.duplicate");
+        }
+
+        if (!getContext().isValid(getSince())) {
+            throw new DomainException("error.CurriculumAggregator.invalid.Context");
         }
 
         if (getDescription() == null || getDescription().isEmpty()) {
@@ -163,6 +197,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         super.setContext(null);
+        super.setSince(null);
         super.setEvaluationSeason(null);
 
         super.setRoot(null);
@@ -171,10 +206,11 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
     @Atomic
     public CurriculumAggregatorEntry createEntry(final Context context, final AggregationMemberEvaluationType evaluationType,
-            final BigDecimal gradeFactor, final int gradeValueScale, final boolean optional) {
+            final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final int gradeValueScale,
+            final boolean optional) {
 
-        final CurriculumAggregatorEntry result =
-                CurriculumAggregatorEntry.create(this, context, evaluationType, gradeFactor, gradeValueScale, optional);
+        final CurriculumAggregatorEntry result = CurriculumAggregatorEntry.create(this, context, evaluationType,
+                supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
 
         checkRules();
         return result;
@@ -189,6 +225,27 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getDescriptionDefault();
     }
 
+    public String getDescriptionFull() {
+        final String description = getDescription().getContent();
+        final String since = getSince().getQualifiedName();
+
+        final GradeScale gradeScale = getGradeScale();
+        String gradeScaleDescription = "";
+        if (gradeScale != GradeScale.TYPE20) {
+            gradeScaleDescription = ", " + gradeScale.getDescription().replace(GradeScale.TYPE20.getDescription(), "");
+        }
+
+        String result = String.format("%s [%s %s%s]", description, BundleUtil.getString(Bundle.APPLICATION, "label.since"), since,
+                gradeScaleDescription);
+
+        final int optionalConcluded = getOptionalConcluded();
+        if (optionalConcluded != 0) {
+            result += " [" + optionalConcluded + " Op]";
+        }
+
+        return result;
+    }
+
     private LocalizedString getDescriptionDefault() {
         return getEnrolmentType().getAggregatorDefaultDescription();
     }
@@ -201,8 +258,38 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getContext().getParentCourseGroup().getParentDegreeCurricularPlan();
     }
 
+    public boolean isValid(final ExecutionYear year) {
+        if (year != null) {
+
+            if (getSince().isBeforeOrEquals(year)) {
+
+                final CurriculumAggregator nextConfig = getNextConfig();
+                if (nextConfig == null || !nextConfig.isValid(year)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public CurriculumAggregator getPreviousConfig() {
+        return getContext().getCurriculumAggregatorSet().stream().filter(i -> i.getSince().isBefore(getSince()))
+                .max(Comparator.comparing(CurriculumAggregator::getSince)).orElse(null);
+    }
+
+    public CurriculumAggregator getNextConfig() {
+        return getContext().getCurriculumAggregatorSet().stream().filter(i -> i.getSince().isAfter(getSince()))
+                .min(Comparator.comparing(CurriculumAggregator::getSince)).orElse(null);
+    }
+
     public CurricularCourse getCurricularCourse() {
         return (CurricularCourse) getContext().getChildDegreeModule();
+    }
+
+    public GradeScale getGradeScale() {
+        final GradeScale competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
+        return competenceScale != null ? competenceScale : getCurricularCourse().getGradeScaleChain();
     }
 
     private boolean isWithMarkSheet() {
@@ -225,34 +312,72 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getEnrolmentType() == AggregationEnrolmentType.ONLY_AGGREGATOR_ENTRIES;
     }
 
-    public void updateEvaluation(final StudentCurricularPlan plan) {
+    protected void updateEvaluation(final CurriculumLine entryLine, final EnrolmentEvaluation entryEvaluation) {
 
-        final Enrolment enrolment = getLastEnrolment(plan);
+        final Enrolment enrolment = getLastEnrolment(entryLine.getStudentCurricularPlan());
         if (enrolment == null) {
             return;
         }
 
+        final EnrolmentEvaluation evaluation = getEnrolmentEvaluation(enrolment, entryEvaluation);
+        if (evaluation == null) {
+            return;
+        }
+
         if (isWithMarkSheet()) {
-            updateMarkSheets(enrolment);
+            updateMarkSheets(evaluation);
 
         } else if (isWithoutMarkSheet()) {
-            updateGrade(enrolment);
+            updateGrade(evaluation);
         }
     }
 
-    private void updateGrade(final Enrolment enrolment) {
-        final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
+    private EnrolmentEvaluation getEnrolmentEvaluation(final Enrolment enrolment, final EnrolmentEvaluation entryEvaluation) {
+        EnrolmentEvaluation result = null;
 
-        // get EnrolmentEvaluation
-        final EnrolmentEvaluation evaluation;
-        if (enrolment.getEvaluationsSet().isEmpty()) {
-            evaluation = new EnrolmentEvaluation(enrolment, getEvaluationSeason());
-        } else if (enrolment.getEvaluationsSet().size() != 1) {
-            throw new DomainException("error.CurriculumAggregator.unexpected.number.of.EnrolmentEvaluations");
-        } else {
-            evaluation = enrolment.getEvaluationsSet().iterator().next();
-            evaluation.setEvaluationSeason(getEvaluationSeason());
+        final EvaluationSeason season = getEvaluationSeason(enrolment, entryEvaluation);
+        final Set<EnrolmentEvaluation> evaluations =
+                enrolment.getEvaluationsSet().stream().filter(i -> i.getEvaluationSeason() == season).collect(Collectors.toSet());
+
+        if (evaluations.isEmpty() && season != getEvaluationSeason()) {
+            result = new EnrolmentEvaluation(enrolment, season);
+            if (season.isImprovement()) {
+                result.setExecutionPeriod(entryEvaluation.getExecutionPeriod());
+            }
+
+        } else if (evaluations.size() == 1) {
+            result = evaluations.iterator().next();
+
+            // TODO legidio, this method is being used for updating both grades and sheets and unfortunately sheets don't convert the default enrolment evaluation
+            // removing this for now, since before this we are filtering sheets by evaluation season
+            //
+            // seems redundant, but we want to convert the default season evaluation if that's the one we found
+            // result.setEvaluationSeason(season);
         }
+
+        return result;
+    }
+
+    private EvaluationSeason getEvaluationSeason(final Enrolment enrolment, final EnrolmentEvaluation entryEvaluation) {
+        EvaluationSeason result = null;
+
+        final EvaluationSeason entrySeason = entryEvaluation == null ? null : entryEvaluation.getEvaluationSeason();
+        if (entrySeason != null && entrySeason.isImprovement()
+                && enrolment.getExecutionYear() != entryEvaluation.getExecutionPeriod().getExecutionYear()) {
+
+            result = EvaluationSeason.readSpecialAuthorizations().filter(i -> i.isImprovement()).findAny().orElse(null);
+        }
+
+        if (result == null) {
+            result = getEvaluationSeason();
+        }
+
+        return result;
+    }
+
+    private void updateGrade(final EnrolmentEvaluation evaluation) {
+        final Enrolment enrolment = evaluation.getEnrolment();
+        final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
 
         final Grade conclusionGrade = calculateConclusionGrade(plan);
         final Date conclusionDate = calculateConclusionDate(plan);
@@ -278,14 +403,17 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         EnrolmentServices.updateState(enrolment);
     }
 
-    private void updateMarkSheets(final Enrolment enrolment) {
+    private void updateMarkSheets(final EnrolmentEvaluation evaluation) {
+        final Enrolment enrolment = evaluation.getEnrolment();
         final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
 
-        final Grade conclusionGrade = calculateConclusionGrade(plan);
+        final CompetenceCourseMarkSheet markSheet = evaluation.getCompetenceCourseMarkSheet();
+        if (markSheet == null) {
+            return;
+        }
 
-        // TODO legidio, does it make sense to create change requests for ALL mark sheets, regardless of the evaluation season?
-        enrolment.getEvaluationsSet().stream().map(i -> i.getCompetenceCourseMarkSheet())
-                .forEach(i -> updateMarkSheet(i, enrolment, conclusionGrade));
+        final Grade conclusionGrade = calculateConclusionGrade(plan);
+        updateMarkSheet(markSheet, enrolment, conclusionGrade);
     }
 
     private void updateMarkSheet(final CompetenceCourseMarkSheet markSheet, final Enrolment enrolment,
@@ -327,12 +455,12 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         if (plan != null) {
 
-            final SortedSet<ICurriculumEntry> lines = Sets.newTreeSet((x, y) -> {
-                final int c = x.getExecutionYear().compareTo(y.getExecutionYear());
-                return c == 0 ? ICurriculumEntry.COMPARATOR_BY_ID.compare(x, y) : c;
-            });
+            final SortedSet<CurriculumLine> lines = Sets.newTreeSet(CurriculumAggregatorServices.LINE_COMPARATOR);
             for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-                lines.addAll(entry.getCurriculumEntries(plan, false));
+                final CurriculumLine line = entry.getCurriculumLine(plan, false);
+                if (line != null) {
+                    lines.add(line);
+                }
             }
 
             if (!lines.isEmpty()) {
@@ -381,7 +509,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         // may be concluded by approval of another aggregator on which aggregation it participates
-        final CurriculumAggregatorEntry entry = getContext().getCurriculumAggregatorEntry();
+        final CurriculumAggregatorEntry entry = CurriculumAggregatorServices.getAggregatorEntry(getContext(), getSince());
         if (entry != null && entry.getAggregator().isAggregationConcluded(plan)) {
             return true;
         }
@@ -420,7 +548,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         if (!isAggregationConcluded(plan)) {
-            return Grade.createGrade(GradeScale.RE, getGradeCalculator().getGradeScale());
+            return Grade.createGrade(GradeScale.RE, getGradeScale());
         }
 
         return getGradeCalculator().calculate(this, plan);

@@ -54,7 +54,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
             final BigDecimal value = sumEntriesInput.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : sumEntriesInput
                     .divide(sumEntriesFactor, RoundingMode.HALF_UP);
 
-            return createGrade(aggregator, plan, value, getGradeScale(), aggregator.getGradeValueScale());
+            return createGrade(aggregator, plan, value);
         }
     },
 
@@ -68,7 +68,7 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
 
             final BigDecimal value = sumEntriesInput;
 
-            return createGrade(aggregator, plan, value, getGradeScale(), aggregator.getGradeValueScale());
+            return createGrade(aggregator, plan, value);
         }
 
     };
@@ -79,10 +79,6 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
                 .getContent(I18N.getLocale());
     }
 
-    protected GradeScale getGradeScale() {
-        return GradeScale.TYPE20;
-    }
-
     abstract public Grade calculate(final CurriculumAggregator aggregator, final StudentCurricularPlan plan);
 
     static private Function<CurriculumAggregatorEntry, BigDecimal> calculateEntryInput(final StudentCurricularPlan plan) {
@@ -90,13 +86,16 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
     }
 
     static private Grade createGrade(final CurriculumAggregator aggregator, final StudentCurricularPlan plan,
-            final BigDecimal value, final GradeScale gradeScale, final int gradeValueScale) {
+            final BigDecimal value) {
+
+        final GradeScale gradeScale = aggregator.getGradeScale();
+        final int gradeValueScale = aggregator.getGradeValueScale();
 
         final String grade = value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString();
         if (!gradeScale.belongsTo(grade)) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade",
-                    plan.getRegistration().getNumber().toString(), aggregator.getContext().getChildDegreeModule().getCode(),
-                    grade, gradeScale.getDescription());
+                    plan.getRegistration().getNumber().toString(), aggregator.getCurricularCourse().getCode(), grade,
+                    gradeScale.getDescription());
         }
 
         return Grade.createGrade(grade, gradeScale);

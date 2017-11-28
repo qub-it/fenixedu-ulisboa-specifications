@@ -46,7 +46,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,13 +70,13 @@ abstract public class CurriculumAggregatorListeners {
                     if (dismissal == null || degreeModule == null) {
                         return;
                     }
-                    
+
                     if (!CurriculumAggregatorServices.isAggregationsActive(dismissal.getExecutionYear())) {
                         return;
                     }
 
                     checkToEnrol(dismissal);
-                    CurriculumLineServices.updateAggregatorEvaluation(dismissal);
+                    CurriculumAggregatorServices.updateAggregatorEvaluation(dismissal);
                 }
             };
 
@@ -91,13 +90,13 @@ abstract public class CurriculumAggregatorListeners {
             if (dismissal == null || credits == null) {
                 return;
             }
-            
+
             if (!CurriculumAggregatorServices.isAggregationsActive(dismissal.getExecutionYear())) {
                 return;
             }
 
             checkToRemove(dismissal);
-            CurriculumLineServices.updateAggregatorEvaluation(dismissal);
+            CurriculumAggregatorServices.updateAggregatorEvaluation(dismissal);
         }
     };
 

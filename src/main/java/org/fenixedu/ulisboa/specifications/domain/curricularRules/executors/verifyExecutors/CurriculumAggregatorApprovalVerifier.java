@@ -25,6 +25,9 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.verifyExecutors;
 
+import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
@@ -53,9 +56,9 @@ public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
                 collectAggregatorConcluded(enrolmentContext, getContext(degreeModuleToVerify, parentCourseGroup));
 
         if (aggregatorConcluded != null) {
-
             // some Aggregator approval has freed degreeModuleToVerify from being enroled
             return RuleResult.createFalse(degreeModuleToVerify);
+
         } else {
 
             // degreeModuleToVerify must be verified by PreviousYearsEnrolmentCurricularRule
@@ -79,9 +82,16 @@ public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
     static private CurriculumAggregator collectAggregatorConcluded(final EnrolmentContext enrolmentContext,
             final Context context) {
 
-        CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context);
+        final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
+        final ExecutionYear year = semester.getExecutionYear();
 
-        if (aggregator == null || aggregator.isAggregationConcluded(enrolmentContext.getStudentCurricularPlan())) {
+        if (!CurriculumAggregatorServices.isAggregationsActive(year)) {
+            return null;
+        }
+
+        final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregationRoot(context, year);
+        final StudentCurricularPlan plan = enrolmentContext.getStudentCurricularPlan();
+        if (aggregator == null || aggregator.isAggregationConcluded(plan)) {
             return aggregator;
         }
 

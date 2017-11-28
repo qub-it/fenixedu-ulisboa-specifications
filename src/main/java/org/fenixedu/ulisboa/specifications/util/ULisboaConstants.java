@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -127,12 +126,8 @@ public class ULisboaConstants {
 
             && !ULisboaConstants.isAggregationChild.test(e);
 
-    private static final Predicate<Enrolment> isAggregationChild = x -> {
-
-        final Context context = CurriculumAggregatorServices.getContext(x);
-        return context != null && context.getCurriculumAggregatorEntry() != null;
-
-    };
+    private static final Predicate<Enrolment> isAggregationChild =
+            x -> CurriculumAggregatorServices.getAggregatorEntry(x) != null;
 
     public static final List<ICurriculumEntry> getLastPlanApprovements(final Registration registration) {
         return registration.getLastStudentCurricularPlan().getCurriculum(new DateTime(), null).getCurriculumEntries().stream()
