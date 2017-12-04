@@ -436,21 +436,23 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         if (plan != null) {
 
-            final ExecutionSemester semester = getLastExecutionSemester(plan);
-            if (semester != null) {
+            final ExecutionSemester semester = getLastEntriesExecutionSemester(plan);
 
-                result = plan.getEnrolmentByCurricularCourseAndExecutionPeriod(getCurricularCourse(), semester);
-                if (result == null) {
-                    logger.debug("No aggregator enrolment found, no grade to update in {} at {}",
-                            getCurricularCourse().getOneFullName(), semester.getQualifiedName());
-                }
+            result = plan.getEnrolmentsSet().stream()
+                    .filter(i -> i.getCurricularCourse() == getCurricularCourse() && (semester == null || i.isValid(semester))
+                            && getSince().isBeforeOrEquals(i.getExecutionYear()))
+                    .max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
+
+            if (result == null) {
+                logger.debug("No aggregator enrolment found, no grade to update in {} at {}",
+                        getCurricularCourse().getOneFullName(), semester == null ? "" : semester.getQualifiedName());
             }
         }
 
         return result;
     }
 
-    private ExecutionSemester getLastExecutionSemester(final StudentCurricularPlan plan) {
+    private ExecutionSemester getLastEntriesExecutionSemester(final StudentCurricularPlan plan) {
         ExecutionSemester result = null;
 
         if (plan != null) {
