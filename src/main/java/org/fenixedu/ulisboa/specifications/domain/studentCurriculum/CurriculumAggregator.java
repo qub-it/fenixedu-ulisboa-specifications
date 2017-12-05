@@ -438,10 +438,14 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
             final ExecutionSemester semester = getLastEntriesExecutionSemester(plan);
 
-            result = plan.getEnrolmentsSet().stream()
-                    .filter(i -> i.getCurricularCourse() == getCurricularCourse() && (semester == null || i.isValid(semester))
-                            && getSince().isBeforeOrEquals(i.getExecutionYear()))
-                    .max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
+            result = getContext().getChildDegreeModule().getCurriculumModulesSet().stream().filter(i -> {
+
+                final Enrolment enrolment = i instanceof Enrolment ? (Enrolment) i : null;
+                return enrolment != null && enrolment.getStudentCurricularPlan() == plan
+                        && (semester == null || enrolment.isValid(semester))
+                        && getSince().isBeforeOrEquals(enrolment.getExecutionYear());
+
+            }).map(Enrolment.class::cast).max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
 
             if (result == null) {
                 logger.debug("No aggregator enrolment found, no grade to update in {} at {}",
