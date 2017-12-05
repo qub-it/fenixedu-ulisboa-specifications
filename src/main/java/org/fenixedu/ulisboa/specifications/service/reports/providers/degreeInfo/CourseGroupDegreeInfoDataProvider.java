@@ -6,6 +6,7 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
+import org.joda.time.YearMonthDay;
 
 import com.qubit.terra.docs.util.IDocumentFieldsData;
 import com.qubit.terra.docs.util.IReportDataProvider;
@@ -16,11 +17,16 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
 
     protected CourseGroupDegreeInfo courseGroupDegreeInfo;
 
-    public CourseGroupDegreeInfoDataProvider(final Registration registration, final ExecutionYear executionYear,
+    public CourseGroupDegreeInfoDataProvider(final Registration registration, ExecutionYear executionYear,
             final ProgramConclusion programConclusion) {
         final Degree degree = registration.getDegree();
-        final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
 
+        YearMonthDay conclusionDate = registration.getConclusionDate();
+        if (conclusionDate != null) {
+            executionYear = ExecutionYear.readByDateTime(conclusionDate.toLocalDate());
+        }
+
+        final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
         if (extendedDegreeInfo != null) {
 
             if (programConclusion == null) {

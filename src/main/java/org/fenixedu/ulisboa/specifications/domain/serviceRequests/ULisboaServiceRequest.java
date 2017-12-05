@@ -236,6 +236,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             }
         }
 
+        request.processRequest(true, false);
+
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(request));
     }
 

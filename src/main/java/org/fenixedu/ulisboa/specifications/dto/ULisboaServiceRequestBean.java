@@ -167,6 +167,7 @@ public class ULisboaServiceRequestBean implements IBean {
         setRequestDate(request.getRequestDate());
         setServiceRequestType(request.getServiceRequestType());
         setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
+        //Use its properties and set the value
         for (ServiceRequestProperty property : request.getSortedServiceRequestProperties()) {
             ServiceRequestPropertyBean propertyBean = new ServiceRequestPropertyBean(property);
             if (propertyBean.getUiComponent().needDataSource()) {
@@ -176,6 +177,23 @@ public class ULisboaServiceRequestBean implements IBean {
             }
             serviceRequestPropertyBeans.add(propertyBean);
         }
+
+        List<String> propertiesCodes = request.getSortedServiceRequestProperties().stream()
+                .map(p -> p.getServiceRequestSlot().getCode()).collect(Collectors.toList());
+
+        //Add new slots that might exist in configuration of this request
+        serviceRequestType.getServiceRequestSlotEntriesSet().stream().filter(ServiceRequestSlotEntry.PRINT_PROPERTY.negate())
+                .filter(entry -> !propertiesCodes.contains(entry.getServiceRequestSlot().getCode()))
+                .sorted(ServiceRequestSlotEntry.COMPARE_BY_ORDER_NUMBER).forEachOrdered(entry -> {
+                    ServiceRequestPropertyBean propertyBean = new ServiceRequestPropertyBean(entry);
+                    if (propertyBean.getUiComponent().needDataSource()) {
+                        DataSourceProvider dataSourceProvider =
+                                ULisboaServiceRequestBean.DATA_SOURCE_PROVIDERS.get(propertyBean.getCode());
+                        propertyBean.setDataSource(dataSourceProvider.provideDataSourceList(this));
+                    }
+                    serviceRequestPropertyBeans.add(propertyBean);
+                });
+
     }
 
     private boolean isSameServiceRequestType() {
