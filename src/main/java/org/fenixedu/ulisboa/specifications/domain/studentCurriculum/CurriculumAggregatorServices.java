@@ -142,10 +142,9 @@ abstract public class CurriculumAggregatorServices {
                                     // note that we want to investigate enrolments prior or equal to the curriculum line year
                                     && i.getExecutionYear().isBeforeOrEquals(lineYear)
 
-                                    // note that we cannot ask for the context being valid in the curriculum line semester,
-                                    // we're dealing with different degree modules - we just want to make sure they are from the same semester
-                                    && contemporaryRoot.getContext().containsSemester(i.getExecutionPeriod().getSemester()))
-                            .collect(Collectors.toList());
+                            // ATTENTION: we CANNOT make sure aggregator and entries are from the same semester - because they actually can
+                            // && contemporaryRoot.getContext().containsSemester(i.getExecutionPeriod().getSemester())
+                            ).collect(Collectors.toList());
 
                     final CurriculumLine rootLine =
                             possibleLines.stream().max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
