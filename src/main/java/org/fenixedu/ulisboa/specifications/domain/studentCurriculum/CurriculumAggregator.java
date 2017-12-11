@@ -436,34 +436,41 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         if (plan != null) {
 
-            final ExecutionSemester semester = getLastEntriesExecutionSemester(plan);
+            final ExecutionSemester entriesLastSemester = getEntriesLastExecutionSemester(plan);
 
             result = getContext().getChildDegreeModule().getCurriculumModulesSet().stream().filter(i -> {
 
                 final Enrolment enrolment = i instanceof Enrolment ? (Enrolment) i : null;
                 return enrolment != null && enrolment.getStudentCurricularPlan() == plan
-                        && (semester == null || enrolment.isValid(semester))
-                        && getSince().isBeforeOrEquals(enrolment.getExecutionYear());
+
+                // note that enrolments prior or equal to aggregator's Since may belong to another configuration
+                        && enrolment.getExecutionYear().isAfterOrEquals(getSince())
+
+                        && getContext().isValid(enrolment.getExecutionPeriod())
+
+                // if entriesLastSemester is not null, may be redudant
+                        && (entriesLastSemester == null || enrolment.isValid(entriesLastSemester));
 
             }).map(Enrolment.class::cast).max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
 
             if (result == null) {
                 logger.debug("No aggregator enrolment found, no grade to update in {} at {}",
-                        getCurricularCourse().getOneFullName(), semester == null ? "" : semester.getQualifiedName());
+                        getCurricularCourse().getOneFullName(),
+                        entriesLastSemester == null ? "" : entriesLastSemester.getQualifiedName());
             }
         }
 
         return result;
     }
 
-    private ExecutionSemester getLastEntriesExecutionSemester(final StudentCurricularPlan plan) {
+    private ExecutionSemester getEntriesLastExecutionSemester(final StudentCurricularPlan plan) {
         ExecutionSemester result = null;
 
         if (plan != null) {
 
             final SortedSet<CurriculumLine> lines = Sets.newTreeSet(CurriculumAggregatorServices.LINE_COMPARATOR);
             for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-                final CurriculumLine line = entry.getCurriculumLine(plan, false);
+                final CurriculumLine line = entry.getLastCurriculumLine(plan, false);
                 if (line != null) {
                     lines.add(line);
                 }

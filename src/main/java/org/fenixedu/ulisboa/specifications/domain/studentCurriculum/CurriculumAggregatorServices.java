@@ -119,11 +119,11 @@ abstract public class CurriculumAggregatorServices {
         final Set<CurriculumAggregator> result = Sets.newLinkedHashSet();
 
         final Context context = getContext(line);
-        final ExecutionYear year = line.getExecutionYear();
+        final ExecutionYear lineYear = line.getExecutionYear();
 
         if (context != null) {
 
-            for (final CurriculumAggregator contemporaryRoot : getAggregationRoots(context, year)) {
+            for (final CurriculumAggregator contemporaryRoot : getAggregationRoots(context, lineYear)) {
 
                 final DegreeModule rootModule = contemporaryRoot.getCurricularCourse();
 
@@ -138,7 +138,13 @@ abstract public class CurriculumAggregatorServices {
 
                     final List<CurriculumLine> possibleLines = line.getStudentCurricularPlan().getAllCurriculumLines().stream()
                             .filter(i -> possibleModules.contains(i.getDegreeModule())
-                                    && i.getExecutionYear().isBeforeOrEquals(year))
+
+                                    // note that we want to investigate enrolments prior or equal to the curriculum line year
+                                    && i.getExecutionYear().isBeforeOrEquals(lineYear)
+
+                                    // note that we cannot ask for the context being valid in the curriculum line semester,
+                                    // we're dealing with different degree modules - we just want to make sure they are from the same semester
+                                    && contemporaryRoot.getContext().containsSemester(i.getExecutionPeriod().getSemester()))
                             .collect(Collectors.toList());
 
                     final CurriculumLine rootLine =

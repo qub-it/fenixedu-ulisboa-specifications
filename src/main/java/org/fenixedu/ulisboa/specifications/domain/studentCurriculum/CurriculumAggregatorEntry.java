@@ -26,7 +26,6 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -211,7 +210,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     protected boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
-        final CurriculumLine line = getCurriculumLine(plan, false);
+        final CurriculumLine line = getLastCurriculumLine(plan, false);
         if (line != null) {
             if (line instanceof Dismissal) {
                 return true;
@@ -226,11 +225,11 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
-        final CurriculumLine line = getCurriculumLine(plan, true);
+        final CurriculumLine line = getLastCurriculumLine(plan, true);
         return line != null && line.isConcluded();
     }
 
-    public CurriculumLine getCurriculumLine(final StudentCurricularPlan plan, final boolean approved) {
+    public CurriculumLine getLastCurriculumLine(final StudentCurricularPlan plan, final boolean approved) {
         final CurriculumLine result;
 
         final DegreeModule degreeModule = getCurricularCourse();
@@ -241,8 +240,13 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
             } else {
 
-                result = plan.getAllCurriculumLines().stream().filter(
-                        i -> i.getDegreeModule() == getCurricularCourse() && getSince().isBeforeOrEquals(i.getExecutionYear()))
+                result = plan.getAllCurriculumLines().stream().filter(i -> i.getDegreeModule() == getCurricularCourse()
+
+                        // note that enrolments prior or equal to aggregator's Since may belong to another configuration
+                        && i.getExecutionYear().isAfterOrEquals(getSince())
+
+                        && getContext().isValid(i.getExecutionPeriod()))
+
                         .max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
             }
 
@@ -258,7 +262,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
         if (isAggregationConcluded(plan)) {
 
-            final CurriculumLine line = getCurriculumLine(plan, true);
+            final CurriculumLine line = getLastCurriculumLine(plan, true);
             if (line != null) {
 
                 Grade grade = null;
@@ -281,7 +285,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
         if (isAggregationConcluded(plan)) {
 
-            final CurriculumLine line = getCurriculumLine(plan, true);
+            final CurriculumLine line = getLastCurriculumLine(plan, true);
             if (line != null) {
 
                 if (line instanceof ICurriculumEntry) {
