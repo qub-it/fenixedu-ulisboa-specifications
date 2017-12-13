@@ -246,6 +246,7 @@ ${portal.angularToolkit()}
                                 bennu-date="evaluation.gradeAvailableDate"
                                 />
                             <span class="alert alert-danger btn-xs" ng-show="evaluation.errorMessage != null">{{evaluation.errorMessage}}</span>
+                            <span class="alert alert-info btn-xs" ng-show="evaluation.infoMessage != null">{{evaluation.infoMessage}}</span>
                          </td>
                     </tr>
                 </tbody>
