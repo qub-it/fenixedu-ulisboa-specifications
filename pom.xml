@@ -27,47 +27,6 @@
 		<plugins>
 
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<forceRegenerate>true</forceRegenerate>
-					<extension>true</extension>
-					<packageName>org.fenixedu.ulisboa.specifications.legal.jaxb.raides</packageName>
-					<outputDirectory>${basedir}/target/generated-sources/xsd/</outputDirectory>
-					<schemaDirectory>${basedir}/src/main/xsd/raides/</schemaDirectory>
-					<schemaFiles>DataStructureRaides.xsd</schemaFiles>
-					<bindingDirectory>${basedir}/src/main/xsd/raides/</bindingDirectory>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${basedir}/target/generated-sources/xsd/</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.8</version>

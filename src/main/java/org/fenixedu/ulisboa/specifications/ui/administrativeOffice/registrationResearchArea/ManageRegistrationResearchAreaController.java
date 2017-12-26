@@ -9,7 +9,6 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.student.ResearchArea;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.legal.report.raides.RaidesConfigurationController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;

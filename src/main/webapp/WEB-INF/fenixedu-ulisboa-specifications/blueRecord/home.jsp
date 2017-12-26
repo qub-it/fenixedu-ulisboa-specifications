@@ -1,4 +1,4 @@
-<%@page import="org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance"%>
+<%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <style>
 	.start {
@@ -12,7 +12,7 @@
 </div>
 
 <div class="row well start">
-	<%= RaidesInstance.getInstance().getBlueRecordStartMessageContent().getContent() %>
+	<%= ULisboaSpecificationsUtil.bundle("message.blueRecord.intro") %>
 </div>
 
 <div class="">
