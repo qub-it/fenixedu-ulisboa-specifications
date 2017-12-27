@@ -29,7 +29,6 @@ public class IngressionServices {
     }
 
     public static boolean isUnfinishedSourceDegreeInformationRequired(final Registration registration) {
-        //TODO: load all instances with data
         final IngressionType ingressionType = registration.getIngressionType();
         return ingressionType != null && ingressionType.getRequiresUnfinishedSourceDegreeInformation();
     }
