@@ -59,9 +59,6 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
         for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
             
-            //TODO: check first time (next execution year) vs enroled (current year) to avoid forcing the student to fill the inquiry twice in the same moment
-            //Combine hasEnrolmentsOrStartedOnYear && hasSomeBlueRecordFormToFill
-
             if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
                 continue;
             }
@@ -106,9 +103,6 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
     public String redirectionPath(final User user, final HttpServletRequest request) {
         for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
             
-            //TODO: check first time (next execution year) vs enroled (current year) to avoid forcing the student to fill the inquiry twice in the same moment
-            //Combine hasEnrolmentsOrStartedOnYear && hasSomeBlueRecordFormToFill
-
             if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
                 continue;
             }

@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.services.candidacy;
 
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 
@@ -28,15 +29,9 @@ public class IngressionServices {
     }
 
     public static boolean isUnfinishedSourceDegreeInformationRequired(final Registration registration) {
-        //TODO: add attribute to trunk
         //TODO: load all instances with data
-        return isDegreeChangeOrTransfer(registration);
-    }
-
-    private static boolean isDegreeChangeOrTransfer(final Registration registration) {
-        return registration.getIngressionType() != null && (registration.getIngressionType().isExternalDegreeChange()
-                || registration.getIngressionType().isInternalDegreeChange() || registration.getIngressionType().isTransfer());
-
+        final IngressionType ingressionType = registration.getIngressionType();
+        return ingressionType != null && ingressionType.getRequiresUnfinishedSourceDegreeInformation();
     }
 
 }
