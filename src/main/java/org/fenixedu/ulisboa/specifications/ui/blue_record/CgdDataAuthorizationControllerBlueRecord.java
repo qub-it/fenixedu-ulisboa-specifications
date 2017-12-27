@@ -9,7 +9,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.CgdDataAuthorizationController;
 import org.springframework.ui.Model;
@@ -140,8 +140,8 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
     }
 
     private Registration findFirstTimeRegistration(final ExecutionYear executionYear) {
-        final List<Registration> registrations =
-                Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, AccessControl.getPerson().getStudent());
+        final List<Registration> registrations = StudentServices.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear,
+                AccessControl.getPerson().getStudent());
         return registrations.stream().filter(r -> r.getRegistrationYear() == executionYear).findFirst().orElse(null);
     }
 

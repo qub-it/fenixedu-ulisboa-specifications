@@ -20,7 +20,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
+import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
@@ -258,8 +258,8 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     }
 
     private Registration findFirstTimeRegistration(final ExecutionYear executionYear) {
-        final List<Registration> registrations =
-                Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, AccessControl.getPerson().getStudent());
+        final List<Registration> registrations = StudentServices.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear,
+                AccessControl.getPerson().getStudent());
         return registrations.stream().filter(r -> r.getRegistrationYear() == executionYear).findFirst().orElse(null);
     }
 

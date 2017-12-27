@@ -11,8 +11,8 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
+import org.fenixedu.ulisboa.specifications.domain.services.candidacy.IngressionServices;
+import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -96,11 +96,11 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final ExecutionYear executionYear,
             final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Lists.newArrayList(Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student));
+                Lists.newArrayList(StudentServices.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student));
 
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
         for (final Registration registration : activeRegistrationsWithEnrolments) {
-            if (Raides.isCompletePrecedentDegreeInformationFieldsToBeFilledByStudent(registration)) {
+            if (IngressionServices.isCompletePrecedentDegreeInformationMissing(registration)) {
                 result.add(registration.getStudentCandidacy().getPrecedentDegreeInformation());
             }
         }
@@ -111,16 +111,11 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
     protected List<PrecedentDegreeInformation> findPreviousDegreePrecedentDegreeInformationsToFill(
             final ExecutionYear executionYear, final Student student) {
         final List<Registration> activeRegistrationsWithEnrolments =
-                Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student);
+                StudentServices.findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, student);
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
 
         for (final Registration registration : activeRegistrationsWithEnrolments) {
-            if (!Raides.isDegreeChangeOrTransfer(RaidesInstance.getInstance(), registration.getIngressionType())) {
-                continue;
-            }
-
-            if (Raides.isPreviousDegreePrecedentDegreeInformationFieldsToBeFilledByStudent(RaidesInstance.getInstance(),
-                    registration)) {
+            if (IngressionServices.isUnfinishedSourceDegreeInformationMissing(registration)) {
                 result.add(registration.getStudentCandidacy().getPrecedentDegreeInformation());
             }
         }

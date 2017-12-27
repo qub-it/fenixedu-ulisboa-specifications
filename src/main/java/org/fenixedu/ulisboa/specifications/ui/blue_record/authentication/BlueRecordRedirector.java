@@ -2,9 +2,9 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record.authentication;
 
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,9 +16,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.ulisboa.specifications.authentication.IULisboaRedirectionHandler;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.Raides;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesFormPeriod;
-import org.fenixedu.ulisboa.specifications.domain.legal.raides.RaidesInstance;
+import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.CgdDataAuthorizationControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.DisabilitiesFormControllerBlueRecord;
@@ -51,14 +49,6 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
             return false;
         }
 
-        if (RaidesInstance.getInstance() == null) {
-            return false;
-        }
-
-        if (!RaidesInstance.getInstance().getFormsAvailableToStudents()) {
-            return false;
-        }
-
         if (isEnrolmentStep(request)) {
             return false;
         }
@@ -67,18 +57,33 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
             return false;
         }
 
-        for (final RaidesFormPeriod period : RaidesFormPeriod.findActive().collect(Collectors.toSet())) {
-            if (!hasSomeBlueRecordFormToFill(period.getExecutionYear(), user.getPerson().getStudent())) {
+        for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
+            
+            if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
                 continue;
             }
 
-            if (!Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(period.getExecutionYear(),
-                    AccessControl.getPerson().getStudent()).isEmpty()) {
+            if (!StudentServices
+                    .findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, AccessControl.getPerson().getStudent())
+                    .isEmpty()) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private List<ExecutionYear> getExecutionYearsToProcess() {
+
+        final List<ExecutionYear> result = new ArrayList<>();
+
+        final ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+        result.add(currentExecutionYear);
+        if (currentExecutionYear.getNextExecutionYear() != null) {
+            result.add(currentExecutionYear.getNextExecutionYear());
+        }
+
+        return result;
     }
 
     private boolean hasSomeBlueRecordFormToFill(final ExecutionYear executionYear, final Student student) {
@@ -96,14 +101,16 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
     @Override
     public String redirectionPath(final User user, final HttpServletRequest request) {
-        for (final RaidesFormPeriod period : RaidesFormPeriod.findActive().collect(Collectors.toSet())) {
-            if (!hasSomeBlueRecordFormToFill(period.getExecutionYear(), user.getPerson().getStudent())) {
+        for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
+            
+            if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
                 continue;
             }
 
-            if (!Raides.findActiveFirstTimeRegistrationsOrWithEnrolments(period.getExecutionYear(),
-                    AccessControl.getPerson().getStudent()).isEmpty()) {
-                return BlueRecordEntryPoint.CONTROLLER_URL + "/" + period.getExecutionYear().getExternalId();
+            if (!StudentServices
+                    .findActiveFirstTimeRegistrationsOrWithEnrolments(executionYear, AccessControl.getPerson().getStudent())
+                    .isEmpty()) {
+                return BlueRecordEntryPoint.CONTROLLER_URL + "/" + executionYear.getExternalId();
             }
         }
 
@@ -112,13 +119,10 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
     static private boolean isEnrolmentStep(final HttpServletRequest request) {
 
-        final List<String> stepsURLs = Lists.newArrayList(
-        		EnrolmentManagementDA.getEndURL(),
-                CourseEnrolmentDA.getInstructionsEntryPointURL(), 
-                CourseEnrolmentDA.getEntryPointURL(),
-                SchoolClassStudentEnrollmentDA.getEntryPointURL(), 
-                ShiftEnrolmentController.getEntryPointURL(),
-                SchoolClassPreferenceStudentEnrollmentDA.getEntryPointURL());
+        final List<String> stepsURLs =
+                Lists.newArrayList(EnrolmentManagementDA.getEndURL(), CourseEnrolmentDA.getInstructionsEntryPointURL(),
+                        CourseEnrolmentDA.getEntryPointURL(), SchoolClassStudentEnrollmentDA.getEntryPointURL(),
+                        ShiftEnrolmentController.getEntryPointURL(), SchoolClassPreferenceStudentEnrollmentDA.getEntryPointURL());
 
         for (final String iter : stepsURLs) {
 
