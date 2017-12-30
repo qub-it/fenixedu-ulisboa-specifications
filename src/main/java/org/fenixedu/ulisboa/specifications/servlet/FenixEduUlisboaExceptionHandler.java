@@ -10,7 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter.ExceptionHandler;
+import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter.ExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +19,12 @@ public class FenixEduUlisboaExceptionHandler extends PortalExceptionHandler impl
 
     Logger logger = LoggerFactory.getLogger(FenixEduUlisboaExceptionHandler.class);
 
-    public FenixEduUlisboaExceptionHandler(ServletContext servletContext) {
+    public FenixEduUlisboaExceptionHandler(final ServletContext servletContext) {
         super(servletContext);
     }
 
     @Override
-    public boolean handle(ServletRequest request, ServletResponse response, Throwable throwable)
+    public boolean handle(final ServletRequest request, final ServletResponse response, final Throwable throwable)
             throws ServletException, IOException {
         if (AccessControl.getPerson() == null) {
             logger.error("Exception thrown for anonymous user");
@@ -36,9 +36,9 @@ public class FenixEduUlisboaExceptionHandler extends PortalExceptionHandler impl
     }
 
     @Override
-    protected void setExtraParameters(Map<String, Object> ctx, HttpServletRequest req, Throwable exception) {
-        // It will be much more interesting to actually know the true cause of the exception instead of 
-        // exception most of the times we received (Such as ServletNestedException). So we'll perform 
+    protected void setExtraParameters(final Map<String, Object> ctx, final HttpServletRequest req, final Throwable exception) {
+        // It will be much more interesting to actually know the true cause of the exception instead of
+        // exception most of the times we received (Such as ServletNestedException). So we'll perform
         // exception unwrapping to find the true cause.
         //
         // 1 August 2017 - Paulo Abrantes
@@ -63,16 +63,16 @@ public class FenixEduUlisboaExceptionHandler extends PortalExceptionHandler impl
 
     //
     // Just in case we end up in some sort of loop or huge exception chain
-    // let's have a kill switch to make sure we don't spend an eternity 
+    // let's have a kill switch to make sure we don't spend an eternity
     // unwrapping exceptions.
     //
     // 1 August 2017 - Paulo Abrantes
 
     public static final int EXCEPTION_CAUSE_LIMIT = 42;
 
-    protected Throwable unwrapException(Throwable throwable, int counter) {
+    protected Throwable unwrapException(final Throwable throwable, int counter) {
         Throwable cause = throwable.getCause();
-        return (cause == null || cause == throwable || counter > EXCEPTION_CAUSE_LIMIT) ? throwable : unwrapException(cause,
+        return cause == null || cause == throwable || counter > EXCEPTION_CAUSE_LIMIT ? throwable : unwrapException(cause,
                 ++counter);
     }
 

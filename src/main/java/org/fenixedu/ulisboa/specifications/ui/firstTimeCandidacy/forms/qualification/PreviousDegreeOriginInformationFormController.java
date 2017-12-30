@@ -19,11 +19,11 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
@@ -292,7 +292,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                 Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                 Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                 Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                institutionObject = Unit.createNewUnit(new MultiLanguageString(I18N.getLocale(), institution), null, null,
+                institutionObject = Unit.createNewUnit(new LocalizedString(I18N.getLocale(), institution), null, null,
                         OriginInformationFormController.resolveAcronym(null, institution), new YearMonthDay(), null,
                         adhocHighschools, AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null,
                         null, null, null, null);

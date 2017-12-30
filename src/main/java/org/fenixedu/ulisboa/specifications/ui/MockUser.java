@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2016 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: paulo.abrantes@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
@@ -55,12 +56,12 @@ import com.google.common.base.Strings;
 public class MockUser extends FenixEDUBaseController {
 
     @RequestMapping
-    public String indexNoSlash(Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    public String indexNoSlash(final Model model, final RedirectAttributes redirectAttributes, final HttpServletRequest request) {
         return "forward:/userMock/";
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String index(Model model, RedirectAttributes redirectAttributes) {
+    public String index(final Model model, final RedirectAttributes redirectAttributes) {
         boolean qualityMode = Boolean.TRUE.equals(ULisboaConfiguration.getConfiguration().isQualityMode());
         boolean developmentMode = Boolean.TRUE.equals(CoreConfiguration.getConfiguration().developmentMode());
 
@@ -71,8 +72,8 @@ public class MockUser extends FenixEDUBaseController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public String index(@RequestParam(value = "username") String username, Model model, RedirectAttributes redirectAttributes,
-            HttpServletRequest request) {
+    public String index(@RequestParam(value = "username") final String username, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpServletRequest request, final HttpServletResponse response) {
         if (!Strings.isNullOrEmpty(username)) {
             boolean qualityMode = Boolean.TRUE.equals(ULisboaConfiguration.getConfiguration().isQualityMode());
             boolean developmentMode = Boolean.TRUE.equals(CoreConfiguration.getConfiguration().developmentMode());
@@ -84,7 +85,7 @@ public class MockUser extends FenixEDUBaseController {
                 boolean isManager = user != null ? Group.parse("#managers").isMember(user) : false;
 
                 if (user != null && !isManager) {
-                    Authenticate.login(request.getSession(), username);
+                    Authenticate.login(request, response, user, "TODO: CHANGE ME");
 
                     if (AccessControl.getPerson() != null) {
                         Optional<MenuItem> findFirst =

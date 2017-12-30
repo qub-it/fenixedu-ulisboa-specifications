@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -24,7 +24,7 @@ import org.joda.time.LocalDate;
 
 /**
  * This is a TEMPORARY class to control the access to the enrolments to a limited set of students.
- * 
+ *
  * @author nuno.pinheiro@qub-it.com
  *
  */
@@ -55,21 +55,20 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
     }
 
     @Override
-    public boolean equals(Object arg0) {
+    public boolean equals(final Object arg0) {
         return arg0 instanceof SpecialIngressionsAndOtherCyclesGroup;
     }
 
     @Override
-    public Set<User> getMembers() {
+    public Stream<User> getMembers() {
         Set<Registration> registrations = new HashSet<>();
         registrations.addAll(ExecutionYear.readCurrentExecutionYear().getStudentsSet());
         registrations.addAll(ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear().getStudentsSet());
-        return registrations.stream().filter(isValid).map(registration -> registration.getStudent().getPerson().getUser())
-                .collect(Collectors.toSet());
+        return registrations.stream().filter(isValid).map(registration -> registration.getStudent().getPerson().getUser());
     }
 
     @Override
-    public Set<User> getMembers(DateTime arg0) {
+    public Stream<User> getMembers(final DateTime arg0) {
         throw new RuntimeException("Unsupported");
     }
 
@@ -84,7 +83,7 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
     }
 
     @Override
-    public boolean isMember(User user) {
+    public boolean isMember(final User user) {
         if (user == null) {
             return false;
         }
@@ -96,7 +95,7 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
     }
 
     @Override
-    public boolean isMember(User arg0, DateTime arg1) {
+    public boolean isMember(final User arg0, final DateTime arg1) {
         throw new RuntimeException("Unsupported");
     }
 
@@ -107,26 +106,24 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
 
     Predicate<Registration> isValid = registration -> {
 
-//     
+//
 
-            if (degreeTypes.contains(registration.getDegree().getDegreeType())) {
-                return true;
-            }
-            IngressionType ingressionType = registration.getIngressionType();
-            if ((registration.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear())
-                    && ingressionTypes.contains(ingressionType)) {
-                return true;
-            }
+        if (degreeTypes.contains(registration.getDegree().getDegreeType())) {
+            return true;
+        }
+        IngressionType ingressionType = registration.getIngressionType();
+        if (registration.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear()
+                && ingressionTypes.contains(ingressionType)) {
+            return true;
+        }
 
-            return registration
-                    .getRegistrationDataByExecutionYearSet()
-                    .stream()
-                    .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear()
-                            || rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear())
-                    .anyMatch(rdby -> wasReingression(rdby));
-        };
+        return registration.getRegistrationDataByExecutionYearSet().stream()
+                .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear()
+                        || rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear())
+                .anyMatch(rdby -> wasReingression(rdby));
+    };
 
-    private boolean wasReingression(RegistrationDataByExecutionYear registrationDataByExecutionYear) {
+    private boolean wasReingression(final RegistrationDataByExecutionYear registrationDataByExecutionYear) {
         LocalDate reingressionDate = registrationDataByExecutionYear.getReingressionDate();
 
         //re-ingressions date @ FL
@@ -135,7 +132,7 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
                 && reingressionDate.isBefore(new DateTime(2015, 9, 17, 23, 59).toLocalDate());
     }
 
-    boolean isMemberStudent(Student student) {
+    boolean isMemberStudent(final Student student) {
         return student.getActiveRegistrationsIn(ExecutionSemester.readActualExecutionSemester()).stream().anyMatch(isValid);
     }
 

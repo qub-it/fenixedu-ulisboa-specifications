@@ -730,11 +730,11 @@ class curricularRules.AnyCurricularCourseExceptionsConfiguration {
 // ==================== BEGIN: Credits Reason Type ====================
 
 class studentCurriculum.CreditsReasonType {
-	MultiLanguageString reason (REQUIRED);
+	LocalizedString reason (REQUIRED);
 	boolean active;
 	boolean averageEntry;
 	boolean infoHidden;
-	MultiLanguageString infoText (REQUIRED);
+	LocalizedString infoText (REQUIRED);
 	boolean infoExplained;
 	boolean infoExplainedWithCountry;
 	boolean infoExplainedWithInstitution;

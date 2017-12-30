@@ -76,6 +76,11 @@
                                 <textarea bennu-localized-string ng-html-editor="selected.body" ng-on-image-added="onImageAdded"
                                           id="body" toolbar="size,style,colors,lists,align,links,table,image,undo,fullscreen,source" class="form-control"></textarea>
 
+                                <label for="excerpt"><spring:message code="label.excerpt"/></label>
+
+                                <textarea bennu-localized-string ng-html-editor="selected.excerpt" ng-on-image-added="onImageAdded"
+                                          id="excerpt" toolbar="size,style,colors,lists,align,links,table,image,undo,fullscreen,source" class="form-control"></textarea>
+
                                 <div>
                                     <div class="pull-left">
                                         <div class="checkbox">

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
@@ -13,7 +14,6 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-import org.fenixedu.academic.util.MultiLanguageString;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
@@ -34,9 +34,29 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
+    private static boolean equalInAnyLanguage(final LocalizedString object, final String value) {
+        for (Locale locale : object.getLocales()) {
+            if (object.getContent(locale).equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean equalInAnyLanguage(final LocalizedString object, final LocalizedString value) {
+        for (Locale objectLocale : object.getLocales()) {
+            for (Locale valueLocale : value.getLocales()) {
+                if (object.getContent(objectLocale).equals(value.getContent(valueLocale))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Atomic
-    static public CreditsReasonType create(final MultiLanguageString reason, final boolean active, final boolean averageEntry,
-            final boolean infoHidden, final MultiLanguageString infoText, final boolean infoExplained,
+    static public CreditsReasonType create(final LocalizedString reason, final boolean active, final boolean averageEntry,
+            final boolean infoHidden, final LocalizedString infoText, final boolean infoExplained,
             final boolean infoExplainedWithCountry, final boolean infoExplainedWithInstitution,
             final boolean infoExplainedWithEcts) {
 
@@ -48,8 +68,8 @@ public class CreditsReasonType extends CreditsReasonType_Base {
     }
 
     @Atomic
-    public CreditsReasonType edit(final MultiLanguageString reason, final boolean active, final boolean averageEntry,
-            final boolean infoHidden, final MultiLanguageString infoText, final boolean infoExplained,
+    public CreditsReasonType edit(final LocalizedString reason, final boolean active, final boolean averageEntry,
+            final boolean infoHidden, final LocalizedString infoText, final boolean infoExplained,
             final boolean infoExplainedWithCountry, final boolean infoExplainedWithInstitution,
             final boolean infoExplainedWithEcts) {
 
@@ -59,10 +79,9 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         return this;
     }
 
-    private void init(final MultiLanguageString reason, final boolean active, final boolean averageEntry,
-            final boolean infoHidden, final MultiLanguageString infoText, final boolean infoExplained,
-            final boolean infoExplainedWithCountry, final boolean infoExplainedWithInstitution,
-            final boolean infoExplainedWithEcts) {
+    private void init(final LocalizedString reason, final boolean active, final boolean averageEntry, final boolean infoHidden,
+            final LocalizedString infoText, final boolean infoExplained, final boolean infoExplainedWithCountry,
+            final boolean infoExplainedWithInstitution, final boolean infoExplainedWithEcts) {
 
         super.setReason(reason);
         super.setActive(active);
@@ -80,7 +99,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
     private void checkRules() {
 
         for (final CreditsReasonType creditsReasonType : findAll()) {
-            if (creditsReasonType != this && creditsReasonType.getReason().equalInAnyLanguage(getReason())) {
+            if (creditsReasonType != this && equalInAnyLanguage(creditsReasonType.getReason(), getReason())) {
                 throw new ULisboaSpecificationsDomainException("error.CreditsReasonType.reason.must.be.unique");
             }
         }
@@ -106,7 +125,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
     }
 
     static public Collection<CreditsReasonType> findActive() {
-        final Set<CreditsReasonType> result = new HashSet<CreditsReasonType>();
+        final Set<CreditsReasonType> result = new HashSet<>();
 
         for (final CreditsReasonType reasonType : findAll()) {
             if (reasonType.isActive()) {
@@ -132,7 +151,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
                 return null;
             }
 
-            result.append(getInfoText().toLocalizedString());
+            result.append(getInfoText());
 
             if (!hideDetails) {
 
@@ -166,7 +185,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         if (credits.isSubstitution()) {
             credits.getDismissalsSet().stream().sorted(CurriculumLineServices.COMPARATOR).forEach(i -> {
 
-                result.append(i.getName().toLocalizedString(), ", ");
+                result.append(i.getName(), ", ");
                 addECTS(result, i);
             });
 

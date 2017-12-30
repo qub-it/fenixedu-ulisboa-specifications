@@ -114,7 +114,7 @@
 			<p class="mtop2 mbottom05">
 			<strong>
 				<logic:equal name="summary" property="taught" value="true">
-					<fr:view name="summary" property="title" type="org.fenixedu.academic.util.MultiLanguageString"/>
+					<fr:view name="summary" property="title" type="org.fenixedu.commons.i18n.LocalizedString"/>
 				</logic:equal>
 				<logic:equal name="summary" property="taught" value="false">
 					<bean:message key="label.lesson.notTaught" />
@@ -125,7 +125,7 @@
 			</p>			
 			<logic:equal name="showSummariesBean" property="listSummaryType" value="ALL_CONTENT">				
 				<p class="mvert05">
-					<fr:view name="summary" property="summaryText" type="org.fenixedu.academic.util.MultiLanguageString" layout="html" />					
+					<fr:view name="summary" property="summaryText" type="org.fenixedu.commons.i18n.LocalizedString" layout="html" />					
 				</p>
 			</logic:equal>	
 			

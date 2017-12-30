@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -20,7 +21,7 @@ public class TestTemporaryGroups extends CustomTask {
     public void runTask() throws Exception {
         Group parse = Group.parse(SpecialIngressionsAndOtherCyclesGroup.GROUP_OPERATOR);
         Map<DegreeType, Integer> counters = new HashMap<>();
-        Set<User> members = parse.getMembers();
+        Set<User> members = parse.getMembers().collect(Collectors.toSet());
         taskLog("Found " + members.size());
         members.forEach(user -> {
             String username = user.getPerson().getUsername();

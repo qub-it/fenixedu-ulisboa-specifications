@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2016 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: paulo.abrantes@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -27,10 +27,12 @@
 package org.fenixedu.ulisboa.specifications.service.cas;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.fenixedu.bennu.cas.client.CASClientConfiguration;
+import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.exceptions.AuthorizationException;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
@@ -38,13 +40,14 @@ import org.jasig.cas.client.validation.TicketValidator;
 public class DefaultTicketValidationStrategy implements TicketValidationStrategy {
 
     private final TicketValidator validator =
-            new Cas20ServiceTicketValidator(CoreConfiguration.getConfiguration().casServerUrl());
+            new Cas20ServiceTicketValidator(CASClientConfiguration.getConfiguration().casServerUrl());
 
     @Override
-    public void validateTicket(String ticket, String requestURL, HttpServletRequest request) throws TicketValidationException,
-            AuthorizationException {
-        Authenticate.logout(request.getSession());
+    public void validateTicket(final String ticket, final String requestURL, final HttpServletRequest request,
+            final HttpServletResponse response) throws TicketValidationException, AuthorizationException {
+        Authenticate.logout(request, response);
         String username = validator.validate(ticket, requestURL).getPrincipal().getName();
-        Authenticate.login(request.getSession(), username);
+        User user = User.findByUsername(username);
+        Authenticate.login(request, response, user, "TODO: CHANGE ME");
     }
 }

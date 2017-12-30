@@ -6,12 +6,12 @@ import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.cms.domain.MenuItem;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-import pt.ist.fenixframework.FenixFramework;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import pt.ist.fenixframework.FenixFramework;
 
 public class PagesAdminBean {
     private static final JsonParser PARSER = new JsonParser();
@@ -20,13 +20,14 @@ public class PagesAdminBean {
     private MenuItem parent;
     private LocalizedString title;
     private LocalizedString body;
+    private LocalizedString excerpt;
     private final Boolean visible;
 
-    public PagesAdminBean(String json) {
+    public PagesAdminBean(final String json) {
         this(PARSER.parse(json).getAsJsonObject());
     }
 
-    public PagesAdminBean(JsonObject jsonObj) {
+    public PagesAdminBean(final JsonObject jsonObj) {
         if (asString(jsonObj, "menuItemId").isPresent()) {
             this.menuItem = menuItem(asString(jsonObj, "menuItemId").get());
         }
@@ -38,6 +39,9 @@ public class PagesAdminBean {
         }
         if (jsonObj.has("body") && jsonObj.get("body") != null && !jsonObj.get("body").isJsonNull()) {
             this.body = LocalizedString.fromJson(jsonObj.get("body"));
+        }
+        if (jsonObj.has("excerpt") && jsonObj.get("excerpt") != null && !jsonObj.get("excerpt").isJsonNull()) {
+            this.excerpt = LocalizedString.fromJson(jsonObj.get("excerpt"));
         }
         if (asString(jsonObj, "canViewGroupIndex").isPresent()) {
             Integer.parseInt(asString(jsonObj, "canViewGroupIndex").get());
@@ -62,11 +66,15 @@ public class PagesAdminBean {
         return body;
     }
 
+    public LocalizedString getExcerpt() {
+        return excerpt;
+    }
+
     public Group getCanViewGroup() {
         return this.canViewGroup;
     }
 
-    protected static Optional<String> asString(JsonObject jsonObject, String field) {
+    protected static Optional<String> asString(final JsonObject jsonObject, final String field) {
         if (jsonObject.has(field)) {
             if (jsonObject.get(field) != null && !jsonObject.isJsonNull() && jsonObject.get(field).isJsonPrimitive()
                     && !"null".equals(jsonObject.get(field).getAsString())) {
@@ -76,11 +84,11 @@ public class PagesAdminBean {
         return Optional.empty();
     }
 
-    protected static MenuItem menuItem(String menuItemId) {
+    protected static MenuItem menuItem(final String menuItemId) {
         return Strings.isNullOrEmpty(menuItemId) ? null : FenixFramework.getDomainObject(menuItemId);
     }
 
-    private Group executionCourseGroup(int canViewGroupIndex) {
+    private Group executionCourseGroup(final int canViewGroupIndex) {
         return PagesAdminService.permissionGroups(menuItem.getPage().getSite()).get(canViewGroupIndex);
     }
 
@@ -91,7 +99,7 @@ public class PagesAdminBean {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("menuItem", menuItem).add("parent", parent).add("title", title).add("body", body)
-                .toString();
+                .add("excerpt", excerpt).toString();
     }
 
 }

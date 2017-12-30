@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
+import org.fenixedu.bennu.core.domain.BennuGroupIndex;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.ulisboa.specifications.accessControl.SecondCycleFirstYearGroup;
 
@@ -16,6 +17,7 @@ public class SecondCycleFirstYearPersistentGroup extends SecondCycleFirstYearPer
     }
 
     public static SecondCycleFirstYearPersistentGroup getInstance() {
-        return singleton(() -> find(SecondCycleFirstYearPersistentGroup.class), () -> new SecondCycleFirstYearPersistentGroup());
+        return singleton(() -> BennuGroupIndex.groupConstant(SecondCycleFirstYearPersistentGroup.class).findAny(),
+                () -> new SecondCycleFirstYearPersistentGroup());
     }
 }

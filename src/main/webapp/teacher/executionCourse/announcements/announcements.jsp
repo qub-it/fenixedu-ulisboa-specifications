@@ -104,6 +104,16 @@
                                       <br/>
                                 </div>
                                 <div class="form-group">
+                                    <label for="excerpt" class="control-label">
+                                        <spring:message code="label.announcement.content.excerpt"/>
+                                    </label>
+
+                                    <input bennu-localized-string bennu-html-editor required-any name="excerpt" id="excerpt" data-post-slug="${announcement.slug}"
+                                        placeholder="<spring:message code="label.announcement.content.excerpt"/>"
+                                        value='<c:out value="${announcement.excerpt.json()}"/>'>
+                                      <br/>
+                                </div>
+                                <div class="form-group">
                                     <div class="checkbox">
                                         <label class="control-label">
                                             <spring:message code="label.visible" />
@@ -192,6 +202,14 @@
 
                         <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,links,table,undo,fullscreen,source" required-any name="body" id="body"
                                    placeholder="<spring:message code="label.announcement.content" />">
+                    </div>
+                    <div class="form-group">
+                        <label for="announcementExcerpt" class="control-label">
+                            <spring:message code="label.announcement.content.excerpt" />
+                        </label>
+
+                        <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,links,table,undo,fullscreen,source" required-any name="excerpt" id="excerpt"
+                                   placeholder="<spring:message code="label.announcement.content.excerpt" />">
                     </div>
                     <div class="form-group">
                         <div class="checkbox">
