@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-learning</artifactId>
-			<version>3.2.0-SNAPSHOT</version>
+			<version>3.2.0-NEW-DEV</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
@@ -74,12 +74,12 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury</artifactId>
-			<version>1.0.6</version>
+			<version>1.0.0-NEW-DEV</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-qubdocs-reports</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.3-NEW-DEV</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lowagie</groupId>
