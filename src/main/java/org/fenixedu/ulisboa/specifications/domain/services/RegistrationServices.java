@@ -551,5 +551,11 @@ public class RegistrationServices {
     public static boolean isManuallyAssignedNumber(final Registration input) {
         return input.getExtendedInformation() != null && input.getExtendedInformation().getManuallyAssignedNumber();
     }
+    
+    public static LocalDate getEnrolmentDate(final Registration registration,final ExecutionYear executionYear) {
+        final RegistrationDataByExecutionYear dataByExecutionYear = RegistrationDataServices.getRegistrationData(registration, executionYear);
+        
+        return dataByExecutionYear == null ? null : dataByExecutionYear.getEnrolmentDate();
+    }
 
 }
