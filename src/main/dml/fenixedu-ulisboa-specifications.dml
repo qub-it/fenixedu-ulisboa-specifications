@@ -2406,6 +2406,7 @@ class degree.prescription.PrescriptionConfig {
 	boolean reingressionRestartsYearCount;
 }
 
+
 relation BennuPrescriptionConfig {
 
 	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
@@ -2435,6 +2436,22 @@ relation PrescriptionConfigBeginExecutionYear {
 	degree.prescription.PrescriptionConfig playsRole prescriptionConfigsAsBeginExecutionYear {
 		multiplicity *;
 	}
+}
+
+class degree.prescription.PrescriptionEntry {
+	BigDecimal enrolmentYears;
+	BigDecimal minEctsApproved;
+}
+
+relation PrescriptionConfigPrescriptionEntry {
+	
+	degree.prescription.PrescriptionConfig playsRole prescriptionConfig {
+        multiplicity 1..1;
+    }
+	
+	degree.prescription.PrescriptionEntry playsRole prescriptionEntries {
+        multiplicity *;
+    }
 }
 
 class degree.prescription.PrescriptionBonificationStatute {

@@ -108,6 +108,10 @@ public class PrescriptionConfig extends PrescriptionConfig_Base {
         while (!getBonificationStatutesSet().isEmpty()) {
             getBonificationStatutesSet().iterator().next().delete();
         }
+        
+        while (!getPrescriptionEntriesSet().isEmpty()) {
+            getPrescriptionEntriesSet().iterator().next().delete();
+        }
 
         getDegreeCurricularPlansSet().clear();
         super.setBeginExecutionYear(null);

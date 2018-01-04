@@ -49,6 +49,7 @@ import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
 import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionConfig;
+import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionEntry;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
@@ -930,11 +931,16 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return getEnrolmentExecutionYears().size();
     }
 
+    public boolean isPrescriptionConfigured() {
+        final PrescriptionConfig config = PrescriptionConfig.findBy(getDegreeCurricularPlan());
+        return config != null && !config.getPrescriptionEntriesSet().isEmpty();
+    }
+
     public BigDecimal getEnrolmentYearsForPrescription() {
 
         final PrescriptionConfig config = PrescriptionConfig.findBy(getDegreeCurricularPlan());
         if (config == null) {
-            return null;
+            throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReport.prescriptionConfig.is.missing");
         }
 
         //TODO: move logic to PrescriptionConfig?
@@ -948,6 +954,39 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         }
 
         return BigDecimal.ZERO.max(result.subtract(bonification));
+    }
+
+    public boolean canPrescribe() {
+
+        final BigDecimal studentEcts =
+                RegistrationServices.getCurriculum(registration, executionYear.getNextExecutionYear()).getSumEctsCredits();
+
+        final int enrolmentYearsForPrescription = getEnrolmentYearsForPrescription().intValue();
+
+        final PrescriptionConfig config = PrescriptionConfig.findBy(getDegreeCurricularPlan());
+        if (config == null) {
+            throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReport.prescriptionConfig.is.missing");
+        }
+
+        final List<PrescriptionEntry> entries = config.getPrescriptionEntriesSet().stream()
+                .sorted((x, y) -> x.getEnrolmentYears().compareTo(y.getEnrolmentYears())).collect(Collectors.toList());
+
+        final PrescriptionEntry lastEntry = entries.get(entries.size() - 1);
+
+        final PrescriptionEntry entry;
+        if (enrolmentYearsForPrescription > lastEntry.getEnrolmentYears().intValue()) {
+            entry = lastEntry;
+        } else {
+            entry = entries.stream().filter(e -> enrolmentYearsForPrescription <= e.getEnrolmentYears().intValue()).findFirst()
+                    .orElse(null);
+        }
+
+        if (entry == null) {
+            throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReport.prescriptionConfig.is.missing");
+        }
+
+        return studentEcts.compareTo(entry.getMinEctsApproved()) < 0;
+
     }
 
     private Set<ExecutionYear> getEnrolmentExecutionYears() {

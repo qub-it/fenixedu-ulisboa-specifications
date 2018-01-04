@@ -269,11 +269,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.average", report.getAverage());
                         addData("RegistrationHistoryReport.currentAverage", report.getCurrentAverage());
                         addData("RegistrationHistoryReport.enrolmentYears", report.getEnrolmentYears());
-
-                        final BigDecimal enrolmentYearsForPrescription = report.getEnrolmentYearsForPrescription();
                         addData("RegistrationHistoryReport.enrolmentYearsForPrescription",
-                                enrolmentYearsForPrescription == null ? "-" : enrolmentYearsForPrescription.toString());
-
+                                report.isPrescriptionConfigured() ? report.getEnrolmentYearsForPrescription().toString() : "-");
+                        addData("RegistrationHistoryReport.canPrescribe",
+                                report.isPrescriptionConfigured() ? booleanString(report.canPrescribe()) : "-");
                         addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
                         addData("Registration.lastEnrolmentExecutionYear", report.getLastEnrolmentExecutionYear());
                         addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
