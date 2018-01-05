@@ -26,6 +26,7 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.degreeStructure.RegimeType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
@@ -558,6 +559,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ICurriculumEntry.grade", curriculumEntry.getGradeValue());
                         addData("ICurriculumEntry.ectsCreditsForCurriculum", curriculumEntry.getEctsCreditsForCurriculum());
                         addData("ICurriculumEntry.executionPeriod", curriculumEntry.getExecutionPeriod().getQualifiedName());
+                        addData("CurricularCourse.regime", getRegimeDescription(curriculumEntry));
                         addData("creationDate", curriculumEntry.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
                         addData("ICurriculumEntry.dismissal", ULisboaSpecificationsUtil
                                 .bundle(isDismissal(entry.getKey(), entry.getValue()) ? "label.yes" : "label.no"));
@@ -570,6 +572,16 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                         .map(e -> e.getGrade().getNumericValue()).mapToDouble(v -> v.doubleValue()).average();
                         addData("Curriculum.simpleAverage", average.isPresent() ? average.getAsDouble() : null);
 
+                    }
+
+                    private String getRegimeDescription(ICurriculumEntry curriculumEntry) {
+                        if (curriculumEntry instanceof CurriculumLine) {
+                            final CurriculumLine curriculumLine = (CurriculumLine) curriculumEntry;
+                            return curriculumLine.getCurricularCourse() != null ? curriculumLine.getCurricularCourse()
+                                    .getRegime(curriculumEntry.getExecutionYear()).getLocalizedName() : null;
+                        }
+
+                        return null;
                     }
 
                     private boolean isDismissal(ICurriculum curriculum, ICurriculumEntry entry) {
@@ -669,6 +681,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.ectsCreditsForCurriculum", enrolment.getEctsCreditsForCurriculum());
                         addData("Enrolment.grade", finalEvaluation != null ? finalEvaluation.getGradeValue() : null);
                         addData("Enrolment.executionPeriod", enrolmentPeriod.getQualifiedName());
+                        addData("CurricularCourse.regime",
+                                enrolment.getCurricularCourse().getRegime(enrolment.getExecutionYear()).getLocalizedName());
                         addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
@@ -713,6 +727,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.executionPeriod", evaluation.getExecutionPeriod().getQualifiedName());
+                        addData("CurricularCourse.regime",
+                                enrolment.getCurricularCourse().getRegime(enrolment.getExecutionYear()).getLocalizedName());
                         addData("EnrolmentEvaluation.grade", evaluation.getGradeValue());
 
                         if (evaluation.getEvaluationSeason().isImprovement() && evaluation.isFinal()) {
