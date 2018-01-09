@@ -11,6 +11,7 @@ public class ServiceRequestSlotEntryBean implements IBean {
     private String label;
     private boolean required;
     private boolean isPrintConfiguration;
+    private boolean isEditable;
     private int orderNumber;
     private ServiceRequestPropertyBean propertyBean;
     private ServiceRequestProperty defaultProperty;
@@ -47,6 +48,14 @@ public class ServiceRequestSlotEntryBean implements IBean {
 
     public void setPrintConfiguration(final boolean isPrintConfiguration) {
         this.isPrintConfiguration = isPrintConfiguration;
+    }
+
+    public boolean isEditable() {
+        return isEditable;
+    }
+
+    public void setEditable(final boolean isEditable) {
+        this.isEditable = isEditable;
     }
 
     public int getOrderNumber() {
@@ -98,6 +107,7 @@ public class ServiceRequestSlotEntryBean implements IBean {
         setLabel(entry.getServiceRequestSlot().getLabel().getContent());
         setRequired(entry.getRequired());
         setPrintConfiguration(entry.getIsPrintConfiguration());
+        setEditable(entry.getIsEditable());
         setOrderNumber(entry.getOrderNumber());
         if (entry.getDefaultServiceRequestProperty() != null) {
             setPropertyBean(new ServiceRequestPropertyBean(entry.getDefaultServiceRequestProperty()));

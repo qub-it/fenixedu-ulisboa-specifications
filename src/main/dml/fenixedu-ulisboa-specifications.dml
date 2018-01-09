@@ -1354,6 +1354,7 @@ relation ServiceRequestSlotBennu {
 class serviceRequests.ServiceRequestSlotEntry {
     Boolean required;
     Boolean isPrintConfiguration;
+    Boolean isEditable;
     int orderNumber;
 }
 

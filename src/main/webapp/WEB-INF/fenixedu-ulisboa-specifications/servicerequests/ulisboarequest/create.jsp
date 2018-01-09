@@ -290,7 +290,7 @@ ${portal.angularToolkit()}
                }
                $scope.transformDataToShow = function () {
                    // Change the Properties' values for the expected format
-                   angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {
+                   angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {               	   
                        // DropDown one value can be stored in three different variables
                        if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE%>') {
                            if(element.code == '<%= ULisboaConstants.LANGUAGE %>') {
@@ -393,8 +393,9 @@ ${portal.angularToolkit()}
                     <ui-select id="{{ serviceRequestProperty.code}}" name="field" on-select="onDropDownChange($model)"
                         ng-model="serviceRequestProperty.value"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
+                        ng-disabled="!serviceRequestProperty.isEditable"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match allow-clear="serviceRequestProperty.isEditable">
                             {{$select.selected.text}}
                         </ui-select-match> 
                         <ui-select-choices repeat="element.id as element in serviceRequestProperty.dataSource | filter: $select.search">
@@ -404,8 +405,9 @@ ${portal.angularToolkit()}
                     <ui-select id="{{serviceRequestProperty.code}}" name="field"
                         ng-model="serviceRequestProperty.booleanValue"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_BOOLEAN'"
+                        ng-disabled="!serviceRequestProperty.isEditable"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match allow-clear="serviceRequestProperty.isEditable">
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
@@ -413,11 +415,11 @@ ${portal.angularToolkit()}
                         </ui-select-choices>
                     </ui-select> 
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT'"
-                           type="text" ng-model="serviceRequestProperty.stringValue" name="field" ng-required="serviceRequestProperty.required" 
+                           type="text" ng-model="serviceRequestProperty.stringValue" name="field" ng-required="serviceRequestProperty.required" ng-disabled="!serviceRequestProperty.isEditable" 
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'NUMBER'"
-                           type="number" ng-model="serviceRequestProperty.integerValue" name="field"  ng-required="serviceRequestProperty.required"
+                           type="number" ng-model="serviceRequestProperty.integerValue" name="field"  ng-required="serviceRequestProperty.required" ng-disabled="!serviceRequestProperty.isEditable" 
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"

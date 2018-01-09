@@ -47,6 +47,7 @@ public class ServiceRequestPropertyBean implements IBean {
     private Locale localeValue;
     private CycleType cycleTypeValue;
     private boolean required;
+    private boolean isEditable;
     private boolean showMessage;
     private String classname;
 
@@ -162,6 +163,14 @@ public class ServiceRequestPropertyBean implements IBean {
         this.required = required;
     }
 
+    public boolean isEditable() {
+        return isEditable;
+    }
+
+    public void setEditable(final boolean isEditable) {
+        this.isEditable = isEditable;
+    }
+
     public boolean isShowMessage() {
         return showMessage;
     }
@@ -220,8 +229,19 @@ public class ServiceRequestPropertyBean implements IBean {
         ServiceRequestSlot serviceRequestSlot = serviceRequestSlotEntry.getServiceRequestSlot();
         setCode(serviceRequestSlot.getCode());
         setRequired(serviceRequestSlotEntry.getRequired());
+        setEditable(serviceRequestSlotEntry.getIsEditable());
         setUiComponentType(serviceRequestSlot.getUiComponentType());
         setLabel(serviceRequestSlot.getLabel());
+        if (serviceRequestSlotEntry.getDefaultServiceRequestProperty() != null) {
+            String propertyName = getPropertyName(serviceRequestSlot);
+            try {
+                PropertyUtils.setProperty(this, propertyName,
+                        serviceRequestSlotEntry.getDefaultServiceRequestProperty().getValue());
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new ULisboaSpecificationsDomainException(e, "error.serviceRequests.ServiceRequestProperty.write.slot",
+                        serviceRequestSlot.getCode(), serviceRequestSlot.getUiComponentType().toString(), propertyName);
+            }
+        }
     }
 
     public ServiceRequestPropertyBean(final ServiceRequestProperty property) {
@@ -231,6 +251,7 @@ public class ServiceRequestPropertyBean implements IBean {
         setUiComponentType(slot.getUiComponentType());
         setLabel(slot.getLabel());
         setRequired(false);
+        setEditable(property.getServiceRequestSlotEntry().getIsEditable());
         String propertyName = getPropertyName(slot);
         try {
             PropertyUtils.setProperty(this, propertyName, property.getValue());

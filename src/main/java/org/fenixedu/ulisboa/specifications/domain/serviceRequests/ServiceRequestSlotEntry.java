@@ -28,13 +28,14 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
     }
 
     protected ServiceRequestSlotEntry(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
-            final Boolean required, final int orderNumber, final Boolean isPrintConfiguration) {
+            final Boolean required, final int orderNumber, final Boolean isPrintConfiguration, final Boolean isEditable) {
         this();
         setServiceRequestType(serviceRequestType);
         setServiceRequestSlot(slot);
         setRequired(required);
         setOrderNumber(orderNumber);
         setIsPrintConfiguration(isPrintConfiguration);
+        setIsEditable(isEditable);
         checkRules();
     }
 
@@ -46,20 +47,26 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
 
     @Override
     public Boolean getRequired() {
-        return super.getRequired() == null ? false : super.getRequired().booleanValue();
+        return super.getRequired() == null ? Boolean.FALSE : super.getRequired();
     }
 
     @Override
     public Boolean getIsPrintConfiguration() {
-        return super.getIsPrintConfiguration() == null ? false : super.getIsPrintConfiguration().booleanValue();
+        return super.getIsPrintConfiguration() == null ? Boolean.FALSE : super.getIsPrintConfiguration();
+    }
+
+    @Override
+    public Boolean getIsEditable() {
+        return super.getIsEditable() == null ? Boolean.TRUE : super.getIsEditable();
     }
 
     @Atomic
-    public void edit(final Boolean required, final int orderNumber, final Boolean isPrintConfiguration,
+    public void edit(final Boolean required, final int orderNumber, final Boolean isPrintConfiguration, final Boolean isEditable,
             final ServiceRequestProperty defaultProperty) {
         setRequired(required);
         setOrderNumber(orderNumber);
         setIsPrintConfiguration(isPrintConfiguration);
+        setIsEditable(isEditable);
         setDefaultServiceRequestProperty(defaultProperty);
     }
 
@@ -96,12 +103,12 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
     @Atomic
     public static ServiceRequestSlotEntry create(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
             final Boolean required, final int orderNumber) {
-        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber, Boolean.FALSE);
+        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber, Boolean.FALSE, Boolean.TRUE);
     }
 
     @Atomic
     public static ServiceRequestSlotEntry create(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot,
-            final Boolean required, final int orderNumber, final Boolean isPrintConfiguration) {
-        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber, isPrintConfiguration);
+            final Boolean required, final int orderNumber, final Boolean isPrintConfiguration, final Boolean isEditable) {
+        return new ServiceRequestSlotEntry(serviceRequestType, slot, required, orderNumber, isPrintConfiguration, isEditable);
     }
 }

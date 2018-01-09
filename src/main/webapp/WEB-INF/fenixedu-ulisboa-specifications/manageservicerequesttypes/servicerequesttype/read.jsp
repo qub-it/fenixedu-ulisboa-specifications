@@ -233,6 +233,7 @@ ${portal.angularToolkit()}
                     $('form[name="form"]').find('input[name="required"]').attr('value', false);
                     $('form[name="form"]').find('input[name="orderNumber"]').attr('value', $scope.object.serviceRequestSlotEntries.length);
                     $('form[name="form"]').find('input[name="isPrintConfiguration"]').attr('value', false);
+                    $('form[name="form"]').find('input[name="isEditable"]').attr('value', true);
                     $('form[name="form"]').find('input[name="serviceRequestSlot"]').attr('value', $scope.serviceRequestSlot);
                     $scope.postBack(model);
                     
@@ -281,6 +282,7 @@ ${portal.angularToolkit()}
                     $('form[name="form"]').find('input[name="postback"]').attr('value', url);
                     $('form[name="form"]').find('input[name="required"]').attr('value', slotEntry.required);
                     $('form[name="form"]').find('input[name="isPrintConfiguration"]').attr('value', slotEntry.isPrintConfiguration);
+                    $('form[name="form"]').find('input[name="isEditable"]').attr('value', slotEntry.isEditable);
                     $('form[name="form"]').find('input[name="defaultProperty"]').attr('value', JSON.stringify(slotEntry.propertyBean));
                     
                 	$scope.postBack(model);
@@ -306,6 +308,7 @@ ${portal.angularToolkit()}
         <input type="hidden" name="orderNumber" value="" />
         <input type="hidden" name="serviceRequestSlot" value="" />
         <input type="hidden" name="isPrintConfiguration" value="" />
+        <input type="hidden" name="isEditable" value="" />
         <input type="hidden" name="defaultProperty" value="" />
         
         <div class="panel panel-body">
@@ -344,6 +347,8 @@ ${portal.angularToolkit()}
                                 code="label.ServiceRequestSlotEntry.required" /></th>
                         <th style="width: 10%"><spring:message
                                 code="label.ServiceRequestSlotEntry.isPrintConfiguration" /></th>
+                        <th style="width: 10%"><spring:message
+                                code="label.ServiceRequestSlotEntry.isEditable" /></th>
                         <th><spring:message
                                 code="label.ServiceRequestSlotEntry.defaultProperty" /></th>
                         <!-- operation column -->
@@ -374,6 +379,7 @@ ${portal.angularToolkit()}
                                 </ui-select-choices>
                             </ui-select>
                         </td>
+                        
                         <td ng-hide="slotEntry.editing">
                                 <div ng-show="slotEntry.isPrintConfiguration">
                                 <spring:message code="label.true"/>
@@ -394,6 +400,28 @@ ${portal.angularToolkit()}
                                 </ui-select-choices>
                             </ui-select>
                         </td>                        
+
+                        <td ng-hide="slotEntry.editing">
+                                <div ng-show="slotEntry.isEditable">
+                                <spring:message code="label.true"/>
+                                </div>
+                                <div ng-hide="slotEntry.isEditable">
+                                <spring:message code="label.false"/>
+                                </div>
+                        </td>
+                        <td ng-show="slotEntry.editing">
+                            <ui-select id="serviceRequestSlotEntry_isEditable"
+                                ng-model="slotEntry.isEditable"
+                                theme="bootstrap" > 
+                                <ui-select-match>
+                                    {{$select.selected.name}}
+                                </ui-select-match> 
+                                <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                                    <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>                        
+
                         
                         <td ng-hide="slotEntry.editing">
 								<div ng-show="slotEntry.propertyBean.uiComponentType == 'DROP_DOWN_ONE_VALUE'">

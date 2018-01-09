@@ -208,9 +208,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
             @RequestParam(value = "orderNumber", required = true) final int orderNumber,
             @RequestParam(value = "serviceRequestSlot", required = true) final ServiceRequestSlot serviceRequestSlot,
             @RequestParam(value = "isPrintConfiguration", required = true) final boolean isPrintConfiguration,
-            final Model model) {
+            @RequestParam(value = "isEditable", required = true) final boolean isEditable, final Model model) {
         if (!containsSlot(serviceRequestType, serviceRequestSlot)) {
-            addProperty(serviceRequestType, required, orderNumber, serviceRequestSlot, isPrintConfiguration);
+            addProperty(serviceRequestType, required, orderNumber, serviceRequestSlot, isPrintConfiguration, isEditable);
         }
         setServiceRequestSlotsBean(bean, model);
         return getBeanJson(bean);
@@ -226,7 +226,8 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
         for (String slotCode : ULisboaConstants.DEFAULT_PROPERTIES) {
             ServiceRequestSlot slot = ServiceRequestSlot.getByCode(slotCode);
             if (!containsSlot(serviceRequestType, slot)) {
-                addProperty(serviceRequestType, false, serviceRequestType.getServiceRequestSlotEntriesSet().size(), slot, false);
+                addProperty(serviceRequestType, false, serviceRequestType.getServiceRequestSlotEntriesSet().size(), slot, false,
+                        true);
             }
         }
         setServiceRequestSlotsBean(bean, model);
@@ -235,8 +236,9 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
 
     @Atomic
     public void addProperty(final ServiceRequestType serviceRequestType, final boolean required, final int orderNumber,
-            final ServiceRequestSlot serviceRequestSlot, final boolean isPrintConfiguration) {
-        ServiceRequestSlotEntry.create(serviceRequestType, serviceRequestSlot, required, orderNumber, isPrintConfiguration);
+            final ServiceRequestSlot serviceRequestSlot, final boolean isPrintConfiguration, final boolean isEditable) {
+        ServiceRequestSlotEntry.create(serviceRequestType, serviceRequestSlot, required, orderNumber, isPrintConfiguration,
+                isEditable);
     }
 
     private boolean containsSlot(final ServiceRequestType serviceRequestType, final ServiceRequestSlot slot) {
@@ -279,9 +281,10 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
             @RequestParam(value = "bean", required = true) final ServiceRequestSlotsBean bean,
             @RequestParam(value = "required", required = true) final boolean required,
             @RequestParam(value = "isPrintConfiguration", required = true) final boolean isPrintConfiguration,
+            @RequestParam(value = "isEditable", required = true) final boolean isEditable,
             @RequestParam(value = "defaultProperty", required = true) final ServiceRequestPropertyBean defaultProperty,
             final Model model) {
-        updateProperty(entry, required, isPrintConfiguration, defaultProperty);
+        updateProperty(entry, required, isPrintConfiguration, isEditable, defaultProperty);
         model.addAttribute("serviceRequestType", serviceRequestType);
         setServiceRequestSlotsBean(bean, model);
         return getBeanJson(bean);
@@ -289,12 +292,13 @@ public class ServiceRequestTypeController extends FenixeduUlisboaSpecificationsB
 
     @Atomic
     public void updateProperty(final ServiceRequestSlotEntry entry, final boolean required, final boolean isPrintConfiguration,
-            final ServiceRequestPropertyBean defaultProperty) {
+            final boolean isEditable, final ServiceRequestPropertyBean defaultProperty) {
         ServiceRequestProperty property = ServiceRequestProperty.create(defaultProperty);
 
         entry.setRequired(required);
         entry.setIsPrintConfiguration(isPrintConfiguration);
         entry.setDefaultServiceRequestProperty(property);
+        entry.setIsEditable(isEditable);
     }
 
     private static final String MOVE_UP_PROPERTY_URI = "/moveUp/property/";
