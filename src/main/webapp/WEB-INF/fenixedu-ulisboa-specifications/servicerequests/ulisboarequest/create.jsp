@@ -415,11 +415,11 @@ ${portal.angularToolkit()}
                         </ui-select-choices>
                     </ui-select> 
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT'"
-                           type="text" ng-model="serviceRequestProperty.stringValue" name="field" ng-required="serviceRequestProperty.required" ng-disabled="!serviceRequestProperty.isEditable" 
+                           type="text" ng-model="serviceRequestProperty.stringValue" name="field" ng-required="serviceRequestProperty.required" ng-disabled="!serviceRequestProperty.isEditable"
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'NUMBER'"
-                           type="number" ng-model="serviceRequestProperty.integerValue" name="field"  ng-required="serviceRequestProperty.required" ng-disabled="!serviceRequestProperty.isEditable" 
+                           type="number" ng-model="serviceRequestProperty.integerValue" name="field"  ng-required="serviceRequestProperty.required" ng-disabled="!serviceRequestProperty.isEditable"
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
@@ -430,7 +430,7 @@ ${portal.angularToolkit()}
                            type="text" bennu-date="serviceRequestProperty.dateTimeValue" name="field" ng-required="serviceRequestProperty.required"
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />    
-                    <div id="{{serviceRequestProperty.code}}" name="field" class="ui-select-container ui-select-bootstrap dropdown" 
+                    <div id="{{serviceRequestProperty.code}}" name="field" class="ui-select-container ui-select-bootstrap dropdown"
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_MULTIPLE'"
                         ng-dropdown-multiselect="" options="serviceRequestProperty.dataSource"
                         selected-model="serviceRequestProperty.domainObjectListValue" extra-settings="multiSelectOptions" translation-texts="translationTexts" >
