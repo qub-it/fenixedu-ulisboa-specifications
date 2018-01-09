@@ -45,7 +45,7 @@ public class FillExtracurricularApprovementsPropertyProcessor extends FillExtrac
                 return;
             }
             List<ICurriculumEntry> approvedExtraCurriculum =
-                    ULisboaConstants.getLastPlanExtracurricularApprovements(request.getRegistration());
+                    ULisboaConstants.getLastPlanExtracurricularApprovementsNotUsedInCredits(request.getRegistration());
             ServiceRequestProperty.create(request, ServiceRequestSlot.getByCode(ULisboaConstants.APPROVED_EXTRA_CURRICULUM),
                     approvedExtraCurriculum);
         }

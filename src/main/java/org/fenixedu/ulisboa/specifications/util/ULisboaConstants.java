@@ -30,20 +30,22 @@ package org.fenixedu.ulisboa.specifications.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academictreasury.util.Constants;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
@@ -150,20 +152,31 @@ public class ULisboaConstants {
     }
 
     public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(final Registration registration) {
+        return convertToCurriculumEntries(
+                registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getApprovedCurriculumLines());
+    }
 
+    public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovementsNotUsedInCredits(
+            final Registration registration) {
         final StudentCurricularPlan plan = registration.getLastStudentCurricularPlan();
-        return plan.getExtraCurriculumGroup().getCurriculumLines().stream().filter(e -> e.isApproved()).flatMap(i -> {
+        final Collection<CurriculumLine> approvedLines = plan.getExtraCurriculumGroup().getApprovedCurriculumLines();
 
-            if (i.isEnrolment() && i.isExtraCurricular()) {
-                // HACK bypass Enrolment.getCurriculum's isExtraCurricular test
-                return Collections.singleton((ICurriculumEntry) i).stream();
+        final Stream<ICurriculumEntry> enrolmentEntries =
+                convertToCurriculumEntries(approvedLines.stream().filter(l -> l.isEnrolment()).collect(Collectors.toSet()))
+                        .stream().filter(l -> !CurriculumLineServices.isSourceOfAnyCredits(l, plan));
 
-            } else {
-                final Curriculum curriculum = i.getCurriculum(new DateTime(), (ExecutionYear) null);
-                return curriculum.getCurriculumEntries().stream();
-            }
+        final Stream<ICurriculumEntry> dismiussalEntries =
+                convertToCurriculumEntries(approvedLines.stream().filter(l -> !l.isEnrolment()).collect(Collectors.toSet()))
+                        .stream();
 
-        }).filter(i -> !CurriculumLineServices.isSourceOfAnyCredits(i, plan)).collect(Collectors.toList());
+        return Stream.concat(enrolmentEntries, dismiussalEntries).collect(Collectors.toList());
+    }
+
+    private static final List<ICurriculumEntry> convertToCurriculumEntries(final Collection<CurriculumLine> lines) {
+        return lines.stream()
+                .flatMap(l -> l.isEnrolment() ? /*HACK bypass Enrolment.getCurriculum's isExtraCurricular test*/Collections
+                        .singleton((ICurriculumEntry) l).stream() : l.getCurriculum().getCurriculumEntries().stream())
+                .distinct().collect(Collectors.toList());
     }
 
     public static final List<ICurriculumEntry> getConclusionCurriculum(final Registration registration,
