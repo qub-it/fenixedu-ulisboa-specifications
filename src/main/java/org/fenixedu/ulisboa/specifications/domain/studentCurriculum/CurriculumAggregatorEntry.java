@@ -121,6 +121,10 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
             throw new DomainException("error.CurriculumAggregatorEntry.invalid.Context");
         }
 
+        if (getContext().getCurricularPeriod() != getAggregator().getContext().getCurricularPeriod()) {
+            throw new DomainException("error.CurriculumAggregatorEntry.invalid.Aggregator");
+        }
+
         if (getEvaluationType() == null) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.required.EvaluationType");
         }
