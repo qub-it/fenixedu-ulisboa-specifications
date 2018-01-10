@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -89,6 +90,22 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
     }
 
     public static void initValidators() {
+        ULisboaServiceRequestProcessor processor =
+                findAll().filter(p -> p instanceof ValidateImprovementEnrolmentProcessor).findAny().orElse(null);
+        if (processor != null) {
+            for (ServiceRequestType serviceRequestType : processor.getServiceRequestTypesSet()) {
+                serviceRequestType.removeULisboaServiceRequestProcessors(processor);
+            }
+            processor.delete();
+        }
+        processor = findAll().filter(p -> p instanceof ValidateSpecialSeasonEnrolmentProcessor).findAny().orElse(null);
+        if (processor != null) {
+            for (ServiceRequestType serviceRequestType : processor.getServiceRequestTypesSet()) {
+                serviceRequestType.removeULisboaServiceRequestProcessors(processor);
+            }
+            processor.delete();
+        }
+
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR)).count() == 0) {
             StateLoggerProcessor.create(
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR),
@@ -144,6 +161,12 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_ONLINE_REQUEST_PROCESSOR),
                     Boolean.TRUE);
         }
+        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_REQUEST_PROCESSOR))
+                .count() == 0) {
+            AutomaticRequestProcessor.create(
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.AUTOMATIC_REQUEST_PROCESSOR),
+                    Boolean.TRUE);
+        }
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_PROGRAM_CONCLUSION_PROCESSOR))
                 .count() == 0) {
             ValidateProgramConclusionProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
@@ -155,22 +178,19 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
             ValidateEnrolmentsExistenceByYearProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.VALIDATE_ENROLMENTS_EXISTENCE_BY_YEAR_PROCESSOR), Boolean.FALSE);
         }
-        //TODOJN : Test validators
-//        if (findByName(
-//                BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR))
-//                        .count() == 0) {
-//            ValidateSpecialSeasonEnrolmentProcessor.create(
-//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-//                            ULisboaConstants.VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR),
-//                    EvaluationSeason.readSpecialSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BY_SEMESTER);
-//        }
-//        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR))
-//                .count() == 0) {
-//            ValidateImprovementEnrolmentProcessor.create(
-//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
-//                            ULisboaConstants.VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR),
-//                    EvaluationSeason.readImprovementSeasons().findFirst().get(), ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER);
-//        }
+
+        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_ACTIVED_ENROLMENTS_PROPERTY_PROCESSOR))
+                .count() == 0) {
+            FillActiveEnrolmentsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                    ULisboaConstants.FILL_ACTIVED_ENROLMENTS_PROPERTY_PROCESSOR), Boolean.FALSE);
+        }
+
+        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.FILL_FLUNKED_ENROLMENTS_PROPERTY_PROCESSOR))
+                .count() == 0) {
+            FillNotApprovedEnrolmentsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
+                    ULisboaConstants.FILL_FLUNKED_ENROLMENTS_PROPERTY_PROCESSOR), Boolean.FALSE);
+        }
+
     }
 
     public abstract void process(ULisboaServiceRequest request, boolean forceUpdate);

@@ -1254,6 +1254,18 @@ class serviceRequests.processors.AutomaticOnlineRequestProcessor extends service
 
 }
 
+class serviceRequests.processors.AutomaticRequestProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.FillActiveEnrolmentsPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
+class serviceRequests.processors.FillNotApprovedEnrolmentsPropertyProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+
+}
+
 class serviceRequests.processors.ValidateImprovementEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
     String curricularEntriesPropertyName;    
 }

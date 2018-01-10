@@ -85,6 +85,8 @@ public class ULisboaConstants {
     public static final String STANDALONE_ENROLMENTS_BY_YEAR = "standaloneEnrolmentsByYear";
     public static final String EXTRACURRICULAR_ENROLMENTS_BY_YEAR = "extracurricularEnrolmentsByYear";
     public static final String ENROLMENTS_BEFORE_SEMESTER = "enrolmentsBeforeSemester";
+    public static final String ACTIVE_ENROLMENTS = "activeEnrolments";
+    public static final String FLUNKED_ENROLMENTS = "flunkedEnrolments";
     /*Slots used as default */
     public static final List<String> DEFAULT_PROPERTIES = Arrays.asList(LANGUAGE, EXECUTION_YEAR);
     /*Subset of AcademicServiceRequestSituationType. This are the valid states for the ULisboa Service Request */
@@ -109,7 +111,10 @@ public class ULisboaConstants {
     public static final String FILL_ALL_PLANS_APPROVEMENTS_PROPERTY_PROCESSOR =
             "label.FillRequestPropertyProcessor.AllPlansApprovements.name";
     public static final String FILL_CURRICULUM_PROPERTY_PROCESSOR = "label.FillRequestPropertyProcessor.Curriculum.name";
+    public static final String FILL_ACTIVED_ENROLMENTS_PROPERTY_PROCESSOR = "label.FillActiveEnrolmentsPropertyProcessor.name";
+    public static final String FILL_FLUNKED_ENROLMENTS_PROPERTY_PROCESSOR = "label.FillFlunkedEnrolmentsPropertyProcessor.name";
     public static final String AUTOMATIC_ONLINE_REQUEST_PROCESSOR = "label.AutomaticOnlineRequestProcessor.name";
+    public static final String AUTOMATIC_REQUEST_PROCESSOR = "label.AutomaticRequestProcessor.name";
     public static final String VALIDATE_ENROLMENTS_EXISTENCE_BY_YEAR_PROCESSOR =
             "label.ValidateEnrolmentsExistenceByYearProcessor.name";
     public static final String VALIDATE_PROGRAM_CONCLUSION_PROCESSOR = "label.ValidateProgramConclusionProcessor.name";
@@ -187,6 +192,24 @@ public class ULisboaConstants {
         final RegistrationConclusionBean conclusionBean = new RegistrationConclusionBean(registration, programConclusion);
         return conclusionBean.getCurriculumForConclusion().getCurriculumEntries().stream().collect(Collectors.toList());
         // programConclusion -> programConclusionInformation -> curriculumGroup/cycleGroup -> studentCurricularPlan
+    }
+
+    //Inscrito => tem de aparecer nos inscritos
+    //Inscrito -> Anulado => não pode aparecer
+    //Reprovado com nota => tem de aparecer nos reprovados
+    //Aprovado => Não pode aparecer em nenhuma
+    //Aprovado Anulado => Não pode aparecer em nenhum
+    //Inscrito com nota reprovada -> anulado => não pode aparecer
+
+    public static final List<CurriculumLine> getEnrolmentsInEnrolledState(final Registration registration) {
+        return registration.getLastStudentCurricularPlan().getEnrolmentsSet().stream().filter(e -> e.isEnroled())
+                .collect(Collectors.toList());
+    }
+
+    public static final List<CurriculumLine> getNotApprovedEnrolments(final Registration registration) {
+        return registration.getLastStudentCurricularPlan().getEnrolmentsSet().stream().filter(e -> e.isActive() && e.isFlunked())
+                .collect(Collectors.toList());
+
     }
 
     public static final Locale DEFAULT_LOCALE = new Locale("PT");

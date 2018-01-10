@@ -537,6 +537,15 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         return hasProperty(ULisboaConstants.EXTRACURRICULAR_ENROLMENTS_BY_YEAR);
     }
 
+    public Set<ICurriculumEntry> getEnrolmentsInEnrolState() {
+        return hasEnrolmentsInEnroledState() ? new HashSet<>(
+                findProperty(ULisboaConstants.ACTIVE_ENROLMENTS).getICurriculumEntriesSet()) : null;
+    }
+
+    public boolean hasEnrolmentsInEnroledState() {
+        return hasProperty(ULisboaConstants.ACTIVE_ENROLMENTS);
+    }
+
     @Override
     public String getDescription() {
         return getServiceRequestType().getName().getContent();

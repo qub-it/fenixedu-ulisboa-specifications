@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.ActiveEnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ApprovedCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ConcludedCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumInformationDataProvider;
@@ -47,6 +48,7 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentFooterDa
 import org.fenixedu.qubdocs.academic.documentRequests.providers.DocumentSignerDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.EnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ExtraCurriculumEntriesDataProvider;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.FlunkedEnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.LocalizedDatesProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.RegistrationDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ServiceRequestDataProvider;
@@ -68,6 +70,7 @@ import org.fenixedu.ulisboa.specifications.service.reports.providers.MobilityInf
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.CourseGroupDegreeInfoDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.request.DiplomaRequestDataProvider;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
 import com.qubit.terra.docs.core.DocumentTemplateEngine;
@@ -167,7 +170,13 @@ public class DocumentPrinter {
                 || serviceRequest.hasExtracurricularEnrolmentsByYear()) {
             generator.registerDataProvider(new EnrolmentsDataProvider(registration, serviceRequest.getEnrolmentsByYear(),
                     serviceRequest.getStandaloneEnrolmentsByYear(), serviceRequest.getExtracurricularEnrolmentsByYear(),
-                    executionYear, serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
+                    serviceRequest.getEnrolmentsInEnrolState(), executionYear, serviceRequest.getLanguage(),
+                    new CurriculumEntryServicesImpl()));
+        }
+
+        if (serviceRequest.hasProperty(ULisboaConstants.ACTIVE_ENROLMENTS)) {
+            generator.registerDataProvider(new ActiveEnrolmentsDataProvider(registration,
+                    serviceRequest.getEnrolmentsInEnrolState(), serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
         }
 
         generator.registerDataProvider(new DocumentSignerDataProvider(serviceRequest));
@@ -183,6 +192,12 @@ public class DocumentPrinter {
 
         generator.registerDataProvider(new ExtraCurriculumEntriesDataProvider(registration,
                 serviceRequest.getApprovedExtraCurriculum(), serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
+
+        if (serviceRequest.hasProperty(ULisboaConstants.FLUNKED_ENROLMENTS)) {
+            generator.registerDataProvider(new FlunkedEnrolmentsDataProvider(registration,
+                    serviceRequest.findProperty(ULisboaConstants.FLUNKED_ENROLMENTS).getICurriculumEntriesSet(),
+                    serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));
+        }
 
         generator.registerDataProvider(new ConcludedCurriculumEntriesDataProvider(registration, serviceRequest.getCurriculum(),
                 serviceRequest.getLanguage(), new CurriculumEntryServicesImpl()));

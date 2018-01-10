@@ -18,7 +18,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
 
     public static final Comparator<ServiceRequestSlot> COMPARE_BY_LABEL = new Comparator<ServiceRequestSlot>() {
         @Override
-        public int compare(ServiceRequestSlot o1, ServiceRequestSlot o2) {
+        public int compare(final ServiceRequestSlot o1, final ServiceRequestSlot o2) {
             return o1.getLabel().getContent().compareTo(o2.getLabel().getContent());
         }
     };
@@ -66,7 +66,7 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
     }
 
     @Override
-    protected void checkForDeletionBlockers(Collection<String> blockers) {
+    protected void checkForDeletionBlockers(final Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getServiceRequestPropertiesSet().isEmpty()) {
             blockers.add(
@@ -210,6 +210,14 @@ public class ServiceRequestSlot extends ServiceRequestSlot_Base {
         if (findByCode(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER).count() == 0) {
             createStaticSlot(ULisboaConstants.ENROLMENTS_BEFORE_SEMESTER, UIComponentType.DROP_DOWN_ONE_VALUE, BundleUtil
                     .getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.enrolmentsBeforeSemester"));
+        }
+        if (findByCode(ULisboaConstants.ACTIVE_ENROLMENTS).count() == 0) {
+            createStaticSlot(ULisboaConstants.ACTIVE_ENROLMENTS, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.activeEnrolments"));
+        }
+        if (findByCode(ULisboaConstants.FLUNKED_ENROLMENTS).count() == 0) {
+            createStaticSlot(ULisboaConstants.FLUNKED_ENROLMENTS, UIComponentType.DROP_DOWN_MULTIPLE,
+                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, "label.ServiceRequestSlot.label.flunkedEnrolments"));
         }
 
     }

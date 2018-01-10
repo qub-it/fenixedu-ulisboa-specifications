@@ -51,6 +51,7 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPur
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -321,6 +322,20 @@ public class ULisboaServiceRequestBean implements IBean {
             }
             Stream<ICurriculumEntry> collection = ULisboaConstants.getLastPlanApprovements(bean.getRegistration()).stream();
             return provideForCurriculumEntry(collection);
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ACTIVE_ENROLMENTS, bean -> {
+            if (bean.getRegistration() == null || bean.getRegistration().getLastStudentCurricularPlan() == null) {
+                return Collections.emptyList();
+            }
+            List<CurriculumLine> enrolments = ULisboaConstants.getEnrolmentsInEnrolledState(bean.getRegistration());
+            return provideForCurriculumEntry(enrolments.stream().map(ICurriculumEntry.class::cast));
+        });
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.FLUNKED_ENROLMENTS, bean -> {
+            if (bean.getRegistration() == null || bean.getRegistration().getLastStudentCurricularPlan() == null) {
+                return Collections.emptyList();
+            }
+            List<CurriculumLine> enrolments = ULisboaConstants.getNotApprovedEnrolments(bean.getRegistration());
+            return provideForCurriculumEntry(enrolments.stream().map(ICurriculumEntry.class::cast));
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.CURRICULUM, bean -> {
             if (bean.getRegistration().getLastStudentCurricularPlan() == null) {

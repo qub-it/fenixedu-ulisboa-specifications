@@ -251,7 +251,7 @@ public class ServiceRequestPropertyBean implements IBean {
         setUiComponentType(slot.getUiComponentType());
         setLabel(slot.getLabel());
         setRequired(false);
-        setEditable(property.getServiceRequestSlotEntry().getIsEditable());
+        setEditable(property.getServiceRequestSlotEntry() != null ? property.getServiceRequestSlotEntry().getIsEditable() : true);
         String propertyName = getPropertyName(slot);
         try {
             PropertyUtils.setProperty(this, propertyName, property.getValue());

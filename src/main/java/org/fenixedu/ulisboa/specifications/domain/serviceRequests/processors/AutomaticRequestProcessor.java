@@ -5,25 +5,25 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 
 import pt.ist.fenixframework.Atomic;
 
-public class AutomaticOnlineRequestProcessor extends AutomaticOnlineRequestProcessor_Base {
+public class AutomaticRequestProcessor extends AutomaticRequestProcessor_Base {
 
-    protected AutomaticOnlineRequestProcessor() {
+    protected AutomaticRequestProcessor() {
         super();
     }
 
-    protected AutomaticOnlineRequestProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
+    protected AutomaticRequestProcessor(final LocalizedString name, final Boolean exclusiveTransation) {
         this();
         super.init(name, exclusiveTransation);
     }
 
     @Atomic
     public static ULisboaServiceRequestProcessor create(final LocalizedString name, final Boolean exclusiveTransation) {
-        return new AutomaticOnlineRequestProcessor(name, exclusiveTransation);
+        return new AutomaticRequestProcessor(name, exclusiveTransation);
     }
 
     @Override
     public void process(final ULisboaServiceRequest request, final boolean forceUpdate) {
-        if (request.isNewRequest() && request.getRequestedOnline()) {
+        if (request.isNewRequest()) {
             request.addPrintVariables();
             request.transitToProcessState();
             if (request.isToPrint()) {
@@ -33,5 +33,4 @@ public class AutomaticOnlineRequestProcessor extends AutomaticOnlineRequestProce
             request.transitToDeliverState();
         }
     }
-
 }
