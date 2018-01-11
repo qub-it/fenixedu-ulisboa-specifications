@@ -25,6 +25,12 @@ public class ValidateSpecialSeasonEnrolmentProcessor extends ValidateSpecialSeas
         super();
     }
 
+    @Override
+    public void delete() {
+        setEvaluationSeason(null);
+        super.delete();
+    }
+
     protected ValidateSpecialSeasonEnrolmentProcessor(final LocalizedString name, final Boolean exclusiveTransation,
             final EvaluationSeason evaluationSeason, final String curricularEntriesPropertyName) {
         this();
