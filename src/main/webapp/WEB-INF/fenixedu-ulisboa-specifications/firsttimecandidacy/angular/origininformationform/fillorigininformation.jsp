@@ -105,6 +105,12 @@ ${portal.angularToolkit()}
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
     $scope.object= ${originInformationFormJson};
+    $scope.initObject = function () {
+        if ($scope.object.conclusionYear == "0") {
+            $scope.object.conclusionYear = "0000";
+        }
+    }
+
     $scope.postBack = createAngularPostbackFunction($scope);
     $scope.isUISelectLoading = {};
     $scope.getUISelectLoading = function() {
@@ -216,7 +222,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 </script>
 
 <form name='form' method="post" class="form-horizontal" ng-app="angularApp" ng-controller="angularController"
-     action="${pageContext.request.contextPath}${controllerURL}/${postAction}">
+     ng-init="initObject()" action="${pageContext.request.contextPath}${controllerURL}/${postAction}">
 
     <input type="hidden" name="postback"
         value='${pageContext.request.contextPath}${controllerURL}/fillPostback' />

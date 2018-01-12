@@ -321,16 +321,20 @@ public class OriginInformationFormController extends FormAbstractController {
             result.add(BundleUtil.getString(BUNDLE, "error.incorrect.conclusionYear"));
 
         } else {
-
             final LocalDate now = new LocalDate();
             int conclusionYear = Integer.valueOf(form.getConclusionYear());
-            if (now.getYear() < conclusionYear) {
-                result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"));
-            }
-
             int birthYear = registration.getPerson().getDateOfBirthYearMonthDay().getYear();
-            if (conclusionYear < birthYear) {
-                result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"));
+
+            //Accept four zeros, because some of mobility students
+            // and academicOffice doesn't know this information
+            if (!form.getConclusionYear().equals("0000")) {
+                if (now.getYear() < conclusionYear) {
+                    result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.after.current"));
+                }
+
+                if (conclusionYear < birthYear) {
+                    result.add(BundleUtil.getString(BUNDLE, "error.personalInformation.year.before.birthday"));
+                }
             }
         }
 

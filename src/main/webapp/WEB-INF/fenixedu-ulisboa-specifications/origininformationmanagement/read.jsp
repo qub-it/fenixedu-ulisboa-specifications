@@ -143,7 +143,12 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.conclusionYear" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.conclusionYear}' />
+                            <c:if test="${ registration.studentCandidacy.precedentDegreeInformation.conclusionYear == '0' }">
+                                <c:out value='0000' />
+                            </c:if>
+                            <c:if test="${ registration.studentCandidacy.precedentDegreeInformation.conclusionYear != '0' }">
+    							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.conclusionYear}' />
+                            </c:if>
 						</td>
 					</tr>
 					
