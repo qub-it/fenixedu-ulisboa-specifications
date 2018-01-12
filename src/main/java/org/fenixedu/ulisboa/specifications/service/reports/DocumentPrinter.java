@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ActiveEnrolmentsDataProvider;
@@ -70,6 +71,7 @@ import org.fenixedu.ulisboa.specifications.service.reports.providers.MobilityInf
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.CourseGroupDegreeInfoDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.request.DiplomaRequestDataProvider;
+import org.fenixedu.ulisboa.specifications.service.reports.providers.textbox.InstitutionTextBoxInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -153,6 +155,11 @@ public class DocumentPrinter {
         generator.registerDataProvider(new DiplomaRequestDataProvider(registration));
         generator.registerDataProvider(new MobilityInfomationDataProvider(registration, executionYear));
 
+        boolean showInstitutionBox = serviceRequest.hasProperty("showInstitutionBox") ? serviceRequest
+                .findProperty("showInstitutionBox").getValue() : false;
+        generator.registerDataProvider(new InstitutionTextBoxInformationDataProvider(showInstitutionBox,
+                serviceRequest.getDocumentSigner(), serviceRequest.getLanguage(), reportConfiguration));
+
         boolean showFooter =
                 serviceRequest.hasProperty("showFooter") ? serviceRequest.findProperty("showFooter").getValue() : false;
         boolean showIssued =
@@ -234,7 +241,12 @@ public class DocumentPrinter {
 //                    new CurriculumEntryRemarksDataProvider(registration), serviceRequest.getLanguage()));
 //        }
 
-        final byte[] report = generator.generateReportCached(academicServiceRequestTemplate.getExternalId());
+        final byte[] report;
+        if (CoreConfiguration.getConfiguration().developmentMode()) {
+            report = generator.generateReport();
+        } else {
+            report = generator.generateReportCached(academicServiceRequestTemplate.getExternalId());
+        }
 
         return new PrintedDocument(serviceRequest, report, outputType.getCode(), outputType.getExtension());
     }
