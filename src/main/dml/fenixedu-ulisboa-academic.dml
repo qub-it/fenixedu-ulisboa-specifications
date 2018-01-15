@@ -62,3 +62,16 @@ class researchPublication.ResearchPublication {
         researchPublication.ResearchPublication playsRole researchPublications { multiplicity *; }
         .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
     }
+
+class person.JobType {
+	String code;
+	LocalizedString name;
+}    
+    relation JobTypeRoot {
+        person.JobType playsRole jobTypes { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation JobTypeJob {
+        .org.fenixedu.academic.domain.Job playsRole jobs { multiplicity *; }
+        person.JobType playsRole type { multiplicity 1..1; }
+    }    
