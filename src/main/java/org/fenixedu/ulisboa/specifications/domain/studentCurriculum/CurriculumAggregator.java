@@ -120,7 +120,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
             if (entry.getContext().isValid(getSince())) {
                 CurriculumAggregatorEntry.create(result, entry.getContext(), entry.getSupportsTeacherConfirmation(),
-                        entry.getGradeFactor(), entry.getGradeValueScale(), entry.getOptional());
+                        entry.getGradeFactor(), entry.getOptional());
             }
         }
 
@@ -205,10 +205,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
     @Atomic
     public CurriculumAggregatorEntry createEntry(final Context context, final boolean supportsTeacherConfirmation,
-            final BigDecimal gradeFactor, final int gradeValueScale, final boolean optional) {
+            final BigDecimal gradeFactor, final boolean optional) {
 
-        final CurriculumAggregatorEntry result = CurriculumAggregatorEntry.create(this, context, supportsTeacherConfirmation,
-                gradeFactor, gradeValueScale, optional);
+        final CurriculumAggregatorEntry result =
+                CurriculumAggregatorEntry.create(this, context, supportsTeacherConfirmation, gradeFactor, optional);
 
         checkRules();
         return result;

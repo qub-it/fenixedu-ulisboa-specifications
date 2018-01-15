@@ -1811,7 +1811,6 @@ relation CourseGroupDegreeInfoCourseGroup {
 
     class studentCurriculum.CurriculumAggregatorEntry {
     	BigDecimal gradeFactor;
-    	int gradeValueScale;
     	boolean optional;
     	boolean supportsTeacherConfirmation;
     }
