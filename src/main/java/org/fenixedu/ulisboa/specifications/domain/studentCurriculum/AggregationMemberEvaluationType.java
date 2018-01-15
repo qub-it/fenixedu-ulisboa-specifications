@@ -37,8 +37,6 @@ import pt.ist.fenixWebFramework.rendererExtensions.util.IPresentableEnum;
 
 public enum AggregationMemberEvaluationType implements IPresentableEnum {
 
-    WITHOUT_GRADE,
-
     WITH_MARK_SHEET,
 
     WITHOUT_MARK_SHEET;
@@ -50,13 +48,7 @@ public enum AggregationMemberEvaluationType implements IPresentableEnum {
     }
 
     static public Collection<AggregationMemberEvaluationType> valuesForAggregator() {
-        return Lists.newArrayList(AggregationMemberEvaluationType.values()).stream()
-                .filter(i -> i != AggregationMemberEvaluationType.WITHOUT_GRADE).collect(Collectors.toList());
-    }
-
-    static public Collection<AggregationMemberEvaluationType> valuesForAggregatorEntry() {
-        return Lists.newArrayList(AggregationMemberEvaluationType.values()).stream()
-                .filter(i -> i != AggregationMemberEvaluationType.WITHOUT_MARK_SHEET).collect(Collectors.toList());
+        return Lists.newArrayList(AggregationMemberEvaluationType.values()).stream().collect(Collectors.toList());
     }
 
     public boolean isCandidateForEvaluation() {

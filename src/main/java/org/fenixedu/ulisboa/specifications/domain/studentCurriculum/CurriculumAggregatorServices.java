@@ -614,7 +614,7 @@ abstract public class CurriculumAggregatorServices {
             }
 
             final CurriculumAggregatorEntry entry = getAggregatorEntry(enrolment);
-            if (entry != null && !entry.isCandidateForEvaluation()) {
+            if (entry != null) {
                 return false;
             }
         }

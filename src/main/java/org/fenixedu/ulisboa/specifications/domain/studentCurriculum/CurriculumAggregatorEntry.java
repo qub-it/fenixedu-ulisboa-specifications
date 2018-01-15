@@ -60,13 +60,13 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, final Context context,
-            final AggregationMemberEvaluationType evaluationType, final boolean supportsTeacherConfirmation,
-            final BigDecimal gradeFactor, final int gradeValueScale, final boolean optional) {
+            final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final int gradeValueScale,
+            final boolean optional) {
 
         final CurriculumAggregatorEntry result = new CurriculumAggregatorEntry();
         result.setAggregator(aggregator);
         result.setContext(context);
-        result.init(evaluationType, supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
+        result.init(supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
 
         final DegreeModule degreeModule = context.getChildDegreeModule();
         if (degreeModule.isLeaf()) {
@@ -82,19 +82,17 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     @Atomic
-    public CurriculumAggregatorEntry edit(final AggregationMemberEvaluationType evaluationType,
-            final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final int gradeValueScale,
-            final boolean optional) {
+    public CurriculumAggregatorEntry edit(final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor,
+            final int gradeValueScale, final boolean optional) {
 
-        init(evaluationType, supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
+        init(supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
 
         return this;
     }
 
-    private void init(final AggregationMemberEvaluationType evaluationType, final boolean supportsTeacherConfirmation,
-            final BigDecimal gradeFactor, final int gradeValueScale, final boolean optional) {
+    private void init(final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final int gradeValueScale,
+            final boolean optional) {
 
-        super.setEvaluationType(evaluationType);
         super.setSupportsTeacherConfirmation(supportsTeacherConfirmation);
         super.setGradeFactor(gradeFactor);
         super.setGradeValueScale(gradeValueScale);
@@ -123,10 +121,6 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
         if (getContext().getCurricularPeriod() != getAggregator().getContext().getCurricularPeriod()) {
             throw new DomainException("error.CurriculumAggregatorEntry.invalid.Aggregator");
-        }
-
-        if (getEvaluationType() == null) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.required.EvaluationType");
         }
 
         if (getGradeFactor() == null || getGradeFactor().compareTo(BigDecimal.ZERO) < 0) {
@@ -207,10 +201,6 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     public GradeScale getGradeScale() {
         final GradeScale competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
         return competenceScale != null ? competenceScale : getCurricularCourse().getGradeScaleChain();
-    }
-
-    public boolean isCandidateForEvaluation() {
-        return getEvaluationType().isCandidateForEvaluation();
     }
 
     protected boolean isAggregationEvaluated(final StudentCurricularPlan plan) {

@@ -970,7 +970,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
                         .filter(i -> i != null && i.isCandidateForEvaluation(getEvaluationSeason())).collect(Collectors.toSet());
                 final Set<CurriculumAggregatorEntry> entries =
                         contexts.stream().map(i -> CurriculumAggregatorServices.getAggregatorEntry(i, getExecutionYear()))
-                                .filter(i -> i != null && i.isCandidateForEvaluation()).collect(Collectors.toSet());
+                                .filter(i -> i != null).collect(Collectors.toSet());
 
                 collected.put(aggregators, entries);
             }
