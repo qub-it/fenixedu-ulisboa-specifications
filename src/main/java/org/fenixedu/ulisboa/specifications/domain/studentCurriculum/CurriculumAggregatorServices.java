@@ -612,11 +612,6 @@ abstract public class CurriculumAggregatorServices {
             if (aggregator != null && !aggregator.isCandidateForEvaluation(season)) {
                 return false;
             }
-
-            final CurriculumAggregatorEntry entry = getAggregatorEntry(enrolment);
-            if (entry != null) {
-                return false;
-            }
         }
 
         return true;
