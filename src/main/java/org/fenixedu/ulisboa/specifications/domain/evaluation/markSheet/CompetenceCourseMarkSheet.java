@@ -875,12 +875,15 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
         Integer result = null;
 
         final Set<CurriculumAggregator> aggregators = getCurriculumAggregators();
+        final Set<CurriculumAggregatorEntry> entries = getCurriculumAggregatorEntries();
 
         // let's find a candidate 
-        final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next().getGradeValueScale() : null;
+        final Integer temp = !aggregators.isEmpty() ? aggregators.iterator().next()
+                .getGradeValueScale() : !entries.isEmpty() ? entries.iterator().next().getGradeValueScale() : null;
 
         // let's check consistency
-        if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)) {
+        if (temp != null && aggregators.stream().allMatch(i -> i.getGradeValueScale() == temp)
+                && entries.stream().allMatch(i -> i.getGradeValueScale() == temp.intValue())) {
             result = temp;
         }
 

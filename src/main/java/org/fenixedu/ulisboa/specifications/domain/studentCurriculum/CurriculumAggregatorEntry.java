@@ -60,12 +60,13 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     static protected CurriculumAggregatorEntry create(final CurriculumAggregator aggregator, final Context context,
-            final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final boolean optional) {
+            final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final int gradeValueScale,
+            final boolean optional) {
 
         final CurriculumAggregatorEntry result = new CurriculumAggregatorEntry();
         result.setAggregator(aggregator);
         result.setContext(context);
-        result.init(supportsTeacherConfirmation, gradeFactor, optional);
+        result.init(supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
 
         final DegreeModule degreeModule = context.getChildDegreeModule();
         if (degreeModule.isLeaf()) {
@@ -82,17 +83,19 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
     @Atomic
     public CurriculumAggregatorEntry edit(final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor,
-            final boolean optional) {
+            final int gradeValueScale, final boolean optional) {
 
-        init(supportsTeacherConfirmation, gradeFactor, optional);
+        init(supportsTeacherConfirmation, gradeFactor, gradeValueScale, optional);
 
         return this;
     }
 
-    private void init(final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final boolean optional) {
+    private void init(final boolean supportsTeacherConfirmation, final BigDecimal gradeFactor, final int gradeValueScale,
+            final boolean optional) {
 
         super.setSupportsTeacherConfirmation(supportsTeacherConfirmation);
         super.setGradeFactor(gradeFactor);
+        super.setGradeValueScale(gradeValueScale);
         super.setOptional(optional);
 
         checkRules();
@@ -122,6 +125,10 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
         if (getGradeFactor() == null || getGradeFactor().compareTo(BigDecimal.ZERO) < 0) {
             throw new ULisboaSpecificationsDomainException("error.CurriculumAggregatorEntry.required.GradeFactor");
+        }
+
+        if (getGradeValueScale() < 0) {
+            throw new DomainException("error.CurriculumAggregatorEntry.required.GradeValueScale");
         }
     }
 
