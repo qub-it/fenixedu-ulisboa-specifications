@@ -11,12 +11,15 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 
 import com.google.common.base.Strings;
 
+import jvstm.Atomic;
 import pt.ist.fenixframework.DomainObject;
 
 @SuppressWarnings("rawtypes")
 public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
 
-    static final private String DOMAIN_OBJECT_ADD_FIELD_METHOD_NAME = "addDynamicField";
+    static final private String DOMAIN_OBJECT_FIELD_NAME = "DynamicField";
+    static final private String DOMAIN_OBJECT_METHOD_NAME_ADD = "add" + "DynamicField";
+    static final private String DOMAIN_OBJECT_METHOD_NAME_GET = "get" + "DynamicField" + "Set";
 
     protected DynamicFieldDescriptor() {
         super();
@@ -69,6 +72,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         }
     }
 
+    @Atomic
     static public DynamicFieldDescriptor create(final Class<? extends DomainObject> domainObjectClass, final String code,
             final LocalizedString name, final Class fieldValueClass, final boolean required, final int order) {
 
@@ -77,6 +81,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         return result;
     }
 
+    @Atomic
     public DynamicFieldDescriptor edit(final Class<? extends DomainObject> domainObjectClass, final String code,
             final LocalizedString name, final Class fieldValueClass, final boolean required, final int order) {
 
@@ -87,7 +92,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
     static public DynamicFieldDescriptor find(final Class<? extends DomainObject> domainObjectClass, final String code) {
         DynamicFieldDescriptor result = null;
 
-        if (domainObjectClass != null && Strings.isNullOrEmpty(code)) {
+        if (domainObjectClass != null && !Strings.isNullOrEmpty(code)) {
 
             for (final DynamicFieldDescriptor iter : Bennu.getInstance().getDynamicFieldDescriptorSet()) {
                 if (iter.getDomainObjectClass() == domainObjectClass && StringUtils.equalsIgnoreCase(iter.getCode(), code)) {
@@ -136,11 +141,50 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         return (Class<? extends DomainObject>) result;
     }
 
-    public void setField(final DomainObject domainObject, final DynamicField field) {
+    protected DynamicField createField(final DomainObject domainObject) {
+        final DynamicField result = new DynamicField();
+
+        result.setDescriptor(this);
+        setField(domainObject, result);
+
+        // checkRules
+        findField(domainObject);
+
+        return result;
+    }
+
+    protected DynamicField findField(final DomainObject domainObject) {
+        DynamicField result = null;
+
+        if (isFor(domainObject)) {
+
+            try {
+                final Method method = domainObject.getClass().getMethod(DOMAIN_OBJECT_METHOD_NAME_GET);
+                final Set<DynamicField> fields = (Set<DynamicField>) method.invoke(domainObject);
+
+                for (final DynamicField iter : fields) {
+                    if (iter.getDescriptor() == this) {
+
+                        if (result != null) {
+                            throw new ULisboaSpecificationsDomainException("error.DynamicField.duplicate");
+                        }
+
+                        result = iter;
+                    }
+                }
+
+            } catch (final Throwable t) {
+            }
+        }
+
+        return result;
+    }
+
+    protected void setField(final DomainObject domainObject, final DynamicField field) {
         if (isFor(domainObject) && getInstanceSet().contains(field)) {
 
             try {
-                final Method method = domainObject.getClass().getMethod(DOMAIN_OBJECT_ADD_FIELD_METHOD_NAME);
+                final Method method = domainObject.getClass().getMethod(DOMAIN_OBJECT_METHOD_NAME_ADD, DynamicField.class);
                 method.invoke(domainObject, field);
             } catch (final Throwable t) {
             }
@@ -149,6 +193,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
 
     private void updateOrder(final int order) {
         // TODO legidio
+        setOrder(order);
     }
 
 }
