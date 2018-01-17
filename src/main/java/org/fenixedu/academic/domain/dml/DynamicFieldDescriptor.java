@@ -45,7 +45,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             throw new ULisboaSpecificationsDomainException("error.DynamicFieldDescriptor.domainObjectClassName.required");
         }
 
-        if (getCode() == null) {
+        if (Strings.isNullOrEmpty(getCode())) {
             throw new ULisboaSpecificationsDomainException("error.DynamicFieldDescriptor.code.required");
         }
 
@@ -55,7 +55,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         }
         find(domainObjectClass, getCode());
 
-        if (getName() == null) {
+        if (getName() == null || getName().isEmpty()) {
             throw new ULisboaSpecificationsDomainException("error.DynamicFieldDescriptor.name.required");
         }
 
