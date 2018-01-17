@@ -18,8 +18,8 @@ import pt.ist.fenixframework.DomainObject;
 public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
 
     static final private String DOMAIN_OBJECT_FIELD_NAME = "DynamicField";
-    static final private String DOMAIN_OBJECT_METHOD_NAME_ADD = "add" + "DynamicField";
-    static final private String DOMAIN_OBJECT_METHOD_NAME_GET = "get" + "DynamicField" + "Set";
+    static final private String DOMAIN_OBJECT_METHOD_NAME_ADD = "add" + DOMAIN_OBJECT_FIELD_NAME;
+    static final private String DOMAIN_OBJECT_METHOD_NAME_GET = "get" + DOMAIN_OBJECT_FIELD_NAME + "Set";
 
     protected DynamicFieldDescriptor() {
         super();
@@ -153,6 +153,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected DynamicField findField(final DomainObject domainObject) {
         DynamicField result = null;
 
