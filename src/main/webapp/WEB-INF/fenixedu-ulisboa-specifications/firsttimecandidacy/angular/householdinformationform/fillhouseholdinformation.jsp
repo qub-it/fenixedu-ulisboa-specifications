@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController"%>
 <%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -367,6 +368,31 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             </div>
         </div>
     </div>
+    <c:if test="${ showDislocated }">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group row">
+                    <div class="col-sm-2 control-label">
+                        <spring:message
+                            code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
+                    </div>
+    
+                    <div class="col-sm-2">
+                        <ui-select id="householdInformationForm_dislocatedFromPermanentResidence" name="dislocatedFromPermanentResidence"
+                            ng-model="$parent.object.dislocatedFromPermanentResidence"
+                            theme="bootstrap" > 
+                            <ui-select-match>
+                                {{$select.selected.name}}
+                            </ui-select-match> 
+                            <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                                <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </c:if>            
 
     <div class="panel panel-default">
 		<div class="panel-footer">

@@ -94,6 +94,8 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         form.setExecutionYear(executionYear);
         setForm(form, model);
 
+        model.addAttribute(HouseholdInformationFormController.SHOW_DISLOCATED_QUESTION, true);
+
         return fillGetScreen(executionYear, model, redirectAttributes);
     }
 
@@ -173,7 +175,10 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
         HouseholdInformationForm form = createHouseholdInformationForm(student, executionYear, false);
         form.setExecutionYear(executionYear);
+
         setForm(form, model);
+
+        model.addAttribute(HouseholdInformationFormController.SHOW_DISLOCATED_QUESTION, true);
 
         return fillGetScreen(executionYear, model, redirectAttributes);
     }

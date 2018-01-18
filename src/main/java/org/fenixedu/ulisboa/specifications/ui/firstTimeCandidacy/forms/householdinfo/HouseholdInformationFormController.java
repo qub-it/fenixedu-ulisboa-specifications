@@ -23,6 +23,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.Candidanc
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.filiation.FiliationFormController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -34,6 +35,8 @@ import pt.ist.fenixframework.FenixFramework;
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(HouseholdInformationFormController.CONTROLLER_URL)
 public class HouseholdInformationFormController extends FormAbstractController {
+
+    protected static final String SHOW_DISLOCATED_QUESTION = "showDislocated";
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/householdinformationform";
 
@@ -129,6 +132,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
         }
+
+        form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
 
         return form;
     }
@@ -260,6 +265,10 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
         personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
 
+        if (form.getDislocatedFromPermanentResidence() != null) {
+            personalData.setDislocatedFromPermanentResidence(form.getDislocatedFromPermanentResidence());
+        }
+
     }
 
     @Override
@@ -283,6 +292,11 @@ public class HouseholdInformationFormController extends FormAbstractController {
     @Override
     protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
+    }
+
+    @ModelAttribute
+    public void addDefaultAttributes(final Model model) {
+        model.addAttribute(SHOW_DISLOCATED_QUESTION, false);
     }
 
 }

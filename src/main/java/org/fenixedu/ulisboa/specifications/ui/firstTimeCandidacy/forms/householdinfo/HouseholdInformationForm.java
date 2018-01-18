@@ -40,6 +40,7 @@ public class HouseholdInformationForm implements CandidancyForm {
     private GrantOwnerType grantOwnerType;
     private String grantOwnerProvider;
     private String otherGrantOwnerProvider;
+    private Boolean dislocatedFromPermanentResidence;
     private List<TupleDataSourceBean> professionalConditionValues;
     private List<TupleDataSourceBean> professionTypeValues;
     private List<TupleDataSourceBean> professionTimeTypeValues;
@@ -178,6 +179,14 @@ public class HouseholdInformationForm implements CandidancyForm {
 
     public void setOtherGrantOwnerProvider(final String otherGrantOwnerProvider) {
         this.otherGrantOwnerProvider = otherGrantOwnerProvider;
+    }
+
+    public Boolean getDislocatedFromPermanentResidence() {
+        return dislocatedFromPermanentResidence != null && dislocatedFromPermanentResidence;
+    }
+
+    public void setDislocatedFromPermanentResidence(final Boolean dislocatedFromPermanentResidence) {
+        this.dislocatedFromPermanentResidence = dislocatedFromPermanentResidence;
     }
 
     public ProfessionTimeType getProfessionTimeType() {

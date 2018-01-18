@@ -178,6 +178,17 @@ ${portal.toolkit()}
 						</td>
 					</tr>
 
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
+                        </th>
+                        <td>
+                            <spring:message code="label.yes" var="yesLabel" />
+                            <spring:message code="label.no" var="noLabel" />
+                            <c:out value='${personalIngressionData.dislocatedFromPermanentResidence ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>
+
 				</tbody>
 			</table>
 		</form>
