@@ -112,6 +112,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
             Unit grantOwnerProvider = personalData.getGrantOwnerProvider();
             form.setGrantOwnerProvider(grantOwnerProvider != null ? grantOwnerProvider.getExternalId() : null);
             form.setProfessionalCondition(personalData.getProfessionalCondition());
+
+            form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
         }
 
         if (form.getProfessionType() == null) {
@@ -132,8 +134,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
         }
-
-        form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
 
         return form;
     }
