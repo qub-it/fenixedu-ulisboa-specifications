@@ -6,6 +6,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,6 +25,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.RegimeType;
@@ -670,6 +672,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
+                        final String schoolClass = enrolment.getRegistration().getSchoolClassesSet().stream()
+                                .filter(sc -> sc.getExecutionPeriod() == enrolmentPeriod).map(sc -> sc.getName())
+                                .collect(Collectors.joining("; "));
+
                         addData("Student.number", report.getStudentNumber());
                         addData("Registration.number", report.getRegistrationNumber());
                         addData("Person.name", report.getPersonName());
@@ -687,6 +693,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
                         addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
+                        addData("RegistrationHistoryReport.schoolClasses", schoolClass);
                         addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
                         addData("Enrolment.numberOfEnrolments", CompetenceCourseServices.countEnrolmentsUntil(
                                 report.getStudentCurricularPlan(), enrolment.getCurricularCourse(), report.getExecutionYear()));
