@@ -949,7 +949,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
     }
 
     /**
-     * Uugly, but that's life sometimes.
+     * Ugly, but that's life sometimes.
      */
     private Entry<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> getCurriculumAggregationData() {
         final Map<Set<CurriculumAggregator>, Set<CurriculumAggregatorEntry>> collected = Maps.newHashMap();
@@ -958,6 +958,7 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
             // try to find aggregation context for each associated curricular course
             final Set<Context> contexts = getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                    .filter(c -> !c.getEnrolmentsByExecutionPeriod(getExecutionSemester()).isEmpty())
                     .map(i -> CurriculumAggregatorServices.getContext(i, getExecutionSemester())).filter(i -> i != null)
                     .collect(Collectors.toSet());
 
