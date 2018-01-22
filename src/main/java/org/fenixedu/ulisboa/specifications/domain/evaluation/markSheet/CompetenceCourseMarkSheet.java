@@ -118,8 +118,8 @@ public class CompetenceCourseMarkSheet extends CompetenceCourseMarkSheet_Base {
 
     static final private Logger logger = LoggerFactory.getLogger(CompetenceCourseMarkSheet.class);
 
-    private Set<CurriculumAggregator> curriculumAggregators = Sets.newHashSet();
-    private Set<CurriculumAggregatorEntry> curriculumAggregatorEntries = Sets.newHashSet();
+    private Set<CurriculumAggregator> curriculumAggregators = null;
+    private Set<CurriculumAggregatorEntry> curriculumAggregatorEntries = null;
 
     protected CompetenceCourseMarkSheet() {
         super();
