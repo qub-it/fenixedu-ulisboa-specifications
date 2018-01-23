@@ -181,8 +181,7 @@ public class OriginInformationForm implements CandidancyForm {
         }
     }
 
-    private static final Map<String, Collection<UnitNamePart>> unitNamePartIndexMap =
-            new HashMap<>();
+    private static final Map<String, Collection<UnitNamePart>> unitNamePartIndexMap = new HashMap<>();
 
     public static Collection<UnitNamePart> findNameParts(final String namePart) {
         final String normalizedNamePart = StringNormalizer.normalize(namePart);
@@ -402,6 +401,7 @@ public class OriginInformationForm implements CandidancyForm {
         result.add(SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT);
         result.add(SchoolLevelType.MEDIUM_EDUCATION);
         result.add(SchoolLevelType.TECHNICAL_SPECIALIZATION);
+        result.add(SchoolLevelType.FIRST_CYCLE_INTEGRATED_MASTER_DEGREE);
 
         return result;
     }
