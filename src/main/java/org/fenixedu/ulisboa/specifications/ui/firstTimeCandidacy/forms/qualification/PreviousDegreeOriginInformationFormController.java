@@ -112,8 +112,9 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
         }
 
         String precedentDegreeDesignationName = precedentDegreeInformation.getPrecedentDegreeDesignation();
-        if (form.getPrecedentSchoolLevel() != null && form.getPrecedentCountry() != null
-                && form.getPrecedentCountry().isDefaultCountry() && form.getPrecedentSchoolLevel().isHigherEducation()) {
+        if (form.getPrecedentSchoolLevel() != null && precedentDegreeInformation.getPrecedentCountry() != null
+                && precedentDegreeInformation.getPrecedentCountry().isDefaultCountry()
+                && form.getPrecedentSchoolLevel().isHigherEducation()) {
             DegreeDesignation precedentDegreeDesignation;
             if (institution != null) {
                 Predicate<DegreeDesignation> matchesName =
