@@ -78,6 +78,8 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
             return backScreen(executionYear, model, redirectAttributes);
         }
 
+        model.addAttribute(HouseholdInformationFormController.SHOW_DISLOCATED_QUESTION, true);
+
         String url = HouseholdInformationFormControllerBlueRecord.CONTROLLER_URL
                 + HouseholdInformationFormControllerBlueRecord._FILL_URI;
         return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);

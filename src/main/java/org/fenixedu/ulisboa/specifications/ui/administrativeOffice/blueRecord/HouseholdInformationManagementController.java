@@ -144,20 +144,15 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
     @Override
     protected boolean validate(final HouseholdInformationForm form, final Model model) {
-        boolean hasErrors = super.validate(form, model);
+        boolean valid = super.validate(form, model);
 
         if (form.getExecutionYear() == null) {
             addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.executionYear.required"), model);
             form.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
-            hasErrors = true;
+            valid = false;
         }
 
-        if (getPersonalIngressionData(getStudent(model), form.getExecutionYear(), false) != null) {
-            addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.exists.for.execution.year"), model);
-            hasErrors = true;
-        }
-
-        return hasErrors;
+        return valid;
     }
 
     private static final String _UPDATE_URI = "/update";

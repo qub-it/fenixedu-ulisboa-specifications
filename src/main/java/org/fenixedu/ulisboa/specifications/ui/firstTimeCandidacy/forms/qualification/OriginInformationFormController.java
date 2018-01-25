@@ -120,8 +120,8 @@ public class OriginInformationFormController extends FormAbstractController {
 
         String degreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
         if (form.getSchoolLevel() != null && form.getSchoolLevel().isHigherEducation()
-                && form.getCountryWhereFinishedPreviousCompleteDegree() != null
-                && form.getCountryWhereFinishedPreviousCompleteDegree() == Country.readDefault()) {
+                && precedentDegreeInformation.getCountry() != null
+                && precedentDegreeInformation.getCountry() == Country.readDefault()) {
             DegreeDesignation degreeDesignation;
             if (institution != null) {
                 Predicate<DegreeDesignation> matchesName =

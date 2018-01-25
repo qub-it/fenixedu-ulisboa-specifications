@@ -133,6 +133,29 @@ public class HouseholdInformationFormController extends FormAbstractController {
         if (personUl != null) {
             form.setProfessionTimeType(personUl.getProfessionTimeType());
             form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
+
+            form.setFlunkedBeforeUniversity(personUl.getFlunkedBeforeUniversity());
+            form.setFlunkedHighSchool(personUl.getFlunkedHighSchool());
+            form.setFlunkedHighSchoolTimes(personUl.getFlunkedHighSchoolTimes());
+            form.setFlunkedPreHighSchool(personUl.getFlunkedPreHighSchool());
+            form.setFlunkedPreHighSchoolTimes(personUl.getFlunkedPreHighSchoolTimes());
+
+            form.setSocialBenefitsInHighSchool(personUl.getSocialBenefitsInHighSchool());
+            form.setSocialBenefitsInHighSchoolDescription(personUl.getSocialBenefitsInHighSchoolDescription());
+
+            form.setFirstTimeInPublicUniv(personUl.getFirstTimeInPublicUniv());
+            form.setPublicUnivCandidacies(personUl.getPublicUnivCandidacies());
+            form.setFirstTimeInUlisboa(personUl.getFirstTimeInUlisboa());
+
+            form.setRemuneratedActivityInPast(personUl.getRemuneratedActivityInPast());
+            form.setRemuneratedActivityInPastDescription(personUl.getRemuneratedActivityInPastDescription());
+            form.setCurrentRemuneratedActivity(personUl.getCurrentRemuneratedActivity());
+            form.setCurrentRemuneratedActivityDescription(personUl.getCurrentRemuneratedActivityDescription());
+
+            form.setHouseholdDescription(personUl.getHouseholdDescription());
+            form.setNumBrothers(personUl.getNumBrothers());
+            form.setNumChildren(personUl.getNumChildren());
+
         }
 
         return form;
@@ -219,6 +242,122 @@ public class HouseholdInformationFormController extends FormAbstractController {
             }
         }
 
+        //DISLOCATED
+
+        if (form.getDislocatedFromPermanentResidence() == null) {
+            messages.add(
+                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
+        }
+
+        boolean activate = false;
+        if (activate) {
+            //FLUNKED BEFORE UNIV
+
+            if (form.getFlunkedBeforeUniversity() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else {
+                if (form.getFlunkedBeforeUniversity() == Boolean.TRUE) {
+                    if (form.getFlunkedHighSchool() == null) {
+                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                                "error.all.fields.required"));
+                    } else if (form.getFlunkedHighSchool() && form.getFlunkedHighSchoolTimes() == null) {
+                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                                "error.all.fields.required"));
+                    } else if (form.getFlunkedHighSchool() && form.getFlunkedHighSchoolTimes() == 0) {
+                        messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+                    } else if (!form.getFlunkedHighSchool()) {
+                        form.setFlunkedHighSchoolTimes(0);
+                    }
+                    if (form.getFlunkedPreHighSchool() == null) {
+                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                                "error.all.fields.required"));
+                    } else if (form.getFlunkedPreHighSchool() && form.getFlunkedPreHighSchoolTimes() == null) {
+                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                                "error.all.fields.required"));
+
+                    } else if (form.getFlunkedPreHighSchool() && form.getFlunkedPreHighSchoolTimes() == 0) {
+                        messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+                    } else if (!form.getFlunkedPreHighSchool()) {
+                        form.setFlunkedPreHighSchoolTimes(0);
+                    }
+                } else {
+                    form.setFlunkedHighSchool(Boolean.FALSE);
+                    form.setFlunkedPreHighSchool(Boolean.FALSE);
+                    form.setFlunkedHighSchoolTimes(0);
+                    form.setFlunkedPreHighSchoolTimes(0);
+                }
+            }
+
+            // SOCIAL BENEFITS
+
+            if (form.getSocialBenefitsInHighSchool() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else if (form.getSocialBenefitsInHighSchool()
+                    && StringUtils.isBlank(form.getSocialBenefitsInHighSchoolDescription())) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else if (!form.getSocialBenefitsInHighSchool()) {
+                form.setSocialBenefitsInHighSchoolDescription("");
+            }
+
+            // FIRST TIME APPLYING
+
+            if (form.getFirstTimeInPublicUniv() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == 0) {
+                messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.publicUnivCandidacies"));
+            } else if (form.getFirstTimeInPublicUniv()) {
+                form.setPublicUnivCandidacies(0);
+            }
+
+            if (form.getFirstTimeInUlisboa() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            }
+
+            // REMUNERATED ACTIVITIES
+
+            if (form.getRemuneratedActivityInPast() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else if (form.getRemuneratedActivityInPast()
+                    && StringUtils.isBlank(form.getRemuneratedActivityInPastDescription())) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            }
+
+            if (form.getCurrentRemuneratedActivity() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            } else if (form.getCurrentRemuneratedActivity()
+                    && StringUtils.isBlank(form.getCurrentRemuneratedActivityDescription())) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            }
+
+            // HOUSEHOLD
+
+            if (StringUtils.isBlank(form.getHouseholdDescription())) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            }
+            if (form.getNumBrothers() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            }
+            if (form.getNumChildren() == null) {
+                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.all.fields.required"));
+            }
+
+        }
+
         return messages;
     }
 
@@ -246,6 +385,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
         personalData.setProfessionalCondition(form.getProfessionalCondition());
         personalData.getStudent().getPerson().setProfession(form.getProfession());
         personalData.setProfessionType(form.getProfessionType());
+        //TODO this way we are not saving this information for each execution year
         personUlisboa.setProfessionTimeType(form.getProfessionTimeType());
 
         GrantOwnerType grantOwnerType = form.getGrantOwnerType();
@@ -267,6 +407,59 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
         if (form.getDislocatedFromPermanentResidence() != null) {
             personalData.setDislocatedFromPermanentResidence(form.getDislocatedFromPermanentResidence());
+        }
+
+        if (form.getFlunkedHighSchool() != null) {
+            personUlisboa.setFlunkedHighSchool(form.getFlunkedHighSchool());
+        }
+        if (form.getFlunkedHighSchoolTimes() != null) {
+            personUlisboa.setFlunkedHighSchoolTimes(form.getFlunkedHighSchoolTimes());
+        }
+        if (form.getFlunkedPreHighSchool() != null) {
+            personUlisboa.setFlunkedPreHighSchool(form.getFlunkedPreHighSchool());
+        }
+        if (form.getFlunkedPreHighSchoolTimes() != null) {
+            personUlisboa.setFlunkedPreHighSchoolTimes(form.getFlunkedPreHighSchoolTimes());
+        }
+
+        if (form.getSocialBenefitsInHighSchool() != null) {
+            personUlisboa.setSocialBenefitsInHighSchool(form.getSocialBenefitsInHighSchool());
+        }
+        if (form.getSocialBenefitsInHighSchoolDescription() != null) {
+            personUlisboa.setSocialBenefitsInHighSchoolDescription(form.getSocialBenefitsInHighSchoolDescription());
+        }
+
+        if (form.getFirstTimeInPublicUniv() != null) {
+            personUlisboa.setFirstTimeInPublicUniv(form.getFirstTimeInPublicUniv());
+        }
+        if (form.getPublicUnivCandidacies() != null) {
+            personUlisboa.setPublicUnivCandidacies(form.getPublicUnivCandidacies());
+        }
+        if (form.getFirstTimeInUlisboa() != null) {
+            personUlisboa.setFirstTimeInUlisboa(form.getFirstTimeInUlisboa());
+        }
+
+        if (form.getRemuneratedActivityInPast() != null) {
+            personUlisboa.setRemuneratedActivityInPast(form.getRemuneratedActivityInPast());
+        }
+        if (form.getRemuneratedActivityInPastDescription() != null) {
+            personUlisboa.setRemuneratedActivityInPastDescription(form.getRemuneratedActivityInPastDescription());
+        }
+        if (form.getCurrentRemuneratedActivity() != null) {
+            personUlisboa.setCurrentRemuneratedActivity(form.getCurrentRemuneratedActivity());
+        }
+        if (form.getCurrentRemuneratedActivityDescription() != null) {
+            personUlisboa.setCurrentRemuneratedActivityDescription(form.getCurrentRemuneratedActivityDescription());
+        }
+
+        if (form.getHouseholdDescription() != null) {
+            personUlisboa.setHouseholdDescription(form.getHouseholdDescription());
+        }
+        if (form.getNumBrothers() != null) {
+            personUlisboa.setNumBrothers(form.getNumBrothers());
+        }
+        if (form.getNumChildren() != null) {
+            personUlisboa.setNumChildren(form.getNumChildren());
         }
 
     }

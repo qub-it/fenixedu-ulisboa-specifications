@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: joao.roxo@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -27,8 +27,6 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -37,12 +35,12 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
 
 public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Base {
-    private PersonUlisboaSpecifications(Person person) {
+    private PersonUlisboaSpecifications(final Person person) {
         super();
         setPerson(person);
     }
 
-    public static PersonUlisboaSpecifications findOrCreate(Person person) {
+    public static PersonUlisboaSpecifications findOrCreate(final Person person) {
         PersonUlisboaSpecifications personUlisboaSpecifications = person.getPersonUlisboaSpecifications();
         if (personUlisboaSpecifications != null) {
             return personUlisboaSpecifications;
@@ -51,7 +49,6 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         }
     }
 
-    
     public boolean isSharingDataWithCGDAnswered() {
         return getSharingDataWithCGDAnswered();
     }
@@ -75,10 +72,10 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
     }
 
     @Override
-    public void setPersonnelNumber(String personnelNumber) {
+    public void setPersonnelNumber(final String personnelNumber) {
 
         if (personnelNumber != null) {
-            
+
             final boolean existingNumber = Bennu.getInstance().getPartysSet().stream()
 
                     .filter(p -> p.isPerson() && p != getPerson())
@@ -92,10 +89,18 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
                 throw new ULisboaSpecificationsDomainException(
                         "error.PersonUlisboaSpecifications.personnelNumber.already.exists");
             }
-            
+
         }
 
         super.setPersonnelNumber(personnelNumber);
+    }
+
+    public Boolean getFlunkedBeforeUniversity() {
+        if (getFlunkedHighSchool() == null || getFlunkedPreHighSchool() == null) {
+            return null;
+        }
+
+        return getFlunkedHighSchool() || getFlunkedPreHighSchool();
     }
 
 }

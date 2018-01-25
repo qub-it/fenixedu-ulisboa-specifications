@@ -229,6 +229,22 @@ class PersonUlisboaSpecifications {
     boolean disabilitiesFormAnswered;
     boolean motivationsExpectationsFormAnswered;
     String personnelNumber;
+    Boolean flunkedHighSchool;
+    Integer flunkedHighSchoolTimes;
+    Boolean flunkedPreHighSchool;
+    Integer flunkedPreHighSchoolTimes;
+    Boolean socialBenefitsInHighSchool;
+    String socialBenefitsInHighSchoolDescription;
+    Boolean firstTimeInPublicUniv;
+    Integer publicUnivCandidacies;
+    Boolean firstTimeInUlisboa;
+    Boolean remuneratedActivityInPast;
+    String remuneratedActivityInPastDescription;
+    Boolean currentRemuneratedActivity;
+    String currentRemuneratedActivityDescription;
+    String householdDescription;
+    Integer numBrothers;
+    Integer numChildren;
 }
 
 relation PersonUlPerson {

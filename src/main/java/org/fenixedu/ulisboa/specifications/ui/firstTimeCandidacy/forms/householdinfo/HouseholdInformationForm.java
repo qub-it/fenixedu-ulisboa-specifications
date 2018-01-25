@@ -41,6 +41,23 @@ public class HouseholdInformationForm implements CandidancyForm {
     private String grantOwnerProvider;
     private String otherGrantOwnerProvider;
     private Boolean dislocatedFromPermanentResidence;
+    private Boolean flunkedBeforeUniversity;
+    private Boolean flunkedHighSchool;
+    private Integer flunkedHighSchoolTimes;
+    private Boolean flunkedPreHighSchool;
+    private Integer flunkedPreHighSchoolTimes;
+    private Boolean socialBenefitsInHighSchool;
+    private String socialBenefitsInHighSchoolDescription;
+    private Boolean firstTimeInPublicUniv;
+    private Integer publicUnivCandidacies;
+    private Boolean firstTimeInUlisboa;
+    private Boolean remuneratedActivityInPast;
+    private String remuneratedActivityInPastDescription;
+    private Boolean currentRemuneratedActivity;
+    private String currentRemuneratedActivityDescription;
+    private String householdDescription;
+    private Integer numBrothers;
+    private Integer numChildren;
     private List<TupleDataSourceBean> professionalConditionValues;
     private List<TupleDataSourceBean> professionTypeValues;
     private List<TupleDataSourceBean> professionTimeTypeValues;
@@ -187,6 +204,142 @@ public class HouseholdInformationForm implements CandidancyForm {
 
     public void setDislocatedFromPermanentResidence(final Boolean dislocatedFromPermanentResidence) {
         this.dislocatedFromPermanentResidence = dislocatedFromPermanentResidence;
+    }
+
+    public Boolean getFlunkedBeforeUniversity() {
+        return flunkedBeforeUniversity;
+    }
+
+    public void setFlunkedBeforeUniversity(final Boolean flunkedBeforeUniversity) {
+        this.flunkedBeforeUniversity = flunkedBeforeUniversity;
+    }
+
+    public Boolean getFlunkedHighSchool() {
+        return flunkedHighSchool;
+    }
+
+    public void setFlunkedHighSchool(final Boolean flunkedHighSchool) {
+        this.flunkedHighSchool = flunkedHighSchool;
+    }
+
+    public Integer getFlunkedHighSchoolTimes() {
+        return flunkedHighSchoolTimes;
+    }
+
+    public void setFlunkedHighSchoolTimes(final Integer flunkedHighSchoolTimes) {
+        this.flunkedHighSchoolTimes = flunkedHighSchoolTimes;
+    }
+
+    public Boolean getFlunkedPreHighSchool() {
+        return flunkedPreHighSchool;
+    }
+
+    public void setFlunkedPreHighSchool(final Boolean flunkedPreHighSchool) {
+        this.flunkedPreHighSchool = flunkedPreHighSchool;
+    }
+
+    public Integer getFlunkedPreHighSchoolTimes() {
+        return flunkedPreHighSchoolTimes;
+    }
+
+    public void setFlunkedPreHighSchoolTimes(final Integer flunkedPreHighSchoolTimes) {
+        this.flunkedPreHighSchoolTimes = flunkedPreHighSchoolTimes;
+    }
+
+    public Boolean getSocialBenefitsInHighSchool() {
+        return socialBenefitsInHighSchool;
+    }
+
+    public void setSocialBenefitsInHighSchool(final Boolean socialBenefitsInHighSchool) {
+        this.socialBenefitsInHighSchool = socialBenefitsInHighSchool;
+    }
+
+    public String getSocialBenefitsInHighSchoolDescription() {
+        return socialBenefitsInHighSchoolDescription;
+    }
+
+    public void setSocialBenefitsInHighSchoolDescription(final String socialBenefitsInHighSchoolDescription) {
+        this.socialBenefitsInHighSchoolDescription = socialBenefitsInHighSchoolDescription;
+    }
+
+    public Boolean getFirstTimeInPublicUniv() {
+        return firstTimeInPublicUniv;
+    }
+
+    public void setFirstTimeInPublicUniv(final Boolean firstTimeInPublicUniv) {
+        this.firstTimeInPublicUniv = firstTimeInPublicUniv;
+    }
+
+    public Boolean getFirstTimeInUlisboa() {
+        return firstTimeInUlisboa;
+    }
+
+    public void setFirstTimeInUlisboa(final Boolean firstTimeInUlisboa) {
+        this.firstTimeInUlisboa = firstTimeInUlisboa;
+    }
+
+    public Boolean getRemuneratedActivityInPast() {
+        return remuneratedActivityInPast;
+    }
+
+    public void setRemuneratedActivityInPast(final Boolean remuneratedActivityInPast) {
+        this.remuneratedActivityInPast = remuneratedActivityInPast;
+    }
+
+    public String getRemuneratedActivityInPastDescription() {
+        return remuneratedActivityInPastDescription;
+    }
+
+    public void setRemuneratedActivityInPastDescription(final String remuneratedActivityInPastDescription) {
+        this.remuneratedActivityInPastDescription = remuneratedActivityInPastDescription;
+    }
+
+    public Boolean getCurrentRemuneratedActivity() {
+        return currentRemuneratedActivity;
+    }
+
+    public void setCurrentRemuneratedActivity(final Boolean currentRemuneratedActivity) {
+        this.currentRemuneratedActivity = currentRemuneratedActivity;
+    }
+
+    public String getCurrentRemuneratedActivityDescription() {
+        return currentRemuneratedActivityDescription;
+    }
+
+    public void setCurrentRemuneratedActivityDescription(final String currentRemuneratedActivityDescription) {
+        this.currentRemuneratedActivityDescription = currentRemuneratedActivityDescription;
+    }
+
+    public Integer getPublicUnivCandidacies() {
+        return publicUnivCandidacies;
+    }
+
+    public void setPublicUnivCandidacies(final Integer publicUnivCandidacies) {
+        this.publicUnivCandidacies = publicUnivCandidacies;
+    }
+
+    public String getHouseholdDescription() {
+        return householdDescription;
+    }
+
+    public void setHouseholdDescription(final String householdDescription) {
+        this.householdDescription = householdDescription;
+    }
+
+    public Integer getNumBrothers() {
+        return numBrothers;
+    }
+
+    public void setNumBrothers(final Integer numBrothers) {
+        this.numBrothers = numBrothers;
+    }
+
+    public Integer getNumChildren() {
+        return numChildren;
+    }
+
+    public void setNumChildren(final Integer numChildren) {
+        this.numChildren = numChildren;
     }
 
     public ProfessionTimeType getProfessionTimeType() {

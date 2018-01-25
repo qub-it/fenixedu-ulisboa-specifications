@@ -94,8 +94,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                             { name : '<spring:message code="label.no"/>', value : false },
                             { name : '<spring:message code="label.yes"/>', value : true } 
                     ];
-    $scope.onInstitutionRefresh = function(institution, namePart, model) {
-        if(namePart.length <= 3 || namePart === $scope.object.institutionNamePart) {
+    $scope.onInstitutionRefresh = function(institution, namePart, model, forceUpdate) {
+        if(!forceUpdate && (namePart.length <= 3 || namePart === $scope.object.institutionNamePart)) {
             return;
         }
         $scope.object.institutionNamePart = namePart;
@@ -208,10 +208,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             
                 <div class="col-sm-10">
-                    <ui-select  id="previousDegreeInformationForm_precedentInstitution" name="precedentInstitutionOid" ng-model="$parent.object.precedentInstitutionOid" theme="bootstrap">
+                    <ui-select  id="previousDegreeInformationForm_precedentInstitution" name="precedentInstitutionOid" ng-model="$parent.object.precedentInstitutionOid" on-select="onInstitutionRefresh($item, $select.search, $model, true)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="institution.id as institution in object.institutionValues"
-                                            refresh="onInstitutionRefresh($item, $select.search, $model)"
+                                            refresh="onInstitutionRefresh($item, $select.search, $model, false)"
                                             refresh-delay="0">
                             <span ng-bind-html="institution.text | highlight: $select.search"></span>
                         </ui-select-choices> 

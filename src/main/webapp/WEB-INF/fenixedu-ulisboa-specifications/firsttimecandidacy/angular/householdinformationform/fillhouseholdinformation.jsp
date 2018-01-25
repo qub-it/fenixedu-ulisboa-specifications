@@ -165,6 +165,64 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.remuneratedActivityInPast" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_remuneratedActivityInPast" name="remuneratedActivityInPast"
+                        ng-model="$parent.object.remuneratedActivityInPast"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.remuneratedActivityInPast">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.remuneratedActivityInPastDescription" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="householdInformationForm_remuneratedActivityInPastDescription" class="form-control" type="text" ng-model="object.remuneratedActivityInPastDescription" name="field" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.currentRemuneratedActivity" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_currentRemuneratedActivity" name="currentRemuneratedActivity"
+                        ng-model="$parent.object.currentRemuneratedActivity"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.currentRemuneratedActivity">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.currentRemuneratedActivityDescription" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="householdInformationForm_currentRemuneratedActivityDescription" class="form-control" type="text" ng-model="object.currentRemuneratedActivityDescription" name="field" />
+                </div>
+            </div>
+            <div class="form-group row">
                 <label for="householdInformationForm_professionalCondition" class="col-sm-2 control-label required-field">
                     <spring:message code="label.HouseholdInformationForm.professionalCondition" />
                 </label>
@@ -372,12 +430,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         <div class="panel panel-default">
             <div class="panel-body">
                 <div class="form-group row">
-                    <div class="col-sm-2 control-label">
+                    <div class="col-sm-2 control-label required-field">
                         <spring:message
                             code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
                     </div>
     
-                    <div class="col-sm-2">
+                    <div class="col-sm-6">
                         <ui-select id="householdInformationForm_dislocatedFromPermanentResidence" name="dislocatedFromPermanentResidence"
                             ng-model="$parent.object.dislocatedFromPermanentResidence"
                             theme="bootstrap" > 
@@ -390,9 +448,208 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         </ui-select>
                     </div>
                 </div>
+                <div class="form-group row">
+                    <div class="col-sm-2 control-label required-field">
+                        <spring:message
+                            code="label.HouseholdInformationForm.householdDescription" />
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <input id="householdInformationForm_householdDescription" class="form-control" type="text" ng-model="object.householdDescription" name="field" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-2 control-label required-field">
+                        <spring:message
+                            code="label.HouseholdInformationForm.numBrothers" />
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <input id="householdInformationForm_numBrothers" class="form-control" type="number" ng-model="object.numBrothers" name="field" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-2 control-label required-field">
+                        <spring:message
+                            code="label.HouseholdInformationForm.numChildren" />
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <input id="householdInformationForm_numChildren" class="form-control" type="number" ng-model="object.numChildren" name="field" />
+                    </div>
+                </div>
             </div>
         </div>
     </c:if>            
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.flunkedBeforeUniversity" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_flunkedBeforeUniversity" name="flunkedBeforeUniversity"
+                        ng-model="$parent.object.flunkedBeforeUniversity"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.flunkedBeforeUniversity">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.flunkedHighSchool" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_flunkedHighSchool" name="flunkedHighSchool"
+                        ng-model="$parent.object.flunkedHighSchool"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.flunkedBeforeUniversity && object.flunkedHighSchool">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.flunkedHighSchoolTimes" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="householdInformationForm_flunkedHighSchoolTimes" class="form-control" type="number" ng-model="object.flunkedHighSchoolTimes" name="field" />
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.flunkedBeforeUniversity">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.flunkedPreHighSchool" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_flunkedPreHighSchool" name="flunkedPreHighSchool"
+                        ng-model="$parent.object.flunkedPreHighSchool"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.flunkedBeforeUniversity && object.flunkedPreHighSchool">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.flunkedPreHighSchoolTimes" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="householdInformationForm_flunkedPreHighSchoolTimes" class="form-control" type="number" ng-model="object.flunkedPreHighSchoolTimes" name="field" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.socialBenefitsInHighSchool" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_socialBenefitsInHighSchool" name="socialBenefitsInHighSchool"
+                        ng-model="$parent.object.socialBenefitsInHighSchool"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.socialBenefitsInHighSchool">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.socialBenefitsInHighSchoolDescription" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="householdInformationForm_socialBenefitsInHighSchoolDescription" class="form-control" type="text" ng-model="object.socialBenefitsInHighSchoolDescription" name="field" />
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.firstTimeInPublicUniv" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_firstTimeInPublicUniv" name="firstTimeInPublicUniv"
+                        ng-model="$parent.object.firstTimeInPublicUniv"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row" ng-show="object.firstTimeInPublicUniv == false">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.publicUnivCandidacies" />
+                </div>
+
+                <div class="col-sm-6">
+                    <input id="householdInformationForm_publicUnivCandidacies" class="form-control" type="number" ng-model="object.publicUnivCandidacies" name="field" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2 control-label required-field">
+                    <spring:message
+                        code="label.HouseholdInformationForm.firstTimeInUlisboa" />
+                </div>
+
+                <div class="col-sm-6">
+                    <ui-select id="householdInformationForm_firstTimeInUlisboa" name="firstTimeInUlisboa"
+                        ng-model="$parent.object.firstTimeInUlisboa"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="panel panel-default">
 		<div class="panel-footer">
