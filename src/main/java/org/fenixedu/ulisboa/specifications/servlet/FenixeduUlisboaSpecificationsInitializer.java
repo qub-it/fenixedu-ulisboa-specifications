@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -48,6 +49,7 @@ import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsI
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
@@ -200,6 +202,25 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         registerDeletionListenerOnEnrolmentForCourseGradingTable();
         registerDeletionListenerOnDegreeModuleForCurriculumLineLogs();
 
+        registerDeletionListenerOnQualification();
+        registerDeletionListenerOnUnit();
+
+    }
+
+    private void registerDeletionListenerOnUnit() {
+        FenixFramework.getDomainModel().registerDeletionListener(Unit.class, u -> {
+            u.getAcademicAreasSet().clear();
+        });
+    }
+
+    private void registerDeletionListenerOnQualification() {
+        FenixFramework.getDomainModel().registerDeletionListener(Qualification.class, q -> {
+            q.getAcademicAreasSet().clear();
+            q.getQualificationTypesSet().clear();
+            q.setDegreeUnit(null);
+            q.setInstitutionUnit(null);
+            q.setLevel(null);
+        });
     }
 
     private void registerDeletionListenerOnEnrolmentForCourseGradingTable() {

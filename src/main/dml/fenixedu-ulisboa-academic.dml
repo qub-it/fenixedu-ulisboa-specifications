@@ -119,3 +119,87 @@ class person.JobType {
         .org.fenixedu.academic.domain.Job playsRole jobs { multiplicity *; }
         person.JobType playsRole type { multiplicity 1..1; }
     }    
+
+
+relation QualificationInstitutionUnit {
+    .org.fenixedu.academic.domain.Qualification playsRole qualificationsForInstitution { multiplicity *; }
+    .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole institutionUnit { multiplicity 0..1; }
+}        
+relation QualificationDegreeUnit {
+    .org.fenixedu.academic.domain.Qualification playsRole qualificationsForDegree { multiplicity *; }
+    .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole degreeUnit { multiplicity 0..1; }
+}
+
+class person.qualifications.QualificationLevel {
+	String code;
+	LocalizedString name;
+}
+    relation QualificationLevelRoot {
+        person.qualifications.QualificationLevel playsRole qualificationLevels { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation QualificationLevelQualification {
+        person.qualifications.QualificationLevel playsRole level { multiplicity 0..1; }
+        .org.fenixedu.academic.domain.Qualification playsRole qualifications { multiplicity *; }
+    }    
+
+class person.qualifications.QualificationLevelType {
+	String code;
+	LocalizedString name;
+}
+    relation QualificationLevelTypeRoot {
+        person.qualifications.QualificationLevelType playsRole qualificationLevelTypes { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation QualificationLevelTypeQualificationLevel {
+        person.qualifications.QualificationLevelType playsRole types { multiplicity *; }
+        person.qualifications.QualificationLevel playsRole levels { multiplicity *; }
+    }    
+    relation QualificationLevelTypeQualification {
+		person.qualifications.QualificationLevelType playsRole qualificationTypes { multiplicity *; }        
+        .org.fenixedu.academic.domain.Qualification playsRole qualifications { multiplicity *; }
+    }        
+
+class person.qualifications.QualificationLevelTypeFamily {
+	String code;
+	LocalizedString name;
+}
+    relation QualificationLevelTypeFamilyRoot {
+        person.qualifications.QualificationLevelTypeFamily playsRole qualificationLevelTypeFamilies { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation QualificationLevelTypeFamilyQualificationLevelType {
+	    person.qualifications.QualificationLevelTypeFamily playsRole family { multiplicity 1..1; }
+        person.qualifications.QualificationLevelType playsRole types { multiplicity *; }
+    }    
+    
+class academicStructure.AcademicArea {
+	String code;
+	LocalizedString name;
+}
+    relation AcademicAreaRoot {
+        academicStructure.AcademicArea playsRole academicAreas { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation AcademicAreaQualification {
+		academicStructure.AcademicArea playsRole academicAreas { multiplicity *; }        
+        .org.fenixedu.academic.domain.Qualification playsRole qualifications { multiplicity *; }
+    }        
+    relation AcademicAreaUnit {
+		academicStructure.AcademicArea playsRole academicAreas { multiplicity *; }        
+        .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole units { multiplicity *; }
+    }                            
+    
+class academicStructure.AcademicAreaType {
+	String code;
+	LocalizedString name;
+}
+    relation AcademicAreaTypeRoot {
+        academicStructure.AcademicAreaType playsRole academicAreaTypes { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation AcademicAreaTypeAcademicArea {
+        academicStructure.AcademicArea playsRole areas { multiplicity *; }
+        academicStructure.AcademicAreaType playsRole type { multiplicity 1..1; }
+    }  
+    
