@@ -208,6 +208,37 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                     .filter(s -> s.getServiceRequestType() == type && s.getExecutionYear() == rule.getExecutionYear())
                     .collect(Collectors.toSet());
 
+            // First check if is charged
+            boolean isDebitEntryCharged = false;
+            for (final ULisboaServiceRequest request : tuitionPenaltyRequests) {
+
+                if (ServiceRequestProperty.find(request, installmentOrderSlot).count() == 0) {
+                    throw new ULisboaSpecificationsDomainException(
+                            "error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.iterate");
+                }
+
+                for (final ServiceRequestProperty property : ServiceRequestProperty.find(request, installmentOrderSlot).collect(Collectors.toSet())) {
+                    if (property.getInteger() == null) {
+                        continue;
+                    }
+
+                    if (!property.getInteger().equals(debitEntry.getProduct().getTuitionInstallmentOrder())) {
+                        continue;
+                    }
+
+                    // Found! Get academic treasury event to check if it is charged
+                    Optional<? extends AcademicTreasuryEvent> academicServiceRequest = AcademicTreasuryEvent.findUnique(request);
+                    if (academicServiceRequest.isPresent() && academicServiceRequest.get().isCharged()) {
+                    	isDebitEntryCharged = true;
+                    }
+                }
+            }
+            
+            if(isDebitEntryCharged) {
+            	continue outer;
+            }
+            
+            // Is not charged, iterate over again and charge on the first request found
             for (final ULisboaServiceRequest request : tuitionPenaltyRequests) {
 
                 if (ServiceRequestProperty.find(request, installmentOrderSlot).count() == 0) {
