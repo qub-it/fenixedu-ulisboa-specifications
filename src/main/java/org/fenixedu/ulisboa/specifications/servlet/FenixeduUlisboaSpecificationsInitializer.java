@@ -41,8 +41,8 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
-import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
@@ -91,6 +91,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.RegistrationDataByExec
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
+import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.ConclusionProcessListenersInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EctsAndWeightProviders;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
@@ -141,6 +142,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentPredicateInitializer.init();
         EnrolmentManagerFactoryInitializer.init();
         EvaluationSeasonServices.initialize();
+        ConclusionProcessListenersInitializer.init();
         StudentCurricularPlanLayout.register();
         CurriculumLayout.register();
         configureEnrolmentEvaluationComparator();

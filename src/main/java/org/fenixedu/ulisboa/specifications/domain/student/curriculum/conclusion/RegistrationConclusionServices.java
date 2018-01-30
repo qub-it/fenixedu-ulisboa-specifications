@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.ProgramConclusionProcess;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
@@ -23,6 +26,26 @@ import com.google.common.collect.Sets;
 
 abstract public class RegistrationConclusionServices {
 
+    public static final Comparator<RegistrationConclusionBean> CONCLUSION_BEAN_COMPARATOR_BY_OLDEST_PROCESSED = (x, y) -> {
+
+        if (x.isConclusionProcessed() && !y.isConclusionProcessed()) {
+            return -1;
+        }
+
+        if (!x.isConclusionProcessed() && y.isConclusionProcessed()) {
+            return 1;
+        }
+
+        return StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE
+                .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID)
+                .compare(x.getCurriculumGroup().getStudentCurricularPlan(), y.getCurriculumGroup().getStudentCurricularPlan());
+
+    };
+
+    /**
+     * @deprecated use CONCLUSION_BEAN_COMPARATOR_BY_OLDEST_PROCESSED instead
+     */
+    @Deprecated
     public static final Comparator<RegistrationConclusionBean> CONCLUSION_BEAN_COMPARATOR = (x, y) -> {
 
         if (x.isConclusionProcessed() && !y.isConclusionProcessed()) {
@@ -41,7 +64,7 @@ abstract public class RegistrationConclusionServices {
     public static Set<RegistrationConclusionInformation> inferConclusion(final Registration registration) {
 
         final Multimap<ProgramConclusion, RegistrationConclusionBean> conclusions = ArrayListMultimap.create();
-        
+
         for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
             for (final ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(studentCurricularPlan)
                     .collect(Collectors.toSet())) {
@@ -131,6 +154,33 @@ abstract public class RegistrationConclusionServices {
         }
 
         return result.stream().filter(predicate).collect(Collectors.toList());
+    }
+
+    static public Collection<ProgramConclusionProcess> getProgramConclusionProcesses(StudentCurricularPlan curricularPlan) {
+        return Stream.concat(Stream.of(curricularPlan.getRoot()), curricularPlan.getAllCurriculumGroups().stream())
+                .filter(cg -> cg.getConclusionProcess() != null && cg.getConclusionProcess() instanceof ProgramConclusionProcess)
+                .map(cg -> (ProgramConclusionProcess) cg.getConclusionProcess()).collect(Collectors.toSet());
+    }
+
+    static public boolean hasProcessedProgramConclusionInOtherPlan(StudentCurricularPlan curricularPlan,
+            ProgramConclusion programConclusion) {
+        return curricularPlan.getRegistration().getStudentCurricularPlansSet().stream()
+                .anyMatch(scp -> scp != curricularPlan && getProgramConclusionProcesses(scp).stream()
+                        .anyMatch(pc -> pc.getGroup().getDegreeModule().getProgramConclusion() == programConclusion));
+    }
+
+    static public boolean canProcessProgramConclusionInPreviousPlans(StudentCurricularPlan curricularPlan,
+            ProgramConclusion programConclusion) {
+
+        if (getProgramConclusionProcesses(curricularPlan).stream()
+                .anyMatch(pcp -> pcp.getGroup().getDegreeModule().getProgramConclusion() == programConclusion)) {
+            return false;
+        }
+
+        return curricularPlan.getRegistration().getStudentCurricularPlansSet().stream().filter(
+                scp -> scp != curricularPlan && scp.getStartExecutionYear().isBefore(curricularPlan.getStartExecutionYear()))
+                .anyMatch(scp -> new RegistrationConclusionBean(scp, programConclusion).isConcluded());
+
     }
 
 }

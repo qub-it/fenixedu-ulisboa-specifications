@@ -432,8 +432,10 @@ public class RegistrationHistoryReportService {
                     report.addConclusion(iter, conclusionsByProgramConclusion.iterator().next());
 
                 } else {
-                    report.addConclusion(iter, conclusionsByProgramConclusion.stream()
-                            .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR.reversed()).findFirst().get());
+                    report.addConclusion(iter,
+                            conclusionsByProgramConclusion.stream()
+                                    .sorted(RegistrationConclusionServices.CONCLUSION_BEAN_COMPARATOR_BY_OLDEST_PROCESSED)
+                                    .findFirst().get());
                 }
             }
         }
