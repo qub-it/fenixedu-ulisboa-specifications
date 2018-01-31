@@ -46,7 +46,6 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
@@ -431,15 +430,35 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                     .collect(Collectors.toList());
         }
 
+        // not the first execution semester, so we give the possibility of mantain last year schoolClass and skip preference choice
         public boolean isCanSkipEnrolmentPreferences() {
 
             final ExecutionSemester executionSemester = getExecutionSemester();
             final ExecutionSemester previousSemester = executionSemester.getPreviousExecutionPeriod();
+            final Registration registration = getRegistration();
 
-            // not the first execution semester, so we give the possibility of mantain last year schoolClass and skip preference choice
-            return previousSemester != null && previousSemester.getExecutionYear() == executionSemester.getExecutionYear()
-                    && getRegistration().getSchoolClassesSet().stream()
-                            .anyMatch(sc -> sc.getExecutionPeriod() == previousSemester);
+            // no previous semester or previous semester from different year
+            if (previousSemester == null || previousSemester.getExecutionYear() != executionSemester.getExecutionYear()) {
+                return false;
+            }
+
+            // no school class in previous semester
+            final SchoolClass previousSchoolClass =
+                    RegistrationServices.getSchoolClassBy(registration, previousSemester).orElse(null);
+            if (previousSchoolClass == null) {
+                return false;
+            }
+
+            // no shifts for previous school class (and therefore no shifts for student curricular year
+            if (Collections.disjoint(previousSchoolClass.getAssociatedShiftsSet(), registration.getShiftsFor(previousSemester))) {
+                return false;
+            }
+            
+            // check if exists school class for this semester
+            final Optional<SchoolClass> schoolClassForThisSemester =
+                    RegistrationServices.getInitialSchoolClassesToEnrolBy(registration, executionSemester).stream()
+                            .filter(sc -> sc.getName().equals(previousSchoolClass.getName())).findFirst();
+            return schoolClassForThisSemester.isPresent();
         }
 
         public boolean isHasEnrolmentPreferencesProcessStarted() {

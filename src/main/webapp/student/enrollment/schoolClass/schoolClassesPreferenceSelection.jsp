@@ -69,7 +69,7 @@
 <bean:define id="action" name="action"/>
 
 <c:if test="${empty enrolmentBeans}">
-	<div class="alert alert-danger" role="alert"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassStudentEnrollment.noOpenPeriods" /></div>
+	<div class="alert alert-danger" role="alert"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassPreferenceStudentEnrollment.noOpenPeriodsOrNoEnrolmentsForPeriod" /></div>
 </c:if>
 
 <logic:messagesPresent message="true" property="error">
@@ -101,8 +101,11 @@
 	  			<div class="alert alert-info" role="alert">
 		  			<bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="message.schoolClassPreferenceStudentEnrollment.dontSkipEnrolmentPreferences.instructions" />:&nbsp;&nbsp;
 					<bean:define id="link"><%=action.toString()%>?method=dontSkipEnrolmentPreferences&registrationDataByExecutionIntervalID=<c:out value="${enrolmentBean.orCreateRegistrationDataByInterval.externalId}" /></bean:define>
-					<html:link onclick="disabledOnClick(this);" page="<%= link %>" styleClass="btn btn-info"><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.schoolClassPreferenceStudentEnrollment.dontSkipEnrolmentPreferences" /></html:link>
-				</div>	  			
+					<html:link onclick="disabledOnClick(this);" page="<%= link %>" styleClass="btn btn-info">
+						<bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.schoolClassPreferenceStudentEnrollment.dontSkipEnrolmentPreferences" />
+						(<c:out value="${previousSchoolClass.name}" />)
+					</html:link>
+				</div>
 	  		</c:if>
   			<c:if test="${enrolmentBean.hasEnrolmentPreferencesProcessStarted}">
   				<div class="alert alert-warning" role="alert">

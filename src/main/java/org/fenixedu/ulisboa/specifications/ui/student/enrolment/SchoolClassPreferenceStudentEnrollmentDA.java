@@ -91,12 +91,17 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
         for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
 
+                final ExecutionSemester executionSemester = iter.getExecutionSemester();
+                final Registration registration = iter.getRegistration();
+
+                // if no enrolments for period, student cannot choose preferences
+                if (registration.getEnrolments(executionSemester).isEmpty()) {
+                    continue;
+                }
+
                 final SchoolClassStudentEnrollmentDTO schoolClassStudentEnrollmentBean =
                         new SchoolClassStudentEnrollmentDTO(iter, null);
                 enrolmentBeans.add(schoolClassStudentEnrollmentBean);
-
-                final ExecutionSemester executionSemester = iter.getExecutionSemester();
-                final Registration registration = iter.getRegistration();
 
                 // test if registration curricular year is still the same as school classes preferences year and clear them if not!
                 if (schoolClassStudentEnrollmentBean.isHasEnrolmentPreferencesProcessStarted()) {
@@ -121,6 +126,19 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
                         SchoolClassEnrolmentPreference.initializePreferencesForRegistration(registrationData,
                                 getSchoolClassesOptions(registration, executionSemester));
                     });
+                }
+
+                if (schoolClassStudentEnrollmentBean.isCanSkipEnrolmentPreferences()
+                        && !schoolClassStudentEnrollmentBean.isHasEnrolmentPreferencesProcessStarted()) {
+                    // pre-initialize school class enrolment, according to last semester school class
+                    atomic(() -> enrollInSchoolClassWithSameNameAsPrevious(registration, executionSemester));
+                }
+
+                // we'll put previous school class just to display its name to the student
+                if (schoolClassStudentEnrollmentBean.isCanSkipEnrolmentPreferences()) {
+                    final ExecutionSemester previousSemester = executionSemester.getPreviousExecutionPeriod();
+                    request.setAttribute("previousSchoolClass",
+                            RegistrationServices.getSchoolClassBy(registration, previousSemester).orElse(null));
                 }
 
                 final EnrolmentProcess enrolmentProcess =
@@ -164,12 +182,16 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
 
         final RegistrationDataByExecutionInterval registrationData =
                 getDomainObject(request, "registrationDataByExecutionIntervalID");
+        final ExecutionSemester semester = registrationData.getExecutionInterval().convert(ExecutionSemester.class);
+        final Registration registration = registrationData.getRegistration();
 
         try {
             // pre-initialize preferences selection
-            atomic(() -> SchoolClassEnrolmentPreference.initializePreferencesForRegistration(registrationData,
-                    getSchoolClassesOptions(registrationData.getRegistration(),
-                            registrationData.getExecutionInterval().convert(ExecutionSemester.class))));
+            atomic(() -> {
+                SchoolClassEnrolmentPreference.initializePreferencesForRegistration(registrationData,
+                        getSchoolClassesOptions(registration, semester));
+                RegistrationServices.replaceSchoolClass(registration, null, semester);
+            });
 
 //            final String successMessage = "message.schoolClassPreferenceStudentEnrollment.changePreferenceOrder.success";
 //            addActionMessage("success", request, successMessage);
@@ -187,7 +209,11 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
                 getDomainObject(request, "registrationDataByExecutionIntervalID");
 
         try {
-            atomic(() -> registrationData.getSchoolClassEnrolmentPreferencesSet().forEach(p -> p.delete()));
+            atomic(() -> {
+                registrationData.getSchoolClassEnrolmentPreferencesSet().forEach(p -> p.delete());
+                enrollInSchoolClassWithSameNameAsPrevious(registrationData.getRegistration(),
+                        registrationData.getExecutionInterval().convert(ExecutionSemester.class));
+            });
             final String successMessage = "message.schoolClassPreferenceStudentEnrollment.clearEnrolmentPreferences.success";
             addActionMessage("success", request, successMessage);
         } catch (DomainException e) {
@@ -195,6 +221,16 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
         }
 
         return prepare(mapping, form, request, response);
+    }
+
+    private void enrollInSchoolClassWithSameNameAsPrevious(final Registration registration,
+            final ExecutionSemester executionSemester) {
+        final SchoolClass previousSchoolClass =
+                RegistrationServices.getSchoolClassBy(registration, executionSemester.getPreviousExecutionPeriod()).orElse(null);
+
+        final SchoolClass schoolClass = previousSchoolClass != null ? getSchoolClassesOptions(registration, executionSemester)
+                .stream().filter(sc -> sc.getName().equals(previousSchoolClass.getName())).findFirst().orElse(null) : null;
+        RegistrationServices.replaceSchoolClass(registration, schoolClass, executionSemester);
     }
 
     private List<SchoolClass> getSchoolClassesOptions(final Registration registration,
