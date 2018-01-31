@@ -11,7 +11,7 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 
 import com.google.common.base.Strings;
 
-import jvstm.Atomic;
+import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 
 @SuppressWarnings("rawtypes")
@@ -63,7 +63,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             throw new ULisboaSpecificationsDomainException("error.DynamicFieldDescriptor.fieldValueClassName.required");
         }
 
-        if (!DynamicFieldValueClass.isSupported(fieldValueClass)) {
+        if (!DynamicFieldValueConverter.isSupported(fieldValueClass)) {
             throw new ULisboaSpecificationsDomainException("error.DynamicFieldDescriptor.fieldValueClass.unsupported");
         }
 
@@ -195,6 +195,24 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
     private void updateOrder(final int order) {
         // TODO legidio
         setOrder(order);
+    }
+
+    public Class getFieldValueClass() {
+        try {
+            return Class.forName(getFieldValueClassName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void delete() {
+        if (!getInstanceSet().isEmpty()) {
+            throw new ULisboaSpecificationsDomainException("error.DynamicFieldDescriptor.cannot.delete.with.field.instances");
+        }
+
+        super.setRoot(null);
+
+        super.deleteDomainObject();
     }
 
 }

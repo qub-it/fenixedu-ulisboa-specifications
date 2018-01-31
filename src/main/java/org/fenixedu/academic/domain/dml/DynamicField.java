@@ -4,12 +4,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import com.google.common.base.Strings;
 
-import jvstm.Atomic;
+import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.DomainObject;
 
 public class DynamicField extends DynamicField_Base {
@@ -37,6 +36,14 @@ public class DynamicField extends DynamicField_Base {
         return result;
     }
 
+    private boolean isRequired() {
+        return getDescriptor().getRequired();
+    }
+
+    public DynamicField edit(final Object value) {
+        return edit(DynamicFieldValueConverter.serialize(getDescriptor().getFieldValueClass(), value));
+    }
+
     @Atomic
     private DynamicField edit(final String value) {
         setValue(value);
@@ -49,13 +56,14 @@ public class DynamicField extends DynamicField_Base {
         return this;
     }
 
-    private boolean isRequired() {
-        return getDescriptor().getRequired();
+    public <T> T getValue(Class<T> type) {
+        return (T) DynamicFieldValueConverter.deserialize(type, getValue());
     }
 
-    public DynamicField edit(final LocalizedString value) {
-        // TODO nadir
-        return edit(value == null ? null : value.json().toString());
+    public void delete() {
+        super.setDescriptor(null);
+        super.setRoot(null);
+        super.deleteDomainObject();
     }
 
 }

@@ -9,6 +9,12 @@ class dml.DynamicFieldDescriptor {
 	LocalizedString name (REQUIRED);
 	String fieldValueClassName (REQUIRED);
 	boolean required;
+	Integer minLength;
+	Integer maxLength;
+	BigDecimal minNumber;
+	BigDecimal maxNumber;
+	boolean largeSize;
+	boolean richText;
 	int order;
 } 
 
