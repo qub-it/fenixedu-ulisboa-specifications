@@ -639,13 +639,13 @@ abstract public class CurriculumAggregatorServices {
         return false;
     }
 
-    static public Collection<CurriculumLine> getDescendentCurriculumLines(final CurriculumLine aggregatorLine) {
-        return getChildCurriculumLines(aggregatorLine).stream()
-                .flatMap(line -> Stream.concat(Stream.of(line), getDescendentCurriculumLines(line).stream()))
+    static public Collection<CurriculumLine> getDescendentApprovedCurriculumLines(final CurriculumLine aggregatorLine) {
+        return getChildApprovedCurriculumLines(aggregatorLine).stream()
+                .flatMap(line -> Stream.concat(Stream.of(line), getDescendentApprovedCurriculumLines(line).stream()))
                 .collect(Collectors.toSet());
     }
 
-    static private Collection<CurriculumLine> getChildCurriculumLines(final CurriculumLine aggregatorLine) {
+    static private Collection<CurriculumLine> getChildApprovedCurriculumLines(final CurriculumLine aggregatorLine) {
         final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(aggregatorLine);
         return aggregator != null ? aggregator.getEntriesSet().stream()
                 .map(entry -> entry.getLastCurriculumLine(aggregatorLine.getStudentCurricularPlan(), true))
