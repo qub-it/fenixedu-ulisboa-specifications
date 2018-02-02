@@ -25,13 +25,17 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -633,6 +637,19 @@ abstract public class CurriculumAggregatorServices {
         }
 
         return false;
+    }
+
+    static public Collection<CurriculumLine> getDescendentCurriculumLines(final CurriculumLine aggregatorLine) {
+        return getChildCurriculumLines(aggregatorLine).stream()
+                .flatMap(line -> Stream.concat(Stream.of(line), getDescendentCurriculumLines(line).stream()))
+                .collect(Collectors.toSet());
+    }
+
+    static private Collection<CurriculumLine> getChildCurriculumLines(final CurriculumLine aggregatorLine) {
+        final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(aggregatorLine);
+        return aggregator != null ? aggregator.getEntriesSet().stream()
+                .map(entry -> entry.getLastCurriculumLine(aggregatorLine.getStudentCurricularPlan(), true))
+                .filter(Objects::nonNull).collect(Collectors.toSet()) : Collections.emptySet();
     }
 
 }
