@@ -296,17 +296,33 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     }
 
     public static boolean hasAnyInternationalOutgoingMobility(final Registration registration) {
-        return registration.getMobilityRegistrationInformationsSet().stream().anyMatch(m -> !m.isIncoming() && !m.getNational());
+        return hasAnyInternationalOutgoingMobilityUntil(registration, null);
     }
 
-    public static Collection<MobilityRegistrationInformation> findInternationalOutgoingInformations(Registration registration) {
-        return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> !m.isIncoming() && !m.getNational())
-                .collect(Collectors.toSet());
+    public static boolean hasAnyInternationalOutgoingMobilityUntil(final Registration registration, final ExecutionYear until) {
+        return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> m.isValid(until))
+                .anyMatch(m -> !m.isIncoming() && !m.getNational());
     }
 
     public static MobilityRegistrationInformation findMainInternationalOutgoingInformation(Registration registration) {
-        return findInternationalOutgoingInformations(registration).stream().filter(m -> m.getMainInformation()).findFirst()
-                .orElse(null);
+        return findMainInternationalOutgoingInformationUntil(registration, null);
+    }
+
+    public static MobilityRegistrationInformation findMainInternationalOutgoingInformationUntil(Registration registration,
+            ExecutionYear until) {
+        return findInternationalOutgoingInformationsUntil(registration, until).stream().filter(m -> m.getMainInformation())
+                .findFirst().orElse(null);
+    }
+
+    public static Collection<MobilityRegistrationInformation> findInternationalOutgoingInformations(Registration registration) {
+        return findInternationalOutgoingInformationsUntil(registration, null);
+
+    }
+
+    public static Collection<MobilityRegistrationInformation> findInternationalOutgoingInformationsUntil(
+            Registration registration, ExecutionYear until) {
+        return registration.getMobilityRegistrationInformationsSet().stream()
+                .filter(m -> m.isValid(until) && !m.isIncoming() && !m.getNational()).collect(Collectors.toSet());
     }
 
     public static MobilityRegistrationInformation findInternationalIncomingInformation(final Registration registration,
