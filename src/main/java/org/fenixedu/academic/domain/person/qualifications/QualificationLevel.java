@@ -2,11 +2,14 @@ package org.fenixedu.academic.domain.person.qualifications;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
+
+import com.google.common.base.Strings;
 
 /**
  * 
@@ -51,6 +54,13 @@ public class QualificationLevel extends QualificationLevel_Base implements Compa
                         .thenComparing(QualificationLevel::getName).thenComparing(QualificationLevel::getExternalId);
 
         return levelComparator.compare(this, otherLevel);
+    }
+
+    public static Optional<QualificationLevel> findByCode(String code) {
+        if (Strings.isNullOrEmpty(code)) {
+            return Optional.empty();
+        }
+        return Bennu.getInstance().getQualificationLevelsSet().stream().filter(c -> code.equals(c.getCode())).findAny();
     }
 
 }
