@@ -1,10 +1,13 @@
 package org.fenixedu.academic.domain.person;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+
+import com.google.common.base.Strings;
 
 /**
  * 
@@ -29,6 +32,13 @@ public class JobType extends JobType_Base {
     public void delete() {
         super.setRoot(null);
         super.deleteDomainObject();
+    }
+
+    public static Optional<JobType> findByCode(String code) {
+        if (Strings.isNullOrEmpty(code)) {
+            return Optional.empty();
+        }
+        return Bennu.getInstance().getJobTypesSet().stream().filter(c -> code.equals(c.getCode())).findAny();
     }
 
 }
