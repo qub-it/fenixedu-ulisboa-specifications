@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationUlisboaManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -175,6 +177,131 @@ ${portal.toolkit()}
 			</table>
 		</form>
 	</div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <spring:message code="label.HouseholdInformationForm.details" />
+        </h3>
+    </div>
+
+    <spring:message code="label.yes" var="yesLabel" />
+    <spring:message code="label.no" var="noLabel" />
+    <div class="panel-body">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.flunkedBeforeUniversity" />
+                    </th>
+                    <td>
+                        <c:if test="${ student.person.personUlisboaSpecifications.flunkedBeforeUniversity != null }">
+                            <c:out value='${ student.person.personUlisboaSpecifications.flunkedBeforeUniversity ? yesLabel : noLabel}' />
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.flunkedHighSchool" />
+                    </th>
+                    <td>
+                        <c:if test="${ student.person.personUlisboaSpecifications.flunkedHighSchool  != null}">
+                            <c:out value='${ student.person.personUlisboaSpecifications.flunkedHighSchool ? yesLabel : noLabel}' />
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.flunkedHighSchoolTimes" />
+                    </th>
+                    <td>
+                        <c:out value='${ student.person.personUlisboaSpecifications.flunkedHighSchoolTimes}' />
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.flunkedPreHighSchool" />
+                    </th>
+                    <td>
+                        <c:if test="${ student.person.personUlisboaSpecifications.flunkedPreHighSchool  != null}">
+                            <c:out value='${ student.person.personUlisboaSpecifications.flunkedPreHighSchool ? yesLabel : noLabel}' />
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.flunkedPreHighSchoolTimes" />
+                    </th>
+                    <td>
+                        <c:out value='${ student.person.personUlisboaSpecifications.flunkedPreHighSchoolTimes}' />
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.socialBenefitsInHighSchool" />
+                    </th>
+                    <td>
+                        <c:if test="${  student.person.personUlisboaSpecifications.socialBenefitsInHighSchool != null }">
+                            <c:out value='${ student.person.personUlisboaSpecifications.socialBenefitsInHighSchool ? yesLabel : noLabel}' />
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.socialBenefitsInHighSchoolDescription" />
+                    </th>
+                    <td>
+                        <c:out value='${ student.person.personUlisboaSpecifications.socialBenefitsInHighSchoolDescription}' />
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.firstTimeInPublicUniv" />
+                    </th>
+                    <td>
+                        <c:if test="${  student.person.personUlisboaSpecifications.firstTimeInPublicUniv != null }">
+                            <c:out value='${ student.person.personUlisboaSpecifications.firstTimeInPublicUniv ? yesLabel : noLabel}' />
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.publicUnivCandidacies" />
+                    </th>
+                    <td>
+                        <c:out value='${ student.person.personUlisboaSpecifications.publicUnivCandidacies}' />
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.firstTimeInUlisboa" />
+                    </th>
+                    <td>
+                        <c:if test="${ student.person.personUlisboaSpecifications.firstTimeInUlisboa != null }">
+                            <c:out value='${student.person.personUlisboaSpecifications.firstTimeInUlisboa ? yesLabel : noLabel}' />
+                        </c:if>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.HouseholdInformationForm.bestQualitiesInThisCicle" />
+                    </th>
+                    <td>
+                        <c:out value='${ student.person.personUlisboaSpecifications.bestQualitiesInThisCicle }' />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer">
+        <a class="btn btn-primary"
+            href="${pageContext.request.contextPath}<%= HouseholdInformationUlisboaManagementController.UPDATE_URL %>/${student.externalId}/<%= ExecutionYear.readCurrentExecutionYear().getExternalId() %>">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            &nbsp;
+            <spring:message code='label.update' />
+        </a>
+    </div>
 </div>
 
 <c:choose>

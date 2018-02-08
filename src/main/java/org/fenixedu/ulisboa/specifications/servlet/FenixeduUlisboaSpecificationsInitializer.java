@@ -1,13 +1,13 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -42,6 +42,7 @@ import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -50,9 +51,12 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
@@ -68,6 +72,8 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -119,12 +125,14 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     public static final String BUNDLE = "resources/FenixeduUlisboaSpecificationsResources";
 
     @Override
-    public void contextDestroyed(ServletContextEvent event) {
+    public void contextDestroyed(final ServletContextEvent event) {
     }
 
     @Atomic(mode = TxMode.SPECULATIVE_READ)
     @Override
-    public void contextInitialized(ServletContextEvent event) {
+    public void contextInitialized(final ServletContextEvent event) {
+        migratePersonULisboaSlot();
+
         ULisboaSpecificationsRoot.init();
         MarkSheetSettings.init();
         configurePortal();
@@ -209,6 +217,31 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
     }
 
+    @Atomic(mode = TxMode.WRITE)
+    private void migratePersonULisboaSlot() {
+        for (Student student : Bennu.getInstance().getStudentsSet()) {
+            Person person = student.getPerson();
+            if (person == null) {
+                continue;
+            }
+            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
+            if (personUl == null) {
+                continue;
+            }
+            if (personUl.getHouseholdSalarySpan() == null && personUl.getProfessionTimeType() == null) {
+                continue;
+            }
+
+            for (PersonalIngressionData personalIngressionData : student.getPersonalIngressionsDataSet()) {
+                ExecutionYear executionYear = personalIngressionData.getExecutionYear();
+                PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
+                        PersonUlisboaSpecificationsByExecutionYear.findOrCreate(person, executionYear);
+                personUlExecutionYear.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
+                personUlExecutionYear.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
+            }
+        }
+    }
+
     private void registerDeletionListenerOnUnit() {
         FenixFramework.getDomainModel().registerDeletionListener(Unit.class, u -> {
             u.getAcademicAreasSet().clear();
@@ -229,7 +262,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         FenixFramework.getDomainModel().registerDeletionListener(Enrolment.class, new DeletionListener<Enrolment>() {
 
             @Override
-            public void deleting(Enrolment enrolment) {
+            public void deleting(final Enrolment enrolment) {
                 if (enrolment.getCourseGradingTable() != null) {
                     enrolment.getCourseGradingTable().delete();
                 }
@@ -289,7 +322,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     static private Comparator<PaymentReferenceCode> COMPARATOR_BY_PAYMENT_SEQUENTIAL_DIGITS =
             new Comparator<PaymentReferenceCode>() {
                 @Override
-                public int compare(PaymentReferenceCode leftPaymentCode, PaymentReferenceCode rightPaymentCode) {
+                public int compare(final PaymentReferenceCode leftPaymentCode, final PaymentReferenceCode rightPaymentCode) {
                     final String leftSequentialNumber = getSequentialNumber(leftPaymentCode);
                     final String rightSequentialNumber = getSequentialNumber(rightPaymentCode);
 
@@ -300,7 +333,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 }
             };
 
-    static private String getSequentialNumber(PaymentReferenceCode paymentCode) {
+    static private String getSequentialNumber(final PaymentReferenceCode paymentCode) {
         return paymentCode.getReferenceCode().substring(0, paymentCode.getReferenceCode().length() - 2);
     }
 
@@ -311,7 +344,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         FenixFramework.getDomainModel().registerDeletionListener(Degree.class, new DeletionListener<Degree>() {
 
             @Override
-            public void deleting(Degree degree) {
+            public void deleting(final Degree degree) {
                 degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
 
                 DegreeSite site = degree.getSite();
@@ -325,7 +358,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     private void setupListenerForEnrolmentDelete() {
         Attends.getRelationAttendsEnrolment().addListener(new RelationAdapter<Enrolment, Attends>() {
             @Override
-            public void beforeRemove(Enrolment enrolment, Attends attends) {
+            public void beforeRemove(final Enrolment enrolment, final Attends attends) {
                 final Registration registration = attends.getRegistration();
                 if (registration != null) {
                     attends.getExecutionCourse().getAssociatedShifts().forEach(s -> s.removeStudents(registration));
@@ -338,7 +371,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         FenixFramework.getDomainModel().registerDeletionListener(SchoolClass.class, new DeletionListener<SchoolClass>() {
 
             @Override
-            public void deleting(SchoolClass schoolClass) {
+            public void deleting(final SchoolClass schoolClass) {
                 schoolClass.getRegistrationsSet().clear();
                 schoolClass.setNextSchoolClass(null);
                 schoolClass.getPreviousSchoolClassesSet().clear();
@@ -347,17 +380,18 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     private void setupListenerForCurricularPeriodDelete() {
-        FenixFramework.getDomainModel().registerDeletionListener(CurricularPeriod.class, (CurricularPeriod curricularPeriod) -> {
-            if (curricularPeriod.getConfiguration() != null) {
-                curricularPeriod.getConfiguration().delete();
-            }
-        });
+        FenixFramework.getDomainModel().registerDeletionListener(CurricularPeriod.class,
+                (final CurricularPeriod curricularPeriod) -> {
+                    if (curricularPeriod.getConfiguration() != null) {
+                        curricularPeriod.getConfiguration().delete();
+                    }
+                });
     }
 
     private void setupListenerForInvalidEquivalences() {
         Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
             @Override
-            public void beforeAdd(Dismissal dismissal, Credits credits) {
+            public void beforeAdd(final Dismissal dismissal, final Credits credits) {
                 if (credits != null && dismissal != null && (dismissal.isCreditsDismissal() || dismissal.isOptional())
                         && credits.isEquivalence()) {
                     throw new DomainException("error.Equivalence.can.only.be.applied.to.curricular.courses");
@@ -440,7 +474,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
     }
 
-    private void setupCustomExceptionHandler(ServletContextEvent event) {
+    private void setupCustomExceptionHandler(final ServletContextEvent event) {
         ServletContext servletContext = event.getServletContext();
         PortalExceptionHandler exceptionHandler =
                 CoreConfiguration.getConfiguration().developmentMode() == Boolean.TRUE ? new PortalDevModeExceptionHandler(

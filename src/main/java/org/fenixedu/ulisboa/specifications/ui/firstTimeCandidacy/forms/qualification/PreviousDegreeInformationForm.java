@@ -216,7 +216,6 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
         result.add(SchoolLevelType.DOCTORATE_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.MASTER_DEGREE);
         result.add(SchoolLevelType.MASTER_DEGREE_INTEGRATED);
-        result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.OTHER);
         result.add(SchoolLevelType.PREPARATORY_INTEGRATED_MASTER_DEGREE);
 

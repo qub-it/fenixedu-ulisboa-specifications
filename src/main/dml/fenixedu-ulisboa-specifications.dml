@@ -238,13 +238,7 @@ class PersonUlisboaSpecifications {
     Boolean firstTimeInPublicUniv;
     Integer publicUnivCandidacies;
     Boolean firstTimeInUlisboa;
-    Boolean remuneratedActivityInPast;
-    String remuneratedActivityInPastDescription;
-    Boolean currentRemuneratedActivity;
-    String currentRemuneratedActivityDescription;
-    String householdDescription;
-    Integer numBrothers;
-    Integer numChildren;
+    String bestQualitiesInThisCicle;
 }
 
 relation PersonUlPerson {
@@ -321,6 +315,57 @@ relation PrecedentDegreeInformationDistrict{
 relation PrecedentDegreeInformationDistrictSubdivision{
 	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
 	.org.fenixedu.academic.domain.DistrictSubdivision playsRole districtSubdivision;
+}
+
+class PersonUlisboaSpecificationsByExecutionYear {
+    Boolean remuneratedActivityInPast;
+    String remuneratedActivityInPastDescription;
+    Boolean currentRemuneratedActivity;
+    String currentRemuneratedActivityDescription;
+    Boolean livesAlone;
+    Boolean livesWithMother;
+    Boolean livesWithFather;
+    Boolean livesWithStepFather;
+    Boolean livesWithStepMother;
+    Boolean livesWithBrothers;
+    Boolean livesWithChildren;
+    Boolean livesWithLifemate;
+    Boolean livesWithOthers;
+    String livesWithOthersDesc;
+    Integer numBrothers;
+    Integer numChildren;
+    Boolean flunkedUniversity;
+    Integer flunkedUniversityTimes;
+}
+
+relation PersonUlExecutionYear {
+    PersonUlisboaSpecificationsByExecutionYear playsRole personUlExecutionYears {
+        multiplicity *;
+    }
+    
+    .org.fenixedu.academic.domain.ExecutionYear playsRole executionYear;
+}
+
+relation PersonUlExecutionYearPersonUl {
+    PersonUlisboaSpecificationsByExecutionYear playsRole personUlExecutionYears {
+        multiplicity *;
+    }
+
+    PersonUlisboaSpecifications playsRole personUl;
+}
+
+relation PersonUlExecutionYearProfessionTimeType {
+    PersonUlisboaSpecificationsByExecutionYear playsRole personUlExecutionYears {
+        multiplicity *;
+    }
+    ProfessionTimeType playsRole professionTimeType;
+}
+
+relation PersonUlExecutionYearSalarySpan {
+    PersonUlisboaSpecificationsByExecutionYear playsRole personUlExecutionYears {
+        multiplicity *;
+    }
+    SalarySpan playsRole householdSalarySpan;
 }
 
 // ==================== ULisboa Specifications Root ====================

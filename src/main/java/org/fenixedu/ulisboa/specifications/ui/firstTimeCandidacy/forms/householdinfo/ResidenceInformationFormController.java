@@ -35,10 +35,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.Sets;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.standards.geographic.Planet;
-
-import com.google.common.collect.Sets;
 
 @BennuSpringController(value = FirstTimeCandidacyController.class)
 @RequestMapping(ResidenceInformationFormController.CONTROLLER_URL)
@@ -57,7 +57,8 @@ public class ResidenceInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String fillGetScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String fillGetScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
         ResidenceInformationForm form = fillFormIfRequired(executionYear, model);
 
@@ -70,7 +71,7 @@ public class ResidenceInformationFormController extends FormAbstractController {
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/residenceinformationform/fillresidenceinformation";
     }
 
-    private ResidenceInformationForm fillFormIfRequired(ExecutionYear executionYear, Model model) {
+    private ResidenceInformationForm fillFormIfRequired(final ExecutionYear executionYear, final Model model) {
         ResidenceInformationForm form = (ResidenceInformationForm) getForm(model);
         if (form == null) {
             form = createResidenceInformationForm(getStudent(model), executionYear, false);
@@ -80,7 +81,8 @@ public class ResidenceInformationFormController extends FormAbstractController {
         return form;
     }
 
-    private ResidenceInformationForm createResidenceInformationForm(Student student, ExecutionYear executionYear, boolean create) {
+    private ResidenceInformationForm createResidenceInformationForm(final Student student, final ExecutionYear executionYear,
+            final boolean create) {
         StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, create);
         Person person = AccessControl.getPerson();
@@ -92,9 +94,8 @@ public class ResidenceInformationFormController extends FormAbstractController {
             form.setCountryOfResidence(Country.readDefault());
         }
 
-        District district =
-                personalData.getDistrictSubdivisionOfResidence() != null ? personalData.getDistrictSubdivisionOfResidence()
-                        .getDistrict() : null;
+        District district = personalData.getDistrictSubdivisionOfResidence() != null ? personalData
+                .getDistrictSubdivisionOfResidence().getDistrict() : null;
         form.setDistrictOfResidence(district);
 
         DistrictSubdivision districtSubdivisionOfResidence = personalData.getDistrictSubdivisionOfResidence();
@@ -105,15 +106,15 @@ public class ResidenceInformationFormController extends FormAbstractController {
             form.setAddress(defaultPhysicalAddress.getAddress());
             form.setAreaCode(defaultPhysicalAddress.getAreaCode() + " " + defaultPhysicalAddress.getAreaOfAreaCode());
             form.setArea(defaultPhysicalAddress.getArea());
-            form.setParishOfResidence(Parish.findByName(districtSubdivisionOfResidence,
-                    person.getDefaultPhysicalAddress().getParishOfResidence()).orElse(null));
+            form.setParishOfResidence(
+                    Parish.findByName(districtSubdivisionOfResidence, person.getDefaultPhysicalAddress().getParishOfResidence())
+                            .orElse(null));
         }
 
         form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
         if (personalData.getDislocatedFromPermanentResidence() == Boolean.TRUE) {
-            district =
-                    personalData.getSchoolTimeDistrictSubDivisionOfResidence() != null ? personalData
-                            .getSchoolTimeDistrictSubDivisionOfResidence().getDistrict() : null;
+            district = personalData.getSchoolTimeDistrictSubDivisionOfResidence() != null ? personalData
+                    .getSchoolTimeDistrictSubDivisionOfResidence().getDistrict() : null;
             form.setSchoolTimeDistrictOfResidence(district);
             DistrictSubdivision schoolTimeDistrictSubDivisionOfResidence =
                     personalData.getSchoolTimeDistrictSubDivisionOfResidence();
@@ -123,8 +124,9 @@ public class ResidenceInformationFormController extends FormAbstractController {
                 form.setSchoolTimeAddress(addressSchoolTime.getAddress());
                 form.setSchoolTimeAreaCode(addressSchoolTime.getAreaCode() + " " + addressSchoolTime.getAreaOfAreaCode());
                 form.setSchoolTimeArea(addressSchoolTime.getArea());
-                form.setSchoolTimeParishOfResidence(Parish.findByName(schoolTimeDistrictSubDivisionOfResidence,
-                        addressSchoolTime.getParishOfResidence()).orElse(null));
+                form.setSchoolTimeParishOfResidence(
+                        Parish.findByName(schoolTimeDistrictSubDivisionOfResidence, addressSchoolTime.getParishOfResidence())
+                                .orElse(null));
             }
             if (personUl != null) {
                 form.setSchoolTimeResidenceType(personUl.getDislocatedResidenceType());
@@ -134,7 +136,7 @@ public class ResidenceInformationFormController extends FormAbstractController {
         return form;
     }
 
-    private PhysicalAddress getSchoolTimePhysicalAddress(Person person) {
+    private PhysicalAddress getSchoolTimePhysicalAddress(final Person person) {
         Predicate<PhysicalAddress> addressIsSchoolTime =
                 address -> !address.isDefault() && address.isValid() && address.getType().equals(PartyContactType.PERSONAL);
         return person.getPhysicalAddresses().stream().filter(addressIsSchoolTime).sorted(CONTACT_COMPARATOR_BY_MODIFIED_DATE)
@@ -143,20 +145,20 @@ public class ResidenceInformationFormController extends FormAbstractController {
 
     public static Comparator<PartyContact> CONTACT_COMPARATOR_BY_MODIFIED_DATE = new Comparator<PartyContact>() {
         @Override
-        public int compare(PartyContact contact, PartyContact otherContact) {
+        public int compare(final PartyContact contact, final PartyContact otherContact) {
             int result = contact.getLastModifiedDate().compareTo(otherContact.getLastModifiedDate());
             return result == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(contact, otherContact) : result;
         }
     };
 
     @Override
-    protected void fillPostScreen(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model,
-            RedirectAttributes redirectAttributes) {
+    protected void fillPostScreen(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model,
+            final RedirectAttributes redirectAttributes) {
         //nothing
     }
 
     @Override
-    protected boolean validate(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected boolean validate(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         if (!(candidancyForm instanceof ResidenceInformationForm)) {
             addErrorMessage(BundleUtil.getString(BUNDLE, "error.ResidenceInformationForm.wrong.form.type"), model);
         }
@@ -164,7 +166,7 @@ public class ResidenceInformationFormController extends FormAbstractController {
         return validate((ResidenceInformationForm) candidancyForm, model);
     }
 
-    private boolean validate(ResidenceInformationForm form, Model model) {
+    private boolean validate(final ResidenceInformationForm form, final Model model) {
         final Set<String> result = validateForm(form, getStudent(model).getPerson());
 
         for (final String message : result) {
@@ -174,18 +176,16 @@ public class ResidenceInformationFormController extends FormAbstractController {
         return result.isEmpty();
     }
 
-    private Set<String> validateForm(ResidenceInformationForm form, final Person person) {
+    private Set<String> validateForm(final ResidenceInformationForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
 
         if (!form.getCountryOfResidence().isDefaultCountry() && !form.getDislocatedFromPermanentResidence()) {
-            result.add(BundleUtil
-                    .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.candidacy.workflow.ResidenceInformationForm.non.nacional.students.should.select.dislocated.option.and.fill.address"));
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.ResidenceInformationForm.non.nacional.students.should.select.dislocated.option.and.fill.address"));
         }
         if (form.getCountryOfResidence().isDefaultCountry() && !form.isResidenceInformationFilled()) {
-            result.add(BundleUtil
-                    .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.candidacy.workflow.ResidenceInformationForm.address.national.students.should.supply.complete.address.information"));
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                    "error.candidacy.workflow.ResidenceInformationForm.address.national.students.should.supply.complete.address.information"));
         }
         if (form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getAreaCode())) {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"));
@@ -193,17 +193,15 @@ public class ResidenceInformationFormController extends FormAbstractController {
 
         if (form.getDislocatedFromPermanentResidence()) {
             if (!form.isSchoolTimeRequiredInformationAddressFilled()) {
-                result.add(BundleUtil
-                        .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                "error.candidacy.workflow.ResidenceInformationForm.address.information.is.required.for.dislocated.students"));
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.ResidenceInformationForm.address.information.is.required.for.dislocated.students"));
             } else {
                 if ((form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(), form.getSchoolTimeArea())
                         || form.getSchoolTimeParishOfResidence() != null || form.getSchoolTimeResidenceType() != null)
                         && (form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(), form.getSchoolTimeArea())
                                 || form.getSchoolTimeParishOfResidence() == null || form.getSchoolTimeResidenceType() == null)) {
-                    result.add(BundleUtil
-                            .getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                    "error.candidacy.workflow.ResidenceInformationForm.school.time.address.must.be.filled.completly.otherwise.fill.minimun.required"));
+                    result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                            "error.candidacy.workflow.ResidenceInformationForm.school.time.address.must.be.filled.completly.otherwise.fill.minimun.required"));
                 }
             }
 
@@ -218,12 +216,12 @@ public class ResidenceInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected void writeData(ExecutionYear executionYear, CandidancyForm candidancyForm, Model model) {
+    protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         writeData(executionYear, (ResidenceInformationForm) candidancyForm);
     }
 
     @Atomic
-    protected void writeData(final ExecutionYear executionYear, ResidenceInformationForm form) {
+    protected void writeData(final ExecutionYear executionYear, final ResidenceInformationForm form) {
         Person person = AccessControl.getPerson();
         Student student = person.getStudent();
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
@@ -237,9 +235,8 @@ public class ResidenceInformationFormController extends FormAbstractController {
             personalData.setSchoolTimeDistrictSubDivisionOfResidence(form.getSchoolTimeDistrictSubdivisionOfResidence());
         }
 
-        String district =
-                form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getDistrict()
-                        .getName() : null;
+        String district = form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence()
+                .getDistrict().getName() : null;
         String subdivision =
                 form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getName() : null;
         PhysicalAddressData physicalAddressData;
@@ -247,8 +244,8 @@ public class ResidenceInformationFormController extends FormAbstractController {
                 || !StringUtils.equals(form.getAddress(), person.getDefaultPhysicalAddress().getAddress())
                 || !StringUtils.equals(form.getAreaCode(), person.getDefaultPhysicalAddress().getAreaCode())
                 || !StringUtils.equals(form.getArea(), person.getDefaultPhysicalAddress().getArea())
-                || !StringUtils.equals(form.getParishOfResidence().getName(), person.getDefaultPhysicalAddress()
-                        .getParishOfResidence())
+                || !StringUtils.equals(form.getParishOfResidence().getName(),
+                        person.getDefaultPhysicalAddress().getParishOfResidence())
                 || !StringUtils.equals(subdivision, person.getDefaultPhysicalAddress().getDistrictSubdivisionOfResidence())
                 || !StringUtils.equals(district, person.getDefaultPhysicalAddress().getDistrictOfResidence())
                 || form.getCountryOfResidence() != person.getDefaultPhysicalAddress().getCountryOfResidence()) {
@@ -260,24 +257,20 @@ public class ResidenceInformationFormController extends FormAbstractController {
                 areaOfAreaCode = form.getAreaCode().substring(9);
             }
             Parish parishOfResidence = form.getParishOfResidence();
-            physicalAddressData =
-                    new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(),
-                            parishOfResidence != null ? parishOfResidence.getName() : "", subdivision, district,
-                            form.getCountryOfResidence());
+            physicalAddressData = new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(),
+                    parishOfResidence != null ? parishOfResidence.getName() : "", subdivision, district,
+                    form.getCountryOfResidence());
 
             person.setDefaultPhysicalAddressData(physicalAddressData, true);
         }
 
         if (form.getDislocatedFromPermanentResidence() && form.isSchoolTimeAddressComplete()) {
-            district =
-                    form.getSchoolTimeDistrictSubdivisionOfResidence().getDistrict() != null ? form
-                            .getSchoolTimeDistrictSubdivisionOfResidence().getDistrict().getName() : null;
-            subdivision =
-                    form.getSchoolTimeDistrictSubdivisionOfResidence() != null ? form
-                            .getSchoolTimeDistrictSubdivisionOfResidence().getName() : null;
+            district = form.getSchoolTimeDistrictSubdivisionOfResidence().getDistrict() != null ? form
+                    .getSchoolTimeDistrictSubdivisionOfResidence().getDistrict().getName() : null;
+            subdivision = form.getSchoolTimeDistrictSubdivisionOfResidence() != null ? form
+                    .getSchoolTimeDistrictSubdivisionOfResidence().getName() : null;
             PhysicalAddress schoolTimeAddress = getSchoolTimePhysicalAddress(person);
-            if (schoolTimeAddress == null
-                    || !StringUtils.equals(form.getSchoolTimeAddress(), schoolTimeAddress.getAddress())
+            if (schoolTimeAddress == null || !StringUtils.equals(form.getSchoolTimeAddress(), schoolTimeAddress.getAddress())
                     || !StringUtils.equals(form.getSchoolTimeAreaCode(), schoolTimeAddress.getAreaCode())
                     || !StringUtils.equals(form.getSchoolTimeArea(), schoolTimeAddress.getArea())
                     || !StringUtils.equals(form.getSchoolTimeParishOfResidence().getName(),
@@ -287,12 +280,10 @@ public class ResidenceInformationFormController extends FormAbstractController {
 
                 String schoolTimeAreaCode = form.getSchoolTimeAreaCode().substring(0, 8);
                 String schoolTimeAreaOfAreaCode = form.getSchoolTimeAreaCode().substring(9);
-                physicalAddressData =
-                        new PhysicalAddressData(form.getSchoolTimeAddress(), schoolTimeAreaCode, schoolTimeAreaOfAreaCode,
-                                form.getSchoolTimeArea(), form.getSchoolTimeParishOfResidence().getName(), form
-                                        .getSchoolTimeDistrictSubdivisionOfResidence().getName(), form
-                                        .getSchoolTimeDistrictSubdivisionOfResidence().getDistrict().getName(),
-                                Country.readDefault());
+                physicalAddressData = new PhysicalAddressData(form.getSchoolTimeAddress(), schoolTimeAreaCode,
+                        schoolTimeAreaOfAreaCode, form.getSchoolTimeArea(), form.getSchoolTimeParishOfResidence().getName(),
+                        form.getSchoolTimeDistrictSubdivisionOfResidence().getName(),
+                        form.getSchoolTimeDistrictSubdivisionOfResidence().getDistrict().getName(), Country.readDefault());
 
                 if (schoolTimeAddress != null) {
                     schoolTimeAddress.edit(physicalAddressData);
@@ -313,23 +304,25 @@ public class ResidenceInformationFormController extends FormAbstractController {
     }
 
     @Override
-    protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(HouseholdInformationFormController.CONTROLLER_URL, executionYear), model,
-                redirectAttributes);
+    protected String backScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        return redirect(urlWithExecutionYear(HouseholdInformationUlisboaFormController.CONTROLLER_URL, executionYear),
+                model, redirectAttributes);
     }
 
     @Override
-    protected String nextScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
+    protected String nextScreen(final ExecutionYear executionYear, final Model model,
+            final RedirectAttributes redirectAttributes) {
         return redirect(urlWithExecutionYear(ContactsFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     @Override
-    public boolean isFormIsFilled(ExecutionYear executionYear, Student student) {
+    public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         return false;
     }
 
     @Override
-    protected Student getStudent(Model model) {
+    protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
     }
 

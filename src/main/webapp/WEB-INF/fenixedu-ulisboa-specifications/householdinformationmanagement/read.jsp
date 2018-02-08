@@ -52,13 +52,55 @@ ${portal.toolkit()}
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			<spring:message code="label.HouseholdInformationForm.details.executionYear" arguments="${ personalIngressionData.executionYear.qualifiedName }" />
+			<spring:message code="label.details" />
 		</h3>
 	</div>
+    
+    <c:set var="personUl" value="${ personalIngressionData.student.person.personUlisboaSpecifications }" />
+    <c:set var="personUlExecutionYear" value="${ personUl.getPersonUlisboaSpecificationsByExcutionYear(personalIngressionData.executionYear) }" />
+    <spring:message code="label.yes" var="yesLabel" />
+    <spring:message code="label.no" var="noLabel" />
+    
 	<div class="panel-body">
 		<form method="post" class="form-horizontal">
 			<table class="table">
 				<tbody>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.remuneratedActivityInPast" />
+                        </th>
+                        <td> 
+                            <c:if test="${ personUlExecutionYear.remuneratedActivityInPast != null }">
+                                <c:out value='${personUlExecutionYear.remuneratedActivityInPast ? yesLabel : noLabel}' />
+                            </c:if>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.remuneratedActivityInPastDescription" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.remuneratedActivityInPastDescription}' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.currentRemuneratedActivity" />
+                        </th>
+                        <td>
+                            <c:if test="${ personUlExecutionYear.currentRemuneratedActivity != null }">
+                                <c:out value='${personUlExecutionYear.currentRemuneratedActivity ? yesLabel : noLabel}' />
+                            </c:if>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.currentRemuneratedActivityDescription" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.currentRemuneratedActivityDescription }' />
+                        </td>
+                    </tr>
 					<tr>
 						<th scope="row" class="col-xs-3">
 							<spring:message code="label.HouseholdInformationForm.professionalCondition" />
@@ -82,7 +124,7 @@ ${portal.toolkit()}
 							<spring:message code="label.HouseholdInformationForm.professionTimeType" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.professionTimeType.localizedName}' />
+							<c:out value='${personUlExecutionYear.professionTimeType.description.content}' />
 						</td>
 					</tr>
 
@@ -165,7 +207,7 @@ ${portal.toolkit()}
 							<spring:message code="label.HouseholdInformationForm.householdSalarySpan" />
 						</th>
 						<td>
-							<c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.householdSalarySpan.localizedName}' />
+							<c:out value='${personUlExecutionYear.householdSalarySpan.description.content}' />
 						</td>
 					</tr>
 
@@ -174,162 +216,7 @@ ${portal.toolkit()}
                             <spring:message code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
                         </th>
                         <td>
-                            <spring:message code="label.yes" var="yesLabel" />
-                            <spring:message code="label.no" var="noLabel" />
                             <c:out value='${personalIngressionData.dislocatedFromPermanentResidence ? yesLabel : noLabel }' />
-                        </td>
-                    </tr>
-
-				</tbody>
-			</table>
-		</form>
-	</div>
-</div>
-
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <spring:message code="label.HouseholdInformationForm.details" />
-        </h3>
-    </div>
-    <div class="panel-body">
-        <form method="post" class="form-horizontal">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.flunkedBeforeUniversity" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.flunkedBeforeUniversity != null }">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.flunkedBeforeUniversity ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.flunkedHighSchool" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.flunkedHighSchool  != null}">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.flunkedHighSchool ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.flunkedHighSchoolTimes" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.flunkedHighSchoolTimes}' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.flunkedPreHighSchool" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.flunkedPreHighSchool  != null}">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.flunkedPreHighSchool ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.flunkedPreHighSchoolTimes" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.flunkedPreHighSchoolTimes}' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.socialBenefitsInHighSchool" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.socialBenefitsInHighSchool != null }">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.socialBenefitsInHighSchool ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.socialBenefitsInHighSchoolDescription" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.socialBenefitsInHighSchoolDescription}' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.firstTimeInPublicUniv" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.firstTimeInPublicUniv != null }">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.firstTimeInPublicUniv ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.publicUnivCandidacies" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.publicUnivCandidacies}' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.firstTimeInUlisboa" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.firstTimeInUlisboa != null }">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.firstTimeInUlisboa ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.remuneratedActivityInPast" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.remuneratedActivityInPast != null }">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.remuneratedActivityInPast ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.remuneratedActivityInPastDescription" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.remuneratedActivityInPastDescription}' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.currentRemuneratedActivity" />
-                        </th>
-                        <td>
-                            <c:if test="${ personalIngressionData.student.person.personUlisboaSpecifications.currentRemuneratedActivity != null }">
-                                <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.currentRemuneratedActivity ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.currentRemuneratedActivityDescription" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.currentRemuneratedActivityDescription }' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.householdDescription" />
-                        </th>
-                        <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.householdDescription }' />
                         </td>
                     </tr>
                     <tr>
@@ -337,7 +224,7 @@ ${portal.toolkit()}
                             <spring:message code="label.HouseholdInformationForm.numBrothers" />
                         </th>
                         <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.numBrothers }' />
+                            <c:out value='${personUlExecutionYear.numBrothers }' />
                         </td>
                     </tr>
                     <tr>
@@ -345,11 +232,15 @@ ${portal.toolkit()}
                             <spring:message code="label.HouseholdInformationForm.numChildren" />
                         </th>
                         <td>
-                            <c:out value='${personalIngressionData.student.person.personUlisboaSpecifications.numChildren }' />
+                            <c:out value='${personUlExecutionYear.numChildren }' />
                         </td>
                     </tr>
-                </tbody>
-            </table>
-        </form>
-    </div>
+
+
+
+				</tbody>
+			</table>
+		</form>
+	</div>
 </div>
+

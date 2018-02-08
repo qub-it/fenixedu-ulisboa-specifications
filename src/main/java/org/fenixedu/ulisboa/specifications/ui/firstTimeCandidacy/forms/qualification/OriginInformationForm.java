@@ -90,8 +90,8 @@ public class OriginInformationForm implements CandidancyForm {
         if (schoolLevel != null) {
             Predicate<DegreeDesignation> matchesName =
                     dd -> schoolLevel.getEquivalentDegreeClassifications().contains(dd.getDegreeClassification().getCode())
-                            && StringNormalizer.normalize(getFullDescription(dd))
-                                    .contains(StringNormalizer.normalize(degreeNamePart == null ? "" : degreeNamePart));
+            /* && StringNormalizer.normalize(getFullDescription(dd)).contains(StringNormalizer.normalize(degreeNamePart == null ? "" : degreeNamePart)) */;
+
             Set<Unit> units = new HashSet<>();
             Collection<DegreeDesignation> possibleDesignations = new HashSet<>();
             if (institutionOid != null) {
@@ -396,7 +396,6 @@ public class OriginInformationForm implements CandidancyForm {
         result.add(SchoolLevelType.DOCTORATE_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.MASTER_DEGREE);
         result.add(SchoolLevelType.MASTER_DEGREE_INTEGRATED);
-        result.add(SchoolLevelType.BACHELOR_DEGREE_PRE_BOLOGNA);
         result.add(SchoolLevelType.OTHER);
         result.add(SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT);
         result.add(SchoolLevelType.MEDIUM_EDUCATION);

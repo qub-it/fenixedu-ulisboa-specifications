@@ -281,7 +281,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <spring:message code="label.OriginInformationForm.schoolLevel" />
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-10">
                     <ui-select  id="originInformationForm_schoolLevel" name="schoolLevel" ng-model="$parent.object.schoolLevel" on-select="onSchoolLevelChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="schoolLevel.id as schoolLevel in object.schoolLevelValues | filter: {normalizedText : $select.search}">
@@ -316,8 +316,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         </ui-select-choices> 
                     </ui-select> 
                 </div>
-                <div class="col-sm-1">
-                    <i class="fa fa-spinner fa-spin" aria-hidden="true" ng-show="isUISelectLoading.institution"></i>
+                <div class="col-sm-1" ng-show="isUISelectLoading.institution">
+                    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                 </div> 
             </div>
             <div class="form-group row" ng-hide="isUndefinedOrNull(object.institutionOid) || object.raidesDegreeDesignationValues.length">
@@ -340,10 +340,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 <div class="col-sm-10">
                     <ui-select  id="originInformationForm_raidesDegreeDesignation" name="raidesDegreeDesignation" ng-model="$parent.object.raidesDegreeDesignation" ng-disabled="isUndefinedOrNull(object.institutionOid)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="raidesDegreeDesignation.id as raidesDegreeDesignation in object.raidesDegreeDesignationValues"
-                                            refresh="onDegreeDesignationRefresh($item, $select.search, $model)"
-                                            refresh-delay="0">
-                            <span ng-bind-html="raidesDegreeDesignation.text"></span>
+                        <ui-select-choices  repeat="raidesDegreeDesignation.id as raidesDegreeDesignation in object.raidesDegreeDesignationValues | filter: $select.search"
+<%--                                             refresh="on<DegreeDesignationRefresh($item, $select.search, $model)"
+                                             refresh-delay="0" --%>
+                        > 
+                            <span ng-bind-html="raidesDegreeDesignation.text | highlight: $select.search"></span>
                         </ui-select-choices> 
                     </ui-select>
                 </div>

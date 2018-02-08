@@ -84,7 +84,7 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${previousDegreeInformationFormJson}');
+    $scope.object= ${previousDegreeInformationFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.isUndefinedOrNull = function(val) {

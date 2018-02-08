@@ -18,6 +18,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
@@ -131,31 +132,34 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
         PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
         if (personUl != null) {
-            form.setProfessionTimeType(personUl.getProfessionTimeType());
-            form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
+            PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
+                    personUl.getPersonUlisboaSpecificationsByExcutionYear(executionYear);
+            if (personUlExecutionYear != null) {
+                form.setRemuneratedActivityInPast(personUlExecutionYear.getRemuneratedActivityInPast());
+                form.setRemuneratedActivityInPastDescription(personUlExecutionYear.getRemuneratedActivityInPastDescription());
+                form.setCurrentRemuneratedActivity(personUlExecutionYear.getCurrentRemuneratedActivity());
+                form.setCurrentRemuneratedActivityDescription(personUlExecutionYear.getCurrentRemuneratedActivityDescription());
 
-            form.setFlunkedBeforeUniversity(personUl.getFlunkedBeforeUniversity());
-            form.setFlunkedHighSchool(personUl.getFlunkedHighSchool());
-            form.setFlunkedHighSchoolTimes(personUl.getFlunkedHighSchoolTimes());
-            form.setFlunkedPreHighSchool(personUl.getFlunkedPreHighSchool());
-            form.setFlunkedPreHighSchoolTimes(personUl.getFlunkedPreHighSchoolTimes());
+                form.setLivesAlone(personUlExecutionYear.getLivesAlone());
+                form.setLivesWithMother(personUlExecutionYear.getLivesWithMother());
+                form.setLivesWithFather(personUlExecutionYear.getLivesWithFather());
+                form.setLivesWithStepFather(personUlExecutionYear.getLivesWithStepFather());
+                form.setLivesWithStepMother(personUlExecutionYear.getLivesWithStepMother());
+                form.setLivesWithBrothers(personUlExecutionYear.getLivesWithBrothers());
+                form.setLivesWithChildren(personUlExecutionYear.getLivesWithChildren());
+                form.setLivesWithLifemate(personUlExecutionYear.getLivesWithLifemate());
+                form.setLivesWithOthers(personUlExecutionYear.getLivesWithOthers());
+                form.setLivesWithOthersDesc(personUlExecutionYear.getLivesWithOthersDesc());
 
-            form.setSocialBenefitsInHighSchool(personUl.getSocialBenefitsInHighSchool());
-            form.setSocialBenefitsInHighSchoolDescription(personUl.getSocialBenefitsInHighSchoolDescription());
+                form.setNumBrothers(personUlExecutionYear.getNumBrothers());
+                form.setNumChildren(personUlExecutionYear.getNumChildren());
 
-            form.setFirstTimeInPublicUniv(personUl.getFirstTimeInPublicUniv());
-            form.setPublicUnivCandidacies(personUl.getPublicUnivCandidacies());
-            form.setFirstTimeInUlisboa(personUl.getFirstTimeInUlisboa());
+                form.setFlunkedUniversity(personUlExecutionYear.getFlunkedUniversity());
+                form.setFlunkedUniversityTimes(personUlExecutionYear.getFlunkedUniversityTimes());
 
-            form.setRemuneratedActivityInPast(personUl.getRemuneratedActivityInPast());
-            form.setRemuneratedActivityInPastDescription(personUl.getRemuneratedActivityInPastDescription());
-            form.setCurrentRemuneratedActivity(personUl.getCurrentRemuneratedActivity());
-            form.setCurrentRemuneratedActivityDescription(personUl.getCurrentRemuneratedActivityDescription());
-
-            form.setHouseholdDescription(personUl.getHouseholdDescription());
-            form.setNumBrothers(personUl.getNumBrothers());
-            form.setNumChildren(personUl.getNumChildren());
-
+                form.setProfessionTimeType(personUlExecutionYear.getProfessionTimeType());
+                form.setHouseholdSalarySpan(personUlExecutionYear.getHouseholdSalarySpan());
+            }
         }
 
         return form;
@@ -233,12 +237,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
                     messages.add(BundleUtil.getString(BUNDLE,
                             "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"));
                 }
-            } else if (!grantOwnerType.equals(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP)
-                    && !grantOwnerType.equals(GrantOwnerType.HIGHER_EDUCATION_SAS_GRANT_OWNER_CANDIDATE)) {
-                if (FenixFramework.getDomainObject(grantOwnerProvider) == null) {
-                    messages.add(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.grant.owner.must.choose.granting.institution"));
-                }
             }
         }
 
@@ -251,109 +249,41 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
         boolean activate = false;
         if (activate) {
-            //FLUNKED BEFORE UNIV
-
-            if (form.getFlunkedBeforeUniversity() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            } else {
-                if (form.getFlunkedBeforeUniversity() == Boolean.TRUE) {
-                    if (form.getFlunkedHighSchool() == null) {
-                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                "error.all.fields.required"));
-                    } else if (form.getFlunkedHighSchool() && form.getFlunkedHighSchoolTimes() == null) {
-                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                "error.all.fields.required"));
-                    } else if (form.getFlunkedHighSchool() && form.getFlunkedHighSchoolTimes() == 0) {
-                        messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
-                    } else if (!form.getFlunkedHighSchool()) {
-                        form.setFlunkedHighSchoolTimes(0);
-                    }
-                    if (form.getFlunkedPreHighSchool() == null) {
-                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                "error.all.fields.required"));
-                    } else if (form.getFlunkedPreHighSchool() && form.getFlunkedPreHighSchoolTimes() == null) {
-                        messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                                "error.all.fields.required"));
-
-                    } else if (form.getFlunkedPreHighSchool() && form.getFlunkedPreHighSchoolTimes() == 0) {
-                        messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
-                    } else if (!form.getFlunkedPreHighSchool()) {
-                        form.setFlunkedPreHighSchoolTimes(0);
-                    }
-                } else {
-                    form.setFlunkedHighSchool(Boolean.FALSE);
-                    form.setFlunkedPreHighSchool(Boolean.FALSE);
-                    form.setFlunkedHighSchoolTimes(0);
-                    form.setFlunkedPreHighSchoolTimes(0);
-                }
-            }
-
-            // SOCIAL BENEFITS
-
-            if (form.getSocialBenefitsInHighSchool() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            } else if (form.getSocialBenefitsInHighSchool()
-                    && StringUtils.isBlank(form.getSocialBenefitsInHighSchoolDescription())) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            } else if (!form.getSocialBenefitsInHighSchool()) {
-                form.setSocialBenefitsInHighSchoolDescription("");
-            }
-
-            // FIRST TIME APPLYING
-
-            if (form.getFirstTimeInPublicUniv() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == 0) {
-                messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.publicUnivCandidacies"));
-            } else if (form.getFirstTimeInPublicUniv()) {
-                form.setPublicUnivCandidacies(0);
-            }
-
-            if (form.getFirstTimeInUlisboa() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            }
-
             // REMUNERATED ACTIVITIES
 
             if (form.getRemuneratedActivityInPast() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
             } else if (form.getRemuneratedActivityInPast()
                     && StringUtils.isBlank(form.getRemuneratedActivityInPastDescription())) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
             }
 
             if (form.getCurrentRemuneratedActivity() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
             } else if (form.getCurrentRemuneratedActivity()
                     && StringUtils.isBlank(form.getCurrentRemuneratedActivityDescription())) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+            }
+
+            // FLUNKED UNIVERSITY
+
+            if (form.getFlunkedUniversity() == null) {
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+            } else if (form.getFlunkedUniversity() && form.getFlunkedUniversityTimes() == null) {
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+            } else if (form.getFlunkedUniversity() && form.getFlunkedUniversityTimes() == 0) {
+                messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+            } else if (!form.getFlunkedUniversity()) {
+                form.setFlunkedUniversityTimes(0);
             }
 
             // HOUSEHOLD
 
-            if (StringUtils.isBlank(form.getHouseholdDescription())) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
-            }
             if (form.getNumBrothers() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
             }
             if (form.getNumChildren() == null) {
-                messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                        "error.all.fields.required"));
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
             }
 
         }
@@ -375,6 +305,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
             final Model model) {
         PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
         PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
+        PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
+                PersonUlisboaSpecificationsByExecutionYear.findOrCreate(student.getPerson(), executionYear);
 
         personalData.setFatherProfessionalCondition(form.getFatherProfessionalCondition());
         personalData.setFatherProfessionType(form.getFatherProfessionType());
@@ -385,8 +317,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
         personalData.setProfessionalCondition(form.getProfessionalCondition());
         personalData.getStudent().getPerson().setProfession(form.getProfession());
         personalData.setProfessionType(form.getProfessionType());
-        //TODO this way we are not saving this information for each execution year
-        personUlisboa.setProfessionTimeType(form.getProfessionTimeType());
 
         GrantOwnerType grantOwnerType = form.getGrantOwnerType();
         personalData.setGrantOwnerType(grantOwnerType);
@@ -403,63 +333,74 @@ public class HouseholdInformationFormController extends FormAbstractController {
             personalData.setGrantOwnerProvider(null);
         }
 
-        personUlisboa.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
+        if (form.getProfessionTimeType() != null) {
+            personUlExecutionYear.setProfessionTimeType(form.getProfessionTimeType());
+        }
+        if (form.getHouseholdSalarySpan() != null) {
+            personUlExecutionYear.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
+        }
 
         if (form.getDislocatedFromPermanentResidence() != null) {
             personalData.setDislocatedFromPermanentResidence(form.getDislocatedFromPermanentResidence());
         }
 
-        if (form.getFlunkedHighSchool() != null) {
-            personUlisboa.setFlunkedHighSchool(form.getFlunkedHighSchool());
-        }
-        if (form.getFlunkedHighSchoolTimes() != null) {
-            personUlisboa.setFlunkedHighSchoolTimes(form.getFlunkedHighSchoolTimes());
-        }
-        if (form.getFlunkedPreHighSchool() != null) {
-            personUlisboa.setFlunkedPreHighSchool(form.getFlunkedPreHighSchool());
-        }
-        if (form.getFlunkedPreHighSchoolTimes() != null) {
-            personUlisboa.setFlunkedPreHighSchoolTimes(form.getFlunkedPreHighSchoolTimes());
-        }
-
-        if (form.getSocialBenefitsInHighSchool() != null) {
-            personUlisboa.setSocialBenefitsInHighSchool(form.getSocialBenefitsInHighSchool());
-        }
-        if (form.getSocialBenefitsInHighSchoolDescription() != null) {
-            personUlisboa.setSocialBenefitsInHighSchoolDescription(form.getSocialBenefitsInHighSchoolDescription());
-        }
-
-        if (form.getFirstTimeInPublicUniv() != null) {
-            personUlisboa.setFirstTimeInPublicUniv(form.getFirstTimeInPublicUniv());
-        }
-        if (form.getPublicUnivCandidacies() != null) {
-            personUlisboa.setPublicUnivCandidacies(form.getPublicUnivCandidacies());
-        }
-        if (form.getFirstTimeInUlisboa() != null) {
-            personUlisboa.setFirstTimeInUlisboa(form.getFirstTimeInUlisboa());
-        }
-
         if (form.getRemuneratedActivityInPast() != null) {
-            personUlisboa.setRemuneratedActivityInPast(form.getRemuneratedActivityInPast());
+            personUlExecutionYear.setRemuneratedActivityInPast(form.getRemuneratedActivityInPast());
         }
         if (form.getRemuneratedActivityInPastDescription() != null) {
-            personUlisboa.setRemuneratedActivityInPastDescription(form.getRemuneratedActivityInPastDescription());
+            personUlExecutionYear.setRemuneratedActivityInPastDescription(form.getRemuneratedActivityInPastDescription());
         }
         if (form.getCurrentRemuneratedActivity() != null) {
-            personUlisboa.setCurrentRemuneratedActivity(form.getCurrentRemuneratedActivity());
+            personUlExecutionYear.setCurrentRemuneratedActivity(form.getCurrentRemuneratedActivity());
         }
         if (form.getCurrentRemuneratedActivityDescription() != null) {
-            personUlisboa.setCurrentRemuneratedActivityDescription(form.getCurrentRemuneratedActivityDescription());
+            personUlExecutionYear.setCurrentRemuneratedActivityDescription(form.getCurrentRemuneratedActivityDescription());
         }
 
-        if (form.getHouseholdDescription() != null) {
-            personUlisboa.setHouseholdDescription(form.getHouseholdDescription());
+        if (form.getLivesAlone() != null) {
+            personUlExecutionYear.setLivesAlone(form.getLivesAlone());
         }
+
+        if (form.getLivesWithMother() != null) {
+            personUlExecutionYear.setLivesWithMother(form.getLivesWithMother());
+        }
+        if (form.getLivesWithFather() != null) {
+            personUlExecutionYear.setLivesWithFather(form.getLivesWithFather());
+        }
+        if (form.getLivesWithStepFather() != null) {
+            personUlExecutionYear.setLivesWithStepFather(form.getLivesWithStepFather());
+        }
+        if (form.getLivesWithStepMother() != null) {
+            personUlExecutionYear.setLivesWithStepMother(form.getLivesWithStepMother());
+        }
+        if (form.getLivesWithBrothers() != null) {
+            personUlExecutionYear.setLivesWithBrothers(form.getLivesWithBrothers());
+        }
+        if (form.getLivesWithChildren() != null) {
+            personUlExecutionYear.setLivesWithChildren(form.getLivesWithChildren());
+        }
+        if (form.getLivesWithLifemate() != null) {
+            personUlExecutionYear.setLivesWithLifemate(form.getLivesWithLifemate());
+        }
+        if (form.getLivesWithOthers() != null) {
+            personUlExecutionYear.setLivesWithOthers(form.getLivesWithOthers());
+        }
+        if (form.getLivesWithOthersDesc() != null) {
+            personUlExecutionYear.setLivesWithOthersDesc(form.getLivesWithOthersDesc());
+        }
+
         if (form.getNumBrothers() != null) {
-            personUlisboa.setNumBrothers(form.getNumBrothers());
+            personUlExecutionYear.setNumBrothers(form.getNumBrothers());
         }
         if (form.getNumChildren() != null) {
-            personUlisboa.setNumChildren(form.getNumChildren());
+            personUlExecutionYear.setNumChildren(form.getNumChildren());
+        }
+
+        if (form.getFlunkedUniversity() != null) {
+            personUlExecutionYear.setFlunkedUniversity(form.getFlunkedUniversity());
+        }
+        if (form.getFlunkedUniversityTimes() != null) {
+            personUlExecutionYear.setFlunkedUniversityTimes(form.getFlunkedUniversityTimes());
         }
 
     }
@@ -473,7 +414,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(ResidenceInformationFormController.CONTROLLER_URL, executionYear), model,
+        return redirect(urlWithExecutionYear(HouseholdInformationUlisboaFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 

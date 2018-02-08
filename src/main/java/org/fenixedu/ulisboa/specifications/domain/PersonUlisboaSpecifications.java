@@ -28,6 +28,7 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Objects;
 
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -101,6 +102,12 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         }
 
         return getFlunkedHighSchool() || getFlunkedPreHighSchool();
+    }
+
+    public PersonUlisboaSpecificationsByExecutionYear getPersonUlisboaSpecificationsByExcutionYear(
+            final ExecutionYear executionYear) {
+        return getPersonUlExecutionYearsSet().stream().filter(pul -> pul.getExecutionYear() == executionYear).findAny()
+                .orElse(null);
     }
 
 }
