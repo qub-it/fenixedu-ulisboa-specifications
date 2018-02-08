@@ -236,7 +236,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             }
         }
 
-        request.processRequest(true, false);
+        request.processRequest(bean.isForceUpdate(), false);
 
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(request));
     }
@@ -247,7 +247,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
         updateTransation(this, bean);
 
-        processRequest(true, true);
+        processRequest(bean.isForceUpdate(), true);
 
         IAcademicServiceRequestAndAcademicTaxTreasuryEvent treasuryEvent =
                 TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);

@@ -163,7 +163,7 @@ ${portal.angularToolkit()}
            .controller(
            'ULisboaServiceRequestController', [ '$scope', function($scope) {
 
-               $scope.object = ${ulisboaServiceRequestBeanJson};
+               $scope.object = angular.extend({"showForceUpdate" : true}, ${ulisboaServiceRequestBeanJson});
                $scope.initObject = function () {
         	       angular.forEach($scope.object.serviceRequestPropertyBeans, function(element, index) {
                        if (element.uiComponentType == '<%= UIComponentType.DROP_DOWN_ONE_VALUE%>') {
@@ -267,6 +267,11 @@ ${portal.angularToolkit()}
                    $scope.$apply();        	   
                }
                $scope.submitFormIfValid = function (event) {
+            	   if($scope.object.showForceUpdate == true) {
+            		   $("#uLisboaServiceRequestUpdateModal").modal('toggle');
+            		   return;
+            	   }
+            	   
                    if($scope['form'].$invalid) {
                	       return;
                    }
@@ -370,6 +375,38 @@ ${portal.angularToolkit()}
             </button>
         </div>
     </div>
+
+
+    <!-- modal -->
+    <div class="modal fade" id="uLisboaServiceRequestUpdateModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <spring:message code="label.confirmation" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <spring:message code="label.ULisboaServiceRequest.forceUpdate"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="object.forceUpdate=false;object.showForceUpdate=false;submitFormIfValid(null)">
+                        <spring:message code="label.UlisboaServiceRequest.negforceUpdateButton" />
+                    </button>
+                    <button id="confirmUpdateButton" class="btn btn-danger" type="button" role="button" data-dismiss="modal"
+                            ng-click="object.showForceUpdate=false;object.forceUpdate=true;submitFormIfValid(null)">
+                        <spring:message code="label.UlisboaServiceRequest.forceUpdateButton" />
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
 </form>
 
 <script>

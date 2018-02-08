@@ -82,6 +82,7 @@ public class ULisboaServiceRequestBean implements IBean {
     private List<ServiceRequestPropertyBean> serviceRequestPropertyBeans;
     private boolean requestedOnline;
     private DateTime requestDate;
+    private boolean forceUpdate;
 
     public Registration getRegistration() {
         return registration;
@@ -147,9 +148,18 @@ public class ULisboaServiceRequestBean implements IBean {
         this.requestDate = requestDate;
     }
 
+    public boolean isForceUpdate() {
+        return forceUpdate;
+    }
+
+    public void setForceUpdate(final boolean forceUpdate) {
+        this.forceUpdate = forceUpdate;
+    }
+
     public ULisboaServiceRequestBean() {
         setServiceRequestPropertyBeans(new ArrayList<ServiceRequestPropertyBean>());
         setRequestDate(new DateTime());
+        setForceUpdate(false);
     }
 
     public ULisboaServiceRequestBean(final Registration registration, final boolean requestedOnline) {

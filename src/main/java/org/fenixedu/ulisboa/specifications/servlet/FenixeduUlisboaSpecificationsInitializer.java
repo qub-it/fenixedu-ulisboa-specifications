@@ -51,7 +51,6 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
@@ -73,7 +72,6 @@ import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationR
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -228,17 +226,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             if (personUl == null) {
                 continue;
             }
-            if (personUl.getHouseholdSalarySpan() == null && personUl.getProfessionTimeType() == null) {
-                continue;
-            }
-
-            for (PersonalIngressionData personalIngressionData : student.getPersonalIngressionsDataSet()) {
-                ExecutionYear executionYear = personalIngressionData.getExecutionYear();
-                PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
-                        PersonUlisboaSpecificationsByExecutionYear.findOrCreate(person, executionYear);
-                personUlExecutionYear.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
-                personUlExecutionYear.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
-            }
+            personUl.setProfessionTimeType(null);
+            personUl.setHouseholdSalarySpan(null);
         }
     }
 
