@@ -84,12 +84,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
     protected HouseholdInformationForm createEmptyHouseholdInformationForm(final Student student, final Model model) {
         final HouseholdInformationForm form = new HouseholdInformationForm();
 
-        PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
-        if (personUl != null) {
-            form.setProfessionTimeType(personUl.getProfessionTimeType());
-            form.setHouseholdSalarySpan(personUl.getHouseholdSalarySpan());
-        }
-
         return form;
     }
 

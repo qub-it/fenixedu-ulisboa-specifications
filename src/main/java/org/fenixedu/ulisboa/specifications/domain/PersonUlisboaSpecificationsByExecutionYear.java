@@ -3,6 +3,8 @@ package org.fenixedu.ulisboa.specifications.domain;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 
+import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
+
 public class PersonUlisboaSpecificationsByExecutionYear extends PersonUlisboaSpecificationsByExecutionYear_Base {
 
     public PersonUlisboaSpecificationsByExecutionYear() {
@@ -14,6 +16,20 @@ public class PersonUlisboaSpecificationsByExecutionYear extends PersonUlisboaSpe
         super();
         setPersonUl(personUl);
         setExecutionYear(executionYear);
+    }
+
+    public void delete() {
+        setPersonUl(null);
+        setExecutionYear(null);
+        setHouseholdSalarySpan(null);
+        setProfessionTimeType(null);
+
+        deleteDomainObject();
+    }
+
+    @ConsistencyPredicate
+    private boolean checkHasPerson() {
+        return getPersonUl() != null;
     }
 
     public static PersonUlisboaSpecificationsByExecutionYear findOrCreate(final Person person,

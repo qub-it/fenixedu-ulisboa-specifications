@@ -260,20 +260,6 @@ relation PersonUlFirstOptionInstitution {
     .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole firstOptionInstitution;
 }
 
-relation PersonUlProfessionTimeType {
-	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
-		multiplicity *;
-	}
-	ProfessionTimeType playsRole professionTimeType;
-}
-
-relation PersonUlSalarySpan {
-	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
-		multiplicity *;
-	}
-	SalarySpan playsRole householdSalarySpan;
-}
-
 relation PersonUlResidenceType {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications {
 		multiplicity *;

@@ -74,6 +74,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
@@ -644,17 +645,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 isDislocated = BundleUtil.getString(BUNDLE, "label.false");
             }
 
-            if (personUl.getProfessionTimeType() != null) {
-                professionTimeType = personUl.getProfessionTimeType().getLocalizedName();
-            }
-
             firstOptionDegree = personUl.getFirstOptionDegreeDesignation();
             if (personUl.getFirstOptionInstitution() != null) {
                 firstOptionInstitution = personUl.getFirstOptionInstitution().getName();
-            }
-
-            if (personUl.getHouseholdSalarySpan() != null) {
-                salarySpan = personUl.getHouseholdSalarySpan().getLocalizedName();
             }
 
             if (personUl.getHasDisabilities()) {
@@ -684,6 +677,19 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (personUl.getOtherUniversityChoiceMotivation() != null) {
                 universityChoiceString += personUl.getOtherUniversityChoiceMotivation();
             }
+
+            PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
+                    personUl.getPersonUlisboaSpecificationsByExcutionYear(studentCandidacy.getExecutionYear());
+            if (personUlExecutionYear != null) {
+
+                if (personUlExecutionYear.getProfessionTimeType() != null) {
+                    professionTimeType = personUlExecutionYear.getProfessionTimeType().getLocalizedName();
+                }
+                if (personUlExecutionYear.getHouseholdSalarySpan() != null) {
+                    salarySpan = personUlExecutionYear.getHouseholdSalarySpan().getLocalizedName();
+                }
+            }
+
         }
 
         String precedentCountry = "";

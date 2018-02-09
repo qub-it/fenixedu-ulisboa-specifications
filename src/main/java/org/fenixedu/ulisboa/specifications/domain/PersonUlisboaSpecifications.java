@@ -60,8 +60,6 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         setDisabilityType(null);
         setDislocatedResidenceType(null);
         setFirstOptionInstitution(null);
-        setHouseholdSalarySpan(null);
-        setProfessionTimeType(null);
         setSecondNationality(null);
 
         deleteDomainObject();

@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
-import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -52,10 +51,8 @@ import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
@@ -71,7 +68,6 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
-import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -129,7 +125,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Atomic(mode = TxMode.SPECULATIVE_READ)
     @Override
     public void contextInitialized(final ServletContextEvent event) {
-        migratePersonULisboaSlot();
 
         ULisboaSpecificationsRoot.init();
         MarkSheetSettings.init();
@@ -213,22 +208,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         registerDeletionListenerOnQualification();
         registerDeletionListenerOnUnit();
 
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void migratePersonULisboaSlot() {
-        for (Student student : Bennu.getInstance().getStudentsSet()) {
-            Person person = student.getPerson();
-            if (person == null) {
-                continue;
-            }
-            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
-            if (personUl == null) {
-                continue;
-            }
-            personUl.setProfessionTimeType(null);
-            personUl.setHouseholdSalarySpan(null);
-        }
     }
 
     private void registerDeletionListenerOnUnit() {

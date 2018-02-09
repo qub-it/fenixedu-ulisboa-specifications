@@ -67,9 +67,11 @@ import org.fenixedu.qubdocs.util.reports.helpers.LanguageHelper;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
+import org.fenixedu.ulisboa.specifications.service.reports.helpers.CurricularSpecificationHelper;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.MobilityInfomationDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.CourseGroupDegreeInfoDataProvider;
+import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.CurriculumAggregatorDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.request.DiplomaRequestDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.textbox.InstitutionTextBoxInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -129,6 +131,7 @@ public class DocumentPrinter {
         //Override the lang helper in order to give the correct locale
         generator.registerHelper("lang", new LanguageHelper(serviceRequest.getLanguage()));
         generator.registerHelper("dates", new DateHelper(serviceRequest.getLanguage()));
+        generator.registerHelper("curricularUl", new CurricularSpecificationHelper());
 
         generator.registerPreProcessors(new QubListPreProcessor());
         generator.registerDataProvider(qubListDataProvider);
@@ -215,6 +218,9 @@ public class DocumentPrinter {
         generator.registerDataProvider(new UserReportDataProvider());
 
         generator.registerDataProvider(new CurriculumInformationDataProvider(registration, executionYear));
+
+        generator.registerDataProvider(new CurriculumAggregatorDataProvider(registration, serviceRequest.getLanguage(),
+                new CurriculumEntryServicesImpl()));
 
         /*
          * TODO: Falta saber o que fazer com providers especificos para determinados tipos de documentos.
