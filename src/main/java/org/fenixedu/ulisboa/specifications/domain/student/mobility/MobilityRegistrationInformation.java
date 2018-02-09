@@ -274,6 +274,16 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
 
     }
 
+    private boolean isBeforeOrEquals(final ExecutionYear executionYear) {
+
+        //Legacy - compatibility reasons only
+        if (getBegin() == null || getEnd() == null) {
+            return true;
+        }
+
+        return getEnd().getExecutionYear().isBeforeOrEquals(executionYear);
+    }
+
     @Atomic
     public void markAsMainInformation() {
         getRegistration().getMobilityRegistrationInformationsSet().stream()
@@ -300,8 +310,8 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     }
 
     public static boolean hasAnyInternationalOutgoingMobilityUntil(final Registration registration, final ExecutionYear until) {
-        return registration.getMobilityRegistrationInformationsSet().stream().filter(m -> m.isValid(until))
-                .anyMatch(m -> !m.isIncoming() && !m.getNational());
+        return registration.getMobilityRegistrationInformationsSet().stream()
+                .filter(m -> until == null || m.isBeforeOrEquals(until)).anyMatch(m -> !m.isIncoming() && !m.getNational());
     }
 
     public static MobilityRegistrationInformation findMainInternationalOutgoingInformation(Registration registration) {
@@ -322,7 +332,8 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     public static Collection<MobilityRegistrationInformation> findInternationalOutgoingInformationsUntil(
             Registration registration, ExecutionYear until) {
         return registration.getMobilityRegistrationInformationsSet().stream()
-                .filter(m -> m.isValid(until) && !m.isIncoming() && !m.getNational()).collect(Collectors.toSet());
+                .filter(m -> (until == null || m.isBeforeOrEquals(until)) && !m.isIncoming() && !m.getNational())
+                .collect(Collectors.toSet());
     }
 
     public static MobilityRegistrationInformation findInternationalIncomingInformation(final Registration registration,
