@@ -26,6 +26,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +50,7 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.joda.time.LocalDate;
 
 import com.google.common.collect.Lists;
 
@@ -57,9 +59,39 @@ import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
 @Mapping(path = "/studentEnrolmentsExtended", module = "academicAdministration", functionality = SearchForStudentsDA.class)
 @Forwards({
         @Forward(name = "prepareChooseExecutionPeriod", path = "/academicAdminOffice/chooseStudentEnrolmentExecutionPeriod.jsp"),
-        @Forward(name = "visualizeRegistration", path = "/academicAdministration/student.do?method=visualizeRegistration") })
+        @Forward(name = "visualizeRegistration", path = "/academicAdministration/student.do?method=visualizeRegistration"),
+        @Forward(name = "editEnrolment", path = "/academicAdminOffice/enrolment/editEnrolment.jsp") })
 public class StudentEnrolmentsDA
         extends org.fenixedu.academic.ui.struts.action.administrativeOffice.studentEnrolment.StudentEnrolmentsDA {
+
+    public static class EnrolmentBean implements Serializable {
+
+        private Enrolment enrolment;
+
+        private LocalDate annulmentDate;
+
+        public EnrolmentBean(final Enrolment enrolment) {
+            this.enrolment = enrolment;
+            this.annulmentDate = enrolment.getAnnulmentDate() != null ? enrolment.getAnnulmentDate().toLocalDate() : null;
+        }
+
+        public Enrolment getEnrolment() {
+            return enrolment;
+        }
+
+        public void setEnrolment(Enrolment enrolment) {
+            this.enrolment = enrolment;
+        }
+
+        public LocalDate getAnnulmentDate() {
+            return annulmentDate;
+        }
+
+        public void setAnnulmentDate(LocalDate annulmentDate) {
+            this.annulmentDate = annulmentDate;
+        }
+
+    }
 
     @Override
     public ActionForward prepare(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
@@ -206,6 +238,40 @@ public class StudentEnrolmentsDA
         final StudentEnrolmentBean studentEnrolmentBean = new StudentEnrolmentBean();
         studentEnrolmentBean.setExecutionPeriod(getDomainObject(request, "executionPeriodId"));
         studentEnrolmentBean.setStudentCurricularPlan(getDomainObject(request, "scpID"));
+        return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, form, request, response);
+    }
+
+    public ActionForward prepareEditEnrolment(final ActionMapping mapping, final ActionForm form,
+            final HttpServletRequest request, final HttpServletResponse response) {
+
+        final Enrolment enrolment = getDomainObject(request, "enrolmentId");
+        request.setAttribute("enrolmentBean", new EnrolmentBean(enrolment));
+
+        return mapping.findForward("editEnrolment");
+
+    }
+
+    public ActionForward prepareEditEnrolmentInvalid(final ActionMapping mapping, final ActionForm form,
+            final HttpServletRequest request, final HttpServletResponse response) {
+        request.setAttribute("enrolmentBean", getRenderedObject("enrolmentBean"));
+        return mapping.findForward("editEnrolment");
+    }
+
+    public ActionForward editEnrolment(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
+            final HttpServletResponse response) {
+
+        final EnrolmentBean bean = getRenderedObject("enrolmentBean");
+        try {
+            atomic(() -> bean.getEnrolment().setAnnulmentDate(bean.getAnnulmentDate().toDateTimeAtMidnight()));
+        } catch (DomainException e) {
+            addActionMessage("error", request, e.getKey(), e.getArgs());
+            return mapping.findForward("editEnrolment");
+        }
+
+        final StudentEnrolmentBean studentEnrolmentBean = new StudentEnrolmentBean();
+        studentEnrolmentBean.setExecutionPeriod(bean.enrolment.getExecutionPeriod());
+        studentEnrolmentBean.setStudentCurricularPlan(bean.enrolment.getStudentCurricularPlan());
+
         return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, form, request, response);
     }
 
