@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
+package org.fenixedu.academic.domain.evaluation.markSheet;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Grade;

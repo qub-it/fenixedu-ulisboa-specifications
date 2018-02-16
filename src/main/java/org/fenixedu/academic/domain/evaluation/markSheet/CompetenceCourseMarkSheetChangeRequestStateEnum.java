@@ -25,7 +25,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
+package org.fenixedu.academic.domain.evaluation.markSheet;
 
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;

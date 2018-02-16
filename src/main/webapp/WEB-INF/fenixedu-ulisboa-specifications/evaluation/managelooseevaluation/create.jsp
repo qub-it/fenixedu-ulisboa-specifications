@@ -28,7 +28,7 @@
 <%@page import="org.joda.time.LocalDate"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation.LooseEvaluationController"%>
 <%@page import="org.fenixedu.academic.domain.EvaluationSeason"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
+<%@page import="org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page import="org.fenixedu.academic.domain.EnrolmentEvaluation"%>
 <%@page import="org.fenixedu.academic.domain.Enrolment"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>

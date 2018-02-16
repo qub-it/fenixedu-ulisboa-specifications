@@ -76,10 +76,10 @@ import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularC
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EnrolmentEvaluationExtendedInformation;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
+import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
+import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20AbsoluteGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20GradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;

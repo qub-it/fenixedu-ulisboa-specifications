@@ -25,7 +25,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule;
+package org.fenixedu.academic.domain.evaluation.season.rule;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.Grade;
@@ -33,28 +33,28 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 import pt.ist.fenixframework.Atomic;
 
-public class PreviousSeasonBlockingGrade extends PreviousSeasonBlockingGrade_Base {
+public class PreviousSeasonMinimumGrade extends PreviousSeasonMinimumGrade_Base {
 
-    public PreviousSeasonBlockingGrade() {
+    public PreviousSeasonMinimumGrade() {
         super();
     }
 
     @Atomic
-    static public EvaluationSeasonRule create(final EvaluationSeason season, final Grade blocking) {
-        final PreviousSeasonBlockingGrade result = new PreviousSeasonBlockingGrade();
-        result.init(season, blocking);
+    static public EvaluationSeasonRule create(final EvaluationSeason season, final Grade minimum) {
+        final PreviousSeasonMinimumGrade result = new PreviousSeasonMinimumGrade();
+        result.init(season, minimum);
         return result;
     }
 
-    private void init(final EvaluationSeason season, final Grade blocking) {
+    private void init(final EvaluationSeason season, final Grade minimum) {
         super.init(season);
-        setBlocking(blocking);
+        setMinimum(minimum);
 
         checkRules();
     }
 
     private void checkRules() {
-        checkRules(getBlocking());
+        checkRules(getMinimum());
     }
 
     @Atomic
@@ -66,10 +66,10 @@ public class PreviousSeasonBlockingGrade extends PreviousSeasonBlockingGrade_Bas
     public boolean isUpdatable() {
         return true;
     }
-    
+
     @Override
     public LocalizedString getDescriptionI18N() {
-        return getDescriptionI18N(getClass(), getBlocking());
+        return getDescriptionI18N(getClass(), getMinimum());
     }
 
 }

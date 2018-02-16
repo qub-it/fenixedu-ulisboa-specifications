@@ -25,7 +25,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
+package org.fenixedu.academic.domain.evaluation.markSheet;
 
 import java.text.Collator;
 import java.util.Collection;
@@ -69,14 +69,14 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.GradeScaleValidator;
+import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
+import org.fenixedu.academic.domain.evaluation.EvaluationServices;
+import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
+import org.fenixedu.academic.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;

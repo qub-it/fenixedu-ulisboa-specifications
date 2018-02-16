@@ -1,10 +1,10 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation;
+package org.fenixedu.academic.domain.evaluation;
 
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 
 /*
  * Based on original EvaluationConfiguration.EnrolmentComparator

@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation;
+package org.fenixedu.academic.domain.evaluation;
 
 import java.util.Comparator;
 import java.util.Optional;

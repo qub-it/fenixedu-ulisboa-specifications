@@ -1,6 +1,6 @@
 <%@page import="org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices"%>
+<%@page import="org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet"%>
+<%@page import="org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices"%>
 <%@page
 	import="org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative.CompetenceCourseMarkSheetController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>

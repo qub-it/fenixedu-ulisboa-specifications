@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateChange;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateChange;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.joda.time.DateTime;
 
 public class CompetenceCourseMarkSheetStateChangeBean implements IBean {

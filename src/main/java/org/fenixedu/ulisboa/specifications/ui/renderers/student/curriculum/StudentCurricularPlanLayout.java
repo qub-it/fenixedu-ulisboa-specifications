@@ -77,9 +77,9 @@ import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLa
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationServices;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.evaluation.EvaluationServices;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;

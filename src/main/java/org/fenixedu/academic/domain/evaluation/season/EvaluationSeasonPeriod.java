@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation.season;
+package org.fenixedu.academic.domain.evaluation.season;
 
 import java.util.Collection;
 import java.util.Iterator;

@@ -25,7 +25,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.season;
+package org.fenixedu.academic.domain.evaluation.season;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -47,12 +47,12 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.treasury.util.LocalizedStringUtil;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonRule;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.EvaluationSeasonStatuteType;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonEvaluation;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
+import org.fenixedu.academic.domain.evaluation.season.rule.BlockingTreasuryEventInDebt;
+import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
+import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonStatuteType;
+import org.fenixedu.academic.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
+import org.fenixedu.academic.domain.evaluation.season.rule.PreviousSeasonEvaluation;
+import org.fenixedu.academic.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;

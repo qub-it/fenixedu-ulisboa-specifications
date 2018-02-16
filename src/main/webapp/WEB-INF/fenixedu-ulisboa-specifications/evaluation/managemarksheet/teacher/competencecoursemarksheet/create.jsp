@@ -1,5 +1,5 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.teacher.CompetenceCourseMarkSheetController"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings"%>
+<%@page import="org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>

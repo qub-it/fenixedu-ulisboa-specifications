@@ -25,7 +25,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
+package org.fenixedu.academic.domain.evaluation.markSheet;
 
 import java.util.Collection;
 import java.util.stream.Stream;

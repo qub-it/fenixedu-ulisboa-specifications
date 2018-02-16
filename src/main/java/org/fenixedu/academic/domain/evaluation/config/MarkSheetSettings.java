@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation.config;
+package org.fenixedu.academic.domain.evaluation.config;
 
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;

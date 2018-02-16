@@ -26,7 +26,7 @@ import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.EvaluationComparator;
+import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;

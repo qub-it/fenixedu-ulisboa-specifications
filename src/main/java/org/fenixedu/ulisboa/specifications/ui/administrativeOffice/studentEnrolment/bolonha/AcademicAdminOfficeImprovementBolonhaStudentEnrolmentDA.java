@@ -66,7 +66,7 @@ import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.Searc
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
 
 import com.google.common.collect.Lists;

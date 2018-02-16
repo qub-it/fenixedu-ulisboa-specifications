@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule;
+package org.fenixedu.academic.domain.evaluation.season.rule;
 
 import java.util.List;
 import java.util.stream.Collectors;

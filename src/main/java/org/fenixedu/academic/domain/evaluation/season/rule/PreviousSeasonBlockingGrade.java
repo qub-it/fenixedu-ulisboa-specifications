@@ -25,47 +25,51 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet;
+package org.fenixedu.academic.domain.evaluation.season.rule;
 
+import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
-public enum CompetenceCourseMarkSheetStateEnum {
+import pt.ist.fenixframework.Atomic;
 
-    EDITION,
+public class PreviousSeasonBlockingGrade extends PreviousSeasonBlockingGrade_Base {
 
-    SUBMITTED,
+    public PreviousSeasonBlockingGrade() {
+        super();
+    }
 
-    CONFIRMED
+    @Atomic
+    static public EvaluationSeasonRule create(final EvaluationSeason season, final Grade blocking) {
+        final PreviousSeasonBlockingGrade result = new PreviousSeasonBlockingGrade();
+        result.init(season, blocking);
+        return result;
+    }
 
-    ;
+    private void init(final EvaluationSeason season, final Grade blocking) {
+        super.init(season);
+        setBlocking(blocking);
 
+        checkRules();
+    }
+
+    private void checkRules() {
+        checkRules(getBlocking());
+    }
+
+    @Atomic
+    public void edit(final Grade grade) {
+        init(getSeason(), grade);
+    }
+
+    @Override
+    public boolean isUpdatable() {
+        return true;
+    }
+    
+    @Override
     public LocalizedString getDescriptionI18N() {
-        return ULisboaSpecificationsUtil.bundleI18N(getClass().getSimpleName() + "." + name());
-    }
-
-    static public CompetenceCourseMarkSheetStateEnum findEdition() {
-        return EDITION;
-    }
-
-    static public CompetenceCourseMarkSheetStateEnum findSubmited() {
-        return SUBMITTED;
-    }
-
-    static public CompetenceCourseMarkSheetStateEnum findConfirmed() {
-        return CONFIRMED;
-    }
-
-    public boolean isEdition() {
-        return this == EDITION;
-    }
-
-    public boolean isSubmitted() {
-        return this == SUBMITTED;
-    }
-
-    public boolean isConfirmed() {
-        return this == CONFIRMED;
+        return getDescriptionI18N(getClass(), getBlocking());
     }
 
 }

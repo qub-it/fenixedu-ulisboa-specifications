@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule;
+package org.fenixedu.academic.domain.evaluation.season.rule;
 
 import java.math.BigDecimal;
 import java.util.List;

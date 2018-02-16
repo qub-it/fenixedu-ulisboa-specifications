@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.CompetenceCourseMarkSheetTemplateFile;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
+import org.fenixedu.academic.domain.evaluation.config.CompetenceCourseMarkSheetTemplateFile;
+import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.ui.Model;

@@ -25,51 +25,35 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.domain.evaluation.season.rule;
+package org.fenixedu.academic.domain.evaluation.season.rule;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import pt.ist.fenixframework.Atomic;
 
-public class PreviousSeasonMinimumGrade extends PreviousSeasonMinimumGrade_Base {
+public class PreviousSeasonEvaluation extends PreviousSeasonEvaluation_Base {
 
-    public PreviousSeasonMinimumGrade() {
+    protected PreviousSeasonEvaluation() {
         super();
     }
 
     @Atomic
-    static public EvaluationSeasonRule create(final EvaluationSeason season, final Grade minimum) {
-        final PreviousSeasonMinimumGrade result = new PreviousSeasonMinimumGrade();
-        result.init(season, minimum);
+    static public EvaluationSeasonRule create(final EvaluationSeason season) {
+        final PreviousSeasonEvaluation result = new PreviousSeasonEvaluation();
+        result.init(season);
         return result;
-    }
-
-    private void init(final EvaluationSeason season, final Grade minimum) {
-        super.init(season);
-        setMinimum(minimum);
-
-        checkRules();
-    }
-
-    private void checkRules() {
-        checkRules(getMinimum());
-    }
-
-    @Atomic
-    public void edit(final Grade grade) {
-        init(getSeason(), grade);
     }
 
     @Override
     public boolean isUpdatable() {
-        return true;
+        return false;
     }
-
+    
     @Override
     public LocalizedString getDescriptionI18N() {
-        return getDescriptionI18N(getClass(), getMinimum());
+        return ULisboaSpecificationsUtil.bundleI18N(getClass().getSimpleName());
     }
 
 }

@@ -11,11 +11,11 @@ import org.fenixedu.qubdocs.util.reports.helpers.LanguageHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.MoneyHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.NumbersHelper;
 import org.fenixedu.qubdocs.util.reports.helpers.StringsHelper;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.CompetenceCourseMarkSheetTemplateFile;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.config.MarkSheetSettings;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
-import org.fenixedu.ulisboa.specifications.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshotEntry;
+import org.fenixedu.academic.domain.evaluation.config.CompetenceCourseMarkSheetTemplateFile;
+import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshotEntry;
 import org.joda.time.DateTime;
 
 import com.qubit.terra.docs.core.DocumentGenerator;
