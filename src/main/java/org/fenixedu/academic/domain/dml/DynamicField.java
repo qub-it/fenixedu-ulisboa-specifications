@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain.dml;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
@@ -34,6 +35,15 @@ public class DynamicField extends DynamicField_Base {
                 });
 
         return result;
+    }
+
+    static public DynamicField findField(final DomainObject domainObject, final String code) {
+        return findOrCreateFields(domainObject).stream().filter(i -> StringUtils.equals(i.getCode(), code)).findFirst()
+                .orElse(null);
+    }
+
+    private String getCode() {
+        return getDescriptor().getCode();
     }
 
     private boolean isRequired() {
