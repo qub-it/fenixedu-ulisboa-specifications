@@ -131,7 +131,7 @@ public class DocumentPrinter {
         //Override the lang helper in order to give the correct locale
         generator.registerHelper("lang", new LanguageHelper(serviceRequest.getLanguage()));
         generator.registerHelper("dates", new DateHelper(serviceRequest.getLanguage()));
-        generator.registerHelper("curricularUl", new CurricularSpecificationHelper());
+        generator.registerHelper("curricularUtil", new CurricularSpecificationHelper());
 
         generator.registerPreProcessors(new QubListPreProcessor());
         generator.registerDataProvider(qubListDataProvider);
