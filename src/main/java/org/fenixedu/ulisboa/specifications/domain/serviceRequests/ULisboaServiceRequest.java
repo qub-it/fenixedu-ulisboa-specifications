@@ -778,15 +778,19 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
     private void sendConclusionNotification() {
         String emailAddress = getPerson().getDefaultEmailAddressValue();
-        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+        Locale locale = getLanguage();
+        if (locale == null) {
+            locale = ULisboaConstants.DEFAULT_LOCALE;
+        }
+        String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                 "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(), getServiceRequestNumberYear());
-        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
+        String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                 "message.ULisboaServiceRequest.salutation.male",
-                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE,
+                getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                         "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
-        String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                "message.ULisboaServiceRequest.conclusionNotification.body", salutation, getDescription(),
-                getServiceRequestNumberYear());
+        String body =
+                BundleUtil.getString(ULisboaConstants.BUNDLE, locale, "message.ULisboaServiceRequest.conclusionNotification.body",
+                        salutation, getDescription(), getServiceRequestNumberYear());
         sendEmail(emailAddress, subject, body);
     }
 
