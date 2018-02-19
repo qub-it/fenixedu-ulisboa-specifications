@@ -395,13 +395,13 @@ ${portal.toolkit()}
         <spring:message code="label.event.back.history" />
     </a>
     <c:if test="${ serviceRequest.isSelfIssued() && serviceRequest.serviceRequestType.printable && serviceRequest.isDelivered() && serviceRequest.isValid && serviceRequest.serviceRequestType.requestedOnline && not serviceRequest.serviceRequestType.payable }">
-        &nbsp;|&nbsp;
-        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-        &nbsp; 
-        <a class=""
-            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
-            <spring:message code="label.print" />
-        </a>
+<!--         &nbsp;|&nbsp; -->
+<!--         <span class="glyphicon glyphicon-print" aria-hidden="true"></span> -->
+<!--         &nbsp;  -->
+<!--         <a class="" -->
+<%--             href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }"> --%>
+<%--             <spring:message code="label.print" /> --%>
+<!--         </a> -->
     </c:if>
 </div>
 </academic:notAllowed>
