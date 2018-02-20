@@ -36,9 +36,25 @@ abstract public class RegistrationConclusionServices {
             return 1;
         }
 
-        return StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE
-                .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID)
-                .compare(x.getCurriculumGroup().getStudentCurricularPlan(), y.getCurriculumGroup().getStudentCurricularPlan());
+        if (x.isConcluded() && !y.isConcluded()) {
+            return -1;
+        }
+
+        if (!x.isConcluded() && y.isConcluded()) {
+            return 1;
+        }
+
+        final Comparator<StudentCurricularPlan> planComparator;
+        if (!x.isConcluded() && !y.isConcluded()) {
+            planComparator = StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE.reversed()
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID.reversed());
+        } else {
+            planComparator = StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
+        }
+
+        return planComparator.compare(x.getCurriculumGroup().getStudentCurricularPlan(),
+                y.getCurriculumGroup().getStudentCurricularPlan());
 
     };
 
