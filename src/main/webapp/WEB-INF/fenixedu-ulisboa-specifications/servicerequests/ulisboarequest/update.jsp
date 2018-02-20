@@ -399,7 +399,10 @@ ${portal.angularToolkit()}
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="object.forceUpdate=false;object.showForceUpdate=false;submitFormIfValid(null)">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <spring:message code="label.cancel" />
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="object.forceUpdate=false;object.showForceUpdate=false;submitFormIfValid(null)">
                         <spring:message code="label.UlisboaServiceRequest.negforceUpdateButton" />
                     </button>
                     <button id="confirmUpdateButton" class="btn btn-danger" type="button" role="button" data-dismiss="modal"
