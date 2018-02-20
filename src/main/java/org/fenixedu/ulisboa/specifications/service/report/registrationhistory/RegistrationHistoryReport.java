@@ -968,18 +968,19 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
             throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReport.prescriptionConfig.is.missing");
         }
 
-        final List<PrescriptionEntry> entries = config.getPrescriptionEntriesSet().stream()
-                .sorted((x, y) -> x.getEnrolmentYears().compareTo(y.getEnrolmentYears())).collect(Collectors.toList());
+        Comparator<? super PrescriptionEntry> comparator = (x, y) -> x.getEnrolmentYears().compareTo(y.getEnrolmentYears());
 
-        final PrescriptionEntry lastEntry = entries.get(entries.size() - 1);
-
-        final PrescriptionEntry entry;
-        if (enrolmentYearsForPrescription > lastEntry.getEnrolmentYears().intValue()) {
-            entry = lastEntry;
-        } else {
-            entry = entries.stream().filter(e -> enrolmentYearsForPrescription <= e.getEnrolmentYears().intValue()).findFirst()
-                    .orElse(null);
+        final PrescriptionEntry biggestEntryValue =
+                config.getPrescriptionEntriesSet().stream().sorted(comparator.reversed()).findFirst().orElse(null);
+        
+        if(biggestEntryValue != null
+                && enrolmentYearsForPrescription > biggestEntryValue.getEnrolmentYears().intValue()) {
+            return studentEcts.compareTo(biggestEntryValue.getMinEctsApproved()) < 0;
         }
+
+        final PrescriptionEntry entry = config.getPrescriptionEntriesSet().stream()
+                .filter(e -> enrolmentYearsForPrescription <= e.getEnrolmentYears().intValue())
+                .sorted(comparator).findFirst().orElse(null);
 
         if (entry == null) {
             throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReport.prescriptionConfig.is.missing");
@@ -1016,7 +1017,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return result.toString().endsWith("|") ? result.delete(result.length() - 1, result.length()).toString() : result
                 .toString();
     }
-    
+
     public ResearchArea getResearchArea() {
         return getRegistration().getResearchArea();
     }
