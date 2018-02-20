@@ -653,7 +653,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (!getIsValid()) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
-        transitState(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
+        transitStateTransation(AcademicServiceRequestSituationType.PROCESSING, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
 
     public void transitToConcludedState() {
@@ -668,7 +668,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (getServiceRequestType().getPrintable() && getGeneratedDocumentsSet().isEmpty()) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.must.generate.document");
         }
-        transitState(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
+        transitStateTransation(AcademicServiceRequestSituationType.CONCLUDED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
         if (getServiceRequestType().isToNotifyUponConclusion()) {
             sendConclusionNotification();
         }
@@ -683,7 +683,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (!getIsValid()) {
             throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
         }
-        transitState(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
+        transitStateTransation(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
 
     public void transitToCancelState(final String justification) {
@@ -692,7 +692,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
-        transitState(AcademicServiceRequestSituationType.CANCELLED, justification);
+        transitStateTransation(AcademicServiceRequestSituationType.CANCELLED, justification);
     }
 
     public void transitToRejectState(final String justification) {
@@ -701,7 +701,7 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.DELIVERED.getLocalizedName());
         }
-        transitState(AcademicServiceRequestSituationType.REJECTED, justification);
+        transitStateTransation(AcademicServiceRequestSituationType.REJECTED, justification);
     }
 
     public void revertState(final boolean notifyRevertAction) {
@@ -712,18 +712,12 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
             sendReversionApology();
         }
         AcademicServiceRequestSituation previousSituation = getFilteredAcademicServiceRequestSituations().get(1);
-        transitState(previousSituation.getAcademicServiceRequestSituationType(), previousSituation.getJustification());
+        transitStateTransation(previousSituation.getAcademicServiceRequestSituationType(), previousSituation.getJustification());
     }
 
     @Atomic
     public void createServiceRequestSituationForImportedData(final AcademicServiceRequestBean bean) {
         createAcademicServiceRequestSituations(bean);
-    }
-
-    private void transitState(final AcademicServiceRequestSituationType type, final String justification) {
-        transitStateTransation(type, justification);
-
-        processRequest(false, true);
     }
 
     @Atomic
@@ -736,6 +730,8 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
 
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
         createAcademicServiceRequestSituations(bean);
+
+        processRequest(false, false);
     }
 
     @Override

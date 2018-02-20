@@ -327,7 +327,7 @@ ${portal.angularToolkit()}
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
                         ng-disabled="!serviceRequestProperty.isEditable"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match allow-clear="serviceRequestProperty.isEditable">
                             {{$select.selected.text}}
                         </ui-select-match> 
                         <ui-select-choices repeat="element.id as element in serviceRequestProperty.dataSource | filter: $select.search">
@@ -339,7 +339,7 @@ ${portal.angularToolkit()}
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_BOOLEAN'"
                         ng-disabled="!serviceRequestProperty.isEditable"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                        <ui-select-match allow-clear="true">
+                        <ui-select-match allow-clear="serviceRequestProperty.isEditable">
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
