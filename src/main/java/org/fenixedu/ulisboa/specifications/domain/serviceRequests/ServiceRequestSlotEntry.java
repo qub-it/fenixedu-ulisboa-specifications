@@ -95,8 +95,9 @@ public class ServiceRequestSlotEntry extends ServiceRequestSlotEntry_Base {
     }
 
     public static ServiceRequestSlotEntry findByServiceRequestProperty(final ServiceRequestProperty property) {
-        return property.getServiceRequestSlot().getServiceRequestSlotEntriesSet().stream().filter(
-                entry -> entry.getServiceRequestType().equals(property.getULisboaServiceRequest().getServiceRequestType()))
+        return property.getServiceRequestSlot().getServiceRequestSlotEntriesSet().stream()
+                .filter(entry -> entry.getServiceRequestType() != null && property.getULisboaServiceRequest() != null
+                        && entry.getServiceRequestType().equals(property.getULisboaServiceRequest().getServiceRequestType()))
                 .findFirst().orElse(null);
     }
 
