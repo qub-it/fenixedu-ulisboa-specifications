@@ -47,6 +47,8 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.evaluation.EvaluationServices;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -54,8 +56,6 @@ import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.academic.domain.evaluation.EvaluationServices;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
@@ -228,7 +228,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         evaluation.confirmSubmission(person, "");
         EnrolmentEvaluationServices.onStateChange(evaluation);
         EnrolmentServices.updateState(enrolment);
-        CurriculumAggregatorServices.updateAggregatorEvaluation(evaluation);
+        CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(evaluation);
     }
 
     private static final String _DELETE_URI = "/delete/";
@@ -253,7 +253,6 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
     @Atomic
     private void deleteLooseEvaluation(final EnrolmentEvaluation evaluation) {
         final Enrolment enrolment = evaluation.getEnrolment();
-        final EvaluationSeason season = evaluation.getEvaluationSeason();
 
         evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
         EnrolmentEvaluationServices.onStateChange(evaluation);
@@ -265,7 +264,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         }
 
         EnrolmentServices.updateState(enrolment);
-        CurriculumAggregatorServices.updateAggregatorEvaluation(enrolment, (EnrolmentEvaluation) null);
+        CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(enrolment, (EnrolmentEvaluation) null);
     }
 
     private static final String _ANNUL_URI = "/annul/";

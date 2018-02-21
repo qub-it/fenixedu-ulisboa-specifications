@@ -88,16 +88,17 @@ abstract public class CurriculumAggregatorServices {
                 && (year == null || getCurriculumAggregatorFirstExecutionYear().isBeforeOrEquals(year));
     }
 
-    static public void updateAggregatorEvaluation(final EnrolmentEvaluation entryEvaluation) {
+    static public void updateAggregatorEvaluationTriggeredByEntry(final EnrolmentEvaluation entryEvaluation) {
         final Enrolment entryLine = entryEvaluation.getEnrolment();
-        updateAggregatorEvaluation(entryLine, entryEvaluation);
+        updateAggregatorEvaluationTriggeredByEntry(entryLine, entryEvaluation);
     }
 
-    static public void updateAggregatorEvaluation(final CurriculumLine entryLine) {
-        updateAggregatorEvaluation(entryLine, (EnrolmentEvaluation) null);
+    static public void updateAggregatorEvaluationTriggeredByEntry(final CurriculumLine entryLine) {
+        updateAggregatorEvaluationTriggeredByEntry(entryLine, (EnrolmentEvaluation) null);
     }
 
-    static public void updateAggregatorEvaluation(final CurriculumLine entryLine, final EnrolmentEvaluation entryEvaluation) {
+    static public void updateAggregatorEvaluationTriggeredByEntry(final CurriculumLine entryLine,
+            final EnrolmentEvaluation entryEvaluation) {
 
         if (isAggregationsActive(entryLine.getExecutionYear())) {
 
@@ -108,7 +109,7 @@ abstract public class CurriculumAggregatorServices {
                     .filter(i -> i.getCurricularCourse() != entryLine.getDegreeModule()).findFirst().orElse(null);
 
             if (aggregator != null) {
-                aggregator.updateEvaluation(entryLine, entryEvaluation);
+                aggregator.updateEvaluationTriggeredByEntry(entryLine, entryEvaluation);
             }
         }
     }

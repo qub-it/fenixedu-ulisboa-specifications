@@ -26,6 +26,7 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -43,6 +45,8 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -55,8 +59,6 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
-import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -72,7 +74,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
     /**
      * Attention: Enrolments are dealt with explicitly upon their grade change, since (un)enrol doesn't change aggregator grade.
-     * See other usages of CurriculumAggregatorServices.updateAggregatorEvaluation(CurriculumLine)
+     * See other usages of CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(CurriculumLine)
      */
     static {
         Dismissal.getRelationDegreeModuleCurriculumModule().addListener(CurriculumAggregatorListeners.ON_CREATION);
@@ -290,8 +292,12 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return competenceScale != null ? competenceScale : getCurricularCourse().getGradeScaleChain();
     }
 
-    private boolean isWithMarkSheet() {
+    public boolean isWithMarkSheet() {
         return getEvaluationType() == AggregationMemberEvaluationType.WITH_MARK_SHEET;
+    }
+
+    public boolean isWithLooseEvaluation() {
+        return isWithoutMarkSheet();
     }
 
     private boolean isWithoutMarkSheet() {
@@ -310,14 +316,40 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getEnrolmentType() == AggregationEnrolmentType.ONLY_AGGREGATOR_ENTRIES;
     }
 
-    protected void updateEvaluation(final CurriculumLine entryLine, final EnrolmentEvaluation entryEvaluation) {
-
+    protected void updateEvaluationTriggeredByEntry(final CurriculumLine entryLine, final EnrolmentEvaluation entryEvaluation) {
         final Enrolment enrolment = getLastEnrolment(entryLine.getStudentCurricularPlan());
         if (enrolment == null) {
             return;
         }
 
-        final EnrolmentEvaluation evaluation = getEnrolmentEvaluation(enrolment, entryEvaluation);
+        updateEvaluation(getEnrolmentEvaluation(enrolment, entryEvaluation));
+    }
+
+    /**
+     * Method to force update of an aggregator enrolment
+     */
+    public void updateEvaluation(final Enrolment enrolment) {
+        if (enrolment == null) {
+            return;
+        }
+
+        if (enrolment.getCurricularCourse() != getCurricularCourse()) {
+            return;
+        }
+
+        if (!isValid(enrolment.getExecutionYear())) {
+            return;
+        }
+
+        final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
+        if (enrolment != getLastEnrolment(plan)) {
+            return;
+        }
+
+        updateEvaluation(getEnrolmentEvaluation(enrolment, (EnrolmentEvaluation) null));
+    }
+
+    private void updateEvaluation(final EnrolmentEvaluation evaluation) {
         if (evaluation == null) {
             return;
         }
@@ -325,8 +357,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         if (isWithMarkSheet()) {
             updateMarkSheets(evaluation);
 
-        } else if (isWithoutMarkSheet()) {
-            updateGrade(evaluation);
+        } else if (isWithLooseEvaluation()) {
+            updateLooseEvaluation(evaluation);
         }
     }
 
@@ -334,23 +366,43 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         EnrolmentEvaluation result = null;
 
         final EvaluationSeason season = getEvaluationSeason(enrolment, entryEvaluation);
-        final Set<EnrolmentEvaluation> evaluations =
-                enrolment.getEvaluationsSet().stream().filter(i -> i.getEvaluationSeason() == season).collect(Collectors.toSet());
 
-        if (evaluations.isEmpty() && season != getEvaluationSeason()) {
-            result = new EnrolmentEvaluation(enrolment, season);
-            if (season.isImprovement()) {
-                result.setExecutionPeriod(entryEvaluation.getExecutionPeriod());
+        final Set<EnrolmentEvaluation> evaluations = enrolment.getEvaluationsSet();
+        final Set<EnrolmentEvaluation> evaluationsOfSeason =
+                evaluations.stream().filter(i -> i.getEvaluationSeason() == season).collect(Collectors.toSet());
+
+        if (evaluationsOfSeason.size() == 1) {
+            result = evaluationsOfSeason.iterator().next();
+
+        } else if (evaluationsOfSeason.size() > 1) {
+            throw new DomainException("error.CurriculumAggregator.unexpected.number.of.EnrolmentEvaluations");
+
+        } else if (evaluationsOfSeason.isEmpty()) {
+
+            if (isWithLooseEvaluation()) {
+
+                // try to use default season evaluation
+                if (evaluations.size() == 1) {
+                    final EnrolmentEvaluation candidate = evaluations.iterator().next();
+                    if (!candidate.isFinal() && candidate.getCompetenceCourseMarkSheet() == null && candidate
+                            .getEvaluationSeason() == EvaluationConfiguration.getInstance().getDefaultEvaluationSeason()) {
+                        result = candidate;
+                        result.setEvaluationSeason(season);
+                    }
+                }
             }
 
-        } else if (evaluations.size() == 1) {
-            result = evaluations.iterator().next();
+            if (result == null && (isWithLooseEvaluation()
 
-            // TODO legidio, this method is being used for updating both grades and sheets and unfortunately sheets don't convert the default enrolment evaluation
-            // removing this for now, since before this we are filtering sheets by evaluation season
-            //
-            // seems redundant, but we want to convert the default season evaluation if that's the one we found
-            // result.setEvaluationSeason(season);
+                    // with mark sheet must not create evaluation seasons unless we're dealing with an improvement of different year
+                    || season != getEvaluationSeason())) {
+
+                result = new EnrolmentEvaluation(enrolment, season);
+            }
+
+            if (result != null && season.isImprovement()) {
+                result.setExecutionPeriod(entryEvaluation.getExecutionPeriod());
+            }
         }
 
         return result;
@@ -363,6 +415,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         if (entrySeason != null && entrySeason.isImprovement()
                 && enrolment.getExecutionYear() != entryEvaluation.getExecutionPeriod().getExecutionYear()) {
 
+            // must prepare enrolment evaluation in aggregator enrolment if entry enrolment had an improvement in a different year
             result = EvaluationSeason.readSpecialAuthorizations().filter(i -> i.isImprovement()).findAny().orElse(null);
         }
 
@@ -373,35 +426,59 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return result;
     }
 
-    private void updateGrade(final EnrolmentEvaluation evaluation) {
+    private void updateLooseEvaluation(final EnrolmentEvaluation evaluation) {
+        if (!isWithLooseEvaluation()) {
+            return;
+        }
+
         final Enrolment enrolment = evaluation.getEnrolment();
         final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
 
         final Grade conclusionGrade = calculateConclusionGrade(plan);
         final Date conclusionDate = calculateConclusionDate(plan);
-        if (!conclusionGrade.isEmpty()) {
 
-            evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
-            final Date availableDate = new Date();
-            evaluation.edit(Authenticate.getUser().getPerson(), conclusionGrade, availableDate, conclusionDate);
-            evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescriptionDefault().getContent());
+        if (conclusionGrade.isEmpty()) {
 
-        } else {
-
-            // check if evaluation needs to be removed
-            if (evaluation != null) {
+            // might have been with mark sheet in previous configurations
+            if (evaluation.getCompetenceCourseMarkSheet() == null) {
                 logger.debug("Aggregator is not concluded, will remove existing evaluation in {} at {}",
                         getCurricularCourse().getOneFullName(), enrolment.getExecutionPeriod().getQualifiedName());
 
                 evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
                 evaluation.delete();
             }
+
+        } else if (!isGradeEquals(evaluation.getGrade(), conclusionGrade)) {
+            evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+            final Date availableDate = new Date();
+            evaluation.edit(Authenticate.getUser().getPerson(), conclusionGrade, availableDate, conclusionDate);
+            evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescriptionDefault().getContent());
         }
 
         EnrolmentServices.updateState(enrolment);
     }
 
+    static private boolean isGradeEquals(final Grade before, final Grade after) {
+
+        // grade scale factor might have changed through the years
+        if (before.isNumeric() && after.isNumeric()) {
+            final RoundingMode round = RoundingMode.HALF_UP;
+            return before.getNumericValue().setScale(0, round).equals(after.getNumericValue().setScale(0, round));
+        }
+
+        // manual loose evaluation or mark sheet non-approval might have occoured
+        if (!before.isApproved() && !after.isApproved()) {
+            return true;
+        }
+
+        return before.equals(after);
+    }
+
     private void updateMarkSheets(final EnrolmentEvaluation evaluation) {
+        if (!isWithMarkSheet()) {
+            return;
+        }
+
         final Enrolment enrolment = evaluation.getEnrolment();
         final StudentCurricularPlan plan = enrolment.getStudentCurricularPlan();
 

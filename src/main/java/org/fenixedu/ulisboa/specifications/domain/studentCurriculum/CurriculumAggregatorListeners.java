@@ -76,7 +76,7 @@ abstract public class CurriculumAggregatorListeners {
                     }
 
                     checkToEnrol(dismissal);
-                    CurriculumAggregatorServices.updateAggregatorEvaluation(dismissal);
+                    CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(dismissal);
                 }
             };
 
@@ -96,7 +96,7 @@ abstract public class CurriculumAggregatorListeners {
             }
 
             checkToRemove(dismissal);
-            CurriculumAggregatorServices.updateAggregatorEvaluation(dismissal);
+            CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(dismissal);
         }
     };
 

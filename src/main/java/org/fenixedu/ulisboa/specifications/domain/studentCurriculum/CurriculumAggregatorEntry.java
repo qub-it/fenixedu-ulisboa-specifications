@@ -239,7 +239,8 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                         // note that enrolments prior or equal to aggregator's Since may belong to another configuration
                         && i.getExecutionYear().isAfterOrEquals(getSince())
 
-                        && getContext().isValid(i.getExecutionPeriod()))
+                        // Dismissals may be in different semester
+                        && (i.isDismissal() || getContext().isValid(i.getExecutionPeriod())))
 
                         .max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
             }
