@@ -467,7 +467,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         // manual loose evaluation or mark sheet non-approval might have occoured
-        if (!before.isApproved() && !after.isApproved()) {
+        if (!before.isEmpty() && !before.isApproved() && !after.isApproved()) {
             return true;
         }
 
