@@ -524,7 +524,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         final StudentCurricularPlan scp = getStudentCurricularPlan();
-        final Context context = CurriculumAggregatorServices.getContext(input, semester);
+        final Context context = CurriculumAggregatorServices.getContext(input, semester, (CourseGroup) null);
         final CurriculumAggregator aggregator =
                 CurriculumAggregatorServices.getAggregationRoot(context, semester.getExecutionYear());
 

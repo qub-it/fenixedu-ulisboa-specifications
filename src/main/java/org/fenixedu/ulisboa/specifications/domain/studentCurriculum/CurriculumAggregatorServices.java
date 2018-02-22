@@ -147,8 +147,9 @@ abstract public class CurriculumAggregatorServices {
                                     // note that we want to investigate enrolments prior or equal to the curriculum line year
                                     && i.getExecutionYear().isBeforeOrEquals(lineYear)
 
-                            // ATTENTION: we CANNOT make sure aggregator and entries are from the same semester - because they actually can
+                            // ATTENTION: we CANNOT make sure aggregator and entries are from the same semester - because they actually can be different
                             // && contemporaryRoot.getContext().containsSemester(i.getExecutionPeriod().getSemester())
+
                             ).collect(Collectors.toList());
 
                     final CurriculumLine rootLine =
@@ -294,8 +295,8 @@ abstract public class CurriculumAggregatorServices {
                         degreeModule == null ? null : degreeModule.getOneFullName());
             }
 
-            // Passing an execution semester just to try to capture less possible contexts
-            result = getContext(degreeModule, input.getExecutionPeriod());
+            // Passing an execution semester and course group just to try to capture less possible contexts
+            result = getContext(degreeModule, input.getExecutionPeriod(), input.getCurriculumGroup().getDegreeModule());
         }
 
         return result;
@@ -310,12 +311,13 @@ abstract public class CurriculumAggregatorServices {
      * 
      * ExecutionSemester should be as close as possible to the business logic being addressed
      */
-    static public Context getContext(final DegreeModule input, final ExecutionSemester semester) {
+    static public Context getContext(final DegreeModule input, final ExecutionSemester semester, final CourseGroup group) {
         if (input == null) {
             return null;
         }
 
-        final String key = String.format("%s#%s", input.getExternalId(), semester == null ? "null" : semester.getExternalId());
+        final String key = String.format("%s#%s#%s", input.getExternalId(), semester == null ? "null" : semester.getExternalId(),
+                group == null ? "null" : group.getExternalId());
 
         try {
             return CACHE_CONTEXTS.get(key, new Callable<Context>() {
@@ -324,20 +326,27 @@ abstract public class CurriculumAggregatorServices {
                     logger.debug(String.format("Miss on Context cache [%s %s]", new DateTime(), key));
 
                     Context result = null;
-
                     if (input != null && isAggregationsActive(null)) {
-                        final List<Context> parentContexts = input.getParentContextsSet().stream()
+
+                        final Set<Context> candidates = input.getParentContextsSet().stream()
                                 .filter(i -> semester == null || i.isValid(semester))
-                                .sorted((x,
-                                        y) -> -x.getBeginExecutionPeriod().compareExecutionInterval(y.getBeginExecutionPeriod()))
-                                .collect(Collectors.toList());
-                        result = parentContexts.isEmpty() ? null : parentContexts.iterator().next();
-                        if (parentContexts.size() != 1 && result != null) {
-                            logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
-                                    result.getBeginExecutionPeriod().getQualifiedName(),
-                                    result.getEndExecutionPeriod() == null ? "X" : result.getEndExecutionPeriod()
-                                            .getQualifiedName(),
-                                    result);
+                                .filter(i -> group == null || i.getParentCourseGroup() == group).collect(Collectors.toSet());
+
+                        if (candidates.size() == 1) {
+                            result = candidates.iterator().next();
+
+                        } else if (candidates.size() > 1) {
+                            // gave up at filter, just choose the most recent one
+                            result = candidates.stream().max(Comparator.comparing(Context::getBeginExecutionPeriod)
+                                    .thenComparing(Context::getVersioningCreationDate)).orElse(null);
+
+                            if (result != null) {
+                                logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
+                                        result.getBeginExecutionPeriod().getQualifiedName(),
+                                        result.getEndExecutionPeriod() == null ? "X" : result.getEndExecutionPeriod()
+                                                .getQualifiedName(),
+                                        result);
+                            }
                         }
                     }
 
@@ -362,7 +371,7 @@ abstract public class CurriculumAggregatorServices {
                 if (competence != null) {
 
                     for (final CurricularCourse iter : competence.getAssociatedCurricularCoursesSet()) {
-                        final Context context = getContext(iter, (ExecutionSemester) null);
+                        final Context context = getContext(iter, (ExecutionSemester) null, (CourseGroup) null);
                         if (context != null && !context.getCurriculumAggregatorEntrySet().isEmpty()) {
                             return true;
                         }
