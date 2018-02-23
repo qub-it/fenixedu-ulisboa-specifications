@@ -387,7 +387,7 @@ abstract public class CurriculumAggregatorServices {
         final Set<Context> result = Sets.newLinkedHashSet();
 
         for (final CurriculumAggregator aggregator : getAggregationRoots(context, year)) {
-            result.addAll(collectEnrolmentContexts(aggregator, CurriculumAggregator::getEnrolmentMasterContexts));
+            result.addAll(collectEnrolmentContexts(aggregator, year, CurriculumAggregator::getEnrolmentMasterContexts));
         }
 
         return result;
@@ -397,13 +397,13 @@ abstract public class CurriculumAggregatorServices {
         final Set<Context> result = Sets.newLinkedHashSet();
 
         for (final CurriculumAggregator aggregator : getAggregationRoots(context, year)) {
-            result.addAll(collectEnrolmentContexts(aggregator, CurriculumAggregator::getEnrolmentSlaveContexts));
+            result.addAll(collectEnrolmentContexts(aggregator, year, CurriculumAggregator::getEnrolmentSlaveContexts));
         }
 
         return result;
     }
 
-    static private Set<Context> collectEnrolmentContexts(final CurriculumAggregator input,
+    static private Set<Context> collectEnrolmentContexts(final CurriculumAggregator input, final ExecutionYear year,
             final Function<CurriculumAggregator, Set<Context>> function) {
 
         final Set<Context> result = Sets.newLinkedHashSet();
@@ -414,10 +414,10 @@ abstract public class CurriculumAggregatorServices {
             result.addAll(contexts);
 
             for (final Context context : contexts) {
-                for (final CurriculumAggregator aggregator : getAggregationRoots(context, input.getSince())) {
+                for (final CurriculumAggregator aggregator : getAggregationRoots(context, year)) {
 
                     if (aggregator != input) {
-                        result.addAll(collectEnrolmentContexts(aggregator, function));
+                        result.addAll(collectEnrolmentContexts(aggregator, year, function));
                     }
                 }
             }
