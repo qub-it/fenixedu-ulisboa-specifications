@@ -121,7 +121,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         return Bennu.getInstance().getCreditsReasonTypesSet();
     }
 
-    public LocalizedString getInfo(final Dismissal dismissal, final boolean overrideInfoExplained) {
+    public LocalizedString getInfo(final ICurriculumEntry entry, final Dismissal dismissal, final boolean hideDetails) {
         final Builder result = new LocalizedString.Builder();
         final Credits credits = dismissal.getCredits();
 
@@ -134,17 +134,26 @@ public class CreditsReasonType extends CreditsReasonType_Base {
 
             result.append(getInfoText().toLocalizedString());
 
-            if (getInfoExplained() && !overrideInfoExplained) {
+            if (!hideDetails) {
 
-                final LocalizedString explanation = getExplanation(dismissal);
-                if (!explanation.isEmpty()) {
-                    // TODO legidio, prefix for CreditsDismissal
-                    final LocalizedString prefix = ULisboaSpecificationsUtil.bundleI18N(credits
-                            .isSubstitution() ? "info.CreditsReasonType.explained.Substitution" : "info.CreditsReasonType.explained.Equivalence");
-                    result.append(prefix, " - ");
-                    result.append(explanation, ": ");
+                if (entry instanceof ExternalEnrolment) {
+                    //substitution
+                    addExternalEnrolmentInformation(result, (ExternalEnrolment) entry, false);
+                }
+
+                if (getInfoExplained()) {
+
+                    final LocalizedString explanation = getExplanation(dismissal);
+                    if (!explanation.isEmpty()) {
+                        // TODO legidio, prefix for CreditsDismissal
+                        final LocalizedString prefix = ULisboaSpecificationsUtil.bundleI18N(credits
+                                .isSubstitution() ? "info.CreditsReasonType.explained.Substitution" : "info.CreditsReasonType.explained.Equivalence");
+                        result.append(prefix, " - ");
+                        result.append(explanation, ": ");
+                    }
                 }
             }
+
         }
 
         return result.build();
@@ -167,41 +176,8 @@ public class CreditsReasonType extends CreditsReasonType_Base {
 
                         if (!(i instanceof ExternalEnrolment)) {
                             result.append(i.getName().toLocalizedString(), ", ");
-
                         } else {
-
-                            final ExternalEnrolment external = (ExternalEnrolment) i;
-                            final List<Unit> unitFullPath =
-                                    UnitUtils.getUnitFullPath(external.getExternalCurricularCourse().getUnit(),
-                                            Lists.newArrayList(AccountabilityTypeEnum.GEOGRAPHIC,
-                                                    AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE,
-                                                    AccountabilityTypeEnum.ACADEMIC_STRUCTURE));
-
-                            Unit countryUnit = null;
-                            if (getInfoExplainedWithCountry()) {
-                                for (final Unit iter : unitFullPath) {
-                                    if (iter.isCountryUnit()) {
-                                        countryUnit = iter;
-                                        break;
-                                    }
-                                }
-
-                                if (countryUnit != null) {
-                                    result.append(countryUnit.getNameI18n().toLocalizedString(), ", ");
-                                }
-                            }
-
-                            Unit institutionUnit = null;
-                            if (getInfoExplainedWithInstitution()) {
-                                institutionUnit = external.getAcademicUnit();
-                                if (institutionUnit != null) {
-                                    result.append(institutionUnit.getNameI18n().toLocalizedString(),
-                                            countryUnit != null ? " > " : ", ");
-                                }
-                            }
-
-                            result.append(i.getName().toLocalizedString(),
-                                    countryUnit != null || institutionUnit != null ? " > " : ", ");
+                            addExternalEnrolmentInformation(result, (ExternalEnrolment) i, true);
                         }
 
                         addECTS(result, i);
@@ -209,6 +185,40 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         }
 
         return result.build();
+    }
+
+    private void addExternalEnrolmentInformation(final Builder result, final ExternalEnrolment external,
+            final boolean includeName) {
+
+        final List<Unit> unitFullPath = UnitUtils.getUnitFullPath(external.getExternalCurricularCourse().getUnit(),
+                Lists.newArrayList(AccountabilityTypeEnum.GEOGRAPHIC, AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE,
+                        AccountabilityTypeEnum.ACADEMIC_STRUCTURE));
+
+        Unit countryUnit = null;
+        if (getInfoExplainedWithCountry()) {
+            for (final Unit iter : unitFullPath) {
+                if (iter.isCountryUnit()) {
+                    countryUnit = iter;
+                    break;
+                }
+            }
+
+            if (countryUnit != null) {
+                result.append(countryUnit.getNameI18n().toLocalizedString(), ", ");
+            }
+        }
+
+        Unit institutionUnit = null;
+        if (getInfoExplainedWithInstitution()) {
+            institutionUnit = external.getAcademicUnit();
+            if (institutionUnit != null) {
+                result.append(institutionUnit.getNameI18n().toLocalizedString(), countryUnit != null ? " > " : ", ");
+            }
+        }
+
+        if (includeName) {
+            result.append(external.getName().toLocalizedString(), countryUnit != null || institutionUnit != null ? " > " : ", ");
+        }
     }
 
     private void addECTS(final Builder result, final ICurriculumEntry entry) {

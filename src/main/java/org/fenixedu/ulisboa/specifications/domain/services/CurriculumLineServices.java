@@ -23,6 +23,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
+import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
@@ -132,7 +133,7 @@ abstract public class CurriculumLineServices {
                     final Dismissal dismissal = (Dismissal) line;
                     final Credits credits = dismissal.getCredits();
                     final CreditsReasonType reason = credits == null ? null : credits.getReason();
-                    final LocalizedString info = reason == null ? null : reason.getInfo(dismissal, overrideInfoExplained);
+                    final LocalizedString info = reason == null ? null : reason.getInfo(entry, dismissal, overrideInfoExplained);
 
                     if (info != null && !info.isEmpty()) {
                         add(result, info);
