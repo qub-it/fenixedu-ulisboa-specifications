@@ -40,7 +40,7 @@ public class FATypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(R, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
         CONFIGURATION.put(RM, new LocalizedString(Locale.getDefault(), "Recusado(a) Maioria").with(Locale.ENGLISH, "Refused by Majority"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado(a)").with(Locale.ENGLISH, "Approved"));
-        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
+        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(ABU, new LocalizedString(Locale.getDefault(), "Aprovado(a) Bom, por Unanimidade").with(Locale.ENGLISH, "Approved Good by Unanimity"));
         CONFIGURATION.put(AD, new LocalizedString(Locale.getDefault(), "Aprovado(a) com Distinção").with(Locale.ENGLISH, "Approved with Distinction"));
         CONFIGURATION.put(ADL, new LocalizedString(Locale.getDefault(), "Aprovado(a)  com Distinção e Louvor").with(Locale.ENGLISH, "Approved with Distinction and Honors"));

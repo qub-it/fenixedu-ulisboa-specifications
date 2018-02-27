@@ -32,7 +32,7 @@ public class FBATypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     static {
         CONFIGURATION.put(R, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
         CONFIGURATION.put(D, new LocalizedString(Locale.getDefault(), "Distinção").with(Locale.ENGLISH, "Distinction"));
-        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
+        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
         CONFIGURATION.put(MB, new LocalizedString(Locale.getDefault(), "Muito Bom").with(Locale.ENGLISH, "Very good"));
         CONFIGURATION.put(BD,

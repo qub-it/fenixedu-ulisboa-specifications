@@ -31,7 +31,7 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     static {
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "BOM").with(Locale.ENGLISH, "GOOD"));
         CONFIGURATION.put(MB, new LocalizedString(Locale.getDefault(), "MUITO BOM").with(Locale.ENGLISH, "Very good"));
-        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
+        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(BD,
                 new LocalizedString(Locale.getDefault(), "Bom com Distinção").with(Locale.ENGLISH, "Good with Distinction"));
         CONFIGURATION.put(MBD, new LocalizedString(Locale.getDefault(), "Muito Bom com Distinção").with(Locale.ENGLISH,

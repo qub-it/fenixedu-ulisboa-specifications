@@ -59,7 +59,7 @@ public class FMTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(NA, new LocalizedString(Locale.getDefault(), "Não Avaliado").with(Locale.ENGLISH, "Not Evaluated"));
         CONFIGURATION.put(NAPT, new LocalizedString(Locale.getDefault(), "Não Apto").with(Locale.ENGLISH, "Does Not Fit"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
-        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
+        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
         CONFIGURATION.put(BD,
                 new LocalizedString(Locale.getDefault(), "Bom com Distinção").with(Locale.ENGLISH, "Good with Distinction"));

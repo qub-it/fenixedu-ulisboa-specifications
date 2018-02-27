@@ -37,7 +37,7 @@ public class RULTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(DL,
                 new LocalizedString(Locale.getDefault(), "Distinção e Louvor").with(Locale.ENGLISH, "Distinction and Praise"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
-        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
+        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(E, new LocalizedString(Locale.getDefault(), "Excelente").with(Locale.ENGLISH, "Excellent"));
         CONFIGURATION.put(C, new LocalizedString(Locale.getDefault(), "Creditação").with(Locale.ENGLISH, "Crediting"));
 

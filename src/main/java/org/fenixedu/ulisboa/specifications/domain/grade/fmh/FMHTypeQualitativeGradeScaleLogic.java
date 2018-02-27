@@ -39,7 +39,7 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     static {
         CONFIGURATION.put(RE, new LocalizedString(Locale.getDefault(), "Reprovado").with(Locale.ENGLISH, "Not Approved"));
-        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Enough"));
+        CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
         CONFIGURATION.put(M, new LocalizedString(Locale.getDefault(), "Maioria").with(Locale.ENGLISH, "Majority"));
         CONFIGURATION.put(U, new LocalizedString(Locale.getDefault(), "Unanimidade").with(Locale.ENGLISH, "Unanimity"));
