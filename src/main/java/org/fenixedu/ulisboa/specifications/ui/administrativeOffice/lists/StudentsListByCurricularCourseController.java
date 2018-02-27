@@ -3,7 +3,9 @@ package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.lists;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -128,51 +130,64 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
 
     @RequestMapping(value = "/executionCourseRegistrations/{executionCourse}", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
-    public @ResponseBody String getRegistrationsForExecutionCourse(
-            @PathVariable("executionCourse") ExecutionCourse executionCourse) {
-        JsonArray result = new JsonArray();
-        executionCourse.getAttendsSet().stream().map(a -> a.getRegistration()).sorted(registrationComparatorByStudentName)
-                .distinct().forEach(registration -> addStudent(result, registration));
+    public @ResponseBody String getRegistrationsForExecutionCourse(@PathVariable("executionCourse") ExecutionCourse course) {
+        final JsonArray result = new JsonArray();
+
+        addStudents(result,
+                course.getAttendsSet().stream().filter(a -> !a.getEnrolment().isAnnulled()).map(a -> a.getRegistration()));
         return new GsonBuilder().create().toJson(result);
     }
 
     @RequestMapping(value = "/classes/{class}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody String getStudentsEnroledInClass(@PathVariable("class") SchoolClass schoolClass) {
-        JsonArray result = new JsonArray();
-        schoolClass.getRegistrationsSet().stream().sorted(registrationComparatorByStudentName).distinct()
-                .forEach(registration -> addStudent(result, registration));
+        final JsonArray result = new JsonArray();
+
+        addStudents(result, schoolClass.getRegistrationsSet().stream());
         return new GsonBuilder().create().toJson(result);
     }
 
+    @SuppressWarnings("null")
     @RequestMapping(value = "/shifts/{shift}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public @ResponseBody String getStudentsEnroledInShift(@PathVariable("shift") Shift shift) {
-        JsonArray result = new JsonArray();
-        shift.getStudentsSet().stream().sorted(registrationComparatorByStudentName).distinct()
-                .forEach(registration -> addStudent(result, registration));
+        final JsonArray result = new JsonArray();
+
+        final ExecutionCourse course = shift.getExecutionCourse();
+        addStudents(result, shift.getStudentsSet().stream().filter(r -> !hasEnrolmentAnnuled(r, course)));
         return new GsonBuilder().create().toJson(result);
     }
 
-    private void addStudent(JsonArray result, Registration registration) {
+    static private boolean hasEnrolmentAnnuled(final Registration registration, final ExecutionCourse course) {
+        final Attends attends = registration == null ? null : registration.getAssociatedAttendsSet().stream()
+                .filter(a -> a.getExecutionCourse() == course).findAny().orElse(null);
+        return attends != null && attends.getEnrolment().isAnnulled();
+    }
 
-        JsonObject schoolClassJson = new JsonObject();
+    private void addStudents(final JsonArray studentsJson, final Stream<Registration> registrations) {
+        registrations.distinct().sorted(registrationComparatorByStudentName)
+                .forEach(registration -> addStudent(studentsJson, registration));
+    }
+
+    private void addStudent(final JsonArray studentsJson, final Registration registration) {
+        final JsonObject studentJson = new JsonObject();
 
         final Student student = registration.getStudent();
-        schoolClassJson.addProperty("picture", request.getContextPath() + "/user/photo/" + student.getPerson().getUsername());
-        schoolClassJson.addProperty("name", student.getName());
-        schoolClassJson.addProperty("email", calculatePersonalEmail(student));
-        schoolClassJson.addProperty("institutionalEmail", student.getPerson().getInstitutionalEmailAddressValue());
-        schoolClassJson.addProperty("studentNumber", registration.getNumber().toString());
-        schoolClassJson.addProperty("id", student.getExternalId());
-        schoolClassJson.addProperty("degreeCode", registration.getDegree().getCode());
-        schoolClassJson.addProperty("degree", registration.getLastDegreeCurricularPlan().getPresentationName());
-        schoolClassJson.addProperty("phone", registration.getPerson().getDefaultPhoneNumber());
-        schoolClassJson.addProperty("mobilePhone", registration.getPerson().getDefaultMobilePhoneNumber());
-        result.add(schoolClassJson);
+        studentJson.addProperty("picture", request.getContextPath() + "/user/photo/" + student.getPerson().getUsername());
+        studentJson.addProperty("name", student.getName());
+        studentJson.addProperty("email", calculatePersonalEmail(student));
+        studentJson.addProperty("institutionalEmail", student.getPerson().getInstitutionalEmailAddressValue());
+        studentJson.addProperty("studentNumber", registration.getNumber().toString());
+        studentJson.addProperty("id", student.getExternalId());
+        studentJson.addProperty("degreeCode", registration.getDegree().getCode());
+        studentJson.addProperty("degree", registration.getLastDegreeCurricularPlan().getPresentationName());
+        studentJson.addProperty("phone", registration.getPerson().getDefaultPhoneNumber());
+        studentJson.addProperty("mobilePhone", registration.getPerson().getDefaultMobilePhoneNumber());
+
+        studentsJson.add(studentJson);
     }
 
     //TODO remove in the future.
     //Since first time candidacy students still have unconfirmed mail addresses, we need to calculate them in a different way
-    public String calculatePersonalEmail(Student student) {
+    static public String calculatePersonalEmail(Student student) {
         Optional<EmailAddress> findFirst =
                 student.getPerson().getPartyContactsSet().stream().filter(x -> x instanceof EmailAddress)
                         .map(EmailAddress.class::cast).filter(x -> !x.getValue().endsWith("@campus.ul.pt")).findAny();
