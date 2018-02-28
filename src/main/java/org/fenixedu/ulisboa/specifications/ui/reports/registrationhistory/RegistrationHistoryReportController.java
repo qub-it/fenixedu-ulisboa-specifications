@@ -1,12 +1,10 @@
 package org.fenixedu.ulisboa.specifications.ui.reports.registrationhistory;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,10 +23,10 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.degreeStructure.RegimeType;
+import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
@@ -42,13 +40,12 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilderForXLSX;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
-import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.dto.report.registrationhistory.RegistrationHistoryReportParametersBean;
 import org.fenixedu.ulisboa.specifications.service.report.registrationhistory.RegistrationHistoryReport;
 import org.fenixedu.ulisboa.specifications.service.report.registrationhistory.RegistrationHistoryReportService;
@@ -734,6 +731,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Enrolment.code", enrolment.getCode());
                         addData("Enrolment.name", enrolment.getPresentationName().getContent());
                         addData("Enrolment.executionPeriod", evaluation.getExecutionPeriod().getQualifiedName());
+                        addData("CompetenceCourseMarkSheet.evaluationDate",
+                                EnrolmentEvaluationServices.getExamDatePresentation(evaluation));
                         addData("CurricularCourse.regime",
                                 enrolment.getCurricularCourse().getRegime(enrolment.getExecutionYear()).getLocalizedName());
                         addData("EnrolmentEvaluation.grade", evaluation.getGradeValue());
