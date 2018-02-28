@@ -1,10 +1,10 @@
 package org.fenixedu.academic.domain;
 
-enum org.fenixedu.academic.domain.GradeScale as GradeScaleSpecifications;
+enum org.fenixedu.academic.domain.GradeScale as GradeScaleAcademicExtensions;
 enum org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum as CompetenceCourseMarkSheetStateEnum;
 enum org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum as CompetenceCourseMarkSheetChangeRequestStateEnum;
 
-valueType org.fenixedu.ulisboa.specifications.domain.ShiftTypes as ShiftTypes {
+valueType org.fenixedu.academic.domain.ShiftTypes as ShiftTypes {
     externalizeWith {
         JsonElement toJson();
     }
@@ -24,17 +24,6 @@ class evaluation.config.MarkSheetSettings {
 	int requiredNumberOfShifts;
 	boolean limitCertifierToResponsibleTeacher;
 	boolean limitCreationToResponsibleTeacher;
-}
-
-relation MarkSheetSettingsRoot {
-   
-    .org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
-    	multiplicity 1..1;
-    }
-    
-    evaluation.config.MarkSheetSettings playsRole markSheetSettings {
-        multiplicity 0..1;
-    }
 }
 
 relation MarkSheetSettingsBennuRoot {
@@ -171,7 +160,7 @@ relation GradeScaleValidatorDegreeTypes {
 class evaluation.markSheet.CompetenceCourseMarkSheet {
     LocalDate evaluationDate;
     boolean printed;
-    GradeScaleSpecifications gradeScale;
+    GradeScaleAcademicExtensions gradeScale;
     LocalDate expireDate;
 }
 

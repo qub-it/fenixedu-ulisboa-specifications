@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain;
+package org.fenixedu.academic.domain;
 
 import java.util.Collection;
 
