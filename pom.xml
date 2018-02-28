@@ -80,6 +80,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
+			<artifactId>fenixedu-academic-extensions</artifactId>
+			<version>1.0.0</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury</artifactId>
 			<version>1.0.0</version>
 		</dependency>
@@ -155,17 +160,14 @@
             <version>2.2.4-1</version>
         </dependency>
         <dependency>
-
             <groupId>org.fenixedu</groupId>
             <artifactId>bennu-portal</artifactId>
             <version>3.4.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>17.0</version>
-
         </dependency>
         
         <!-- https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j -->
