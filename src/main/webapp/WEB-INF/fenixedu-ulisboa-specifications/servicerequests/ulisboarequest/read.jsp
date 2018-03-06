@@ -394,14 +394,14 @@ ${portal.toolkit()}
         href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.HISTORY_SERVICE_REQUEST_URL %>${ serviceRequest.registration.externalId }">
         <spring:message code="label.event.back.history" />
     </a>
-    <c:if test="${ serviceRequest.isSelfIssued() && serviceRequest.serviceRequestType.printable && serviceRequest.serviceRequestType.printableOnline && serviceRequest.isDelivered() && serviceRequest.isValid && serviceRequest.serviceRequestType.requestedOnline && not serviceRequest.serviceRequestType.payable }">
-        &nbsp;|&nbsp;
-        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-        &nbsp; 
-        <a class=""
-            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }">
-            <spring:message code="label.print" />
-        </a>
+    <c:if test="${ serviceRequest.isSelfIssued() && serviceRequest.serviceRequestType.printable && serviceRequest.isDelivered() && serviceRequest.isValid && serviceRequest.serviceRequestType.requestedOnline && not serviceRequest.serviceRequestType.payable }">
+<!--         &nbsp;|&nbsp; -->
+<!--         <span class="glyphicon glyphicon-print" aria-hidden="true"></span> -->
+<!--         &nbsp;  -->
+<!--         <a class="" -->
+<%--             href="${pageContext.request.contextPath}<%= ULisboaServiceRequestController.DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URL %>${ serviceRequest.externalId }"> --%>
+<%--             <spring:message code="label.print" /> --%>
+<!--         </a> -->
     </c:if>
 </div>
 </academic:notAllowed>
