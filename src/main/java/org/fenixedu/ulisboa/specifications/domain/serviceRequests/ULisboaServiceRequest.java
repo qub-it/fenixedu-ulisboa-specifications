@@ -778,15 +778,26 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         if (locale == null) {
             locale = ULisboaConstants.DEFAULT_LOCALE;
         }
+        boolean isPrintable = isToPrint();
+
         String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                 "message.ULisboaServiceRequest.conclusionNotification.subject", getDescription(), getServiceRequestNumberYear());
+
         String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                 "message.ULisboaServiceRequest.salutation.male",
                 getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                         "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+
+        String bodyDocumentMessage = "";
+        if (isPrintable) {
+            bodyDocumentMessage = " " + BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
+                    "message.ULisboaServiceRequest.conclusionNotification.body.document");
+        }
+
         String body =
                 BundleUtil.getString(ULisboaConstants.BUNDLE, locale, "message.ULisboaServiceRequest.conclusionNotification.body",
-                        salutation, getDescription(), getServiceRequestNumberYear());
+                        salutation, getDescription(), getServiceRequestNumberYear(), bodyDocumentMessage);
+
         sendEmail(emailAddress, subject, body);
     }
 

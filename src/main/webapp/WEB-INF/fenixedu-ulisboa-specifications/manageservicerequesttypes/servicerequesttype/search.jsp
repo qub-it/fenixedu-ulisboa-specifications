@@ -155,6 +155,8 @@ ${portal.toolkit()}
                             code="label.ServiceRequestType.printable" /></th>
                     <th><spring:message
                             code="label.ServiceRequestType.requestedOnline" /></th>
+                    <th><spring:message
+                            code="label.ServiceRequestType.printableOnline" /></th>
                     <%-- Operations Column --%>
                     <th></th>
                 </tr>
@@ -189,6 +191,7 @@ ${portal.toolkit()}
 "notifyUponConclusion" : "<c:if test="${searchResult.notifyUponConclusion}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.notifyUponConclusion}"><spring:message code="label.false" /></c:if>",
 "printable" : "<c:if test="${searchResult.printable}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.printable}"><spring:message code="label.false" /></c:if>",
 "requestedOnline" : "<c:if test="${searchResult.requestedOnline}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.requestedOnline}"><spring:message code="label.false" /></c:if>",
+"printableOnline" : "<c:if test="${searchResult.printableOnline}"><spring:message code="label.true" /></c:if><c:if test="${not searchResult.printableOnline}"><spring:message code="label.false" /></c:if>",
 "actions" :
 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ServiceRequestTypeController.READ_URL %>${searchResult.externalId}\"><spring:message code='label.view'/></a>" +
 " <a  class=\"btn btn-xs btn-danger\" href=\"#\" onClick=\"javascript:processDelete('${searchResult.externalId}')\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>" +
@@ -211,6 +214,7 @@ ${portal.toolkit()}
 			{ data: 'notifyUponConclusion'},
             { data: 'printable'},
             { data: 'requestedOnline'},
+            { data: 'printableOnline'},
 			{ data: 'actions',className:"all" }
 			
 		],

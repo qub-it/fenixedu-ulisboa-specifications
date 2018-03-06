@@ -186,6 +186,17 @@ ${portal.angularToolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message
+                                code="label.ServiceRequestType.printableOnline" /></th>
+                        <td><c:if
+                                test="${serviceRequestType.printableOnline}">
+                                <spring:message code="label.true" />
+                            </c:if> <c:if
+                                test="${not serviceRequestType.printableOnline}">
+                                <spring:message code="label.false" />
+                            </c:if></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message
                                 code="label.ServiceRequestType.serviceRequestCategory" /></th>
                         <td><spring:message code="${ serviceRequestType.serviceRequestCategory.qualifiedName }" /></td>
                     </tr>
