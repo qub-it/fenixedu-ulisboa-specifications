@@ -228,7 +228,7 @@ public class RegistrationDataBean implements Serializable {
         if (this.lastAcademicActDate == null) {
             final StudentCurricularPlan plan = getStudentCurricularPlan();
             this.lastAcademicActDate = plan == null ? null : CurriculumModuleServices.calculateLastAcademicActDate(plan.getRoot(),
-                    getExecutionYear());
+                    getExecutionYear(), false);
         }
 
         return this.lastAcademicActDate;

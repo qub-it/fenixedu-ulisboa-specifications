@@ -178,23 +178,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public StudentCurricularPlan getStudentCurricularPlan() {
-        if (registration.getStudentCurricularPlansSet().size() == 1) {
-            return registration.getLastStudentCurricularPlan();
-        }
-
-        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(getExecutionYear());
-
-        if (studentCurricularPlan != null) {
-            return studentCurricularPlan;
-        }
-
-        studentCurricularPlan = registration.getFirstStudentCurricularPlan();
-
-        if (studentCurricularPlan.getStartExecutionYear().isAfterOrEquals(getExecutionYear())) {
-            return studentCurricularPlan;
-        }
-
-        return null;
+        return RegistrationServices.getStudentCurricularPlan(registration, getExecutionYear());
     }
 
     private DegreeCurricularPlan getDegreeCurricularPlan() {
@@ -972,15 +956,14 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
         final PrescriptionEntry biggestEntryValue =
                 config.getPrescriptionEntriesSet().stream().sorted(comparator.reversed()).findFirst().orElse(null);
-        
-        if(biggestEntryValue != null
-                && enrolmentYearsForPrescription > biggestEntryValue.getEnrolmentYears().intValue()) {
+
+        if (biggestEntryValue != null && enrolmentYearsForPrescription > biggestEntryValue.getEnrolmentYears().intValue()) {
             return studentEcts.compareTo(biggestEntryValue.getMinEctsApproved()) < 0;
         }
 
         final PrescriptionEntry entry = config.getPrescriptionEntriesSet().stream()
-                .filter(e -> enrolmentYearsForPrescription <= e.getEnrolmentYears().intValue())
-                .sorted(comparator).findFirst().orElse(null);
+                .filter(e -> enrolmentYearsForPrescription <= e.getEnrolmentYears().intValue()).sorted(comparator).findFirst()
+                .orElse(null);
 
         if (entry == null) {
             throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReport.prescriptionConfig.is.missing");

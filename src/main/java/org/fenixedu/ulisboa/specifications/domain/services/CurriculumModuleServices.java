@@ -150,46 +150,47 @@ public class CurriculumModuleServices {
         return result;
     }
 
+    static public YearMonthDay calculateLastAcademicActDate(final CurriculumGroup group, final ExecutionYear executionYear,
+            final boolean forConclusion) {
+        return calculateLastAcademicActDate(group, new Predicate<CurriculumLine>() {
+            @Override
+            public boolean apply(final CurriculumLine toEval) {
+                return toEval.getExecutionYear() == executionYear;
+            }
+        }, forConclusion);
+    }
+
+    static public YearMonthDay calculateLastAcademicActDate(final CurriculumGroup group, final boolean forConclusion) {
+        return calculateLastAcademicActDate(group, new Predicate<CurriculumLine>() {
+            @Override
+            public boolean apply(final CurriculumLine toEval) {
+                return !forConclusion || toEval.isApproved();
+            }
+        }, forConclusion);
+    }
+
     static private YearMonthDay calculateLastAcademicActDate(final CurriculumGroup group,
-            final Predicate<CurriculumLine> predicate) {
+            final Predicate<CurriculumLine> predicate, final boolean forConclusion) {
         final SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
         for (final CurriculumLine line : group.getAllCurriculumLines()) {
             if (line.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
                 continue;
             }
 
-            // TODO legidio
-//            if (line.isAffinity()) {
-//                continue;
-//            }
+            if (CurriculumLineServices.isAffinity(line)) {
+                continue;
+            }
 
             if (!predicate.apply(line)) {
                 continue;
             }
-            final YearMonthDay lineAcademicActDate = CurriculumLineServices.getAcademicActDate(line);
+
+            final YearMonthDay lineAcademicActDate = CurriculumLineServices.getAcademicActDate(line, forConclusion);
             if (lineAcademicActDate != null) {
                 result.add(lineAcademicActDate);
             }
         }
         return result.isEmpty() ? null : result.last();
-    }
-
-    static public YearMonthDay calculateLastAcademicActDate(final CurriculumGroup group, final ExecutionYear executionYear) {
-        return calculateLastAcademicActDate(group, new Predicate<CurriculumLine>() {
-            @Override
-            public boolean apply(final CurriculumLine toEval) {
-                return toEval.getExecutionYear() == executionYear;
-            }
-        });
-    }
-
-    static public YearMonthDay calculateLastAcademicActDate(final CurriculumGroup group) {
-        return calculateLastAcademicActDate(group, new Predicate<CurriculumLine>() {
-            @Override
-            public boolean apply(final CurriculumLine toEval) {
-                return true;
-            }
-        });
     }
 
 }

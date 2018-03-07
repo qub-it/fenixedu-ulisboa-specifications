@@ -95,6 +95,7 @@ public class CurricularPeriodServices {
                 ((EnroledEnrolmentWrapper) input).getCurriculumModule()) : input.getContext().getCurricularYear();
     }
 
+    //TODO: move to CurriculumLineServices
     static public int getCurricularYear(final CurriculumLine input) {
 
         // no course group placeholder takes precedence over everything else
@@ -277,6 +278,7 @@ public class CurricularPeriodServices {
         CurricularPeriodRule.logger.debug("{}#UC {}#{} ECTS", code, curricularPeriod.getFullLabel(), credits.toPlainString());
     }
 
+    //TODO: move to CurriculumLineServices
     static public int getCurricularSemester(final CurriculumLine curriculumLine) {
 
         if (curriculumLine.isEnrolment()) {

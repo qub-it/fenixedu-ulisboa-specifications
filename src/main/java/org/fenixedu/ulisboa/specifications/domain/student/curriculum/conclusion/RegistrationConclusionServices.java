@@ -119,7 +119,7 @@ abstract public class RegistrationConclusionServices {
 
             for (final CurriculumGroup group : getCurriculumGroupsForConclusion(input.getCurriculumGroup())) {
 
-                final YearMonthDay calculated = CurriculumModuleServices.calculateLastAcademicActDate(group);
+                final YearMonthDay calculated = CurriculumModuleServices.calculateLastAcademicActDate(group, true);
                 if (calculated != null && (result == null || calculated.isAfter(result))) {
                     result = calculated;
                 }

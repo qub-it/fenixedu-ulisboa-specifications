@@ -17,17 +17,17 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
-import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
-import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -70,10 +70,12 @@ abstract public class CurriculumLineServices {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getRemarks();
     }
 
+    //TODO: rename getOverridenCurricularYear and move CurricularPeriodServices.getCurricularYear/semester to this service
     static public void setCurricularYear(final CurriculumLine curriculumLine, final Integer curricularYear) {
         CurriculumLineExtendedInformation.findOrCreate(curriculumLine).setCurricularYear(curricularYear);
     }
 
+    //TODO: rename to getOverridenCurricularYear and move CurricularPeriodServices.getCurricularYear/semester to this service
     static public Integer getCurricularYear(final CurriculumLine curriculumLine) {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation()
                 .getCurricularYear();
@@ -260,11 +262,11 @@ abstract public class CurriculumLineServices {
                 .collect(Collectors.toSet());
     }
 
-    static public YearMonthDay getAcademicActDate(final CurriculumLine input) {
+    static public YearMonthDay getAcademicActDate(final CurriculumLine input, final boolean forConclusion) {
         YearMonthDay result = null;
 
         if (Enrolment.class.isAssignableFrom(input.getClass())) {
-            result = getAcademicActDate((Enrolment) input);
+            result = getAcademicActDate((Enrolment) input, forConclusion);
 
         } else if (Dismissal.class.isAssignableFrom(input.getClass())) {
             result = getAcademicActDate((Dismissal) input);
@@ -274,16 +276,19 @@ abstract public class CurriculumLineServices {
     }
 
     static private YearMonthDay getAcademicActDate(final Dismissal input) {
-        return input.getCreationDateDateTime().toYearMonthDay();
+        return input.getCredits().getOfficialDate() != null ? input.getCredits().getOfficialDate().toDateTimeAtStartOfDay()
+                .toYearMonthDay() : input.getCreationDateDateTime().toYearMonthDay();
     }
 
-    static private YearMonthDay getAcademicActDate(final Enrolment input) {
+    static private YearMonthDay getAcademicActDate(final Enrolment input, final boolean forConclusion) {
         if (input.isAnnulled()) {
             return null;
         }
-        if (input.isApproved()) {
+
+        if (forConclusion && input.isApproved()) {
             return input.calculateConclusionDate();
         }
+
         final EnrolmentEvaluation enrolmentEvaluation = getLatestEnrolmentEvaluation(input.getEvaluationsSet());
         return enrolmentEvaluation == null ? null : enrolmentEvaluation.getExamDateYearMonthDay();
     }
@@ -295,6 +300,19 @@ abstract public class CurriculumLineServices {
 
     static public boolean isSourceOfAnyCredits(final ICurriculumEntry entry, final StudentCurricularPlan studentCurricularPlan) {
         return studentCurricularPlan.getCreditsSet().stream().anyMatch(c -> c.getIEnrolments().contains(entry));
+    }
+
+    //TODO: move method to trunk
+    static public boolean isAffinity(final CurriculumLine line) {
+        final CycleCurriculumGroup cycleCurriculumGroup = line.getParentCycleCurriculumGroup();
+
+        return cycleCurriculumGroup != null && cycleCurriculumGroup.isExternal();
+    }
+
+    static public boolean isNormal(final CurriculumLine line) {
+        return (line.getCurriculumGroup().isInternalCreditsSourceGroup()
+                || !line.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) && !isAffinity(line);
+
     }
 
 }

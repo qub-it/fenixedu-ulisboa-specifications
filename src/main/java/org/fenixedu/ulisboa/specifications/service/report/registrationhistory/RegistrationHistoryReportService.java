@@ -359,9 +359,7 @@ public class RegistrationHistoryReportService {
     }
 
     static private Predicate<Enrolment> normalEnrolmentFilter(RegistrationHistoryReport result) {
-        return e -> (e.getCurriculumGroup().isInternalCreditsSourceGroup()
-                || !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
-                && (e.getParentCycleCurriculumGroup() == null || !e.getParentCycleCurriculumGroup().isExternal());
+        return e -> CurriculumLineServices.isNormal(e);
     }
 
     static private int countFiltered(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {
