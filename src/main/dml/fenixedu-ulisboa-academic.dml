@@ -46,6 +46,11 @@ class dml.DynamicField {
 		dml.DynamicField playsRole dynamicField { multiplicity *; }
 		.org.fenixedu.academic.domain.DegreeInfo playsRole degreeInfo { multiplicity 0..1; }
 	}
+	
+	relation DynamicFieldsForParty {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		.org.fenixedu.academic.domain.organizationalStructure.Party playsRole party { multiplicity 0..1; }
+	}
 
 // ==================== END: DynamicField ====================
 
