@@ -25,9 +25,10 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet;
+package org.fenixedu.academic.dto.evaluation.markSheet;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,16 +41,14 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.services.EnrolmentServices;
+import org.fenixedu.academic.domain.student.services.StatuteServices;
+import org.fenixedu.academicextensions.domain.exceptions.AcademicExtensionsDomainException;
+import org.fenixedu.academicextensions.util.AcademicExtensionsUtil;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
-import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
-import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
@@ -65,7 +64,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     private String studentName;
     private String viewStudentCurriculum;
     private String gradeValue;
-    private Grade gradeSuggestedByAggregation;
+    private Grade gradeSuggested;
     private String degreeName;
     private String degreeCode;
     private String shifts;
@@ -73,6 +72,8 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     private LocalDate gradeAvailableDate;
     private String errorMessage;
     private String infoMessage;
+
+    private static Function<MarkBean, Grade> gradeSuggestionCalculator = bean -> Grade.createEmptyGrade();
 
     public MarkBean() {
     }
@@ -170,26 +171,22 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         final Grade current = evaluation == null ? Grade.createEmptyGrade() : evaluation.getGrade();
 
         String suggestionValue = null;
-        final Grade suggestion = getGradeSuggestedByAggregation();
+        final Grade suggestion = calculateGradeSuggested();
         if (!suggestion.isEmpty() && suggestion.compareTo(current) != 0) {
             suggestionValue = suggestion.getValue();
-            setInfoMessage(ULisboaSpecificationsUtil.bundle("info.MarkBean.gradeValue.suggestion", suggestionValue));
+            setInfoMessage(AcademicExtensionsUtil.bundle("info.MarkBean.gradeValue.suggestion", suggestionValue));
         }
 
         setGradeValue(!current.isEmpty() ? current.getValue() : suggestionValue);
     }
 
-    private Grade getGradeSuggestedByAggregation() {
-        if (this.gradeSuggestedByAggregation == null) {
-            this.gradeSuggestedByAggregation = Grade.createEmptyGrade();
-
-            final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(getEnrolment());
-            if (aggregator != null && aggregator.isCandidateForEvaluation(getEvaluationSeason())) {
-                this.gradeSuggestedByAggregation = aggregator.calculateConclusionGrade(getEnrolment().getStudentCurricularPlan());
-            }
+    private Grade calculateGradeSuggested() {
+        if (this.gradeSuggested == null) {
+            this.gradeSuggested =
+                    gradeSuggestionCalculator != null ? gradeSuggestionCalculator.apply(this) : Grade.createEmptyGrade();
         }
 
-        return this.gradeSuggestedByAggregation;
+        return this.gradeSuggested;
     }
 
     public String getGradeValue() {
@@ -284,7 +281,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
         if (hasGradeValue()) {
 
             if (!getMarkSheet().isGradeValueAccepted(getGradeValue())) {
-                setErrorMessage(ULisboaSpecificationsUtil.bundle("error.MarkBean.gradeValue.does.not.belong.to.scale",
+                setErrorMessage(AcademicExtensionsUtil.bundle("error.MarkBean.gradeValue.does.not.belong.to.scale",
                         getGradeScale().getDescription()));
 
             } else {
@@ -295,7 +292,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
                     // report concurrent mark sheet editions
                     final CompetenceCourseMarkSheet evaluationMarkSheet = evaluation.getCompetenceCourseMarkSheet();
                     if (evaluationMarkSheet != null && evaluationMarkSheet != getMarkSheet()) {
-                        setErrorMessage(ULisboaSpecificationsUtil.bundle("error.MarkBean.evaluation.already.edited",
+                        setErrorMessage(AcademicExtensionsUtil.bundle("error.MarkBean.evaluation.already.edited",
                                 getGradeScale().getDescription()));
                     }
                 }
@@ -316,10 +313,10 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     @Atomic
-    void updateGrade() {
+    public void updateGrade() {
 
         if (!getMarkSheet().isEdition()) {
-            throw new ULisboaSpecificationsDomainException("error.MarkBean.markSheet.not.edition");
+            throw new AcademicExtensionsDomainException("error.MarkBean.markSheet.not.edition");
         }
 
         final EnrolmentEvaluation evaluation = findEnrolmentEvaluation();
@@ -355,7 +352,7 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
     }
 
     @Atomic
-    void updateGradeAvailableDate() {
+    public void updateGradeAvailableDate() {
         final EnrolmentEvaluation evaluation = findEnrolmentEvaluation();
         if (evaluation != null && getGradeAvailableDate() != null) {
 
@@ -365,6 +362,10 @@ public class MarkBean implements IBean, Comparable<MarkBean> {
                 evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay(getGradeAvailableDate()));
             }
         }
+    }
+
+    public static void setGradeSuggestionCalculator(Function<MarkBean, Grade> gradeSuggestionCalculator) {
+        MarkBean.gradeSuggestionCalculator = gradeSuggestionCalculator;
     }
 
 }

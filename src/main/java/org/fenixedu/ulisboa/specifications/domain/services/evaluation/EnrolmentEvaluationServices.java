@@ -1,35 +1,18 @@
 package org.fenixedu.ulisboa.specifications.domain.services.evaluation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.function.Consumer;
-
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
-import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
 
-public class EnrolmentEvaluationServices {
-
-    static final public String EVALUATION_DATE_FORMAT = "yyyy-MM-dd";
-    static final public String EVALUATION_DATE_TIME_FORMAT = EVALUATION_DATE_FORMAT + " HH:mm";
-
-    private static final Collection<Consumer<EnrolmentEvaluation>> STATE_CHANGE_LISTENERS = new ArrayList<>();
-
-    static public void onStateChange(EnrolmentEvaluation evaluation) {
-        STATE_CHANGE_LISTENERS.forEach(c -> c.accept(evaluation));
-    }
-
-    static public void registerStateChangeListener(final Consumer<EnrolmentEvaluation> listener) {
-        STATE_CHANGE_LISTENERS.add(listener);
-    }
+public class EnrolmentEvaluationServices extends org.fenixedu.academic.domain.evaluation.services.EnrolmentEvaluationServices {
 
     static public void setRemarks(final EnrolmentEvaluation enrolmentEvaluation, final String remarks) {
         EnrolmentEvaluationExtendedInformation.findOrCreate(enrolmentEvaluation).setRemarks(remarks);

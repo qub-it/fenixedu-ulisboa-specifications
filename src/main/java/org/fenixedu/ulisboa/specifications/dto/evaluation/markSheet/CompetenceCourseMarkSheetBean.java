@@ -58,6 +58,7 @@ import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkShe
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonShiftType;
+import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;

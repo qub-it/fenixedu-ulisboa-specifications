@@ -28,6 +28,7 @@ package org.fenixedu.ulisboa.specifications.servlet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -40,6 +41,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.Qualification;
@@ -48,11 +50,16 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
+import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
+import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
@@ -76,10 +83,6 @@ import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularC
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
-import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
-import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20AbsoluteGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20GradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
@@ -92,6 +95,8 @@ import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedIn
 import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.ConclusionProcessListenersInitializer;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EctsAndWeightProviders;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EnrolmentManagerFactoryInitializer;
@@ -130,6 +135,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         MarkSheetSettings.init();
         configurePortal();
         configureGradeScaleLogics();
+        configureMarkSheetSpecifications();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
         EctsAndWeightProviders.init();
         EnrolmentPeriodRestrictionsInitializer.init();
@@ -143,6 +149,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         EnrolmentPredicateInitializer.init();
         EnrolmentManagerFactoryInitializer.init();
         EvaluationSeasonServices.initialize();
+        EvaluationSeasonServices.setEnrolmentsInEvaluationsDependOnAcademicalActsBlocked(
+                ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked());
         ConclusionProcessListenersInitializer.init();
         StudentCurricularPlanLayout.register();
         CurriculumLayout.register();
@@ -402,6 +410,17 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     static private void configureType20GradeScaleLogic() {
         GradeScale.TYPE20_ABSOLUTE.setLogic(new StandardType20AbsoluteGradeScaleLogic());
         GradeScale.TYPE20.setLogic(new StandardType20GradeScaleLogic());
+    }
+    
+    static private void configureMarkSheetSpecifications() {
+        MarkBean.setGradeSuggestionCalculator(bean -> {
+            final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(bean.getEnrolment());
+            if (aggregator != null && aggregator.isCandidateForEvaluation(bean.getMarkSheet().getEvaluationSeason())) {
+                return aggregator.calculateConclusionGrade(bean.getEnrolment().getStudentCurricularPlan());
+            }
+
+            return Grade.createEmptyGrade();
+        });
     }
 
     @SuppressWarnings("unchecked")

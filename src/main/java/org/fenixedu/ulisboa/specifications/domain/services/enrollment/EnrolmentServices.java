@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.services.enrollment;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -12,11 +11,8 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionSemester;
-import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.OptionalEnrolment;
-import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -30,7 +26,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 import pt.ist.fenixframework.dml.runtime.RelationListener;
 
-public class EnrolmentServices {
+public class EnrolmentServices extends org.fenixedu.academic.domain.student.services.EnrolmentServices {
 
     static private RelationListener<DegreeModule, CurriculumModule> ON_ENROLMENT_DELETION =
             new RelationAdapter<DegreeModule, CurriculumModule>() {
@@ -69,34 +65,6 @@ public class EnrolmentServices {
                     + ")";
         } else {
             return code + enrolment.getName().getContent();
-        }
-    }
-
-    static public Collection<Shift> getShiftsFor(final Enrolment enrolment, final ExecutionSemester executionSemester) {
-        return enrolment.getRegistration().getShiftsFor(enrolment.getExecutionCourseFor(executionSemester));
-    }
-
-    static public boolean containsAnyShift(final Enrolment enrolment, final ExecutionSemester executionSemester,
-            final Collection<Shift> shifts) {
-        return getShiftsFor(enrolment, executionSemester).stream().anyMatch(s -> shifts.contains(s));
-    }
-
-    static public String getShiftsDescription(final Enrolment enrolment, final ExecutionSemester executionSemester) {
-        return getShiftsFor(enrolment, executionSemester).stream().map(s -> s.getNome()).collect(Collectors.joining(", "));
-    }
-
-    static public EnrollmentState calculateState(final Enrolment enrolment) {
-        final Grade finalGrade = enrolment.getGrade();
-        return finalGrade.isEmpty() ? EnrollmentState.ENROLLED : finalGrade.getEnrolmentState();
-    }
-
-    static public void updateState(final Enrolment enrolment) {
-        // TODO legidio 
-        // before enabling this, must delete dissertation enrolment wrongly associated with non terminal program conclusions
-        // checkForConclusionProcessVersions(enrolment);
-
-        if (!enrolment.isAnnulled()) {
-            enrolment.setEnrollmentState(calculateState(enrolment));
         }
     }
 

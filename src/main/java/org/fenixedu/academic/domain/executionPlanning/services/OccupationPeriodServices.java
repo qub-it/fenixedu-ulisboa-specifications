@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.services;
+package org.fenixedu.academic.domain.executionPlanning.services;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,8 +16,8 @@ import org.fenixedu.academic.domain.OccupationPeriod;
 import org.fenixedu.academic.domain.OccupationPeriodReference;
 import org.fenixedu.academic.domain.OccupationPeriodType;
 import org.fenixedu.academic.util.date.IntervalTools;
+import org.fenixedu.academicextensions.domain.exceptions.AcademicExtensionsDomainException;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -85,19 +85,19 @@ abstract public class OccupationPeriodServices {
         final Set<OccupationPeriodReference> references = input.getExecutionDegreesSet();
 
         if (references.isEmpty()) {
-            throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.required.ExecutionDegree");
+            throw new AcademicExtensionsDomainException("error.OccupationPeriod.required.ExecutionDegree");
         }
 
         // All OccupationPeriodReference must have executionDegrees of exactly one ExecutionYear
         final ExecutionYear year = references.iterator().next().getExecutionDegree().getExecutionYear();
         for (final OccupationPeriodReference reference : references) {
             if (reference.getExecutionDegree().getExecutionYear() != year) {
-                throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.inconsistent.ExecutionYear");
+                throw new AcademicExtensionsDomainException("error.OccupationPeriod.inconsistent.ExecutionYear");
             }
         }
 
         if (input.getIntervals().isEmpty()) {
-            throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.required.Interval");
+            throw new AcademicExtensionsDomainException("error.OccupationPeriod.required.Interval");
         }
     }
 
@@ -221,7 +221,7 @@ abstract public class OccupationPeriodServices {
                 final Interval interval = iterator.next();
 
                 if (equals(interval, toAdd)) {
-                    throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.duplicate.Interval",
+                    throw new AcademicExtensionsDomainException("error.OccupationPeriod.duplicate.Interval",
                             getIntervalDescription(interval));
                 }
 
@@ -241,12 +241,12 @@ abstract public class OccupationPeriodServices {
                 }
 
                 if (interval.contains(toAdd.getStart())) {
-                    throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.inconsistent.Interval.start",
+                    throw new AcademicExtensionsDomainException("error.OccupationPeriod.inconsistent.Interval.start",
                             getIntervalDescription(interval));
                 }
 
                 if (interval.contains(toAdd.getEnd())) {
-                    throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.inconsistent.Interval.end",
+                    throw new AcademicExtensionsDomainException("error.OccupationPeriod.inconsistent.Interval.end",
                             getIntervalDescription(interval));
                 }
             }
@@ -271,7 +271,7 @@ abstract public class OccupationPeriodServices {
             }
 
             if (current.size() == getIntervals(partner).size()) {
-                throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.interval.not.found");
+                throw new AcademicExtensionsDomainException("error.OccupationPeriod.interval.not.found");
             }
 
             editIntervals(partner, current);
@@ -280,7 +280,7 @@ abstract public class OccupationPeriodServices {
 
     static private void editIntervals(final OccupationPeriodPartner partner, final List<Interval> intervals) {
         if (intervals.isEmpty()) {
-            throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.required.Interval");
+            throw new AcademicExtensionsDomainException("error.OccupationPeriod.required.Interval");
         }
         Collections.sort(intervals, COMPARATOR_INTERVAL);
 
@@ -341,7 +341,7 @@ abstract public class OccupationPeriodServices {
         final Set<OccupationPeriodReference> references = getReferences(partner);
         final OccupationPeriodType periodType = references.iterator().next().getPeriodType();
         if (!references.stream().allMatch(i -> i.getPeriodType() == periodType)) {
-            throw new ULisboaSpecificationsDomainException("error.OccupationPeriod.inconsistent.PeriodType");
+            throw new AcademicExtensionsDomainException("error.OccupationPeriod.inconsistent.PeriodType");
         }
 
         return periodType;
