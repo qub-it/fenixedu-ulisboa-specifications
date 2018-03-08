@@ -28,7 +28,6 @@ package org.fenixedu.ulisboa.specifications.servlet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.function.Function;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -96,6 +95,7 @@ import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVeri
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.ConclusionProcessListenersInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.EctsAndWeightProviders;
@@ -411,7 +411,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         GradeScale.TYPE20_ABSOLUTE.setLogic(new StandardType20AbsoluteGradeScaleLogic());
         GradeScale.TYPE20.setLogic(new StandardType20GradeScaleLogic());
     }
-    
+
     static private void configureMarkSheetSpecifications() {
         MarkBean.setGradeSuggestionCalculator(bean -> {
             final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(bean.getEnrolment());
@@ -421,6 +421,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
             return Grade.createEmptyGrade();
         });
+
+        CurriculumAggregatorMarkSheetServices.init();
     }
 
     @SuppressWarnings("unchecked")
