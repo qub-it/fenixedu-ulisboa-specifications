@@ -21,9 +21,10 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String AMBD = "AMBD";
     private static final String AMB = "AMB";
     private static final String A = "A";
+    private static final String AD = "AD";
     private static final String ADL = "ADL";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(SU, A, ADL, B, BD, AMB, MB, MBD, AMBD);
+    private static final List<String> SORTED_GRADES = Arrays.asList(SU, A, AD, ADL, B, BD, AMB, MB, MBD, AMBD);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
@@ -41,6 +42,8 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(AMB, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom").with(Locale.ENGLISH,
                 "Approved with Very Good"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
+        CONFIGURATION.put(AD, new LocalizedString(Locale.getDefault(), "Aprovado com Distinção").with(Locale.ENGLISH,
+                "Approved with Distinction"));
         CONFIGURATION.put(ADL, new LocalizedString(Locale.getDefault(), "Aprovado c/distinção e louvor").with(Locale.ENGLISH,
                 "Approved with distinction and honors"));
 
