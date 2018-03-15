@@ -27,6 +27,8 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -236,8 +238,9 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
                 result = plan.getAllCurriculumLines().stream().filter(i -> i.getDegreeModule() == getCurricularCourse()
 
-                        // note that enrolments prior or equal to aggregator's Since may belong to another configuration
-                        && i.getExecutionYear().isAfterOrEquals(getSince())
+// legidio, UL-FM-787 led me to the conclusion that, in this method, we must not filter line search based in configuration...                         
+// [OLD COMMENT]: note that enrolments prior to aggregator's Since may belong to another configuration
+//                        && i.getExecutionYear().isAfterOrEquals(getSince())
 
                         // Dismissals may be in different semester
                         && (i.isDismissal() || getContext().isValid(i.getExecutionPeriod())))

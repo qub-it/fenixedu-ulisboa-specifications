@@ -518,7 +518,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                 final Enrolment enrolment = i instanceof Enrolment ? (Enrolment) i : null;
                 return enrolment != null && enrolment.getStudentCurricularPlan() == plan
 
-                // note that enrolments prior or equal to aggregator's Since may belong to another configuration
+                // note that enrolments prior to aggregator's Since may belong to another configuration
                         && enrolment.getExecutionYear().isAfterOrEquals(getSince())
 
                         && getContext().isValid(enrolment.getExecutionPeriod())
