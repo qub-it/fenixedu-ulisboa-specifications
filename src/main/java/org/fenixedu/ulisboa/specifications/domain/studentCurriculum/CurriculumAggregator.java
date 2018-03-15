@@ -521,10 +521,11 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                 // note that enrolments prior to aggregator's Since may belong to another configuration
                         && enrolment.getExecutionYear().isAfterOrEquals(getSince())
 
+                // must assert same semester, when searching for contexts or curriculum lines
                         && getContext().isValid(enrolment.getExecutionPeriod())
 
                 // if entriesLastSemester is not null, may be redudant
-                        && (entriesLastSemester == null || enrolment.isValid(entriesLastSemester));
+                        && (entriesLastSemester == null || enrolment.getExecutionPeriod().isAfterOrEquals(entriesLastSemester));
 
             }).map(Enrolment.class::cast).max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
 
