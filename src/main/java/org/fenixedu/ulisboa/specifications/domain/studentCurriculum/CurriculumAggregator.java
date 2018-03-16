@@ -453,6 +453,9 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             final Date availableDate = new Date();
             evaluation.edit(Authenticate.getUser().getPerson(), conclusionGrade, availableDate, conclusionDate);
             evaluation.confirmSubmission(Authenticate.getUser().getPerson(), getDescriptionDefault().getContent());
+
+            // evaluate if this grade contributes to another aggregation
+            CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(evaluation);
         }
 
         EnrolmentServices.updateState(enrolment);
