@@ -37,7 +37,6 @@ import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.StudentDataShareAuthorization;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -46,7 +45,6 @@ import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.dto.student.RegistrationStateBean;
-import org.fenixedu.academic.util.StudentPersonalDataAuthorizationChoice;
 import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionConfig;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionEntry;
@@ -196,13 +194,8 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public String getStudentPersonalDataAuthorizationChoice() {
-        final ExecutionYear executionYear = getExecutionYear();
-        final Student student = getStudent();
-        final StudentDataShareAuthorization auth = student == null || executionYear == null ? null : student
-                .getPersonalDataAuthorizationAt(executionYear.getEndLocalDate().toDateTimeAtCurrentTime());
-        final StudentPersonalDataAuthorizationChoice choice = auth == null ? null : auth.getAuthorizationChoice();
-
-        return choice == null ? null : choice.getDescription();
+        // TODO legidio
+        return null;
     }
 
     public LocalDate getEnrolmentDate() {

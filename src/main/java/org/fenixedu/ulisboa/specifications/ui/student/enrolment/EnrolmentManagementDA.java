@@ -77,9 +77,6 @@ import pt.ist.fenixframework.FenixFramework;
 @Mapping(module = "ulisboa-specifications", path = "/student/enrolmentManagement")
 @Forwards(value = {
 
-        @Forward(name = "choosePersonalDataAuthorizationChoice",
-                path = "/student/enrollment/choosePersonalDataAuthorizationChoice.jsp"),
-
         @Forward(name = "chooseEnrolmentProcess", path = "/student/enrollment/chooseEnrolmentProcess.jsp"),
 
         @Forward(name = "endEnrolmentProcess", path = "/student/enrollment/endEnrolmentProcess.jsp"),
@@ -143,17 +140,16 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         return ACTION + "?method=endEnrolmentProcess";
     }
 
-    private static ExecutorService TUITION_EXECUTOR =
-            Executors.newSingleThreadExecutor( new ThreadFactory() {
+    private static ExecutorService TUITION_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactory() {
 
-                @Override
-                public Thread newThread(Runnable r) {
-                    Thread thread = new Thread(r);
-                    thread.setName("tuitionExecutorThread");
-                    thread.setDaemon(true);
-                    return thread;
-                }
-            });
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setName("tuitionExecutorThread");
+            thread.setDaemon(true);
+            return thread;
+        }
+    });
 
     public ActionForward endEnrolmentProcess(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
             final HttpServletResponse response) {
@@ -218,7 +214,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
         }
 
         @Override
-        @Atomic(mode=TxMode.READ)
+        @Atomic(mode = TxMode.READ)
         public void run() {
             final Registration registration = FenixFramework.getDomainObject(registrationId);
             final ExecutionYear executionYear = FenixFramework.getDomainObject(executionYearId);
