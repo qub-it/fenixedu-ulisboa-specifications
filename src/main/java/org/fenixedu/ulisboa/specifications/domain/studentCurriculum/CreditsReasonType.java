@@ -194,7 +194,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
                     .forEach(i -> {
 
                         if (!(i instanceof ExternalEnrolment)) {
-                            result.append(i.getName().toLocalizedString(), ", ");
+                            result.append(i.getName(), ", ");
                         } else {
                             addExternalEnrolmentInformation(result, (ExternalEnrolment) i, true);
                         }
@@ -223,7 +223,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
             }
 
             if (countryUnit != null) {
-                result.append(countryUnit.getNameI18n().toLocalizedString(), ", ");
+                result.append(countryUnit.getNameI18n(), ", ");
             }
         }
 
@@ -231,12 +231,12 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         if (getInfoExplainedWithInstitution()) {
             institutionUnit = external.getAcademicUnit();
             if (institutionUnit != null) {
-                result.append(institutionUnit.getNameI18n().toLocalizedString(), countryUnit != null ? " > " : ", ");
+                result.append(institutionUnit.getNameI18n(), countryUnit != null ? " > " : ", ");
             }
         }
 
         if (includeName) {
-            result.append(external.getName().toLocalizedString(), countryUnit != null || institutionUnit != null ? " > " : ", ");
+            result.append(external.getName(), countryUnit != null || institutionUnit != null ? " > " : ", ");
         }
     }
 
