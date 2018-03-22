@@ -63,8 +63,8 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
-import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.report.AbstractSeasonReport;
-import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetStatusReportService;
+import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
+import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;

@@ -53,7 +53,7 @@ import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkShe
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
-import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetDocumentPrintService;
+import org.fenixedu.academic.services.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
