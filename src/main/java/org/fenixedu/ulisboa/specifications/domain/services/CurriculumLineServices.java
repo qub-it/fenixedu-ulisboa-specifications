@@ -289,13 +289,13 @@ abstract public class CurriculumLineServices {
             return input.calculateConclusionDate();
         }
 
-        final EnrolmentEvaluation enrolmentEvaluation = getLatestEnrolmentEvaluation(input.getEvaluationsSet());
+        final EnrolmentEvaluation enrolmentEvaluation = getLatestEnrolmentEvaluationForAcademicAct(input.getEvaluationsSet());
         return enrolmentEvaluation == null ? null : enrolmentEvaluation.getExamDateYearMonthDay();
     }
 
-    static private EnrolmentEvaluation getLatestEnrolmentEvaluation(final Collection<EnrolmentEvaluation> evaluations) {
-        return evaluations == null ? null : evaluations.stream().filter(i -> !i.isAnnuled()).max(new EvaluationComparator())
-                .orElse(null);
+    static private EnrolmentEvaluation getLatestEnrolmentEvaluationForAcademicAct(final Collection<EnrolmentEvaluation> evaluations) {        
+            return evaluations == null ? null : evaluations.stream().filter(i -> i.isFinal())
+                    .max(Comparator.comparing(EnrolmentEvaluation::getExamDateYearMonthDay)).orElse(null);
     }
 
     static public boolean isSourceOfAnyCredits(final ICurriculumEntry entry, final StudentCurricularPlan studentCurricularPlan) {
