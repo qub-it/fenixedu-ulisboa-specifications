@@ -69,8 +69,8 @@
 		</tr>
         
     <% // qubExtension
-    final List<ExecutionCourse> executionCourses = (List<ExecutionCourse>) request.getAttribute("executionCourses");
-    Collections.sort(executionCourses, ExecutionCourse.EXECUTION_COURSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME.reversed());
+//     final List<ExecutionCourse> executionCourses = (List<ExecutionCourse>) request.getAttribute("executionCourses");
+//     Collections.sort(executionCourses, ExecutionCourse.EXECUTION_COURSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME.reversed());
     %>
 	<logic:iterate id="executionCourse" name="executionCourses" type="org.fenixedu.academic.domain.ExecutionCourse">
 			<tr>
