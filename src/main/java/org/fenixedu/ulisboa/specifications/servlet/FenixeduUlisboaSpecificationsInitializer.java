@@ -67,6 +67,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
+import org.fenixedu.cms.domain.CmsSettings;
 import org.fenixedu.cms.domain.Site;
 import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
 import org.fenixedu.treasury.domain.paymentcodes.pool.PaymentCodePool;
@@ -130,6 +131,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Atomic(mode = TxMode.SPECULATIVE_READ)
     @Override
     public void contextInitialized(final ServletContextEvent event) {
+
+        CmsSettings.init();
 
         ULisboaSpecificationsRoot.init();
         MarkSheetSettings.init();
