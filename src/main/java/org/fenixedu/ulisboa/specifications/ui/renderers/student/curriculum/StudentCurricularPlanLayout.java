@@ -25,6 +25,8 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.Collection;
@@ -65,10 +67,12 @@ import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -498,8 +502,32 @@ public class StudentCurricularPlanLayout extends Layout {
             groupName.append(" ]");
 
             if (isConcluded(curriculumGroup, getExecutionSemester().getExecutionYear(), creditsLimit).value()) {
-                groupName.append(" - <span style=\"" + CURRICULUM_GROUP_CONCLUDED + "\">")
-                        .append(i18n(Bundle.APPLICATION, "label.curriculumGroup.concluded")).append("</span>");
+                groupName.append(" - <span style=\"" + CURRICULUM_GROUP_CONCLUDED + "\">");
+                String conclusionText = i18n(Bundle.APPLICATION, "label.curriculumGroup.concluded");
+
+                final ProgramConclusion programConclusion = curriculumGroup.getDegreeModule().getProgramConclusion();
+                if (programConclusion != null && curriculumGroup == programConclusion
+                        .groupFor(this.studentCurricularPlan.getRegistration()).orElse(null)) {
+
+                    final ConclusionProcess conclusionProcess = curriculumGroup.getConclusionProcess();
+                    if (conclusionProcess != null) {
+                        final String conclusionDate = conclusionProcess.getConclusionDate().toString(DATE_FORMAT);
+                        conclusionText = i18n(Bundle.APPLICATION, "label.curriculumGroup.conclusionProcessed", conclusionDate);
+                    }
+                }
+
+                final HtmlComponent programConclusionLink = createProgramConclusionLink(conclusionText.toString(),
+                        curriculumGroup.getRegistration(), programConclusion);
+                try {
+                    StringWriter stringWriter = new StringWriter();
+                    programConclusionLink.draw(stringWriter);
+                    groupName.append(stringWriter.toString());
+                } catch (IOException e) {
+                    groupName.append(conclusionText);
+                }
+
+                groupName.append("</span>");
+
             } else if (!EnrolmentLayout.isStudentLogged(curriculumGroup.getStudentCurricularPlan())
                     && EnrolmentLayout.hasMinimumCredits(curriculumGroup, getExecutionSemester())) {
                 groupName.append(" - <span style=\"" + MINIMUM_CREDITS_CONCLUDED_IN_CURRICULUM_GROUP + "\">")
@@ -1499,6 +1527,28 @@ public class StudentCurricularPlanLayout extends Layout {
         }
 
         return new HtmlText(text);
+    }
+
+    protected HtmlComponent createProgramConclusionLink(final String text, final Registration registration,
+            final ProgramConclusion programConclusion) {
+
+        if (registration != null && programConclusion != null) {
+            boolean canManageConclusion = AcademicAuthorizationGroup
+                    .get(AcademicOperationType.MANAGE_CONCLUSION, registration.getDegree()).isMember(Authenticate.getUser());
+            if (canManageConclusion) {
+                final HtmlLink result = new HtmlLink();
+                result.setText(text);
+                result.setModuleRelative(false);
+                result.setTarget(HtmlLink.Target.BLANK);
+                result.setUrl("/academicAdministration/registration.do");
+                result.setParameter("method", "selectProgramConclusion");
+                result.setParameter("registration", registration.getExternalId());
+                result.setParameter("programConclusion", programConclusion.getExternalId());
+                return result;
+            }
+        }
+
+        return new HtmlText(text, false);
     }
 
     protected HtmlLink createExecutionCourseStatisticsLink(final String text, final ExecutionCourse executionCourse) {
