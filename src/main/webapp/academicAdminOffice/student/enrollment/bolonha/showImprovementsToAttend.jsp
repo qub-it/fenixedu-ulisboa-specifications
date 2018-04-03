@@ -114,7 +114,7 @@
 	<c:forEach items="${improvementAttendsBeans}" var="bean">
 
 		<bean:define id="enrolmentId" name="bean" property="enrolment.externalId" />
-		<p class="mtop3"><strong><c:out value="${bean.enrolment.code}" /> - <c:out value="${bean.enrolment.name}" /></strong></p>
+		<p class="mtop3"><strong><c:out value="${bean.enrolment.code}" /> - <c:out value="${bean.enrolment.name.content}" /></strong></p>
 		
 		<p>
 		 	<c:if test="${empty bean.attends}">
