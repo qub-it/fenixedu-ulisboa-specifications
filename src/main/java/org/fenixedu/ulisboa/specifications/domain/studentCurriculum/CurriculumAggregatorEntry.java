@@ -204,7 +204,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     protected boolean isAggregationEvaluated(final StudentCurricularPlan plan) {
-        final CurriculumLine line = getLastCurriculumLine(plan, false);
+        final CurriculumLine line = getLastCurriculumLine(plan);
         if (line != null) {
             if (line instanceof Dismissal) {
                 return true;
@@ -219,11 +219,19 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     }
 
     public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
-        final CurriculumLine line = getLastCurriculumLine(plan, true);
+        final CurriculumLine line = getLastCurriculumLineApproved(plan);
         return line != null && line.isConcluded();
     }
 
-    public CurriculumLine getLastCurriculumLine(final StudentCurricularPlan plan, final boolean approved) {
+    public CurriculumLine getLastCurriculumLine(final StudentCurricularPlan plan) {
+        return getLastCurriculumLine(plan, false);
+    }
+    
+    public CurriculumLine getLastCurriculumLineApproved(final StudentCurricularPlan plan) {
+        return getLastCurriculumLine(plan, true);
+    }
+    
+    private CurriculumLine getLastCurriculumLine(final StudentCurricularPlan plan, final boolean approved) {
         final CurriculumLine result;
 
         final DegreeModule degreeModule = getCurricularCourse();
@@ -262,7 +270,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
         if (isAggregationConcluded(plan)) {
 
-            final CurriculumLine line = getLastCurriculumLine(plan, true);
+            final CurriculumLine line = getLastCurriculumLineApproved(plan);
             if (line != null) {
 
                 Grade grade = null;
@@ -285,7 +293,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
         if (isAggregationConcluded(plan)) {
 
-            final CurriculumLine line = getLastCurriculumLine(plan, true);
+            final CurriculumLine line = getLastCurriculumLineApproved(plan);
             if (line != null) {
 
                 if (line instanceof ICurriculumEntry) {

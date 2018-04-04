@@ -17,7 +17,6 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -293,9 +292,10 @@ abstract public class CurriculumLineServices {
         return enrolmentEvaluation == null ? null : enrolmentEvaluation.getExamDateYearMonthDay();
     }
 
-    static private EnrolmentEvaluation getLatestEnrolmentEvaluationForAcademicAct(final Collection<EnrolmentEvaluation> evaluations) {        
-            return evaluations == null ? null : evaluations.stream().filter(i -> i.isFinal())
-                    .max(Comparator.comparing(EnrolmentEvaluation::getExamDateYearMonthDay)).orElse(null);
+    static private EnrolmentEvaluation getLatestEnrolmentEvaluationForAcademicAct(
+            final Collection<EnrolmentEvaluation> evaluations) {
+        return evaluations == null ? null : evaluations.stream().filter(i -> i.isFinal())
+                .max(Comparator.comparing(EnrolmentEvaluation::getExamDateYearMonthDay)).orElse(null);
     }
 
     static public boolean isSourceOfAnyCredits(final ICurriculumEntry entry, final StudentCurricularPlan studentCurricularPlan) {
@@ -307,6 +307,21 @@ abstract public class CurriculumLineServices {
         final CycleCurriculumGroup cycleCurriculumGroup = line.getParentCycleCurriculumGroup();
 
         return cycleCurriculumGroup != null && cycleCurriculumGroup.isExternal();
+    }
+
+    static public boolean isEvaluated(final CurriculumLine line) {
+        if (line != null) {
+            if (line instanceof Dismissal) {
+                return true;
+            }
+            if (line instanceof Enrolment) {
+                final Enrolment enrolment = (Enrolment) line;
+                return enrolment.getEvaluationsSet().stream()
+                        .anyMatch(ev -> ev.getCompetenceCourseMarkSheet() != null || ev.isFinal());
+            }
+        }
+
+        return false;
     }
 
     static public boolean isNormal(final CurriculumLine line) {

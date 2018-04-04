@@ -153,7 +153,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             throw new DomainException("error.CurriculumAggregator.required.Since");
         }
 
-        final CurriculumAggregator found = CurriculumAggregatorServices.findAggregator(getContext(), getSince());
+        final CurriculumAggregator found = CurriculumAggregatorServices.getAggregatorCreatedInYear(getContext(), getSince());
         if (found != null && found != this) {
             throw new DomainException("error.CurriculumAggregator.duplicate");
         }
@@ -549,7 +549,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
             final SortedSet<CurriculumLine> lines = Sets.newTreeSet(CurriculumAggregatorServices.LINE_COMPARATOR);
             for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-                final CurriculumLine line = entry.getLastCurriculumLine(plan, false);
+                final CurriculumLine line = entry.getLastCurriculumLine(plan);
                 if (line != null) {
                     lines.add(line);
                 }

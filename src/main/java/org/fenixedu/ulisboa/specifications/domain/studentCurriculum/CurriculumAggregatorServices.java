@@ -57,6 +57,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,6 +204,26 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
+    static public CurriculumLine getLastCurriculumLine(final Context context, final ExecutionYear year,
+            final StudentCurricularPlan plan) {
+
+        CurriculumLine result = null;
+
+        final CurriculumAggregatorEntry entry = getAggregatorEntry(context, year);
+        if (entry != null) {
+            result = entry.getLastCurriculumLine(plan);
+        }
+
+        if (result == null) {
+            final CurriculumAggregator aggregator = getAggregator(context, year);
+            if (aggregator != null) {
+                result = aggregator.getLastEnrolment(plan);
+            }
+        }
+
+        return result;
+    }
+
     static public CurriculumAggregator getAggregator(final CurriculumLine line) {
         return line == null ? null : getAggregator(getContext(line), line.getExecutionYear());
     }
@@ -219,10 +240,7 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    /**
-     * Different from getAggregator because it tries to find an Aggregator EXACTLY with the given year
-     */
-    static public CurriculumAggregator findAggregator(final Context context, final ExecutionYear year) {
+    static public CurriculumAggregator getAggregatorCreatedInYear(final Context context, final ExecutionYear year) {
         CurriculumAggregator result = null;
 
         if (context != null && year != null) {
@@ -481,6 +499,10 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
+    static private boolean isEvaluated(final Context context, final ExecutionYear year, final StudentCurricularPlan plan) {
+        return CurriculumLineServices.isEvaluated(getLastCurriculumLine(context, year, plan));
+    }
+
     static private DegreeModuleToEnrol toEnrol(final Context context, final StudentCurricularPlan plan,
             final ExecutionSemester semester, final Set<Context> aboutToEnrol, final Set<IDegreeModuleToEvaluate> collection) {
 
@@ -519,20 +541,6 @@ abstract public class CurriculumAggregatorServices {
         }
 
         return result;
-    }
-
-    static private boolean isEvaluated(final Context context, final ExecutionYear year, final StudentCurricularPlan plan) {
-        final CurriculumAggregatorEntry entry = getAggregatorEntry(context, year);
-        if (entry != null && entry.isAggregationEvaluated(plan)) {
-            return true;
-        }
-
-        final CurriculumAggregator aggregator = getAggregator(context, year);
-        if (aggregator != null && aggregator.isAggregationEvaluated(plan)) {
-            return true;
-        }
-
-        return false;
     }
 
     static private CurriculumGroup findCurriculumGroupFor(final Context context, final StudentCurricularPlan plan) {
@@ -660,7 +668,7 @@ abstract public class CurriculumAggregatorServices {
     static private Collection<CurriculumLine> getChildApprovedCurriculumLines(final CurriculumLine aggregatorLine) {
         final CurriculumAggregator aggregator = CurriculumAggregatorServices.getAggregator(aggregatorLine);
         return aggregator != null ? aggregator.getEntriesSet().stream()
-                .map(entry -> entry.getLastCurriculumLine(aggregatorLine.getStudentCurricularPlan(), true))
+                .map(entry -> entry.getLastCurriculumLineApproved(aggregatorLine.getStudentCurricularPlan()))
                 .filter(Objects::nonNull).collect(Collectors.toSet()) : Collections.emptySet();
     }
 
