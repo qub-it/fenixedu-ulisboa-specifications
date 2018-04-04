@@ -686,6 +686,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("CurricularCourse.regime",
                                 enrolment.getCurricularCourse().getRegime(enrolment.getExecutionYear()).getLocalizedName());
                         addData("enrolmentDate", enrolment.getCreationDateDateTime().toString("yyyy-MM-dd HH:mm"));
+                        addData("CompetenceCourseMarkSheet.evaluationDate",
+                                EnrolmentEvaluationServices.getExamDatePresentation(finalEvaluation));
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
                         addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
