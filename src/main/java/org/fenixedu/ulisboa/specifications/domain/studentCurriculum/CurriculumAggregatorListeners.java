@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
@@ -107,6 +108,12 @@ abstract public class CurriculumAggregatorListeners {
 
         // Enrolments are dealt with explicitly upon their grade change
         if (!(curriculumModule instanceof Dismissal)) {
+            return null;
+        }
+
+        // enable a workaround for managing dismissals in NoCourseGroup without considering aggregation
+        final CurriculumGroup group = curriculumModule.getCurriculumGroup();
+        if (group != null && curriculumModule.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
             return null;
         }
 
