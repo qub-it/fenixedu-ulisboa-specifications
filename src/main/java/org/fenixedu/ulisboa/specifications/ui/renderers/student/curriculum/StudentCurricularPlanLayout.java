@@ -65,6 +65,9 @@ import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
+import org.fenixedu.academic.domain.evaluation.EvaluationServices;
+import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -77,9 +80,6 @@ import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLa
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.academic.domain.evaluation.EvaluationServices;
-import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
@@ -673,7 +673,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     static protected HtmlTableCell generateEvaluationDate(final ExternalEnrolment input, final HtmlTableRow row,
             final String classes) {
-        return generateDate(input.getEvaluationDate(), row, classes, "creationDate");
+        return generateDate(input.getEvaluationDate(), row, classes, EVALUATION_DATE_LABEL);
     }
 
     static protected HtmlTableCell generateDate(final YearMonthDay date, final HtmlTableRow row, final String classes,
@@ -782,8 +782,8 @@ public class StudentCurricularPlanLayout extends Layout {
             generateEvaluationDate(externalEnrolment, externalEnrolmentRow, getEvaluationDateCellClass());
         }
         generateCreatorIfRequired(externalEnrolmentRow, externalEnrolment.getCreatedBy());
+        generateCellWithText(externalEnrolmentRow, EMPTY_SPACE, "").setStyle(EMPTY_WIDTH); // qubExtension, remarks
         generateSpacerCellsIfRequired(externalEnrolmentRow);
-
     }
 
     protected void generateExternalEnrolmentEctsCell(HtmlTableRow externalEnrolmentRow, ExternalEnrolment externalEnrolment) {
