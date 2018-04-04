@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
@@ -60,6 +61,7 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
@@ -394,14 +396,24 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
             if (result == null && (isWithLooseEvaluation()
 
-                    // with mark sheet must not create evaluation seasons unless we're dealing with an improvement of different year
+                    // with mark sheet must not create evaluations unless we're dealing with an improvement of different year
                     || season != getEvaluationSeason())) {
 
                 result = new EnrolmentEvaluation(enrolment, season);
             }
 
             if (result != null && season.isImprovement()) {
-                result.setExecutionPeriod(entryEvaluation.getExecutionPeriod());
+                final ExecutionSemester semesterImprovement = entryEvaluation.getExecutionPeriod();
+                result.setExecutionPeriod(semesterImprovement);
+
+                // attends are necessary to be candidate for mark sheet
+                if (enrolment.getAttendsFor(semesterImprovement) == null) {
+                    final ExecutionCourse execution = EnrolmentServices.getExecutionCourseUnique(enrolment, semesterImprovement);
+
+                    if (execution != null) {
+                        AttendsServices.createAttend(enrolment, execution);
+                    }
+                }
             }
         }
 

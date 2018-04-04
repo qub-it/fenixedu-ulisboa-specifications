@@ -52,6 +52,7 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -66,8 +67,8 @@ import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.Searc
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 
 import com.google.common.collect.Lists;
 
@@ -218,11 +219,6 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
         return result;
     }
 
-    /**
-     * This is ugly, but may avoid unnecessary UI interaction.
-     * Will be useless if exists more than one execution course for this curricular course
-     * Based on org.fenixedu.academic.domain.Enrolment.createAttendForImprovement(ExecutionSemester)
-     */
     static private ImprovementAttendsBean createImprovementAttendsBeans(final Enrolment enrolment,
             final ExecutionSemester semester) {
 
@@ -230,22 +226,21 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
         if (result.getAttends() == null) {
 
             // find unique execution
-            final ExecutionCourse uniqueExecution = result.getUniqueExecutionCourse();
-            if (uniqueExecution != null) {
-                result.setAttends(AttendsServices.createAttend(enrolment, uniqueExecution));
+            final ExecutionCourse executionUnique = result.getExecutionCourseUnique();
+            if (executionUnique != null) {
+                result.setAttends(AttendsServices.createAttend(enrolment, executionUnique));
             }
         }
 
         return result;
     }
 
-    @SuppressWarnings("serial")
     static public class ImprovementAttendsBean {
 
         private Enrolment enrolment;
         private ExecutionSemester semester;
         private Attends attends;
-        private List<ExecutionCourse> executionCourses;
+        private Set<ExecutionCourse> executionCourses;
 
         private ImprovementAttendsBean(final Enrolment enrolment, final ExecutionSemester semester) {
             this.enrolment = enrolment;
@@ -269,17 +264,21 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
             return getAttends() != null && getAttends().hasAnyShiftEnrolments();
         }
 
-        public List<ExecutionCourse> getExecutionCourses() {
+        public Set<ExecutionCourse> getExecutionCourses() {
             if (executionCourses == null) {
-                executionCourses =
-                        getEnrolment().getCurricularCourse().getCompetenceCourse().getExecutionCoursesByExecutionPeriod(semester);
+                executionCourses = EnrolmentServices.getExecutionCourses(getEnrolment(), semester);
             }
 
             return executionCourses;
         }
 
-        private ExecutionCourse getUniqueExecutionCourse() {
-            return getExecutionCourses().size() != 1 ? null : getExecutionCourses().iterator().next();
+        /**
+         * This is ugly, but may avoid unnecessary UI interaction.
+         * Will be useless if exists more than one execution course for this curricular course
+         * Based on org.fenixedu.academic.domain.Enrolment.createAttendForImprovement(ExecutionSemester)
+         */
+        private ExecutionCourse getExecutionCourseUnique() {
+            return EnrolmentServices.getExecutionCourseUnique(getEnrolment(), semester);
         }
     }
 

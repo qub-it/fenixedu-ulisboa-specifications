@@ -27,18 +27,18 @@ package org.fenixedu.ulisboa.specifications.domain.student;
 
 import java.util.function.Supplier;
 
-import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
+import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,9 +122,7 @@ abstract public class EnrolmentPredicateInitializer {
                         name);
             }
 
-            final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
-            if (curricularCourse.getCompetenceCourse().getExecutionCoursesByExecutionPeriod(improvementSemester).isEmpty()) {
-
+            if (EnrolmentServices.getExecutionCourses(enrolment, improvementSemester).isEmpty()) {
                 throw new DomainException("error.EnrolmentEvaluation.improvement.required.ExecutionCourse", name,
                         improvementSemester.getQualifiedName());
             }
