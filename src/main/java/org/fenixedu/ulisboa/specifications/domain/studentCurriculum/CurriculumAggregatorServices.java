@@ -467,10 +467,11 @@ abstract public class CurriculumAggregatorServices {
 
         final Set<CurriculumModule> result = Sets.newHashSet();
 
-        for (final Context iter : collectEnrolmentSlaveContexts(context, semester.getExecutionYear())) {
+        final ExecutionYear year = semester.getExecutionYear();
+        for (final Context iter : collectEnrolmentSlaveContexts(context, year)) {
 
-            // must check if is already approved (grade or dismissal)
-            if (isApproved(iter, plan)) {
+            // must check if is already evaluated (by grade or dismissal), since we don't want to delete those
+            if (isEvaluated(iter, year, plan)) {
                 continue;
             }
 
@@ -520,17 +521,18 @@ abstract public class CurriculumAggregatorServices {
         return result;
     }
 
-    static private boolean isApproved(final Context context, final StudentCurricularPlan plan) {
-
-        boolean result = false;
-
-        final DegreeModule degreeModule = context.getChildDegreeModule();
-
-        if (degreeModule.isLeaf()) {
-            result = plan.isApproved((CurricularCourse) degreeModule);
+    static private boolean isEvaluated(final Context context, final ExecutionYear year, final StudentCurricularPlan plan) {
+        final CurriculumAggregatorEntry entry = getAggregatorEntry(context, year);
+        if (entry != null && entry.isAggregationEvaluated(plan)) {
+            return true;
         }
 
-        return result;
+        final CurriculumAggregator aggregator = getAggregator(context, year);
+        if (aggregator != null && aggregator.isAggregationEvaluated(plan)) {
+            return true;
+        }
+
+        return false;
     }
 
     static private CurriculumGroup findCurriculumGroupFor(final Context context, final StudentCurricularPlan plan) {
