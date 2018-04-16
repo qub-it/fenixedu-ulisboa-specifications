@@ -1,9 +1,8 @@
 package org.fenixedu.ulisboa.specifications.ui.renderers.validators;
 
-import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import static org.fenixedu.treasury.util.Constants.treasuryBundle;
+
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.fenixedu.treasury.util.Constants;
-import org.fenixedu.treasury.util.FiscalCodeValidation;
 
 import com.google.common.base.Strings;
 
@@ -33,7 +32,7 @@ public class FiscalCodeValidator extends HtmlValidator {
         
         setValid(TreasuryBridgeAPIFactory.implementation().isValidFiscalNumber(countryCode, fiscalCode));
         if(!isValid()) {
-            setMessage(Constants.bundle("label.DebtAccountController.invalidFiscalCode"));
+            setMessage(treasuryBundle("label.DebtAccountController.invalidFiscalCode"));
         }
     }
 
