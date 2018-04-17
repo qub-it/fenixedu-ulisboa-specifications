@@ -1,10 +1,12 @@
 package org.fenixedu.ulisboa.specifications.domain.student.mobility;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
@@ -21,6 +23,36 @@ import com.google.common.base.Strings;
 import pt.ist.fenixframework.Atomic;
 
 public class MobilityRegistrationInformation extends MobilityRegistrationInformation_Base {
+
+    private static final Comparator<MobilityRegistrationInformation> COMPARATOR_BY_BEGIN = (x, y) -> {
+
+        if (x.getBegin() != null && y.getBegin() != null) {
+            return x.getBegin().compareTo(y.getBegin());
+        }
+
+        if (x.getBegin() == null && y.getBegin() == null) {
+            return 0;
+        }
+
+        return x.getBegin() != null ? 1 : 0;
+    };
+
+    private static final Comparator<MobilityRegistrationInformation> COMPARATOR_BY_BEGIN_DATE = (x, y) -> {
+
+        if (x.getBeginDate() != null && y.getBeginDate() != null) {
+            return x.getBeginDate().compareTo(y.getBeginDate());
+        }
+
+        if (x.getBeginDate() == null && y.getBeginDate() == null) {
+            return 0;
+        }
+
+        return x.getBeginDate() != null ? 1 : 0;
+
+    };
+
+    public static final Comparator<MobilityRegistrationInformation> COMPARATOR_BY_MOST_RECENT = COMPARATOR_BY_BEGIN
+            .thenComparing(COMPARATOR_BY_BEGIN_DATE).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID).reversed();
 
     protected MobilityRegistrationInformation() {
         super();
@@ -339,7 +371,8 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
     public static MobilityRegistrationInformation findInternationalIncomingInformation(final Registration registration,
             final ExecutionYear executionYear) {
         return registration.getMobilityRegistrationInformationsSet().stream()
-                .filter(m -> m.isIncoming() && !m.getNational() && m.isValid(executionYear)).findFirst().orElse(null);
+                .filter(m -> m.isIncoming() && !m.getNational() && m.isValid(executionYear)).sorted(COMPARATOR_BY_MOST_RECENT)
+                .findFirst().orElse(null);
     }
 
 }
