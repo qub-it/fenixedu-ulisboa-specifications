@@ -26,18 +26,13 @@
  */
 package org.fenixedu.ulisboa.specifications.ui;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
-import org.fenixedu.bennu.portal.domain.MenuItem;
-import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.spring.FenixEDUBaseController;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -54,6 +49,8 @@ import com.google.common.base.Strings;
         accessGroup = "#managers")
 @RequestMapping("/userMock")
 public class MockUser extends FenixEDUBaseController {
+
+    static private String AUTHENTICATION_METHOD = MockUser.class.getName();
 
     @RequestMapping
     public String indexNoSlash(final Model model, final RedirectAttributes redirectAttributes, final HttpServletRequest request) {
@@ -85,19 +82,19 @@ public class MockUser extends FenixEDUBaseController {
                 boolean isManager = user != null ? Group.parse("#managers").isMember(user) : false;
 
                 if (user != null && !isManager) {
-                    Authenticate.login(request, response, user, "TODO: CHANGE ME");
+                    Authenticate.logout(request, response);
+                    Authenticate.login(request, response, user, AUTHENTICATION_METHOD);
 
-                    if (AccessControl.getPerson() != null) {
-                        Optional<MenuItem> findFirst =
-                                PortalConfiguration.getInstance().getMenu().getUserMenuStream().findFirst();
-                        String path = findFirst.isPresent() ? findFirst.get().getPath() : "/";
-                        return redirect(path, model, redirectAttributes);
+                    if (Authenticate.isLogged()) {
+                        return "forward:/";
                     }
                 } else {
                     addErrorMessage(ULisboaSpecificationsUtil.bundle("label.mockUser.unableToMockUser", username), model);
                 }
             }
         }
+
         return "fenixedu-ulisboa-specifications/mock/mockUser";
     }
+
 }
