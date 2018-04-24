@@ -47,7 +47,7 @@
 		<fr:slot name="officialDate" key="label.manageCredits.officialDate" help="label.manageCredits.officialDate.help" bundle="ACADEMIC_OFFICE_RESOURCES" />
 		<fr:slot name="reason" layout="menu-select" key="label.manageCredits.reason" help="label.manageCredits.reason.help" bundle="ACADEMIC_OFFICE_RESOURCES">
 			<fr:property name="from" value="reasonOptions" />
-			<fr:property name="format" value="${reason}" />
+			<fr:property name="format" value="${reason.content}" />
 			<fr:property name="sortBy" value="reason=asc" />
 		</fr:slot>
 	</fr:schema>
