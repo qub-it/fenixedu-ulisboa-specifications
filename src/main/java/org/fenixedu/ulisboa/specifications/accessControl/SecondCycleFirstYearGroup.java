@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.accessControl;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -31,19 +30,19 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
     }
 
     @Override
-    public Set<User> getMembers() {
+    public Stream<User> getMembers() {
         return ExecutionYear.readCurrentExecutionYear().getStudentsSet().stream()
                 .filter(r -> r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha)
-                .map(r -> r.getPerson().getUser()).collect(Collectors.toSet());
+                .map(r -> r.getPerson().getUser());
     }
 
     @Override
-    public Set<User> getMembers(DateTime when) {
+    public Stream<User> getMembers(final DateTime when) {
         throw new RuntimeException("Unsupported");
     }
 
     @Override
-    public boolean isMember(User user) {
+    public boolean isMember(final User user) {
         if (user == null) {
             return false;
         }
@@ -54,22 +53,19 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
         return false;
     }
 
-    private boolean isMemberStudent(Student student) {
-        return student
-                .getActiveRegistrations()
-                .stream()
-                .anyMatch(
-                        r -> r.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear()
-                                && (r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha));
+    private boolean isMemberStudent(final Student student) {
+        return student.getActiveRegistrations().stream()
+                .anyMatch(r -> r.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear()
+                        && (r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha));
     }
 
     @Override
-    public boolean isMember(User user, DateTime when) {
+    public boolean isMember(final User user, final DateTime when) {
         throw new RuntimeException("Unsupported");
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         return object instanceof SecondCycleFirstYearGroup;
     }
 

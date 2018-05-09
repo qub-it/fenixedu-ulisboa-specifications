@@ -1,13 +1,13 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -59,7 +59,7 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
     }
 
     @Override
-    public HtmlComponent createComponent(Object object, Class type) {
+    public HtmlComponent createComponent(final Object object, final Class type) {
         setBolonhaStudentEnrollmentBean((BolonhaStudentEnrollmentBean) object);
 
         if (getBolonhaStudentEnrollmentBean() == null) {
@@ -113,7 +113,8 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
         generateAllEnrolments(coursesTable, studentCurriculumGroupBean, executionSemester);
         generateAllCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, executionSemester);
 
-        generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, executionSemester);
+        //TODO - review this
+        generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, null, executionSemester);
     }
 
     private void generateAllEnrolments(final HtmlTable coursesTable, final StudentCurriculumGroupBean bean,
@@ -129,7 +130,8 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
             final ExecutionSemester executionSemester) {
 
         for (final StudentCurriculumGroupBean iter : bean.getEnrolledCurriculumGroupsSortedByOrder(executionSemester)) {
-            generateCurricularCoursesToEnrol(coursesTable, iter, executionSemester);
+            //TODO - review this
+            generateCurricularCoursesToEnrol(coursesTable, iter, null, executionSemester);
             generateAllCurricularCoursesToEnrol(coursesTable, iter, executionSemester);
         }
     }

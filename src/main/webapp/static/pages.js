@@ -71,6 +71,9 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
         if(!item.body || Object.keys(item.body).length == 0) {
             item.body = emptyLocalizedString();
         }
+        if(!item.excerpt || Object.keys(item.excerpt).length == 0) {
+            item.excerpt = emptyLocalizedString();
+        }
         if (isFolder) {
             for (var i = 0; i < item.children.length; ++i) {
                 item.children[i] && add(item.children[i], item.node);
@@ -80,7 +83,7 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
     };
 
     $scope.createChild = function () {
-        var newItem = { title: initialTitle(), body: emptyLocalizedString(), position: 0 };
+        var newItem = { title: initialTitle(), body: emptyLocalizedString(), excerpt: emptyLocalizedString(), position: 0 };
         add(newItem, $scope.selected.node).setActive(true);
         $('#pageTabLink').tab('show');
     };
@@ -113,6 +116,7 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
         var data = {
             title: $scope.selected.title,
             body: $scope.selected.body,
+            excerpt: $scope.selected.excerpt,
             menuItemId: $scope.selected.key,
             menuItemParentId:  $scope.selected.node.parent.data.item.key,
             canViewGroupIndex: $scope.selected.canViewGroupIndex,
@@ -132,6 +136,9 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
             newItem.loaded = true;
             if(Object.keys(newItem.body).length == 0) {
                 newItem.body = emptyLocalizedString();
+            }
+            if(Object.keys(newItem.excerpt).length == 0) {
+                newItem.excerpt = emptyLocalizedString();
             }
             var node = $scope.selected.node;
             node.parent.folder = node.parent.children && node.parent.children.length > 0;
@@ -198,6 +205,10 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
                     item.body = data;
                     item.loaded = true;
                 });
+                $http.get($scope.context + '/dataExcerpt/' + item.key).success(function (data) {
+                    item.excerpt = data;
+                    item.loaded = true;
+                });
             }
             $scope.selected = item;
             $scope.error = null;
@@ -229,13 +240,13 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
 
     function emptyLocalizedString() {
         var mlsBody = {};
-        mlsBody[BennuPortal.locale.tag] = '';
+        mlsBody[Bennu.locale.tag] = '';
         return mlsBody;
     }
 
     function initialTitle() {
         var mlsBody = {};
-        mlsBody[BennuPortal.locale.tag] = 'New Entry';
+        mlsBody[Bennu.locale.tag] = 'New Entry';
         return mlsBody;
     }
 

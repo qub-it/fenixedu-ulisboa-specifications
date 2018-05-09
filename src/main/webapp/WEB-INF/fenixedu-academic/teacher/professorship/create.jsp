@@ -63,6 +63,7 @@
 			$.ajax({
 				url : url,
 				type : "PUT",
+				headers: { '${csrf.headerName}' :  '${csrf.token}' } ,
 				success : function(result) {
 					var responsibleFor = eval(result);
 					professorship.data('responsible', responsibleFor);
@@ -82,6 +83,7 @@
 				$.ajax({
 					url : url,
 					type: "DELETE",
+					headers: { '${csrf.headerName}' :  '${csrf.token}' } ,
 					success : function(res) {
 							professorship.remove();
 					},
@@ -190,6 +192,7 @@
 	</c:if>
 	
 	<form:form id="search" role="form" modelAttribute="bean" action="${baseUrl}/${authorization.externalId}" method="GET" class="form-horizontal">
+		${csrf.field()}
 		<div class="form-group">
 			<label for="selectPeriod" class="col-sm-1 control-label"><spring:message code="label.period" /></label>
 			<div class="col-sm-11">

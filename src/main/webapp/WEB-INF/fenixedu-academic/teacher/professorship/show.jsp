@@ -108,6 +108,7 @@ $(document).ready(function() {
 		$.ajax({
 			url : url,
 			type : "PUT",
+			headers: { '${csrf.headerName}': '${csrf.token}' },
 			success : function(result) {
 				var responsibleFor = eval(result);
 				professorship.data('responsible', responsibleFor);
@@ -127,6 +128,7 @@ $(document).ready(function() {
 			$.ajax({
 				url : url,
 				type: "DELETE",
+                headers: { '${csrf.headerName}' :  '${csrf.token}' } ,
 				success : function(res) {
 						professorship.remove();
 				},
@@ -192,6 +194,9 @@ $(document).ready(function() {
 		</c:when>
 		<c:otherwise>
 			<button class="btn btn-default" id="toggle-courses"><spring:message code="teacher.authorizations.expand.all.courses"/></button>
+			<a class="btn btn-default" href="${baseUrl}/download?department=${search.department.externalId}&period=${search.period.externalId}">
+				<spring:message code="teacher.authorizations.download"/>
+			</a>
 			<table class="table" id="authorizations">
 				<thead>
 					<th><spring:message code="label.photo"/></th>
@@ -206,9 +211,9 @@ $(document).ready(function() {
 						<c:set var="user" value="${auth.teacher.person.user}"/>
 						<c:set var="professorships" value="${professorshipService.getProfessorships(user, search.period)}"/>
 						<tr class="authorization" id="authorization-${auth.externalId}">
-							<td><img src="${user.profile.avatarUrl}" alt="<c:out value='${user.name}'/>" /></td>
+							<td><img src="${user.profile.avatarUrl}" alt="<c:out value='${user.profile.displayName}'/>" /></td>
 							<td><c:out value="${user.username}" /></td>  
-							<td><c:out value="${user.name}" /></td>
+							<td><c:out value="${user.profile.displayName}" /></td>
 							<td>${professorships.size()}</td>
 							<td><button class="btn btn-default show-courses"><i class="glyphicon glyphicon-collapse-down courses-icon"></i><spring:message code="label.courses"/></button></td>
 						</tr>

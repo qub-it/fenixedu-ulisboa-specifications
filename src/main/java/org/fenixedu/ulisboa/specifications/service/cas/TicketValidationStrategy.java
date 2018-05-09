@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2016 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: paulo.abrantes@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -27,13 +27,14 @@
 package org.fenixedu.ulisboa.specifications.service.cas;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.bennu.core.domain.exceptions.AuthorizationException;
 import org.jasig.cas.client.validation.TicketValidationException;
 
 public interface TicketValidationStrategy {
 
-    public void validateTicket(String ticket, String requestURL, HttpServletRequest request) throws TicketValidationException,
-            AuthorizationException;
+    public void validateTicket(String ticket, String requestURL, HttpServletRequest request, HttpServletResponse response)
+            throws TicketValidationException, AuthorizationException;
 
 }

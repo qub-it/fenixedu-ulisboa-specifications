@@ -1,13 +1,13 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -92,8 +92,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, don't SHOW empty groups
-    private Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
-    private boolean emptyGroupsCollapsible = true;
+    private final Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
+    private final boolean emptyGroupsCollapsible = true;
 
     private StudentCurricularPlan getStudentCurricularPlan() {
         return getBolonhaStudentEnrollmentBean().getStudentCurricularPlan();
@@ -118,7 +118,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     @Override
-    protected void generateGroup(final HtmlBlockContainer blockContainer, final StudentCurricularPlan studentCurricularPlan,
+    protected void generateGroup(final HtmlBlockContainer blockContainer,
+            final List<IDegreeModuleToEvaluate> degreeModulesToSelect, final StudentCurricularPlan studentCurricularPlan,
             final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester,
             final int depth) {
 
@@ -146,9 +147,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
             final HtmlTable coursesTable = createCoursesTable(blockContainer, depth);
             generateEnrolments(studentCurriculumGroupBean, coursesTable);
-            generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, executionSemester);
+            generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, degreeModulesToSelect, executionSemester);
 
-            generateGroups(blockContainer, studentCurriculumGroupBean, studentCurricularPlan, executionSemester, depth);
+            generateGroups(blockContainer, degreeModulesToSelect, studentCurriculumGroupBean, studentCurricularPlan,
+                    executionSemester, depth);
         }
 
         // qubExtension, don't SHOW empty groups
@@ -174,7 +176,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         } else {
 
-            // must check already previously calculated value 
+            // must check already previously calculated value
             emptyGroups.put(key, isEmptyGroup(bean) && value);
         }
     }
@@ -224,7 +226,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         final HtmlCheckBox checkBox = new HtmlCheckBox(true) {
             @Override
-            public void setChecked(boolean checked) {
+            public void setChecked(final boolean checked) {
                 if (isDisabled()) {
                     super.setChecked(true);
                 } else {
@@ -373,7 +375,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
     @Override
     protected void generateCurricularCoursesToEnrol(final HtmlTable groupTable,
-            final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester) {
+            final StudentCurriculumGroupBean studentCurriculumGroupBean,
+            final List<IDegreeModuleToEvaluate> degreeModulesToSelect, final ExecutionSemester executionSemester) {
 
         final List<IDegreeModuleToEvaluate> coursesToEvaluate = filterCurricularCoursesToEvaluate(studentCurriculumGroupBean);
 
@@ -542,12 +545,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return input.isToBeDisabled()
 
                 // qubExtension
-                || (isStudentLogged() &&
+                || isStudentLogged() &&
 
                         (appliesAnyRules(input.getCurriculumModule(), true /* recursive */,
                                 EnrolmentToBeApprovedByCoordinator.class)
 
-                                || appliesAnyRules(input.getCurriculumModule(), false /* recursive */, ConditionedRoute.class)))
+                                || appliesAnyRules(input.getCurriculumModule(), false /* recursive */, ConditionedRoute.class))
 
                 // qubExtension
                 || input.getCurriculumModule().getDegreeModule().getChildContextsSet().stream()
@@ -675,7 +678,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     @Override
-    protected void generateEnrolment(final HtmlTable groupTable, Enrolment enrolment, final String enrolmentNameClasses,
+    protected void generateEnrolment(final HtmlTable groupTable, final Enrolment enrolment, final String enrolmentNameClasses,
             final String enrolmentYearClasses, final String enrolmentSemesterClasses, final String enrolmentEctsClasses,
             final String enrolmentCheckBoxClasses) {
 
@@ -731,13 +734,15 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     @Override
-    protected void generateGroups(final HtmlBlockContainer container, final StudentCurriculumGroupBean bean,
-            final StudentCurricularPlan plan, final ExecutionSemester executionSemester, final int depth) {
+    protected void generateGroups(final HtmlBlockContainer container, final List<IDegreeModuleToEvaluate> degreeModulesToSelect,
+            final StudentCurriculumGroupBean bean, final StudentCurricularPlan plan, final ExecutionSemester executionSemester,
+            final int depth) {
 
         // first enroled
         final List<StudentCurriculumGroupBean> enroledGroups = bean.getEnrolledCurriculumGroupsSortedByOrder(executionSemester);
         for (final StudentCurriculumGroupBean iter : enroledGroups) {
-            generateGroup(container, plan, iter, executionSemester, depth + getRenderer().getWidthDecreasePerLevel());
+            generateGroup(container, degreeModulesToSelect, plan, iter, executionSemester,
+                    depth + getRenderer().getWidthDecreasePerLevel());
         }
 
         // then available to enrol

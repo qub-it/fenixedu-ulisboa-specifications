@@ -61,13 +61,13 @@ import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
-import org.fenixedu.bennu.core.servlets.ExceptionHandlerFilter;
+import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
+import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
-import org.fenixedu.bennu.signals.Signal;
-import org.fenixedu.learning.domain.degree.DegreeSite;
+import org.fenixedu.cms.domain.Site;
 import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
 import org.fenixedu.treasury.domain.paymentcodes.pool.PaymentCodePool;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -323,7 +323,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             public void deleting(final Degree degree) {
                 degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
 
-                DegreeSite site = degree.getSite();
+                Site site = degree.getSite();
                 if (site != null) {
                     site.delete();
                 }

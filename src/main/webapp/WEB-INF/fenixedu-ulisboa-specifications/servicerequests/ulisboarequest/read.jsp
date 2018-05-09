@@ -2,10 +2,10 @@
  /**
  * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
  * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
- * software development project between Quorum Born IT and Serviços Partilhados da
+ * software development project between Quorum Born IT and Serviï¿½os Partilhados da
  * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  * Contributors: diogo.simoe@qub-it.com 
  *

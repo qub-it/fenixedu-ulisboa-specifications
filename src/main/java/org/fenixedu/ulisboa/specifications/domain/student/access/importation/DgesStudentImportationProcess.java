@@ -122,7 +122,7 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
     }
 
     public void importCandidates() {
-        Authenticate.mock(getPerson().getUser());
+        Authenticate.mock(getPerson().getUser(), "TODO: CHANGE ME");
         try {
             final DgesStudentImportService service =
                     new DgesStudentImportService(getExecutionYear(), getSpace(), getEntryPhase());

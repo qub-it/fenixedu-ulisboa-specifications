@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
+import org.fenixedu.bennu.core.domain.BennuGroupIndex;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.ulisboa.specifications.accessControl.SpecialIngressionsAndOtherCyclesGroup;
 
@@ -16,7 +17,7 @@ public class SpecialIngressionsAndOtherCyclesPersistentGroup extends SpecialIngr
     }
 
     public static SpecialIngressionsAndOtherCyclesPersistentGroup getInstance() {
-        return singleton(() -> find(SpecialIngressionsAndOtherCyclesPersistentGroup.class),
+        return singleton(() -> BennuGroupIndex.groupConstant(SpecialIngressionsAndOtherCyclesPersistentGroup.class).findAny(),
                 () -> new SpecialIngressionsAndOtherCyclesPersistentGroup());
     }
 }
