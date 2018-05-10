@@ -1,23 +1,3 @@
-<%--
-
-    Copyright © ${project.inceptionYear} Instituto Superior Técnico
-
-    This file is part of Fenix IST.
-
-    Fenix IST is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Fenix IST is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with Fenix IST.  If not, see <http://www.gnu.org/licenses/>.
-
---%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
@@ -42,7 +22,7 @@
                         <a href="${announcement.address}" target="_blank">${announcement.name.content}</a>
                     </h4>
                     <small>
-                        <a href="mailto:${announcement.createdBy.email}">${announcement.createdBy.name}</a>
+                        <a href="mailto:<c:out value='${announcement.createdBy.email}'/>"><c:out value="${announcement.createdBy.name}"/></a>
                           -
                         ${announcement.creationDate.toString('dd MMMM yyyy, HH:mm', locale)}
                         <c:if test="${not empty announcement.publicationBegin && announcement.publicationBegin.isAfterNow()}">
@@ -71,6 +51,7 @@
             <!-- Modal panel for editing an announcement -->
             <div class="modal fade" id="editModal${announcement.externalId}" tabindex="-1" role="dialog" aria-hidden="true">
                 <form method="post" action="${context}/${announcement.slug}/edit">
+                    ${csrfField}
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
 
@@ -79,7 +60,7 @@
                                     <span aria-hidden="true">&times;</span>
                                     <span class="sr-only"><spring:message code="action.close"/></span>
                                 </button>
-                                <h4>${announcement.name.content}</h4>
+                                <h4><c:out value="${announcement.name.content}" escapeXml="false"/></h4>
                             </div>
 
                             <div class="modal-body">
@@ -101,16 +82,6 @@
                                     <input bennu-localized-string bennu-html-editor required-any name="body" id="body" data-post-slug="${announcement.slug}"
                                         placeholder="<spring:message code="label.announcement.content"/>"
                                         value='<c:out value="${announcement.body.json()}"/>'>
-                                      <br/>
-                                </div>
-                                <div class="form-group">
-                                    <label for="excerpt" class="control-label">
-                                        <spring:message code="label.announcement.content.excerpt"/>
-                                    </label>
-
-                                    <input bennu-localized-string bennu-html-editor required-any name="excerpt" id="excerpt" data-post-slug="${announcement.slug}"
-                                        placeholder="<spring:message code="label.announcement.content.excerpt"/>"
-                                        value='<c:out value="${announcement.excerpt.json()}"/>'>
                                       <br/>
                                 </div>
                                 <div class="form-group">
@@ -174,6 +145,7 @@
 <!-- Modal panel for creating an announcement -->
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
     <form method="post" action="${context}/create">
+        ${csrfField}
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -202,14 +174,6 @@
 
                         <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,links,table,undo,fullscreen,source" required-any name="body" id="body"
                                    placeholder="<spring:message code="label.announcement.content" />">
-                    </div>
-                    <div class="form-group">
-                        <label for="announcementExcerpt" class="control-label">
-                            <spring:message code="label.announcement.content.excerpt" />
-                        </label>
-
-                        <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,links,table,undo,fullscreen,source" required-any name="excerpt" id="excerpt"
-                                   placeholder="<spring:message code="label.announcement.content.excerpt" />">
                     </div>
                     <div class="form-group">
                         <div class="checkbox">
@@ -247,6 +211,7 @@
 <!-- Modal panel for deleting an announcement -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
     <form id="deleteForm" method="post" action="#">
+        ${csrfField}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

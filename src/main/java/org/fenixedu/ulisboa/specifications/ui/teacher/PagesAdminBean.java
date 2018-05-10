@@ -23,11 +23,11 @@ public class PagesAdminBean {
     private LocalizedString excerpt;
     private final Boolean visible;
 
-    public PagesAdminBean(final String json) {
+    public PagesAdminBean(String json) {
         this(PARSER.parse(json).getAsJsonObject());
     }
 
-    public PagesAdminBean(final JsonObject jsonObj) {
+    public PagesAdminBean(JsonObject jsonObj) {
         if (asString(jsonObj, "menuItemId").isPresent()) {
             this.menuItem = menuItem(asString(jsonObj, "menuItemId").get());
         }
@@ -47,7 +47,7 @@ public class PagesAdminBean {
             Integer.parseInt(asString(jsonObj, "canViewGroupIndex").get());
             this.canViewGroup = executionCourseGroup(Integer.parseInt(asString(jsonObj, "canViewGroupIndex").get()));
         }
-        this.visible = jsonObj.has("visible") ? jsonObj.get("visible").getAsBoolean() : null;
+        this.visible = jsonObj.has("visible") ? jsonObj.get("visible").getAsBoolean() : false;
     }
 
     public MenuItem getMenuItem() {
@@ -74,7 +74,7 @@ public class PagesAdminBean {
         return this.canViewGroup;
     }
 
-    protected static Optional<String> asString(final JsonObject jsonObject, final String field) {
+    protected static Optional<String> asString(JsonObject jsonObject, String field) {
         if (jsonObject.has(field)) {
             if (jsonObject.get(field) != null && !jsonObject.isJsonNull() && jsonObject.get(field).isJsonPrimitive()
                     && !"null".equals(jsonObject.get(field).getAsString())) {
@@ -84,11 +84,11 @@ public class PagesAdminBean {
         return Optional.empty();
     }
 
-    protected static MenuItem menuItem(final String menuItemId) {
+    protected static MenuItem menuItem(String menuItemId) {
         return Strings.isNullOrEmpty(menuItemId) ? null : FenixFramework.getDomainObject(menuItemId);
     }
 
-    private Group executionCourseGroup(final int canViewGroupIndex) {
+    private Group executionCourseGroup(int canViewGroupIndex) {
         return PagesAdminService.permissionGroups(menuItem.getPage().getSite()).get(canViewGroupIndex);
     }
 
@@ -99,7 +99,7 @@ public class PagesAdminBean {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("menuItem", menuItem).add("parent", parent).add("title", title).add("body", body)
-                .add("excerpt", excerpt).toString();
+                .toString();
     }
 
 }

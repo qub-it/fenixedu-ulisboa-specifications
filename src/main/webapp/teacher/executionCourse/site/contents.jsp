@@ -1,29 +1,14 @@
-<%--
-
-    Copyright © 2013 Instituto Superior Técnico
-
-    This file is part of FenixEdu IST CMS Components.
-
-    FenixEdu IST CMS Components is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    FenixEdu IST CMS Components is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with FenixEdu IST CMS Components.  If not, see <http://www.gnu.org/licenses/>.
-
---%>
 <div ng-app="pagesApp">
-    <div ng-controller="PagesCtrl">
+    <div ngCloak ng-controller="PagesCtrl">
 
-        <div class="alert alert-danger" ng-if="error"><strong></strong><spring:message code="label.error"/>: </strong><spring:message code="label.error.tryAgain"/></div>
+        <div class="alert alert-danger" ng-if="error" ng-switch on="error"><strong>
+            <spring:message code="label.error"/>: </strong>
+            <span ng-switch="401"><spring:message code="error.not.authorized"/></span>
+            <span ng-switch-default><spring:message code="label.error.tryAgain"/></span>
+            <span ng-if="errorMsg">{{errorMsg}}</span>
+        </div>
 
-        <div class="row" style="min-height:400px" ng-show="loaded">
+        <div class="row" style="min-height:400px" ng-show="loaded && !error">
 
             <div class="col-md-3">
                 <div id="tree"  style="border: dotted 2px #eee;"></div>
@@ -55,7 +40,7 @@
                             <br/>
                             <fieldset class="form-horizontal" ng-show="selected.loaded">
                                 <label for="title"><spring:message code="label.title"/></label>
-                                <input type="text" id="title" name="title" ng-localized-string="selected.title" required class="form-control" placeholder="<spring:message code="label.title"/>"/>
+                                <input type="text" id="title" name="title" bennu-localized-string="selected.title" required class="form-control" placeholder="<spring:message code="label.title"/>"/>
 
                                 <label for="body"><spring:message code="label.content"/></label>
 
@@ -73,13 +58,8 @@
                                     </ul>
                                 </div>
 
-                                <textarea bennu-localized-string ng-html-editor="selected.body" ng-on-image-added="onImageAdded"
+                                <textarea bennu-localized-html-editor="selected.body" on-image-added="onImageAdded"
                                           id="body" toolbar="size,style,colors,lists,align,links,table,image,undo,fullscreen,source" class="form-control"></textarea>
-
-                                <label for="excerpt"><spring:message code="label.excerpt"/></label>
-
-                                <textarea bennu-localized-string ng-html-editor="selected.excerpt" ng-on-image-added="onImageAdded"
-                                          id="excerpt" toolbar="size,style,colors,lists,align,links,table,image,undo,fullscreen,source" class="form-control"></textarea>
 
                                 <div>
                                     <div class="pull-left">

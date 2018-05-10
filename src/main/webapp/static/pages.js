@@ -1,21 +1,3 @@
-/*
- * Copyright © 2013 Instituto Superior Técnico
- *
- * This file is part of FenixEdu IST Integration.
- *
- * FenixEdu IST Integration is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FenixEdu IST Integration is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with FenixEdu IST Integration.  If not, see <http://www.gnu.org/licenses/>.
- */
 var teacherApp = angular.module('pagesApp', ['bennuToolkit', 'angularFileUpload']);
 
 teacherApp.directive('tooltip', function(){
@@ -71,9 +53,6 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
         if(!item.body || Object.keys(item.body).length == 0) {
             item.body = emptyLocalizedString();
         }
-        if(!item.excerpt || Object.keys(item.excerpt).length == 0) {
-            item.excerpt = emptyLocalizedString();
-        }
         if (isFolder) {
             for (var i = 0; i < item.children.length; ++i) {
                 item.children[i] && add(item.children[i], item.node);
@@ -83,7 +62,7 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
     };
 
     $scope.createChild = function () {
-        var newItem = { title: initialTitle(), body: emptyLocalizedString(), excerpt: emptyLocalizedString(), position: 0 };
+        var newItem = { title: initialTitle(), body: emptyLocalizedString(), position: 0 };
         add(newItem, $scope.selected.node).setActive(true);
         $('#pageTabLink').tab('show');
     };
@@ -116,7 +95,6 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
         var data = {
             title: $scope.selected.title,
             body: $scope.selected.body,
-            excerpt: $scope.selected.excerpt,
             menuItemId: $scope.selected.key,
             menuItemParentId:  $scope.selected.node.parent.data.item.key,
             canViewGroupIndex: $scope.selected.canViewGroupIndex,
@@ -137,9 +115,6 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
             if(Object.keys(newItem.body).length == 0) {
                 newItem.body = emptyLocalizedString();
             }
-            if(Object.keys(newItem.excerpt).length == 0) {
-                newItem.excerpt = emptyLocalizedString();
-            }
             var node = $scope.selected.node;
             node.parent.folder = node.parent.children && node.parent.children.length > 0;
             $scope.selected = newItem;
@@ -156,8 +131,11 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
             });
     }
 
-    $http.get($scope.context + "/data").success(function (data) {
+    $http.get($scope.context + "/data").then(function (response) {
+        var data = response.data;
         $scope.loaded = true;
+        $scope.error = false;
+
         $("#tree").fancytree({ source: [], extensions: ["dnd"],
             dnd: {
                 preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
@@ -205,10 +183,6 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
                     item.body = data;
                     item.loaded = true;
                 });
-                $http.get($scope.context + '/dataExcerpt/' + item.key).success(function (data) {
-                    item.excerpt = data;
-                    item.loaded = true;
-                });
             }
             $scope.selected = item;
             $scope.error = null;
@@ -227,6 +201,10 @@ teacherApp.controller('PagesCtrl', ['$scope', '$http', '$upload', function ($sco
             tree.activateKey(window.location.hash.split('#')[1]);
             $('#pageFilesLink').tab('show');
         }
+    }, function(response){
+        $scope.loaded = true;
+        $scope.error = response.status;
+        $scope.errorMsg = response.data;
     });
 
     $scope.updateFile = function(file, newPosition) {

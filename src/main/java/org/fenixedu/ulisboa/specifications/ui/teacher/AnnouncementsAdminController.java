@@ -20,18 +20,19 @@ import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.io.domain.GroupBasedFile;
 import org.fenixedu.bennu.io.servlet.FileDownloadServlet;
+import org.fenixedu.bennu.spring.security.CSRFTokenBean;
 import org.fenixedu.cms.domain.Category;
-import org.fenixedu.cms.domain.PermissionEvaluation;
-import org.fenixedu.cms.domain.PermissionsArray.Permission;
 import org.fenixedu.cms.domain.Post;
 import org.fenixedu.cms.domain.PostFile;
 import org.fenixedu.cms.domain.Site;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,8 +55,17 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
 
     private static final int PER_PAGE = 5;
 
+    // hack
+    @Autowired
+    CSRFTokenBean csrfTokenBean;
+
+    @ModelAttribute("csrfField")
+    public String getCSRFField() {
+        return csrfTokenBean.field();
+    }
+
     @RequestMapping(method = RequestMethod.GET)
-    public TeacherView all(final Model model, @RequestParam(required = false, defaultValue = "1") int page) {
+    public TeacherView all(Model model, @RequestParam(required = false, defaultValue = "1") int page) {
         Professorship professorship = executionCourse.getProfessorship(AccessControl.getPerson());
         AccessControl.check(person -> professorship != null && professorship.getPermissions().getAnnouncements());
         List<Post> announcements = getAnnouncements(executionCourse.getSite());
@@ -76,22 +86,27 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "{postSlug}/delete", method = RequestMethod.POST)
-    public RedirectView delete(@PathVariable final String postSlug) {
+    public RedirectView delete(@PathVariable String postSlug) {
         Post post = executionCourse.getSite().postForSlug(postSlug);
+        Professorship professorship = executionCourse.getProfessorship(AccessControl.getPerson());
+        AccessControl.check(person -> professorship != null && professorship.getPermissions().getAnnouncements());
+
+        if (post == null) {
+            return new RedirectView("404");
+        }
         atomic(() -> post.delete());
         return viewAll(executionCourse);
     }
 
     @RequestMapping(value = "{postSlug}/addFile.json", method = RequestMethod.POST, produces = "application/json")
-    public @ResponseBody String addFileJson(final Model model, @PathVariable final ExecutionCourse executionCourse,
-            @PathVariable(value = "postSlug") final String slugPost,
-            @RequestParam("attachment") final MultipartFile[] attachments) throws IOException {
+    public @ResponseBody String addFileJson(Model model, @PathVariable ExecutionCourse executionCourse,
+            @PathVariable(value = "postSlug") String slugPost, @RequestParam("attachment") MultipartFile[] attachments)
+            throws IOException {
         Site s = executionCourse.getSite();
-
-        //TODO - review permissions
-        PermissionEvaluation.canDoThis(s, Permission.EDIT_POSTS);
-
         Post p = s.postForSlug(slugPost);
+
+        Professorship professorship = executionCourse.getProfessorship(AccessControl.getPerson());
+        AccessControl.check(person -> professorship != null && professorship.getPermissions().getAnnouncements());
         JsonArray array = new JsonArray();
 
         Arrays.asList(attachments).stream().map((attachment) -> {
@@ -112,25 +127,27 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
     }
 
     @Atomic
-    private GroupBasedFile addFile(final MultipartFile attachment, final Post p) throws IOException {
+    private GroupBasedFile addFile(MultipartFile attachment, Post p) throws IOException {
         GroupBasedFile f = new GroupBasedFile(attachment.getOriginalFilename(), attachment.getOriginalFilename(),
                 attachment.getBytes(), Group.anyone());
-        int count = (int) p.getEmbeddedFilesSorted().count();
-        new PostFile(p, f, true, count);
-
+        new PostFile(p, f, true, p.getFilesSet().size());
         return f;
     }
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
-    public RedirectView create(@PathVariable final ExecutionCourse executionCourse, @RequestParam final LocalizedString name,
-            @RequestParam final LocalizedString body, @RequestParam final LocalizedString excerpt,
-            @RequestParam(required = false, defaultValue = "false") final boolean active,
-            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) final DateTime publicationStarts)
-            throws Exception {
+    public RedirectView create(@PathVariable ExecutionCourse executionCourse, @RequestParam LocalizedString name,
+            @RequestParam LocalizedString body, @RequestParam(required = false) LocalizedString excerpt,
+            @RequestParam(required = false, defaultValue = "false") boolean active,
+            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) DateTime publicationStarts) throws Exception {
         Site site = executionCourse.getSite();
+
+        Professorship professorship = executionCourse.getProfessorship(AccessControl.getPerson());
+        AccessControl.check(person -> professorship != null && professorship.getPermissions().getAnnouncements());
+
         atomic(() -> {
-            Post post = Post.create(site, null, Post.sanitize(name), Post.sanitize(body), Post.sanitize(excerpt),
-                    announcementsCategory(site), active, getUser());
+            Post post = Post.create(site, null, Post.sanitize(name), Post.sanitize(body),
+                    excerpt != null ? Post.sanitize(excerpt) : new LocalizedString(), announcementsCategory(site), active,
+                    getUser());
             if (publicationStarts == null) {
                 post.setPublicationBegin(null);
                 post.setPublicationEnd(null);
@@ -143,15 +160,23 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "{postSlug}/edit", method = RequestMethod.POST)
-    public RedirectView edit(@PathVariable final ExecutionCourse executionCourse, @PathVariable final String postSlug,
-            @RequestParam final LocalizedString name, @RequestParam final LocalizedString body,
-            @RequestParam final LocalizedString excerpt,
-            @RequestParam(required = false, defaultValue = "false") final boolean active,
-            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) final DateTime publicationStarts) {
+    public RedirectView edit(@PathVariable ExecutionCourse executionCourse, @PathVariable String postSlug,
+            @RequestParam LocalizedString name, @RequestParam LocalizedString body,
+            @RequestParam(required = false) LocalizedString excerpt,
+            @RequestParam(required = false, defaultValue = "false") boolean active,
+            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) DateTime publicationStarts) {
         Post post = executionCourse.getSite().postForSlug(postSlug);
+        if (post == null) {
+            return new RedirectView("404");
+        }
+
+        Professorship professorship = executionCourse.getProfessorship(AccessControl.getPerson());
+        AccessControl.check(person -> professorship != null && professorship.getPermissions().getAnnouncements());
+
         atomic(() -> {
             post.setName(Post.sanitize(name));
-            post.setBodyAndExcerpt(body, excerpt);
+            post.setBodyAndExcerpt(body != null ? Post.sanitize(body) : new LocalizedString(),
+                    excerpt != null ? Post.sanitize(excerpt) : new LocalizedString());
             post.setActive(active);
             if (publicationStarts == null) {
                 post.setPublicationBegin(null);
@@ -164,15 +189,15 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
         return viewAll(executionCourse);
     }
 
-    private RedirectView viewAll(final ExecutionCourse executionCourse) {
+    private RedirectView viewAll(ExecutionCourse executionCourse) {
         return new RedirectView(format("/teacher/%s/announcements", executionCourse.getExternalId()), true);
     }
 
-    private List<Post> getAnnouncements(final Site site) {
+    private List<Post> getAnnouncements(Site site) {
         return announcementsCategory(site).getPostsSet().stream().sorted(CREATION_DATE_COMPARATOR).collect(Collectors.toList());
     }
 
-    private Category announcementsCategory(final Site site) {
+    private Category announcementsCategory(Site site) {
         return site.getOrCreateCategoryForSlug("announcement", ANNOUNCEMENT);
     }
 
@@ -182,7 +207,8 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
     }
 
     @Override
-    Boolean getPermission(final Professorship prof) {
+    Boolean getPermission(Professorship prof) {
         return prof.getPermissions().getAnnouncements();
     }
+
 }

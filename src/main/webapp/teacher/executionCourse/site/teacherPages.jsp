@@ -1,23 +1,3 @@
-<%--
-
-    Copyright © 2013 Instituto Superior Técnico
-
-    This file is part of FenixEdu IST CMS Components.
-
-    FenixEdu IST CMS Components is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    FenixEdu IST CMS Components is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with FenixEdu IST CMS Components.  If not, see <http://www.gnu.org/licenses/>.
-
---%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
@@ -26,6 +6,13 @@
 <c:set var="teacherContext" scope="request" value="${pageContext.request.contextPath}/teacher/${executionCourse.externalId}/pages"/>
 
 ${portal.angularToolkit()}
+<script>
+    angular.module("bennuToolkit").config(['$httpProvider',function($httpProvider) {
+        $httpProvider.defaults.headers.common = $httpProvider.defaults.headers.common || {};
+        $httpProvider.defaults.headers.common['${csrf.headerName}'] = '${csrf.token}';
+    }]);
+</script>
+
 <link href="${pageContext.request.contextPath}/static/lib/fancytree/skin-lion/ui.fancytree.css" rel="stylesheet" type="text/css">
 <script>
 window.tooltip = $.fn.tooltip;
@@ -52,6 +39,14 @@ window.tooltip = $.fn.tooltip;
     </div>
 </h2>
 <hr />
+    <a  href="${site.editUrl}">
+        <div class="alert alert-info" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="text-info"><spring:message code="label.check.cms"/></span>
+        </div>
+    </a>
+<hr />
+
 <c:if test="${not empty importError}">
     <div class="alert alert-danger" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -71,6 +66,7 @@ window.tooltip = $.fn.tooltip;
                 <h4><spring:message code="label.settings"/></h4>
             </div>
             <form role="form" method="post" action="${teacherContext}/options" class="form-horizontal" id="homepage-publish-form">
+                ${csrf.field()}
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="control-label col-sm-2">
@@ -106,6 +102,7 @@ window.tooltip = $.fn.tooltip;
                 <h4><spring:message code="label.import.previousSite"/></h4>
             </div>
             <form role="form" method="post" action="${teacherContext}/copyContent" class="form-horizontal" id="homepage-publish-form">
+                ${csrf.field()}
                 <div class="modal-body">
                     <div class="form-group">
                         <select class="form-control" name="previousExecutionCourse">
