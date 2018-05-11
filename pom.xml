@@ -176,10 +176,6 @@
 			<url>https://nexjen.ulisboa.pt/nexus/content/groups/public/</url>
 		</repository>
 		<repository>
-			<id>qubIT-repo</id>
-			<url>https://repository.qub-it.com/nexus/content/repositories/releases/</url>
-		</repository>
-		<repository>
 			<id>fenixedu-maven-repository</id>
 			<url>https://repo.fenixedu.org/fenixedu-maven-repository</url>
 		</repository>
