@@ -239,7 +239,7 @@ ${portal.angularToolkit()}
 				</div>
 				
 				<div class="col-sm-6">
-					<input id="ruleDescription" class="form-control" type="text" ng-localized-string="object.ruleDescription" name="ruleDescription"   />
+					<input id="ruleDescription" class="form-control" type="text" bennu-localized-string="object.ruleDescription" name="ruleDescription"   />
 				</div>
 			</div>
 

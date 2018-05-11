@@ -36,7 +36,7 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
     }
 
     private void checkRules() {
-        if (getDegreeName().isEmpty()) {
+        if (getDegreeName() == null || getDegreeName().isEmpty()) {
             throw new ULisboaSpecificationsDomainException("error.CourseGroupDegreeInfo.degreeName.null");
         }
 

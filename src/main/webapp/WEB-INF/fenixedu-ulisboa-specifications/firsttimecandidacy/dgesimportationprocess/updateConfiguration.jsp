@@ -271,7 +271,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         </div>
         
                         <div class="col-sm-10" id="introductionText" ng-mouseover="updateTextAreaAttr()">
-                            <textarea type="text" ng-readonly="edit.details" name="introductionText" ng-localized-string="object.introductionText" ></textarea>
+                            <textarea type="text" ng-readonly="edit.details" name="introductionText" bennu-localized-string="object.introductionText" ></textarea>
                         </div>
                     </div>
                     <div class="form-group row">

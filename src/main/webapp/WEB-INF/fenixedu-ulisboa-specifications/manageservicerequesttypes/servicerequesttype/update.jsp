@@ -147,7 +147,7 @@ ${portal.angularToolkit()}
                 <div class="col-sm-10">
                     <input id="serviceRequestType_name"
                         class="form-control" type="text" 
-                        ng-localized-string="object.name" />
+                        bennu-localized-string="object.name" />
                 </div>
             </div>
             <div class="form-group row">

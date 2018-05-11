@@ -177,7 +177,7 @@ ${portal.angularToolkit()}
 
 				<div class="col-sm-10">
 					<input id="evaluationSeason_name" class="form-control" type="text"
-						name="name" ng-localized-string="object.name" />
+						name="name" bennu-localized-string="object.name" />
 				</div>
 			</div>
 			<div class="form-group row">
@@ -187,7 +187,7 @@ ${portal.angularToolkit()}
 
 				<div class="col-sm-10">
 					<input id="evaluationSeason_acronym" class="form-control"
-						type="text" name="acronym" ng-localized-string="object.acronym" />
+						type="text" name="acronym" bennu-localized-string="object.acronym" />
 				</div>
 			</div>
 			<div class="form-group row">

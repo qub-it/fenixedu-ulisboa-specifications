@@ -355,7 +355,7 @@ ${portal.angularToolkit()}
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'TEXT_LOCALIZED_STRING'"
-                           type="text" ng-localized-string="serviceRequestProperty.localizedStringValue" name="field" ng-required="serviceRequestProperty.required"
+                           type="text" bennu-localized-string="serviceRequestProperty.localizedStringValue" name="field" ng-required="serviceRequestProperty.required"
                            value='<c:out value='${requestScope[serviceRequestProperty.code]}'/>'
                     />
                     <input id="{{ serviceRequestProperty.code }}" class="form-control" ng-if="serviceRequestProperty.uiComponentType == 'DATE'"

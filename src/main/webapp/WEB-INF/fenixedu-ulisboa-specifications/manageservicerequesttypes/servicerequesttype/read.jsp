@@ -486,7 +486,7 @@ ${portal.angularToolkit()}
 		                           value='<c:out value='${requestScope[slotEntry.propertyBean.code]}'/>'
 		                    />
 		                    <input id="{{ slotEntry.propertyBean.code }}" class="form-control" ng-if="slotEntry.propertyBean.uiComponentType == 'TEXT_LOCALIZED_STRING'"
-		                           type="text" ng-localized-string="slotEntry.propertyBean.localizedStringValue" name="field" ng-required="slotEntry.propertyBean.required"
+		                           type="text" bennu-localized-string="slotEntry.propertyBean.localizedStringValue" name="field" ng-required="slotEntry.propertyBean.required"
 		                           value='<c:out value='${requestScope[slotEntry.propertyBean.code]}'/>'
 		                    />
 		                    <input id="{{ slotEntry.propertyBean.code }}" class="form-control" ng-if="slotEntry.propertyBean.uiComponentType == 'DATE'"
