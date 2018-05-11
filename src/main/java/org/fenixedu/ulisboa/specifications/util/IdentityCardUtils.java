@@ -1,10 +1,6 @@
 package org.fenixedu.ulisboa.specifications.util;
 
-import org.fenixedu.academic.domain.IdentificationDocumentExtraDigit;
-import org.fenixedu.academic.domain.IdentificationDocumentSeriesNumber;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.PersonIdentificationDocumentExtraInfo;
-import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import com.google.common.base.Strings;
@@ -12,40 +8,15 @@ import com.google.common.base.Strings;
 /**
  * @see {@link com.qubit.qubEdu.module.base.util.IdentityCardUtil}
  */
+@Deprecated
 public class IdentityCardUtils {
 
     public static String getDigitControlFromPerson(final Person person) {
-        if (!Strings.isNullOrEmpty(person.getIdentificationDocumentSeriesNumberValue())) {
-            return person.getIdentificationDocumentSeriesNumberValue();
-        }
-
-        return person.getIdentificationDocumentExtraDigitValue();
+        return person.getIdentificationDocumentSeriesNumber();
     }
 
     public static void editDigitControlOnPerson(final Person person, final String digitControl) {
-        PersonIdentificationDocumentExtraInfo documentExtraInfo =
-                person.getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
-
-        if (documentExtraInfo == null) {
-            documentExtraInfo = person.getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
-        }
-
-        if (documentExtraInfo == null) {
-            documentExtraInfo = new IdentificationDocumentSeriesNumber();
-            documentExtraInfo.setPerson(person);
-        }
-
-        if (person.getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
-            if (Strings.isNullOrEmpty(digitControl)) {
-                throw new ULisboaSpecificationsDomainException("error.IdentityCardUtils.digit.control.required");
-            }
-
-            if (!validate(person.getDocumentIdNumber(), digitControl)) {
-                throw new ULisboaSpecificationsDomainException("error.IdentityCardUtils.invalid.digit.control");
-            }
-        }
-
-        documentExtraInfo.setValue(digitControl);
+        person.setIdentificationDocumentSeriesNumber(digitControl);
     }
 
     public static boolean validate(final String idDocumentNumber, final String digitControl) {
