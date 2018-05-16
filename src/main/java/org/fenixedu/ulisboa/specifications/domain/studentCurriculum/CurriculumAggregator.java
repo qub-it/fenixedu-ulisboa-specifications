@@ -601,15 +601,21 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
     public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
+        return isAggregationConcluded(plan, true);
+    }
 
-        if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
-            // approval may be in previous plan
-            if (CompetenceCourseServices.isCompetenceCourseApproved(plan, getCurricularCourse(), (ExecutionSemester) null)) {
+    public boolean isAggregationConcluded(final StudentCurricularPlan plan, final boolean checkLineApproval) {
+
+        if (checkLineApproval) {
+            if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
+                // approval may be in previous plan
+                if (CompetenceCourseServices.isCompetenceCourseApproved(plan, getCurricularCourse(), (ExecutionSemester) null)) {
+                    return true;
+                }
+
+            } else if (plan.isConcluded(getCurricularCourse(), (ExecutionYear) null)) {
                 return true;
             }
-
-        } else if (plan.isConcluded(getCurricularCourse(), (ExecutionYear) null)) {
-            return true;
         }
 
         // may be concluded by approval of another aggregator on which aggregation it participates
@@ -651,7 +657,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             return Grade.createEmptyGrade();
         }
 
-        if (!isAggregationConcluded(plan)) {
+        // false, because we really want to calculate the grade
+        if (!isAggregationConcluded(plan, false)) {
             return Grade.createGrade(GradeScale.RE, getGradeScale());
         }
 
