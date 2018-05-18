@@ -194,7 +194,7 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-4">
-					<input class="form-control" type="text" bennu-date="object.evaluationDate" required="true"/>
+					<input class="form-control" type="text" bennu-date="object.evaluationDate"/>
 				</div>
 			</div>
 			<div class="form-group row">
