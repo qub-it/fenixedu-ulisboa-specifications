@@ -29,6 +29,7 @@
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -221,6 +222,26 @@ public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base impl
         request.processRequest(false, true);
 
         return request;
+    }
+
+    public static List<ULisboaServiceRequest> create(final Collection<ULisboaServiceRequestBean> beans) {
+        ensureReadOnlyTx();
+
+        final List<ULisboaServiceRequest> results = new ArrayList<>();
+
+        FenixFramework.atomic(() -> {
+            for (ULisboaServiceRequestBean bean : beans) {
+                ULisboaServiceRequest request = createTransation(bean.getServiceRequestType(), bean.getRegistration(),
+                        bean.isRequestedOnline(), bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
+                results.add(request);
+            }
+        });
+
+        for (ULisboaServiceRequest request : results) {
+            request.processRequest(false, true);
+        }
+
+        return results;
     }
 
     @Atomic
