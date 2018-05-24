@@ -94,7 +94,7 @@ import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
 
-public final class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
+public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(ULisboaServiceRequest.class);
 
