@@ -57,6 +57,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.domain.User;
@@ -210,7 +211,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         initTreasuryNextReferenceCode();
 
-        registerDeletionListenerOnEnrolmentForCourseGradingTable();
+        registerDeletionListenerOnCurriculumLineForCourseGradingTable();
         registerDeletionListenerOnDegreeModuleForCurriculumLineLogs();
 
         registerDeletionListenerOnQualification();
@@ -234,13 +235,13 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         });
     }
 
-    private void registerDeletionListenerOnEnrolmentForCourseGradingTable() {
-        FenixFramework.getDomainModel().registerDeletionListener(Enrolment.class, new DeletionListener<Enrolment>() {
+    private void registerDeletionListenerOnCurriculumLineForCourseGradingTable() {
+        FenixFramework.getDomainModel().registerDeletionListener(CurriculumLine.class, new DeletionListener<CurriculumLine>() {
 
             @Override
-            public void deleting(final Enrolment enrolment) {
-                if (enrolment.getCourseGradingTable() != null) {
-                    enrolment.getCourseGradingTable().delete();
+            public void deleting(final CurriculumLine line) {
+                if (line.getCourseGradingTable() != null) {
+                    line.getCourseGradingTable().delete();
                 }
             }
         });
