@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -202,6 +203,20 @@ abstract public class CurriculumAggregatorServices {
         }
 
         return result;
+    }
+
+    public static Set<CurriculumAggregator> findRootAggregators(final DegreeCurricularPlan degreeCurricularPlan,
+            final ExecutionYear executionYear) {
+        final Set<Context> allContexts = degreeCurricularPlan.getDcpDegreeModules(CurricularCourse.class, executionYear).stream()
+                .flatMap(dm -> dm.getParentContextsByExecutionYear(executionYear).stream()).collect(Collectors.toSet());
+
+        final Set<Context> notAggregatorEntryContexts = allContexts.stream().filter(
+                c -> c.getCurriculumAggregatorEntrySet().stream().noneMatch(e -> e.getAggregator().isValid(executionYear)))
+                .collect(Collectors.toSet());
+
+        return notAggregatorEntryContexts.stream()
+                .flatMap(c -> c.getCurriculumAggregatorSet().stream().filter(a -> a.isValid(executionYear)))
+                .collect(Collectors.toSet());
     }
 
     static public CurriculumLine getLastCurriculumLine(final Context context, final ExecutionYear year,
