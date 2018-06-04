@@ -29,7 +29,7 @@ ${portal.toolkit()}
 
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.title.blueRecordConfiguration.read" />
+	<h1><spring:message code="label.title.blueRecordConfiguration" />
 		<small></small>
 	</h1>
 </div>

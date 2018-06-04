@@ -56,7 +56,7 @@ public class BlueRecordConfigurationBean implements IBean {
         this.degreeDataSource = degrees.stream().map(d -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(d.getExternalId());
-            tuple.setText(d.getPresentationName());
+            tuple.setText("[" + d.getCode() + "]" + d.getPresentationName());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
