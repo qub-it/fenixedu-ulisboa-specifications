@@ -5,16 +5,19 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTim
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.ulisboa.specifications.authentication.IULisboaRedirectionHandler;
+import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
@@ -30,6 +33,7 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagem
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassPreferenceStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
+import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 
@@ -57,8 +61,12 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
             return false;
         }
 
+        if (isDegreeExcluded(user, request)) {
+            return false;
+        }
+
         for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
-            
+
             if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
                 continue;
             }
@@ -102,7 +110,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
     @Override
     public String redirectionPath(final User user, final HttpServletRequest request) {
         for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
-            
+
             if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
                 continue;
             }
@@ -149,7 +157,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         return false;
     }
 
-    private boolean isFirstTimeCandidacies(User user, HttpServletRequest request) {
+    private boolean isFirstTimeCandidacies(final User user, final HttpServletRequest request) {
         String path = request.getRequestURL().toString();
         Optional<Candidacy> candidacy = user.getPerson().getCandidaciesSet().stream().filter(FirstTimeCandidacy.isFirstTime)
                 .filter(FirstTimeCandidacy.isOpen).findAny();
@@ -157,4 +165,10 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         return candidacy.isPresent() || path.contains(FIRST_TIME_START_URL);
     }
 
+    private boolean isDegreeExcluded(final User user, final HttpServletRequest request) {
+        Set<Degree> excludedDegrees = BlueRecordConfiguration.getInstance().getExclusiveDegreesSet();
+
+        return user.getPerson().getStudent().getRegistrationsSet().stream()
+                .anyMatch(r -> r.isRegistered(new DateTime()) && excludedDegrees.contains(r.getDegree()));
+    }
 }

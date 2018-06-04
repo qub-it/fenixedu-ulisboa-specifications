@@ -84,25 +84,25 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
     private static final String JSP_PATH = CONTROLLER_URL.substring(1);
 
-    private void setParametersBean(RegistrationHistoryReportParametersBean bean, Model model) {
+    private void setParametersBean(final RegistrationHistoryReportParametersBean bean, final Model model) {
         model.addAttribute("beanJson", getBeanJson(bean));
         model.addAttribute("bean", bean);
     }
 
     @RequestMapping
-    public String home(Model model, RedirectAttributes redirectAttributes) {
+    public String home(final Model model, final RedirectAttributes redirectAttributes) {
         return redirect(CONTROLLER_URL + "/search", model, redirectAttributes);
     }
 
     @RequestMapping(value = "/search")
-    public String search(Model model, RedirectAttributes redirectAttributes) {
+    public String search(final Model model, final RedirectAttributes redirectAttributes) {
         setParametersBean(new RegistrationHistoryReportParametersBean(), model);
         return jspPage("registrationhistoryreport");
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public String search(@RequestParam("bean") RegistrationHistoryReportParametersBean bean, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String search(@RequestParam("bean") final RegistrationHistoryReportParametersBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
 
         setResults(generateReport(bean), model);
@@ -110,7 +110,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         return jspPage("registrationhistoryreport");
     }
 
-    private void setResults(Collection<RegistrationHistoryReport> results, Model model) {
+    private void setResults(final Collection<RegistrationHistoryReport> results, final Model model) {
         model.addAttribute("results", results);
     }
 
@@ -193,8 +193,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     }
 
     @RequestMapping(value = "/downloadreport/{reportId}", method = RequestMethod.GET)
-    public void downloadReport(@PathVariable("reportId") String reportId, final Model model,
-            RedirectAttributes redirectAttributes, HttpServletResponse response) throws IOException {
+    public void downloadReport(@PathVariable("reportId") final String reportId, final Model model,
+            final RedirectAttributes redirectAttributes, final HttpServletResponse response) throws IOException {
         final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
                 ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
         writeFile(response, getFilename(reportId) + "_" + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xlsx",
@@ -372,7 +372,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         }
                     }
 
-                    private String labelFor(ProgramConclusion programConclusion, String field) {
+                    private String labelFor(final ProgramConclusion programConclusion, final String field) {
                         final String programConclusionPrefix = programConclusion.getName().getContent() + " - "
                                 + programConclusion.getDescription().getContent() + ": ";
 
@@ -449,7 +449,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addCell(bundle("label." + key), value == null ? "" : booleanString(value));
                     }
 
-                    private void addData(final String key, boolean value) {
+                    private void addData(final String key, final boolean value) {
                         addCell(bundle("label." + key), booleanString(value));
                     }
 
@@ -469,7 +469,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         return result.toByteArray();
     }
 
-    private byte[] createXLSWithError(String error) {
+    private byte[] createXLSWithError(final String error) {
 
         try {
 
@@ -572,7 +572,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                     }
 
-                    private String getRegimeDescription(ICurriculumEntry curriculumEntry) {
+                    private String getRegimeDescription(final ICurriculumEntry curriculumEntry) {
                         if (curriculumEntry instanceof CurriculumLine) {
                             final CurriculumLine curriculumLine = (CurriculumLine) curriculumEntry;
                             return curriculumLine.getCurricularCourse() != null ? curriculumLine.getCurricularCourse()
@@ -582,27 +582,27 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         return null;
                     }
 
-                    private boolean isDismissal(ICurriculum curriculum, ICurriculumEntry entry) {
+                    private boolean isDismissal(final ICurriculum curriculum, final ICurriculumEntry entry) {
                         return ((Curriculum) curriculum).getDismissalRelatedEntries().contains(entry);
                     }
 
-                    private Integer getCurricularSemester(ICurriculum curriculum, ICurriculumEntry entry) {
+                    private Integer getCurricularSemester(final ICurriculum curriculum, final ICurriculumEntry entry) {
                         return belongsToStudentCurricularPlan(curriculum, entry) ? CurricularPeriodServices
                                 .getCurricularSemester((CurriculumLine) entry) : null;
                     }
 
-                    private Integer getCurricularYear(ICurriculum curriculum, ICurriculumEntry entry) {
+                    private Integer getCurricularYear(final ICurriculum curriculum, final ICurriculumEntry entry) {
                         return belongsToStudentCurricularPlan(curriculum, entry) ? CurricularPeriodServices
                                 .getCurricularYear((CurriculumLine) entry) : null;
                     }
 
-                    private String getGroupPath(ICurriculum curriculum, ICurriculumEntry entry) {
+                    private String getGroupPath(final ICurriculum curriculum, final ICurriculumEntry entry) {
                         return belongsToStudentCurricularPlan(curriculum, entry) ? ((CurriculumLine) entry).getCurriculumGroup()
                                 .getFullPath() : null;
 
                     }
 
-                    protected boolean belongsToStudentCurricularPlan(ICurriculum curriculum, ICurriculumEntry entry) {
+                    protected boolean belongsToStudentCurricularPlan(final ICurriculum curriculum, final ICurriculumEntry entry) {
                         return entry instanceof Dismissal || entry instanceof Enrolment
                                 && ((Enrolment) entry).getStudentCurricularPlan() == curriculum.getStudentCurricularPlan();
                     }
@@ -892,6 +892,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.primaryBranch", stateBean.getDegreeBranch());
                         addData("RegistrationHistoryReport.regimeType", stateBean.getRegimeType());
                         addData("OriginInformationForm.institution", stateBean.getInstitutionName());
+                        addData("OriginInformationForm.studentNumber", stateBean.getStudentNumber());
                         addData("identification.number", stateBean.getIdNumber());
                         addData("PersonalInformationForm.documentIdExpirationDate", stateBean.getExpirationDateOfIdDoc());
                         addData("PersonalInformationForm.documentIdEmissionLocation", stateBean.getEmissionLocationOfIdDoc());
@@ -961,6 +962,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("OriginInformationForm.conclusionGrade", stateBean.getPrecedentConclusionGrade());
                         addData("OriginInformationForm.conclusionYear", stateBean.getPrecedentConclusionYear());
                         addData("OriginInformationForm.highSchoolType", stateBean.getPrecedentHighSchoolType());
+                        addData("HouseholdInformationForm.candidacyGrade", stateBean.getCandidacyGrade());
                         addData("ContactsForm.institutionalEmail", stateBean.getInstitutionalEmail());
                         addData("ContactsForm.personalEmail", stateBean.getDefaultEmail());
                         addData("ContactsForm.phoneNumber", stateBean.getPhone());
@@ -968,6 +970,37 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("SchoolSpecificData.vaccinationValidity", stateBean.getVaccinationValidity());
                         addData("HouseholdInformationForm.grantOwnerType", stateBean.getGrantOwnerType());
                         addData("HouseholdInformationForm.grantOwnerProviderName", stateBean.getGrantOwnerProvider());
+
+                        addData("HouseholdInformationForm.flunkedHighSchool", stateBean.getFlunkedHighSchool());
+                        addData("HouseholdInformationForm.flunkedHighSchoolTimes", stateBean.getFlunkedHighSchoolTimes());
+                        addData("HouseholdInformationForm.flunkedPreHighSchool", stateBean.getFlunkedPreHighSchool());
+                        addData("HouseholdInformationForm.flunkedPreHighSchoolTimes", stateBean.getFlunkedPreHighSchoolTimes());
+                        addData("HouseholdInformationForm.socialBenefitsInHighSchool", stateBean.getSocialBenefitsInHighSchool());
+                        addData("HouseholdInformationForm.socialBenefitsInHighSchoolDescription",
+                                stateBean.getSocialBenefitsInHighSchoolDescription());
+                        addData("HouseholdInformationForm.firstTimeInPublicUniv", stateBean.getFirstTimeInPublicUniv());
+                        addData("HouseholdInformationForm.publicUnivCandidacies", stateBean.getPublicUnivCandidacies());
+                        addData("HouseholdInformationForm.firstTimeInUlisboa", stateBean.getFirstTimeInUlisboa());
+
+                        addData("HouseholdInformationForm.bestQualitiesInThisCicle", stateBean.getBestQualitiesInThisCicle());
+                        addData("HouseholdInformationForm.remuneratedActivityInPast", stateBean.getRemuneratedActivityInPast());
+                        addData("HouseholdInformationForm.remuneratedActivityInPastDescription",
+                                stateBean.getRemuneratedActivityInPastDescription());
+                        addData("HouseholdInformationForm.flunkedUniversity", stateBean.getFlunkedUniversity());
+                        addData("HouseholdInformationForm.flunkedUniversityTimes", stateBean.getFlunkedUniversityTimes());
+                        addData("HouseholdInformationForm.livesAlone", stateBean.getLivesAlone());
+                        addData("HouseholdInformationForm.livesWithMother", stateBean.getLivesWithMother());
+                        addData("HouseholdInformationForm.livesWithFather", stateBean.getLivesWithFather());
+                        addData("HouseholdInformationForm.livesWithStepFather", stateBean.getLivesWithStepFather());
+                        addData("HouseholdInformationForm.livesWithStepMother", stateBean.getLivesWithStepMother());
+                        addData("HouseholdInformationForm.livesWithBrothers", stateBean.getLivesWithBrothers());
+                        addData("HouseholdInformationForm.livesWithChildren", stateBean.getLivesWithChildren());
+                        addData("HouseholdInformationForm.livesWithLifemate", stateBean.getLivesWithLifemate());
+                        addData("HouseholdInformationForm.livesWithOthers", stateBean.getLivesWithOthers());
+                        addData("HouseholdInformationForm.livesWithOthersDesc", stateBean.getLivesWithOthersDesc());
+                        addData("HouseholdInformationForm.numBrothers", stateBean.getNumBrothers());
+                        addData("HouseholdInformationForm.numChildren", stateBean.getNumChildren());
+
                     }
 
                     private void addData(final String key, final Object value) {

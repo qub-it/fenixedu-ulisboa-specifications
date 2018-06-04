@@ -493,6 +493,11 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             degreeLevel = "Desconhecido";
         }
 
+        String entryGrade = "";
+        if (studentCandidacy.getEntryGrade() != null) {
+            entryGrade = studentCandidacy.getEntryGrade().toString();
+        }
+
         String degreeBranch = "";
         if (studentCurricularPlan != null) {
             degreeBranch = getPrimaryBranchName(studentCurricularPlan);
@@ -505,6 +510,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             regimeType = regimeTypeObj.getLocalizedName();
         }
 
+        String studentNumber = person.getStudent().getNumber().toString();
         String documentIdNumber = person.getDocumentIdNumber();
         String candidacyState = BundleUtil.getString("resources/EnumerationResources",
                 studentCandidacy.getActiveCandidacySituationType().getQualifiedName());
@@ -573,7 +579,10 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         }
 
         String gender = person.getGender().getLocalizedName();
-        String ingressionType = studentCandidacy.getIngressionType().getLocalizedName();
+        String ingressionType = "";
+        if (studentCandidacy.getIngressionType() != null) {
+            ingressionType = studentCandidacy.getIngressionType().getLocalizedName();
+        }
         Integer placingOption = studentCandidacy.getPlacingOption();
         String firstOptionDegree = "";
         String firstOptionInstitution = "";
@@ -596,6 +605,33 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         String needsDisabilitySupport = "";
         String universityDiscoveryString = "";
         String universityChoiceString = "";
+
+        String flunkedPreHighSchool = "";
+        String flunkedPreHighSchoolTimes = "";
+        String flunkedHighSchool = "";
+        String flunkedHighSchoolTimes = "";
+        String socialBenefitsInHighSchool = "";
+        String socialBenefitsInHighSchoolDescription = "";
+        String firstTimeInPublicUniv = "";
+        String firstTimeInUlisboa = "";
+        String publicUnivCandidacies = "";
+        String bestQualitiesInThisCicle = "";
+        String remuneratedActivityInPast = "";
+        String remuneratedActivityInPastDescription = "";
+        String flunkedUniversity = "";
+        String flunkedUniversityTimes = "";
+        String livesAlone = "";
+        String livesWithMother = "";
+        String livesWithFather = "";
+        String livesWithStepFather = "";
+        String livesWithStepMother = "";
+        String livesWithBrothers = "";
+        String livesWithChildren = "";
+        String livesWithLifemate = "";
+        String livesWithOthers = "";
+        String livesWithOthersDesc = "";
+        String numBrothers = "";
+        String numChildren = "";
 
         Comparator<PersonalIngressionData> comparator =
                 Collections.reverseOrder(PersonalIngressionData.COMPARATOR_BY_EXECUTION_YEAR);
@@ -688,6 +724,122 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 if (personUlExecutionYear.getHouseholdSalarySpan() != null) {
                     salarySpan = personUlExecutionYear.getHouseholdSalarySpan().getLocalizedName();
                 }
+
+                if (personUlExecutionYear.getRemuneratedActivityInPast() != null) {
+                    remuneratedActivityInPast = personUlExecutionYear.getRemuneratedActivityInPast() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getRemuneratedActivityInPastDescription() != null) {
+                    remuneratedActivityInPastDescription = personUlExecutionYear.getRemuneratedActivityInPastDescription();
+                }
+
+                if (personUlExecutionYear.getFlunkedUniversity() != null) {
+                    flunkedUniversity = personUlExecutionYear.getFlunkedUniversity() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                    if (personUlExecutionYear.getFlunkedUniversity()) {
+                        flunkedUniversityTimes = personUlExecutionYear.getFlunkedUniversityTimes().toString();
+                    }
+                }
+
+                if (personUlExecutionYear.getLivesAlone() != null) {
+                    livesAlone = personUlExecutionYear.getLivesAlone() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                            "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithMother() != null) {
+                    livesWithMother = personUlExecutionYear.getLivesWithMother() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                            "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithFather() != null) {
+                    livesWithFather = personUlExecutionYear.getLivesWithFather() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                            "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithStepFather() != null) {
+                    livesWithStepFather = personUlExecutionYear.getLivesWithStepFather() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithStepMother() != null) {
+                    livesWithStepMother = personUlExecutionYear.getLivesWithStepMother() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithBrothers() != null) {
+                    livesWithBrothers = personUlExecutionYear.getLivesWithBrothers() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithChildren() != null) {
+                    livesWithChildren = personUlExecutionYear.getLivesWithChildren() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithLifemate() != null) {
+                    livesWithLifemate = personUlExecutionYear.getLivesWithLifemate() == Boolean.TRUE ? BundleUtil
+                            .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithOthers() != null) {
+                    livesWithOthers = personUlExecutionYear.getLivesWithOthers() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                            "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                }
+
+                if (personUlExecutionYear.getLivesWithOthersDesc() != null) {
+                    livesWithOthersDesc = personUlExecutionYear.getLivesWithOthersDesc();
+                }
+
+                if (personUlExecutionYear.getNumBrothers() != null) {
+                    numBrothers = personUlExecutionYear.getNumBrothers().toString();
+                }
+
+                if (personUlExecutionYear.getNumChildren() != null) {
+                    numChildren = personUlExecutionYear.getNumChildren().toString();
+                }
+            }
+
+            if (personUl.getFlunkedPreHighSchool() != null) {
+                flunkedPreHighSchool = personUl.getFlunkedPreHighSchool() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                        "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                if (personUl.getFlunkedPreHighSchool()) {
+                    flunkedPreHighSchoolTimes = personUl.getFlunkedPreHighSchoolTimes().toString();
+                }
+            }
+
+            if (personUl.getFlunkedHighSchool() != null) {
+                flunkedHighSchool = personUl.getFlunkedHighSchool() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                        "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                if (personUl.getFlunkedHighSchool()) {
+                    flunkedHighSchoolTimes = personUl.getFlunkedHighSchoolTimes().toString();
+                }
+            }
+
+            if (personUl.getSocialBenefitsInHighSchool() != null) {
+                socialBenefitsInHighSchool = personUl.getSocialBenefitsInHighSchool() == Boolean.TRUE ? BundleUtil
+                        .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+                if (personUl.getSocialBenefitsInHighSchool()) {
+                    socialBenefitsInHighSchoolDescription = personUl.getSocialBenefitsInHighSchoolDescription();
+                }
+            }
+
+            if (personUl.getFirstTimeInPublicUniv() != null) {
+                firstTimeInPublicUniv = personUl.getFirstTimeInPublicUniv() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                        "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+            }
+
+            if (personUl.getPublicUnivCandidacies() != null) {
+                publicUnivCandidacies = personUl.getPublicUnivCandidacies().toString();
+            }
+
+            if (personUl.getFirstTimeInUlisboa() != null) {
+                firstTimeInPublicUniv = personUl.getFirstTimeInUlisboa() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
+                        "label.true") : BundleUtil.getString(BUNDLE, "label.false");
+            }
+
+            if (personUl.getBestQualitiesInThisCicle() != null) {
+                bestQualitiesInThisCicle = personUl.getBestQualitiesInThisCicle();
             }
 
         }
@@ -793,21 +945,27 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             precendentDegreeCycle = "----";
         }
 
-        return new RegistrationDGESStateBean(executionYear, studentCandidacy.getExternalId(), degreeTypeName, degreeCode,
-                degreeName, cycleName, curricularYear, degreeLevel, degreeBranch, regimeType, institutionName, documentIdNumber,
-                expirationDateOfIdDoc, emissionLocationOfIdDoc, candidacyState, name, maritalStatus, registrationStatus,
-                nationality, secondNationality, birthYear, countryOfBirth, districtOfBirth, districtSubdivisionOfBirth,
-                parishOfBirth, gender, ingressionType, placingOption, firstOptionDegree, firstOptionInstitution, isDislocated,
-                dislocatedResidenceType, countryOfResidence, districtOfResidence, districtSubdivisionOfResidence,
-                parishOfResidence, addressOfResidence, areaCodeOfResidence, countryOfDislocated, districtOfDislocated,
-                districtSubdivisionOfDislocated, parishOfDislocated, addressOfDislocated, areaCodeOfDislocated, profession,
-                professionTimeType, professionalCondition, professionType, fatherName, fatherSchoolLevel,
-                fatherProfessionalCondition, fatherProfessionType, motherName, motherSchoolLevel, motherProfessionalCondition,
-                motherProfessionType, salarySpan, disabilityType, needsDisabilitySupport, universityDiscoveryString,
-                universityChoiceString, precedentCountry, precedentDistrict, precedentDistrictSubdivision, precedentSchoolLevel,
-                precedentInstitution, precedentDegreeDesignation, precedentConclusionGrade, precedentConclusionYear,
-                precedentHighSchoolType, precendentDegreeCycle, institutionalEmail, defaultEmail, phone, telephone,
-                vaccinationValidity, grantOwnerType, grantOwnerProvider);
+        return new RegistrationDGESStateBean(executionYear, studentCandidacy.getExternalId(), entryGrade, degreeTypeName,
+                degreeCode, degreeName, cycleName, curricularYear, degreeLevel, degreeBranch, regimeType, institutionName,
+                studentNumber, documentIdNumber, expirationDateOfIdDoc, emissionLocationOfIdDoc, candidacyState, name,
+                maritalStatus, registrationStatus, nationality, secondNationality, birthYear, countryOfBirth, districtOfBirth,
+                districtSubdivisionOfBirth, parishOfBirth, gender, ingressionType, placingOption, firstOptionDegree,
+                firstOptionInstitution, isDislocated, dislocatedResidenceType, countryOfResidence, districtOfResidence,
+                districtSubdivisionOfResidence, parishOfResidence, addressOfResidence, areaCodeOfResidence, countryOfDislocated,
+                districtOfDislocated, districtSubdivisionOfDislocated, parishOfDislocated, addressOfDislocated,
+                areaCodeOfDislocated, profession, professionTimeType, professionalCondition, professionType, fatherName,
+                fatherSchoolLevel, fatherProfessionalCondition, fatherProfessionType, motherName, motherSchoolLevel,
+                motherProfessionalCondition, motherProfessionType, salarySpan, disabilityType, needsDisabilitySupport,
+                universityDiscoveryString, universityChoiceString, precedentCountry, precedentDistrict,
+                precedentDistrictSubdivision, precedentSchoolLevel, precedentInstitution, precedentDegreeDesignation,
+                precedentConclusionGrade, precedentConclusionYear, precedentHighSchoolType, precendentDegreeCycle,
+                institutionalEmail, defaultEmail, phone, telephone, vaccinationValidity, grantOwnerType, grantOwnerProvider,
+                flunkedPreHighSchool, flunkedPreHighSchoolTimes, flunkedHighSchool, flunkedHighSchoolTimes,
+                socialBenefitsInHighSchool, socialBenefitsInHighSchoolDescription, firstTimeInPublicUniv, firstTimeInUlisboa,
+                publicUnivCandidacies, bestQualitiesInThisCicle, remuneratedActivityInPast, remuneratedActivityInPastDescription,
+                flunkedUniversity, flunkedUniversityTimes, livesAlone, livesWithMother, livesWithFather, livesWithStepFather,
+                livesWithStepMother, livesWithBrothers, livesWithChildren, livesWithLifemate, livesWithOthers,
+                livesWithOthersDesc, numBrothers, numChildren);
     }
 
     public static class CandidacyToProcessBean implements IBean {
@@ -848,6 +1006,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
     public static class RegistrationDGESStateBean {
         private String executionYear;
         private String candidacyId;
+        private String candidacyGrade;
         private String degreeTypeName;
         private String degreeCode;
         private String degreeName;
@@ -857,6 +1016,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         private String degreeBranch;
         private String regimeType;
         private String institutionName;
+        private String studentNumber;
         private String idNumber;
         private String expirationDateOfIdDoc;
         private String emissionLocationOfIdDoc;
@@ -924,15 +1084,42 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         private String vaccinationValidity;
         private String grantOwnerType;
         private String grantOwnerProvider;
+        private String flunkedPreHighSchool;
+        private String flunkedPreHighSchoolTimes;
+        private String flunkedHighSchool;
+        private String flunkedHighSchoolTimes;
+        private String socialBenefitsInHighSchool;
+        private String socialBenefitsInHighSchoolDescription;
+        private String firstTimeInPublicUniv;
+        private String firstTimeInUlisboa;
+        private String publicUnivCandidacies;
+        private String bestQualitiesInThisCicle;
+        private String remuneratedActivityInPast;
+        private String remuneratedActivityInPastDescription;
+        private String flunkedUniversity;
+        private String flunkedUniversityTimes;
+        private String livesAlone;
+        private String livesWithMother;
+        private String livesWithFather;
+        private String livesWithStepFather;
+        private String livesWithStepMother;
+        private String livesWithBrothers;
+        private String livesWithChildren;
+        private String livesWithLifemate;
+        private String livesWithOthers;
+        private String livesWithOthersDesc;
+        private String numBrothers;
+        private String numChildren;
 
-        public RegistrationDGESStateBean(final String executionYear, final String candidacyId, final String degreeTypeName,
-                final String degreeCode, final String degreeName, final String cycleName, final String curricularYear,
-                final String degreeLevel, final String degreeBranch, final String regimeType, final String institutionName,
-                final String idNumber, final String expirationDateOfIdDoc, final String emissionLocationOfIdDoc,
-                final String candidacyState, final String name, final String maritalStatus, final String registrationState,
-                final String nationality, final String secondNationality, final String birthYear, final String countryOfBirth,
-                final String districtOfBirth, final String districtSubdivisionOfBirth, final String parishOfBirth,
-                final String gender, final String ingressionType, final Integer placingOption, final String firstOptionDegree,
+        public RegistrationDGESStateBean(final String executionYear, final String candidacyId, final String candidacyGrade,
+                final String degreeTypeName, final String degreeCode, final String degreeName, final String cycleName,
+                final String curricularYear, final String degreeLevel, final String degreeBranch, final String regimeType,
+                final String institutionName, final String studentNumber, final String idNumber,
+                final String expirationDateOfIdDoc, final String emissionLocationOfIdDoc, final String candidacyState,
+                final String name, final String maritalStatus, final String registrationState, final String nationality,
+                final String secondNationality, final String birthYear, final String countryOfBirth, final String districtOfBirth,
+                final String districtSubdivisionOfBirth, final String parishOfBirth, final String gender,
+                final String ingressionType, final Integer placingOption, final String firstOptionDegree,
                 final String firstOptionInstitution, final String isDislocated, final String dislocatedResidenceType,
                 final String countryOfResidence, final String districtOfResidence, final String districtSubdivisionOfResidence,
                 final String parishOfResidence, final String addressOfResidence, final String areaCodeOfResidence,
@@ -948,7 +1135,17 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 final String precedentInstitution, final String precedentDegreeDesignation, final String precedentConclusionGrade,
                 final String precedentConclusionYear, final String precedentHighSchoolType, final String precendentDegreeCycle,
                 final String institutionalEmail, final String defaultEmail, final String phone, final String telephone,
-                final String vaccinationValidity, final String grantOwnerType, final String grantOwnerProvider) {
+                final String vaccinationValidity, final String grantOwnerType, final String grantOwnerProvider,
+                final String flunkedPreHighSchool, final String flunkedPreHighSchoolTimes, final String flunkedHighSchool,
+                final String flunkedHighSchoolTimes, final String socialBenefitsInHighSchool,
+                final String socialBenefitsInHighSchoolDescription, final String firstTimeInPublicUniv,
+                final String firstTimeInUlisboa, final String publicUnivCandidacies, final String bestQualitiesInThisCicle,
+                final String remuneratedActivityInPast, final String remuneratedActivityInPastDescription,
+                final String flunkedUniversity, final String flunkedUniversityTimes, final String livesAlone,
+                final String livesWithMother, final String livesWithFather, final String livesWithStepFather,
+                final String livesWithStepMother, final String livesWithBrothers, final String livesWithChildren,
+                final String livesWithLifemate, final String livesWithOthers, final String livesWithOthersDesc,
+                final String numBrothers, final String numChildren) {
             super();
             this.setExecutionYear(StringUtils.trim(executionYear));
             this.candidacyId = StringUtils.trim(candidacyId);
@@ -961,6 +1158,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             this.degreeBranch = StringUtils.trim(degreeBranch);
             this.regimeType = StringUtils.trim(regimeType);
             this.institutionName = StringUtils.trim(institutionName);
+            this.studentNumber = StringUtils.trim(studentNumber);
             this.idNumber = StringUtils.trim(idNumber);
             this.expirationDateOfIdDoc = StringUtils.trim(expirationDateOfIdDoc);
             this.emissionLocationOfIdDoc = StringUtils.trim(emissionLocationOfIdDoc);
@@ -1028,6 +1226,32 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             this.vaccinationValidity = StringUtils.trim(vaccinationValidity);
             this.grantOwnerType = StringUtils.trim(grantOwnerType);
             this.grantOwnerProvider = StringUtils.trim(grantOwnerProvider);
+            this.flunkedPreHighSchool = StringUtils.trim(flunkedPreHighSchool);
+            this.flunkedPreHighSchoolTimes = StringUtils.trim(flunkedPreHighSchoolTimes);
+            this.flunkedHighSchool = StringUtils.trim(flunkedHighSchool);
+            this.flunkedHighSchoolTimes = StringUtils.trim(flunkedHighSchoolTimes);
+            this.socialBenefitsInHighSchool = StringUtils.trim(socialBenefitsInHighSchool);
+            this.socialBenefitsInHighSchoolDescription = StringUtils.trim(socialBenefitsInHighSchoolDescription);
+            this.firstTimeInPublicUniv = StringUtils.trim(firstTimeInPublicUniv);
+            this.firstTimeInUlisboa = StringUtils.trim(firstTimeInUlisboa);
+            this.publicUnivCandidacies = StringUtils.trim(publicUnivCandidacies);
+            this.bestQualitiesInThisCicle = StringUtils.trim(bestQualitiesInThisCicle);
+            this.remuneratedActivityInPast = StringUtils.trim(remuneratedActivityInPast);
+            this.remuneratedActivityInPastDescription = StringUtils.trim(remuneratedActivityInPastDescription);
+            this.flunkedUniversity = StringUtils.trim(flunkedUniversity);
+            this.flunkedUniversityTimes = StringUtils.trim(flunkedUniversityTimes);
+            this.livesAlone = StringUtils.trim(livesAlone);
+            this.livesWithMother = StringUtils.trim(livesWithMother);
+            this.livesWithFather = StringUtils.trim(livesWithFather);
+            this.livesWithStepFather = StringUtils.trim(livesWithStepFather);
+            this.livesWithStepMother = StringUtils.trim(livesWithStepMother);
+            this.livesWithBrothers = StringUtils.trim(livesWithBrothers);
+            this.livesWithChildren = StringUtils.trim(livesWithChildren);
+            this.livesWithLifemate = StringUtils.trim(livesWithLifemate);
+            this.livesWithOthers = StringUtils.trim(livesWithOthers);
+            this.livesWithOthersDesc = StringUtils.trim(livesWithOthersDesc);
+            this.numBrothers = StringUtils.trim(numBrothers);
+            this.numChildren = StringUtils.trim(numChildren);
         }
 
         public String getIdNumber() {
@@ -1036,6 +1260,22 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         public void setIdNumber(final String idNumber) {
             this.idNumber = idNumber;
+        }
+
+        public String getStudentNumber() {
+            return studentNumber;
+        }
+
+        public void setStudentNumber(final String studentNumber) {
+            this.studentNumber = studentNumber;
+        }
+
+        public String getCandidacyGrade() {
+            return candidacyGrade;
+        }
+
+        public void setCandidacyGrade(final String candidacyGrade) {
+            this.candidacyGrade = candidacyGrade;
         }
 
         public String getName() {
@@ -1653,5 +1893,214 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         public void setRegimeType(final String regimeType) {
             this.regimeType = regimeType;
         }
+
+        public String getFlunkedPreHighSchool() {
+            return flunkedPreHighSchool;
+        }
+
+        public void setFlunkedPreHighSchool(final String flunkedPreHighSchool) {
+            this.flunkedPreHighSchool = flunkedPreHighSchool;
+        }
+
+        public String getFlunkedPreHighSchoolTimes() {
+            return flunkedPreHighSchoolTimes;
+        }
+
+        public void setFlunkedPreHighSchoolTimes(final String flunkedPreHighSchoolTimes) {
+            this.flunkedPreHighSchoolTimes = flunkedPreHighSchoolTimes;
+        }
+
+        public String getFlunkedHighSchool() {
+            return flunkedHighSchool;
+        }
+
+        public void setFlunkedHighSchool(final String flunkedHighSchool) {
+            this.flunkedHighSchool = flunkedHighSchool;
+        }
+
+        public String getFlunkedHighSchoolTimes() {
+            return flunkedHighSchoolTimes;
+        }
+
+        public void setFlunkedHighSchoolTimes(final String flunkedHighSchoolTimes) {
+            this.flunkedHighSchoolTimes = flunkedHighSchoolTimes;
+        }
+
+        public String getSocialBenefitsInHighSchool() {
+            return socialBenefitsInHighSchool;
+        }
+
+        public void setSocialBenefitsInHighSchool(final String socialBenefitsInHighSchool) {
+            this.socialBenefitsInHighSchool = socialBenefitsInHighSchool;
+        }
+
+        public String getSocialBenefitsInHighSchoolDescription() {
+            return socialBenefitsInHighSchoolDescription;
+        }
+
+        public void setSocialBenefitsInHighSchoolDescription(final String socialBenefitsInHighSchoolDescription) {
+            this.socialBenefitsInHighSchoolDescription = socialBenefitsInHighSchoolDescription;
+        }
+
+        public String getFirstTimeInPublicUniv() {
+            return firstTimeInPublicUniv;
+        }
+
+        public void setFirstTimeInPublicUniv(final String firstTimeInPublicUniv) {
+            this.firstTimeInPublicUniv = firstTimeInPublicUniv;
+        }
+
+        public String getFirstTimeInUlisboa() {
+            return firstTimeInUlisboa;
+        }
+
+        public void setFirstTimeInUlisboa(final String firstTimeInUlisboa) {
+            this.firstTimeInUlisboa = firstTimeInUlisboa;
+        }
+
+        public String getPublicUnivCandidacies() {
+            return publicUnivCandidacies;
+        }
+
+        public void setPublicUnivCandidacies(final String publicUnivCandidacies) {
+            this.publicUnivCandidacies = publicUnivCandidacies;
+        }
+
+        public String getBestQualitiesInThisCicle() {
+            return bestQualitiesInThisCicle;
+        }
+
+        public void setBestQualitiesInThisCicle(final String bestQualitiesInThisCicle) {
+            this.bestQualitiesInThisCicle = bestQualitiesInThisCicle;
+        }
+
+        public String getRemuneratedActivityInPast() {
+            return remuneratedActivityInPast;
+        }
+
+        public void setRemuneratedActivityInPast(final String remuneratedActivityInPast) {
+            this.remuneratedActivityInPast = remuneratedActivityInPast;
+        }
+
+        public String getRemuneratedActivityInPastDescription() {
+            return remuneratedActivityInPastDescription;
+        }
+
+        public void setRemuneratedActivityInPastDescription(final String remuneratedActivityInPastDescription) {
+            this.remuneratedActivityInPastDescription = remuneratedActivityInPastDescription;
+        }
+
+        public String getFlunkedUniversity() {
+            return flunkedUniversity;
+        }
+
+        public void setFlunkedUniversity(final String flunkedUniversity) {
+            this.flunkedUniversity = flunkedUniversity;
+        }
+
+        public String getFlunkedUniversityTimes() {
+            return flunkedUniversityTimes;
+        }
+
+        public void setFlunkedUniversityTimes(final String flunkedUniversityTimes) {
+            this.flunkedUniversityTimes = flunkedUniversityTimes;
+        }
+
+        public String getLivesAlone() {
+            return livesAlone;
+        }
+
+        public void setLivesAlone(final String livesAlone) {
+            this.livesAlone = livesAlone;
+        }
+
+        public String getLivesWithMother() {
+            return livesWithMother;
+        }
+
+        public void setLivesWithMother(final String livesWithMother) {
+            this.livesWithMother = livesWithMother;
+        }
+
+        public String getLivesWithFather() {
+            return livesWithFather;
+        }
+
+        public void setLivesWithFather(final String livesWithFather) {
+            this.livesWithFather = livesWithFather;
+        }
+
+        public String getLivesWithStepFather() {
+            return livesWithStepFather;
+        }
+
+        public void setLivesWithStepFather(final String livesWithStepFather) {
+            this.livesWithStepFather = livesWithStepFather;
+        }
+
+        public String getLivesWithStepMother() {
+            return livesWithStepMother;
+        }
+
+        public void setLivesWithStepMother(final String livesWithStepMother) {
+            this.livesWithStepMother = livesWithStepMother;
+        }
+
+        public String getLivesWithBrothers() {
+            return livesWithBrothers;
+        }
+
+        public void setLivesWithBrothers(final String livesWithBrothers) {
+            this.livesWithBrothers = livesWithBrothers;
+        }
+
+        public String getLivesWithChildren() {
+            return livesWithChildren;
+        }
+
+        public void setLivesWithChildren(final String livesWithChildren) {
+            this.livesWithChildren = livesWithChildren;
+        }
+
+        public String getLivesWithLifemate() {
+            return livesWithLifemate;
+        }
+
+        public void setLivesWithLifemate(final String livesWithLifemate) {
+            this.livesWithLifemate = livesWithLifemate;
+        }
+
+        public String getLivesWithOthers() {
+            return livesWithOthers;
+        }
+
+        public void setLivesWithOthers(final String livesWithOthers) {
+            this.livesWithOthers = livesWithOthers;
+        }
+
+        public String getLivesWithOthersDesc() {
+            return livesWithOthersDesc;
+        }
+
+        public void setLivesWithOthersDesc(final String livesWithOthersDesc) {
+            this.livesWithOthersDesc = livesWithOthersDesc;
+        }
+
+        public String getNumBrothers() {
+            return numBrothers;
+        }
+
+        public void setNumBrothers(final String numBrothers) {
+            this.numBrothers = numBrothers;
+        }
+
+        public String getNumChildren() {
+            return numChildren;
+        }
+
+        public void setNumChildren(final String numChildren) {
+            this.numChildren = numChildren;
+        }
+
     }
 }
