@@ -186,36 +186,43 @@ public class RegistrationHistoryReportService {
 
         return report -> {
 
-            for (final ProgramConclusion programConclusion : report.getProgramConclusionsToReport()) {
-
-                final RegistrationConclusionBean conclusionBean = report.getConclusionReportFor(programConclusion);
-
-                if (conclusionBean == null) {
-                    return false;
-                }
-
-                if (!conclusionBean.isConcluded()) {
-                    return false;
-                }
-
-                final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
-                final LocalDate conclusionDate = conclusionBean.getConclusionDate().toLocalDate();
-
-                if (!this.graduatedExecutionYears.contains(conclusionYear)) {
-                    return false;
-                }
-
-                if (graduationPeriodStartDate != null && conclusionDate.isBefore(graduationPeriodStartDate)) {
-                    return false;
-                }
-
-                if (graduationPeriodEndDate != null && conclusionDate.isAfter(graduationPeriodEndDate)) {
-                    return false;
-                }
+            if (programConclusionsToFilter.isEmpty()) {
+                return report.getProgramConclusionsToReport().stream().anyMatch(pc -> isValidGraduated(report, pc));
+            } else {
+                return report.getProgramConclusionsToReport().stream().allMatch(pc -> isValidGraduated(report, pc));
             }
 
-            return true;
         };
+    }
+
+    private boolean isValidGraduated(RegistrationHistoryReport report, ProgramConclusion programConclusion) {
+
+        final RegistrationConclusionBean conclusionBean = report.getConclusionReportFor(programConclusion);
+
+        if (conclusionBean == null) {
+            return false;
+        }
+
+        if (!conclusionBean.isConcluded()) {
+            return false;
+        }
+
+        final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
+        final LocalDate conclusionDate = conclusionBean.getConclusionDate().toLocalDate();
+
+        if (!this.graduatedExecutionYears.contains(conclusionYear)) {
+            return false;
+        }
+
+        if (graduationPeriodStartDate != null && conclusionDate.isBefore(graduationPeriodStartDate)) {
+            return false;
+        }
+
+        if (graduationPeriodEndDate != null && conclusionDate.isAfter(graduationPeriodEndDate)) {
+            return false;
+        }
+
+        return true;
     }
 
     private Predicate<RegistrationHistoryReport> filterPredicate() {
