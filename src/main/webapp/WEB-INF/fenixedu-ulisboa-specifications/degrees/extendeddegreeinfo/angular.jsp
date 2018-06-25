@@ -448,6 +448,19 @@ ${portal.angularToolkit()}
 	            </div>	            
 	    		
 				<div class="form-group row">
+	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.prevailingScientificArea" /></div>	
+	                <div class="col-sm-7">
+	                	<textarea id="extendedDegreeInformation_prevailingScientificArea_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['prevailingScientificArea']" ng-readonly="true" ng-model="prevailingScientificArea" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
+	                	<textarea id="extendedDegreeInformation_prevailingScientificArea" rows="6" class="form-control" ng-show="editMode['prevailingScientificArea']" ng-readonly="false" bennu-localized-string="object.prevailingScientificArea" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />"></textarea>
+	                </div>
+	                <div class="col-sm-3">
+		        		<a href="" class="btn btn-xs btn-default" ng-show="editMode['prevailingScientificArea']" ng-click="toggleEditMode('prevailingScientificArea')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+		        		<button class="btn btn-xs btn-primary" ng-show="editMode['prevailingScientificArea']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+		        		<a href="" class="btn btn-xs btn-default" ng-show="!editMode['prevailingScientificArea']" ng-click="toggleEditMode('prevailingScientificArea')" data-toggle="tooltip" title="<spring:message code="label.edit" />"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+		        	</div>
+	            </div>
+	            
+				<div class="form-group row">
 	                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.scientificAreas" /></div>	
 	                <div class="col-sm-7">
 	                	<textarea id="extendedDegreeInformation_scientificAreas_read" rows="6" class="form-control form-control-read-only" ng-show="!editMode['scientificAreas']" ng-readonly="true" ng-model="scientificAreas" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />"></textarea>
@@ -614,6 +627,7 @@ ${portal.angularToolkit()}
                     "markAverage",
                     "qualificationLevel",
                     "recognitions",
+                    "prevailingScientificArea",
                     "scientificAreas",
                     "studyProgrammeDuration",
                 	"studyRegime",

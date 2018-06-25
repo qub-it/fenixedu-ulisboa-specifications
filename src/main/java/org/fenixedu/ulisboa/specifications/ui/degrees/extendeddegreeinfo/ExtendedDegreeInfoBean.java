@@ -49,6 +49,7 @@ public class ExtendedDegreeInfoBean implements IBean {
     private Double markAverage;
     private LocalizedString qualificationLevel;
     private LocalizedString recognitions;
+    private LocalizedString prevailingScientificArea;
 
     // ExtendedDegreeInfo fields
     private LocalizedString scientificAreas;
@@ -356,6 +357,14 @@ public class ExtendedDegreeInfoBean implements IBean {
 
     public void setRecognitions(final LocalizedString recognitions) {
         this.recognitions = recognitions;
+    }
+
+    public LocalizedString getPrevailingScientificArea() {
+        return prevailingScientificArea;
+    }
+
+    public void setPrevailingScientificArea(LocalizedString prevailingScientificArea) {
+        this.prevailingScientificArea = prevailingScientificArea;
     }
 
     public LocalizedString getScientificAreas() {

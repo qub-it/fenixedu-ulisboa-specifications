@@ -110,6 +110,7 @@ public class ExtendedDegreeInfoController extends FenixeduUlisboaSpecificationsB
         bean.setMarkAverage(di.getMarkAverage() != null ? di.getMarkAverage() : null);
         bean.setQualificationLevel(di.getQualificationLevel() != null ? di.getQualificationLevel() : null);
         bean.setRecognitions(di.getRecognitions() != null ? di.getRecognitions() : null);
+        bean.setPrevailingScientificArea(di.getPrevailingScientificArea());
 
         bean.setScientificAreas(edi.getScientificAreas());
         bean.setStudyProgrammeDuration(edi.getStudyProgrammeDuration());
@@ -152,6 +153,7 @@ public class ExtendedDegreeInfoController extends FenixeduUlisboaSpecificationsB
         di.setMarkAverage(bean.getMarkAverage());
         di.setQualificationLevel(bean.getQualificationLevel());
         di.setRecognitions(bean.getRecognitions());
+        di.setPrevailingScientificArea(bean.getPrevailingScientificArea());
 
         edi.setScientificAreas(bean.getScientificAreas());
         edi.setStudyProgrammeDuration(bean.getStudyProgrammeDuration());
