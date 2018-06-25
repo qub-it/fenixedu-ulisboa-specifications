@@ -473,6 +473,7 @@ relation GlobalConfigurationTemplate {
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information
 class ULisboaPortalConfiguration{
 	String teacherEvaluationsFunctionality;
+	boolean teacherAdHocEvaluationsAvailable;
 }
 
 relation ULisboaPortalConfigurationPortalConfiguration{
