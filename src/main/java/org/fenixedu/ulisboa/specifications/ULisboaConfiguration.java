@@ -50,7 +50,7 @@ public class ULisboaConfiguration {
         public Boolean getCurricularRulesApprovalsAwareOfCompetenceCourse();
 
         @ConfigurationProperty(key = "domain.academic.curricularRules.ApprovalsAwareOfCompetenceCourse.studentScope",
-                defaultValue = "true")
+                defaultValue = "false")
         public Boolean getCurricularRulesApprovalsAwareOfCompetenceCourseAtStudentScope();
 
         @ConfigurationProperty(key = "domain.academic.curriculumAggregator.firstExecutionYearName", defaultValue = "2016/2017")
