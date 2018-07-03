@@ -477,8 +477,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         // grade scale factor might have changed through the years
         if (before.isNumeric() && after.isNumeric()) {
-            final RoundingMode round = RoundingMode.HALF_UP;
-            return before.getNumericValue().setScale(0, round).equals(after.getNumericValue().setScale(0, round));
+            return before.getNumericValue().compareTo(after.getNumericValue()) == 0;
         }
 
         // manual loose evaluation or mark sheet non-approval might have occoured
