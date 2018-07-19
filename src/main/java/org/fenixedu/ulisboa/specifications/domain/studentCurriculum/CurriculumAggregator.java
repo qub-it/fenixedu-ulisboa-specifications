@@ -284,6 +284,14 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getContext().getCurriculumAggregatorSet().stream().filter(i -> i.getSince().isAfter(getSince()))
                 .min(Comparator.comparing(CurriculumAggregator::getSince)).orElse(null);
     }
+    
+    /**
+     * Get Aggregator for EXACTLY the given year
+     */
+    public CurriculumAggregator getConfigFor(final ExecutionYear executionYear) {
+        return getContext().getCurriculumAggregatorSet().stream().filter(a -> a.getSince() == executionYear).findAny()
+                .orElse(null);
+    }
 
     public CurricularCourse getCurricularCourse() {
         return (CurricularCourse) getContext().getChildDegreeModule();

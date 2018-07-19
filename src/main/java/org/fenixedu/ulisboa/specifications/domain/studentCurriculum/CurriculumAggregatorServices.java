@@ -219,6 +219,18 @@ abstract public class CurriculumAggregatorServices {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Find Aggregators EXACTLY with the given year
+     */
+    public static Set<CurriculumAggregator> findAggregators(final DegreeCurricularPlan degreeCurricularPlan,
+            final ExecutionYear executionYear) {
+        final Set<Context> allContexts = degreeCurricularPlan.getDcpDegreeModules(CurricularCourse.class, executionYear).stream()
+                .flatMap(dm -> dm.getParentContextsByExecutionYear(executionYear).stream()).collect(Collectors.toSet());
+
+        return allContexts.stream().flatMap(ctx -> ctx.getCurriculumAggregatorSet().stream())
+                .filter(ca -> ca.getSince() == executionYear).collect(Collectors.toSet());
+    }
+
     static public CurriculumLine getLastCurriculumLine(final Context context, final ExecutionYear year,
             final StudentCurricularPlan plan) {
 
