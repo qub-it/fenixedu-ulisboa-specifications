@@ -122,7 +122,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                 getEvaluationType(), getEvaluationSeason(), getGradeCalculator(), getGradeValueScale(), getOptionalConcluded());
 
         for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-            if (entry.getContext().isValid(getSince())) {
+            if (entry.getContext().isValid(targetYear)) {
                 CurriculumAggregatorEntry.create(result, entry.getContext(), entry.getSupportsTeacherConfirmation(),
                         entry.getGradeFactor(), entry.getGradeValueScale(), entry.getOptional());
             }
@@ -266,7 +266,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             if (getSince().isBeforeOrEquals(year)) {
 
                 final CurriculumAggregator nextConfig = getNextConfig();
-                if (nextConfig == null || !nextConfig.isValid(year)) {
+                if (nextConfig == null || nextConfig.getSince().isAfter(year)) {
                     return true;
                 }
             }
