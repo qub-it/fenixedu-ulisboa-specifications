@@ -97,14 +97,27 @@ ${portal.toolkit()}
 </c:if>
 
 <div class="well start">
-	<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { %>
-		<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p>
-	<% } else { %>
-		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent().replaceAll(","," -") + ", " + Unit.getInstitutionName().getContent() %>' htmlEscape="false"/></p>
-	<% } %>
+<%-- 	<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { %> --%>
+<%-- 		<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p> --%>
+<%-- 	<% } else { %> --%>
+        <% 
+        String unitName = Unit.getInstitutionName().getContent();
+        if(unitName.startsWith("Instituto")) {
+            unitName = "O " + unitName;
+        } else {
+            unitName = "A " + unitName;
+        }
+        %>
+		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent().replaceAll(","," -") + ", " + unitName %>' htmlEscape="false"/></p>
+<%-- 	<% } %> --%>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
 	<p><spring:message code="label.firstTimeCandidacy.instructions.details" htmlEscape="false"/></p>
+</div>
+
+<div class="well start">
+    <p><spring:message code="label.firstTimeCandidacy.instructions.rgpd" htmlEscape="false"/></p>
+    
 </div>
 
 <c:if test="${empty errorMessages}">

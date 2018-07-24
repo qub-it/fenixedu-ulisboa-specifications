@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: joao.roxo@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -28,6 +28,8 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Locale;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -35,6 +37,9 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan> {
+
+    private static final Pattern OVER_PATTERN = Pattern.compile("OVER_(\\d+)");
+    private static final Pattern RANGE_PATTERN = Pattern.compile("(\\d+)_(\\d+)");
 
     private SalarySpan() {
         super();
@@ -46,6 +51,19 @@ public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan
         setCode(code);
         setDescription(description);
         setOther(false);
+
+        checkRules();
+    }
+
+    private void checkRules() {
+        if (readAll().filter(salary -> getCode().equals(salary.getCode()) && salary != SalarySpan.this).findAny().isPresent()) {
+            throw new DomainException("error.code.alreadyUsed");
+        }
+
+        if (!getCode().equals("DONT_KNOW") && !OVER_PATTERN.matcher(getCode()).matches()
+                && !RANGE_PATTERN.matcher(getCode()).matches()) {
+            throw new DomainException("error.code.not.in.right.format");
+        }
     }
 
     @Override
@@ -53,11 +71,10 @@ public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan
         if (code == null || code.trim().isEmpty()) {
             super.setCode(null);
         } else {
-            if (readAll().filter(salary -> code.equals(salary.getCode()) && salary != SalarySpan.this).findAny().isPresent()) {
-                throw new DomainException("error.code.alreadyUsed");
-            }
             super.setCode(code);
         }
+
+        checkRules();
     }
 
     @SafeVarargs
@@ -70,7 +87,7 @@ public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan
     }
 
     public static SalarySpan findByCode(String code) {
-        Predicate<SalarySpan> matchesCode = disabilityType -> code.equals(disabilityType.getCode());
+        Predicate<SalarySpan> matchesCode = salarySpan -> code.equals(salarySpan.getCode());
         return readAll(matchesCode).findFirst().orElse(null);
     }
 
@@ -91,6 +108,27 @@ public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan
         return getOther();
     }
 
+    private int compareValue(SalarySpan another, boolean isOver) {
+        Matcher myMatcher;
+        Matcher theirMatcher;
+
+        if (isOver) {
+            myMatcher = OVER_PATTERN.matcher(getCode());
+            theirMatcher = OVER_PATTERN.matcher(another.getCode());
+        } else {
+            myMatcher = RANGE_PATTERN.matcher(getCode());
+            theirMatcher = RANGE_PATTERN.matcher(another.getCode());
+        }
+
+        myMatcher.find();
+        theirMatcher.find();
+
+        Integer myMinValue = new Integer(Integer.parseInt(myMatcher.group(1)));
+        Integer theirMinValue = new Integer(Integer.parseInt(theirMatcher.group(1)));
+
+        return myMinValue.compareTo(theirMinValue);
+    }
+
     @Override
     public int compareTo(SalarySpan anotherSalary) {
         //OTHER is the last option (ascending order)
@@ -104,6 +142,18 @@ public class SalarySpan extends SalarySpan_Base implements Comparable<SalarySpan
             return -1;
         }
 
-        return getDescription().getContent().compareTo(anotherSalary.getDescription().getContent());
+        if (getCode().contains("OVER")) {
+            if (anotherSalary.getCode().contains("OVER")) {
+                return compareValue(anotherSalary, true);
+            }
+
+            return 1;
+        }
+
+        if (anotherSalary.getCode().contains("OVER")) {
+            return -1;
+        }
+
+        return compareValue(anotherSalary, false);
     }
 }

@@ -1,7 +1,10 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController"%>
+<%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <spring:url var="datatablesUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
 <spring:url var="datatablesBootstrapJsUrl" value="/javaScript/dataTables/media/js/jquery.dataTables.bootstrap.min.js"></spring:url>
@@ -30,11 +33,9 @@ ${portal.angularToolkit()}
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/webjars/angular-ui-select/0.11.2/select.min.css" />
 <script src="${pageContext.request.contextPath}/webjars/angular-ui-select/0.11.2/select.min.js"></script>
 
-
-
 <%-- TITLE --%>
 <div class="page-header">
-	<h1><spring:message code="label.firstTimeCandidacy.fillDisabilities" />
+	<h1><spring:message code="label.firstTimeCandidacy.fillProfessionalInformation" />
 		<small></small>
 	</h1>
 </div>
@@ -82,106 +83,106 @@ ${portal.angularToolkit()}
 <script>
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= ${disabilitiesFormJson};
+    $scope.object= ${professionalInformationFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
+    $scope.isUISelectLoading = {};
+    $scope.getUISelectLoading = function() {
+	    if($scope.isUISelectLoading == undefined) {
+    		$scope.isUISelectLoading = {};		
+	    }
+	    return $scope.isUISelectLoading;
+    };
     
     $scope.booleanvalues = [
                             { name : '<spring:message code="label.no"/>', value : false },
                             { name : '<spring:message code="label.yes"/>', value : true } 
                     ];
-    $scope.onDisabilityTypeChange = function(institution, model) {
-        $scope.object.disabilityTypeValues = undefined;
-
-        $scope.postBack(model);
+    $scope.transformData = function () {
     };
+    $scope.typpingMessage = "<spring:message code='label.startTyping'/>";
+    
     $scope.submitForm = function() {
-       $('form').submit();
+	    $scope.transformData();
+        $('form').submit();
     };
+
 }]);
 </script>
 
 <form name='form' method="post" class="form-horizontal" ng-app="angularApp" ng-controller="angularController"
-     action="${pageContext.request.contextPath}${controllerURL}/fill">
+     action="${pageContext.request.contextPath}${controllerURL}/${postAction}">
 
     <input type="hidden" name="postback"
         value='${pageContext.request.contextPath}${controllerURL}/fillPostback' />
         
     <input name="bean" type="hidden" value="{{ object }}" />
+		
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group row">
+                <label for="professionalInformationForm_professionalCondition" class="col-sm-2 control-label required-field">
+                    <spring:message code="label.ProfessionalInformationForm.professionalCondition" />
+                </label>
+
+                <div class="col-sm-6">
+                    <ui-select  id="professionalInformationForm_professionalCondition" name="professionalCondition" ng-model="$parent.object.professionalCondition" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="professionalCondition.id as professionalCondition in object.professionalConditionValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="professionalCondition.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="professionalInformationForm_professionType" class="col-sm-2 control-label required-field">
+                    <spring:message code="label.ProfessionalInformationForm.professionType" />
+                </label>
+
+                <div class="col-sm-6">
+                    <ui-select  id="professionalInformationForm_professionType" name="professionType" ng-model="$parent.object.professionType" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="professionType.id as professionType in object.professionTypeValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="professionType.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>                
+                </div>
+            </div>          
+            <div class="form-group row">
+                <label for="professionalInformationForm_profession" class="col-sm-2 control-label">
+                    <spring:message code="label.ProfessionalInformationForm.profession" />
+                </label>
+
+                <div class="col-sm-6">
+                    <input id="professionalInformationForm_profession" class="form-control"
+                        type="text" ng-model="object.profession" name="profession"
+                        value='<c:out value='${not empty param.profession ? param.profession : professionalInformationForm.profession }'/>' />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="professionalInformationForm_professionTimeType" class="col-sm-2 control-label">
+                    <spring:message code="label.ProfessionalInformationForm.professionTimeType" />
+                </label>
+
+                <div class="col-sm-6">
+                    <ui-select  id="professionalInformationForm_professionTimeType" name="professionTimeType" ng-model="$parent.object.professionTimeType" theme="bootstrap">
+                        <ui-select-match allow-clear="true" >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="professionTimeType.id as professionTimeType in object.professionTimeTypeValues | filter: {normalizedText : $select.search}">
+                            <span ng-bind-html="professionTimeType.text"></span>
+                        </ui-select-choices> 
+                    </ui-select>                
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="panel panel-default">
-		<div class="panel-body">
-			<div class="form-group row">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message code="label.DisabilitiesForm.hasDisabilities" />
-				</div>
-
-				<div class="col-sm-2">
-                    <ui-select id="disabilitiesForm_hasDisabilities" name="hasDisabilities"
-                        ng-model="$parent.object.hasDisabilities" 
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues  | filter: $select.search">
-                            <span ng-bind-html="bvalue.name"></span>
-                        </ui-select-choices>
-                    </ui-select>    
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.hasDisabilities">
-				<div class="col-sm-2 control-label required-field" id="labelDisabilityType">
-					<spring:message code="label.DisabilitiesForm.disabilityType" />
-				</div>
-
-				<div class="col-sm-6">
-                    <ui-select  id="disabilitiesForm_disabilityType" name="disabilityType" ng-model="$parent.object.disabilityType" on-select="onDisabilityTypeChange($item,$model)" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="type.id as type in object.disabilityTypeValues | filter: {normalizedText : $select.search}">
-                            <span ng-bind-html="type.text"></span>
-                        </ui-select-choices> 
-                    </ui-select>   
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.hasDisabilities && object.isOtherDisabilityType">
-				<div class="col-sm-2 control-label required-field" id="labelOtherDisabilityType">
-					<spring:message code="label.DisabilitiesForm.otherDisabilityType" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="disabilitiesForm_otherDisabilityType" class="form-control" type="text" ng-model="object.otherDisabilityType" name="otherDisabilityType"
-						value='<c:out value='${disabilitiesForm.otherDisabilityType}'/>' />
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.hasDisabilities">
-				<div class="col-sm-2 control-label required-field" id="labelNeedsDisabilitySupport">
-					<spring:message
-						code="label.DisabilitiesForm.needsDisabilitySupport" />
-				</div>
-
-				<div class="col-sm-2">
-                    <ui-select id="disabilitiesForm_needsDisabilitySupport" name="needsDisabilitySupport"
-                        ng-model="$parent.object.needsDisabilitySupport" 
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues  | filter: $select.search">
-                            <span ng-bind-html="bvalue.name"></span>
-                        </ui-select-choices>
-                    </ui-select>     
-				</div>
-			</div>
-		</div>
 		<div class="panel-footer">
             <button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>
 		</div>
-	</div>
+    </div>
 </form>
 
 <style>
-	.form-control[disabled] {
-    	background: #dddddd;
-	}
 	.required-field:after {
 		content: '*';
 		color: #e06565;
@@ -191,7 +192,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		display: inline;
 	}
 </style>
+
 <script>
-$(document).ready(function() {
-});
+    $(document).ready(function() {
+        
+    });
 </script>
+

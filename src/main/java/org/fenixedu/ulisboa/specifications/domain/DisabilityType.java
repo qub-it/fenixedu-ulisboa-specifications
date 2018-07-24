@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: joao.roxo@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -105,6 +105,9 @@ public class DisabilityType extends DisabilityType_Base implements Comparable<Di
             return -1;
         }
 
-        return getDescription().getContent().compareTo(anotherDisability.getDescription().getContent());
+        int myCode = Integer.parseInt(getCode());
+        int theirCode = Integer.parseInt(anotherDisability.getCode());
+
+        return new Integer(myCode).compareTo(new Integer(theirCode));
     }
 }

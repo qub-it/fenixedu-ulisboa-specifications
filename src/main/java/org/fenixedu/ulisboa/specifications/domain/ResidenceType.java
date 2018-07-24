@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: joao.roxo@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@
  */
 package org.fenixedu.ulisboa.specifications.domain;
 
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -35,6 +36,21 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ResidenceType extends ResidenceType_Base implements Comparable<ResidenceType> {
+
+    public static final Comparator<ResidenceType> COMPARE_BY_DESCRIPTION_OTHER_IN_END = new Comparator<ResidenceType>() {
+
+        @Override
+        public int compare(ResidenceType o1, ResidenceType o2) {
+            if (o1.isOther()) {
+                return 1;
+            }
+            if (o2.isOther()) {
+                return -1;
+            }
+
+            return o1.getDescription().getContent().compareTo(o2.getDescription().getContent());
+        }
+    };
 
     private ResidenceType() {
         super();

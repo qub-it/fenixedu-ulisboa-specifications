@@ -154,7 +154,7 @@ angular.isUndefinedOrNull = function(val) {
 };
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'angularjs-dropdown-multiselect']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= angular.fromJson('${academicEnrolmentPeriodBeanJson}');;
+    $scope.object= ${academicEnrolmentPeriodBeanJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [

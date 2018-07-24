@@ -94,7 +94,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
 
     $scope.onDiscoveryAnswerSelect = function(item) {
 	    if(item.selected) {
-		    if($scope.object.universityDiscoveryMeansAnswers.length < 3) {
+		    if($scope.object.universityDiscoveryMeansAnswers.length < 10) {
 		        $scope.object.universityDiscoveryMeansAnswers.push(item.id);
 		    } else {
                 var indexOfItem = $scope.object.universityDiscoveryMeansAnswerValues.indexOf(item);
@@ -116,7 +116,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
 	
 	$scope.onChoiceAnswerSelect = function(item) {
 	    if(item.selected) {
-		    if($scope.object.universityChoiceMotivationAnswers.length < 3) {
+		    if($scope.object.universityChoiceMotivationAnswers.length < 10) {
 			    $scope.object.universityChoiceMotivationAnswers.push(item.id);
 		    } else {
 			    var indexOfItem = $scope.object.universityChoiceMotivationAnswerValues.indexOf(item);
@@ -177,15 +177,27 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit', 'angula
 
                 <div class="col-sm-10">
                     <ul>
-                        <li ng-repeat="discoveryAnswer in object.universityDiscoveryMeansAnswerValues">
-                            <input style="width:15px;height:15px"
-                              type="checkbox"
-                              name="selectedDiscoveryAnswer[]"
-                              ng-model="discoveryAnswer.selected"
-                              ng-change="onDiscoveryAnswerSelect(discoveryAnswer)"
-                            >
-                            {{ discoveryAnswer.text }}
-                        </li>
+                        <div ng-repeat="discoveryAnswer in object.universityDiscoveryMeansAnswerValues">
+                            <li ng-show="discoveryAnswer.parentId == null">
+                                <input style="width:15px;height:15px"
+                                  type="checkbox"
+                                  name="selectedDiscoveryAnswer[]"
+                                  ng-model="discoveryAnswer.selected"
+                                  ng-change="onDiscoveryAnswerSelect(discoveryAnswer)"
+                                >
+                                {{ discoveryAnswer.text }}
+                            </li>
+                            <li ng-show="discoveryAnswer.parentId != null && object.universityDiscoveryMeansAnswers.indexOf(discoveryAnswer.parentId) != -1">
+                                <div style="width:25px;float:left;">&nbsp;</div>
+                                <input style="width:15px;height:15px"
+                                  type="checkbox"
+                                  name="selectedDiscoveryAnswer[]"
+                                  ng-model="discoveryAnswer.selected"
+                                  ng-change="onDiscoveryAnswerSelect(discoveryAnswer)"
+                                >
+                                {{ discoveryAnswer.text }}
+                            </li>
+                        </div>
                     </ul>
                 </div>
             </div>

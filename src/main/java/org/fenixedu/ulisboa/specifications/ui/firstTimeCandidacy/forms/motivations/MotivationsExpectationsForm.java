@@ -22,14 +22,15 @@ public class MotivationsExpectationsForm implements CandidancyForm {
     private boolean otherDiscoveryAnswer;
     private boolean otherChoiceAnswer;
 
-    private List<TupleDataSourceBean> universityDiscoveryMeansAnswerValues;
+    private List<AnswerOptionForm> universityDiscoveryMeansAnswerValues;
     private List<TupleDataSourceBean> universityChoiceMotivationAnswerValues;
     private List<String> otherUniversityDiscoveryMeansAnswerValues;
     private List<String> otherUniversityChoiceMotivationAnswerValues;
 
     public MotivationsExpectationsForm() {
-        setUniversityDiscoveryMeansAnswerValues(UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList()));
-        setUniversityChoiceMotivationAnswerValues(UniversityChoiceMotivationAnswer.readAll().collect(Collectors.toList()));
+        setUniversityDiscoveryMeansAnswerValues(UniversityDiscoveryMeansAnswer.readAll().sorted().collect(Collectors.toList()));
+        setUniversityChoiceMotivationAnswerValues(
+                UniversityChoiceMotivationAnswer.readAll().sorted().collect(Collectors.toList()));
         setOtherUniversityDiscoveryMeansAnswerValues(UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList()));
         setOtherUniversityChoiceMotivationAnswerValues(UniversityChoiceMotivationAnswer.readAll().collect(Collectors.toList()));
         updateLists();
@@ -147,18 +148,27 @@ public class MotivationsExpectationsForm implements CandidancyForm {
         this.otherChoiceAnswer = otherChoiceAnswer;
     }
 
-    public List<TupleDataSourceBean> getUniversityDiscoveryMeansAnswerValues() {
+    public List<AnswerOptionForm> getUniversityDiscoveryMeansAnswerValues() {
         return universityDiscoveryMeansAnswerValues;
     }
 
     public void setUniversityDiscoveryMeansAnswerValues(
             List<UniversityDiscoveryMeansAnswer> universityDiscoveryMeansAnswerValues) {
         this.universityDiscoveryMeansAnswerValues = universityDiscoveryMeansAnswerValues.stream().map(a -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            AnswerOptionForm tuple = new AnswerOptionForm();
             tuple.setId(a.getExternalId());
             tuple.setText(a.getDescription().getContent());
+            tuple.setCode(a.getCode());
+            if (tuple.getCode().contains(".")) {
+                String[] tokens = tuple.getCode().split("\\.");
+                UniversityDiscoveryMeansAnswer parent = UniversityDiscoveryMeansAnswer.findByCode(tokens[0]);
+                if (parent != null) {
+                    tuple.setParentId(parent.getExternalId());
+                }
+            }
             return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+        }).collect(Collectors.toList());
+
     }
 
     public List<TupleDataSourceBean> getUniversityChoiceMotivationAnswerValues() {
@@ -167,12 +177,13 @@ public class MotivationsExpectationsForm implements CandidancyForm {
 
     public void setUniversityChoiceMotivationAnswerValues(
             List<UniversityChoiceMotivationAnswer> universityChoiceMotivationAnswerValues) {
-        this.universityChoiceMotivationAnswerValues = universityChoiceMotivationAnswerValues.stream().map(a -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
-            tuple.setId(a.getExternalId());
-            tuple.setText(a.getDescription().getContent());
-            return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+        this.universityChoiceMotivationAnswerValues = universityChoiceMotivationAnswerValues.stream()
+                .filter(a -> !UniversityChoiceMotivationAnswer.LEGACY_CODES.contains(a.getCode())).map(a -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(a.getExternalId());
+                    tuple.setText(a.getDescription().getContent());
+                    return tuple;
+                }).collect(Collectors.toList());
     }
 
     public List<String> getOtherUniversityDiscoveryMeansAnswerValues() {

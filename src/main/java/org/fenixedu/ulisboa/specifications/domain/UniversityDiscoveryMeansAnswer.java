@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: joao.roxo@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@
  */
 package org.fenixedu.ulisboa.specifications.domain;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -34,8 +35,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnswer_Base implements
-        Comparable<UniversityDiscoveryMeansAnswer> {
+public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnswer_Base
+        implements Comparable<UniversityDiscoveryMeansAnswer> {
     private UniversityDiscoveryMeansAnswer() {
         super();
         setRoot(Bennu.getInstance());
@@ -105,6 +106,9 @@ public class UniversityDiscoveryMeansAnswer extends UniversityDiscoveryMeansAnsw
             return -1;
         }
 
-        return getDescription().getContent().compareTo(anotherAnswer.getDescription().getContent());
+        BigDecimal myCode = new BigDecimal(getCode());
+        BigDecimal theirCode = new BigDecimal(anotherAnswer.getCode());
+
+        return myCode.compareTo(theirCode);
     }
 }

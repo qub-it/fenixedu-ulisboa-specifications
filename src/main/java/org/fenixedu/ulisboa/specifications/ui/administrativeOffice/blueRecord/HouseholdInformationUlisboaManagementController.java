@@ -54,7 +54,7 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
         model.addAttribute("postAction", "update/" + student.getExternalId() + "/" + executionYear.getExternalId());
         addControllerURLToModel(executionYear, model);
 
-        HouseholdInformationUlisboaForm form = createHouseholdInformationForm(student);
+        HouseholdInformationUlisboaForm form = createHouseholdInformationForm(student, executionYear);
 
         setForm(form, model);
 

@@ -7,15 +7,21 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.GrantOwnerType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.DisabilitiesFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.OriginInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -48,7 +54,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     protected String fillGetScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
 
-        HouseholdInformationUlisboaForm form = fillFormIfRequired(model);
+        HouseholdInformationUlisboaForm form = fillFormIfRequired(executionYear, model);
 
         if (!model.containsAttribute("postAction")) {
             model.addAttribute("postAction", "fill");
@@ -58,14 +64,14 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
             setForm(form, model);
         }
 
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformation.info"), model);
+        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillHouseHoldInformationUlisboa.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/householdinformationulisboaform/fillhouseholdinformationulisboa";
     }
 
-    public HouseholdInformationUlisboaForm fillFormIfRequired(final Model model) {
+    public HouseholdInformationUlisboaForm fillFormIfRequired(final ExecutionYear executionYear, final Model model) {
         HouseholdInformationUlisboaForm form = (HouseholdInformationUlisboaForm) getForm(model);
         if (form == null) {
-            form = createHouseholdInformationForm(getStudent(model));
+            form = createHouseholdInformationForm(getStudent(model), executionYear);
 
             setForm(form, model);
         }
@@ -79,10 +85,20 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         return form;
     }
 
-    protected HouseholdInformationUlisboaForm createHouseholdInformationForm(final Student student) {
+    protected HouseholdInformationUlisboaForm createHouseholdInformationForm(final Student student,
+            final ExecutionYear executionYear) {
         final HouseholdInformationUlisboaForm form = new HouseholdInformationUlisboaForm();
+        final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
 
         PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
+
+        if (personalData != null) {
+            form.setGrantOwnerType(personalData.getGrantOwnerType());
+        }
+        if (form.getGrantOwnerType() == null) {
+            form.setGrantOwnerType(GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP);
+        }
+
         if (personUl != null) {
             form.setBestQualitiesInThisCicle(personUl.getBestQualitiesInThisCicle());
 
@@ -98,6 +114,12 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
             form.setFirstTimeInPublicUniv(personUl.getFirstTimeInPublicUniv());
             form.setPublicUnivCandidacies(personUl.getPublicUnivCandidacies());
             form.setFirstTimeInUlisboa(personUl.getFirstTimeInUlisboa());
+            PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
+                    personUl.getPersonUlisboaSpecificationsByExcutionYear(executionYear);
+            if (personUlExecutionYear != null) {
+                form.setFlunkedUniversity(personUlExecutionYear.getFlunkedUniversity());
+                form.setFlunkedUniversityTimes(personUlExecutionYear.getFlunkedUniversityTimes());
+            }
 
         }
 
@@ -123,12 +145,11 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     protected boolean validate(final HouseholdInformationUlisboaForm form, final Model model) {
         final Set<String> messages = validateForm(form, model);
 
-//        for (final String message : messages) {
-//            addErrorMessage(message, model);
-//        }
-//
-//        return messages.isEmpty();
-        return true;
+        for (final String message : messages) {
+            addErrorMessage(message, model);
+        }
+
+        return messages.isEmpty();
     }
 
     protected Set<String> validateForm(final HouseholdInformationUlisboaForm form, final Model model) {
@@ -142,29 +163,26 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         } else {
             if (form.getFlunkedBeforeUniversity() == Boolean.TRUE) {
 
-                if (form.getFlunkedHighSchool() == null) {
-                    messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.all.fields.required"));
-                } else if (form.getFlunkedHighSchool() && form.getFlunkedHighSchoolTimes() == null) {
-                    messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.all.fields.required"));
-                } else if (form.getFlunkedHighSchool() && form.getFlunkedHighSchoolTimes() == 0) {
-                    messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
-                } else if (!form.getFlunkedHighSchool()) {
-                    form.setFlunkedHighSchoolTimes(0);
+                if (form.getFlunkedHighSchoolTimes() < 1 && form.getFlunkedPreHighSchoolTimes() < 1) {
+                    messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.incorrect.flunked.value"));
                 }
 
-                if (form.getFlunkedPreHighSchool() == null) {
-                    messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.all.fields.required"));
-                } else if (form.getFlunkedPreHighSchool() && form.getFlunkedPreHighSchoolTimes() == null) {
-                    messages.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                            "error.all.fields.required"));
-
-                } else if (form.getFlunkedPreHighSchool() && form.getFlunkedPreHighSchoolTimes() == 0) {
+                if (form.getFlunkedHighSchoolTimes() == 0) {
+                    form.setFlunkedHighSchool(Boolean.FALSE);
+                } else if (form.getFlunkedHighSchoolTimes() < 0) {
                     messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
-                } else if (!form.getFlunkedPreHighSchool()) {
-                    form.setFlunkedPreHighSchoolTimes(0);
+                    form.setFlunkedHighSchool(Boolean.FALSE);
+                } else {
+                    form.setFlunkedHighSchool(Boolean.TRUE);
+                }
+
+                if (form.getFlunkedPreHighSchoolTimes() == 0) {
+                    form.setFlunkedPreHighSchool(Boolean.FALSE);
+                } else if (form.getFlunkedPreHighSchoolTimes() < 0) {
+                    messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+                    form.setFlunkedPreHighSchool(Boolean.FALSE);
+                } else {
+                    form.setFlunkedPreHighSchool(Boolean.TRUE);
                 }
 
             } else {
@@ -195,7 +213,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == null) {
             messages.add(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == 0) {
+        } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() < 1) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.publicUnivCandidacies"));
         } else if (form.getFirstTimeInPublicUniv()) {
             form.setPublicUnivCandidacies(0);
@@ -206,8 +224,16 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
         }
 
-        if (StringUtils.isBlank(form.getBestQualitiesInThisCicle())) {
+        // FLUNKED UNIVERSITY
+
+        if (form.getFlunkedUniversity() == null) {
             messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+        } else if (form.getFlunkedUniversity() && form.getFlunkedUniversityTimes() == null) {
+            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+        } else if (form.getFlunkedUniversity() && form.getFlunkedUniversityTimes() < 1) {
+            messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+        } else if (!form.getFlunkedUniversity()) {
+            form.setFlunkedUniversityTimes(0);
         }
 
         return messages;
@@ -222,6 +248,13 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     protected void writeData(final Student student, final ExecutionYear executionYear, final HouseholdInformationUlisboaForm form,
             final Model model) {
         PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
+        final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
+
+        if (personalData == null) {
+            throw new DomainException("error.no.PersonalIngressionData.created.for", student.getPerson().getUsername());
+        }
+        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
+        personalData.setGrantOwnerType(grantOwnerType);
 
         if (form.getFlunkedHighSchool() != null) {
             personUlisboa.setFlunkedHighSchool(form.getFlunkedHighSchool());
@@ -257,19 +290,28 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
             personUlisboa.setBestQualitiesInThisCicle(form.getBestQualitiesInThisCicle());
         }
 
+        PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
+                PersonUlisboaSpecificationsByExecutionYear.findOrCreate(student.getPerson(), executionYear);
+        if (form.getFlunkedUniversity() != null) {
+            personUlExecutionYear.setFlunkedUniversity(form.getFlunkedUniversity());
+        }
+        if (form.getFlunkedUniversityTimes() != null) {
+            personUlExecutionYear.setFlunkedUniversityTimes(form.getFlunkedUniversityTimes());
+        }
+
     }
 
     @Override
     protected String backScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(HouseholdInformationFormController.CONTROLLER_URL, executionYear), model,
+        return redirect(urlWithExecutionYear(OriginInformationFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(ResidenceInformationFormController.CONTROLLER_URL, executionYear), model,
+        return redirect(urlWithExecutionYear(DisabilitiesFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 

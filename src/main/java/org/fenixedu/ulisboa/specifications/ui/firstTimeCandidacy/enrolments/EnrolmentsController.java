@@ -29,8 +29,7 @@ import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolm
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.VaccionationFormController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.mobility.MobilityFormControler;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -212,11 +211,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     }
 
     public static String getBackUrl(final ExecutionYear executionYear) {
-        if (!VaccionationFormController.shouldBeSkipped(executionYear)) {
-            return urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear);
-        } else {
-            return urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear);
-        }
+        return urlWithExecutionYear(MobilityFormControler.CONTROLLER_URL, executionYear);
     }
 
     public static boolean shouldBeSkipped(final ExecutionYear executionYear) {

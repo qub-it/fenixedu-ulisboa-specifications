@@ -54,7 +54,6 @@ public class MotivationsExpectationsFormController extends FormAbstractControlle
             setForm(form, model);
         }
 
-        addInfoMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.fillMotivationsExpectations.info"), model);
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/angular/motivationsexpectationsform/fillmotivationsexpectations";
     }
 

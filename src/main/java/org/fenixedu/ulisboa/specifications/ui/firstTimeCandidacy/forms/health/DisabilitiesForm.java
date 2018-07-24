@@ -25,7 +25,7 @@ public class DisabilitiesForm implements CandidancyForm {
 
     @Override
     public void updateLists() {
-        setDisabilityTypeValues(DisabilityType.readAll().collect(Collectors.toList()));
+        setDisabilityTypeValues(DisabilityType.readAll().sorted().collect(Collectors.toList()));
         if (disabilityType != null) {
             setOtherDisabilityType(disabilityType.isOther());
         } else {
@@ -91,7 +91,7 @@ public class DisabilitiesForm implements CandidancyForm {
             tuple.setId(dt.getExternalId());
             tuple.setText(dt.getDescription().getContent());
             return tuple;
-        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+        }).collect(Collectors.toList());
     }
 
     public boolean isOtherDisabilityType() {

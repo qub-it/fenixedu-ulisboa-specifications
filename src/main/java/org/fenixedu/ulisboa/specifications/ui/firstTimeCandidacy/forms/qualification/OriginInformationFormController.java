@@ -31,8 +31,8 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.contacts.ContactsFormController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.DisabilitiesFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationUlisboaFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ProfessionalInformationFormController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -450,7 +450,8 @@ public class OriginInformationFormController extends FormAbstractController {
     @Override
     protected String backScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(ContactsFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        return redirect(urlWithExecutionYear(ProfessionalInformationFormController.CONTROLLER_URL, executionYear), model,
+                redirectAttributes);
     }
 
     @Override
@@ -461,7 +462,7 @@ public class OriginInformationFormController extends FormAbstractController {
                 return redirect(urlWithExecutionYear(PreviousDegreeOriginInformationFormController.CONTROLLER_URL, executionYear),
                         model, redirectAttributes);
             }
-            return redirect(urlWithExecutionYear(DisabilitiesFormController.CONTROLLER_URL, executionYear), model,
+            return redirect(urlWithExecutionYear(HouseholdInformationUlisboaFormController.CONTROLLER_URL, executionYear), model,
                     redirectAttributes);
         } else {
             return redirect(urlWithExecutionYear(CONTROLLER_URL, executionYear), model, redirectAttributes);

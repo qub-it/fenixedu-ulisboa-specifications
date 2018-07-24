@@ -1,5 +1,14 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo;
 
+import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.fenixedu.academic.domain.GrantOwnerType;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 
 public class HouseholdInformationUlisboaForm implements CandidancyForm {
@@ -15,8 +24,14 @@ public class HouseholdInformationUlisboaForm implements CandidancyForm {
     private Integer publicUnivCandidacies;
     private Boolean firstTimeInUlisboa;
     private String bestQualitiesInThisCicle;
+    private GrantOwnerType grantOwnerType;
+    private List<TupleDataSourceBean> grantOwnerTypeValues;
+    private Boolean flunkedUniversity;
+    private Integer flunkedUniversityTimes;
 
     public HouseholdInformationUlisboaForm() {
+        setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
+
         updateLists();
     }
 
@@ -110,6 +125,44 @@ public class HouseholdInformationUlisboaForm implements CandidancyForm {
 
     public void setBestQualitiesInThisCicle(final String bestQualitiesInThisCicle) {
         this.bestQualitiesInThisCicle = bestQualitiesInThisCicle;
+    }
+
+    public GrantOwnerType getGrantOwnerType() {
+        return grantOwnerType;
+    }
+
+    public void setGrantOwnerType(final GrantOwnerType grantOwnerType) {
+        this.grantOwnerType = grantOwnerType;
+    }
+
+    public List<TupleDataSourceBean> getGrantOwnerTypeValues() {
+        return grantOwnerTypeValues;
+    }
+
+    public void setGrantOwnerTypeValues(final List<GrantOwnerType> grantOwnerTypeValues) {
+        this.grantOwnerTypeValues = grantOwnerTypeValues.stream().map(got -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(got.toString());
+            String gotLabel = BundleUtil.getString(BUNDLE, got.getQualifiedName());
+            tuple.setText(gotLabel);
+            return tuple;
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
+    public Boolean getFlunkedUniversity() {
+        return flunkedUniversity;
+    }
+
+    public void setFlunkedUniversity(final Boolean flunkedUniversity) {
+        this.flunkedUniversity = flunkedUniversity;
+    }
+
+    public Integer getFlunkedUniversityTimes() {
+        return flunkedUniversityTimes;
+    }
+
+    public void setFlunkedUniversityTimes(final Integer flunkedUniversityTimes) {
+        this.flunkedUniversityTimes = flunkedUniversityTimes;
     }
 
 }
