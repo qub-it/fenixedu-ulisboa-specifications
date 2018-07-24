@@ -18,6 +18,7 @@ public class BlueRecordConfigurationBean implements IBean {
     private List<TupleDataSourceBean> degreeTypeDataSource;
     private List<Degree> degrees;
     private List<TupleDataSourceBean> degreeDataSource;
+    private Boolean isCgdFormToFill;
 
     public List<DegreeType> getDegreeTypes() {
         return degreeTypes;
@@ -59,6 +60,14 @@ public class BlueRecordConfigurationBean implements IBean {
             tuple.setText("[" + d.getCode() + "]" + d.getPresentationName());
             return tuple;
         }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
+    public Boolean getIsCgdFormToFill() {
+        return isCgdFormToFill;
+    }
+
+    public void setIsCgdFormToFill(Boolean isCgdFormToFill) {
+        this.isCgdFormToFill = isCgdFormToFill;
     }
 
     public BlueRecordConfigurationBean() {

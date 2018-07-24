@@ -2165,6 +2165,7 @@ relation PrescriptionBonificationStatuteStatuteType {
 }
 
 class bluerecord.BlueRecordConfiguration {
+    Boolean isCgdFormToFill;
 }
 
 

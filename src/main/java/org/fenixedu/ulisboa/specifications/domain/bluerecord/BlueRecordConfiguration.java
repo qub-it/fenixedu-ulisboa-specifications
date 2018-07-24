@@ -34,4 +34,17 @@ public class BlueRecordConfiguration extends BlueRecordConfiguration_Base {
         return Bennu.getInstance().getBlueRecordConfiguration();
     }
 
+    @Override
+    public Boolean getIsCgdFormToFill() {
+        return isCgdFormToFill();
+    }
+
+    public Boolean isCgdFormToFill() {
+        Boolean result = super.getIsCgdFormToFill();
+        if (result == null) {
+            return Boolean.FALSE;
+        }
+        return result;
+    }
+
 }

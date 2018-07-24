@@ -173,6 +173,24 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select-choices> </ui-select>
                 </div>
             </div>
+            
+            <div class="form-group row">
+                <div class="col-sm-2 control-label">
+                    <spring:message code="label.title.blueRecordConfiguration.isCgdFormToFill" />
+                </div>
+                <div class="col-sm-6">
+                    <ui-select id="isCgdFormToFill" name="isCgdFormToFill"
+                        ng-model="$parent.object.isCgdFormToFill"
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
         </div>
 
         <div class="panel-footer">

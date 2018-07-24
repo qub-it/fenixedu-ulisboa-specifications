@@ -10,12 +10,14 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolPeriodDuration;
 import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgrammeLevel;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityScientificArea;
+import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
@@ -35,6 +37,8 @@ public class MobilityForm implements CandidancyForm {
             return TupleDataSourceBean.COMPARE_BY_TEXT.compare(o1, o2);
         }
     };
+
+    protected static final String CREATED_CANDIDACY_FLOW = "Esta mobilidade foi criada pelo aluno no ato da matrícula.";
 
     protected ExecutionSemester begin;
     protected ExecutionSemester end;
@@ -314,6 +318,34 @@ public class MobilityForm implements CandidancyForm {
 
     public void setCountryUnitDataSource(List<TupleDataSourceBean> countryUnitDataSource) {
         this.countryUnitDataSource = countryUnitDataSource;
+    }
+
+    public MobilityRegistrationInformationBean getBeanToCreate(Registration registration) {
+        MobilityRegistrationInformationBean bean = new MobilityRegistrationInformationBean(registration);
+
+        bean.setIncoming(true);
+
+        bean.setBegin(getBegin());
+        bean.setEnd(getEnd());
+        bean.setBeginDate(getBeginDate());
+        bean.setEndDate(getEndDate());
+
+        bean.setMobilityProgramType(getMobilityProgramType());
+        bean.setMobilityActivityType(getMobilityActivityType());
+        bean.setMobilityScientificArea(getMobilityScientificArea());
+
+        bean.setProgramDuration(getProgramDuration());
+
+        bean.setOriginMobilityProgrammeLevel(getOriginMobilityProgrammeLevel());
+        bean.setIncomingMobilityProgrammeLevel(getIncomingMobilityProgrammeLevel());
+        bean.setOtherOriginMobilityProgrammeLevel(getOtherOriginMobilityProgrammeLevel());
+        bean.setOtherIncomingMobilityProgrammeLevel(getOtherIncomingMobilityProgrammeLevel());
+
+        bean.setCountryUnit(getCountryUnit());
+
+        bean.setRemarks(CREATED_CANDIDACY_FLOW);
+
+        return bean;
     }
 
 }

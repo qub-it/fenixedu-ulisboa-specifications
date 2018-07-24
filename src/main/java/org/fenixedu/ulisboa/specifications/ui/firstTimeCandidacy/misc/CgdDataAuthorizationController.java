@@ -59,11 +59,13 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
             final boolean wsCallSuccess) {
         PersonUlisboaSpecifications personUlisboaSpecifications =
                 PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
+        //Send with success
         if (personUlisboaSpecifications != null && personUlisboaSpecifications.getAuthorizeSharingDataWithCGD()
                 && wsCallSuccess) {
             return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL, executionYear),
                     model, redirectAttributes);
         }
+
         return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITH_MODEL_URL, executionYear), model,
                 redirectAttributes);
     }
