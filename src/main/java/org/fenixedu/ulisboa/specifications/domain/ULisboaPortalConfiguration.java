@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
+import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 
 /**
@@ -53,5 +55,10 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
     public boolean isDocumentationActive() {
         Boolean documentationActive = ULisboaConfiguration.getConfiguration().getDocumentationActive();
         return documentationActive != null ? documentationActive : false;
+    }
+
+    public boolean isSupportAccessibleToUser() {
+        String supportAccessControlExpression = ULisboaConfiguration.getConfiguration().getSupportAccessControlExpression();
+        return Group.parse(supportAccessControlExpression).isMember(AccessControl.getPerson().getUser());
     }
 }

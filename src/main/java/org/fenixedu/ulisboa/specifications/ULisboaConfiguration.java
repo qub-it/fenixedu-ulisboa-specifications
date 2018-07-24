@@ -80,6 +80,9 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "support.active", defaultValue = "true")
         public Boolean getSupportActive();
+        
+        @ConfigurationProperty(key = "support.accessExpression", defaultValue = "anyone")
+        public String getSupportAccessControlExpression();
 
         @ConfigurationProperty(key = "documentation.active", defaultValue = "false")
         public Boolean getDocumentationActive();
