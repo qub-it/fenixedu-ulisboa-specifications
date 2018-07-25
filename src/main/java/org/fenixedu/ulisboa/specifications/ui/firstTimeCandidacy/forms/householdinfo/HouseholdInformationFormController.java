@@ -193,7 +193,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
             }
         }
 
-        if (form.getLivesWithOthers() && form.getLivesWithOthersDesc().isEmpty()) {
+        if (form.getLivesWithOthers() != null && form.getLivesWithOthers() == Boolean.TRUE
+                && form.getLivesWithOthersDesc().isEmpty()) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.livesWith.other.must.be.filled"));
         }
 
