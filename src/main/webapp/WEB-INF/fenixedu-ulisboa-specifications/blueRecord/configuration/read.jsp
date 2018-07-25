@@ -90,6 +90,16 @@ ${portal.toolkit()}
                         </ul>
 	                </td> 
                 </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.title.blueRecordConfiguration.isCgdFormToFill"/></th> 
+                    <td><c:if
+                            test="${ blueRecordConfiguration.isCgdFormToFill }">
+                            <spring:message code="label.true" />
+                        </c:if> <c:if
+                            test="${not blueRecordConfiguration.isCgdFormToFill }">
+                            <spring:message code="label.false" />
+                        </c:if></td>
+                </tr>
             </tbody>
         </table>
     </div>

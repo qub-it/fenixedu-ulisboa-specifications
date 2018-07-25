@@ -92,6 +92,8 @@ public class BlueRecordConfigurationController extends FenixeduUlisboaSpecificat
             configuration.addExclusiveDegrees(degree);
         }
 
+        configuration.setIsCgdFormToFill(bean.getIsCgdFormToFill());
+
     }
 
 }

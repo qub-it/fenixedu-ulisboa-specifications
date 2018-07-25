@@ -14,7 +14,6 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
 import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
@@ -134,42 +133,41 @@ public class MobilityFormControler extends FormAbstractController {
         final Set<String> result = Sets.newLinkedHashSet();
 
         if (form.getBegin() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.begin.required");
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.begin.required"));
         }
 
         if (form.getEnd() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.end.required");
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.end.required"));
         }
 
-        if (form.getBegin().isAfter(form.getEnd())) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.end.must.be.after.begin");
+        if (form.getBegin() != null && form.getEnd() != null && form.getBegin().isAfter(form.getEnd())) {
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.end.must.be.after.begin"));
         }
 
         if (form.getMobilityProgramType() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityProgramType.required");
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityProgramType.required"));
         }
 
         if (form.getMobilityActivityType() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.mobilityActivityType.required");
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityActivityType.required"));
         }
 
         if (form.getProgramDuration() == null) {
-            throw new ULisboaSpecificationsDomainException("error.MobilityRegistrationInformation.programDuration.required");
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.programDuration.required"));
         }
 
         if (form.getMobilityScientificArea() == null) {
-            throw new ULisboaSpecificationsDomainException(
-                    "error.MobilityRegistrationInformation.mobilityScientificArea.required");
+            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityScientificArea.required"));
         }
 
         if (form.getIncomingMobilityProgrammeLevel() == null) {
-            throw new ULisboaSpecificationsDomainException(
-                    "error.MobilityRegistrationInformation.incomingMobilityProgrammeLevel.required");
+            result.add(BundleUtil.getString(BUNDLE,
+                    "error.MobilityRegistrationInformation.incomingMobilityProgrammeLevel.required"));
         }
 
         if (form.getOriginMobilityProgrammeLevel() == null) {
-            throw new ULisboaSpecificationsDomainException(
-                    "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required");
+            result.add(
+                    BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required"));
         }
 
         return result;
@@ -198,9 +196,11 @@ public class MobilityFormControler extends FormAbstractController {
     @Override
     protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
         if (!VaccionationFormController.shouldBeSkipped(executionYear)) {
-            return urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear);
+            return redirect(urlWithExecutionYear(VaccionationFormController.CONTROLLER_URL, executionYear), model,
+                    redirectAttributes);
         } else {
-            return urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear);
+            return redirect(urlWithExecutionYear(MotivationsExpectationsFormController.CONTROLLER_URL, executionYear), model,
+                    redirectAttributes);
         }
     }
 
