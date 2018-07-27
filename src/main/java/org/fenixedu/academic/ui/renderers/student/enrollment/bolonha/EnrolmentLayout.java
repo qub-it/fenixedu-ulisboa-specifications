@@ -324,20 +324,17 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         final CreditsLimit creditsRule =
                 (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, semester);
         return creditsRule != null && creditsRule.getMinimumCredits().doubleValue() > 0d
-                && CurriculumModuleServices
-                        .getCreditsConcluded(group, getExecutionInterval(group.getStudentCurricularPlan(), semester))
-                        .doubleValue() >= creditsRule.getMinimumCredits().doubleValue();
+                && CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()).doubleValue() >= creditsRule
+                        .getMinimumCredits().doubleValue();
     }
 
     // qubExtension, more credits info
     static public void addCreditsConcluded(final CurriculumGroup group, final ExecutionSemester semester,
             final StringBuilder result) {
-        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
-
         result.append(" <span title=\"");
-        result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded", interval.getQualifiedName()));
+        result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded", semester.getExecutionYear().getQualifiedName()));
         result.append(" \"> " + i18n(Bundle.APPLICATION, "label.curriculum.credits.concludedCredits") + " (");
-        result.append(CurriculumModuleServices.getCreditsConcluded(group, interval));
+        result.append(CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()));
         result.append(")</span>");
     }
 
@@ -356,7 +353,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     static public void addSumEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
         final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
 
-        final BigDecimal total = CurriculumModuleServices.getCreditsConcluded(group, interval)
+        final BigDecimal total = CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear())
                 .add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(group, interval));
         result.append(", <span title=\"");
         result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.totalCredits", interval.getQualifiedName()));
