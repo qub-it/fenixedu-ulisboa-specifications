@@ -89,7 +89,73 @@ ${portal.toolkit()}
 		<li><p><spring:message code="label.CgdDataAuthorization.benefits.fourthItem" htmlEscape="false"/></p></li>
 	</ul>
 	<p><spring:message code="label.CgdDataAuthorization.fourthParagraph" arguments='<%= Unit.getInstitutionName().getContent()  %>' htmlEscape="false"/></p>
+    <p><spring:message code="label.CgdDataAuthorization.fifthParagraph" htmlEscape="false"/></p>
 </div>
+
+<script type="text/javascript">
+
+function showInfoFunction() {
+    var x = document.getElementById("cgdInformationSelect").value;
+    if(x == "yes") {
+    	document.getElementById("acceptingInfo").style.display = "block";
+        document.getElementById("refusingInfo").style.display = "none";
+    }else {
+        document.getElementById("acceptingInfo").style.display = "none";
+        document.getElementById("refusingInfo").style.display = "block";
+    }
+}
+
+</script>
+
+<div class="modal fade" id="showInfoModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">
+                    <spring:message code="label.CgdDataAuthorization.modal.title" />
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-sm-2 control-label">
+                        <spring:message code="label.CgdDataAuthorization.modal.label"/>
+                    </div>
+                    <div class="col-sm-10 control-label">
+                        <select id="cgdInformationSelect" onchange="showInfoFunction()">
+                            <option value="yes"><spring:message code="label.CgdDataAuthorization.modal.accept"/></option>
+                            <option value="no"><spring:message code="label.CgdDataAuthorization.modal.refuse"/></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div id="acceptingInfo" style="display:block">
+                        <spring:message code="label.CgdDataAuthorization.modal.accept.info"/>
+                        <ul>
+                            <spring:message code="label.CgdDataAuthorization.modal.accept.info.options" htmlEscape="false" />
+                        </ul>
+                    </div>
+                    <div id="refusingInfo" style="display:none">
+                        <spring:message code="label.CgdDataAuthorization.modal.refuse.info"/>
+                        <ul>
+                            <spring:message code="label.CgdDataAuthorization.modal.refuse.info.options" htmlEscape="false" />
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <spring:message code="label.close" />
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <div class="row">
 	<div class="col-md-6">
@@ -123,18 +189,6 @@ ${portal.toolkit()}
 			</div>
 		</div>
 	</div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-body furtherInfo">
-                <a href="${pageContext.request.contextPath}${controllerURL}/unauthorize/withoutModel">
-                    <spring:message code="label.CgdDataAuthorization.refuseDocument" htmlEscape="false"/>
-                </a>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="row">
