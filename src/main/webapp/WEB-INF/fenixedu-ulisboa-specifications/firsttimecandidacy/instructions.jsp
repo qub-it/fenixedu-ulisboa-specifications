@@ -116,7 +116,7 @@ ${portal.toolkit()}
 </div>
 
 <div class="well start">
-    <p><spring:message code="label.firstTimeCandidacy.instructions.rgpd" htmlEscape="false"/></p>
+    <p><spring:message code="message.dataProcessingTerms" arguments="<%= Unit.getInstitutionName().getContent() %>" htmlEscape="false"/></p>
     
 </div>
 

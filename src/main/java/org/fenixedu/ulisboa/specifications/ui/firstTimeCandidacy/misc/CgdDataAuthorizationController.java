@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc;
 
+
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +17,8 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthorization;
+import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthorizationType;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
@@ -60,8 +62,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
         PersonUlisboaSpecifications personUlisboaSpecifications =
                 PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson());
         //Send with success
-        if (personUlisboaSpecifications != null && personUlisboaSpecifications.getAuthorizeSharingDataWithCGD()
-                && wsCallSuccess) {
+        if (wsCallSuccess) {
             return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL, executionYear),
                     model, redirectAttributes);
         }
@@ -152,8 +153,24 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @Atomic
     protected void authorizeSharingDataWithCGD(final boolean authorize) {
-        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setAuthorizeSharingDataWithCGD(authorize);
-        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setSharingDataWithCGDAnswered(true);
+        DataShareAuthorization authorizationNoBank = DataShareAuthorization.findLatest(AccessControl.getPerson(),
+                DataShareAuthorizationType.findUnique("CGD_BASIC_INFO"));
+        DataShareAuthorization authorizationBank = DataShareAuthorization.findLatest(AccessControl.getPerson(),
+                DataShareAuthorizationType.findUnique("CGD_EXTENDED_INFO"));
+        if (authorizationBank == null || authorizationNoBank == null) {
+            //TODO: Create authorizations?
+        }
+
+        if (authorizationBank != null && authorizationNoBank != null) {
+            if (authorize) {
+                authorizationBank.setAllow(Boolean.TRUE);
+                authorizationNoBank.setAllow(Boolean.FALSE);
+            } else {
+                authorizationBank.setAllow(Boolean.FALSE);
+                authorizationNoBank.setAllow(Boolean.TRUE);
+            }
+        }
+
     }
 
     protected static final String _SHOW_MODEL_43_URI = "/showmodelo43download";
@@ -216,7 +233,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     }
 
     private byte[] printModel43() {
-        Person person = Authenticate.getUser().getPerson();
+        Person person = AccessControl.getPerson();
 
         InputStream pdfTemplateStream;
         if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
