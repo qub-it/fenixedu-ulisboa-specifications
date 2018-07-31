@@ -143,7 +143,7 @@ Commented due to blue record
                 <a class="btn btn-default panel-heading btn-panel-heading cgd-decline-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/authorize" >
                     <span class="cgd-decline-title"><spring:message code="label.CgdDataAuthorization.accept" htmlEscape="false"/></span>
                     <span class="cgd-decline-icon glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
-                    <span class="cgd-decline-action glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
+                    <span class="cgd-decline-action glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
                     <span class="cgd-decline-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
                 </a>
             </div>
