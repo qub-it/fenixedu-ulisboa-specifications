@@ -90,6 +90,7 @@ Commented due to blue record
 		<li><p><spring:message code="label.CgdDataAuthorization.benefits.fourthItem" htmlEscape="false"/></p></li>
 	</ul>
 	<p><spring:message code="label.CgdDataAuthorization.fourthParagraph" arguments='<%= Unit.getInstitutionName().getContent()  %>' htmlEscape="false"/></p>
+    <p><spring:message code="label.CgdDataAuthorization.fifthParagraph" htmlEscape="false"/></p>
 </div>
 
 <div class="row">
