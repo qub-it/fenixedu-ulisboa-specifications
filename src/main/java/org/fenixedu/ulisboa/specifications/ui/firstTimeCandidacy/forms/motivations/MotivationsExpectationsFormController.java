@@ -127,18 +127,25 @@ public class MotivationsExpectationsFormController extends FormAbstractControlle
         final Set<String> result = Sets.newLinkedHashSet();
 
         if (form.getUniversityChoiceMotivationAnswers().size() > 3) {
-            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"));
+            //sub options don't count
+            if (form.getUniversityChoiceMotivationAnswers().stream().filter(a -> !a.getCode().contains(".")).count() > 3) {
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"));
+            }
         }
         if (form.getUniversityDiscoveryMeansAnswers().size() > 3) {
-            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"));
+            //sub options don't count
+            if (form.getUniversityDiscoveryMeansAnswers().stream().filter(a -> !a.getCode().contains(".")).count() > 3) {
+                result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
+                        "error.candidacy.workflow.MotivationsExpectationsForm.max.three.choices"));
+            }
         }
 
         for (UniversityChoiceMotivationAnswer answer : form.getUniversityChoiceMotivationAnswers()) {
             if (answer.isOther() && StringUtils.isEmpty(form.getOtherUniversityChoiceMotivation())) {
                 result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                         "error.candidacy.workflow.MotivationsExpectationsForm.other.must.be.filled"));
+                break;
             }
         }
 
@@ -146,6 +153,7 @@ public class MotivationsExpectationsFormController extends FormAbstractControlle
             if (answer.isOther() && StringUtils.isEmpty(form.getOtherUniversityDiscoveryMeans())) {
                 result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                         "error.candidacy.workflow.MotivationsExpectationsForm.other.must.be.filled"));
+                break;
             }
         }
 

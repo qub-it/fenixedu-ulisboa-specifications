@@ -82,6 +82,8 @@ public class MobilityFormControler extends FormAbstractController {
         if (informations.size() == 1) {
             MobilityRegistrationInformation information = informations.iterator().next();
 
+            form.setHasMobilityProgram(true);
+
             form.setBegin(information.getBegin());
             form.setEnd(information.getEnd());
             form.setBeginDate(information.getBeginDate());
@@ -132,42 +134,44 @@ public class MobilityFormControler extends FormAbstractController {
     private Set<String> validateForm(MobilityForm form, final Person person) {
         final Set<String> result = Sets.newLinkedHashSet();
 
-        if (form.getBegin() == null) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.begin.required"));
-        }
+        if (form.isHasMobilityProgram()) {
+            if (form.getBegin() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.begin.required"));
+            }
 
-        if (form.getEnd() == null) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.end.required"));
-        }
+            if (form.getEnd() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.end.required"));
+            }
 
-        if (form.getBegin() != null && form.getEnd() != null && form.getBegin().isAfter(form.getEnd())) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.end.must.be.after.begin"));
-        }
+            if (form.getBegin() != null && form.getEnd() != null && form.getBegin().isAfter(form.getEnd())) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.end.must.be.after.begin"));
+            }
 
-        if (form.getMobilityProgramType() == null) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityProgramType.required"));
-        }
+            if (form.getMobilityProgramType() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityProgramType.required"));
+            }
 
-        if (form.getMobilityActivityType() == null) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityActivityType.required"));
-        }
+            if (form.getMobilityActivityType() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityActivityType.required"));
+            }
 
-        if (form.getProgramDuration() == null) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.programDuration.required"));
-        }
+            if (form.getProgramDuration() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.programDuration.required"));
+            }
 
-        if (form.getMobilityScientificArea() == null) {
-            result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityScientificArea.required"));
-        }
+            if (form.getMobilityScientificArea() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.mobilityScientificArea.required"));
+            }
 
-        if (form.getIncomingMobilityProgrammeLevel() == null) {
-            result.add(BundleUtil.getString(BUNDLE,
-                    "error.MobilityRegistrationInformation.incomingMobilityProgrammeLevel.required"));
-        }
+            if (form.getIncomingMobilityProgrammeLevel() == null) {
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.MobilityRegistrationInformation.incomingMobilityProgrammeLevel.required"));
+            }
 
-        if (form.getOriginMobilityProgrammeLevel() == null) {
-            result.add(
-                    BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required"));
+            if (form.getOriginMobilityProgrammeLevel() == null) {
+                result.add(BundleUtil.getString(BUNDLE,
+                        "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required"));
+            }
         }
 
         return result;
@@ -180,17 +184,20 @@ public class MobilityFormControler extends FormAbstractController {
 
     @Atomic
     protected void writeData(MobilityForm form, final ExecutionYear executionYear, final Model model) {
-        Registration registration = getRegistration(executionYear, model);
-        MobilityRegistrationInformationBean bean = form.getBeanToCreate(registration);
-        List<MobilityRegistrationInformation> informations = registration.getMobilityRegistrationInformationsSet().stream()
-                .filter(info -> info.getRemarks().equals(MobilityForm.CREATED_CANDIDACY_FLOW)).collect(Collectors.toList());
+        if (form.isHasMobilityProgram()) {
 
-        if (informations.size() == 1) {
-            informations.iterator().next().edit(bean);
-        } else {
-            MobilityRegistrationInformation.create(bean);
+            Registration registration = getRegistration(executionYear, model);
+            MobilityRegistrationInformationBean bean = form.getBeanToCreate(registration);
+            List<MobilityRegistrationInformation> informations = registration.getMobilityRegistrationInformationsSet().stream()
+                    .filter(info -> info.getRemarks().equals(MobilityForm.CREATED_CANDIDACY_FLOW)).collect(Collectors.toList());
+
+            if (informations.size() == 1) {
+                informations.iterator().next().edit(bean);
+            } else {
+                MobilityRegistrationInformation.create(bean);
+            }
+
         }
-
     }
 
     @Override

@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
 <%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <style>
@@ -13,6 +14,10 @@
 
 <div class="row well start">
 	<%= ULisboaSpecificationsUtil.bundle("message.blueRecord.intro") %>
+</div>
+
+<div class="well start">
+    <p><spring:message code="message.dataProcessingTerms" arguments="<%= Unit.getInstitutionName().getContent() %>" htmlEscape="false"/></p>
 </div>
 
 <div class="">

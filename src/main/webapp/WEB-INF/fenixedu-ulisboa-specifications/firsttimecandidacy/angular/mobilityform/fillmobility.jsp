@@ -107,6 +107,25 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="form-group row">
+                <div class="col-sm-3 control-label required-field">
+                    <spring:message code="label.mobilityRegistrationInformation.hasMobilityProgram" />
+                </div>
+
+                <div class="col-sm-8">
+                    <ui-select id="mobilityRegistrationInformation_hasMobilityProgram" name="hasMobilityProgram"
+                        ng-model="$parent.object.hasMobilityProgram" 
+                        theme="bootstrap" > 
+                        <ui-select-match>
+                            {{$select.selected.name}}
+                        </ui-select-match> 
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues  | filter: $select.search">
+                            <span ng-bind-html="bvalue.name"></span>
+                        </ui-select-choices>
+                    </ui-select>    
+                </div>
+            </div>
+
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.programDuration" />
                 </div>
@@ -119,7 +138,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.begin" />
                 </div>
@@ -133,7 +152,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.end" />
                 </div>
@@ -151,7 +170,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.beginDate" />
                 </div>
@@ -161,7 +180,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.endDate" />
                 </div>
@@ -171,7 +190,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label" >
                     <spring:message code="label.MobilityRegistrationInformation.originMobilityProgrammeLevel" />
                 </div>
@@ -188,7 +207,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label" >
                     <spring:message code="label.MobilityRegistrationInformation.otherOriginMobilityProgrammeLevel" />
                 </div>
@@ -199,7 +218,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-                        <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.mobilityActivityType" />
                 </div>
@@ -216,7 +235,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label">
                     <spring:message code="label.MobilityRegistrationInformation.mobilityProgramType" />
                 </div>
@@ -233,7 +252,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label"  >
                     <spring:message code="label.MobilityRegistrationInformation.mobilityScientificArea" />
                 </div>
@@ -251,7 +270,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             </div>
             
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label" >
                     <spring:message code="label.MobilityRegistrationInformation.incomingMobilityProgrammeLevel" />
                 </div>
@@ -268,7 +287,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label" >
                     <spring:message code="label.MobilityRegistrationInformation.otherIncomingMobilityProgrammeLevel" />
                 </div>
@@ -279,7 +298,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
         
-            <div class="form-group row">
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label" >
                     <spring:message code="label.MobilityRegistrationInformation.countryUnit" />
                 </div>

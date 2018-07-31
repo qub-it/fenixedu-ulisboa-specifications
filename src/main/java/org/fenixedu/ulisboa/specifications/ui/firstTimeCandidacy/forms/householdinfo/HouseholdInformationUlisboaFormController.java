@@ -157,10 +157,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
 
         //FLUNKED BEFORE UNIV
 
-        if (form.getFlunkedBeforeUniversity() == null) {
-            messages.add(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        } else {
+        if (form.getFlunkedBeforeUniversity() != null) {
             if (form.getFlunkedBeforeUniversity() == Boolean.TRUE) {
 
                 if (form.getFlunkedHighSchoolTimes() < 1 && form.getFlunkedPreHighSchoolTimes() < 1) {
@@ -195,44 +192,38 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
 
         // SOCIAL BENEFITS
 
-        if (form.getSocialBenefitsInHighSchool() == null) {
+        if (Boolean.TRUE.equals(form.getSocialBenefitsInHighSchool())
+                && StringUtils.isBlank(form.getSocialBenefitsInHighSchoolDescription())) {
             messages.add(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        } else if (form.getSocialBenefitsInHighSchool() && StringUtils.isBlank(form.getSocialBenefitsInHighSchoolDescription())) {
-            messages.add(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        } else if (!form.getSocialBenefitsInHighSchool()) {
+        }
+        if (Boolean.FALSE.equals(form.getSocialBenefitsInHighSchool())) {
             form.setSocialBenefitsInHighSchoolDescription("");
         }
 
         // FIRST TIME APPLYING
 
-        if (form.getFirstTimeInPublicUniv() == null) {
+        if (Boolean.FALSE.equals(form.getFirstTimeInPublicUniv()) && form.getPublicUnivCandidacies() == null) {
             messages.add(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() == null) {
-            messages.add(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        } else if (!form.getFirstTimeInPublicUniv() && form.getPublicUnivCandidacies() < 1) {
+        } else if (Boolean.FALSE.equals(form.getFirstTimeInPublicUniv()) && form.getPublicUnivCandidacies() < 1) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.publicUnivCandidacies"));
-        } else if (form.getFirstTimeInPublicUniv()) {
+        } else if (Boolean.TRUE.equals(form.getFirstTimeInPublicUniv())) {
             form.setPublicUnivCandidacies(0);
         }
 
-        if (form.getFirstTimeInUlisboa() == null) {
-            messages.add(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        }
+//        if (form.getFirstTimeInUlisboa() == null) {
+//            messages.add(
+//                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
+//        }
 
         // FLUNKED UNIVERSITY
 
-        if (form.getFlunkedUniversity() == null) {
+        if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() == null) {
             messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-        } else if (form.getFlunkedUniversity() && form.getFlunkedUniversityTimes() == null) {
-            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-        } else if (form.getFlunkedUniversity() && form.getFlunkedUniversityTimes() < 1) {
+        } else if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() < 1) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
-        } else if (!form.getFlunkedUniversity()) {
+        } else if (Boolean.FALSE.equals(form.getFlunkedUniversity())) {
             form.setFlunkedUniversityTimes(0);
         }
 

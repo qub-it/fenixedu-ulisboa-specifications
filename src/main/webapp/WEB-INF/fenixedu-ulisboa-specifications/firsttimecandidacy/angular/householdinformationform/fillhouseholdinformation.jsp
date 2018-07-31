@@ -228,7 +228,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             </div>
             
             <div class="form-group row">
-                <div class="col-sm-2 control-label required-field">
+                <div class="col-sm-2 control-label">
                     <spring:message code="label.HouseholdInformationForm.householdSalarySpan" />
                 </div>
 
@@ -351,7 +351,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </tr>
                     <tr>
                         <td>
-                            <div class="control-label required-field">
+                            <div class="control-label">
                                 <spring:message code="label.HouseholdInformationForm.numberBoth" />
                             </div>
                         </td>

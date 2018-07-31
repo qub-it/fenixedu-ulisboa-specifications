@@ -45,6 +45,8 @@ public class MobilityForm implements CandidancyForm {
     protected LocalDate beginDate;
     protected LocalDate endDate;
 
+    protected boolean hasMobilityProgram;
+
     protected MobilityProgramType mobilityProgramType;
     protected MobilityActivityType mobilityActivityType;
     protected MobilityScientificArea mobilityScientificArea;
@@ -83,6 +85,14 @@ public class MobilityForm implements CandidancyForm {
         loadMobilityScientificAreaDataSource();
         loadMobilityProgrammeLevelDataSource();
         loadCountryUnitDataSource();
+    }
+
+    public boolean isHasMobilityProgram() {
+        return hasMobilityProgram;
+    }
+
+    public void setHasMobilityProgram(boolean hasMobilityProgram) {
+        this.hasMobilityProgram = hasMobilityProgram;
     }
 
     private void loadMobilityProgrammeLevelDataSource() {

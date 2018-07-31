@@ -165,10 +165,10 @@ public class HouseholdInformationFormController extends FormAbstractController {
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
         }
 
-        if (form.getHouseholdSalarySpan() == null) {
-            messages.add(
-                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-        }
+//        if (form.getHouseholdSalarySpan() == null) {
+//            messages.add(
+//                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
+//        }
 
         //DISLOCATED
 
@@ -198,12 +198,12 @@ public class HouseholdInformationFormController extends FormAbstractController {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.livesWith.other.must.be.filled"));
         }
 
-        if (form.getNumBrothers() == null) {
-            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-        }
-        if (form.getNumChildren() == null) {
-            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-        }
+//        if (form.getNumBrothers() == null) {
+//            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+//        }
+//        if (form.getNumChildren() == null) {
+//            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+//        }
 
         if (form.getNumBrothers() != null && form.getNumBrothers() < 0) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.numBrothers.must.be.positive"));

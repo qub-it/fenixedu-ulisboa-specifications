@@ -153,6 +153,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
     @Atomic
     protected void authorizeSharingDataWithCGD(final boolean authorize) {
+        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setSharingDataWithCGDAnswered(true);
         DataShareAuthorization authorizationNoBank = DataShareAuthorization.findLatest(AccessControl.getPerson(),
                 DataShareAuthorizationType.findUnique("CGD_BASIC_INFO"));
         DataShareAuthorization authorizationBank = DataShareAuthorization.findLatest(AccessControl.getPerson(),
