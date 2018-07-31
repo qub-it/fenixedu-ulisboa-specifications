@@ -273,7 +273,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         <div class="panel-body">
 
             <div class="form-group row">
-                <div class="col-sm-2 control-label required-field">
+                <div class="col-sm-2 control-label">
                     <spring:message
                         code="label.HouseholdInformationForm.livesAlone" />
                 </div>

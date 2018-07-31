@@ -1,6 +1,5 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc;
 
-
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.io.ByteArrayInputStream;
@@ -163,12 +162,12 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
         }
 
         if (authorizationBank != null && authorizationNoBank != null) {
+            authorizationNoBank.setAllow(Boolean.TRUE);
+
             if (authorize) {
                 authorizationBank.setAllow(Boolean.TRUE);
-                authorizationNoBank.setAllow(Boolean.FALSE);
             } else {
                 authorizationBank.setAllow(Boolean.FALSE);
-                authorizationNoBank.setAllow(Boolean.TRUE);
             }
         }
 
