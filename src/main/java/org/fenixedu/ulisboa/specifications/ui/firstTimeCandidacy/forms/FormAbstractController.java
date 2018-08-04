@@ -16,6 +16,7 @@ import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -109,6 +110,8 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
         try {
             writeData(executionYear, candidancyForm, model);
             fillPostScreen(executionYear, candidancyForm, model, redirectAttributes);
+            PersonUlisboaSpecificationsByExecutionYear.findOrCreate(getStudent(model).getPerson(), executionYear)
+                    .addFormsAnswered(this.getClass().getSimpleName());
             model.addAttribute("form", candidancyForm);
             return nextScreen(executionYear, model, redirectAttributes);
         } catch (DomainException domainEx) {

@@ -153,24 +153,9 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
     @Atomic
     protected void authorizeSharingDataWithCGD(final boolean authorize) {
         PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson()).setSharingDataWithCGDAnswered(true);
-        DataShareAuthorization authorizationNoBank = DataShareAuthorization.findLatest(AccessControl.getPerson(),
-                DataShareAuthorizationType.findUnique("CGD_BASIC_INFO"));
-        DataShareAuthorization authorizationBank = DataShareAuthorization.findLatest(AccessControl.getPerson(),
-                DataShareAuthorizationType.findUnique("CGD_EXTENDED_INFO"));
-        if (authorizationBank == null || authorizationNoBank == null) {
-            //TODO: Create authorizations?
-        }
 
-        if (authorizationBank != null && authorizationNoBank != null) {
-            authorizationNoBank.setAllow(Boolean.TRUE);
-
-            if (authorize) {
-                authorizationBank.setAllow(Boolean.TRUE);
-            } else {
-                authorizationBank.setAllow(Boolean.FALSE);
-            }
-        }
-
+        DataShareAuthorizationType authorizationType = DataShareAuthorizationType.findUnique("CGD_EXTENDED_INFO");
+        DataShareAuthorization.create(AccessControl.getPerson(), authorizationType, new Boolean(authorize));
     }
 
     protected static final String _SHOW_MODEL_43_URI = "/showmodelo43download";

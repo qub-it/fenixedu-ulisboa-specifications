@@ -24,10 +24,13 @@ import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.CgdDataAuthorizationControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.DisabilitiesFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.HouseholdInformationFormControllerBlueRecord;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.HouseholdInformationUlisboaFormControllerBlueRecord;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.MobilityFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.MotivationsExpectationsFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.OriginInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.PersonalInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.PreviousDegreeOriginInformationFormControllerBlueRecord;
+import org.fenixedu.ulisboa.specifications.ui.blue_record.ProfessionalInformationFormControllerBlueRecord;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.CourseEnrolmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagementDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassPreferenceStudentEnrollmentDA;
@@ -98,11 +101,14 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
         boolean result = false;
         result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new HouseholdInformationUlisboaFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new MotivationsExpectationsFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new OriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new PersonalInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new PreviousDegreeOriginInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new CgdDataAuthorizationControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new MobilityFormControllerBlueRecord().isFormIsFilled(executionYear, student);
+        result |= !new ProfessionalInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
 
         return result;
     }

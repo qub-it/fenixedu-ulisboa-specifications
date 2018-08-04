@@ -28,8 +28,8 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
     public String back(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
-        String url = MotivationsExpectationsFormControllerBlueRecord.CONTROLLER_URL;
-        return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
+        return redirect(urlWithExecutionYear(MobilityFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model,
+                redirectAttributes);
     }
 
     @Override

@@ -300,15 +300,32 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         
             <div class="form-group row" ng-show="object.hasMobilityProgram">
                 <div class="col-sm-3 control-label" >
-                    <spring:message code="label.MobilityRegistrationInformation.countryUnit" />
+                    <spring:message code="label.firstTimeCandidacy.MobilityRegistrationInformation.incomingCountry" />
                 </div>
 
                 <div class="col-sm-8">
                     <%-- Relation to side 1 drop down rendered in input --%>
-                    <ui-select id="mobilityRegistrationInformation_countryUnit" class="" name="countryUnit"
-                        ng-model="$parent.object.countryUnit" theme="bootstrap" ng-disabled="disabled" on-select="onCountryUnitChange($item, $model)" on-remove="onCountryUnitChange($item, $model)">
+                    <ui-select id="mobilityRegistrationInformation_incomingCountry" class="" name="incomingCountry"
+                        ng-model="$parent.object.incomingCountry" theme="bootstrap" ng-disabled="disabled" on-select="onCountryUnitChange($item, $model)" on-remove="onCountryUnitChange($item, $model)">
                         <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
-                        <ui-select-choices repeat="countryUnit.id as countryUnit in object.countryUnitDataSource | filter: $select.search">
+                        <ui-select-choices repeat="countryUnit.id as countryUnit in object.countryDataSource | filter: $select.search">
+                            <span ng-bind-html="countryUnit.text | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+
+            <div class="form-group row" ng-show="object.hasMobilityProgram">
+                <div class="col-sm-3 control-label" >
+                    <spring:message code="label.firstTimeCandidacy.MobilityRegistrationInformation.originCountry" />
+                </div>
+
+                <div class="col-sm-8">
+                    <%-- Relation to side 1 drop down rendered in input --%>
+                    <ui-select id="mobilityRegistrationInformation_originCountry" class="" name="originCountry"
+                        ng-model="$parent.object.originCountry" theme="bootstrap" ng-disabled="disabled" on-select="onCountryUnitChange($item, $model)" on-remove="onCountryUnitChange($item, $model)">
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match>
+                        <ui-select-choices repeat="countryUnit.id as countryUnit in object.countryDataSource | filter: $select.search">
                             <span ng-bind-html="countryUnit.text | highlight: $select.search"></span>
                         </ui-select-choices>
                     </ui-select>

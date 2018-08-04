@@ -3,19 +3,16 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.mobility
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
-import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
+import org.fenixedu.ulisboa.specifications.domain.MobilityRegistatrionUlisboaInformation;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.EnrolmentsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
@@ -62,26 +59,19 @@ public class MobilityFormControler extends FormAbstractController {
         MobilityForm form = (MobilityForm) getForm(model);
 
         if (form == null) {
-            form = createMobilityForm(executionYear, getStudent(model), model);
+            form = createMobilityForm(executionYear, getStudent(model));
 
             setForm(form, model);
         }
         return form;
     }
 
-    protected MobilityForm createMobilityForm(final ExecutionYear executionYear, final Student student, final Model model) {
+    protected MobilityForm createMobilityForm(final ExecutionYear executionYear, final Student student) {
         MobilityForm form = new MobilityForm();
-        Registration registration = getRegistration(executionYear, model);
-        List<MobilityRegistrationInformation> informations = registration.getMobilityRegistrationInformationsSet().stream()
-                .filter(info -> info.getRemarks().equals(MobilityForm.CREATED_CANDIDACY_FLOW)).collect(Collectors.toList());
+        PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
+        MobilityRegistatrionUlisboaInformation information = personUl.getMobilityRegistatrionUlisboaInformation();
 
-        if (informations.size() > 1) {
-            //TODO: this shouldn't happen.
-        }
-
-        if (informations.size() == 1) {
-            MobilityRegistrationInformation information = informations.iterator().next();
-
+        if (information != null) {
             form.setHasMobilityProgram(true);
 
             form.setBegin(information.getBegin());
@@ -100,7 +90,8 @@ public class MobilityFormControler extends FormAbstractController {
             form.setOtherOriginMobilityProgrammeLevel(information.getOtherOriginMobilityProgrammeLevel());
             form.setOtherIncomingMobilityProgrammeLevel(information.getOtherIncomingMobilityProgrammeLevel());
 
-            form.setCountryUnit(information.getCountryUnit());
+            form.setOriginCountry(information.getOriginCountry());
+            form.setIncomingCountry(information.getIncomingCountry());
         }
 
         return form;
@@ -122,7 +113,7 @@ public class MobilityFormControler extends FormAbstractController {
     }
 
     private boolean validate(MobilityForm form, Model model) {
-        final Set<String> result = validateForm(form, getStudent(model).getPerson());
+        final Set<String> result = validateForm(form);
 
         for (final String message : result) {
             addErrorMessage(message, model);
@@ -131,7 +122,7 @@ public class MobilityFormControler extends FormAbstractController {
         return result.isEmpty();
     }
 
-    private Set<String> validateForm(MobilityForm form, final Person person) {
+    protected Set<String> validateForm(MobilityForm form) {
         final Set<String> result = Sets.newLinkedHashSet();
 
         if (form.isHasMobilityProgram()) {
@@ -172,6 +163,14 @@ public class MobilityFormControler extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.MobilityRegistrationInformation.originMobilityProgrammeLevel.required"));
             }
+
+            if (form.getOriginCountry() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.OriginCountry.required"));
+            }
+
+            if (form.getIncomingCountry() == null) {
+                result.add(BundleUtil.getString(BUNDLE, "error.MobilityRegistrationInformation.IncomingCountry.required"));
+            }
         }
 
         return result;
@@ -186,17 +185,14 @@ public class MobilityFormControler extends FormAbstractController {
     protected void writeData(MobilityForm form, final ExecutionYear executionYear, final Model model) {
         if (form.isHasMobilityProgram()) {
 
-            Registration registration = getRegistration(executionYear, model);
-            MobilityRegistrationInformationBean bean = form.getBeanToCreate(registration);
-            List<MobilityRegistrationInformation> informations = registration.getMobilityRegistrationInformationsSet().stream()
-                    .filter(info -> info.getRemarks().equals(MobilityForm.CREATED_CANDIDACY_FLOW)).collect(Collectors.toList());
+            PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(getStudent(model).getPerson());
+            MobilityRegistatrionUlisboaInformation information = personUl.getMobilityRegistatrionUlisboaInformation();
 
-            if (informations.size() == 1) {
-                informations.iterator().next().edit(bean);
+            if (information != null) {
+                information.edit(form);
             } else {
-                MobilityRegistrationInformation.create(bean);
+                MobilityRegistatrionUlisboaInformation.create(personUl, form);
             }
-
         }
     }
 

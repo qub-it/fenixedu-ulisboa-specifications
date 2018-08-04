@@ -143,7 +143,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     }
 
     protected boolean validate(final HouseholdInformationUlisboaForm form, final Model model) {
-        final Set<String> messages = validateForm(form, model);
+        final Set<String> messages = validateForm(form);
 
         for (final String message : messages) {
             addErrorMessage(message, model);
@@ -152,7 +152,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         return messages.isEmpty();
     }
 
-    protected Set<String> validateForm(final HouseholdInformationUlisboaForm form, final Model model) {
+    protected Set<String> validateForm(final HouseholdInformationUlisboaForm form) {
         final Set<String> messages = Sets.newLinkedHashSet();
 
         //FLUNKED BEFORE UNIV

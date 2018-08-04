@@ -1,23 +1,20 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.mobility;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolPeriodDuration;
-import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgrammeLevel;
 import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityScientificArea;
-import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
@@ -38,8 +35,6 @@ public class MobilityForm implements CandidancyForm {
         }
     };
 
-    protected static final String CREATED_CANDIDACY_FLOW = "Esta mobilidade foi criada pelo aluno no ato da matrícula.";
-
     protected ExecutionSemester begin;
     protected ExecutionSemester end;
     protected LocalDate beginDate;
@@ -58,7 +53,8 @@ public class MobilityForm implements CandidancyForm {
     protected String otherIncomingMobilityProgrammeLevel;
     protected String otherOriginMobilityProgrammeLevel;
 
-    protected CountryUnit countryUnit;
+    protected Country originCountry;
+    protected Country incomingCountry;
 
     private List<TupleDataSourceBean> programDurationDataSource;
     private List<TupleDataSourceBean> beginDataSource;
@@ -69,7 +65,7 @@ public class MobilityForm implements CandidancyForm {
     private List<TupleDataSourceBean> mobilityScientificAreaDataSource;
     private List<TupleDataSourceBean> mobilityProgrammeLevelDataSource;
 
-    private List<TupleDataSourceBean> countryUnitDataSource;
+    private List<TupleDataSourceBean> countryDataSource;
 
     public MobilityForm() {
         updateLists();
@@ -154,12 +150,14 @@ public class MobilityForm implements CandidancyForm {
     }
 
     private void loadCountryUnitDataSource() {
-        final List<TupleDataSourceBean> result =
-                new ArrayList<>(CountryUnit.readAllCountryUnits().stream().sorted(CountryUnit.COMPARATOR_BY_NAME_AND_ID)
-                        .map(c -> new TupleDataSourceBean(c.getExternalId(), c.getName())).collect(Collectors.toList()));
+        final List<TupleDataSourceBean> result = Bennu.getInstance().getCountrysSet().stream().map(c -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(c.getExternalId());
+            tuple.setText(c.getLocalizedName().getContent());
+            return tuple;
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
 
-        countryUnitDataSource = result;
-
+        countryDataSource = result;
     }
 
     public ExecutionSemester getBegin() {
@@ -258,12 +256,20 @@ public class MobilityForm implements CandidancyForm {
         this.otherOriginMobilityProgrammeLevel = otherOriginMobilityProgrammeLevel;
     }
 
-    public CountryUnit getCountryUnit() {
-        return countryUnit;
+    public Country getOriginCountry() {
+        return originCountry;
     }
 
-    public void setCountryUnit(CountryUnit countryUnit) {
-        this.countryUnit = countryUnit;
+    public void setOriginCountry(Country originCountry) {
+        this.originCountry = originCountry;
+    }
+
+    public Country getIncomingCountry() {
+        return incomingCountry;
+    }
+
+    public void setIncomingCountry(Country incomingCountry) {
+        this.incomingCountry = incomingCountry;
     }
 
     public List<TupleDataSourceBean> getProgramDurationDataSource() {
@@ -323,39 +329,11 @@ public class MobilityForm implements CandidancyForm {
     }
 
     public List<TupleDataSourceBean> getCountryUnitDataSource() {
-        return countryUnitDataSource;
+        return countryDataSource;
     }
 
     public void setCountryUnitDataSource(List<TupleDataSourceBean> countryUnitDataSource) {
-        this.countryUnitDataSource = countryUnitDataSource;
-    }
-
-    public MobilityRegistrationInformationBean getBeanToCreate(Registration registration) {
-        MobilityRegistrationInformationBean bean = new MobilityRegistrationInformationBean(registration);
-
-        bean.setIncoming(true);
-
-        bean.setBegin(getBegin());
-        bean.setEnd(getEnd());
-        bean.setBeginDate(getBeginDate());
-        bean.setEndDate(getEndDate());
-
-        bean.setMobilityProgramType(getMobilityProgramType());
-        bean.setMobilityActivityType(getMobilityActivityType());
-        bean.setMobilityScientificArea(getMobilityScientificArea());
-
-        bean.setProgramDuration(getProgramDuration());
-
-        bean.setOriginMobilityProgrammeLevel(getOriginMobilityProgrammeLevel());
-        bean.setIncomingMobilityProgrammeLevel(getIncomingMobilityProgrammeLevel());
-        bean.setOtherOriginMobilityProgrammeLevel(getOtherOriginMobilityProgrammeLevel());
-        bean.setOtherIncomingMobilityProgrammeLevel(getOtherIncomingMobilityProgrammeLevel());
-
-        bean.setCountryUnit(getCountryUnit());
-
-        bean.setRemarks(CREATED_CANDIDACY_FLOW);
-
-        return bean;
+        this.countryDataSource = countryUnitDataSource;
     }
 
 }

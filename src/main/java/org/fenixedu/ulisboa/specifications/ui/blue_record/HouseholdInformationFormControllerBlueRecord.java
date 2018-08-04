@@ -49,8 +49,8 @@ public class HouseholdInformationFormControllerBlueRecord extends HouseholdInfor
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        final String url =
-                OriginInformationFormControllerBlueRecord.CONTROLLER_URL + OriginInformationFormControllerBlueRecord._FILL_URI;
+        final String url = HouseholdInformationUlisboaFormControllerBlueRecord.CONTROLLER_URL
+                + HouseholdInformationUlisboaFormControllerBlueRecord._FILL_URI;
         return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 

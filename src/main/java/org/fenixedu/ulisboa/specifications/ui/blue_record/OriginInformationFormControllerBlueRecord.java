@@ -65,8 +65,8 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
     public String backScreen(@PathVariable("executionYearId") final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
         addControllerURLToModel(executionYear, model);
-        return redirect(urlWithExecutionYear(HouseholdInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear), model,
-                redirectAttributes);
+        return redirect(urlWithExecutionYear(ProfessionalInformationFormControllerBlueRecord.INVOKE_BACK_URL, executionYear),
+                model, redirectAttributes);
     }
 
     private static final String _INVOKE_BACK_URI = "/invokeback";

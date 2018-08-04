@@ -50,8 +50,8 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(CgdDataAuthorizationControllerBlueRecord.CONTROLLER_URL, executionYear), model,
-                redirectAttributes);
+        final String url = MobilityFormControllerBlueRecord.CONTROLLER_URL + MobilityFormControllerBlueRecord._FILL_URI;
+        return redirect(urlWithExecutionYear(url, executionYear), model, redirectAttributes);
     }
 
     @Override
