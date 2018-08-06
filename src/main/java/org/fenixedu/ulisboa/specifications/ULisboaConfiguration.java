@@ -92,6 +92,9 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "ldap.integration.sendHashedPassword", defaultValue = "true")
         public Boolean getSendHashedPassword();
+        
+        @ConfigurationProperty(key = "domain.academic.student.enrolment.automaticSchoolClassEnrolmentMethod", defaultValue = "FILL_FIRST")
+        public String getAutomaticSchoolClassEnrolmentMethod();
     }
 
     public static ConfigurationProperties getConfiguration() {

@@ -63,6 +63,7 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
+import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
@@ -179,13 +180,33 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             final ExecutionDegree executionDegree =
                     degreeCurricularPlan.getExecutionDegreeByYear(executionSemester.getExecutionYear());
             if (executionDegree != null) {
-                return executionDegree
-                        .getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
-                                && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0)
-                        .max(new MostFilledFreeClass());
+                final Comparator<SchoolClass> enrolmentMethod = getAutomaticSchoolClassEnrolmentMethod();
+                return executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
+                        && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0).max(enrolmentMethod);
             }
         }
         return Optional.empty();
+    }
+
+    private Comparator<SchoolClass> getAutomaticSchoolClassEnrolmentMethod() {
+
+        final AutomaticSchoolClassEnrolmentMethod method = AutomaticSchoolClassEnrolmentMethod
+                .valueOf(ULisboaConfiguration.getConfiguration().getAutomaticSchoolClassEnrolmentMethod());
+
+        if (method == AutomaticSchoolClassEnrolmentMethod.FILL_FIRST) {
+            return new MostFilledFreeClass();
+        } else if (method == AutomaticSchoolClassEnrolmentMethod.ROUND_ROBIN) {
+            return new LeastFilledFreeClass();
+        } else {
+            throw new IllegalArgumentException("Unexpected automatic school class enrolment method");
+        }
+
+    }
+
+    private static enum AutomaticSchoolClassEnrolmentMethod {
+        FILL_FIRST,
+
+        ROUND_ROBIN;
     }
 
     class MostFilledFreeClass implements Comparator<SchoolClass> {
@@ -203,10 +224,31 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
     }
 
+    class LeastFilledFreeClass implements Comparator<SchoolClass> {
+        // Return at the beggining the course which is the most filled, but still has space
+        // This allows a "fill first" kind of school class scheduling
+
+        @Override
+        public int compare(SchoolClass sc1, SchoolClass sc2) {
+            Integer sc1MinEnrolments = getMinShiftEnrolmentsCount(sc1);
+            Integer sc2MinEnrolments = getMinShiftEnrolmentsCount(sc2);
+
+            return sc2MinEnrolments.compareTo(sc1MinEnrolments) != 0 ? sc2MinEnrolments
+                    .compareTo(sc1MinEnrolments) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
+        }
+
+    }
+
     private Integer getFreeVacancies(SchoolClass schoolClass) {
         final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
                 .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
         return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
+    }
+
+    private Integer getMinShiftEnrolmentsCount(SchoolClass schoolClass) {
+        final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
+                .min((s1, s2) -> Integer.compare(s1.getStudentsSet().size(), s2.getStudentsSet().size()));
+        return minShift.isPresent() ? minShift.get().getStudentsSet().size() : 0;
     }
 
     private Integer getShiftVacancies(final Shift shift) {
@@ -453,7 +495,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             if (Collections.disjoint(previousSchoolClass.getAssociatedShiftsSet(), registration.getShiftsFor(previousSemester))) {
                 return false;
             }
-            
+
             // check if exists school class for this semester
             final Optional<SchoolClass> schoolClassForThisSemester =
                     RegistrationServices.getInitialSchoolClassesToEnrolBy(registration, executionSemester).stream()
