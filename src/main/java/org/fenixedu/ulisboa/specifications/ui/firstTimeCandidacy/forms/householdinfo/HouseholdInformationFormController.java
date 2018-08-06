@@ -5,6 +5,7 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTim
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Student;
@@ -193,8 +194,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
             }
         }
 
-        if (form.getLivesWithOthers() != null && form.getLivesWithOthers() == Boolean.TRUE
-                && form.getLivesWithOthersDesc().isEmpty()) {
+        if (Boolean.TRUE.equals(form.getLivesWithOthers()) && StringUtils.isBlank(form.getLivesWithOthersDesc())) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.livesWith.other.must.be.filled"));
         }
 
