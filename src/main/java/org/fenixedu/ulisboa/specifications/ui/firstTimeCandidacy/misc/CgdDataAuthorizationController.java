@@ -130,6 +130,12 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
         authorizeSharingDataWithCGD(false);
 
+        final Registration registration = findFirstTimeRegistration(executionYear);
+        try {
+            StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+        } catch (Exception e) {
+        }
+
         return nextScreen(executionYear, model, redirectAttributes, true);
 //        final String url = urlWithExecutionYear(SHOW_MODEL_43_URL, executionYear) + "/false";
 //        return redirect(url, model, redirectAttributes);

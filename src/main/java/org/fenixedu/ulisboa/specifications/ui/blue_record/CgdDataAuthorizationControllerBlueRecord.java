@@ -96,11 +96,14 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
 
         authorizeSharingDataWithCGD(false);
 
-        final String url =
-                String.format("/fenixedu-ulisboa-specifications/blueRecord/%s/cgddataauthorization/showmodelo43download/false",
-                        executionYear.getExternalId());
+        final Registration registration = findFirstTimeRegistration(executionYear);
 
-        return redirect(url, model, redirectAttributes);
+        try {
+            StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+        } catch (Exception e) {
+        }
+
+        return nextScreen(executionYear, model, redirectAttributes);
     }
 
     @Override

@@ -1,3 +1,5 @@
+<%@page import="org.fenixedu.commons.i18n.I18N"%>
+<%@page import="java.util.Locale"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration"%>
 <%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
@@ -102,10 +104,15 @@ ${portal.toolkit()}
 <%-- 	<% } else { %> --%>
         <% 
         String unitName = Unit.getInstitutionName().getContent();
-        if(unitName.startsWith("Instituto")) {
-            unitName = "O " + unitName;
-        } else {
-            unitName = "A " + unitName;
+        Locale locale = I18N.getLocale();
+        if(locale.getLanguage().equals("en")) {
+            unitName = "The " + unitName;
+        }else {
+            if(unitName.startsWith("Instituto")) {
+                unitName = "O " + unitName;
+            } else {
+                unitName = "A " + unitName;
+            }
         }
         %>
 		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent().replaceAll(","," -") + ", " + unitName %>' htmlEscape="false"/></p>

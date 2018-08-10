@@ -106,6 +106,8 @@ public class PersonUlisboaSpecificationsByExecutionYear extends PersonUlisboaSpe
         if (formsAnswered == null) {
             return false;
         }
+        formsAnswered = formsAnswered.replaceAll("BlueRecord", "");
+        classSimpleName = classSimpleName.replaceAll("BlueRecord", "");
 
         return formsAnswered.contains(classSimpleName);
     }
