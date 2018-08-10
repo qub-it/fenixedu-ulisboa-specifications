@@ -51,6 +51,8 @@ import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
+import org.fenixedu.academic.domain.serviceRequests.ReceivedFromExternalEntityAcademicServiceRequestSituation;
+import org.fenixedu.academic.domain.serviceRequests.SentToExternalEntityAcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
@@ -129,7 +131,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
     }
 
-    private void checkRules() {
+    protected void checkRules() {
         for (ServiceRequestProperty property : getServiceRequestPropertiesSet()) {
             ServiceRequestSlotEntry entry = ServiceRequestSlotEntry.findByServiceRequestProperty(property);
             if (entry == null) {
@@ -141,6 +143,8 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                         entry.getServiceRequestSlot().getLabel().getContent());
             }
         }
+        
+        super.checkRules();
     }
 
     protected void initAcademicServiceRequest(final Registration registration, final DateTime requestDate) {
@@ -220,6 +224,29 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                 bean.isRequestedOnline(), bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
 
         request.processRequest(false, true);
+
+        return request;
+    }
+
+    public static ULisboaServiceRequest createForServiceRequestImport(final ULisboaServiceRequestBean bean) {
+        final ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(),
+                bean.isRequestedOnline(), bean.getRequestDate());
+
+        addRequestSlots(request, bean.getServiceRequestPropertyBeans());
+
+        if (!request.hasExecutionYear()) {
+            ServiceRequestProperty property;
+            if (request.findProperty(ULisboaConstants.EXECUTION_YEAR) != null) {
+                property = request.findProperty(ULisboaConstants.EXECUTION_YEAR);
+                property.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+            } else {
+                property = ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
+                        ExecutionYear.readCurrentExecutionYear());
+                request.addServiceRequestProperties(property);
+            }
+        }
+
+        request.checkRules();
 
         return request;
     }
@@ -742,7 +769,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     @Atomic
-    private void transitStateTransation(final AcademicServiceRequestSituationType type, final String justification) {
+    public void transitStateTransation(final AcademicServiceRequestSituationType type, final String justification) {
         if (type == AcademicServiceRequestSituationType.CANCELLED || type == AcademicServiceRequestSituationType.REJECTED) {
             Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<>(this));
         } else {
@@ -753,6 +780,11 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         createAcademicServiceRequestSituations(bean);
 
         processRequest(false, false);
+    }
+
+    @Override
+    protected void createAcademicServiceRequestSituations(final AcademicServiceRequestBean academicServiceRequestBean) {
+        new AcademicServiceRequestSituation(this, academicServiceRequestBean);
     }
 
     @Override

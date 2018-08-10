@@ -18,7 +18,7 @@
 	<name>FenixEdu ULisboa Specifications</name>
 
 	<properties>
-		<version.org.fenixedu.academic>8.4.19</version.org.fenixedu.academic>
+		<version.org.fenixedu.academic>8.4.20</version.org.fenixedu.academic>
 	</properties>
 
 	<build>
