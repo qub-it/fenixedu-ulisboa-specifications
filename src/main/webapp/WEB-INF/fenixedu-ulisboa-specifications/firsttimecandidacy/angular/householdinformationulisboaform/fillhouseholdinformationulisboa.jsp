@@ -221,7 +221,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row" ng-show="object.firstTimeInPublicUniv == false">
-                <div class="col-sm-2 control-label">
+                <div class="col-sm-2 control-label required-field">
                     <spring:message
                         code="label.HouseholdInformationForm.publicUnivCandidacies" />
                 </div>

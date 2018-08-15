@@ -101,6 +101,30 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     };
     $scope.typpingMessage = "<spring:message code='label.startTyping'/>";
     
+    $scope.onChange = function(element, model) {
+        $scope.postBack(model);
+    };
+    
+    $scope.isProfessionEmpty = function() {
+        return angular.isUndefined($scope.object.profession) || $scope.object.profession === null || $scope.object.profession.length == 0;
+    }
+    
+    $scope.getProfessionClass = function() {
+    	if($scope.object.professionRequired) {
+    		return "required-field";
+    	}
+    	
+    	return "";
+    }
+    
+    $scope.getProfessionTimeTypeClass = function() {
+    	if(!$scope.isProfessionEmpty() || $scope.object.professionRequired) {
+    		return "required-field";
+    	}
+    	
+		return "";
+    }
+    
     $scope.submitForm = function() {
 	    $scope.transformData();
         $('form').submit();
@@ -125,7 +149,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </label>
 
                 <div class="col-sm-6">
-                    <ui-select  id="professionalInformationForm_professionalCondition" name="professionalCondition" ng-model="$parent.object.professionalCondition" theme="bootstrap">
+                    <ui-select  id="professionalInformationForm_professionalCondition" name="professionalCondition" ng-model="$parent.object.professionalCondition" on-select="onChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="professionalCondition.id as professionalCondition in object.professionalConditionValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="professionalCondition.text"></span>
@@ -139,7 +163,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </label>
 
                 <div class="col-sm-6">
-                    <ui-select  id="professionalInformationForm_professionType" name="professionType" ng-model="$parent.object.professionType" theme="bootstrap">
+                    <ui-select  id="professionalInformationForm_professionType" name="professionType" ng-model="$parent.object.professionType" on-select="onChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="professionType.id as professionType in object.professionTypeValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="professionType.text"></span>
@@ -148,7 +172,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>          
             <div class="form-group row">
-                <label for="professionalInformationForm_profession" class="col-sm-2 control-label">
+                <label for="professionalInformationForm_profession" class="col-sm-2 control-label" ng-class="getProfessionClass()">
                     <spring:message code="label.ProfessionalInformationForm.profession" />
                 </label>
 
@@ -159,7 +183,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <label for="professionalInformationForm_professionTimeType" class="col-sm-2 control-label">
+                <label for="professionalInformationForm_professionTimeType" class="col-sm-2 control-label" ng-class="getProfessionTimeTypeClass()">
                     <spring:message code="label.ProfessionalInformationForm.professionTimeType" />
                 </label>
 

@@ -22,8 +22,10 @@ public class ProfessionalInformationForm implements CandidancyForm {
     private List<TupleDataSourceBean> professionalConditionValues;
     private List<TupleDataSourceBean> professionTypeValues;
     private List<TupleDataSourceBean> professionTimeTypeValues;
+    private boolean professionRequired;
 
     public ProfessionalInformationForm() {
+        setProfessionRequired(false);
         setProfessionalConditionValues(Arrays.asList(ProfessionalSituationConditionType.values()));
         setProfessionTypeValues(Arrays.asList(ProfessionType.values()));
         setProfessionTimeTypeValues(ProfessionTimeType.readAll().collect(Collectors.toList()));
@@ -33,7 +35,11 @@ public class ProfessionalInformationForm implements CandidancyForm {
 
     @Override
     public void updateLists() {
-
+        if (isStudentWorking()) {
+            setProfessionRequired(true);
+        } else {
+            setProfessionRequired(false);
+        }
     }
 
     public ProfessionType getProfessionType() {
@@ -154,6 +160,14 @@ public class ProfessionalInformationForm implements CandidancyForm {
         this.professionTimeTypeValues = professionTimeTypeValues.stream()
                 .map(ptt -> new TupleDataSourceBean(ptt.getExternalId(), ptt.getDescription().getContent()))
                 .sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
+    }
+
+    public boolean isProfessionRequired() {
+        return professionRequired;
+    }
+
+    public void setProfessionRequired(boolean professionRequired) {
+        this.professionRequired = professionRequired;
     }
 
 }
