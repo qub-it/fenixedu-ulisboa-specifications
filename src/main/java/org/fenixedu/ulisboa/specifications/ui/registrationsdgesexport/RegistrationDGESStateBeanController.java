@@ -633,10 +633,21 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         String numBrothers = "";
         String numChildren = "";
 
+        //Get the last PersonalIngressionData that was already filled by the student.
+        // GrantOnwerType is a required question. Therefore if it is answered, the student
+        // has answered the rest of the data.
         Comparator<PersonalIngressionData> comparator =
                 Collections.reverseOrder(PersonalIngressionData.COMPARATOR_BY_EXECUTION_YEAR);
-        PersonalIngressionData pid =
-                person.getStudent().getPersonalIngressionsDataSet().stream().sorted(comparator).findFirst().orElse(null);
+        PersonalIngressionData pid = null;
+        List<PersonalIngressionData> personalIngressionDataCollection =
+                person.getStudent().getPersonalIngressionsDataSet().stream().sorted(comparator).collect(Collectors.toList());
+        for (PersonalIngressionData personalIngressionData : personalIngressionDataCollection) {
+            if (personalIngressionData.getGrantOwnerType() != null) {
+                pid = personalIngressionData;
+                break;
+            }
+        }
+
         if (pid != null) {
             if (pid.getProfessionalCondition() != null) {
                 professionalCondition = pid.getProfessionalCondition().getLocalizedName();
@@ -737,7 +748,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 if (personUlExecutionYear.getFlunkedUniversity() != null) {
                     flunkedUniversity = personUlExecutionYear.getFlunkedUniversity() == Boolean.TRUE ? BundleUtil
                             .getString(BUNDLE, "label.true") : BundleUtil.getString(BUNDLE, "label.false");
-                    if (personUlExecutionYear.getFlunkedUniversity()) {
+                    if (personUlExecutionYear.getFlunkedUniversityTimes() != null
+                            && personUlExecutionYear.getFlunkedUniversity()) {
                         flunkedUniversityTimes = personUlExecutionYear.getFlunkedUniversityTimes().toString();
                     }
                 }
@@ -803,7 +815,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (personUl.getFlunkedPreHighSchool() != null) {
                 flunkedPreHighSchool = personUl.getFlunkedPreHighSchool() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
                         "label.true") : BundleUtil.getString(BUNDLE, "label.false");
-                if (personUl.getFlunkedPreHighSchool()) {
+                if (personUl.getFlunkedPreHighSchoolTimes() != null && personUl.getFlunkedPreHighSchool()) {
                     flunkedPreHighSchoolTimes = personUl.getFlunkedPreHighSchoolTimes().toString();
                 }
             }
@@ -811,7 +823,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (personUl.getFlunkedHighSchool() != null) {
                 flunkedHighSchool = personUl.getFlunkedHighSchool() == Boolean.TRUE ? BundleUtil.getString(BUNDLE,
                         "label.true") : BundleUtil.getString(BUNDLE, "label.false");
-                if (personUl.getFlunkedHighSchool()) {
+                if (personUl.getFlunkedHighSchoolTimes() != null && personUl.getFlunkedHighSchool()) {
                     flunkedHighSchoolTimes = personUl.getFlunkedHighSchoolTimes().toString();
                 }
             }
