@@ -9,7 +9,7 @@
 
 <%-- TITLE --%>
 <div class="page-header fuelux">
-	<h1><spring:message code="label.firstTimeCandidacy.instructions" /></h1>
+	<h1><spring:message code="label.firstTimeCandidacy.instructions.blueRecord" /></h1>
 </div>
 
 <div class="row well start">
