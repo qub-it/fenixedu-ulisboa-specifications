@@ -9,6 +9,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter.ExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
@@ -26,13 +27,43 @@ public class FenixEduUlisboaExceptionHandler extends PortalExceptionHandler impl
     @Override
     public boolean handle(final ServletRequest request, final ServletResponse response, final Throwable throwable)
             throws ServletException, IOException {
-        if (AccessControl.getPerson() == null) {
-            logger.error("Exception thrown for anonymous user");
-        } else {
-            logger.error("Exception thrown for " + AccessControl.getPerson().getUsername());
+        Person person = AccessControl.getPerson();
+        StringBuilder builder = new StringBuilder();
 
+        if (throwable != null) {
+            builder.append(throwable.getClass().getName());
+        } else {
+            builder.append("Unknown exception ");
         }
+
+        builder.append(" thrown for ");
+
+        if (person != null) {
+            builder.append(person.getUsername());
+        } else {
+            builder.append("anonymous user");
+        }
+
+        if (throwable != null) {
+            builder.append(" with message: '");
+            builder.append(throwable.getMessage());
+            builder.append("'");
+            StackTraceElement[] stackTrace = throwable.getStackTrace();
+            if (stackTrace != null && stackTrace.length > 0) {
+                StackTraceElement stackTraceElement = stackTrace[0];
+                builder.append(" @ ");
+                builder.append(stackTraceElement.getClassName());
+                builder.append(".");
+                builder.append(stackTraceElement.getMethodName());
+                builder.append("():");
+                builder.append(stackTraceElement.getLineNumber());
+
+            }
+        }
+
+        logger.error(builder.toString());
         return super.handle(request, response, throwable);
+
     }
 
     @Override
