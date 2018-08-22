@@ -40,6 +40,7 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.studentCurriculum.ExternalCurriculumGroup;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
@@ -92,6 +93,10 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     private Integer standaloneEnrolmentsCount;
 
     private BigDecimal standaloneEnrolmentsCredits;
+
+    private Integer affinityEnrolmentsCount;
+
+    private BigDecimal affinityEnrolmentsCredits;
 
     private BigDecimal executionYearSimpleAverage;
 
@@ -482,6 +487,30 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         this.standaloneEnrolmentsCredits = input;
     }
 
+    public int getAffinityEnrolmentsCount() {
+        if (this.affinityEnrolmentsCount == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.affinityEnrolmentsCount;
+    }
+
+    protected void setAffinityEnrolmentsCount(final int input) {
+        this.affinityEnrolmentsCount = input;
+    }
+
+    public BigDecimal getAffinityEnrolmentsCredits() {
+        if (this.affinityEnrolmentsCredits == null) {
+            RegistrationHistoryReportService.addEnrolmentsAndCreditsCount(this);
+        }
+
+        return this.affinityEnrolmentsCredits;
+    }
+
+    protected void setAffinityEnrolmentsCredits(final BigDecimal input) {
+        this.affinityEnrolmentsCredits = input;
+    }
+
     public BigDecimal getExecutionYearSimpleAverage() {
         if (this.executionYearSimpleAverage == null) {
             this.executionYearSimpleAverage = RegistrationHistoryReportService.calculateExecutionYearSimpleAverage(this);
@@ -594,21 +623,13 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public String getDegreeCode() {
-        String result = null;
-
         final Degree degree = getDegree();
-        final String ministryCode = degree == null ? null : degree.getMinistryCode();
-        final String code = degree == null ? null : degree.getCode();
+        return degree != null ? degree.getCode() : null;
+    }
 
-        if (ministryCode != null) {
-            result = ministryCode;
-        }
-
-        if (code != null && !code.equals(ministryCode)) {
-            result = result.isEmpty() ? code : (result + " [" + code + "]");
-        }
-
-        return result;
+    public String getDegreeMinistryCode() {
+        final Degree degree = getDegree();
+        return degree != null ? degree.getMinistryCode() : null;
     }
 
     protected DegreeType getDegreeType() {
@@ -996,6 +1017,22 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
     public ResearchArea getResearchArea() {
         return getRegistration().getResearchArea();
+    }
+
+    public Degree getAffinityDegree() {
+        final ExternalCurriculumGroup affinityCycle = getAffinityCycleCurriculumGroup();
+        return affinityCycle != null ? affinityCycle.getDegreeModule().getDegree() : null;
+    }
+
+    public DegreeCurricularPlan getAffinityDegreeCurricularPlan() {
+        final ExternalCurriculumGroup affinityCycle = getAffinityCycleCurriculumGroup();
+        return affinityCycle != null ? affinityCycle.getDegreeModule().getParentDegreeCurricularPlan() : null;
+    }
+
+    private ExternalCurriculumGroup getAffinityCycleCurriculumGroup() {
+        final StudentCurricularPlan studentCurricularPlan = getStudentCurricularPlan();
+        return studentCurricularPlan.getExternalCurriculumGroups().isEmpty() ? null : studentCurricularPlan
+                .getExternalCurriculumGroups().iterator().next();
     }
 
 }

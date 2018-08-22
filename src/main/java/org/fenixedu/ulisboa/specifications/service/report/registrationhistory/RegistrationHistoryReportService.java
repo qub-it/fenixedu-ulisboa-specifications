@@ -57,7 +57,7 @@ public class RegistrationHistoryReportService {
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
     private LocalDate graduationPeriodEndDate;
-
+    
     private List<Integer> getStudentNumbers() {
         final List<Integer> result = Lists.newArrayList();
 
@@ -346,6 +346,7 @@ public class RegistrationHistoryReportService {
         final Predicate<Enrolment> normalFilter = normalEnrolmentFilter(report);
         final Predicate<Enrolment> extraCurricularFilter = extraCurricularEnrolmentFilter();
         final Predicate<Enrolment> standaloneFilter = standaloneEnrolmentFilter();
+        final Predicate<Enrolment> affinityFilter = affinityEnrolmentFilter();
 
         report.setEnrolmentsCount(countFiltered(enrolmentsByYear, normalFilter));
         report.setEnrolmentsCredits(sumCredits(enrolmentsByYear, normalFilter));
@@ -355,6 +356,9 @@ public class RegistrationHistoryReportService {
 
         report.setStandaloneEnrolmentsCount(countFiltered(enrolmentsByYear, standaloneFilter));
         report.setStandaloneEnrolmentsCredits(sumCredits(enrolmentsByYear, standaloneFilter));
+
+        report.setAffinityEnrolmentsCount(countFiltered(enrolmentsByYear, affinityFilter));
+        report.setAffinityEnrolmentsCredits(sumCredits(enrolmentsByYear, affinityFilter));
     }
 
     static private Predicate<Enrolment> standaloneEnrolmentFilter() {
@@ -367,6 +371,10 @@ public class RegistrationHistoryReportService {
 
     static private Predicate<Enrolment> normalEnrolmentFilter(RegistrationHistoryReport result) {
         return e -> CurriculumLineServices.isNormal(e);
+    }
+
+    static private Predicate<Enrolment> affinityEnrolmentFilter() {
+        return e -> CurriculumLineServices.isAffinity(e);
     }
 
     static private int countFiltered(Collection<Enrolment> enrolments, Predicate<Enrolment> filter) {

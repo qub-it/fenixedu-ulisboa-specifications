@@ -249,7 +249,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.number", report.getRegistrationNumber());
                         addData("Person.username", report.getUsername());
                         addData("Person.name", report.getPersonName());
-                        addData("Degree.ministryCode", report.getDegreeCode());
+                        addData("Degree.code", report.getDegreeCode());
+                        addData("Degree.ministryCode", report.getDegreeMinistryCode());
                         addData("Degree.degreeType", report.getDegreeTypeName());
                         addData("Degree.presentationName", report.getDegreePresentationName());
                         addData("Registration.ingressionType", report.getIngressionTypeDescription());
@@ -297,11 +298,19 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 report.getExtraCurricularEnrolmentsCredits());
                         addData("RegistrationHistoryReport.standaloneEnrolmentsCount", report.getStandaloneEnrolmentsCount());
                         addData("RegistrationHistoryReport.standaloneEnrolmentsCredits", report.getStandaloneEnrolmentsCredits());
+                        addData("RegistrationHistoryReport.affinityEnrolmentsCount", report.getAffinityEnrolmentsCount());
+                        addData("RegistrationHistoryReport.affinityEnrolmentsCredits", report.getAffinityEnrolmentsCredits());
                         addData("RegistrationHistoryReport.tuitionCharged", report.isTuitionCharged());
                         addData("RegistrationHistoryReport.tuitionAmount", report.getTuitionAmount().toPlainString());
                         addData("Registration.researchArea",
                                 report.getResearchArea() != null ? report.getResearchArea().getName().getContent() : null);
+                        addData("RegistrationHistoryReport.affinityDegree",
+                                report.getAffinityDegree() != null ? report.getAffinityDegree().getCode() : null);
+                        addData("RegistrationHistoryReport.affinityDegreeCurricularPlan",
+                                report.getAffinityDegreeCurricularPlan() != null ? report.getAffinityDegreeCurricularPlan()
+                                        .getName() : null);
                         addData("Registration.registrationObservations", report.getRegistrationObservations());
+
                     }
 
                     private void addExecutionYearData(final RegistrationHistoryReportParametersBean bean,
