@@ -103,11 +103,12 @@ public class PersonUlisboaSpecificationsByExecutionYear extends PersonUlisboaSpe
 
     public boolean isFormAnswered(String classSimpleName) {
         String formsAnswered = super.getFormsAnswered();
-        if (formsAnswered == null) {
+        if (formsAnswered == null || classSimpleName == null) {
             return false;
         }
-        formsAnswered = formsAnswered.replaceAll("BlueRecord", "");
-        classSimpleName = classSimpleName.replaceAll("BlueRecord", "");
+
+        formsAnswered = formsAnswered.replaceAll("BlueRecord", "").replaceAll("Controler", "Controller");
+        classSimpleName = classSimpleName.replaceAll("BlueRecord", "").replaceAll("Controler", "Controller");
 
         return formsAnswered.contains(classSimpleName);
     }
