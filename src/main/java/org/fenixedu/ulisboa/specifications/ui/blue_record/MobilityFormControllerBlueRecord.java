@@ -1,10 +1,13 @@
 package org.fenixedu.ulisboa.specifications.ui.blue_record;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.mobility.MobilityFormControler;
 import org.springframework.ui.Model;
@@ -62,10 +65,17 @@ public class MobilityFormControllerBlueRecord extends MobilityFormControler {
 
     @Override
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
-        PersonUlisboaSpecificationsByExecutionYear personUl =
-                PersonUlisboaSpecificationsByExecutionYear.findOrCreate(student.getPerson(), executionYear);
-        boolean result = validateForm(createMobilityForm(executionYear, student)).isEmpty();
-        return result && personUl.isFormAnswered(MobilityFormControllerBlueRecord.class.getSimpleName());
+        PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
+        List<PersonUlisboaSpecificationsByExecutionYear> allPersonUlByEY =
+                personUl.getPersonUlExecutionYearsSet().stream().sorted((o1, o2) -> ExecutionYear.REVERSE_COMPARATOR_BY_YEAR
+                        .compare(o1.getExecutionYear(), o2.getExecutionYear())).collect(Collectors.toList());
+        for (PersonUlisboaSpecificationsByExecutionYear personUlByExecutionYear : allPersonUlByEY) {
+            if (personUlByExecutionYear.isFormAnswered(MobilityFormControllerBlueRecord.class.getSimpleName())) {
+                return validateForm(createMobilityForm(personUlByExecutionYear.getExecutionYear(), student)).isEmpty();
+            }
+        }
+
+        return false;
     }
 
 }
