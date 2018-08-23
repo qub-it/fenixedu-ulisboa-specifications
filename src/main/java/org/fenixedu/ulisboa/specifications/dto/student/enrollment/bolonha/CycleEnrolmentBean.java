@@ -12,7 +12,6 @@ import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 
 @SuppressWarnings("serial")
 public class CycleEnrolmentBean extends org.fenixedu.academic.dto.student.enrollment.bolonha.CycleEnrolmentBean {
@@ -41,11 +40,11 @@ public class CycleEnrolmentBean extends org.fenixedu.academic.dto.student.enroll
             final DegreeCurricularPlan degreeCurricularPlan = cycleCourseGroup.getParentDegreeCurricularPlan();
 
             // qubExtensions
-            if (AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student, degreeCurricularPlan).stream()
-                    .anyMatch(i -> i.isForCurricularCourses())) {
-
+            if (degreeCurricularPlan.getAcademicEnrolmentPeriodsSet().stream()
+                    .anyMatch(p -> p.isOpen() && p.isForCurricularCourses())) {
                 result.add(cycleCourseGroup);
             }
+            
         }
         return result;
     }
