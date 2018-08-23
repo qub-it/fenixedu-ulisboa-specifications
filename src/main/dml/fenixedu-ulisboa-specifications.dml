@@ -2028,6 +2028,15 @@ relation AcademicEnrolmentPeriodIngressionType {
     }
 }
 
+relation AcademicEnrolmentPeriodEnrolmentType {
+    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
+        multiplicity *;
+    }
+    public .org.fenixedu.academic.domain.EnrolmentType playsRole enrolmentTypes {
+        multiplicity *;
+    }
+}
+
 
 //======================= = END AcademicEnrolmentPeriod = =========================
 

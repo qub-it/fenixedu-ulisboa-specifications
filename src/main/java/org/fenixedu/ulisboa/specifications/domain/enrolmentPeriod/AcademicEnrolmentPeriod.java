@@ -134,6 +134,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         getDegreeCurricularPlansSet().clear();
         getStatuteTypesSet().clear();
         getIngressionTypesSet().clear();
+        getEnrolmentTypesSet().clear();
 
         deleteDomainObject();
     }
