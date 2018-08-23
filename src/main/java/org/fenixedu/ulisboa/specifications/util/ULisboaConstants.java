@@ -123,7 +123,9 @@ public class ULisboaConstants {
 
     /* Predicates and filtering criteria */
     public static final Predicate<Enrolment> isStandalone = e -> !e.isAnnulled() && e.isStandalone();
-    public static final Predicate<Enrolment> isExtraCurricular = e -> !e.isAnnulled() && e.isExtraCurricular();
+    
+    public static final Predicate<Enrolment> isExtraCurricular =
+            e -> !e.isAnnulled() && (e.isExtraCurricular() || CurriculumLineServices.isAffinity(e));
 
     public static final Predicate<Enrolment> isNormalEnrolment = e -> !e.isAnnulled()
 
@@ -157,14 +159,18 @@ public class ULisboaConstants {
     }
 
     public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovements(final Registration registration) {
+        final StudentCurricularPlan studentCurricularPlan = registration.getLastStudentCurricularPlan();
         return convertToCurriculumEntries(
-                registration.getLastStudentCurricularPlan().getExtraCurriculumGroup().getApprovedCurriculumLines());
+                Stream.concat(studentCurricularPlan.getExtraCurriculumGroup().getApprovedCurriculumLines().stream(),
+                        getAffinityApprovements(studentCurricularPlan).stream()).collect(Collectors.toSet()));
     }
 
     public static final List<ICurriculumEntry> getLastPlanExtracurricularApprovementsNotUsedInCredits(
             final Registration registration) {
         final StudentCurricularPlan plan = registration.getLastStudentCurricularPlan();
-        final Collection<CurriculumLine> approvedLines = plan.getExtraCurriculumGroup().getApprovedCurriculumLines();
+        final Collection<CurriculumLine> approvedLines =
+                Stream.concat(plan.getExtraCurriculumGroup().getApprovedCurriculumLines().stream(),
+                        getAffinityApprovements(plan).stream()).collect(Collectors.toSet());
 
         final Stream<ICurriculumEntry> enrolmentEntries =
                 convertToCurriculumEntries(approvedLines.stream().filter(l -> l.isEnrolment()).collect(Collectors.toSet()))
@@ -175,6 +181,11 @@ public class ULisboaConstants {
                         .stream();
 
         return Stream.concat(enrolmentEntries, dismiussalEntries).collect(Collectors.toList());
+    }
+
+    private static Collection<CurriculumLine> getAffinityApprovements(final StudentCurricularPlan studentCurricularPlan) {
+        return studentCurricularPlan.getExternalCurriculumGroups().isEmpty() ? Collections.emptySet() : studentCurricularPlan
+                .getExternalCurriculumGroups().iterator().next().getApprovedCurriculumLines();
     }
 
     private static final List<ICurriculumEntry> convertToCurriculumEntries(final Collection<CurriculumLine> lines) {
