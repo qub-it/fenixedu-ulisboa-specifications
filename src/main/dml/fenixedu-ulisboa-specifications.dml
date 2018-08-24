@@ -1965,6 +1965,7 @@ relation MobilityRegistatrionUlisboaInformationIncomingCountry {
 //======================= = AcademicEnrolmentPeriod = =========================
 
 class enrolmentPeriod.AcademicEnrolmentPeriod {
+	LocalizedString name;
     DateTime startDate;
     DateTime endDate;
     Boolean firstTimeRegistration;
