@@ -40,12 +40,15 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentType;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -55,6 +58,7 @@ import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriod;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
@@ -137,6 +141,9 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             try {
                 final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll
                         .readWithStudentRestrictionsForShiftsEnrolments(selectedRegistration, executionSemester);
+
+                filterValidEnrolmentTypes(shiftsToEnrol, selectedRegistration, selectedEnrolmentPeriod);
+
                 shiftsToEnrol.sort((s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
                 model.addAttribute("shiftsToEnrol", shiftsToEnrol);
             } catch (NotAuthorizedException e) {
@@ -157,6 +164,40 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
         checkIfMandatoryShiftsAreEnrolled(enrolmentBeans, model);
 
         return jspPage("shiftEnrolment");
+    }
+
+    private void filterValidEnrolmentTypes(final List<ShiftToEnrol> shiftsToEnrol, final Registration registration,
+            AcademicEnrolmentPeriod period) {
+        final Set<EnrolmentType> configured = period.getEnrolmentTypesSet();
+        if (configured.isEmpty()) {
+            return;
+        }
+
+        final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
+        final ExecutionYear year = period.getExecutionYear();
+
+        for (final Attends attends : registration.readAttendsByExecutionPeriod(period.getExecutionSemester())) {
+            if (attends.getEnrolment() != null) {
+                int enrolmentsCount =
+                        CompetenceCourseServices.countEnrolmentsUntil(scp, attends.getEnrolment().getCurricularCourse(), year);
+                boolean flunked = enrolmentsCount > 1;
+                if (!checkIfEnrolmentTypeIsValid(configured, flunked)) {
+                    shiftsToEnrol.removeIf(ste -> ste.getExecutionCourse() == attends.getExecutionCourse());
+                }
+            }
+        }
+    }
+
+    private boolean checkIfEnrolmentTypeIsValid(final Set<EnrolmentType> configured, boolean flunked) {
+        for (final EnrolmentType enrolmentType : configured) {
+            if (enrolmentType.isFlunked() && flunked) {
+                return true;
+            }
+            if (enrolmentType.isNormal() && !flunked /* add here future 'not' conditions*/) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void checkIfMandatoryShiftsAreEnrolled(final List<EnrolmentPeriodDTO> enrolmentBeans, Model model) {

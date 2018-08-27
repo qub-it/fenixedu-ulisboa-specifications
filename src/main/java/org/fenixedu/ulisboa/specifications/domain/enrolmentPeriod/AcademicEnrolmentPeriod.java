@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.EnrolmentType;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -286,6 +287,29 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         }
     }
 
+    private boolean isValidEnrolmentTypes(final Registration input) {
+        final Set<EnrolmentType> configured = getEnrolmentTypesSet();
+        if (configured.isEmpty()) {
+            return true;
+        }
+
+        // for now, this level of test only makes sense for school classes
+        if (isForClasses()) {
+            for (final EnrolmentType enrolmentType : configured) {
+                final boolean flunked = RegistrationServices.isFlunkedUsingCurricularYear(input, getExecutionYear());
+                if (enrolmentType.isFlunked() && flunked) {
+                    return true;
+                }
+                if (enrolmentType.isNormal() && !flunked /* add here future 'not' conditions*/) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
+    }
+
     private boolean isValidCurricularYear(final int input) {
         return getCurricularYear() == null || getCurricularYear().equals(input);
     }
@@ -374,6 +398,10 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         }
 
         if (!isValidIngressionTypes(input.getIngressionType())) {
+            return result;
+        }
+
+        if (!isValidEnrolmentTypes(input)) {
             return result;
         }
 
