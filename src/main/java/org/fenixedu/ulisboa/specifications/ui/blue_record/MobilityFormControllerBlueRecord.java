@@ -9,6 +9,7 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
+import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.mobility.MobilityFormControler;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +26,13 @@ public class MobilityFormControllerBlueRecord extends MobilityFormControler {
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
+        
+        if (!BlueRecordConfiguration.getInstance().getIsCgdFormToFill()) {
+            return redirect(urlWithExecutionYear(BlueRecordEnd.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        }
+
         return redirect(urlWithExecutionYear(CgdDataAuthorizationControllerBlueRecord.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
-
     }
 
     @Override

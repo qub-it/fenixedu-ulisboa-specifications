@@ -9,6 +9,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.CgdDataAuthorizationController;
@@ -119,6 +120,10 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
 
     @Override
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
+        if (!BlueRecordConfiguration.getInstance().getIsCgdFormToFill()) {
+            return true;
+        }
+        
         final Registration firstTimeRegistration = findFirstTimeRegistration(executionYear);
 
         if (firstTimeRegistration == null) {
