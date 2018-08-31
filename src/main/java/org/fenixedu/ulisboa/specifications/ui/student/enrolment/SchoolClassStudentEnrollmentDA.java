@@ -234,7 +234,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             Integer sc2MinEnrolments = getMinShiftEnrolmentsCount(sc2);
 
             return sc2MinEnrolments.compareTo(sc1MinEnrolments) != 0 ? sc2MinEnrolments
-                    .compareTo(sc1MinEnrolments) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
+                    .compareTo(sc1MinEnrolments) : SchoolClass.COMPARATOR_BY_NAME.reversed().compare(sc1, sc2);
         }
 
     }
