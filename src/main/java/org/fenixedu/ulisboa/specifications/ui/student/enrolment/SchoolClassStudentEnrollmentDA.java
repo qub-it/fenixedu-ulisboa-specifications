@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -149,12 +150,31 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
             if (!automaticEnrolmentSemesters.isEmpty() && enrolmentProcess != null) {
                 final Registration registration = scp.getRegistration();
-                for (ExecutionSemester executionSemesterToEnrol : automaticEnrolmentSemesters) {
-                    final SchoolClass schoolClass = readFirstUnfilledClass(registration, executionSemesterToEnrol).orElse(null);
+
+                SchoolClass firstEnrolledSchoolClass = null;
+
+                final List<ExecutionSemester> sortedSemesters =
+                        automaticEnrolmentSemesters.stream().sorted().collect(Collectors.toList());
+                for (ExecutionSemester executionSemesterToEnrol : sortedSemesters) {
+                    SchoolClass schoolClass = null;
+                    if (firstEnrolledSchoolClass != null) {
+                        schoolClass = findUnfilledClassByName(registration, executionSemesterToEnrol,
+                                firstEnrolledSchoolClass.getName()).orElse(null);
+                    }
+
+                    if (schoolClass == null) {
+                        schoolClass = findUnfilledClass(registration, executionSemesterToEnrol).orElse(null);
+                    }
+
                     if (schoolClass != null) {
                         enrolOnSchoolClass(schoolClass, registration);
+
+                        if (firstEnrolledSchoolClass == null) {
+                            firstEnrolledSchoolClass = schoolClass;
+                        }
                     }
                 }
+
                 final String url = enrolmentProcess.getContinueURL(request);
                 final ActionForward forward = new ActionForward(url.replaceFirst(request.getContextPath(), ""), true);
                 forward.setModule("/");
@@ -174,33 +194,49 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         RegistrationServices.replaceSchoolClass(registration, schoolClass, schoolClass.getExecutionPeriod());
     }
 
-    private Optional<SchoolClass> readFirstUnfilledClass(Registration registration, final ExecutionSemester executionSemester) {
+    private Optional<SchoolClass> findUnfilledClassByName(Registration registration, final ExecutionSemester executionSemester,
+            final String schoolClassName) {
         final DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
         if (degreeCurricularPlan != null) {
             final ExecutionDegree executionDegree =
                     degreeCurricularPlan.getExecutionDegreeByYear(executionSemester.getExecutionYear());
             if (executionDegree != null) {
-                final Comparator<SchoolClass> enrolmentMethod = getAutomaticSchoolClassEnrolmentMethod();
-                return executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
-                        && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0).max(enrolmentMethod);
+                final Optional<SchoolClass> schoolClassOpt = executionDegree
+                        .findSchoolClassesByAcademicIntervalAndCurricularYear(executionSemester.getAcademicInterval(), 1).stream()
+                        .filter(sc -> sc.getName().equals(schoolClassName)).findFirst();
+                if (schoolClassOpt.isPresent() && getFreeVacancies(schoolClassOpt.get()) > 0) {
+                    return schoolClassOpt;
+                }
             }
         }
         return Optional.empty();
     }
 
-    private Comparator<SchoolClass> getAutomaticSchoolClassEnrolmentMethod() {
+    private Optional<SchoolClass> findUnfilledClass(Registration registration, final ExecutionSemester executionSemester) {
+        final DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
+        if (degreeCurricularPlan != null) {
+            final ExecutionDegree executionDegree =
+                    degreeCurricularPlan.getExecutionDegreeByYear(executionSemester.getExecutionYear());
+            if (executionDegree != null) {
 
-        final AutomaticSchoolClassEnrolmentMethod method = AutomaticSchoolClassEnrolmentMethod
-                .valueOf(ULisboaConfiguration.getConfiguration().getAutomaticSchoolClassEnrolmentMethod());
+                final Stream<SchoolClass> schoolClasses =
+                        executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
+                                && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0);
 
-        if (method == AutomaticSchoolClassEnrolmentMethod.FILL_FIRST) {
-            return new MostFilledFreeClass();
-        } else if (method == AutomaticSchoolClassEnrolmentMethod.ROUND_ROBIN) {
-            return new LeastFilledFreeClass();
-        } else {
-            throw new IllegalArgumentException("Unexpected automatic school class enrolment method");
+                final AutomaticSchoolClassEnrolmentMethod method = AutomaticSchoolClassEnrolmentMethod
+                        .valueOf(ULisboaConfiguration.getConfiguration().getAutomaticSchoolClassEnrolmentMethod());
+
+                if (method == AutomaticSchoolClassEnrolmentMethod.FILL_FIRST) {
+                    return schoolClasses.min(VACANCIES_COMPARATOR);
+                } else if (method == AutomaticSchoolClassEnrolmentMethod.ROUND_ROBIN) {
+                    return schoolClasses.min(ENROLMENTS_COMPARATOR);
+                } else {
+                    throw new IllegalArgumentException("Unexpected automatic school class enrolment method");
+                }
+
+            }
         }
-
+        return Optional.empty();
     }
 
     private static enum AutomaticSchoolClassEnrolmentMethod {
@@ -209,7 +245,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         ROUND_ROBIN;
     }
 
-    class MostFilledFreeClass implements Comparator<SchoolClass> {
+    private static Comparator<SchoolClass> VACANCIES_COMPARATOR = new Comparator<SchoolClass>() {
         // Return at the beggining the course which is the most filled, but still has space
         // This allows a "fill first" kind of school class scheduling
 
@@ -222,37 +258,30 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                     .compareTo(sc2Vacancies) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
         }
 
-    }
+    };
 
-    class LeastFilledFreeClass implements Comparator<SchoolClass> {
-        // Return at the beggining the course which is the most filled, but still has space
-        // This allows a "fill first" kind of school class scheduling
+    private static Comparator<SchoolClass> ENROLMENTS_COMPARATOR = new Comparator<SchoolClass>() {
 
         @Override
         public int compare(SchoolClass sc1, SchoolClass sc2) {
-            Integer sc1MinEnrolments = getMinShiftEnrolmentsCount(sc1);
-            Integer sc2MinEnrolments = getMinShiftEnrolmentsCount(sc2);
+            final Integer sc1MinEnrolments = getMinShiftEnrolmentsCount(sc1);
+            final Integer sc2MinEnrolments = getMinShiftEnrolmentsCount(sc2);
 
-            return sc2MinEnrolments.compareTo(sc1MinEnrolments) != 0 ? sc2MinEnrolments
-                    .compareTo(sc1MinEnrolments) : SchoolClass.COMPARATOR_BY_NAME.reversed().compare(sc1, sc2);
+            return sc1MinEnrolments.compareTo(sc2MinEnrolments) != 0 ? sc1MinEnrolments
+                    .compareTo(sc2MinEnrolments) : SchoolClass.COMPARATOR_BY_NAME.compare(sc1, sc2);
         }
+    };
 
+    private static Integer getFreeVacancies(SchoolClass schoolClass) {
+        final Optional<Shift> minShift =
+                schoolClass.getAssociatedShiftsSet().stream().min((s1, s2) -> s1.getVacancies().compareTo(s2.getVacancies()));
+        return minShift.isPresent() ? minShift.get().getVacancies() : 0;
     }
 
-    private Integer getFreeVacancies(SchoolClass schoolClass) {
-        final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
-                .min((s1, s2) -> (getShiftVacancies(s1).compareTo(getShiftVacancies(s2))));
-        return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
-    }
-
-    private Integer getMinShiftEnrolmentsCount(SchoolClass schoolClass) {
+    private static Integer getMinShiftEnrolmentsCount(SchoolClass schoolClass) {
         final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
                 .min((s1, s2) -> Integer.compare(s1.getStudentsSet().size(), s2.getStudentsSet().size()));
         return minShift.isPresent() ? minShift.get().getStudentsSet().size() : 0;
-    }
-
-    private Integer getShiftVacancies(final Shift shift) {
-        return shift.getLotacao() - shift.getStudentsSet().size();
     }
 
     public ActionForward viewSchoolClass(ActionMapping mapping, ActionForm form, HttpServletRequest request,
