@@ -190,7 +190,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 			
 	    <c:if test="${not partial}">
 			<div class="form-group row">
-				<label class="col-sm-2 control-label">
+				<label class="col-sm-2 control-label required-field">
 					<spring:message code="label.PersonalInformationForm.gender" />
 				</label>
 

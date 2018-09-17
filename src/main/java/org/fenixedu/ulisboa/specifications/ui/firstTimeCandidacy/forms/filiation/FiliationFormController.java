@@ -26,7 +26,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
@@ -126,10 +125,6 @@ public class FiliationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE,
                         "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"));
             }
-        }
-
-        if (Strings.isNullOrEmpty(form.getFatherName()) || Strings.isNullOrEmpty(form.getMotherName())) {
-            result.add(BundleUtil.getString(BUNDLE, "error.parentsName.required"));
         }
 
         return result;
