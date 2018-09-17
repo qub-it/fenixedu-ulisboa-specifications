@@ -58,6 +58,7 @@ import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -632,6 +633,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         String livesWithOthersDesc = "";
         String numBrothers = "";
         String numChildren = "";
+        String grantOwnerType = "";
+        String grantOwnerProvider = "";
 
         //Get the last PersonalIngressionData that was already filled by the student.
         // GrantOnwerType is a required question. Therefore if it is answered, the student
@@ -655,7 +658,6 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (pid.getProfessionType() != null) {
                 professionType = pid.getProfessionType().getLocalizedName();
             }
-
             if (pid.getFatherSchoolLevel() != null) {
                 fatherSchoolLevel = pid.getFatherSchoolLevel().getLocalizedName();
             }
@@ -665,7 +667,6 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (pid.getFatherProfessionType() != null) {
                 fatherProfessionType = pid.getFatherProfessionType().getLocalizedName();
             }
-
             if (pid.getMotherSchoolLevel() != null) {
                 motherSchoolLevel = pid.getMotherSchoolLevel().getLocalizedName();
             }
@@ -675,6 +676,13 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (pid.getMotherProfessionType() != null) {
                 motherProfessionType = pid.getMotherProfessionType().getLocalizedName();
             }
+            if (pid.getGrantOwnerType() != null) {
+                grantOwnerType = BundleUtil.getString(BUNDLE, pid.getGrantOwnerType().getQualifiedName());
+            }
+            if (pid.getGrantOwnerProvider() != null) {
+                grantOwnerProvider = pid.getGrantOwnerProvider().getName();
+            }
+
         }
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
@@ -884,6 +892,11 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 if (schoolLevelType.isOther()) {
                     precedentSchoolLevel = information.getOtherSchoolLevel();
                 }
+                //Inof other can be null or schoolLevelType without defined label
+                if (precedentSchoolLevel == null) {
+                    precedentSchoolLevel = "";
+                }
+
             }
             precedentInstitution = information.getInstitutionName();
             precedentDegreeDesignation = information.getDegreeDesignation();
@@ -908,7 +921,13 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                     institutionName = units.get(0).getName();
                 }
             }
-            cycleName = studentCandidacyDegree.getDegreeType().getFirstOrderedCycleType().getDescription();
+            DegreeType degreeType = studentCandidacyDegree.getDegreeType();
+            if (degreeType != null) {
+                CycleType firstOrderedCycleType = degreeType.getFirstOrderedCycleType();
+                if (firstOrderedCycleType != null) {
+                    cycleName = firstOrderedCycleType.getDescription();
+                }
+            }
         }
 
         String institutionalEmail = studentCandidacy.getPerson().getInstitutionalEmailAddressValue();
@@ -938,15 +957,6 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         }
 
         String curricularYear = "" + studentCandidacy.getRegistration().getCurricularYear(studentCandidacy.getExecutionYear());
-
-        String grantOwnerType = "";
-        if (studentCandidacy.getGrantOwnerType() != null) {
-            grantOwnerType = BundleUtil.getString(BUNDLE, studentCandidacy.getGrantOwnerType().getQualifiedName());
-        }
-        String grantOwnerProvider = "";
-        if (studentCandidacy.getGrantOwnerProvider() != null) {
-            grantOwnerProvider = studentCandidacy.getGrantOwnerProvider().getName();
-        }
 
         String precendentDegreeCycle = "";
         if (precedentSchoolLevel.contains("Bacharelato") || precedentSchoolLevel.contains("Licenciatura")) {
