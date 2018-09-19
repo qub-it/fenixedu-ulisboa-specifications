@@ -156,9 +156,17 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         final Set<String> messages = Sets.newLinkedHashSet();
 
         //FLUNKED BEFORE UNIV
-
         if (form.getFlunkedBeforeUniversity() != null) {
-            if (form.getFlunkedBeforeUniversity() == Boolean.TRUE) {
+            if (Boolean.TRUE.equals(form.getFlunkedBeforeUniversity())) {
+                //Check if values exists, otherwise put default
+                if (form.getFlunkedHighSchoolTimes() == null) {
+                    messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedValues.required"));
+                    form.setFlunkedHighSchoolTimes(0);
+                }
+                if (form.getFlunkedPreHighSchoolTimes() == null) {
+                    messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedValues.required"));
+                    form.setFlunkedPreHighSchoolTimes(0);
+                }
 
                 if (form.getFlunkedHighSchoolTimes() < 1 && form.getFlunkedPreHighSchoolTimes() < 1) {
                     messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.incorrect.flunked.value"));
@@ -181,13 +189,17 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
                 } else {
                     form.setFlunkedPreHighSchool(Boolean.TRUE);
                 }
-
             } else {
                 form.setFlunkedHighSchool(Boolean.FALSE);
                 form.setFlunkedPreHighSchool(Boolean.FALSE);
                 form.setFlunkedHighSchoolTimes(0);
                 form.setFlunkedPreHighSchoolTimes(0);
             }
+        } else {
+            form.setFlunkedHighSchool(null);
+            form.setFlunkedPreHighSchool(null);
+            form.setFlunkedHighSchoolTimes(null);
+            form.setFlunkedPreHighSchoolTimes(null);
         }
 
         // SOCIAL BENEFITS
@@ -211,11 +223,6 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         } else if (Boolean.TRUE.equals(form.getFirstTimeInPublicUniv())) {
             form.setPublicUnivCandidacies(0);
         }
-
-//        if (form.getFirstTimeInUlisboa() == null) {
-//            messages.add(
-//                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-//        }
 
         // FLUNKED UNIVERSITY
 
