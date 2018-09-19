@@ -475,10 +475,10 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
     /* TODO: Remove to DTO with RDGESSBean */
     public static RegistrationDGESStateBean populateBean(final StudentCandidacy studentCandidacy) {
-        String executionYear = studentCandidacy.getExecutionYear().getQualifiedName();
+        ExecutionYear executionYear = studentCandidacy.getRegistration().getStartExecutionYear();
+        String executionYearName = executionYear.getQualifiedName();
         Person person = studentCandidacy.getPerson();
-        StudentCurricularPlan studentCurricularPlan =
-                studentCandidacy.getRegistration().getStudentCurricularPlan(studentCandidacy.getExecutionYear());
+        StudentCurricularPlan studentCurricularPlan = studentCandidacy.getRegistration().getStudentCurricularPlan(executionYear);
         String degreeTypeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeTypeName();
         String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
         String degreeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getNameI18N().getContent();
@@ -504,8 +504,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             degreeBranch = getPrimaryBranchName(studentCurricularPlan);
         }
 
-        RegistrationRegimeType regimeTypeObj =
-                studentCandidacy.getRegistration().getRegimeType(studentCandidacy.getExecutionYear());
+        RegistrationRegimeType regimeTypeObj = studentCandidacy.getRegistration().getRegimeType(executionYear);
         String regimeType = "";
         if (regimeTypeObj != null) {
             regimeType = regimeTypeObj.getLocalizedName();
@@ -734,7 +733,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             }
 
             PersonUlisboaSpecificationsByExecutionYear personUlExecutionYear =
-                    personUl.getPersonUlisboaSpecificationsByExcutionYear(studentCandidacy.getExecutionYear());
+                    personUl.getPersonUlisboaSpecificationsByExcutionYear(executionYear);
             if (personUlExecutionYear != null) {
 
                 if (personUlExecutionYear.getProfessionTimeType() != null) {
@@ -956,7 +955,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             vaccinationValidity = personUl.getVaccinationValidity().toString("dd-MM-yyyy");
         }
 
-        String curricularYear = "" + studentCandidacy.getRegistration().getCurricularYear(studentCandidacy.getExecutionYear());
+        String curricularYear = "" + studentCandidacy.getRegistration().getCurricularYear(executionYear);
 
         String precendentDegreeCycle = "";
         if (precedentSchoolLevel.contains("Bacharelato") || precedentSchoolLevel.contains("Licenciatura")) {
@@ -967,7 +966,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             precendentDegreeCycle = "----";
         }
 
-        return new RegistrationDGESStateBean(executionYear, studentCandidacy.getExternalId(), entryGrade, degreeTypeName,
+        return new RegistrationDGESStateBean(executionYearName, studentCandidacy.getExternalId(), entryGrade, degreeTypeName,
                 degreeCode, degreeName, cycleName, curricularYear, degreeLevel, degreeBranch, regimeType, institutionName,
                 studentNumber, documentIdNumber, expirationDateOfIdDoc, emissionLocationOfIdDoc, candidacyState, name,
                 maritalStatus, registrationStatus, nationality, secondNationality, birthYear, countryOfBirth, districtOfBirth,
