@@ -113,42 +113,11 @@ function submit(url) {
     </h1>
 </div>
 
-<c:if test="${not empty infoMessages}">
-    <div class="alert alert-info" role="alert">
+<form method="get" class="form-horizontal">
+    
+    <input type="hidden" id="showAllInput" name="showAll" value="false"/>
 
-        <c:forEach items="${infoMessages}" var="message">
-            <p>
-                <span class="glyphicon glyphicon glyphicon-ok-sign"
-                    aria-hidden="true">&nbsp;</span> ${message}
-            </p>
-        </c:forEach>
-    </div>
-</c:if>
-<c:if test="${not empty warningMessages}">
-    <div class="alert alert-warning" role="alert">
-
-        <c:forEach items="${warningMessages}" var="message">
-            <p>
-                <span class="glyphicon glyphicon-exclamation-sign"
-                    aria-hidden="true">&nbsp;</span> ${message}
-            </p>
-        </c:forEach>
-    </div>
-</c:if>
-<c:if test="${not empty errorMessages}">
-    <div class="alert alert-danger" role="alert">
-
-        <c:forEach items="${errorMessages}" var="message">
-            <p>
-                <span class="glyphicon glyphicon-exclamation-sign"
-                    aria-hidden="true">&nbsp;</span> ${message}
-            </p>
-        </c:forEach>
-    </div>
-</c:if>
-
-<div class="panel panel-default">
-    <form method="get" class="form-horizontal">
+    <div class="panel panel-default">
         <div class="panel-body">    
             <div class="form-group row">
                 <div class="col-sm-1 control-label">
@@ -405,18 +374,51 @@ function submit(url) {
             <input type="submit" class="btn btn-default" role="button"
                 value="<spring:message code="label.search" />" />
         </div>
-    </form>
-</div>
-<!-- 
-TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
-<c:if test="${fn:length(searchServiceRequestsSet) > 500}">
-	<div class="alert alert-warning" role="alert">
-		<p>
-			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
-			<spring:message code="label.limitexceeded" arguments="500;${fn:length(searchServiceRequestsSet)}" argumentSeparator=";" htmlEscape="false" />
-		</p>
-	</div>
-</c:if>
+    </div>
+
+    <c:if test="${not empty errorMessages}">
+        <div class="alert alert-danger" role="alert">
+    
+            <c:forEach items="${errorMessages}" var="message">
+                <p>
+                    <span class="glyphicon glyphicon-exclamation-sign"
+                        aria-hidden="true">&nbsp;</span> ${message}
+                </p>
+            </c:forEach>
+        </div>
+    </c:if>
+    <c:if test="${not empty warningMessages}">
+        <div class="alert alert-warning" role="alert">
+    
+            <c:forEach items="${warningMessages}" var="message">
+                <p>
+                    <span class="glyphicon glyphicon-exclamation-sign"
+                        aria-hidden="true">&nbsp;</span> ${message}
+                </p>
+            </c:forEach>
+        </div>
+    </c:if>
+    <c:if test="${not empty infoMessages}">
+        <div class="alert alert-info" role="alert">
+    
+            <c:forEach items="${infoMessages}" var="message">
+                <p>
+                    <span class="glyphicon glyphicon glyphicon-ok-sign"
+                        aria-hidden="true">&nbsp;</span> ${message}
+                </p>
+            </c:forEach>
+        </div>
+    </c:if>
+
+    <c:if test="${ haveMoreThanTheLimit && !showAll }">
+        <div class="panel" style="display: inline-block">
+            <button type="submit" class="btn btn-primary" role="button" onclick="$('#showAllInput').val(true)">
+                <spring:message code="label.serviceRequets.ulisboarequest.button.showAll" />
+            </button>
+        </div>
+    </c:if>
+    
+</form>
 
 <c:choose>
     <c:when test="${not empty searchServiceRequestsSet}">
@@ -434,7 +436,6 @@ TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
 			</thead>
 			<tbody>
 				<c:forEach var="serviceRequest" items="${searchServiceRequestsSet}" varStatus="loop">
-					<c:if test="${loop.index < 500}">
 					<tr>
 						<c:set var="requestDate" value="${serviceRequest.requestDate.toString('yyyy-MM-dd')}" />
 					   	<c:set var="url" value="/academicAdministration/student.do?method=visualizeRegistration&registrationID=${serviceRequest.registration.externalId}" scope="request"/>
@@ -480,7 +481,6 @@ TODO: Testar esta abordagem -- > Mapear os headers e os slots correctamente -->
 		                    </c:if>
 						</td>
 					</tr>
-					</c:if>
 				</c:forEach>
 			</tbody>
 		</table>

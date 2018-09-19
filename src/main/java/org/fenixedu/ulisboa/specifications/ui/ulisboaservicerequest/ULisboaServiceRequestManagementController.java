@@ -113,7 +113,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             @RequestParam(value = "selfIssued", required = false) final Boolean isSelfIssued,
             @RequestParam(value = "requestNumber", required = false) final String requestNumber,
             @RequestParam(value = "language", required = false) final Locale language,
-            @RequestParam(value = "payed", required = false) final Boolean isPayed, final Model model) {
+            @RequestParam(value = "payed", required = false) final Boolean isPayed,
+            @RequestParam(value = "showAll", required = false) final Boolean showAll, final Model model) {
 
         Set<Integer> years = new HashSet<>();
         Collection<AcademicServiceRequestYear> requestYears = Bennu.getInstance().getAcademicServiceRequestYearsSet();
@@ -141,8 +142,31 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             model.addAttribute("currentCivilYear", yearsList.get(0));
             civilYear = yearsList.get(0);
         }
-        model.addAttribute("searchServiceRequestsSet", filterSearchServiceRequest(civilYear, degreeType, degree, categories,
-                serviceRequestType, situationType, isUrgent, isSelfIssued, language, requestNumber, isPayed));
+
+        List<ULisboaServiceRequest> result = filterSearchServiceRequest(civilYear, degreeType, degree, categories,
+                serviceRequestType, situationType, isUrgent, isSelfIssued, language, requestNumber, isPayed);
+        int total = result.size();
+        boolean haveMoreThanTheLimit = false;
+        if (total > SEARCH_REQUEST_LIST_LIMIT_SIZE) {
+            haveMoreThanTheLimit = true;
+        }
+
+        if (Boolean.TRUE.equals(showAll)) {
+            model.addAttribute("searchServiceRequestsSet", result);
+        } else {
+            if (haveMoreThanTheLimit) {
+                addWarningMessage(BundleUtil.getString(ULisboaConstants.BUNDLE,
+                        "info.serviceRequests.ulisboarequest.more.than.limit", "" + SEARCH_REQUEST_LIST_LIMIT_SIZE, "" + total),
+                        model);
+                addInfoMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "info.serviceRequests.ulisboarequest.search.slow"),
+                        model);
+            }
+            model.addAttribute("searchServiceRequestsSet",
+                    result.stream().limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList()));
+        }
+
+        model.addAttribute("haveMoreThanTheLimit", haveMoreThanTheLimit);
+        model.addAttribute("showAll", showAll != null ? showAll.booleanValue() : false);
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/search";
     }
 
@@ -176,7 +200,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .filter(req -> isSelfIssued == null || req.isSelfIssued() == isSelfIssued)
                 .filter(req -> language == null || req.getLanguage() == null || req.getLanguage().equals(language))
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
-                .filter(filterIsPayed).limit(SEARCH_REQUEST_LIST_LIMIT_SIZE).collect(Collectors.toList());
+                .filter(filterIsPayed).collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
