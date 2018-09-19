@@ -169,7 +169,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label required-field" id="labelArea">
+				<div class="col-sm-2 control-label" id="labelArea">
 					<spring:message code="label.ResidenceInformationForm.area" />
 				</div>
 
@@ -196,7 +196,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
-				<div class="col-sm-2 control-label" ng-class="{'required-field': object.districtsValues.length}" id="labelDistrictOfResidence">
+				<div class="col-sm-2 control-label required-field" id="labelDistrictOfResidence">
 					<spring:message
 						code="label.ResidenceInformationForm.districtOfResidence" />
 				</div>
@@ -206,7 +206,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
-				<div class="col-sm-2 control-label" ng-class="{'required-field': object.districtSubdivisionValues.length}" id="labelDistrictSubdivisionOfResidence">
+				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfResidence">
 					<spring:message
 						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
 				</div>
@@ -216,7 +216,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
-				<div class="col-sm-2 control-label" ng-class="{'required-field': object.parishValues.length}" id="labelParishOfResidence">
+				<div class="col-sm-2 control-label required-field" id="labelParishOfResidence">
 					<spring:message
 						code="label.ResidenceInformationForm.parishOfResidence" />
 				</div>
@@ -226,7 +226,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label">
+				<div class="col-sm-2 control-label required-field">
 					<spring:message
 						code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
 				</div>
@@ -235,7 +235,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <ui-select id="residenceInformationForm_dislocatedFromPermanentResidence" name="dislocatedFromPermanentResidence"
                         ng-model="$parent.object.dislocatedFromPermanentResidence"
                         theme="bootstrap" > 
-                        <ui-select-match>
+                        <ui-select-match allow-clear="false">
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
@@ -257,7 +257,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
-				<div class="col-sm-2 control-label required-field">
+				<div class="col-sm-2 control-label">
 					<spring:message
 						code="label.ResidenceInformationForm.schoolTimeArea" />
 				</div>
@@ -316,7 +316,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
-				<div class="col-sm-2 control-label required-field">
+				<div class="col-sm-2 control-label ">
 					<spring:message code="label.ResidenceInformationForm.schoolTimeResidenceType" />
 				</div>
 

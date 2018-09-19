@@ -247,14 +247,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtsValues != null && object.districtsValues.length && object.countryWhereFinishedPreviousCompleteDegree == defaultCountry }" id="labelDistrictOfGraduation">
+                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtsValues != null && object.districtsValues.length && object.countryWhereFinishedPreviousCompleteDegree == defaultCountry && object.districtAndSubdivisionRequired }" id="labelDistrictOfGraduation">
                     <spring:message
                         code="label.OriginInformationForm.districtWhereFinishedPreviousCompleteDegree" />
                 </div>
     
                 <div class="col-sm-10">
                     <ui-select  id="originInformationForm_districtWhereFinishedPreviousCompleteDegree" name="districtWhereFinishedPreviousCompleteDegree" ng-model="$parent.object.districtWhereFinishedPreviousCompleteDegree" on-select="onDistrictChange($item,$model)" ng-disabled="!object.districtsValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="district.id as district in object.districtsValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="district.text"></span>
                         </ui-select-choices> 
@@ -262,14 +262,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtSubdivisionValues != null && object.districtSubdivisionValues.length && object.countryWhereFinishedPreviousCompleteDegree == defaultCountry }" id="labelDistrictSubdivisionOfGraduation">
+                <div class="col-sm-2 control-label" ng-class="{ 'required-field' : object.districtSubdivisionValues != null && object.districtSubdivisionValues.length && object.countryWhereFinishedPreviousCompleteDegree == defaultCountry  && object.districtAndSubdivisionRequired }" id="labelDistrictSubdivisionOfGraduation">
                     <spring:message
                         code="label.OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree" />
                 </div>
                 
                 <div class="col-sm-10">
                     <ui-select  id="originInformationForm_districtSubdivisionWhereFinishedPreviousCompleteDegree" name="districtSubdivisionWhereFinishedPreviousCompleteDegree" ng-model="$parent.object.districtSubdivisionWhereFinishedPreviousCompleteDegree" ng-disabled="!object.districtSubdivisionValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="districtSubdivision.id as districtSubdivision in object.districtSubdivisionValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="districtSubdivision.text"></span>
                         </ui-select-choices> 

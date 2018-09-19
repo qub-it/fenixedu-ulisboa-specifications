@@ -190,13 +190,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label" ng-class="{'required-field' : object.districtsValues.length}" id="labelDistrictOfBirth">
+				<div class="col-sm-2 control-label" id="labelDistrictOfBirth">
 					<spring:message code="label.FiliationForm.districtOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_districtOfBirth" name="districtOfBirth" ng-model="$parent.object.districtOfBirth" on-select="onDistrictChange($item,$model)" ng-disabled="!object.districtsValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="district.id as district in object.districtsValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="district.text"></span>
                         </ui-select-choices> 
@@ -204,14 +204,14 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label" ng-class="{'required-field' : object.districtSubdivisionValues.length }" id="labelDistrictSubdivisionOfBirth">
+				<div class="col-sm-2 control-label" id="labelDistrictSubdivisionOfBirth">
 					<spring:message
 						code="label.FiliationForm.districtSubdivisionOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_districtSubdivisionOfBirth" name="districtSubdivisionOfBirth" ng-model="$parent.object.districtSubdivisionOfBirth" on-select="onDistrictSubdivisionChange($item,$model)" ng-disabled="!object.districtSubdivisionValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="districtSubdivision.id as districtSubdivision in object.districtSubdivisionValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="districtSubdivision.text"></span>
                         </ui-select-choices> 
@@ -219,13 +219,13 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-sm-2 control-label" ng-class="{'required-field' : object.parishValues.length }" id="labelParishOfBirth">
+				<div class="col-sm-2 control-label" id="labelParishOfBirth">
 					<spring:message code="label.FiliationForm.parishOfBirth" />
 				</div>
 
 				<div class="col-sm-10">
                     <ui-select  id="filiationForm_parishOfBirth" name="parishOfBirth" ng-model="$parent.object.parishOfBirth" ng-disabled="!object.parishValues.length" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="parish.id as parish in object.parishValues | filter: {normalizedText : $select.search}">
                             <span ng-bind-html="parish.text"></span>
                         </ui-select-choices> 

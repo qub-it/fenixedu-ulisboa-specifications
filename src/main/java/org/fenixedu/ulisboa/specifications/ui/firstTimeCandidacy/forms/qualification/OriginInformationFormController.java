@@ -161,7 +161,7 @@ public class OriginInformationFormController extends FormAbstractController {
     }
 
     public boolean isDistrictAndSubdivisionRequired() {
-        return true;
+        return false;
     }
 
     @Override

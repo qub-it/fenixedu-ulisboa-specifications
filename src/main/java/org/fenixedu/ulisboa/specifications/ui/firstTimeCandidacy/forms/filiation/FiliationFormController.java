@@ -119,12 +119,8 @@ public class FiliationFormController extends FormAbstractController {
             result.add(BundleUtil.getString(BUNDLE, "error.candidacy.FilliationForm.firstNationality.required"));
         }
 
-        if (form.getCountryOfBirth().isDefaultCountry()) {
-            if (form.getDistrictOfBirth() == null || form.getDistrictSubdivisionOfBirth() == null
-                    || form.getParishOfBirth() == null) {
-                result.add(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.FiliationForm.zone.information.is.required.for.national.students"));
-            }
+        if (form.getCountryOfBirth() == null) {
+            result.add(BundleUtil.getString(BUNDLE, "error.candidacy.FilliationForm.countryNationality.required"));
         }
 
         return result;
@@ -144,13 +140,22 @@ public class FiliationFormController extends FormAbstractController {
         person.setCountry(form.getFirstNationality());
 
         person.setCountryOfBirth(form.getCountryOfBirth());
-        if (person.getCountryOfBirth().isDefaultCountry()) {
+
+        if (form.getDistrictOfBirth() != null) {
             person.setDistrictOfBirth(form.getDistrictOfBirth().getName());
-            person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
-            person.setParishOfBirth(form.getParishOfBirth().getName());
         } else {
             person.setDistrictOfBirth(null);
+        }
+
+        if (form.getDistrictSubdivisionOfBirth() != null) {
+            person.setDistrictSubdivisionOfBirth(form.getDistrictSubdivisionOfBirth().getName());
+        } else {
             person.setDistrictSubdivisionOfBirth(null);
+        }
+
+        if (form.getParishOfBirth() != null) {
+            person.setParishOfBirth(form.getParishOfBirth().getName());
+        } else {
             person.setParishOfBirth(null);
         }
 

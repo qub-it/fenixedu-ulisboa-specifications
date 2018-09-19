@@ -285,9 +285,8 @@ public class ResidenceInformationForm implements CandidancyForm {
     }
 
     protected boolean isSchoolTimeAddressComplete() {
-        return isSchoolTimeRequiredInformationAddressFilled()
-                && !isAnyEmpty(schoolTimeAddress, schoolTimeAreaCode, schoolTimeArea) && schoolTimeParishOfResidence != null
-                && schoolTimeResidenceType != null;
+        return isSchoolTimeRequiredInformationAddressFilled() && !isAnyEmpty(schoolTimeAddress, schoolTimeAreaCode)
+                && schoolTimeParishOfResidence != null;
     }
 
     protected boolean isAnyEmpty(String... fields) {
@@ -305,7 +304,7 @@ public class ResidenceInformationForm implements CandidancyForm {
 
     protected boolean isResidenceInformationFilled() {
         return !(getDistrictOfResidence() == null || getDistrictSubdivisionOfResidence() == null || parishOfResidence == null
-                || StringUtils.isEmpty(address) || StringUtils.isEmpty(areaCode) || StringUtils.isEmpty(area));
+                || StringUtils.isEmpty(address) || StringUtils.isEmpty(areaCode));
     }
 
     protected boolean isAnySchoolTimeAddressInformationFilled() {

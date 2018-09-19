@@ -197,10 +197,10 @@ public class ResidenceInformationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                         "error.candidacy.workflow.ResidenceInformationForm.address.information.is.required.for.dislocated.students"));
             } else {
-                if ((form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(), form.getSchoolTimeArea())
-                        || form.getSchoolTimeParishOfResidence() != null || form.getSchoolTimeResidenceType() != null)
-                        && (form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode(), form.getSchoolTimeArea())
-                                || form.getSchoolTimeParishOfResidence() == null || form.getSchoolTimeResidenceType() == null)) {
+                if ((form.isAnyFilled(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode())
+                        || form.getSchoolTimeParishOfResidence() != null)
+                        && (form.isAnyEmpty(form.getSchoolTimeAddress(), form.getSchoolTimeAreaCode())
+                                || form.getSchoolTimeParishOfResidence() == null)) {
                     result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                             "error.candidacy.workflow.ResidenceInformationForm.school.time.address.must.be.filled.completly.otherwise.fill.minimun.required"));
                 }
@@ -297,7 +297,11 @@ public class ResidenceInformationFormController extends FormAbstractController {
             }
 
             personUl.setDislocatedResidenceType(form.getSchoolTimeResidenceType());
-            personUl.setOtherDislocatedResidenceType(form.getOtherSchoolTimeResidenceType());
+            if (form.getOtherSchoolTimeResidenceType() != null) {
+                personUl.setOtherDislocatedResidenceType(form.getOtherSchoolTimeResidenceType());
+            } else {
+                personUl.setOtherDislocatedResidenceType("");
+            }
         } else {
             personUl.setDislocatedResidenceType(null);
             personUl.setOtherDislocatedResidenceType("");
