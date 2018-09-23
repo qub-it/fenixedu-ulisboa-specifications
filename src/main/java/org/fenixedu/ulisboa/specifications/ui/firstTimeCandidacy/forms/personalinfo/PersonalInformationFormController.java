@@ -127,7 +127,8 @@ public class PersonalInformationFormController extends FormAbstractController {
 
         form.setFiscalCountry(person.getFiscalCountry());
         form.setSocialSecurityNumber(person.getSocialSecurityNumber());
-        form.setDateOfBirth(person.getDateOfBirthYearMonthDay().toLocalDate());
+        YearMonthDay dateOfBirthYearMonthDay = person.getDateOfBirthYearMonthDay();
+        form.setDateOfBirth(dateOfBirthYearMonthDay != null ? dateOfBirthYearMonthDay.toLocalDate() : null);
 
         form.setDocumentIdNumber(person.getDocumentIdNumber());
         form.setIdDocumentType(person.getIdDocumentType());
