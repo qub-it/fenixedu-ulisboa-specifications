@@ -475,6 +475,7 @@ relation GlobalConfigurationTemplate {
 class ULisboaPortalConfiguration{
 	String teacherEvaluationsFunctionality;
 	boolean teacherAdHocEvaluationsAvailable;
+	Boolean teacherEvaluationSectionAvailable;
 }
 
 relation ULisboaPortalConfigurationPortalConfiguration{

@@ -61,4 +61,9 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
         String supportAccessControlExpression = ULisboaConfiguration.getConfiguration().getSupportAccessControlExpression();
         return Group.parse(supportAccessControlExpression).isMember(AccessControl.getPerson().getUser());
     }
+    
+    @Override
+    public Boolean getTeacherEvaluationSectionAvailable() {
+        return super.getTeacherEvaluationSectionAvailable() == null || super.getTeacherEvaluationSectionAvailable();
+    }
 }
