@@ -178,7 +178,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
 
         Predicate<ULisboaServiceRequest> filterIsPayed = req -> {
             //TODO: check this filter
-            Optional<? extends AcademicTreasuryEvent> event = AcademicTreasuryEvent.findUnique(req);
+            Optional<? extends AcademicTreasuryEvent> event = Optional.ofNullable(req.getAcademicTreasuryEvent());
 
             return isPayed == null || !event.isPresent() && isPayed
 
