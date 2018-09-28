@@ -45,11 +45,6 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
-import org.fenixedu.bennu.IBean;
-import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
@@ -58,13 +53,19 @@ import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkShe
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonShiftType;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
+import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
+import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
+import org.fenixedu.bennu.IBean;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
-import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
-import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -117,6 +118,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     private List<MarkBean> updateGradeBeans;
     private List<MarkBean> updateGradeAvailableDateBeans;
 
+    private List<MarkBean> gradeBeans;
+
     private boolean byTeacher = false;
 
     private LocalDate expireDate;
@@ -147,7 +150,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public void setEvaluationSeasonDataSource(final Set<EvaluationSeason> value) {
         this.evaluationSeasonDataSource = value.stream().sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).map(x -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            final TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(EvaluationSeasonServices.getDescriptionI18N(x).getContent());
             return tuple;
@@ -239,7 +242,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public void setExecutionSemesterDataSource(final Set<ExecutionSemester> value) {
         this.executionSemesterDataSource = value.stream().sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            final TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getQualifiedName());
 
@@ -273,7 +276,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         }
 
         this.competenceCourseDataSource = value.stream().sorted(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME).map(x -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            final TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getCode() + " - " + (x.getName().replace("'", " ").replace("\"", " ")));
 
@@ -333,7 +336,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         // build data source
         this.certifierDataSource = available.stream().sorted(Person.COMPARATOR_BY_NAME).map(x -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            final TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
 
             final String prefix = isByTeacher() ? "" : this.responsibles.contains(x) ? "+* " : teachers.contains(x) ? "* " : "";
@@ -408,7 +411,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         // build data source
         this.shiftsDataSource = available.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            final TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(String.format("%s [%s]", x.getNome(), x.getShiftTypesCodePrettyPrint()));
 
@@ -436,7 +439,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         }
 
         this.executionCourseDataSource = value.stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).map(x -> {
-            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            final TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
 
             final String name = x.getNameI18N().getContent();
@@ -515,6 +518,14 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public void setUpdateGradeAvailableDateBeans(final List<MarkBean> input) {
         this.updateGradeAvailableDateBeans = input;
+    }
+
+    public List<MarkBean> getGradeBeans() {
+        return gradeBeans;
+    }
+
+    public void setGradeBeans(final List<MarkBean> input) {
+        this.gradeBeans = input;
     }
 
     public boolean isByTeacher() {
@@ -619,6 +630,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         setUpdateGradeBeans(buildBeans(true));
         setUpdateGradeAvailableDateBeans(buildBeans(false));
+
+        setGradeBeans(buildBeans(true));
 
         update();
     }
@@ -730,6 +743,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         for (final MarkBean markBean : getUpdateGradeAvailableDateBeans()) {
             markBean.updateGradeAvailableDate();
         }
+    }
+
+    public boolean hasStudent(Student student) {
+        return getGradeBeans().stream().anyMatch(e -> e.getEnrolment().getStudent() == student);
     }
 
 }

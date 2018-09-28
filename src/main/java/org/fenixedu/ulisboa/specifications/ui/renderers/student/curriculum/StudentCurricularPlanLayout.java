@@ -61,6 +61,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
+import org.fenixedu.academic.domain.accessControl.StudentGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
@@ -90,6 +91,7 @@ import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative.CompetenceCourseMarkSheetController;
+import org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.student.StudentCompetenceCourseMarkSheetController;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
@@ -129,8 +131,8 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     // qubExtension, don't SHOW empty groups
-    private Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
-    private boolean emptyGroupsCollapsible = true;
+    private final Map<CurriculumGroup, Boolean> emptyGroups = Maps.newHashMap();
+    private final boolean emptyGroupsCollapsible = true;
 
     // qubExtension
     static final private String MINIMUM_CREDITS_CONCLUDED_IN_CURRICULUM_GROUP =
@@ -390,9 +392,9 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // qubExtension, don't SHOW empty groups
         if (isEmptyGroup(curriculumGroup)) {
-            String keepExistingStyle = Strings.isNullOrEmpty(groupRow.getStyle()) ? "" : groupRow.getStyle();
+            final String keepExistingStyle = Strings.isNullOrEmpty(groupRow.getStyle()) ? "" : groupRow.getStyle();
             groupRow.setStyle(keepExistingStyle + " display: none");
-            String keepExistingClasses = Strings.isNullOrEmpty(groupRow.getClasses()) ? "" : groupRow.getClasses();
+            final String keepExistingClasses = Strings.isNullOrEmpty(groupRow.getClasses()) ? "" : groupRow.getClasses();
             groupRow.setClasses(keepExistingClasses + " emptyGroup");
         }
     }
@@ -519,10 +521,10 @@ public class StudentCurricularPlanLayout extends Layout {
                 final HtmlComponent programConclusionLink = createProgramConclusionLink(conclusionText.toString(),
                         curriculumGroup.getRegistration(), programConclusion);
                 try {
-                    StringWriter stringWriter = new StringWriter();
+                    final StringWriter stringWriter = new StringWriter();
                     programConclusionLink.draw(stringWriter);
                     groupName.append(stringWriter.toString());
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     groupName.append(conclusionText);
                 }
 
@@ -754,7 +756,7 @@ public class StudentCurricularPlanLayout extends Layout {
             }
             codeAndName += dismissal.getName().getContent();
 
-            ExecutionCourse executionCourse = dismissal.getCurricularCourse()
+            final ExecutionCourse executionCourse = dismissal.getCurricularCourse()
                     .getExecutionCoursesByExecutionPeriod(dismissal.getExecutionPeriod()).stream().findAny().orElse(null);
 
             final HtmlComponent executionCourseLink = createExecutionCourseLink(codeAndName, executionCourse);
@@ -949,7 +951,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     // qubExtension
     static private HtmlTableCell generateExternalId(final HtmlTableRow row, final String text) {
-        HtmlTableCell result = generateCellWithText(row, text, "");
+        final HtmlTableCell result = generateCellWithText(row, text, "");
         result.setStyle("display: none");
         return result;
     }
@@ -1146,12 +1148,14 @@ public class StudentCurricularPlanLayout extends Layout {
         final YearMonthDay availableDate = evaluation.getGradeAvailableDateYearMonthDay();
         final boolean isToShow =
                 !grade.isEmpty() && !evaluation.isTemporary() && availableDate != null && !availableDate.isAfter(new LocalDate());
-        final boolean markSheetAccess =
+        final boolean markSheetManagementAccess =
                 AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_MARKSHEETS).isMember(Authenticate.getUser());
+        final CompetenceCourseMarkSheet markSheet = evaluation.getCompetenceCourseMarkSheet();
+        final boolean markSheetStudentAccess =
+                markSheet != null && StudentGroup.get().isMember(Authenticate.getUser()) && markSheet.isConfirmed();
 
         // qubExtension, show grade available date as a tooltip
-        final CompetenceCourseMarkSheet markSheet = evaluation.getCompetenceCourseMarkSheet();
-        final String text = isToShow ? grade.getValue() : markSheetAccess && markSheet != null ? String.format("(%s)",
+        final String text = isToShow ? grade.getValue() : markSheetManagementAccess && markSheet != null ? String.format("(%s)",
                 i18n(Bundle.ACADEMIC, "label.markSheet")) : EMPTY_INFO;
         String title = null;
         if (isToShow) {
@@ -1164,15 +1168,22 @@ public class StudentCurricularPlanLayout extends Layout {
 
         // qubExtension, link to marksheet
         final HtmlComponent component;
-        if (markSheet == null || !markSheetAccess) {
+        if (markSheet == null || (!markSheetManagementAccess && !markSheetStudentAccess)) {
             component = new HtmlText(text);
-        } else {
+        } else if (markSheetManagementAccess) {
             component = new HtmlLink();
 
             ((HtmlLink) component).setText(text);
             ((HtmlLink) component).setModuleRelative(false);
             ((HtmlLink) component).setTarget("_blank");
             ((HtmlLink) component).setUrl(CompetenceCourseMarkSheetController.READ_URL + markSheet.getExternalId());
+        } else {
+            component = new HtmlLink();
+
+            ((HtmlLink) component).setText(text);
+            ((HtmlLink) component).setModuleRelative(false);
+            ((HtmlLink) component).setTarget("_blank");
+            ((HtmlLink) component).setUrl(StudentCompetenceCourseMarkSheetController.READGRADES_URL + markSheet.getExternalId());
         }
         generateCellWithSpan(row, component, title, renderer.getGradeCellClass(), true);
         return isToShow;
@@ -1484,7 +1495,7 @@ public class StudentCurricularPlanLayout extends Layout {
             inlineContainer.addChild(checkBox);
         }
 
-        ExecutionCourse executionCourse = enrolment.getExecutionCourseFor(enrolment.getExecutionPeriod());
+        final ExecutionCourse executionCourse = enrolment.getExecutionCourseFor(enrolment.getExecutionPeriod());
 
         final HtmlComponent executionCourseLink = createExecutionCourseLink(getPresentationNameFor(enrolment), executionCourse);
 
@@ -1533,7 +1544,7 @@ public class StudentCurricularPlanLayout extends Layout {
             final ProgramConclusion programConclusion) {
 
         if (registration != null && programConclusion != null) {
-            boolean canManageConclusion = AcademicAuthorizationGroup
+            final boolean canManageConclusion = AcademicAuthorizationGroup
                     .get(AcademicOperationType.MANAGE_CONCLUSION, registration.getDegree()).isMember(Authenticate.getUser());
             if (canManageConclusion) {
                 final HtmlLink result = new HtmlLink();
@@ -1565,7 +1576,7 @@ public class StudentCurricularPlanLayout extends Layout {
         final Set<CurriculumGroup> groups = new TreeSet<CurriculumGroup>(new Comparator<CurriculumGroup>() {
             @Override
             public int compare(CurriculumGroup o1, CurriculumGroup o2) {
-                int result = o1.getChildOrder().compareTo(o2.getChildOrder());
+                final int result = o1.getChildOrder().compareTo(o2.getChildOrder());
                 if (result != 0) {
                     return result;
                 }
@@ -1595,7 +1606,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void addTabsToRow(final HtmlTableRow row, final int level) {
         for (int i = 0; i < level; i++) {
-            HtmlLink link = new HtmlLink();
+            final HtmlLink link = new HtmlLink();
             link.setModuleRelative(false);
             link.setUrl(StudentCurricularPlanLayout.SPACER_IMAGE_PATH);
 
