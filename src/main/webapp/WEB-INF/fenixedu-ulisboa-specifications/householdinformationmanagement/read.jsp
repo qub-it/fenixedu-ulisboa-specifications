@@ -65,68 +65,32 @@ ${portal.toolkit()}
 		<form method="post" class="form-horizontal">
 			<table class="table">
 				<tbody>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.remuneratedActivityInPast" />
-                        </th>
-                        <td> 
-                            <c:if test="${ personUlExecutionYear.remuneratedActivityInPast != null }">
-                                <c:out value='${personUlExecutionYear.remuneratedActivityInPast ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.remuneratedActivityInPastDescription" />
-                        </th>
-                        <td>
-                            <c:out value='${personUlExecutionYear.remuneratedActivityInPastDescription}' />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.currentRemuneratedActivity" />
-                        </th>
-                        <td>
-                            <c:if test="${ personUlExecutionYear.currentRemuneratedActivity != null }">
-                                <c:out value='${personUlExecutionYear.currentRemuneratedActivity ? yesLabel : noLabel}' />
-                            </c:if>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3">
-                            <spring:message code="label.HouseholdInformationForm.currentRemuneratedActivityDescription" />
-                        </th>
-                        <td>
-                            <c:out value='${personUlExecutionYear.currentRemuneratedActivityDescription }' />
-                        </td>
-                    </tr>
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.professionalCondition" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.professionalCondition.localizedName}' />
-						</td>
-					</tr>
+<!-- 					<tr> -->
+<!-- 						<th scope="row" class="col-xs-3"> -->
+<%-- 							<spring:message code="label.HouseholdInformationForm.professionalCondition" /> --%>
+<!-- 						</th> -->
+<!-- 						<td> -->
+<%-- 							<c:out value='${personalIngressionData.professionalCondition.localizedName}' /> --%>
+<!-- 						</td> -->
+<!-- 					</tr> -->
 
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.professionType" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.professionType.localizedName}' />
-						</td>
-					</tr>
+<!-- 					<tr> -->
+<!-- 						<th scope="row" class="col-xs-3"> -->
+<%-- 							<spring:message code="label.HouseholdInformationForm.professionType" /> --%>
+<!-- 						</th> -->
+<!-- 						<td> -->
+<%-- 							<c:out value='${personalIngressionData.professionType.localizedName}' /> --%>
+<!-- 						</td> -->
+<!-- 					</tr> -->
 
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.professionTimeType" />
-						</th>
-						<td>
-							<c:out value='${personUlExecutionYear.professionTimeType.description.content}' />
-						</td>
-					</tr>
+<!-- 					<tr> -->
+<!-- 						<th scope="row" class="col-xs-3"> -->
+<%-- 							<spring:message code="label.HouseholdInformationForm.professionTimeType" /> --%>
+<!-- 						</th> -->
+<!-- 						<td> -->
+<%-- 							<c:out value='${personUlExecutionYear.professionTimeType.description.content}' /> --%>
+<!-- 						</td> -->
+<!-- 					</tr> -->
 
 					<tr>
 						<th scope="row" class="col-xs-3">
@@ -136,15 +100,6 @@ ${portal.toolkit()}
 							<c:if test="${not empty personalIngressionData.grantOwnerType}">
 								<spring:message code="label.GrantOwnerType.${personalIngressionData.grantOwnerType}" />
 							</c:if>
-						</td>
-					</tr>
-
-					<tr>
-						<th scope="row" class="col-xs-3">
-							<spring:message code="label.HouseholdInformationForm.grantOwnerProvider" />
-						</th>
-						<td>
-							<c:out value='${personalIngressionData.grantOwnerProvider.nameI18n.content}' />
 						</td>
 					</tr>
 
@@ -235,8 +190,70 @@ ${portal.toolkit()}
                             <c:out value='${personUlExecutionYear.numChildren }' />
                         </td>
                     </tr>
-
-
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.flunkedUniversity" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.flunkedUniversity ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>                    
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.flunkedUniversityTimes" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.flunkedUniversityTimes }' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.livesAlone" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.livesAlone ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.parents" />
+                        </th>
+                        <td>
+                            <c:out value='${ (personUlExecutionYear.livesWithMother && personUlExecutionYear.livesWithFather) ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.brothers" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.livesWithBrothers ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.children" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.livesWithChildren ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.lifeMate" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.livesWithLifemate ? yesLabel : noLabel}' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3">
+                            <spring:message code="label.HouseholdInformationForm.other" />
+                        </th>
+                        <td>
+                            <c:out value='${personUlExecutionYear.livesWithOthersDesc ? yesLabel : noLabel }' />
+                        </td>
+                    </tr>
 
 				</tbody>
 			</table>

@@ -281,24 +281,26 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         </div>
     </div>
     
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <div class="form-group row">
-                <label for="householdInformationForm_grantOwnerType" class="col-sm-2 control-label required-field">
-                    <spring:message code="label.HouseholdInformationForm.grantOwnerType" />
-                </label>
-
-                <div class="col-sm-6">
-                    <ui-select  id="householdInformationForm_grantOwnerType" name="grantOwnerType" ng-model="$parent.object.grantOwnerType" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="grantOwnerType.id as grantOwnerType in object.grantOwnerTypeValues | filter: {normalizedText : $select.search}">
-                            <span ng-bind-html="grantOwnerType.text"></span>
-                        </ui-select-choices> 
-                    </ui-select>
+    <c:if test="${ showGrantOwnerType }">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group row">
+                    <label for="householdInformationForm_grantOwnerType" class="col-sm-2 control-label required-field">
+                        <spring:message code="label.HouseholdInformationForm.grantOwnerType" />
+                    </label>
+    
+                    <div class="col-sm-6">
+                        <ui-select  id="householdInformationForm_grantOwnerType" name="grantOwnerType" ng-model="$parent.object.grantOwnerType" theme="bootstrap">
+                            <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                            <ui-select-choices  repeat="grantOwnerType.id as grantOwnerType in object.grantOwnerTypeValues | filter: {normalizedText : $select.search}">
+                                <span ng-bind-html="grantOwnerType.text"></span>
+                            </ui-select-choices> 
+                        </ui-select>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </c:if>            
     
 
     <div class="panel panel-default">

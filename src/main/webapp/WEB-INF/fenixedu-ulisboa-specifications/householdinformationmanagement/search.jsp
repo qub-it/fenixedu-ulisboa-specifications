@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.ProfessionalInformationManagementController"%>
 <%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationUlisboaManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
@@ -86,7 +87,7 @@ ${portal.toolkit()}
                     <button type="button" class="btn btn-default" data-dismiss="modal">
                         <spring:message code="label.close" />
                     </button>
-                    <button id="deleteButton" class="btn btn-primary" type="submit">
+                    <button id="confirmButton" class="btn btn-primary" type="submit">
                         <spring:message code="label.confirm" />
                     </button>
                 </div>
@@ -283,14 +284,6 @@ ${portal.toolkit()}
                         </c:if>
                     </td>
                 </tr>
-                <tr>
-                    <th scope="row" class="col-xs-3">
-                        <spring:message code="label.HouseholdInformationForm.bestQualitiesInThisCicle" />
-                    </th>
-                    <td>
-                        <c:out value='${ student.person.personUlisboaSpecifications.bestQualitiesInThisCicle }' />
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -338,8 +331,12 @@ ${portal.toolkit()}
 						<td>
 							<a class="btn btn-default btn-xs"
 								href="${pageContext.request.contextPath}<%= HouseholdInformationManagementController.READ_URL %>/${student.externalId}/${pid.executionYear.externalId}">
-								<spring:message code='label.view' />
+								<spring:message code='label.title.householdinformationmanagement' />
 							</a>
+                            <a class="btn btn-default btn-xs"
+                                href="${pageContext.request.contextPath}<%= ProfessionalInformationManagementController.READ_URL %>/${student.externalId}/${pid.executionYear.externalId}">
+                                <spring:message code='label.title.professionalInformationManagement' />
+                            </a>
 						</td>
 					</tr>
 				</c:forEach>

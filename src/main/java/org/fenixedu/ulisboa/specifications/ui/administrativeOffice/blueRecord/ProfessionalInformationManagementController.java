@@ -13,8 +13,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationUlisboaForm;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationUlisboaFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ProfessionalInformationForm;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ProfessionalInformationFormController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @BennuSpringController(value = BlueRecordManagementEntryPoint.class)
-@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.householdinformationmanagement",
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.professionalInformationManagement",
         accessGroup = "logged")
-@RequestMapping(HouseholdInformationUlisboaManagementController.CONTROLLER_URL)
-public class HouseholdInformationUlisboaManagementController extends HouseholdInformationUlisboaFormController {
+@RequestMapping(ProfessionalInformationManagementController.CONTROLLER_URL)
+public class ProfessionalInformationManagementController extends ProfessionalInformationFormController {
 
-    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/householdinformationulisboamanagement";
+    public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/professionalinformationulisboamanagement";
 
     protected static final String STUDENT_SESSION_ATTR = "studentOID";
 
@@ -39,6 +39,18 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
+    }
+
+    private static final String _READ_URI = "/read";
+    public static final String READ_URL = CONTROLLER_URL + _READ_URI;
+
+    @RequestMapping(value = _READ_URI + "/{studentId}/{executionYearId}")
+    public String read(@PathVariable("studentId") final Student student,
+            @PathVariable("executionYearId") final ExecutionYear executionYear, final Model model) {
+        model.addAttribute("student", student);
+        model.addAttribute("personalIngressionData", getPersonalIngressionData(student, executionYear, false));
+
+        return "/fenixedu-ulisboa-specifications/householdinformationmanagement/professionalInformation/read";
     }
 
     private static final String _UPDATE_URI = "/update";
@@ -54,7 +66,7 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
         model.addAttribute("postAction", "update/" + student.getExternalId() + "/" + executionYear.getExternalId());
         addControllerURLToModel(executionYear, model);
 
-        HouseholdInformationUlisboaForm form = createHouseholdInformationForm(student, executionYear);
+        ProfessionalInformationForm form = createProfissionalInformationForm(student, executionYear, false);
 
         setForm(form, model);
 
@@ -64,7 +76,7 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
     @RequestMapping(value = _UPDATE_URI + "/{studentId}/{executionYearId}", method = RequestMethod.POST)
     public String update(@PathVariable("studentId") final Student student,
             @PathVariable("executionYearId") final ExecutionYear executionYear,
-            @RequestParam(value = "bean", required = true) final HouseholdInformationUlisboaForm form, final Model model,
+            @RequestParam(value = "bean", required = true) final ProfessionalInformationForm form, final Model model,
             final RedirectAttributes redirectAttributes, final HttpSession session) {
         session.setAttribute(STUDENT_SESSION_ATTR, student);
         model.addAttribute("student", student);
@@ -81,7 +93,7 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
 
             model.addAttribute("form", form);
 
-            return redirect(HouseholdInformationManagementController.SEARCH_URL + "/" + student.getExternalId(), model,
+            return redirect(READ_URL + "/" + student.getExternalId() + "/" + executionYear.getExternalId(), model,
                     redirectAttributes);
         } catch (DomainException domainEx) {
             logger.error("Exception for user " + AccessControl.getPerson().getUsername());
@@ -118,28 +130,6 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
         }
 
         throw new RuntimeException("Student object is not in http session as an attribute.");
-    }
-
-    @Override
-    public void addDefaultAttributes(Model model) {
-        model.addAttribute(SHOW_GRANT_OWNER_TYPE, false);
-    }
-
-    /* ********************
-     * MAPPINGS NOT APPLIED
-     * ********************
-     */
-
-    @Override
-    protected String nextScreen(final ExecutionYear executionYear, final Model model,
-            final RedirectAttributes redirectAttributes) {
-        throw new RuntimeException("not applied in this controller");
-    }
-
-    @Override
-    protected String backScreen(final ExecutionYear executionYear, final Model model,
-            final RedirectAttributes redirectAttributes) {
-        throw new RuntimeException("not applied in this controller");
     }
 
 }

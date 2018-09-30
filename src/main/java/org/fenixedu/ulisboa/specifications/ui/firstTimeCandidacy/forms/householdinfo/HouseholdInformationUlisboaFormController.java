@@ -23,6 +23,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstr
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.health.DisabilitiesFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualification.OriginInformationFormController;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -38,7 +39,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
 
     public static final String FILL_URL = CONTROLLER_URL + _FILL_URI;
 
-    protected static final String SHOW_FIRST_OPTION_DESCRITPION = "notFirstOption";
+    protected static final String SHOW_GRANT_OWNER_TYPE = "showGrantOwnerType";
 
     @Override
     protected String getControllerURL() {
@@ -245,15 +246,18 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     @Atomic
     protected void writeData(final Student student, final ExecutionYear executionYear, final HouseholdInformationUlisboaForm form,
             final Model model) {
-        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
-        final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
+        boolean grantOwner = (boolean) model.asMap().get(SHOW_GRANT_OWNER_TYPE);
 
-        if (personalData == null) {
-            throw new DomainException("error.no.PersonalIngressionData.created.for", student.getPerson().getUsername());
+        if (grantOwner) {
+            final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
+            if (personalData == null) {
+                throw new DomainException("error.no.PersonalIngressionData.created.for", student.getPerson().getUsername());
+            }
+            GrantOwnerType grantOwnerType = form.getGrantOwnerType();
+            personalData.setGrantOwnerType(grantOwnerType);
         }
-        GrantOwnerType grantOwnerType = form.getGrantOwnerType();
-        personalData.setGrantOwnerType(grantOwnerType);
 
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
         if (form.getFlunkedHighSchool() != null) {
             personUlisboa.setFlunkedHighSchool(form.getFlunkedHighSchool());
         }
@@ -321,6 +325,11 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     @Override
     protected Student getStudent(final Model model) {
         return AccessControl.getPerson().getStudent();
+    }
+
+    @ModelAttribute
+    public void addDefaultAttributes(final Model model) {
+        model.addAttribute(SHOW_GRANT_OWNER_TYPE, true);
     }
 
 }

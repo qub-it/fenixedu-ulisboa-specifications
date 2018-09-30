@@ -43,6 +43,7 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     protected static final String STUDENT_SESSION_ATTR = "studentOID";
+    protected static final String EXECUTION_YEAR_SESSION_ATTR = "executionYearOID";
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -93,8 +94,6 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         HouseholdInformationForm form = createEmptyHouseholdInformationForm(student, model);
         form.setExecutionYear(executionYear);
         setForm(form, model);
-
-        model.addAttribute(HouseholdInformationFormController.SHOW_DISLOCATED_QUESTION, true);
 
         return fillGetScreen(executionYear, model, redirectAttributes);
     }
@@ -173,8 +172,6 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
         setForm(form, model);
 
-        model.addAttribute(HouseholdInformationFormController.SHOW_DISLOCATED_QUESTION, true);
-
         return fillGetScreen(executionYear, model, redirectAttributes);
     }
 
@@ -215,11 +212,6 @@ public class HouseholdInformationManagementController extends HouseholdInformati
         return update(student, form.getExecutionYear(), model, redirectAttributes, session);
     }
 
-    @Override
-    protected boolean isProfessionRequired() {
-        return false;
-    }
-
     private String jspPage(final String page) {
         return JSP_PATH + "/" + page.substring(1, page.length());
     }
@@ -235,10 +227,23 @@ public class HouseholdInformationManagementController extends HouseholdInformati
     }
 
     @Override
+    public void addDefaultAttributes(Model model) {
+        model.addAttribute(SHOW_DISLOCATED_QUESTION, true);
+        model.addAttribute(SHOW_FLUNKED_UNIVERSITY, true);
+        model.addAttribute(SHOW_GRANT_OWNER_TYPE, true);
+    }
+
+    @Override
     public String back(@RequestParam(value = "executionYear", required = false) final ExecutionYear executionYear,
             final Model model, final RedirectAttributes redirectAttributes, final HttpSession session) {
         Student student = (Student) session.getAttribute(STUDENT_SESSION_ATTR);
+        ExecutionYear executionYearSession = (ExecutionYear) session.getAttribute(EXECUTION_YEAR_SESSION_ATTR);
         if (student != null) {
+            if (executionYearSession != null) {
+                return redirect(READ_URL + "/" + student.getExternalId() + "/" + executionYearSession.getExternalId(), model,
+                        redirectAttributes);
+            }
+
             return redirect(SEARCH_URL + "/" + student.getExternalId(), model, redirectAttributes);
         }
 

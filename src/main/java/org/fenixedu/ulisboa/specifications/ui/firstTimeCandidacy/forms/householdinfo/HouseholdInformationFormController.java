@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -33,6 +34,8 @@ import pt.ist.fenixframework.Atomic;
 public class HouseholdInformationFormController extends FormAbstractController {
 
     protected static final String SHOW_DISLOCATED_QUESTION = "showDislocated";
+    protected static final String SHOW_FLUNKED_UNIVERSITY = "showFlunkedUniversity";
+    protected static final String SHOW_GRANT_OWNER_TYPE = "showGrantOwnerType";
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/{executionYearId}/householdinformationform";
 
@@ -97,6 +100,10 @@ public class HouseholdInformationFormController extends FormAbstractController {
             form.setMotherSchoolLevel(personalData.getMotherSchoolLevel());
 
             form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
+
+            form.setGrantOwnerType(
+                    personalData.getGrantOwnerType() == null ? GrantOwnerType.STUDENT_WITHOUT_SCHOLARSHIP : personalData
+                            .getGrantOwnerType());
         }
 
         PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
@@ -121,6 +128,9 @@ public class HouseholdInformationFormController extends FormAbstractController {
                 form.setNumChildren(personUlExecutionYear.getNumChildren());
 
                 form.setHouseholdSalarySpan(personUlExecutionYear.getHouseholdSalarySpan());
+
+                form.setFlunkedUniversity(personUlExecutionYear.getFlunkedUniversity());
+                form.setFlunkedUniversityTimes(personUlExecutionYear.getFlunkedUniversityTimes());
             }
         }
 
@@ -166,11 +176,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
         }
 
-//        if (form.getHouseholdSalarySpan() == null) {
-//            messages.add(
-//                    BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
-//        }
-
         //DISLOCATED
 
         if (form.getDislocatedFromPermanentResidence() == null) {
@@ -198,13 +203,6 @@ public class HouseholdInformationFormController extends FormAbstractController {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.livesWith.other.must.be.filled"));
         }
 
-//        if (form.getNumBrothers() == null) {
-//            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-//        }
-//        if (form.getNumChildren() == null) {
-//            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-//        }
-
         if (form.getNumBrothers() != null && form.getNumBrothers() < 0) {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.numBrothers.must.be.positive"));
         }
@@ -212,11 +210,17 @@ public class HouseholdInformationFormController extends FormAbstractController {
             messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.numChildren.must.be.positive"));
         }
 
-        return messages;
-    }
+        // FLUNKED UNIVERSITY
 
-    protected boolean isProfessionRequired() {
-        return true;
+        if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() == null) {
+            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+        } else if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() < 1) {
+            messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+        } else if (Boolean.FALSE.equals(form.getFlunkedUniversity())) {
+            form.setFlunkedUniversityTimes(0);
+        }
+
+        return messages;
     }
 
     @Override
@@ -237,6 +241,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
         personalData.setMotherProfessionalCondition(form.getMotherProfessionalCondition());
         personalData.setMotherProfessionType(form.getMotherProfessionType());
         personalData.setMotherSchoolLevel(form.getMotherSchoolLevel());
+        personalData.setGrantOwnerType(form.getGrantOwnerType());
 
         if (form.getHouseholdSalarySpan() != null) {
             personUlExecutionYear.setHouseholdSalarySpan(form.getHouseholdSalarySpan());
@@ -277,6 +282,13 @@ public class HouseholdInformationFormController extends FormAbstractController {
             personUlExecutionYear.setNumChildren(form.getNumChildren());
         }
 
+        if (form.getFlunkedUniversity() != null) {
+            personUlExecutionYear.setFlunkedUniversity(form.getFlunkedUniversity());
+        }
+        if (form.getFlunkedUniversityTimes() != null) {
+            personUlExecutionYear.setFlunkedUniversityTimes(form.getFlunkedUniversityTimes());
+        }
+
     }
 
     @Override
@@ -305,6 +317,8 @@ public class HouseholdInformationFormController extends FormAbstractController {
     @ModelAttribute
     public void addDefaultAttributes(final Model model) {
         model.addAttribute(SHOW_DISLOCATED_QUESTION, false);
+        model.addAttribute(SHOW_FLUNKED_UNIVERSITY, false);
+        model.addAttribute(SHOW_GRANT_OWNER_TYPE, false);
     }
 
 }

@@ -269,6 +269,63 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         </div>
     </c:if>            
 
+    <c:if test="${ showFlunkedUniversity }">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group row">
+                    <div class="col-sm-2 control-label">
+                        <spring:message
+                            code="label.HouseholdInformationForm.flunkedUniversity" />
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <ui-select id="householdInformationForm_flunkedUniversity" name="flunkedUniversity"
+                            ng-model="$parent.object.flunkedUniversity"
+                            theme="bootstrap" > 
+                            <ui-select-match>
+                                {{$select.selected.name}}
+                            </ui-select-match> 
+                            <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                                <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="form-group row" ng-show="object.flunkedUniversity">
+                    <div class="col-sm-2 control-label required-field">
+                        <spring:message
+                            code="label.HouseholdInformationForm.flunkedUniversityTimes" />
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <input id="householdInformationForm_flunkedUniversityTimes" class="form-control" type="number" min="0" ng-model="object.flunkedUniversityTimes" name="field" />
+                    </div>
+                </div>            
+            </div>
+        </div>
+    </c:if>            
+
+    <c:if test="${ showGrantOwnerType }">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group row">
+                    <label for="householdInformationForm_grantOwnerType" class="col-sm-2 control-label required-field">
+                        <spring:message code="label.HouseholdInformationForm.grantOwnerType" />
+                    </label>
+    
+                    <div class="col-sm-6">
+                        <ui-select  id="householdInformationForm_grantOwnerType" name="grantOwnerType" ng-model="$parent.object.grantOwnerType" theme="bootstrap">
+                            <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                            <ui-select-choices  repeat="grantOwnerType.id as grantOwnerType in object.grantOwnerTypeValues | filter: {normalizedText : $select.search}">
+                                <span ng-bind-html="grantOwnerType.text"></span>
+                            </ui-select-choices> 
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </c:if>            
+
     <div class="panel panel-default">
         <div class="panel-body">
 

@@ -118,13 +118,14 @@ public class VaccionationFormController extends FormAbstractController {
 
     @Override
     protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
-        writeData((VaccinationForm) candidancyForm);
+        writeData((VaccinationForm) candidancyForm, model);
     }
 
     @Atomic
-    protected void writeData(final VaccinationForm vaccinationForm) {
-        PersonUlisboaSpecifications.findOrCreate(AccessControl.getPerson())
-                .setVaccinationValidity(vaccinationForm.getVaccinationValidity());
+    protected void writeData(final VaccinationForm vaccinationForm, final Model model) {
+        PersonUlisboaSpecifications personUlisboa = PersonUlisboaSpecifications.findOrCreate(getStudent(model).getPerson());
+
+        personUlisboa.setVaccinationValidity(vaccinationForm.getVaccinationValidity());
     }
 
     @Override
