@@ -78,23 +78,25 @@ public class HelpdeskReportController extends FenixeduUlisboaSpecificationsBaseC
 
     @RequestMapping(value = "/submitReport", method = RequestMethod.POST)
     public ResponseEntity<Void> submitReport(@RequestBody final HelpdeskReportForm jsonReportForm) {
-        List<String> recipients = getReportRecipients();
-        List<String> carbonCopies = getCCs();
-        List<String> blindCarnonCopies = getBCCs();
-        String submitterEmail = jsonReportForm.getEmail();
-        String mailSubject = generateEmailSubject(jsonReportForm);
-        String mailBody = generateEmailBody(jsonReportForm);
+        if (helpdeskHandlers.isEmpty()) {
+            List<String> recipients = getReportRecipients();
+            List<String> carbonCopies = getCCs();
+            List<String> blindCarnonCopies = getBCCs();
+            String submitterEmail = jsonReportForm.getEmail();
+            String mailSubject = generateEmailSubject(jsonReportForm);
+            String mailBody = generateEmailBody(jsonReportForm);
 
-        if (CoreConfiguration.getConfiguration().developmentMode()) {
-            logger.warn("Submitted error form\n\nFrom: {}\nTo: {}\nCC: {}\nBCC: {}\nSubject: '{}'\n{}", submitterEmail,
-                    recipients.stream().reduce("", (a, b) -> a + " " + b).trim(),
-                    carbonCopies.stream().reduce("", (a, b) -> a + " " + b).trim(),
-                    blindCarnonCopies.stream().reduce("", (a, b) -> a + " " + b).trim(), mailSubject, mailBody);
-        } else {
-            sendEmail(
-                    EmailValidator.getInstance().isValid(submitterEmail) ? submitterEmail : PortalConfiguration.getInstance()
-                            .getSupportEmailAddress(),
-                    recipients, carbonCopies, blindCarnonCopies, mailSubject, mailBody, jsonReportForm);
+            if (CoreConfiguration.getConfiguration().developmentMode()) {
+                logger.warn("Submitted error form\n\nFrom: {}\nTo: {}\nCC: {}\nBCC: {}\nSubject: '{}'\n{}", submitterEmail,
+                        recipients.stream().reduce("", (a, b) -> a + " " + b).trim(),
+                        carbonCopies.stream().reduce("", (a, b) -> a + " " + b).trim(),
+                        blindCarnonCopies.stream().reduce("", (a, b) -> a + " " + b).trim(), mailSubject, mailBody);
+            } else {
+                sendEmail(
+                        EmailValidator.getInstance().isValid(submitterEmail) ? submitterEmail : PortalConfiguration.getInstance()
+                                .getSupportEmailAddress(),
+                        recipients, carbonCopies, blindCarnonCopies, mailSubject, mailBody, jsonReportForm);
+            }
         }
         boolean sucessful = true;
         for (HelpdeskHandler handler : helpdeskHandlers) {
