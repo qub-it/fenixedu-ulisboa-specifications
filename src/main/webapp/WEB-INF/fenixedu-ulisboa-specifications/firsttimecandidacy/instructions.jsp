@@ -1,3 +1,4 @@
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="java.util.Locale"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController"%>
@@ -99,9 +100,6 @@ ${portal.toolkit()}
 </c:if>
 
 <div class="well start">
-<%-- 	<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { %> --%>
-<%-- 		<p><%= FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent() %></p> --%>
-<%-- 	<% } else { %> --%>
         <% 
         String unitName = Unit.getInstitutionName().getContent();
         Locale locale = I18N.getLocale();
@@ -116,7 +114,6 @@ ${portal.toolkit()}
         }
         %>
 		<p><spring:message code="label.firstTimeCandidacy.instructions.default.welcome" arguments='<%= FirstTimeCandidacyController.getCandidacy().getDegreeCurricularPlan().getDegree().getNameI18N().getContent().replaceAll(","," -") + ", " + unitName %>' htmlEscape="false"/></p>
-<%-- 	<% } %> --%>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
 	<p><spring:message code="label.firstTimeCandidacy.instructions.details" htmlEscape="false"/></p>
@@ -126,6 +123,22 @@ ${portal.toolkit()}
     <p><spring:message code="message.dataProcessingTerms" arguments="<%= Unit.getInstitutionName().getContent() %>" htmlEscape="false"/></p>
     
 </div>
+
+<% if (FirstYearRegistrationGlobalConfiguration.getInstance() != null && 
+         FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText() != null && 
+             !FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().isEmpty()) { 
+       String schoolText = FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText().getContent();
+       if(StringUtils.isNotBlank(schoolText)) {        
+%>
+    <div class="well start">
+        <p><%= schoolText %></p>
+    </div>
+<% 
+       }
+   }
+%>
+
+
 
 <c:if test="${empty errorMessages}">
 	<div>

@@ -195,6 +195,7 @@ public class DgesStudentImportService {
         entry.setEntryPhase(entryPhase);
         entry.setDegreeCode(fields[1].trim());
         entry.setDocumentIdNumber(fields[2].trim());
+        entry.setDocumentIdIssuePlaceCode(fields[3].trim());
         entry.setGender(fields[4].trim());
 
         entry.setDateOfBirth(LocalDate.parse(fields[5].trim(), DATE_FORMATTER));

@@ -22,6 +22,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
+import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
@@ -117,8 +118,11 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                 && form.getPrecedentSchoolLevel().isHigherEducation()) {
             DegreeDesignation precedentDegreeDesignation;
             if (institution != null) {
-                Predicate<DegreeDesignation> matchesName =
-                        dd -> dd.getDescription().equalsIgnoreCase(precedentDegreeDesignationName);
+                Predicate<DegreeDesignation> matchesName = dd -> precedentDegreeInformation.getPrecedentSchoolLevel() != null
+                        && precedentDegreeInformation.getPrecedentSchoolLevel().getEquivalentDegreeClassifications()
+                                .contains(dd.getDegreeClassification().getCode())
+                        && StringNormalizer.normalize(dd.getDescription())
+                                .contains(StringNormalizer.normalize(precedentDegreeDesignationName));
                 precedentDegreeDesignation =
                         institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
                 form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);

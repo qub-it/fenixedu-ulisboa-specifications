@@ -903,8 +903,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("OriginInformationForm.institution", stateBean.getInstitutionName());
                         addData("OriginInformationForm.studentNumber", stateBean.getStudentNumber());
                         addData("identification.number", stateBean.getIdNumber());
+                        addData("PersonalInformationForm.idDocumentType", stateBean.getIdType());
                         addData("PersonalInformationForm.documentIdExpirationDate", stateBean.getExpirationDateOfIdDoc());
                         addData("PersonalInformationForm.documentIdEmissionLocation", stateBean.getEmissionLocationOfIdDoc());
+                        addData("PersonalInformationForm.fiscalCountry", stateBean.getFiscalCountry());
+                        addData("PersonalInformationForm.socialSecurityNumber", stateBean.getSocialSecurityNumber());
                         addData("student", stateBean.getName());
                         addData("PersonalInformationForm.maritalStatus", stateBean.getMaritalStatus());
                         addData("is.registered", stateBean.getRegistrationState());
@@ -928,7 +931,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ResidenceInformationForm.parishOfResidence", stateBean.getParishOfResidence());
                         addData("ResidenceInformationForm.address", stateBean.getAddressOfResidence());
                         addData("ResidenceInformationForm.areaCode", stateBean.getAreaCodeOfResidence());
-                        addData("ResidenceInformationForm.schoolTimeCountry", stateBean.getCountryOfDislocated());
+                        //                        addData("ResidenceInformationForm.schoolTimeCountry", stateBean.getCountryOfDislocated());
                         addData("ResidenceInformationForm.schoolTimeDistrictOfResidence", stateBean.getDistrictOfDislocated());
                         addData("ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence",
                                 stateBean.getDistrictSubdivisionOfDislocated());
@@ -978,11 +981,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("ContactsForm.mobileNumber", stateBean.getTelephone());
                         addData("SchoolSpecificData.vaccinationValidity", stateBean.getVaccinationValidity());
                         addData("HouseholdInformationForm.grantOwnerType", stateBean.getGrantOwnerType());
-                        addData("HouseholdInformationForm.grantOwnerProviderName", stateBean.getGrantOwnerProvider());
+                        //                        addData("HouseholdInformationForm.grantOwnerProviderName", stateBean.getGrantOwnerProvider());
 
-                        addData("HouseholdInformationForm.flunkedHighSchool", stateBean.getFlunkedHighSchool());
+                        //                        addData("HouseholdInformationForm.flunkedHighSchool", stateBean.getFlunkedHighSchool());
                         addData("HouseholdInformationForm.flunkedHighSchoolTimes", stateBean.getFlunkedHighSchoolTimes());
-                        addData("HouseholdInformationForm.flunkedPreHighSchool", stateBean.getFlunkedPreHighSchool());
+                        //                        addData("HouseholdInformationForm.flunkedPreHighSchool", stateBean.getFlunkedPreHighSchool());
                         addData("HouseholdInformationForm.flunkedPreHighSchoolTimes", stateBean.getFlunkedPreHighSchoolTimes());
                         addData("HouseholdInformationForm.socialBenefitsInHighSchool", stateBean.getSocialBenefitsInHighSchool());
                         addData("HouseholdInformationForm.socialBenefitsInHighSchoolDescription",
@@ -991,17 +994,19 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("HouseholdInformationForm.publicUnivCandidacies", stateBean.getPublicUnivCandidacies());
                         addData("HouseholdInformationForm.firstTimeInUlisboa", stateBean.getFirstTimeInUlisboa());
 
-                        addData("HouseholdInformationForm.bestQualitiesInThisCicle", stateBean.getBestQualitiesInThisCicle());
-                        addData("HouseholdInformationForm.remuneratedActivityInPast", stateBean.getRemuneratedActivityInPast());
-                        addData("HouseholdInformationForm.remuneratedActivityInPastDescription",
-                                stateBean.getRemuneratedActivityInPastDescription());
+                        //                        addData("HouseholdInformationForm.bestQualitiesInThisCicle", stateBean.getBestQualitiesInThisCicle());
+                        //                        addData("HouseholdInformationForm.remuneratedActivityInPast", stateBean.getRemuneratedActivityInPast());
+                        //                        addData("HouseholdInformationForm.remuneratedActivityInPastDescription",
+                        //                                stateBean.getRemuneratedActivityInPastDescription());
                         addData("HouseholdInformationForm.flunkedUniversity", stateBean.getFlunkedUniversity());
                         addData("HouseholdInformationForm.flunkedUniversityTimes", stateBean.getFlunkedUniversityTimes());
+
                         addData("HouseholdInformationForm.livesAlone", stateBean.getLivesAlone());
-                        addData("HouseholdInformationForm.livesWithMother", stateBean.getLivesWithMother());
-                        addData("HouseholdInformationForm.livesWithFather", stateBean.getLivesWithFather());
-                        addData("HouseholdInformationForm.livesWithStepFather", stateBean.getLivesWithStepFather());
-                        addData("HouseholdInformationForm.livesWithStepMother", stateBean.getLivesWithStepMother());
+                        addData("HouseholdInformationForm.livesWithParents", stateBean.getLivesWithParents());
+                        //                        addData("HouseholdInformationForm.livesWithMother", stateBean.getLivesWithMother());
+                        //                        addData("HouseholdInformationForm.livesWithFather", stateBean.getLivesWithFather());
+                        //                        addData("HouseholdInformationForm.livesWithStepFather", stateBean.getLivesWithStepFather());
+                        //                        addData("HouseholdInformationForm.livesWithStepMother", stateBean.getLivesWithStepMother());
                         addData("HouseholdInformationForm.livesWithBrothers", stateBean.getLivesWithBrothers());
                         addData("HouseholdInformationForm.livesWithChildren", stateBean.getLivesWithChildren());
                         addData("HouseholdInformationForm.livesWithLifemate", stateBean.getLivesWithLifemate());
@@ -1010,6 +1015,29 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("HouseholdInformationForm.numBrothers", stateBean.getNumBrothers());
                         addData("HouseholdInformationForm.numChildren", stateBean.getNumChildren());
 
+                        addData("MobilityRegistrationInformation.begin", stateBean.getMobilityInformationBegin());
+                        addData("MobilityRegistrationInformation.beginDate", stateBean.getMobilityInformationBeginDate());
+                        addData("MobilityRegistrationInformation.end", stateBean.getMobilityInformationEnd());
+                        addData("MobilityRegistrationInformation.endDate", stateBean.getMobilityInformationEndDate());
+                        addData("MobilityRegistrationInformation.mobilityProgramType",
+                                stateBean.getMobilityInformationProgramType());
+                        addData("MobilityRegistrationInformation.mobilityActivityType",
+                                stateBean.getMobilityInformationActivityType());
+                        addData("MobilityRegistrationInformation.mobilityScientificArea",
+                                stateBean.getMobilityInformationScientificArea());
+                        addData("MobilityRegistrationInformation.programDuration",
+                                stateBean.getMobilityInformationProgramDuration());
+                        addData("MobilityRegistrationInformation.originMobilityProgrammeLevel",
+                                stateBean.getMobilityInformationOriginProgrammeLevel());
+                        addData("MobilityRegistrationInformation.incomingMobilityProgrammeLevel",
+                                stateBean.getMobilityInformationIncomingProgrammeLevel());
+                        addData("MobilityRegistrationInformation.otherOriginMobilityProgrammeLevel",
+                                stateBean.getMobilityInformationOtherOriginProgrammeLevel());
+                        addData("MobilityRegistrationInformation.otherIncomingMobilityProgrammeLevel",
+                                stateBean.getMobilityInformationOtherIncomingProgrammeLevel());
+                        addData("MobilityRegistrationInformation.originCountry", stateBean.getMobilityInformationOriginCountry());
+                        addData("MobilityRegistrationInformation.incomingCountry",
+                                stateBean.getMobilityInformationIncomingCountry());
                     }
 
                     private void addData(final String key, final Object value) {

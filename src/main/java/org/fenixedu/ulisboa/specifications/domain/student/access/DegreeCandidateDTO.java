@@ -48,11 +48,15 @@ import org.joda.time.YearMonthDay;
 
 public class DegreeCandidateDTO {
 
+    private static final String DGES_TMP_ID_CODE_PREFIX = "DGES CODE:";
+
     private final int lineNumber;
 
     private String degreeCode;
 
     private String documentIdNumber;
+
+    private String documentIdIssuePlaceCode;
 
     private String name;
 
@@ -102,6 +106,14 @@ public class DegreeCandidateDTO {
 
     public void setDocumentIdNumber(final String documentIdNumber) {
         this.documentIdNumber = documentIdNumber;
+    }
+
+    public String getDocumentIdIssuePlaceCode() {
+        return documentIdIssuePlaceCode;
+    }
+
+    public void setDocumentIdIssuePlaceCode(String documentIdIssuePlaceCode) {
+        this.documentIdIssuePlaceCode = documentIdIssuePlaceCode;
     }
 
     public String getName() {
@@ -231,10 +243,11 @@ public class DegreeCandidateDTO {
         person.setGender(getGender());
         Country nationality = getNationality();
         person.setCountry(nationality);
-        if (nationality != null && nationality.isDefaultCountry()) {
+        //TODO: check all the codes for issue place of the id card
+        if (nationality != null && nationality.isDefaultCountry() && !getDocumentIdIssuePlaceCode().equals("91")) {
             person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
         } else {
-            person.setIdentification(getDocumentIdNumber(), IDDocumentType.OTHER);
+            person.setIdentification(DGES_TMP_ID_CODE_PREFIX + getDocumentIdNumber(), IDDocumentType.OTHER);
             PersonUlisboaSpecifications.findOrCreate(person).setDgesTempIdCode(getDocumentIdNumber());
         }
 

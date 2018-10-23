@@ -153,7 +153,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
     }
 
     protected boolean validate(final HouseholdInformationForm form, final Model model) {
-        final Set<String> messages = validateForm(form);
+        final Set<String> messages = validateForm(form, model);
 
         for (final String message : messages) {
             addErrorMessage(message, model);
@@ -162,7 +162,7 @@ public class HouseholdInformationFormController extends FormAbstractController {
         return messages.isEmpty();
     }
 
-    protected Set<String> validateForm(final HouseholdInformationForm form) {
+    protected Set<String> validateForm(final HouseholdInformationForm form, Model model) {
         final Set<String> messages = Sets.newLinkedHashSet();
 
         if (form.getFatherProfessionalCondition() == null || form.getFatherProfessionType() == null
@@ -177,8 +177,11 @@ public class HouseholdInformationFormController extends FormAbstractController {
         }
 
         //DISLOCATED
-
-        if (form.getDislocatedFromPermanentResidence() == null) {
+        boolean showDislocated = false;
+        if (model != null) {
+            showDislocated = (boolean) model.asMap().get(SHOW_DISLOCATED_QUESTION);
+        }
+        if (showDislocated && form.getDislocatedFromPermanentResidence() == null) {
             messages.add(
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
         }
@@ -211,13 +214,18 @@ public class HouseholdInformationFormController extends FormAbstractController {
         }
 
         // FLUNKED UNIVERSITY
-
-        if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() == null) {
-            messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
-        } else if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() < 1) {
-            messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
-        } else if (Boolean.FALSE.equals(form.getFlunkedUniversity())) {
-            form.setFlunkedUniversityTimes(0);
+        boolean showFlunkedUniv = false;
+        if (model != null) {
+            showFlunkedUniv = (boolean) model.asMap().get(SHOW_FLUNKED_UNIVERSITY);
+        }
+        if (showFlunkedUniv) {
+            if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() == null) {
+                messages.add(BundleUtil.getString(BUNDLE, "error.all.fields.required"));
+            } else if (Boolean.TRUE.equals(form.getFlunkedUniversity()) && form.getFlunkedUniversityTimes() < 1) {
+                messages.add(BundleUtil.getString(BUNDLE, "error.HouseholdInformationForm.flunkedHighSchoolTimes"));
+            } else if (Boolean.FALSE.equals(form.getFlunkedUniversity())) {
+                form.setFlunkedUniversityTimes(0);
+            }
         }
 
         return messages;
