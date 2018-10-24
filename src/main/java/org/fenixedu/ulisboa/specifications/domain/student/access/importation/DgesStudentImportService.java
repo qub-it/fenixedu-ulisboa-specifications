@@ -319,6 +319,7 @@ public class DgesStudentImportService {
     }
 
     private Person findPerson(final DegreeCandidateDTO entry) {
+        //TODO use other instead of id card
         final Collection<Person> persons = Person.readByDocumentIdNumber(entry.getDocumentIdNumber());
 
         if (persons.isEmpty()) {
