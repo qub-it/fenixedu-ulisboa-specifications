@@ -467,7 +467,11 @@ public class RegistrationHistoryReportService {
                 BigDecimal creditsMandatoryApproved = BigDecimal.ZERO;
 
                 for (final Enrolment iter : enrolments) {
-
+                    
+                    if (!CurriculumLineServices.isNormal(iter)) {
+                        continue;
+                    }
+                    
                     final boolean isOptionalByGroup = CurriculumLineServices.isOptionalByGroup(iter);
                     if (isOptionalByGroup) {
                         continue;
