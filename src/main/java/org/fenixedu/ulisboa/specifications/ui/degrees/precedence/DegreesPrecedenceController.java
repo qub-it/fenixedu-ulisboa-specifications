@@ -6,8 +6,10 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,9 +79,14 @@ public class DegreesPrecedenceController extends FenixeduUlisboaSpecificationsBa
 
         try {
 
-            addPrecedentDegree(degree, precedentDegree);
-
+            if (!degree.getCode().equalsIgnoreCase(precedentDegree.getCode())) {
+                addPrecedentDegree(degree, precedentDegree);
+            } else {
+                addErrorMessage(ULisboaSpecificationsUtil.bundle("error.DegreePrecedences.degree.and.precedent.degree.with.same.code"), model);
+            }
+            
             return "redirect:" + VIEW_URL + "/" + degree.getExternalId();
+
         } catch (final DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
         }
@@ -112,14 +119,14 @@ public class DegreesPrecedenceController extends FenixeduUlisboaSpecificationsBa
     @RequestMapping(value = _REMOVE_DEGREE_URI + "/{degreeId}", method = RequestMethod.POST)
     public String removedegree(@PathVariable("degreeId") final Degree degree,
             @RequestParam("degreeToRemoveId") final Degree degreeToRemove, final Model model) {
-        
+
         try {
             removePrecedentDegree(degree, degreeToRemove);
             return "redirect:" + VIEW_URL + "/" + degree.getExternalId();
-        } catch(final DomainException e) {
+        } catch (final DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
         }
-        
+
         return view(degreeToRemove, model);
     }
 

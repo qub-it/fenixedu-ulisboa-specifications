@@ -61,7 +61,7 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         setDislocatedResidenceType(null);
         setFirstOptionInstitution(null);
         setSecondNationality(null);
-
+        
         deleteDomainObject();
     }
 

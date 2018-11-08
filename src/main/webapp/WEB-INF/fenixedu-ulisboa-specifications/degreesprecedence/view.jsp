@@ -63,6 +63,20 @@ ${portal.angularToolkit()}
 	</a>
 </div>
 
+
+<c:if test="${not empty errorMessages}">
+	<div class="alert alert-danger" role="alert">
+
+		<c:forEach items="${errorMessages}" var="message">
+			<p>
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">&nbsp;</span>
+				${message}
+			</p>
+		</c:forEach>
+
+	</div>
+</c:if>
+
 <div class="modal fade" id="deleteModal">
 	<div class="modal-dialog">
 		<div class="modal-content">
