@@ -31,7 +31,7 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.visualizer",
                 defaultValue = "/academicAdminOffice/student/registration/curriculumGradeCalculator.jsp")
         public String getCurriculumGradeCalculatorVisualizer();
-        
+
         @ConfigurationProperty(key = "domain.academic.curriculumGradeCalculator.override",
                 defaultValue = "org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator")
         public String getCurriculumGradeCalculator();
@@ -71,16 +71,12 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "services.sas.activeStudents.threadNumber", defaultValue = "20")
         public Integer getActiveStudentsThreadNumber();
 
-        @ConfigurationProperty(key = "cas.login.strategy",
-                defaultValue = "org.fenixedu.ulisboa.specifications.service.cas.DefaultTicketValidationStrategy")
-        public String getCasLoginStrategy();
-
         @ConfigurationProperty(key = "executionCourse.more.funcs", defaultValue = "false")
         public Boolean getShowAllExecutionCourseFuncs();
 
         @ConfigurationProperty(key = "support.active", defaultValue = "true")
         public Boolean getSupportActive();
-        
+
         @ConfigurationProperty(key = "support.accessExpression", defaultValue = "anyone")
         public String getSupportAccessControlExpression();
 
@@ -92,8 +88,9 @@ public class ULisboaConfiguration {
 
         @ConfigurationProperty(key = "ldap.integration.sendHashedPassword", defaultValue = "true")
         public Boolean getSendHashedPassword();
-        
-        @ConfigurationProperty(key = "domain.academic.student.enrolment.automaticSchoolClassEnrolmentMethod", defaultValue = "FILL_FIRST")
+
+        @ConfigurationProperty(key = "domain.academic.student.enrolment.automaticSchoolClassEnrolmentMethod",
+                defaultValue = "FILL_FIRST")
         public String getAutomaticSchoolClassEnrolmentMethod();
     }
 
