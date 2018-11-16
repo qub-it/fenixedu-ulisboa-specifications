@@ -1,5 +1,7 @@
 package org.fenixedu.ulisboa.specifications.service.report.registrationhistory;
 
+import static org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices.getRegistrationData;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -63,6 +65,8 @@ public class RegistrationHistoryReportService {
     private Set<ExecutionYear> graduatedExecutionYears = Sets.newHashSet();
     private LocalDate graduationPeriodStartDate;
     private LocalDate graduationPeriodEndDate;
+    
+    private Boolean registrationStateSetInExecutionYear;
     
     private List<Integer> getStudentNumbers() {
         final List<Integer> result = Lists.newArrayList();
@@ -163,6 +167,10 @@ public class RegistrationHistoryReportService {
 
     public void filterProgramConclusions(Set<ProgramConclusion> programConclusions) {
         this.programConclusionsToFilter.addAll(programConclusions);
+    }
+    
+    public void filterRegistrationStateSetInExecutionYear(final Boolean input) {
+        this.registrationStateSetInExecutionYear = input;
     }
 
     public Collection<RegistrationHistoryReport> generateReport() {
@@ -287,7 +295,18 @@ public class RegistrationHistoryReportService {
         if (!this.graduatedExecutionYears.isEmpty()) {
             result = result.and(graduatedFilter);
         }
+        
+        if(this.withEnrolments != null && !this.withEnrolments) {
+            final Predicate<RegistrationHistoryReport> noEnrolmentsFilter = r -> r.getRegistration().getEnrolments(r.getExecutionYear()).isEmpty() ||  
+                    isAllAnnuledEnrolments(r.getRegistration(), r.getExecutionYear());
+            result = result.and(noEnrolmentsFilter);
+        }
 
+        if(this.registrationStateSetInExecutionYear != null && this.registrationStateSetInExecutionYear && !this.registrationStateTypes.isEmpty()) {
+            final Predicate<RegistrationHistoryReport> registrationStateSetInExecutionYear = r -> ExecutionYear.readByDateTime(r.getLastRegistrationState().getStateDateTime()) == r.getExecutionYear();
+            result = result.and(registrationStateSetInExecutionYear);
+        }
+        
         return result;
     }
 
@@ -308,6 +327,10 @@ public class RegistrationHistoryReportService {
 
                 .collect(Collectors.toSet());
     }
+    
+    private boolean isAllAnnuledEnrolments(final Registration r, final ExecutionYear executionYear) {
+        return r.getEnrolments(executionYear).stream().allMatch(e -> e.isAnnulled());
+    }
 
     private Set<Registration> buildSearchUniverse(final ExecutionYear executionYear) {
 
@@ -318,7 +341,8 @@ public class RegistrationHistoryReportService {
 
         if (this.dismissalsOnly != null && this.dismissalsOnly.booleanValue()) {
             result.addAll(executionYear.getExecutionPeriodsSet().stream().flatMap(ep -> ep.getCreditsSet().stream())
-                    .map(c -> c.getStudentCurricularPlan().getRegistration()).filter(studentNumberFilter)
+                    .map(c -> c.getStudentCurricularPlan().getRegistration())
+                    .filter(studentNumberFilter)
                     .collect(Collectors.toSet()));
         }
 
@@ -328,7 +352,7 @@ public class RegistrationHistoryReportService {
                     .filter(studentNumberFilter).collect(Collectors.toSet()));
         }
 
-        final boolean withEnrolments = this.withEnrolments != null & this.withEnrolments.booleanValue();
+        final boolean withEnrolments = this.withEnrolments != null && this.withEnrolments.booleanValue();
 
         if (withEnrolments) {
             Stream<Enrolment> stream = executionYear.getExecutionPeriodsSet().stream()
@@ -342,10 +366,13 @@ public class RegistrationHistoryReportService {
                 stream = stream.filter(enrolment -> enrolment.getRegistration().getRegistrationYear() == executionYear);
             }
 
-            result.addAll(stream.map(enrolment -> enrolment.getRegistration()).filter(studentNumberFilter).filter(
-                    registration -> RegistrationDataServices.getRegistrationData(registration, executionYear) != null)
-                    .collect(Collectors.toSet()));
-
+            // @formatter:off
+            result.addAll(stream.map(enrolment -> enrolment.getRegistration())
+                        .filter(studentNumberFilter)
+                        .filter(reg -> getRegistrationData(reg, executionYear) != null)
+                        .collect(Collectors.toSet()));
+            // @formatter:on
+    
         } else if (this.firstTimeOnly != null && this.firstTimeOnly) {
             result.addAll(
                     executionYear.getStudentsSet().stream().filter(studentNumberFilter).collect(Collectors.toSet()));
@@ -353,11 +380,13 @@ public class RegistrationHistoryReportService {
 
             result.addAll(Bennu.getInstance().getRegistrationStatesSet().stream()
                     .filter(s -> this.registrationStateTypes.contains(s.getStateType()))
-                    .filter(s -> filterByRegistrationStateType(s, executionYear))
                     .map(s -> s.getRegistration())
-                    .filter(studentNumberFilter).collect(Collectors.toSet()));
+                    .filter(studentNumberFilter)
+                    .collect(Collectors.toSet()));
 
-        } else {
+        }
+        
+        if(result.isEmpty()) {
             throw new ULisboaSpecificationsDomainException("error.RegistrationHistoryReportService.insufficient.search.parameters");
         }
 
@@ -400,16 +429,6 @@ public class RegistrationHistoryReportService {
         return false;
     }
     
-    private boolean filterByRegistrationStateType(final RegistrationState s, final ExecutionYear executionYear) {
-        if(isRegistrationStateActive(s)) {
-            return s.getExecutionYear().isBeforeOrEquals(executionYear);
-        } else if(isRegistrationStateConcluded(s)) {
-            return isRegistrationConcludedInExecutionYear(s.getRegistration(), executionYear);
-        } else {
-            return s.getExecutionYear() == executionYear;
-        }
-    }
-
     private RegistrationHistoryReport buildReport(final Registration registration, final ExecutionYear executionYear,
             final Set<ProgramConclusion> programConclusionsToReport) {
 

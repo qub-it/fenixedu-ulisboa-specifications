@@ -48,6 +48,8 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private LocalDate graduationPeriodEndDate;
     private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
+    private Boolean registrationStateSetInExecutionYear;
+    
     private List<TupleDataSourceBean> executionYearsDataSource;
     private List<TupleDataSourceBean> degreeTypesDataSource;
     private List<TupleDataSourceBean> degreesDataSource;
@@ -199,7 +201,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     }
     
     public Boolean getFilterWithAnnuledEnrolments() {
-    	return withAnnuledEnrolments;
+        return withAnnuledEnrolments;
     }
 
     public Boolean getDismissalsOnly() {
@@ -295,6 +297,14 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     public void setStudentNumber(Integer studentNumber) {
         this.studentNumber = studentNumber;
+    }
+    
+    public Boolean getRegistrationStateSetInExecutionYear() {
+        return registrationStateSetInExecutionYear;
+    }
+    
+    public void setRegistrationStateSetInExecutionYear(Boolean registrationStateSetInExecutionYear) {
+        this.registrationStateSetInExecutionYear = registrationStateSetInExecutionYear;
     }
 
 }

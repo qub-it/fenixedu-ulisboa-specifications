@@ -96,7 +96,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
     @RequestMapping(value = "/search")
     public String search(final Model model, final RedirectAttributes redirectAttributes) {
-        setParametersBean(new RegistrationHistoryReportParametersBean(), model);
+        final RegistrationHistoryReportParametersBean bean = new RegistrationHistoryReportParametersBean();
+        bean.setRegistrationStateSetInExecutionYear(true);
+        
+        setParametersBean(bean, model);
         return jspPage("registrationhistoryreport");
     }
 
@@ -228,6 +231,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterGraduationPeriodEndDate(bean.getGraduationPeriodEndDate());
         service.filterProgramConclusions(bean.getProgramConclusions());
 
+        service.filterRegistrationStateSetInExecutionYear(bean.getRegistrationStateSetInExecutionYear());
+        
         return service.generateReport().stream().sorted().collect(Collectors.toList());
     }
 
