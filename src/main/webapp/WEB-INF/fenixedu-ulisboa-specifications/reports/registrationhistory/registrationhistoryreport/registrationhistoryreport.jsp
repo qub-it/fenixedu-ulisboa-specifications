@@ -429,6 +429,13 @@ ${portal.angularToolkit()}
 				<div class="col-sm-1" >
 					<input type="checkbox" name="registrationStateSetInExecutionYear" ng-model="object.registrationStateSetInExecutionYear">
 				</div>
+				
+				<div class="col-sm-2 control-label">
+					<spring:message code="label.RegistrationHistoryReportParametersBean.registrationStateLastInExecutionYear" />
+				</div>
+				<div class="col-sm-1" >
+					<input type="checkbox" name="registrationStateLastInExecutionYear" ng-model="object.registrationStateLastInExecutionYear">
+				</div>
 			</div>
 
 			<div class="form-group row">

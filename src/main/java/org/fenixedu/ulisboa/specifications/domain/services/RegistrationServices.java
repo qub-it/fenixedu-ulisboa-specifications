@@ -63,6 +63,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -209,6 +210,47 @@ public class RegistrationServices {
             }
         }
 
+        return result;
+    }
+    
+    public static List<RegistrationStateBean> getAllLastRegistrationStates(final Registration registration, final ExecutionYear year) {
+        final List<RegistrationStateBean> result = Lists.newArrayList();
+
+        {
+            RegistrationStateBean conclusionResult = null;
+            
+            final RegistrationDataByExecutionYear data = RegistrationDataServices.getRegistrationData(registration, year);
+            if (registration.isConcluded() && data == RegistrationDataServices.getLastRegistrationData(registration)) {
+    
+                ExecutionYear conclusionYear = null;
+                YearMonthDay conclusionDate = null;
+                try {
+    
+                    final ProgramConclusion conclusion =
+                            ProgramConclusion.conclusionsFor(registration).filter(i -> i.isTerminal()).findFirst().get();
+    
+                    final RegistrationConclusionBean bean = new RegistrationConclusionBean(registration, conclusion);
+                    conclusionYear = bean.getConclusionYear();
+                    conclusionDate = bean.getConclusionDate();
+                } catch (final Throwable t) {
+                    logger.error("Error trying to determine ConclusionYear: {}#{}", data.toString(), t.getMessage());
+                }
+    
+                // ATTENTION: conclusion state year != conclusion year
+                if (conclusionYear != null && year.isAfterOrEquals(conclusionYear)) {
+                    conclusionResult = new RegistrationStateBean(RegistrationStateType.CONCLUDED);
+                    conclusionResult.setStateDate(conclusionDate);
+                }
+            }
+        }
+
+        result.addAll(registration.getRegistrationStates(year).stream().map(s -> {
+            final RegistrationStateBean bean = new RegistrationStateBean(s.getStateType());
+            bean.setStateDateTime(s.getStateDate());
+            
+            return bean;
+        }).collect(Collectors.toSet()));
+        
         return result;
     }
 

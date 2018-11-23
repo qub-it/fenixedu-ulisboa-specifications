@@ -49,6 +49,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
     private Boolean registrationStateSetInExecutionYear;
+    private Boolean registrationStateLastInExecutionYear;
     
     private List<TupleDataSourceBean> executionYearsDataSource;
     private List<TupleDataSourceBean> degreeTypesDataSource;
@@ -305,6 +306,14 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     
     public void setRegistrationStateSetInExecutionYear(Boolean registrationStateSetInExecutionYear) {
         this.registrationStateSetInExecutionYear = registrationStateSetInExecutionYear;
+    }
+    
+    public Boolean getRegistrationStateLastInExecutionYear() {
+        return registrationStateLastInExecutionYear;
+    }
+    
+    public void setRegistrationStateLastInExecutionYear(Boolean registrationStateLastInExecutionYear) {
+        this.registrationStateLastInExecutionYear = registrationStateLastInExecutionYear;
     }
 
 }

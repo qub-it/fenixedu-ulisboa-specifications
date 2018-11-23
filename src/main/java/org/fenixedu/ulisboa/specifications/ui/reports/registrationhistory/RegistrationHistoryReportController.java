@@ -232,6 +232,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterProgramConclusions(bean.getProgramConclusions());
 
         service.filterRegistrationStateSetInExecutionYear(bean.getRegistrationStateSetInExecutionYear());
+        service.filterRegistrationStateLastInExecutionYear(bean.getRegistrationStateLastInExecutionYear());
         
         return service.generateReport().stream().sorted().collect(Collectors.toList());
     }

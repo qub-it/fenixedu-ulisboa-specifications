@@ -30,11 +30,11 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.struts.annotations.Input;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
@@ -67,6 +67,7 @@ public class RegistrationHistoryReportService {
     private LocalDate graduationPeriodEndDate;
     
     private Boolean registrationStateSetInExecutionYear;
+    private Boolean registrationStateLastInExecutionYear;
     
     private List<Integer> getStudentNumbers() {
         final List<Integer> result = Lists.newArrayList();
@@ -171,6 +172,10 @@ public class RegistrationHistoryReportService {
     
     public void filterRegistrationStateSetInExecutionYear(final Boolean input) {
         this.registrationStateSetInExecutionYear = input;
+    }
+    
+    public void filterRegistrationStateLastInExecutionYear(final Boolean input) {
+        this.registrationStateLastInExecutionYear = input;
     }
 
     public Collection<RegistrationHistoryReport> generateReport() {
@@ -285,10 +290,26 @@ public class RegistrationHistoryReportService {
             result = result.and(statuteTypeFilter);
         }
 
-        final Predicate<RegistrationHistoryReport> lastStateFilter = r -> r.getLastRegistrationState() != null
-                && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
         if (!this.registrationStateTypes.isEmpty()) {
+            Predicate<RegistrationHistoryReport> lastStateFilter = null;
+            
+            if(this.registrationStateLastInExecutionYear != null && this.registrationStateLastInExecutionYear) {
+                lastStateFilter = r -> r.getLastRegistrationState() != null
+                        && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
+            } else {
+                lastStateFilter = r -> !Sets.intersection(this.registrationStateTypes, r.getAllLastRegistrationStates().stream().map(b -> b.getStateType()).collect(Collectors.toSet())).isEmpty();
+            }
+            
             result = result.and(lastStateFilter);
+
+            if(this.registrationStateSetInExecutionYear != null && this.registrationStateSetInExecutionYear) {
+                
+                final Predicate<RegistrationHistoryReport> registrationStateFilter = r -> r.getAllLastRegistrationStates().stream()
+                        .filter(b -> ExecutionYear.readByDateTime(b.getStateDate().toLocalDate().toDateTimeAtStartOfDay()) == r.getExecutionYear())
+                        .anyMatch(b ->  this.registrationStateTypes.contains(b.getStateType()));
+
+                result = result.and(registrationStateFilter);
+            }
         }
 
         final Predicate<RegistrationHistoryReport> graduatedFilter = filterGraduated();
@@ -296,18 +317,56 @@ public class RegistrationHistoryReportService {
             result = result.and(graduatedFilter);
         }
         
-        if(this.withEnrolments != null && !this.withEnrolments) {
-            final Predicate<RegistrationHistoryReport> noEnrolmentsFilter = r -> r.getRegistration().getEnrolments(r.getExecutionYear()).isEmpty() ||  
-                    isAllAnnuledEnrolments(r.getRegistration(), r.getExecutionYear());
-            result = result.and(noEnrolmentsFilter);
+        if(this.withEnrolments != null) {
+            if(this.withEnrolments) {
+                final Predicate<RegistrationHistoryReport> withEnrolmentsFilter = r -> hasActiveEnrolments(r);
+                result = result.and(withEnrolmentsFilter);
+            } else {
+                final Predicate<RegistrationHistoryReport> noEnrolmentsFilter = r -> this.withAnnuledEnrolments != null && this.withAnnuledEnrolments ? 
+                        hasAllAnnuledEnrolments(r) : hasNoEnrolments(r);
+                result = result.and(noEnrolmentsFilter);
+            }
         }
 
-        if(this.registrationStateSetInExecutionYear != null && this.registrationStateSetInExecutionYear && !this.registrationStateTypes.isEmpty()) {
-            final Predicate<RegistrationHistoryReport> registrationStateSetInExecutionYear = r -> ExecutionYear.readByDateTime(r.getLastRegistrationState().getStateDateTime()) == r.getExecutionYear();
-            result = result.and(registrationStateSetInExecutionYear);
+        if(!this.registrationStateTypes.isEmpty()) {
         }
         
         return result;
+    }
+    
+    private boolean hasActiveEnrolments(final RegistrationHistoryReport report) {
+        final ExecutionYear executionYear = report.getExecutionYear();
+        final Registration registration = report.getRegistration();
+        
+        if (this.dismissalsOnly != null && this.dismissalsOnly.booleanValue()) {
+            boolean hasDismissal = executionYear.getExecutionPeriodsSet().stream().flatMap(ep -> ep.getCreditsSet().stream())
+                    .map(c -> c.getStudentCurricularPlan().getRegistration())
+                    .anyMatch(r -> r == registration);
+            
+            if(hasDismissal) {
+                return true;
+            }
+        }
+        
+        if (this.improvementEnrolmentsOnly != null && this.improvementEnrolmentsOnly.booleanValue()) {
+            boolean hasImprovement = executionYear.getExecutionPeriodsSet().stream()
+                    .flatMap(e -> e.getEnrolmentEvaluationsSet().stream().map(ev -> ev.getRegistration()))
+                    .anyMatch(r -> r == registration);
+            
+            if(hasImprovement) {
+                return true;
+            }
+        }
+        
+        return report.getEnrolmentsIncludingAnnuled().stream().anyMatch(e -> this.withAnnuledEnrolments || !e.isAnnulled());
+    }
+
+    private boolean hasAllAnnuledEnrolments(final RegistrationHistoryReport report) {
+        return !report.getEnrolmentsIncludingAnnuled().isEmpty() && isAllAnnuledEnrolments(report);
+    }
+
+    private boolean hasNoEnrolments(final RegistrationHistoryReport report) {
+        return report.getEnrolments().isEmpty() ||  isAllAnnuledEnrolments(report);
     }
 
     private Collection<RegistrationHistoryReport> process(final ExecutionYear executionYear,
@@ -328,8 +387,8 @@ public class RegistrationHistoryReportService {
                 .collect(Collectors.toSet());
     }
     
-    private boolean isAllAnnuledEnrolments(final Registration r, final ExecutionYear executionYear) {
-        return r.getEnrolments(executionYear).stream().allMatch(e -> e.isAnnulled());
+    private boolean isAllAnnuledEnrolments(final RegistrationHistoryReport report) {
+        return report.getEnrolments().stream().allMatch(e -> e.isAnnulled());
     }
 
     private Set<Registration> buildSearchUniverse(final ExecutionYear executionYear) {
@@ -354,7 +413,7 @@ public class RegistrationHistoryReportService {
 
         final boolean withEnrolments = this.withEnrolments != null && this.withEnrolments.booleanValue();
 
-        if (withEnrolments) {
+        if (this.withEnrolments == null || withEnrolments) {
             Stream<Enrolment> stream = executionYear.getExecutionPeriodsSet().stream()
                     .flatMap(semester -> semester.getEnrolmentsSet().stream());
 
@@ -373,10 +432,29 @@ public class RegistrationHistoryReportService {
                         .collect(Collectors.toSet()));
             // @formatter:on
     
-        } else if (this.firstTimeOnly != null && this.firstTimeOnly) {
+        } else if(!this.withEnrolments && this.withAnnuledEnrolments) {
+            Stream<Enrolment> stream = executionYear.getExecutionPeriodsSet().stream()
+                    .flatMap(semester -> semester.getEnrolmentsSet().stream());
+
+            stream = stream.filter(e -> e.isAnnulled());
+
+            if (this.firstTimeOnly != null && this.firstTimeOnly) {
+                stream = stream.filter(enrolment -> enrolment.getRegistration().getRegistrationYear() == executionYear);
+            }
+
+            // @formatter:off
+            result.addAll(stream.map(enrolment -> enrolment.getRegistration())
+                        .filter(studentNumberFilter)
+                        .collect(Collectors.toSet()));
+            // @formatter:on
+        }
+        
+        if (this.firstTimeOnly != null && this.firstTimeOnly) {
             result.addAll(
                     executionYear.getStudentsSet().stream().filter(studentNumberFilter).collect(Collectors.toSet()));
-        } else if (this.registrationStateTypes != null && !this.registrationStateTypes.isEmpty()) {
+        } 
+        
+        if (this.registrationStateTypes != null && !this.registrationStateTypes.isEmpty()) {
 
             result.addAll(Bennu.getInstance().getRegistrationStatesSet().stream()
                     .filter(s -> this.registrationStateTypes.contains(s.getStateType()))
