@@ -33,7 +33,8 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Set<RegistrationStateType> registrationStateTypes = Sets.newHashSet();
     private Set<StatuteType> statuteTypes = Sets.newHashSet();
     private Boolean firstTimeOnly;
-    private Boolean withEnrolments = Boolean.FALSE;
+    private Boolean withEnrolments;
+    private Boolean withAnnuledEnrolments = Boolean.FALSE;
     private Boolean dismissalsOnly;
     private Boolean improvementEnrolmentsOnly;
     private Boolean exportQualificationAndOriginInfo = Boolean.FALSE;
@@ -47,6 +48,9 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private LocalDate graduationPeriodEndDate;
     private Set<ProgramConclusion> programConclusions = Sets.newHashSet();
 
+    private Boolean registrationStateSetInExecutionYear;
+    private Boolean registrationStateLastInExecutionYear;
+    
     private List<TupleDataSourceBean> executionYearsDataSource;
     private List<TupleDataSourceBean> degreeTypesDataSource;
     private List<TupleDataSourceBean> degreesDataSource;
@@ -196,6 +200,10 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     public Boolean getFilterWithEnrolments() {
         return withEnrolments;
     }
+    
+    public Boolean getFilterWithAnnuledEnrolments() {
+        return withAnnuledEnrolments;
+    }
 
     public Boolean getDismissalsOnly() {
         return dismissalsOnly;
@@ -290,6 +298,26 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     public void setStudentNumber(Integer studentNumber) {
         this.studentNumber = studentNumber;
+    }
+    
+    public Boolean getRegistrationStateSetInExecutionYear() {
+        return registrationStateSetInExecutionYear;
+    }
+    
+    public void setRegistrationStateSetInExecutionYear(Boolean registrationStateSetInExecutionYear) {
+        this.registrationStateSetInExecutionYear = registrationStateSetInExecutionYear;
+    }
+    
+    public Boolean getRegistrationStateLastInExecutionYear() {
+        return registrationStateLastInExecutionYear;
+    }
+    
+    public void setRegistrationStateLastInExecutionYear(Boolean registrationStateLastInExecutionYear) {
+        this.registrationStateLastInExecutionYear = registrationStateLastInExecutionYear;
+    }
+    
+    public void setWithEnrolments(Boolean withEnrolments) {
+        this.withEnrolments = withEnrolments;
     }
 
 }

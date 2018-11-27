@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.service.report.registrationhistory;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalCurriculumGroup;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.ITuitionTreasuryEvent;
@@ -118,12 +120,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         this.executionYear = executionYear;
         this.registration = registration;
 
-        if (getStudentCurricularPlan() == null) {
-
-            throw new ULisboaSpecificationsDomainException(
-                    "error.RegistrationHistoryReport.found.registration.without.student.curricular.plan",
-                    getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
+        if(getRegistration().getRegistrationYear().isAfter(executionYear)) {
+        	throw new ULisboaSpecificationsDomainException(
+        			"error.RegistrationHistoryReport.registration.starts.after.executionYear", 
+        			getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
         }
+        
     }
 
     @Override
@@ -178,6 +180,16 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         }
 
         return this.enrolments;
+    }
+
+    Collection<Enrolment> getEnrolmentsIncludingAnnuled() {
+
+        final StudentCurricularPlan scp = getStudentCurricularPlan();
+        if (scp != null) {
+            return scp.getEnrolmentsByExecutionYear(getExecutionYear());
+        }
+
+        return Collections.emptySet();
     }
 
     public StudentCurricularPlan getStudentCurricularPlan() {
@@ -292,6 +304,10 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         }
 
         return lastRegistrationState;
+    }
+    
+    public List<RegistrationStateBean> getAllLastRegistrationStates() {
+        return RegistrationServices.getAllLastRegistrationStates(registration, executionYear);
     }
 
     public String getLastRegistrationStateType() {
