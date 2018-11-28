@@ -66,6 +66,7 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -80,6 +81,7 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByE
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
+import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -1050,7 +1052,18 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             vaccinationValidity = personUl.getVaccinationValidity().toString("dd-MM-yyyy");
         }
 
-        String curricularYear = "" + studentCandidacy.getRegistration().getCurricularYear(executionYear);
+        String curricularYear = "";
+        StudentCurricularPlan scpForCurricularYear =
+                RegistrationServices.getStudentCurricularPlan(studentCandidacy.getRegistration(), executionYear);
+        if (scpForCurricularYear != null) {
+            Curriculum cForCurricularYear = scpForCurricularYear.getCurriculum(new DateTime(), executionYear);
+            if (cForCurricularYear != null) {
+                Integer curricularYearValue = cForCurricularYear.getCurricularYear();
+                if (curricularYearValue != null) {
+                    curricularYear += curricularYearValue;
+                }
+            }
+        }
 
         String precendentDegreeCycle = "";
         if (precedentSchoolLevel.contains("Bacharelato") || precedentSchoolLevel.contains("Licenciatura")) {

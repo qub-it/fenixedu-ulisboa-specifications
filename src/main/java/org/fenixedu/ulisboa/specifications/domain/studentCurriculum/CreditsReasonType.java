@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
@@ -15,12 +16,14 @@ import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
+import com.github.dandelion.core.utils.StringUtils;
 import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
@@ -223,7 +226,13 @@ public class CreditsReasonType extends CreditsReasonType_Base {
             }
 
             if (countryUnit != null) {
-                result.append(countryUnit.getNameI18n(), ", ");
+                String countryTwoLetters = countryUnit.getAcronym();
+                Country country = Country.readByTwoLetterCode(countryTwoLetters);
+                if (country != null) {
+                    result.append(country.getLocalizedName(), ", ");
+                } else {
+                    result.append(countryUnit.getNameI18n(), ", ");
+                }
             }
         }
 
@@ -231,7 +240,18 @@ public class CreditsReasonType extends CreditsReasonType_Base {
         if (getInfoExplainedWithInstitution()) {
             institutionUnit = external.getAcademicUnit();
             if (institutionUnit != null) {
-                result.append(institutionUnit.getNameI18n(), countryUnit != null ? " > " : ", ");
+                //TODO: remove when its possible to edit external unit name as localized name
+                LocalizedString institutionUnitName = new LocalizedString();
+                for (Locale locale : CoreConfiguration.supportedLocales()) {
+                    String value = institutionUnit.getNameI18n().getContent(locale);
+                    if (StringUtils.isBlank(value)) {
+                        value = institutionUnit.getNameI18n()
+                                .getContent(Locale.forLanguageTag(CoreConfiguration.getConfiguration().defaultLocale()));
+                    }
+                    institutionUnitName = institutionUnitName.with(locale, value);
+                }
+
+                result.append(institutionUnitName, countryUnit != null ? " > " : ", ");
             }
         }
 
@@ -243,7 +263,7 @@ public class CreditsReasonType extends CreditsReasonType_Base {
     private void addECTS(final Builder result, final ICurriculumEntry entry) {
         final BigDecimal ects = entry.getEctsCreditsForCurriculum();
         if (getInfoExplainedWithEcts() && ects != null && ects.compareTo(BigDecimal.ZERO) > 0) {
-            result.append(String.format(" [%s ECTS]", ects));
+            result.append(ULisboaSpecificationsUtil.bundleI18N("info.CreditsReasonType.explained.ects", "" + ects));
         }
     }
 
