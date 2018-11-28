@@ -28,6 +28,9 @@
 
 package org.fenixedu.ulisboa.specifications.service.reports;
 
+import java.util.Locale;
+
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -39,6 +42,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.StringNormalizer;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ActiveEnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ApprovedCurriculumEntriesDataProvider;
@@ -306,8 +310,14 @@ public class DocumentPrinter {
             result.append("-");
             result.append(new DateTime().toString("yyyMMMdd", serviceRequest.getLanguage()));
             result.append("-");
-            result.append(
-                    serviceRequest.getServiceRequestType().getName().getContent(serviceRequest.getLanguage()).replace(":", ""));
+            //Some SRT don't have name in all languages
+            LocalizedString nameLoc = serviceRequest.getServiceRequestType().getName();
+            String name = nameLoc.getContent(serviceRequest.getLanguage());
+            if (StringUtils.isBlank(name)) {
+                name = nameLoc.getContent(Locale.forLanguageTag(CoreConfiguration.getConfiguration().defaultLocale()));
+            }
+
+            result.append(name.replace(":", ""));
             result.append("-");
             result.append(serviceRequest.getLanguage().toString());
 
