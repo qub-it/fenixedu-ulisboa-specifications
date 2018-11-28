@@ -199,7 +199,7 @@ ${portal.toolkit()}
 		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'TEXT'}">
 					                    <input id="propertyValue" name="propertyValue" class="form-control" 
 					                           type="text" 
-					                           value='<c:out value='${property.defaultServiceRequestProperty.string}'/>'
+					                           value='<c:out value=' ${property.defaultServiceRequestProperty.string}'/>'
 					                    />								                        		
 									</c:if>
 		                        	<c:if test="${ property.serviceRequestSlot.uiComponentType == 'NUMBER' }">
