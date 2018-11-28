@@ -120,10 +120,11 @@ public class ULisboaConstants {
     public static final String VALIDATE_PROGRAM_CONCLUSION_PROCESSOR = "label.ValidateProgramConclusionProcessor.name";
     public static final String VALIDATE_IMPROVEMENT_ENROLMENT_PROCESSOR = "label.ValidateImprovementEnrolmentProcessor.name";
     public static final String VALIDATE_SPECIAL_SEASON_ENROLMENT_PROCESSOR = "label.ValidateSpecialSeasonEnrolmentProcessor.name";
+    public static final String VALIDATE_REQUIREMENTS_PROCESSOR = "label.ValidateRequirementsInCreationProcessor.diploma.name";
 
     /* Predicates and filtering criteria */
     public static final Predicate<Enrolment> isStandalone = e -> !e.isAnnulled() && e.isStandalone();
-    
+
     public static final Predicate<Enrolment> isExtraCurricular =
             e -> !e.isAnnulled() && (e.isExtraCurricular() || CurriculumLineServices.isAffinity(e));
 

@@ -958,6 +958,11 @@ class serviceRequests.processors.FillNotApprovedEnrolmentsPropertyProcessor exte
 
 }
 
+class serviceRequests.processors.ValidateRequirementsInCreationProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
+    String serviceRequestTypesNeeded;
+}
+
+
 class serviceRequests.processors.ValidateImprovementEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
     String curricularEntriesPropertyName;    
 }

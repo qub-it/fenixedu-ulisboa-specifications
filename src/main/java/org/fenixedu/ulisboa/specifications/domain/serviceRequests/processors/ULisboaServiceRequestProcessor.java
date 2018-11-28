@@ -12,6 +12,8 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
+import com.google.common.collect.Sets;
+
 import pt.ist.fenixframework.Atomic;
 
 public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceRequestProcessor_Base {
@@ -189,6 +191,17 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
                 .count() == 0) {
             FillNotApprovedEnrolmentsPropertyProcessor.create(BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE,
                     ULisboaConstants.FILL_FLUNKED_ENROLMENTS_PROPERTY_PROCESSOR), Boolean.FALSE);
+        }
+
+        if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_REQUIREMENTS_PROCESSOR))
+                .count() == 0) {
+            ValidateRequirementsInCreationProcessor validator =
+                    (ValidateRequirementsInCreationProcessor) ValidateRequirementsInCreationProcessor.create(BundleUtil
+                            .getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.VALIDATE_REQUIREMENTS_PROCESSOR),
+                            Boolean.FALSE);
+            validator.addServiceRequestTypeNeeded(Sets.newHashSet("UL_CERT_REGISTO_2VIA", "REGISTRY_DIPLOMA_REQUEST",
+                    "PRE_FENIX_REGISTRY_DIPLOMA_REQUEST", "LEGACY_REGISTRY_DIPLOMA_REQUEST_REGISTRY_DIPLOMA_REQUEST",
+                    "LEGACY_DOCUMENT_REGISTRY_CERTIFICATE_DUPLICATE"));
         }
 
     }
