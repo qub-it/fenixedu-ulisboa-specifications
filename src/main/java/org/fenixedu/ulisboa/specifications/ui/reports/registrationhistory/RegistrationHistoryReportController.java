@@ -236,13 +236,86 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         
         return service.generateReport().stream().sorted().collect(Collectors.toList());
     }
+    
+    private abstract class HistoryReportSheetData<T> extends SheetData<T> {
+
+        public HistoryReportSheetData(Iterable<T> items) {
+            super(items);
+        }
+
+        void addPersonalData(final RegistrationHistoryReportParametersBean bean,
+                final RegistrationHistoryReport report) {
+
+            if (bean.getExportPersonalInfo()) {
+
+                addData("Person.idDocumentType", report.getIdDocumentType());
+                addData("Person.idDocumentNumber", report.getDocumentIdNumber());
+                addData("Person.gender", report.getGender());
+                addData("Person.dateOfBirth", report.getDateOfBirthYearMonthDay());
+                addData("Person.nameOfFather", report.getNameOfFather());
+                addData("Person.nameOfMother", report.getNameOfMother());
+                addData("Person.nationality", report.getNationality());
+                addData("Person.countryOfBirth", report.getCountryOfBirth());
+                addData("Person.socialSecurityNumber", report.getFiscalNumber());
+                addData("Person.districtOfBirth", report.getDistrictOfBirth());
+                addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
+                addData("Person.parishOfBirth", report.getParishOfBirth());
+                addData("Person.iban", report.getIban());
+                // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
+            }
+        }
+
+        void addContactsData(final RegistrationHistoryReportParametersBean bean,
+                final RegistrationHistoryReport report) {
+
+            if (bean.getExportContacts()) {
+
+                addData("Person.defaultEmailAddress", report.getDefaultEmailAddressValue());
+                addData("Person.institutionalEmailAddress", report.getInstitutionalEmailAddressValue());
+                addData("Person.otherEmailAddresses", report.getOtherEmailAddresses());
+                addData("Person.defaultPhone", report.getDefaultPhoneNumber());
+                addData("Person.defaultMobilePhone", report.getDefaultMobilePhoneNumber());
+
+                if (report.hasDefaultPhysicalAddress()) {
+                    addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
+                    addData("PhysicalAddress.districtOfResidence",
+                            report.getDefaultPhysicalAddressDistrictOfResidence());
+                    addData("PhysicalAddress.districtSubdivisionOfResidence",
+                            report.getDefaultPhysicalAddressDistrictSubdivisionOfResidence());
+                    addData("PhysicalAddress.parishOfResidence", report.getDefaultPhysicalAddressParishOfResidence());
+                    addData("PhysicalAddress.area", report.getDefaultPhysicalAddressArea());
+                    addData("PhysicalAddress.areaCode", report.getDefaultPhysicalAddressAreaCode());
+                    addData("PhysicalAddress.areaOfAreaCode", report.getDefaultPhysicalAddressAreaOfAreaCode());
+                    addData("PhysicalAddress.countryOfResidence",
+                            report.getDefaultPhysicalAddressCountryOfResidenceName());
+                }
+            }
+        }
+
+        void addData(final String key, final Object value) {
+            addCell(bundle("label." + key), value == null ? "" : value);
+        }
+
+        void addData(final String key, final Boolean value) {
+            addCell(bundle("label." + key), value == null ? "" : booleanString(value));
+        }
+
+        void addData(final String key, final boolean value) {
+            addCell(bundle("label." + key), booleanString(value));
+        }
+
+        String booleanString(final boolean value) {
+            return value ? bundle("label.yes") : bundle("label.no");
+        }
+        
+    }
 
     private byte[] exportRegistrationsToXLS(final RegistrationHistoryReportParametersBean bean) {
         final Collection<RegistrationHistoryReport> toExport = generateReport(bean);
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.students"),
-                new SheetData<RegistrationHistoryReport>(toExport) {
+                new HistoryReportSheetData<RegistrationHistoryReport>(toExport) {
 
                     @Override
                     protected void makeLine(final RegistrationHistoryReport report) {
@@ -414,70 +487,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         }
                     }
 
-                    private void addPersonalData(final RegistrationHistoryReportParametersBean bean,
-                            final RegistrationHistoryReport report) {
 
-                        if (bean.getExportPersonalInfo()) {
-
-                            addData("Person.idDocumentType", report.getIdDocumentType());
-                            addData("Person.idDocumentNumber", report.getDocumentIdNumber());
-                            addData("Person.gender", report.getGender());
-                            addData("Person.dateOfBirth", report.getDateOfBirthYearMonthDay());
-                            addData("Person.nameOfFather", report.getNameOfFather());
-                            addData("Person.nameOfMother", report.getNameOfMother());
-                            addData("Person.nationality", report.getNationality());
-                            addData("Person.countryOfBirth", report.getCountryOfBirth());
-                            addData("Person.socialSecurityNumber", report.getFiscalNumber());
-                            addData("Person.districtOfBirth", report.getDistrictOfBirth());
-                            addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
-                            addData("Person.parishOfBirth", report.getParishOfBirth());
-                            addData("Person.iban", report.getIban());
-                            // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
-                        }
-                    }
-
-                    private void addContactsData(final RegistrationHistoryReportParametersBean bean,
-                            final RegistrationHistoryReport report) {
-
-                        if (bean.getExportContacts()) {
-
-                            addData("Person.defaultEmailAddress", report.getDefaultEmailAddressValue());
-                            addData("Person.institutionalEmailAddress", report.getInstitutionalEmailAddressValue());
-                            addData("Person.otherEmailAddresses", report.getOtherEmailAddresses());
-                            addData("Person.defaultPhone", report.getDefaultPhoneNumber());
-                            addData("Person.defaultMobilePhone", report.getDefaultMobilePhoneNumber());
-
-                            if (report.hasDefaultPhysicalAddress()) {
-                                addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
-                                addData("PhysicalAddress.districtOfResidence",
-                                        report.getDefaultPhysicalAddressDistrictOfResidence());
-                                addData("PhysicalAddress.districtSubdivisionOfResidence",
-                                        report.getDefaultPhysicalAddressDistrictSubdivisionOfResidence());
-                                addData("PhysicalAddress.parishOfResidence", report.getDefaultPhysicalAddressParishOfResidence());
-                                addData("PhysicalAddress.area", report.getDefaultPhysicalAddressArea());
-                                addData("PhysicalAddress.areaCode", report.getDefaultPhysicalAddressAreaCode());
-                                addData("PhysicalAddress.areaOfAreaCode", report.getDefaultPhysicalAddressAreaOfAreaCode());
-                                addData("PhysicalAddress.countryOfResidence",
-                                        report.getDefaultPhysicalAddressCountryOfResidenceName());
-                            }
-                        }
-                    }
-
-                    private void addData(final String key, final Object value) {
-                        addCell(bundle("label." + key), value == null ? "" : value);
-                    }
-
-                    private void addData(final String key, final Boolean value) {
-                        addCell(bundle("label." + key), value == null ? "" : booleanString(value));
-                    }
-
-                    private void addData(final String key, final boolean value) {
-                        addCell(bundle("label." + key), booleanString(value));
-                    }
-
-                    private String booleanString(final boolean value) {
-                        return value ? bundle("label.yes") : bundle("label.no");
-                    }
 
                 });
 
@@ -560,7 +570,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.approvals"),
-                new SheetData<Map.Entry<ICurriculum, ICurriculumEntry>>(toExport.entries()) {
+                new HistoryReportSheetData<Map.Entry<ICurriculum, ICurriculumEntry>>(toExport.entries()) {
 
                     @Override
                     protected void makeLine(final Entry<ICurriculum, ICurriculumEntry> entry) {
@@ -629,10 +639,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 && ((Enrolment) entry).getStudentCurricularPlan() == curriculum.getStudentCurricularPlan();
                     }
 
-                    private void addData(final String key, final Object value) {
-                        addCell(bundle("label." + key), value == null ? "" : value);
-                    }
-
                 });
 
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
@@ -677,57 +683,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
         builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.enrolments"),
-                new SheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(toExportEnrolments.entries()) {
+                new HistoryReportSheetData<Map.Entry<RegistrationHistoryReport, Enrolment>>(toExportEnrolments.entries()) {
 
-                    private void addPersonalData(final RegistrationHistoryReportParametersBean bean,
-                            final RegistrationHistoryReport report) {
-        
-                        if (bean.getExportPersonalInfo()) {
-        
-                            addData("Person.idDocumentType", report.getIdDocumentType());
-                            addData("Person.idDocumentNumber", report.getDocumentIdNumber());
-                            addData("Person.gender", report.getGender());
-                            addData("Person.dateOfBirth", report.getDateOfBirthYearMonthDay());
-                            addData("Person.nameOfFather", report.getNameOfFather());
-                            addData("Person.nameOfMother", report.getNameOfMother());
-                            addData("Person.nationality", report.getNationality());
-                            addData("Person.countryOfBirth", report.getCountryOfBirth());
-                            addData("Person.socialSecurityNumber", report.getFiscalNumber());
-                            addData("Person.districtOfBirth", report.getDistrictOfBirth());
-                            addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
-                            addData("Person.parishOfBirth", report.getParishOfBirth());
-                            addData("Person.iban", report.getIban());
-                            // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
-                        }
-                    }
-        
-                    private void addContactsData(final RegistrationHistoryReportParametersBean bean,
-                            final RegistrationHistoryReport report) {
-        
-                        if (bean.getExportContacts()) {
-        
-                            addData("Person.defaultEmailAddress", report.getDefaultEmailAddressValue());
-                            addData("Person.institutionalEmailAddress", report.getInstitutionalEmailAddressValue());
-                            addData("Person.otherEmailAddresses", report.getOtherEmailAddresses());
-                            addData("Person.defaultPhone", report.getDefaultPhoneNumber());
-                            addData("Person.defaultMobilePhone", report.getDefaultMobilePhoneNumber());
-        
-                            if (report.hasDefaultPhysicalAddress()) {
-                                addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
-                                addData("PhysicalAddress.districtOfResidence",
-                                        report.getDefaultPhysicalAddressDistrictOfResidence());
-                                addData("PhysicalAddress.districtSubdivisionOfResidence",
-                                        report.getDefaultPhysicalAddressDistrictSubdivisionOfResidence());
-                                addData("PhysicalAddress.parishOfResidence", report.getDefaultPhysicalAddressParishOfResidence());
-                                addData("PhysicalAddress.area", report.getDefaultPhysicalAddressArea());
-                                addData("PhysicalAddress.areaCode", report.getDefaultPhysicalAddressAreaCode());
-                                addData("PhysicalAddress.areaOfAreaCode", report.getDefaultPhysicalAddressAreaOfAreaCode());
-                                addData("PhysicalAddress.countryOfResidence",
-                                        report.getDefaultPhysicalAddressCountryOfResidenceName());
-                            }
-                        }
-                    }
-            
                     @Override
                     protected void makeLine(final Entry<RegistrationHistoryReport, Enrolment> entry) {
                         final RegistrationHistoryReport report = entry.getKey();
@@ -780,10 +737,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         
                         addPersonalData(bean, report);
                         addContactsData(bean, report);
-                    }
-
-                    private void addData(final String key, final Object value) {
-                        addCell(bundle("label." + key), value == null ? "" : value);
                     }
 
                 });
