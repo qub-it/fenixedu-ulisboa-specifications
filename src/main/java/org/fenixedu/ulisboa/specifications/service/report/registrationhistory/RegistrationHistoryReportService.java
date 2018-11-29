@@ -322,7 +322,7 @@ public class RegistrationHistoryReportService {
                 final Predicate<RegistrationHistoryReport> withEnrolmentsFilter = r -> hasActiveEnrolments(r);
                 result = result.and(withEnrolmentsFilter);
             } else {
-                final Predicate<RegistrationHistoryReport> noEnrolmentsFilter = r -> this.withAnnuledEnrolments != null && this.withAnnuledEnrolments ? 
+                final Predicate<RegistrationHistoryReport> noEnrolmentsFilter = r -> Boolean.TRUE.equals(this.withAnnuledEnrolments) ? 
                         hasAllAnnuledEnrolments(r) : hasNoEnrolments(r);
                 result = result.and(noEnrolmentsFilter);
             }
@@ -358,7 +358,7 @@ public class RegistrationHistoryReportService {
             }
         }
         
-        return report.getEnrolmentsIncludingAnnuled().stream().anyMatch(e -> this.withAnnuledEnrolments || !e.isAnnulled());
+        return report.getEnrolmentsIncludingAnnuled().stream().anyMatch(e -> Boolean.TRUE.equals(this.withAnnuledEnrolments) || !e.isAnnulled());
     }
 
     private boolean hasAllAnnuledEnrolments(final RegistrationHistoryReport report) {
@@ -418,7 +418,7 @@ public class RegistrationHistoryReportService {
                     .flatMap(semester -> semester.getEnrolmentsSet().stream());
 
             if (withEnrolments) {
-                stream = stream.filter(e -> this.withAnnuledEnrolments || !e.isAnnulled());
+                stream = stream.filter(e -> Boolean.TRUE.equals(this.withAnnuledEnrolments) || !e.isAnnulled());
             }
 
             if (this.firstTimeOnly != null && this.firstTimeOnly) {
@@ -432,7 +432,7 @@ public class RegistrationHistoryReportService {
                         .collect(Collectors.toSet()));
             // @formatter:on
     
-        } else if(!this.withEnrolments && this.withAnnuledEnrolments) {
+        } else if(!this.withEnrolments && Boolean.TRUE.equals(this.withAnnuledEnrolments)) {
             Stream<Enrolment> stream = executionYear.getExecutionPeriodsSet().stream()
                     .flatMap(semester -> semester.getEnrolmentsSet().stream());
 
