@@ -1050,5 +1050,9 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return studentCurricularPlan.getExternalCurriculumGroups().isEmpty() ? null : studentCurricularPlan
                 .getExternalCurriculumGroups().iterator().next();
     }
+    
+    public String getIban() {
+        return getPerson().getIban();
+    }
 
 }

@@ -431,6 +431,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                             addData("Person.districtOfBirth", report.getDistrictOfBirth());
                             addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
                             addData("Person.parishOfBirth", report.getParishOfBirth());
+                            addData("Person.iban", report.getIban());
                             // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
                         }
                     }
@@ -695,6 +696,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                             addData("Person.districtOfBirth", report.getDistrictOfBirth());
                             addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
                             addData("Person.parishOfBirth", report.getParishOfBirth());
+                            addData("Person.iban", report.getIban());
                             // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
                         }
                     }
