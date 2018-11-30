@@ -342,7 +342,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.startDate", report.getStartDate());
                         addData("Registration.firstStateDate", report.getFirstRegistrationStateDate());
                         addData("Registration.registrationYear", report.getRegistrationYear());
-                        addData("Registration.researchArea", report.getResearchArea());
+                        addData("Registration.researchArea", report.getResearchArea() != null ? report.getResearchArea().getName().getContent() : "");
                         addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlanName());
                         addData("RegistrationHistoryReport.studentCurricularPlan.count", report.getStudentCurricularPlanCount());
                         addData("RegistrationHistoryReport.schoolClasses", report.getSchoolClasses());
